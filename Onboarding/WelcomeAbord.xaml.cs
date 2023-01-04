@@ -1,0 +1,128 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using System.Diagnostics;
+using Focus_Bear.Utils;
+using System.Windows.Threading;
+using Focus_Bear.Models;
+
+namespace Focus_Bear.Onboarding
+{
+   
+
+    /// <summary>
+    /// Interaction logic for WelcomeAbord.xaml
+    /// </summary>
+    public partial class WelcomeAbord : Window
+    {
+        AppSettings appSettings = AppSettings.GetInstance;
+        DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        int nPostponeTime;
+        public WelcomeAbord()
+        {
+           InitializeComponent();
+            nPostponeTime = 0;
+            /*
+              "welcomeOnboardingVcInfo": {
+                "subTitle": "Welcome aboard!",
+                "descriptionFirstText": "Looking forward to helping you form healthy habits and get more deep work done. The onboarding process takes 5 minutes and requires 100% attention from you.",
+                "descriptionSecondText": "You won't be able to use other apps during the onboarding. Do you have time now or shall we do it a bit later?",
+                "buttonLaterText":"A bit later please",
+                "buttonLetsDoItText": "Let's do it",
+                "allRightsReservedText": "© 2022 Focus Bear All Rights Reserved."
+            },
+            */
+            Welcome.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["subTitle"].ToString();
+
+            Descriptiopn1.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["descriptionFirstText"].ToString(); //"Looking forward to helping you form healthy habits and get more deep work done. The onboarding process takes 5 minutes and requires 100% attention from you.";            
+            Descriptiopn2.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["descriptionSecondText"].ToString(); //"You won't be able to use other apps during the onboarding. Do you have time now or shall we do it a bit later?";
+
+            btnABitLaterPleaseText.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonLaterText"].ToString(); //A bit later please",
+            buttonLetsDoItText.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonLetsDoItText"].ToString();// "Let's do it",
+            Copyright.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["allRightsReservedText"].ToString();// "© 2022 Focus Bear, All Rights Reserved."
+        }
+
+        private void btnLetsDoIt_Click(object sender, RoutedEventArgs e)
+        {
+            RegistryManager.SetWelcomeAboardingDoneStatus();
+            
+            ((App)(Application.Current)).ShowOnBoradingFlow();
+            Close();
+        }
+
+        private void btnABitLaterPlease_Click(object sender, RoutedEventArgs e)
+        {
+            WelcomeAbordPostpone wndPostpone = new WelcomeAbordPostpone();
+            wndPostpone.ShowDialog();
+        }
+        public void PostponeOnboarding(int nMinutesToPostpone)
+        {
+            //Hide this window, Set a timer for x nMinutesToPostpone and Hide the window and reappear again
+            
+            nPostponeTime = nMinutesToPostpone;
+
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+#if DEBUG
+            dispatcherTimer.Interval = new TimeSpan(0, 0, nMinutesToPostpone);
+#else
+             dispatcherTimer.Interval = new TimeSpan(0, nMinutesToPostpone, 0);
+#endif
+            dispatcherTimer.Start();
+            
+            Hide();
+
+            CommandManager.InvalidateRequerySuggested();
+        }
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            CommandManager.InvalidateRequerySuggested();
+ 
+            try
+            {
+                dispatcherTimer.Stop();
+                Show();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite(ex.Message);
+                Debug.WriteLine(ex.Message);
+            }
+            
+        }
+
+
+        private void GridShade_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+
+        }
+
+        //public void RepositionWindow()
+        //{
+        //    try
+        //    {
+              
+        //        Rect workArea = System.Windows.SystemParameters.WorkArea;
+        //        if (Left < workArea.Left || Top < workArea.Top || (Left + Width) > workArea.Right || (Top + Height) > workArea.Bottom)
+        //        {
+        //            this.Left = (workArea.Width - this.Width) / 2 + workArea.Left;
+        //            this.Top = (workArea.Height - this.Height) / 2 + workArea.Top;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex.Message);
+        //    }
+        //}
+    }
+}

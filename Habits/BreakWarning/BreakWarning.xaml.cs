@@ -1,0 +1,201 @@
+﻿using Focus_Bear.Utils;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using System.Windows.Threading;
+
+namespace Focus_Bear.Habits
+{
+    /// <summary>
+    /// Interaction logic for BreakWarning.xaml
+    /// </summary>
+    public partial class BreakWarning : Window
+    {
+        AppSettings appSettings = AppSettings.GetInstance;
+
+        bool bSecondTime15SecTimerRunning;
+        int nTimer = 30;
+        DispatcherTimer dispatcherTimer = new DispatcherTimer();
+
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+        [DllImport("user32.dll")]
+        private static extern bool EnableMenuItem(IntPtr hMenu, uint uIDEnableItem, uint uEnable);
+
+        private const uint MF_BYCOMMAND = 0x00000000;
+        private const uint MF_GRAYED = 0x00000001;
+        private const uint SC_CLOSE = 0xF060;
+        private const int WM_SHOWWINDOW = 0x00000018;
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            var hWnd = new WindowInteropHelper(this);
+            var sysMenu = GetSystemMenu(hWnd.Handle, false);
+            EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+        }
+
+        public BreakWarning()
+        {
+            InitializeComponent();
+            /*
+             *    "breakWarningVcInfo": {
+                "title": "Your Break starts in",
+                "buttonPostponeText": "Postpone for 5 minutes",
+                "postponeConfirmText": "You postponed the last break - are you sure you can't make time for The break now?",
+                "buttonTakeBreakText": "Argh ok I'll take a break!"
+            },
+             * */
+
+            bSecondTime15SecTimerRunning = false;
+
+            nTimer = 30;
+            Description.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["title"].ToString();
+            btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString();
+
+            ShowInTaskbar = false;
+
+            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            this.Left = (desktopWorkingArea.Right - this.Width);
+            this.Top = (desktopWorkingArea.Top + 25);
+
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimer.Start();
+            CommandManager.InvalidateRequerySuggested();
+
+           
+        }
+
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+#if DEBUG
+            int val = nTimer--;
+#else
+            int val = nTimer--;
+#endif
+
+            try
+            {
+
+                TxtTimer.Text = appSettings.SecondsToTimerText(nTimer);
+                Progress.Value = nTimer;
+
+                CommandManager.InvalidateRequerySuggested();
+
+                if (nTimer < 0)
+                {
+                    if (bSecondTime15SecTimerRunning)
+                    {
+                        dispatcherTimer.Stop();
+                        DialogResult = true;
+                        Close();
+                    }
+                    else
+                    {
+                        TxtTimer.Text = "00:00";
+                        dispatcherTimer.Stop();
+                        DialogResult = false;
+                        Close();
+                    }
+                  
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("BreakWarning = " + ex.Message);
+                Debug.WriteLine(ex.Message);
+            }
+
+        }
+
+        private void btnAction_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (appSettings.nCountBreaksPostponedTimes > 0)
+                {
+                    if (bSecondTime15SecTimerRunning)
+                    {
+                        dispatcherTimer.Stop();
+                        //User clicked means he wants to do the habits
+                        DialogResult = false;
+                        Close();
+                        return;
+                    }
+
+                    //Set the break timer fro five minutes from now
+                    dispatcherTimer.Stop(); //Stop old timer
+                    TxtTimer.Text = "00:15";
+
+                    //Remove the previous event handler so that new can be set
+                    try
+                    {
+                        var eventField = dispatcherTimer.GetType().GetField("Tick", BindingFlags.NonPublic | BindingFlags.Instance);
+                        var eventDelegate = (Delegate)eventField.GetValue(dispatcherTimer);
+                        if (eventDelegate != null)
+                        {
+                            var invocatationList = eventDelegate.GetInvocationList();
+
+                            foreach (var handler in invocatationList)
+                                dispatcherTimer.Tick -= ((EventHandler)handler);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("BreakWarning = " + ex.Message);
+                        Debug.WriteLine(ex.Message);
+                    }
+
+
+                    Description.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["postponeConfirmText"].ToString();
+                    btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonTakeBreakText"].ToString();
+                    //hide progress
+                    Progress.Visibility = Visibility.Collapsed;
+
+                    Grid1.RowDefinitions[0].Height = new GridLength(50);
+
+                    nTimer = 15;
+
+                    bSecondTime15SecTimerRunning = true;
+
+                    dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                    dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+                    dispatcherTimer.Start();
+                    CommandManager.InvalidateRequerySuggested();
+
+                    return;
+                }
+                else
+                {
+                    //Set the break timer fro five minutes from now
+                    DialogResult = true;
+                    dispatcherTimer.Stop();
+                    appSettings.nCountBreaksPostponedTimes++; //Increase the counter after first time
+                    Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("BreakWarning = " + ex.Message);
+                Debug.WriteLine(ex.Message);
+            }
+
+        }
+    }
+}

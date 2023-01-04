@@ -1,0 +1,488 @@
+﻿using Focus_Bear.Login;
+using Focus_Bear.Utils;
+using Focus_Bear.API;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using Focus_Bear.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Threading;
+using System.Diagnostics;
+using System.Reflection;
+using System.Text.RegularExpressions;
+
+namespace Focus_Bear.Login
+{
+    /// <summary>
+    /// Interaction logic for LoginSignUp.xaml
+    /// </summary>
+    /// 
+
+    public partial class LoginSignUp : Page
+    {
+        private LoginMain _parentWindow;
+        AppSettings appSettings = AppSettings.GetInstance;
+        bool bEyeOnPasswordBox = false;
+        bool bEyeOnConfirmPasswordBox = false;
+
+        public LoginSignUp()
+        {
+        }
+
+        public LoginSignUp(LoginMain parentWindow) : this()
+        {
+       
+            InitializeComponent();
+            _parentWindow = parentWindow;
+            /*
+          * "customLoginVcInfo": {
+            "titleSignUp": "Sign Up",
+ 
+            "titleEmailAddress": "Email Address",
+            "titlePassword": "Password",
+            "subTitleCreateAccount": "Create an account",
+           "buttonCreateAccountText": "Create an account",
+           "titleConfirmPassword": "Confirm your password",
+
+                    "titlePasswordRules": "Password rules:",
+            "buttonForgotPasswordText": "Forgot Password",
+            "passwordRuleFirstText": "At least 8 characters in length",
+            "passwordRuleSecondText": "Contain at least 3 of the following 4 types of characters:",
+            "passwordRuleThirdText": "lower case letters (a-z)",
+            "passwordRuleFourthText": "upper case letters (A-Z)",
+            "passwordRuleFifthText": "numbers (i.e. 0-9)",
+            "passwordRuleSixthText": "special characters (e.g. !@#$%^&*)"
+          */
+
+            Heading.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleSignUp"].ToString();
+            Description.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["subTitleCreateAccount"].ToString();
+            lblEmail.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailAddress"].ToString();
+            lblPassword.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePassword"].ToString();
+            lblConfirmPassword.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleConfirmPassword"].ToString();
+            btnCreateAccountText.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCreateAccountText"].ToString();
+
+            lblPasswordRules.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordRules"].ToString();
+           
+            lblPassword8Chars.Text = "- " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleFirstText"].ToString();
+            lblPassword3Types.Text = "- " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleSecondText"].ToString();
+
+            lblPasswordLowerCase.Text = " * " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleThirdText"].ToString();
+            lblPasswordUpperCase.Text = " * " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleFourthText"].ToString();
+            lblPasswordNumbers.Text = " * " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleFifthText"].ToString();
+            lblPasswordSpecialChars.Text = " * " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleSixthText"].ToString();
+
+            //initially button will be disabled
+            btnCreatAccount.IsEnabled = false;
+
+            Loaded += (sender, e) => TxtEmailAddress.Focus();
+        }
+
+        private async void btnCreatAccount_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnCreatAccount_Click");
+
+            try
+            {
+
+                string emailAddress = TxtEmailAddress.Text;
+                if (emailAddress.Length > 0)
+                {
+                    if (Global.IsValidEmailAddress(emailAddress))
+                    {
+                        //check password
+                        string password = TxtPassword.Password.ToString();
+                        if (password.Length > 0)
+                        {
+                            //check confirm password
+                            string confirmPassword = TxtConfirmPassword.Password.ToString();
+                            if (confirmPassword.Length > 0 && confirmPassword == password)
+                            {
+                                EnablControls(false);
+                                Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+
+                                await Task.Run(async () =>
+                                {
+                                    try
+                                    {
+                                        var authenticator = new Authentication();
+                                        if (await authenticator.SignUp(emailAddress, password))
+                                        {
+                                            LogWriter.LogWrite("SignUp Success, now attempt to Login");
+
+                                            appSettings.CapturePostHog("register-homemade");
+
+                                            await Dispatcher.BeginInvoke((Action)(() =>
+                                            {
+                                                //Signup Success
+                                                //Login User
+                                                EnablControls(false);
+                                                Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+
+                                                Task.Run(async () =>
+                                                {
+                                                    try
+                                                    {
+                                                        if (await authenticator.Login(emailAddress, password))
+                                                        {
+                                                            await Dispatcher.BeginInvoke((Action)(() =>
+                                                            {
+                                                                LogWriter.LogWrite("SignUp Success, Login Success!!");
+
+                                                                Mouse.OverrideCursor = null;
+                                                                EnablControls(true);
+
+                                                                //Login Success
+                                                                appSettings.CapturePostHog("login-homemade");
+
+                                                                ((App)(Application.Current)).ProceedAfterLogin();
+                                                                _parentWindow.bDoNotShutDown = true;
+                                                                _parentWindow.Close();
+
+                                                            }));
+                                                        }
+                                                        else
+                                                        {
+                                                            await Dispatcher.BeginInvoke((Action)(() =>
+                                                            {
+                                                                LogWriter.LogWrite("SignUp Success, Login ERROR !!");
+                                                                Mouse.OverrideCursor = null;
+                                                                EnablControls(true);
+                                                                MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                            }));
+                                                        }
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        Mouse.OverrideCursor = null;
+                                                        EnablControls(true);
+                                                        LogWriter.LogWrite("authenticator.Login Exception - " + ex.Message);
+                                                        Debug.WriteLine(ex.Message);
+                                                    }
+                                                });
+
+
+                                            }));
+                                        }
+                                        else
+                                        {
+                                            await Dispatcher.BeginInvoke((Action)(() =>
+                                            {
+                                                try
+                                                {
+                                                    JObject resJson = JObject.Parse(authenticator.sErrorMessage);
+                                                    string msg = "";
+                                                    string policy = "";
+                                                    if (resJson.ContainsKey("message"))
+                                                    {
+                                                        JToken jj = resJson.GetValue("message");
+                                                        msg = jj.ToString();
+
+                                                        JToken jjp = resJson.GetValue("policy");
+                                                        policy = jjp.ToString();
+                                                    }
+
+                                                    Mouse.OverrideCursor = null;
+                                                    EnablControls(true);
+                                                    MessageBox.Show(policy, msg, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    Mouse.OverrideCursor = null;
+                                                    EnablControls(true);
+                                                    LogWriter.LogWrite(ex.Message);
+                                                    MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                }
+                                               
+
+                                            }));
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogWriter.LogWrite(ex.Message);
+                                    }
+                                });
+
+                            }
+                      
+                            else
+                            {
+                                 //appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCreateAccountText"].ToString();
+                                // "passwordNotMatchAlertSubTitle":"Confirm Password does not match with the main password. Please re enter.",
+                                MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["confirmPasswordNotMatchText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
+
+                        }
+                        else
+                        {
+                            //  "passwordBlankAlertTitle":"Password cannot be blank.",
+                            MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    else
+                    {
+                        // "emailInvalidText": "Please enter a valid Email.",
+                        MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                else
+                {
+                    // "titleEmailIsBlank": "Email cannot be blank.",
+                    MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite(ex.Message);
+                
+            }
+            finally
+            {
+                //Mouse.OverrideCursor = null;
+               // EnablControls(true);
+            }
+        }
+
+        private void btnBack_Click(object sender, RoutedEventArgs e)
+        {
+            _parentWindow.ShowLoginHomeWindow();
+        }
+        public void EnablControls(bool bEnable)
+        {
+            if (bEnable)
+            {
+                StatusAct.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                StatusAct.Visibility = Visibility.Visible;
+            }
+            TxtEmailAddress.IsEnabled = bEnable;
+            TxtPassword.IsEnabled = bEnable;
+            TxtConfirmPassword.IsEnabled = bEnable;
+            btnBack.IsEnabled = bEnable;
+            btnCreatAccount.IsEnabled = bEnable;
+        }
+
+        private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            TxtPasswordVisible.Text = TxtPassword.Password;
+  
+            TxtPassword.GetType().GetMethod("Select", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(TxtPassword, new object[] { TxtPassword.Password.Length, TxtPassword.Password.Length });
+            TxtPassword.Focus();
+            if(IsPasswordValid())
+            {
+                //check confirm password
+                string confirmPassword = TxtConfirmPassword.Password.ToString();
+                if (confirmPassword.Length > 0 && confirmPassword == TxtPassword.Password)
+                {
+                    btnCreatAccount.IsEnabled = true;
+                    ImgConfirmPasswordValid.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    btnCreatAccount.IsEnabled = false;
+                    ImgConfirmPasswordValid.Visibility = Visibility.Collapsed;
+                }
+            }
+            else
+            {
+                btnCreatAccount.IsEnabled = false;
+                ImgConfirmPasswordValid.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void TxtPasswordVisible_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TxtPassword.Password = TxtPasswordVisible.Text;
+            TxtPasswordVisible.Focus();
+        }
+
+        private void TxtConfirmPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            TxtConfirmPasswordVisible.Text = TxtConfirmPassword.Password;
+
+            TxtConfirmPassword.GetType().GetMethod("Select", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(TxtConfirmPassword, new object[] { TxtConfirmPassword.Password.Length, TxtConfirmPassword.Password.Length });
+            TxtConfirmPassword.Focus();
+
+            if (IsPasswordValid())
+            {
+                //check confirm password
+                string confirmPassword = TxtConfirmPassword.Password.ToString();
+                if (confirmPassword.Length > 0 && confirmPassword == TxtPassword.Password)
+                {
+                    btnCreatAccount.IsEnabled = true;
+                    ImgConfirmPasswordValid.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    btnCreatAccount.IsEnabled = false;
+                    ImgConfirmPasswordValid.Visibility = Visibility.Collapsed;
+                }
+            }
+            else
+            {
+                btnCreatAccount.IsEnabled = false;
+                ImgConfirmPasswordValid.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void TxtConfirmPasswordVisible_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TxtConfirmPassword.Password = TxtConfirmPasswordVisible.Text;
+            TxtConfirmPasswordVisible.Focus();
+        }
+
+        bool IsPasswordValid()
+        {
+            bool isPasswordFirstRuleValid = false;
+            if (TxtPassword.Password.Length >= 8)
+            {
+                ImgPassword8Chars.Visibility = Visibility.Visible;
+                isPasswordFirstRuleValid = true;
+            }
+            else
+            {
+                ImgPassword8Chars.Visibility = Visibility.Collapsed;
+            }
+            int passwordRuleAppliedCount = 0;
+
+            Regex regex = new Regex(@".*[A-Z]+.*");
+            if(regex.IsMatch(TxtPassword.Password))
+            {
+                passwordRuleAppliedCount += 1;
+                ImgPasswordUpperCase.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ImgPasswordUpperCase.Visibility = Visibility.Collapsed;
+            }  
+            
+            Regex regex1 = new Regex(@".*[a-z]+.*");
+            if(regex1.IsMatch(TxtPassword.Password))
+            {
+                passwordRuleAppliedCount += 1;
+                ImgPasswordLowerCase.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ImgPasswordLowerCase.Visibility = Visibility.Collapsed;
+            }
+
+            Regex regex2 = new Regex(@".*[0-9]+.*");
+            if(regex2.IsMatch(TxtPassword.Password))
+            {
+                passwordRuleAppliedCount += 1;
+                ImgPasswordNumbers.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ImgPasswordNumbers.Visibility = Visibility.Collapsed;
+            }
+           
+            Regex regex3 = new Regex(@".*[!&^%$#@()/]+.*");
+            if(regex3.IsMatch(TxtPassword.Password))
+            {
+                passwordRuleAppliedCount += 1;
+                ImgPasswordSpecialChars.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ImgPasswordSpecialChars.Visibility = Visibility.Collapsed;
+            }
+
+
+            if (passwordRuleAppliedCount >= 3)
+            {
+                ImgPassword3Types.Visibility = Visibility.Visible;
+                if (isPasswordFirstRuleValid)
+                {
+                    ImgPasswordValid.Visibility = Visibility.Visible;
+                    return true;
+                }
+                else
+                {
+                    ImgPasswordValid.Visibility = Visibility.Collapsed;
+                    return false;
+                }
+            }
+            else
+            {
+                ImgPassword3Types.Visibility = Visibility.Collapsed;
+                ImgPasswordValid.Visibility = Visibility.Collapsed;
+                return false;
+           }
+
+        }
+
+
+        private void EyePassword_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            bEyeOnPasswordBox = !bEyeOnPasswordBox;
+            if (bEyeOnPasswordBox)
+            {
+                string imagePath = ("pack://application:,,,/Focus Bear;component/images/eye-orange.png");
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(imagePath);
+                image.EndInit();
+                EyePassword.Source = image;
+
+                TxtPasswordVisible.Visibility = Visibility.Visible;
+                TxtPassword.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                string imagePath = ("pack://application:,,,/Focus Bear;component/images/eye-gray.png");
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(imagePath);
+                image.EndInit();
+                EyePassword.Source = image;
+
+                TxtPasswordVisible.Visibility = Visibility.Collapsed;
+                TxtPassword.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void EyeConfirmPassword_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            bEyeOnConfirmPasswordBox = !bEyeOnConfirmPasswordBox;
+            if (bEyeOnConfirmPasswordBox)
+            {
+                string imagePath = ("pack://application:,,,/Focus Bear;component/images/eye-orange.png");
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(imagePath);
+                image.EndInit();
+                EyeConfirmPassword.Source = image;
+
+                TxtConfirmPasswordVisible.Visibility = Visibility.Visible;
+                TxtConfirmPassword.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                string imagePath = ("pack://application:,,,/Focus Bear;component/images/eye-gray.png");
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(imagePath);
+                image.EndInit();
+                EyeConfirmPassword.Source = image;
+
+                TxtConfirmPasswordVisible.Visibility = Visibility.Collapsed;
+                TxtConfirmPassword.Visibility = Visibility.Visible;
+            }
+        }
+    }
+}

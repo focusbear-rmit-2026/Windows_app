@@ -1,0 +1,91 @@
+﻿<Page x:Class="Focus_Bear.Preferences.Settings"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Preferences"
+      mc:Ignorable="d" 
+       d:DesignHeight="670" d:DesignWidth="670"
+      Title="Settings" Background="#fff">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="80"/>
+        </Grid.RowDefinitions>
+        <Grid Background="#fff" Margin="20">
+            <TabControl Background="#fcf8f0" BorderBrush="LightGray">
+                <TabControl.Resources>
+                    <Style TargetType="{x:Type TabPanel}">
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                    </Style>
+                </TabControl.Resources>
+                <TabItem Header="xGeneral" >
+
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="235"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="0" Margin="0,50,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="27"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="27"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0"   Name="FocusBearMode" Margin="0,2,15,0"  TextWrapping="Wrap"    Text="Focus Bear mode:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
+
+                        </Grid>
+                        <Grid Grid.Column="1" Margin="0,50,20,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="27"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="27"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <RadioButton Grid.Row="0" VerticalAlignment="Center"  Name="CuddlyMode" Margin="0,0,0,0" Padding="5,-4,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="CuddlyMode_Checked">
+                                xCuddly Bear mode
+                            </RadioButton>
+                            <TextBlock Grid.Row="1"   Name="CuddlyModeDesc" Margin="20,0,0,20"  TextWrapping="Wrap"    Text="xCuddly Bear mode: kind and gentle - gives you the benefit of the doubt when you open a non-allowed URL. Lets you temporarily allow blocked URLs during a focus mode."  Foreground="Gray" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+
+                            <RadioButton Grid.Row="2" VerticalAlignment="Center"  Name="GrizzlyMode" Margin="0,0,0,0" Padding="5,-3,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="GrizzlyMode_Checked">
+                                xGrizzly Bear mode
+                            </RadioButton>
+                            <TextBlock Grid.Row="3"    Name="GrizzlyModeDesc" Margin="20,0,0,20" TextWrapping="Wrap"   Text="xGrizzly Bear mode: super strict - immediately block URLs that aren't allowed and don't let yourself allow them until the focus mode is over."  Foreground="Gray" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+
+                        </Grid>
+
+                    </Grid>
+
+                </TabItem>
+                <!--<TabItem Header="Tab 2">abc</TabItem>-->
+            </TabControl>
+           
+        </Grid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal"  >
+            <Button  x:Name="btnExportStatistics"   Margin="20,0,0,0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnExportStatistics_Click" >
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock x:Name="btnExportStatisticsTXT" Text="xExport Statistics"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button  x:Name="btnCheckForUpdates" Margin="15,0,0,0"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800" Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCheckForUpdates_Click" >
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock x:Name="btnCheckForUpdatesTXT" Text="xCheck for Updates"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <TextBlock  Name="Version" Margin="20,4,0,0"   Text="xVersion:xx"  Foreground="Gray" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+
+        </StackPanel>
+
+        <TextBlock Grid.Row="1" x:Name="ExportLogs" Margin="20,20,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="14" Height="22" Cursor="Hand">
+             <Hyperlink x:Name="btnExportLogs"  Foreground="#000" Click="btnExportLogs_Click"   TextDecorations="Underline" ><Run x:Name="btnExportLogsTXT" Text="xClick here to export logs to share with Support Team."/></Hyperlink>
+        </TextBlock>
+    </Grid>
+</Page>

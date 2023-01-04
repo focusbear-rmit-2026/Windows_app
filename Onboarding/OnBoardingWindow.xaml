@@ -1,0 +1,16 @@
+﻿<Window x:Class="Focus_Bear.Onboarding.OnBoardingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Onboarding"
+        mc:Ignorable="d"
+        Title="OnBoardingWindow" Height="450" Width="800" WindowState="Maximized" WindowStyle="None" PreviewKeyDown="Window_PreviewKeyDown" >
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <TextBlock  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xNow let's set up an account for you." Foreground="#e88800" FontSize="40" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <Frame x:Name="AppFrameOnboarding" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed" />
+    </Grid>
+</Window>

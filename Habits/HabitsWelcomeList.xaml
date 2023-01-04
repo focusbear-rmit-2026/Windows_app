@@ -1,0 +1,59 @@
+﻿<Page x:Class="Focus_Bear.Habits.HabitsWelcomeList"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Habits"
+      mc:Ignorable="d" 
+     d:DesignHeight="1080" d:DesignWidth="1920"
+      Title="HabitsWelcomeList" Background="#fff">
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MinHeight="185" />
+            <RowDefinition Height="Auto" MinHeight="70" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" MinHeight="200" />
+
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0" Name="TopIcon" Height="160"  Width="160" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xGood Morning! Here are the habits to kick off an awesome day." Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+        <ListView Grid.Row="2" MaxHeight="360"  MaxWidth="400" Margin="13,25,16,10" x:Name="ListActivities" VerticalAlignment="Center"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" >
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem" >
+                    <Setter Property="Focusable" Value="false"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate >
+
+                <DataTemplate>
+                    <Grid x:Name="NavBarItemHeader" Height="40"  Background="Transparent"  Margin="0,2,0,5" IsHitTestVisible="True" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="{Binding SNumber, StringFormat=\{0\}}" Foreground="#000"  FontSize="23"   FontFamily="Segoe UI Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ActivityName, StringFormat=\{0\}}" FontSize="23" Foreground="#000" VerticalAlignment="Center" Margin="0,0,15,0" HorizontalAlignment="Left" >
+                             
+                        </TextBlock>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+ 
+        </ListView>
+
+        <Button Grid.Row="3" IsDefault="True" x:Name="btnBegin"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnBegin_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock x:Name="btnBeginTXT" Text="xBegin"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+    </Grid>
+ 
+</Page>

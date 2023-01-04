@@ -1,0 +1,36 @@
+﻿<Page x:Class="Focus_Bear.Habits.StartBreakActivity"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Habits"
+      mc:Ignorable="d" 
+       d:DesignHeight="1080" d:DesignWidth="1920"
+      Title="StartBreakActivity"  Background="#fff">
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="150"   />
+            <RowDefinition Height="*"  />
+            <RowDefinition Height="100"  />
+            <RowDefinition Height="130"  />
+        </Grid.RowDefinitions>
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,30,0,0" TextWrapping="Wrap" Text="xstart break activity" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+
+        <Button Grid.Row="3" IsDefault="True" x:Name="btnStartNextActivity"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStartNextActivity_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
+                    <TextBlock x:Name="btnStartNextActivityTXT" Text="xstart next activity"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+
+
+    </Grid>
+</Page>
+

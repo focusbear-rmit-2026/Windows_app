@@ -1,0 +1,48 @@
+﻿<Page x:Class="Focus_Bear.Login.LoginHome"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Login"
+      mc:Ignorable="d" 
+      d:DesignHeight="680" d:DesignWidth="945"
+      Title="LoginHome" Background="#fff">
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MinHeight="188" />
+            <RowDefinition Height="Auto" MinHeight="100" />
+            <RowDefinition Height="Auto" MinHeight="130" />
+            <RowDefinition Height="Auto" />
+
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0" Height="140"  Width="140" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWin your habits.&#10;Amp up your productivity." Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+        <TextBlock  Grid.Row="2" Name="Descriptiopn" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxSign In with a Focus Bear account to manage your time without thinking about it. Having an account helps you Set your computer use hours, create a custom morning and night routine, and customize your focus modes for different activities." Foreground="#272727" FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+       
+        <StackPanel  Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center">
+            <Button  Grid.ColumnSpan="2" x:Name="btnSignUp"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,17" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSignUp_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnSignUpText" Margin="8" Text="xSign Up"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button  Grid.ColumnSpan="2" x:Name="btnSignIn"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,17" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSignIn_Click" >
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnSignInText" Margin="8" Text="xSign In"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            
+        </StackPanel>
+      
+
+    </Grid>
+</Page>

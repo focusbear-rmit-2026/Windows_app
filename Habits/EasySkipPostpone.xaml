@@ -1,0 +1,59 @@
+﻿<Window x:Class="Focus_Bear.Habits.EasySkipPostpone"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Habits"
+        mc:Ignorable="d"
+        Title="Focus Bear" Height="316" Width="504" ResizeMode="NoResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="65"/>
+            <RowDefinition Height="90"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <TextBlock  Grid.Row="1" Name="Heading" Margin="25,0,25,0" TextWrapping="Wrap" Text="xxOk I get it - now's not a good time. I'll try again in 5 minutes. You can postpone for longer if you need to." Foreground="#000" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
+        <StackPanel  Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+            <ComboBox Name="ComboBoxMinutes" Width="50" Height="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">
+                <ComboBoxItem Content="5"></ComboBoxItem>
+                <ComboBoxItem Content="10"></ComboBoxItem>
+                <ComboBoxItem Content="15"></ComboBoxItem>
+                <ComboBoxItem Content="20"></ComboBoxItem>
+                <ComboBoxItem Content="25"></ComboBoxItem>
+                <ComboBoxItem Content="30"></ComboBoxItem>
+                <ComboBoxItem Content="45"></ComboBoxItem>
+                <ComboBoxItem Content="60"></ComboBoxItem>
+                <ComboBoxItem Content="90"></ComboBoxItem>
+            </ComboBox>
+
+
+        </StackPanel>
+
+        <StackPanel  Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center">
+            <Button   x:Name="btnPostpone"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="180" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPostpone_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnPostponeText" Margin="8" Text="xPostpone"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+            <TextBlock x:Name="DeactivateText" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" Height="22" Cursor="Hand">
+             <Hyperlink x:Name="btnDeactivate"  Foreground="#000" Click="btnDeactivate_Click"   TextDecorations="Underline" ><Run x:Name="btnDeactivateTXT" Text="xDeactivate Focus Bear for 4 hours"/></Hyperlink>
+            </TextBlock>
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center"   Height="50" Visibility="Collapsed">
+            <Image Source="../images/info.png" Width="24"  Margin="30,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Center"></Image>
+            <TextBlock   Name="FrictionLevel" Margin="10,0,20,0" Width="450" TextWrapping="Wrap" Text="xIf you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab." Foreground="#727272" FontSize="12" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left"   />
+
+        </StackPanel>
+
+    </Grid>
+</Window>

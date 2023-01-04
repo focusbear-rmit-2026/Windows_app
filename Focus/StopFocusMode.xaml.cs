@@ -1,0 +1,163 @@
+﻿using Focus_Bear.API;
+using Focus_Bear.Utils;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using System.Windows.Threading;
+
+namespace Focus_Bear.Focus
+{
+    /// <summary>
+    /// Interaction logic for StopFocusMode.xaml
+    /// </summary>
+    public partial class StopFocusMode : Window
+    {
+        AppSettings appSettings = AppSettings.GetInstance;
+
+        DispatcherTimer dispatcherTimerDeactivate = new DispatcherTimer();
+        int nTimer = 5;
+
+        public StopFocusMode()
+        {
+            InitializeComponent();
+
+            /*
+             *   "focusInfo":{
+             *     "abortingFocusModeInfo":{
+            "title":"Deactivating Focus Block - <FOCUSTYPE>",
+            "questionText":"Can you share why you're deactivating?",
+            "reasonsFirstText":"I achieved what I wanted to too early.",
+            "reasonsSecondText":"I have an emergency",
+            "reasonsThirdText":"Focus mode is not working properly.",
+            "buttonCancelText":"Cancel",
+            "buttonAbortFocusText":"Deactivate Focus Block"
+        },*/
+            try
+            {
+                this.Topmost = true;
+                this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                string sHeading = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["title"].ToString();
+                
+                Heading.Text = sHeading.Replace("<FOCUSTYPE>", appSettings.sRunningFocusModeName); 
+                WhyDeactivating.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["questionText"].ToString();
+
+                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString());
+                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsSecondText"].ToString());
+                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsThirdText"].ToString());
+
+                //Select a random element
+                Random rnd = new Random();
+                int nRandom = rnd.Next(0, 2);
+                ComboBoxReason.SelectedIndex = nRandom;
+
+                btnCancelText.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["buttonCancelText"].ToString();
+                btnStopFocusText.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["buttonAbortFocusText"].ToString();
+
+                btnStopFocus.IsEnabled = false;
+
+                //Start the 5 seconds timer
+                dispatcherTimerDeactivate.Tick += new EventHandler(dispatcherTimer_Deactivate);
+                dispatcherTimerDeactivate.Interval = new TimeSpan(0, 0, 1);
+                Timer.Text = "00:05";
+                dispatcherTimerDeactivate.Start();
+                CommandManager.InvalidateRequerySuggested();
+
+                LogWriter.LogWrite("Deactivate Focus Mode Window shown");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StopFocusMode()" + ex.Message);
+            }
+
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
+        }
+
+        private void btnStopFocus_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string sOption = ComboBoxReason.SelectedValue.ToString();
+                //"reasonsFirstText":"I achieved what I wanted to too early.",
+                if (sOption == appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString())
+                {
+                    //Show the Focusmode end dialog
+                    ((App)(Application.Current)).ShowFocusEndWindow();
+                }
+                else
+                {
+                    LogWriter.LogWrite("Focuse mode Aborted()");
+                    /*
+                    Log type,Timestamp,Activity,Duration in seconds,Quantity Question,Quantity Logged,Start Time,Work achieved,Distractions encountered,Abort reason,Feedback
+                    focus mode abort,2022-11-29 16:57:32,focus block - Meetings,9,,,2022-11-29 16:57:22,,,I have an emergency,
+                    focus mode abort,2022-11-29 16:57:49,focus block - Meetings,9,,,2022-11-29 16:57:39,,,Focus mode is not working properly.,
+                    */
+                    DateTime now = DateTime.Now;
+                    TimeSpan difference = now.Subtract(DateTime.Parse(appSettings.sRunningFocusModeStartTime)); // could also write `now - otherTime`
+                    var durationSeconds = difference.TotalSeconds;
+
+                    int nSeconds = Convert.ToInt32(durationSeconds);
+                    appSettings.AddEntryInCSV("focus mode abort", "focus block - " + appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, "", "", sOption, "");
+
+                    //Call api top finish focus mode
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    var x = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
+                }
+
+                DialogResult = true;
+                Close();
+                
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnStopFocus_Click()" + ex.Message);
+            }
+        }
+
+        private void dispatcherTimer_Deactivate(object sender, EventArgs e)
+        {
+            LogWriter.LogWrite("dispatcherTimer_Deactivate()");
+            try
+            {
+                nTimer--;
+                string msg = "00:" + nTimer.ToString("D2");
+                Timer.Text = msg;
+
+                CommandManager.InvalidateRequerySuggested();
+
+                if (nTimer < 0)
+                {
+                    dispatcherTimerDeactivate.Stop(); //Tick Once only
+
+                    Timer.Text = "";
+
+                    btnStopFocus.IsEnabled = true;
+
+                    LogWriter.LogWrite("Enable the the Deactivate Focus Mode button");
+                }
+
+                CommandManager.InvalidateRequerySuggested();
+              
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("dispatcherTimer_Deactivate" + ex.Message);
+            }
+        }
+    }
+}

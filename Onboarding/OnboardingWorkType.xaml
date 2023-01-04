@@ -1,0 +1,56 @@
+﻿<Page x:Class="Focus_Bear.Onboarding.OnboardingWorkType"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Onboarding"
+      mc:Ignorable="d" 
+      d:DesignHeight="1080" d:DesignWidth="1920"
+      Title="OnboardingWelcome" Background="#fff">
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MinHeight="175" />
+            <RowDefinition Height="Auto" MinHeight="70"/>
+            <RowDefinition Height="Auto" MinHeight="300" />
+            <RowDefinition Height="*" />
+
+        </Grid.RowDefinitions>
+
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="x finished!✅ You've earned your screen time. 💪" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <StackPanel  Grid.Row="2"  Orientation="Vertical" HorizontalAlignment="Center">
+        <TextBlock    Name="TypeOfWork" Margin="0,150,0,0" TextWrapping="Wrap" Text="xWhat type of work do you mainly do?." Foreground="#272727" FontSize="25" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <ComboBox Name="ComboBoxWorkType"  Grid.Row="2" Width="200" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,30,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxWorkType_SelectionChanged">
+            </ComboBox>
+            <TextBox    Height="30" x:Name="TxtSomethingElse"    Margin="0,30" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" Width="341" Visibility="Collapsed" TextChanged="TxtSomethingElse_TextChanged">
+                <TextBox.Effect>
+                    <DropShadowEffect ShadowDepth="3"
+                          Direction="330"
+                          Color="Gray"
+                          Opacity="0.5"
+                          BlurRadius="6"
+                           />
+                </TextBox.Effect>
+                <TextBox.FocusVisualStyle>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.FocusVisualStyle>
+            </TextBox>
+        </StackPanel>
+        <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="400" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock Name="btnContinueTxt" Text="xContinue"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+    </Grid>
+</Page>

@@ -1,0 +1,38 @@
+﻿<Window x:Class="Focus_Bear.Login.OnboardingVideo"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Login"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        mc:Ignorable="d"
+        Title="OnboardingVideo" Height="835" Width="1050">
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*"  />
+            <RowDefinition Height="Auto"  />
+
+        </Grid.RowDefinitions>
+
+
+        <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,30,0,0" TextWrapping="Wrap" Text="xHere's a short video that explains how to use Focus Bear."   FontSize="17" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <Viewbox Grid.Row="1"  Stretch="Uniform">
+
+            <DockPanel  Margin="50,25,50,25" Width="853" Height="505">
+                <wv2:WebView2 Name="webView"  />
+            </DockPanel>
+        </Viewbox>
+
+        <Button Grid.Row="2"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,60" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock Name="btnContinueTxt" Text="xContinue"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+    </Grid>
+</Window>

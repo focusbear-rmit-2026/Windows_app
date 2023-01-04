@@ -1,0 +1,35 @@
+﻿<Page x:Class="Focus_Bear.Onboarding.OnboardingWelcome"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Onboarding"
+      mc:Ignorable="d" 
+      d:DesignHeight="1080" d:DesignWidth="1920"
+      Title="OnboardingWelcome" Background="#fff">
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MinHeight="185" />
+            <RowDefinition Height="Auto" MinHeight="70" />
+            <RowDefinition Height="Auto" MinHeight="300" />
+            <RowDefinition Height="*" />
+
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0" Height="135"  Width="135" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWelcome to Focus Bear" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+        <TextBlock  Grid.Row="2" Name="Description" Margin="180,0,180,0" TextWrapping="Wrap" Text="xEvery morning, I will help you quiet your urge to check email/Facebook and help you to do your morning routine instead. You can configure your own routine later but for now, I'll give you a suggested activity: 30 seconds of mindful breathing. While you breathe deeply, think of how awesome you'll be if you stick to your morning routine every day." Foreground="#272727" FontSize="25" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+        <Button Grid.Row="3"  x:Name="btnStartMindfulBreathing"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="400" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStartMindfulBreathing_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock x:Name="btnStartMindfulBreathingTXT" Text="xMindful Breathing"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+    </Grid>
+</Page>
