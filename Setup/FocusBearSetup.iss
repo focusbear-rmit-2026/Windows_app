@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Focus Bear"
-#define MyAppVersion "1.0.20.0"
+#define MyAppVersion "1.0.40.0"
 #define MyAppPublisher "Focus Bear Pty Ltd"
 #define MyAppURL "https://www.focusbear.io"
 #define MyAppExeName "Focus Bear.exe"
@@ -31,6 +31,9 @@ WizardSmallImageFile=top.bmp
 DisableWelcomePage=no
 DisableFinishedPage=yes
 DisableReadyPage=yes
+UninstallDisplayIcon={app}\{#MyAppExeName}
+UninstallDisplayName={#MyAppName}
+SignedUninstaller=false
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile: "license-en.rtf"
@@ -71,6 +74,8 @@ Source: "Files\System.IdentityModel.Tokens.Jwt.xml"; DestDir: "{app}"; Flags: ig
 Source: "Files\Graph\*"; DestDir: "{app}\graph"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
 Source: "Files\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+
+Source: "logo.svg"; DestDir: "{localappdata}\focus bear"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

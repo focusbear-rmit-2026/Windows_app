@@ -112,10 +112,47 @@ namespace Focus_Bear.Models
 
             appSettings.InstalledApps = appSettings.InstalledApps.OrderBy(i => i.AppName).ToList();
 
-
+            await DetectIF_ChromeInstalled();
 
         }
+        private Task DetectIF_ChromeInstalled()
+        {
+            //Debug.WriteLine("Detecting Chrome");
+            return Task.Run(() =>
+            {
+                try
+                {
+                    string appPath = @"\Google\Chrome\Application\chrome.exe";
+                    string progFiles32 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + appPath;
+                    string progFiles64 = Environment.ExpandEnvironmentVariables(@"%systemdrive%\Program Files") + appPath;
 
+                    if (File.Exists(progFiles32))
+                    {
+                        var app = new AppDetails();
+                        app.AppName = "Google Chrome";
+                        app.DisplayIcon = progFiles32;
+                        app.ExeNames.Add(Path.GetFileName(progFiles32));
+                        var listItems = appSettings.InstalledApps.Where(i => i.AppName == app.AppName);
+                        if (listItems.Count() == 0)
+                            appSettings.InstalledApps.Add(app);
+                    }
+                    else if (File.Exists(progFiles64))
+                    {
+                        var app = new AppDetails();
+                        app.AppName = "Google Chrome";
+                        app.DisplayIcon = progFiles64;
+                        app.ExeNames.Add(Path.GetFileName(progFiles64));
+                        var listItems = appSettings.InstalledApps.Where(i => i.AppName == app.AppName);
+                        if (listItems.Count() == 0)
+                            appSettings.InstalledApps.Add(app);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+            });
+        }
         public static string GetShortcutTargetFile(string shortcutFilename)
         {
             try
@@ -166,10 +203,10 @@ namespace Focus_Bear.Models
                     foreach (string sFileName in files)
                     {
                         Console.WriteLine(sFileName);
-                        //if (sFileName.Contains("Admin"))
-                        //{
-                        //    ;
-                        //}
+                        if (sFileName.ToLower().Contains("uninstall"))
+                        {
+                            continue;
+                        }
                         // app.ExeNames.Add(Path.GetFileName(sFileName));
                         //get the app and check if its an exe
                         string sApp = GetShortcutTargetFile(sFileName);

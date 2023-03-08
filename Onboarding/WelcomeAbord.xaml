@@ -21,13 +21,13 @@
             <RowDefinition Height="Auto" MinHeight="10" />
             <RowDefinition Height="Auto" MinHeight="35" />
         </Grid.RowDefinitions>
-        
-        <Image Grid.Row="0" Height="140"  Width="140" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+        <Image Grid.Row="0" Height="120"  Width="120" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="191,0,191,5"/>
         <TextBlock  Grid.Row="1" Margin="0,0,0,0" TextWrapping="Wrap" Text="Focus Bear" Foreground="#000" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="2" Name="Welcome" Margin="0,18,0,0" TextWrapping="Wrap" Text="Welcome Abord!" Foreground="#000" FontSize="23" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="3" Name="Descriptiopn1" Margin="40,30,40,0" TextWrapping="Wrap" Text="xxLooking forward!" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="4" Name="Descriptiopn2" Margin="40,20,40,30" TextWrapping="Wrap" Text="xxYou won't..!" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        
+
         <StackPanel  Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Grid.Row="5" Grid.ColumnSpan="2" x:Name="btnABitLaterPlease"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnABitLaterPlease_Click">
                 <Button.Content>
@@ -48,6 +48,6 @@
 
         <TextBlock  Grid.Row="7" Name="Copyright" Margin="13" TextWrapping="Wrap" Text="xx© 2022 Focus Bear, All Rights Reserved." Foreground="#272727" FontSize="11" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" IsVisibleChanged="GridShade_IsVisibleChanged"/>
+        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="9" Margin="0,0,0,-10" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" IsVisibleChanged="GridShade_IsVisibleChanged"/>
     </Grid>
 </Window>

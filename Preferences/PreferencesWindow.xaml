@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Preferences"
         mc:Ignorable="d"
-        Title="Preferences" Height="700" Width="670" ResizeMode="NoResize" Loaded="Window_Loaded" Closing="Window_Closing">
+        Title="Preferences" Height="700" Width="670" ResizeMode="NoResize" Loaded="Window_Loaded" Closing="Window_Closing" IsVisibleChanged="Window_IsVisibleChanged">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="81" MinHeight="81" />
@@ -38,12 +38,12 @@
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="btnPassword" Style="{StaticResource BtnStylePreferences}" Click="btnPassword_Click"  MinWidth="55" Height="55" Margin="0,0,5,0">
+                    <!--<Button x:Name="btnPassword" Style="{StaticResource BtnStylePreferences}" Click="btnPassword_Click"  MinWidth="55" Height="55" Margin="0,0,5,0">
                         <StackPanel Orientation="Vertical">
                             <Image Source="../images/lock.png" Margin="0,5,0,0" Height="24" Width="24" />
                             <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnPasswordTXT">xPassword</TextBlock>
                         </StackPanel>
-                    </Button>
+                    </Button>-->
 
                     <Button x:Name="btnBlockedURLs" Style="{StaticResource BtnStylePreferences}" Click="btnBlockedURLs_Click"  MinWidth="55" Height="55" Margin="0,0,5,0">
                         <StackPanel Orientation="Vertical">

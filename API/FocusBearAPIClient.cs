@@ -225,7 +225,7 @@ namespace Focus_Bear.API
             catch (Exception ex)
             {
                 LogWriter.LogWrite("PostActivityCompleted Exception" + ex.Message);
-                Debug.WriteLine(ex.Message);
+ 
             }
             return 0;
         }
@@ -607,9 +607,9 @@ namespace Focus_Bear.API
                    $"\"allowed_apps_win\":{JsonConvert.SerializeObject(FF.arrAllowedAppsWin.ToArray<AppDetails>())}," +
                    $"\"color\":\"{color}\"," +
                    $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
-                   $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}," +
-                   $"\"isAllowedAllUrls\":{JsonConvert.SerializeObject(FF.isAllowedAllUrls)}," +
-                   $"\"isBlockedAllUrls\":{JsonConvert.SerializeObject(FF.isBlockedAllUrls)}}}";
+                   $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
+                    ///$"\"isAllowedAllUrls\":{JsonConvert.SerializeObject(FF.isAllowedAllUrls)}," +
+                   ///$"\"isBlockedAllUrls\":{JsonConvert.SerializeObject(FF.isBlockedAllUrls)}}}";
 
 
                     string addFocusJsonString = $"{{\"id\":\"{FF.id}\"," +
@@ -831,12 +831,13 @@ namespace Focus_Bear.API
                         $"\"color\":\"{color}\"," +
                         $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
                         $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}," +
-                        $"\"isAllowedAllUrls\":{JsonConvert.SerializeObject(FF.isAllowedAllUrls)}," +
                         $"\"isDefault\":{JsonConvert.SerializeObject(FF.isDefault)}," +
                         $"\"isMeetings\":{JsonConvert.SerializeObject(FF.isMeetings)}," +
-                        $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
-                        $"\"isBlockedAllUrls\":{JsonConvert.SerializeObject(FF.isBlockedAllUrls)}}}";
+                        $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}}}";
 
+
+                        /// $"\"isAllowedAllUrls\":{JsonConvert.SerializeObject(FF.isAllowedAllUrls)}," +
+                        /// $"\"isBlockedAllUrls\":{JsonConvert.SerializeObject(FF.isBlockedAllUrls)}
 
                         string addFocusJsonString = $"{{\"id\":\"{FF.id}\"," +
                             $"\"name\":\"{FF.name}\"," +
@@ -916,7 +917,7 @@ namespace Focus_Bear.API
 
         internal async Task<int> StartFocusMode(string sId) 
         {
-            LogWriter.LogWrite("StartFocusMode()");
+            LogWriter.LogWrite("StartFocusMode() API");
             try
             {
                 if (NetworkInterface.GetIsNetworkAvailable())
@@ -1118,6 +1119,103 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        internal async Task<int> GetKeywords()
+        {
+            LogWriter.LogWrite("GetKeywords()");
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        //Renew the token and check again
+                        LogWriter.LogWrite("Attempting RenewToken before API call");
+                        var authenticator = new Authentication();
+                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                        if (x)
+                        {
+                            //token renewed
+                            LogWriter.LogWrite("RenewToken DONE before API call");
+                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                            {
+                                return 0;
+                            }
+                            //All Good, Proceed Normally
+                        }
+                        else
+                        {
+                            //token renewed failed
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = new HttpClient();
+
+                    DateTime end = DateTime.UtcNow;
+
+                    string addFocusJsonString = $"{{\"titles\":{JsonConvert.SerializeObject(appSettings.TemporaryAllowedURLsTabTitles.ToArray())}}}";
+
+                    if (!string.IsNullOrEmpty(addFocusJsonString))
+                    {
+                        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+                        client.DefaultRequestHeaders.Add("platform", "Windows");
+                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                        StringContent content = new StringContent(addFocusJsonString, Encoding.UTF8, "application/json");
+
+                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+                        {
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+
+                        var response = await client.PostAsync("https://api.focusbear.io/tab-keywords", content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                        {
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                appSettings.sRawKeywords = responseCode.ToString();
+
+                                //JObject resJson = JObject.Parse(responseCode);
+                                LogWriter.LogWrite("GetKeywords() GOT Success");
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("GetKeywords() FAILED" + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetKeywords() WebException -" + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetKeywords() Exception -" + ex.Message);
+            }
+            return 0;
+        }
+
         internal async Task<int> GetUserSettings() //OK
         {
             LogWriter.LogWrite("GetUserSettings()");
@@ -1164,7 +1262,20 @@ namespace Focus_Bear.API
                         return 0;
                     }
 
-                    var response = await client.GetAsync(UserSettings);
+                    string responsePath = UserSettings;
+
+                    if (appSettings.IsFirstInstall)
+                    {
+                        if (appSettings.bGoalHealthyHabits)
+                        {
+                            responsePath = "https://api.focusbear.io/habit-packs/default?pack_id=45ede897-9008-494f-b810-8d5495f6baca&format=routine_and_break";
+                        }
+                        else
+                        {
+                            responsePath = "https://api.focusbear.io/habit-packs/default?pack_id=7cff2a97-90ad-4791-98b0-4a79dad32f73&format=break_only";
+                        }
+                    }
+                    var response = await client.GetAsync(responsePath);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
                     {
                         if (response.Content != null)
@@ -1715,7 +1826,13 @@ namespace Focus_Bear.API
 
                     HttpClient client = new HttpClient();
 
-                    string apiPath = string.Format("https://api.focusbear.io/completed-activity/{0}/stats?days_number=30&timezone=UTC", (activityChoiceId.Length > 0 ? activityChoiceId : activityId));
+                    var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
+                    //UTC+05:30 // UTC%2B5:30
+                    string sign = offset < TimeSpan.Zero ? "-" : "+";
+                    sign = HttpUtility.UrlEncode(sign);
+                    string time = "UTC" + sign + offset.ToString(@"hh\:mm");
+
+                    string apiPath = string.Format("https://api.focusbear.io/completed-activity/{0}/stats?days_number=30&timezone={1}", (activityChoiceId.Length > 0 ? activityChoiceId : activityId), time);
 
                     LogWriter.LogWrite("GetActivityStats() URL - " + apiPath);
 
@@ -1996,7 +2113,7 @@ namespace Focus_Bear.API
 
         internal async Task<int> CapturePostHog(string sEvent, string sMetadata) // OK
         {
-            LogWriter.LogWrite("CapturePostHog()");
+            LogWriter.LogWrite("CapturePostHog() - " + sEvent);
             try
             {
                 if (NetworkInterface.GetIsNetworkAvailable())
@@ -2115,7 +2232,7 @@ namespace Focus_Bear.API
 
         internal async Task<int> CaptureEventEndpoint(string sEvent, string sMetadata) // OK
         {
-            LogWriter.LogWrite("CaptureEventEndpoint()");
+            LogWriter.LogWrite("CaptureEventEndpoint() - " + sEvent);
             try
             {
                 if (NetworkInterface.GetIsNetworkAvailable())

@@ -39,7 +39,7 @@ namespace Focus_Bear.Focus
 
         public StartFocusMode(string sFocusName, bool bIsDefault, bool isLockedFocus)
         {
-            LogWriter.LogWrite("StartFocusMode()");
+            LogWriter.LogWrite("StartFocusMode() func");
 
             InitializeComponent();
             /*
@@ -57,6 +57,7 @@ namespace Focus_Bear.Focus
             "explanationText":"Setting an intention for the focus block helps prime your brain to accomplish that task. To edit the intention after starting the focus mode, click Brain Dump in the menu bar."
         },
         */
+           
             bIsDefaultFocusMode = bIsDefault;
             bIsisLockedFocusMode = isLockedFocus;
 
@@ -74,10 +75,13 @@ namespace Focus_Bear.Focus
             MinutesTitle.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["minutesText"].ToString();
             btnStartFocusText.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["buttonStartFocusText"].ToString();
 
+            SkipMicroBreaks.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonSkipMicrobreaksText"].ToString();
+
             Hours.Text = "00";
             Minutes.Text = "20"; //Defaults
 
-           
+            appSettings.bSkipMicroBreaksDuringFocus = false;
+            SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
         }
 
         private void btnStartFocus_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -233,7 +237,7 @@ namespace Focus_Bear.Focus
             if (bIsDefaultFocusMode)
             {
                // await Task.Delay(50);
-
+               /** Removed Discourage focus on 28 Jan 2023
                 GridShade.Visibility = Visibility.Visible;
                 DiscourageDefault aa = new DiscourageDefault(this);
                 aa.Topmost = true;
@@ -247,6 +251,7 @@ namespace Focus_Bear.Focus
                     Close();
                 }
                 GridShade.Visibility = Visibility.Collapsed;
+                **/
             }
             else if (bIsisLockedFocusMode)
             {
@@ -282,6 +287,16 @@ namespace Focus_Bear.Focus
 
             }
 
+        }
+
+        private void SkipMicroBreaks_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bSkipMicroBreaksDuringFocus = true;
+        }
+
+        private void SkipMicroBreaks_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bSkipMicroBreaksDuringFocus = false;
         }
     }
 }

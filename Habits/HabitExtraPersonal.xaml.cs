@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Preferences;
+using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,7 +26,7 @@ namespace Focus_Bear.Habits
     {
         private HabitWindow _parentWindow;
         private int nTimer = 30;
-        private DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        private DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         AppSettings appSettings = AppSettings.GetInstance;
         private string sButtonTitle;
 
@@ -99,7 +100,7 @@ namespace Focus_Bear.Habits
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer -= 10;
+            int val = nTimer -= 1;
 #else
             int val = nTimer--;
 #endif
@@ -147,6 +148,62 @@ namespace Focus_Bear.Habits
         private void btnSkipThisHabit_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("extra personal btnSkipThisHabit_Clicked ");
+
+            if (appSettings.isPasswordSet)
+            {
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                {
+                    if (appSettings.bPasswordRequireInSkipMorning)
+                    {
+                    
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = _parentWindow;
+                        _parentWindow.GridShade.Visibility = Visibility.Visible;
+
+                        bool? bResult = pwdWnd.ShowDialog();
+
+                        _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+                      
+
+                        if (bResult.Value)
+                        {
+                            //Password is correct
+                        }
+                        else
+                        {
+                            //Hide();
+                            return;
+                        }
+
+                    }
+                }
+                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                {
+                    if (appSettings.bPasswordRequireInSkipEvening)
+                    {
+
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = _parentWindow;
+                       _parentWindow.GridShade.Visibility = Visibility.Visible;
+
+                        bool? bResult = pwdWnd.ShowDialog();
+
+                        _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+              
+                        if (bResult.Value)
+                        {
+                            //Password is correct
+                        }
+                        else
+                        {
+                            //Hide();
+                            return;
+                        }
+                    }
+                }
+
+            }
+
             appSettings.nHabitIndex = -1; //Starting with minus 1 as we will inclement this on why skip nags screen
             
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)

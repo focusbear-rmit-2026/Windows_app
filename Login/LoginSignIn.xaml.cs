@@ -46,14 +46,22 @@ namespace Focus_Bear.Login
                          "buttonSignInText": "Sign In",
              */
 
-            Heading.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleSignIn"].ToString();
-            Description.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["subTitleWelcomeback"].ToString();
-            lblEmail.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailAddress"].ToString();
-            lblPassword.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePassword"].ToString();
-            btnSignInText.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonSignInText"].ToString();
-            btnCreateAccountText.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCreateAccountText"].ToString();
+            try
+            {
+                Heading.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleSignIn"].ToString();
+                Description.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["subTitleWelcomeback"].ToString();
+                lblEmail.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailAddress"].ToString();
+                lblPassword.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePassword"].ToString();
+                btnSignInText.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonSignInText"].ToString();
+                btnCreateAccountText.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCreateAccountText"].ToString();
+                ForgetPasswordTXT.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonForgotPasswordText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("LoginSignIn ex = " + ex.Message);
+            }
 
-           // PleaseWait.Text = "Please Wait"; //TOdO Win text
+            // PleaseWait.Text = "Please Wait"; //TOdO Win text
 
             Loaded += (sender, e) => TxtEmailAddress.Focus();
         }
@@ -105,36 +113,47 @@ namespace Focus_Bear.Login
                                     {
                                         await Dispatcher.BeginInvoke((Action)(() =>
                                         {
-                                            MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
+                                            FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, authenticator.sErrorMessage);
+                                            ff.ShowDialog();
+                                            //MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
                                         }));
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    LogWriter.LogWrite(ex.Message);
-                                    Debug.WriteLine(ex.Message);
+                                    LogWriter.LogWrite("btnSignIn_Click EX - " + ex.Message);
                                 }
                             });
                         }
                         else
                         {
-                            MessageBox.Show("xpassword empty", "xSignin Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            //MessageBox.Show("xpassword empty", "xSignin Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            // MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear");
+                            ff.ShowDialog();
                         }
                     }
                     else
                     {
-                        MessageBox.Show("xInvalid email", "xSignin Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        // MessageBox.Show("xInvalid email", "xSignin Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        // "emailInvalidText": "Please enter a valid Email.",
+                        //MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                        FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear");
+                        ff.ShowDialog();
+
                     }
                 }
                 else
                 {
-                    MessageBox.Show("xEmail empty", "xSignin Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // MessageBox.Show("xEmail empty", "xSignin Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // "titleEmailIsBlank": "Email cannot be blank.",
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear");
+                    ff.ShowDialog();
                 }
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
             }
             finally
             {
@@ -161,6 +180,67 @@ namespace Focus_Bear.Login
             btnCreatAccount.IsEnabled = bEnable;
         }
 
+        private async void btnForgetPassword_Click(object sender, RoutedEventArgs e)
+        {
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
 
+            try
+            {
+
+                string emailAddress = TxtEmailAddress.Text;
+                if (emailAddress.Length > 0)
+                {
+                    EnablControls(false);
+                    await Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var authenticator = new Authentication();
+                            if (await authenticator.ChangePassword(emailAddress))
+                            {
+                                await Dispatcher.BeginInvoke((Action)(() =>
+                                {
+                                    Mouse.OverrideCursor = null;
+                                    EnablControls(true); 
+                                    appSettings.CapturePostHog("change-password");
+                                    FBMessageBox ff = new FBMessageBox("", authenticator.sChangePasswordMessage);
+                                    ff.ShowDialog();
+                                }));
+                            }
+                            else
+                            {
+                                await Dispatcher.BeginInvoke((Action)(() =>
+                                {
+                                    FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, authenticator.sErrorMessage);
+                                    ff.ShowDialog();
+                                    //MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
+                                }));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogWriter.LogWrite("btnSignIn_Click EX - " + ex.Message);
+                        }
+                    });
+                }
+                else
+                {
+                    // MessageBox.Show("xEmail empty", "xSignin Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // "titleEmailIsBlank": "Email cannot be blank.",
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear");
+                    ff.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite(ex.Message);
+ 
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+                EnablControls(true);
+            }
+        }
     }
 }

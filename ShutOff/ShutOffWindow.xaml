@@ -4,18 +4,19 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.ShutOff"
-                    xmlns:Models="clr-namespace:Focus_Bear.Models"
-         xmlns:src="clr-namespace:Focus_Bear.Habits"
+        xmlns:Models="clr-namespace:Focus_Bear.Models"
+        xmlns:src="clr-namespace:Focus_Bear.Habits"
+        xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="ShutOffWindow" d:DesignHeight="1080" d:DesignWidth="1920" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed">
+        Title="ShutOffWindow" d:DesignHeight="1080" d:DesignWidth="1920" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" >
 
-
-    <Grid>
+    <local1:DpiDecorator>
+        <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="125" />
+            <RowDefinition Height="Auto" MinHeight="110" />
             <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="Auto" MinHeight="200" />
             <RowDefinition Height="Auto" MinHeight="100" />
@@ -61,5 +62,9 @@
                 </StackPanel>
             </Button.Content>
         </Button>
+
+        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
+
     </Grid>
+        </local1:DpiDecorator>
 </src:FullScreenParent>

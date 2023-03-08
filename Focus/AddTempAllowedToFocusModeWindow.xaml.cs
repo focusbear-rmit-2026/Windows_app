@@ -1,0 +1,93 @@
+﻿using Focus_Bear.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+
+namespace Focus_Bear.Focus
+{
+    /// <summary>
+    /// Interaction logic for AddTempAllowedToFocusModeWindow.xaml
+    /// </summary>
+    public partial class AddTempAllowedToFocusModeWindow : Window
+    {
+        AppSettings appSettings = AppSettings.GetInstance;
+        public AddTempAllowedToFocusModeWindow()
+        {
+            InitializeComponent();
+
+            /* "addFocusTempUrlsOrAppsVcInfo": {
+                "title":"Do you want to permanently allow these Apps or URLs that you used during this session?",
+                "buttonAllowText":"Allow"
+            },*/
+
+            try
+            { 
+                Heading.Text = appSettings.ConfigFileStrings["addFocusTempUrlsOrAppsVcInfo"]["title"].ToString();
+                btnAddTXT.Text = appSettings.ConfigFileStrings["addFocusTempUrlsOrAppsVcInfo"]["buttonAllowText"].ToString();
+                btnCancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
+                AppsTitle.Text = appSettings.ConfigFileStrings["toolBoxVcInfo"]["appsText"].ToString();
+                URLSTitle.Text = appSettings.ConfigFileStrings["toolBoxVcInfo"]["urlsText"].ToString();
+
+                KeywordsTitle.Text = appSettings.ConfigFileStrings["addFocusTempUrlsOrAppsVcInfo"]["titleKeywords"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AddTempAllowedToFocusModeWindow() EX = " + ex.Message);
+            }
+
+            ListApps.ItemsSource = appSettings.TemporaryAllowedAppsGentleBlock;
+            ListURLs.ItemsSource = appSettings.TemporaryAllowedURLsGentleBlock;
+
+            //Will will need to call the keywords API and then get the keyword to show in the list.
+            ListKeywords.ItemsSource = appSettings.TemporaryAllowedKeywords;
+
+            if (appSettings.TemporaryAllowedAppsGentleBlock.Count == 0)
+            {
+                AppsTitle.Visibility = Visibility.Collapsed;
+                ListApps.Visibility = Visibility.Collapsed;
+            }
+            if(appSettings.TemporaryAllowedURLsGentleBlock.Count == 0)
+            {
+                URLSTitle.Visibility = Visibility.Collapsed;
+                ListURLs.Visibility = Visibility.Collapsed;
+            }
+            if(appSettings.TemporaryAllowedURLsTabTitles.Count == 0)
+            {
+                KeywordsTitle.Visibility = Visibility.Collapsed;
+                ListKeywords.Visibility = Visibility.Collapsed;
+            }
+            // Manually alter window height and width
+            this.SizeToContent = SizeToContent.Manual;
+
+            // Automatically resize width relative to content
+            this.SizeToContent = SizeToContent.Width;
+
+            // Automatically resize height relative to content
+            this.SizeToContent = SizeToContent.Height;
+
+            // Automatically resize height and width relative to content
+            this.SizeToContent = SizeToContent.WidthAndHeight;
+
+        }
+
+        private void btnAdd_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+        }
+    }
+}

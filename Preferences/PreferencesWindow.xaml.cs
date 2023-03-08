@@ -31,9 +31,9 @@ namespace Focus_Bear.Preferences
         private string PreferenceButtonSelectedColor = "#0066EB";
         private string PreferenceButtonNormalColor = "#000";
 
-        EditHabits PageEditHabits;
+        public EditHabits PageEditHabits;
         FocusPage PageFocusModes;
-
+        AccountTab PageAccountsTab;
         public PreferencesWindow()
         {
             InitializeComponent();
@@ -55,7 +55,7 @@ namespace Focus_Bear.Preferences
             btnSettingsTXT.Text = appSettings.ConfigFileStrings["common"]["tabSettingsText"].ToString(); 
             btnFocusTXT.Text = appSettings.ConfigFileStrings["common"]["tabFocusText"].ToString();
             btnEditHabitsTXT.Text = appSettings.ConfigFileStrings["common"]["tabEditHabitsText"].ToString();
-            btnPasswordTXT.Text = appSettings.ConfigFileStrings["common"]["tabPasswordText"].ToString();
+            ///btnPasswordTXT.Text = appSettings.ConfigFileStrings["common"]["tabPasswordText"].ToString();
             btnBlockedURLsTXT.Text = appSettings.ConfigFileStrings["common"]["tabBlockedURLsText"].ToString();
             btnAccountTXT.Text = appSettings.ConfigFileStrings["common"]["tabAccountsText"].ToString();
             btnUninstallTXT.Text = appSettings.ConfigFileStrings["common"]["tabUninstallText"].ToString();
@@ -70,7 +70,8 @@ namespace Focus_Bear.Preferences
   
             FrameBlockedURLs.Navigate(new AlwaysBlockedURLs(this));
 
-            FrameAccountTab.Navigate(new AccountTab());
+            PageAccountsTab = new AccountTab();
+            FrameAccountTab.Navigate(PageAccountsTab);
 
             FrameUninstallTab.Navigate(new Uninstall(this));
             
@@ -88,7 +89,7 @@ namespace Focus_Bear.Preferences
             btnSettings.IsEnabled = true;
             btnFocus.IsEnabled = true;
             btnEditHabits.IsEnabled = true;
-            btnPassword.IsEnabled = true;
+           /// btnPassword.IsEnabled = true;
             btnBlockedURLs.IsEnabled = true;
             btnAccount.IsEnabled = true;
             btnUninstall.IsEnabled = true;
@@ -96,7 +97,7 @@ namespace Focus_Bear.Preferences
             btnSettings.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnFocus.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnEditHabits.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-            btnPassword.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            ///btnPassword.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnBlockedURLs.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnAccount.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnUninstall.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
@@ -110,33 +111,39 @@ namespace Focus_Bear.Preferences
         }
         private void btnSettings_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("Preferences tab - btnSettings_Click");
+
             EnableAll();
             btnSettings.IsEnabled = false;
             btnSettings.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-            this.Width = 670;
-            this.Height = 700;
+            this.Width = 680;
+            this.Height = 750;
 
             FrameSettings.Visibility = Visibility.Visible;
         }
              
         private void btnFocus_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("Preferences tab - btnFocus_Click");
+
             EnableAll();
             btnFocus.IsEnabled = false;
             btnFocus.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-            this.Width = 670;
-            this.Height = 700;
+            this.Width = 680;
+            this.Height = 750;
 
             FrameFocus.Visibility = Visibility.Visible;
         }
 
         private void btnEditHabits_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("Preferences tab - btnEditHabits_Click");
+
             EnableAll();
             btnEditHabits.IsEnabled = false;
             btnEditHabits.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
             this.Width = 999;
-            this.Height = 700;
+            this.Height = 750;
 
             FrameEditHabits.Visibility = Visibility.Visible;
 
@@ -158,20 +165,24 @@ namespace Focus_Bear.Preferences
 
         private void btnPassword_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("Preferences tab - btnPassword_Click");
+
             EnableAll();
-            btnPassword.IsEnabled = false;
-            btnPassword.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+           /// btnPassword.IsEnabled = false;
+           /// btnPassword.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
  
         }
 
         private void btnBlockedURLs_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("Preferences tab - btnBlockedURLs_Click");
+
             EnableAll();
             btnBlockedURLs.IsEnabled = false;
             btnBlockedURLs.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
             
-            this.Width = 670;
-            this.Height = 700;
+            this.Width = 680;
+            this.Height = 750;
 
             FrameBlockedURLs.Visibility = Visibility.Visible;
 
@@ -179,21 +190,26 @@ namespace Focus_Bear.Preferences
 
         private void btnAccount_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("Preferences tab - btnAccount_Click");
+
             EnableAll();
             btnAccount.IsEnabled = false;
             btnAccount.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-            this.Width = 670;
+            this.Width = 680;
             this.Height = 600;
 
+            PageAccountsTab.LoadTexts();
             FrameAccountTab.Visibility = Visibility.Visible;
         }
 
         private void btnUninstall_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("Preferences tab - btnUninstall_Click");
+
             EnableAll();
             btnUninstall.IsEnabled = false;
             btnUninstall.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-            this.Width = 670;
+            this.Width = 680;
             this.Height = 600;
 
             FrameUninstallTab.Visibility = Visibility.Visible;
@@ -252,11 +268,59 @@ namespace Focus_Bear.Preferences
         }
         public void ShowFocusMode(string sFocusMode)
         {
-            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnFocus);
-            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-            invokeProv.Invoke();
-
+            if (btnFocus.IsEnabled) //only if the button is not already active
+            {
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnFocus);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
+            
             PageFocusModes.SelectFocusMode(sFocusMode);
+        }
+
+        private async void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (IsVisible)
+            {
+                if(appSettings.isPasswordSet)
+                {
+                    if(appSettings.bPasswordRequireInChangeSettings)
+                    {
+                        await Task.Delay(500); //Let the 
+
+                        //Here we need to check if the edit habit tab is selected as it contains a webview..we will need to hide that and show again
+                        if(!btnEditHabits.IsEnabled)
+                        {
+                            PageEditHabits.webView.Visibility = Visibility.Collapsed;
+                        }
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = this;
+                        GridShade.Visibility = Visibility.Visible;
+
+                        bool? bResult = pwdWnd.ShowDialog();
+
+                        GridShade.Visibility = Visibility.Collapsed;
+                        if (!btnEditHabits.IsEnabled) //reshow the hiddedn webview
+                        {
+                            PageEditHabits.webView.Visibility = Visibility.Visible;
+                        }
+
+                        if (bResult.Value)
+                        {
+                             //Password is correct
+                        }
+                        else
+                        {
+                            Hide();
+                        }
+
+                    }
+                }
+            }
+            else
+            {
+                //nothing to do
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ namespace Focus_Bear.Focus
     {
         AppSettings appSettings = AppSettings.GetInstance;
         int nTimer = 5;
-        DispatcherTimer dispatcherTimerUnlock = new DispatcherTimer();
+        DispatcherTimer dispatcherTimerUnlock = new DispatcherTimer(DispatcherPriority.Normal);
         public DiscourageDefault()
         {
         }

@@ -23,27 +23,8 @@
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="x finished!✅ You've earned your screen time. 💪" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <StackPanel  Grid.Row="2"  Orientation="Vertical" HorizontalAlignment="Center">
         <TextBlock    Name="TypeOfWork" Margin="0,150,0,0" TextWrapping="Wrap" Text="xWhat type of work do you mainly do?." Foreground="#272727" FontSize="25" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-            <ComboBox Name="ComboBoxWorkType"  Grid.Row="2" Width="200" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,30,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxWorkType_SelectionChanged">
-            </ComboBox>
-            <TextBox    Height="30" x:Name="TxtSomethingElse"    Margin="0,30" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" Width="341" Visibility="Collapsed" TextChanged="TxtSomethingElse_TextChanged">
-                <TextBox.Effect>
-                    <DropShadowEffect ShadowDepth="3"
-                          Direction="330"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="6"
-                           />
-                </TextBox.Effect>
-                <TextBox.FocusVisualStyle>
-                    <Style>
-                        <Setter Property="Control.Template">
-                            <Setter.Value>
-                                <ControlTemplate/>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </TextBox.FocusVisualStyle>
-            </TextBox>
+            
+             
         </StackPanel>
         <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="400" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click" >
             <Button.Content>

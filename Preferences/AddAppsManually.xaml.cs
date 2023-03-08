@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Onboarding.AfterLogin;
+using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,13 +27,24 @@ namespace Focus_Bear.Preferences
         {
 
         }
+        public AddAppsManually(OnboardingSetupAndTipsWindow _ParentWindow)
+        {
+            InitializeComponent();
+
+            this.Owner = _ParentWindow;
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            LoadTexts();
+        }
         public AddAppsManually(PreferencesWindow _ParentWindow)
         {
             InitializeComponent();
 
             this.Owner = _ParentWindow;
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-
+            LoadTexts();
+        }
+        void LoadTexts()
+        {
             Heading.Text = "Enter apps manually:"; //todo win text
             Instructions.Text = "If you know the name of the EXEs that you want to allow, you can add them here. You can enter multiple exe names seperated with comma. (Example: chrome.exe, firefox.exe, notepad.exe)";
 
@@ -41,7 +53,6 @@ namespace Focus_Bear.Preferences
 
             btnAdd.IsEnabled = false;
         }
-
         private void TxtApps_TextChanged(object sender, TextChangedEventArgs e)
         {
             string text = TxtApps.Text;

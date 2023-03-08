@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -29,7 +31,7 @@ namespace Focus_Bear.Focus
         AppSettings appSettings = AppSettings.GetInstance;
 
         int nTimer = 60;
-        DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
         bool bNeedMoreTime = false;
 
@@ -215,6 +217,20 @@ namespace Focus_Bear.Focus
 
         }
 
+        public void SimulateNeedOneMinute_Click()
+        {
+            LogWriter.LogWrite("SimulateNeedOneMinute_Click()");
+
+            if (GridShade.IsVisible)
+            {
+                LogWriter.LogWrite("GridShade.IsVisible return from SimulateNeedOneMinute_Click()");
+                return;
+            }
+
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnNeedOneMinute);
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
+        }
         private void btnNeedOneMinute_Click(object sender, RoutedEventArgs e)
         {
 
@@ -319,11 +335,12 @@ namespace Focus_Bear.Focus
             {
                 appSettings.FocusSummaryShownTillDate = myStartTime;//Today's Morning time
             }
-            LogWriter.LogWrite(string.Format("Set FocusSummaryShownTillDate - {0}", appSettings.EveningHabitsShownTillDate.ToString()));
+            LogWriter.LogWrite(string.Format("Set FocusSummaryShownTillDate - {0}", appSettings.FocusSummaryShownTillDate.ToString()));
 
             RegistryManager.SetFocusSummaryShownTillDate();
 
             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Background thread will take care of evening routine
+            LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
             Close();
         }

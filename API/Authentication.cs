@@ -23,7 +23,7 @@ namespace Focus_Bear.API
         private String sRealm;
         private String sAudience;
         public string sErrorMessage;
-
+        public string sChangePasswordMessage;
         AppSettings appSettings = AppSettings.GetInstance;
 
         public Authentication()
@@ -196,6 +196,77 @@ namespace Focus_Bear.API
             }          
             
         }
+
+        public async Task<bool> ChangePassword(String sUsername)
+        {
+            try
+            {
+                //https://github.com/auth0/auth0.net/blob/master/src/Auth0.AuthenticationApi/AuthenticationApiClient.cs
+                var authenticationApiClient = new AuthenticationApiClient(new System.Uri($"https://dev-2hidr8ad.us.auth0.com/"));
+
+                var authenticationResponse = await authenticationApiClient.ChangePasswordAsync(new ChangePasswordRequest
+                {
+                    ClientId = sClientId,
+                    Connection = sRealm,
+                    Email = sUsername,
+                });
+
+                //Proceed after login
+                //appSettings.userAccount.accessToken = authenticationResponse.AccessToken;
+                //appSettings.userAccount.refreshToken = authenticationResponse.RefreshToken;
+
+                //appSettings.SaveTokens();
+                sChangePasswordMessage = authenticationResponse;
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RefreshToken(String sRefreshToken) EXCEPTION - " + ex.Message);
+
+                sErrorMessage = ex.Message;
+
+                Console.WriteLine("\nMessage ---\n{0}", ex.Message);
+                return false;
+            }
+
+        }
+
+        public async Task<bool> SendMagicLink(String sUsername)
+        {
+            /*var client = new RestClient("https://{yourDomain}/passwordless/start");
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("content-type", "application/json");
+                request.AddParameter("application/json", "{ \"client_id\": \"{yourClientId}\", \"connection\": \"email\", \"email\": \"USER_EMAIL\", \"send\": \"link\"}", ParameterType.RequestBody);
+                IRestResponse response = client.Execute(request);
+                */
+
+            try
+            {
+                //https://github.com/auth0/auth0.net/blob/master/src/Auth0.AuthenticationApi/AuthenticationApiClient.cs
+                var authenticationApiClient = new AuthenticationApiClient(new System.Uri($"https://dev-2hidr8ad.us.auth0.com/"));
+
+                var req = new PasswordlessEmailRequest();
+                req.Email = sUsername;
+                req.ClientId = sClientId;
+
+                var t = await authenticationApiClient.StartPasswordlessEmailFlowAsync(req);
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("public async Task<bool> SendMagicLink(String sUsername, String sPassword) EXCEPTION - " + ex.Message);
+
+                sErrorMessage = ex.Message;
+
+                Console.WriteLine("\nMessage ---\n{0}", ex.Message);
+                return false;
+
+            }
+
+        }
+
     }
 }
 

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
+using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -69,11 +70,24 @@ namespace Focus_Bear.Utils
 
         public static bool IsValidEmailAddress(this string s)
         {
-            Regex regex = new Regex(@"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
-            return regex.IsMatch(s);
+           
+            try
+            {
+                MailAddress m = new MailAddress(s);
+
+                return true;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+            //Regex regex = new Regex(@"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+            //Regex regex = new Regex(@"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"); //Mac apps
+
+            //return regex.IsMatch(s);
         }
 
-
+        //"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
         public static long ConvertToUnixTime(DateTime datetime)
         {
             DateTime sTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -143,7 +157,16 @@ namespace Focus_Bear.Utils
             return mac;
         }
 
-
+        public static string Base64Encode(string text)
+        {
+            var textBytes = System.Text.Encoding.UTF8.GetBytes(text);
+            return System.Convert.ToBase64String(textBytes);
+        }
+        public static string Base64Decode(string base64)
+        {
+            var base64Bytes = System.Convert.FromBase64String(base64);
+            return System.Text.Encoding.UTF8.GetString(base64Bytes);
+        }
 
     }
 
@@ -353,8 +376,8 @@ namespace Focus_Bear.Utils
 
         public bool isAllowedAllApps;
         public bool isAllowedListApproach;
-        public bool isAllowedAllUrls;
-        public bool isBlockedAllUrls;
+        ////public bool isAllowedAllUrls;
+        ////public bool isBlockedAllUrls;
         public bool isDefault;
         public bool isMeetings;
         public bool isLockedFocus;
@@ -363,7 +386,7 @@ namespace Focus_Bear.Utils
         {
 
         }
-        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isAllowedAllUrls, bool isBlockedAllUrls, bool isDefault, bool isMeetings, bool isLockedFocus)
+        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus)
         {
             this.id = id;
             this.name = name;
@@ -374,8 +397,8 @@ namespace Focus_Bear.Utils
             this.isOn = isOn;
             this.isAllowedAllApps = isAllowedAllApps;
             this.isAllowedListApproach = isAllowedListApproach;
-            this.isAllowedAllUrls = isAllowedAllUrls;
-            this.isBlockedAllUrls = isBlockedAllUrls;
+            ////this.isAllowedAllUrls = isAllowedAllUrls;
+            ////this.isBlockedAllUrls = isBlockedAllUrls;
             this.isDefault = isDefault;
             this.isMeetings = isMeetings;
             this.isLockedFocus = isLockedFocus;
@@ -393,5 +416,40 @@ namespace Focus_Bear.Utils
 
     }
 
-    
+    public class DistractingURL
+    {
+        private bool isItemChecked;
+
+        public string sURL { get; set; }  
+        public bool IsItemChecked
+        {
+            get { return isItemChecked; }
+            set
+            {
+                isItemChecked = value;
+                OnChanged("IsItemChecked");
+            }
+        }
+
+        public DistractingURL()
+        {
+           
+        }
+        public DistractingURL(string sURL, bool bChecked)
+        {
+            this.sURL = sURL;
+            this.IsItemChecked = bChecked;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+    }
+
 }

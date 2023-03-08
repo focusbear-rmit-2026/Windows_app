@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -27,7 +28,7 @@ namespace Focus_Bear.Focus
         AppSettings appSettings = AppSettings.GetInstance;
 
         int nTimer = 15; //15 Seconds
-        DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
@@ -51,7 +52,9 @@ namespace Focus_Bear.Focus
 
         public string sActiveAppName = "";
         public string sActiveURL = "";
-
+        public string sFullURLForBlockedPage = "";
+        public string sCurrentTabTitle = "";
+        IntPtr HWND = IntPtr.Zero;
         public GentleBlock()
         {
             InitializeComponent();
@@ -60,7 +63,7 @@ namespace Focus_Bear.Focus
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
 
-        public void ShowGentleBlockWindowAndStartTimer(string sFocusModeTitle, string sAppName, string sURL = "", string sIntention = "")
+        public void ShowGentleBlockWindowAndStartTimer(IntPtr hWnd, string sFocusModeTitle, string sAppName, string sURL = "", string sIntention = "", string sTabTitle = "")
         {
             /*
              * "popUpBlockConfirmVcInfo": {
@@ -72,8 +75,32 @@ namespace Focus_Bear.Focus
             },
              */
             sFocusModeName = sFocusModeTitle;
-            sActiveAppName = sAppName;
+            sActiveAppName = sAppName; 
+            sFullURLForBlockedPage = sURL;
             sActiveURL = sURL;
+            sCurrentTabTitle = sTabTitle;
+            HWND = hWnd;
+
+            if (sURL.Length > 0)
+            {
+                try
+                {
+                    Uri myUri = new Uri(sURL);
+                    string host = myUri.Host; //fails if ther eis no http://
+                    sActiveURL = host;
+                    Debug.WriteLine(sActiveURL);
+                }
+                catch (Exception ex)
+                {
+                    /*
+                    This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                    If uri does not specify a scheme, the scheme defaults to "http:".
+                    */
+                    Uri myUri = new UriBuilder(sURL).Uri;
+                    sActiveURL = myUri.Host;
+                    Debug.WriteLine(ex.Message);
+                }
+            }
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
             btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
@@ -86,7 +113,7 @@ namespace Focus_Bear.Focus
             }
             else
             {
-                sHeading = sHeading.Replace("<URL>", sURL);
+                sHeading = sHeading.Replace("<URL>", sActiveURL);
             }
             sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeTitle);
             Heading.Text = sHeading;
@@ -178,11 +205,22 @@ namespace Focus_Bear.Focus
         {
             if (sActiveAppName.Length > 0)
             {
-                appSettings.TemporaryAllowedAppsGentleBlock.Add(sActiveAppName.ToLower());
+                appSettings.TemporaryAllowedAppsGentleBlock.Add( new DistractingURL(sActiveAppName.ToLower(), true));
             }
             else
             {
-                appSettings.TemporaryAllowedURLsGentleBlock.Add(sActiveURL.ToLower());
+                appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
+
+                //Lets add it to keyword array, if its not already there
+                if (sCurrentTabTitle.Length > 0)
+                {
+                    var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sCurrentTabTitle.ToLower());
+                    if (titleExists.Count() == 0)
+                    {
+                        //add to list
+                        appSettings.TemporaryAllowedURLsTabTitles.Add(sCurrentTabTitle);
+                    }
+                }
             }
             dispatcherTimer.Stop();
             Hide();
@@ -197,6 +235,7 @@ namespace Focus_Bear.Focus
             else
             {
                 appSettings.TemporarryBlockedURLsGentleBlock.Add(sActiveURL.ToLower());
+                ProcessBrowserURLs.suppressURLForFirefox(HWND, sFullURLForBlockedPage, "focus"); //here we will send the full URL
             }
             dispatcherTimer.Stop();
             Hide();

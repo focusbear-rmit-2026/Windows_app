@@ -26,7 +26,7 @@ namespace Focus_Bear.Focus
         AppSettings appSettings = AppSettings.GetInstance;
 
         int nTimer = 300; //Five minutes
-        DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
         public BreakWindow()
         {

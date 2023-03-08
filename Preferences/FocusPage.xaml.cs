@@ -90,7 +90,9 @@ namespace Focus_Bear.Preferences
                     "focusCanNotDeleteTitle":"Can not delete.",
                     "focusCanNotDeleteSubTitle":"The Default focus type cannot be deleted.",
                     */
-                    MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteSubTitle"].ToString(), appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteTitle"].ToString(), MessageBoxButton.OK);
+                   /// MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteSubTitle"].ToString(), appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteTitle"].ToString(), MessageBoxButton.OK);
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteSubTitle"].ToString(), "Focus Bear");
+                    ff.ShowDialog();
                     return;
                 }
                 if (selectedItem != null)
@@ -100,8 +102,10 @@ namespace Focus_Bear.Preferences
                        "yesText":"Yes",
                    "noText":"No",
                    */
-                    MessageBoxResult mb = MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["deleteFocusTypeMessageText"].ToString(), "", MessageBoxButton.YesNo);
-                    if (mb == MessageBoxResult.Yes)
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["deleteFocusTypeMessageText"].ToString(), "Focus Bear", MessageBoxButton.YesNo);
+                    ff.ShowDialog();
+                    ////MessageBoxResult mb = MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["deleteFocusTypeMessageText"].ToString(), "", MessageBoxButton.YesNo);
+                    if (ff.btnClicked == MessageBoxResult.Yes)
                     {
                         appSettings.arrFocusModes.Remove(selectedItem);
 
@@ -152,7 +156,7 @@ namespace Focus_Bear.Preferences
                 }
                 appSettings.CapturePostHog("duplicate-focus-mode");
                 //add to focus modes  array and Upload to api
-                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), newName, selectedFocusMode.arrAllowedUrls, selectedFocusMode.arrBlockedUrls, selectedFocusMode.arrAllowedAppsWin, selectedFocusMode.color, false, selectedFocusMode.isAllowedAllApps, selectedFocusMode.isAllowedListApproach, selectedFocusMode.isAllowedAllUrls, selectedFocusMode.isBlockedAllUrls, false, false, false));
+                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), newName, selectedFocusMode.arrAllowedUrls, selectedFocusMode.arrBlockedUrls, selectedFocusMode.arrAllowedAppsWin, selectedFocusMode.color, false, selectedFocusMode.isAllowedAllApps, selectedFocusMode.isAllowedListApproach, false, false, false));
             }
         }
         void AddFocusModeToArrayAndUploadtoAPI(FocusMode ff)
@@ -208,37 +212,37 @@ namespace Focus_Bear.Preferences
 
             // Remove the handler
             //do not want to raise SelectionChanged event programmatically here
-            ComboBoxHowDoYouWant.SelectionChanged -= ComboBoxHowDoYouWant_SelectionChanged;
+            ////ComboBoxHowDoYouWant.SelectionChanged -= ComboBoxHowDoYouWant_SelectionChanged;
 
-            ComboBoxHowDoYouWant.Items.Clear();
-            ComboBoxHowDoYouWant.Items.Add(appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedAllUrls"].ToString());
-            ComboBoxHowDoYouWant.Items.Add(appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedSelectedUrls"].ToString());
-           // ComboBoxHowDoYouWant.SelectedIndex = 0;
+            ////ComboBoxHowDoYouWant.Items.Clear();
+            ////ComboBoxHowDoYouWant.Items.Add(appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedAllUrls"].ToString());
+            ////ComboBoxHowDoYouWant.Items.Add(appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedSelectedUrls"].ToString());
+           
 
             var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
             if (selectedFocusMode != null)
             {
-                if (selectedFocusMode.isAllowedAllUrls)//Set the combo box by reading the existing value
-                {
-                    ComboBoxHowDoYouWant.SelectedIndex = 0;
-                }
-                else
-                {
-                    ComboBoxHowDoYouWant.SelectedIndex = 1;
-                }
+                ////if (selectedFocusMode.isAllowedAllUrls)//Set the combo box by reading the existing value
+                ////{
+                ////    ComboBoxHowDoYouWant.SelectedIndex = 0;
+                ////}
+                ////else
+                ////{
+                ////    ComboBoxHowDoYouWant.SelectedIndex = 1;
+                ////}
 
-                if (ComboBoxHowDoYouWant.SelectedIndex == 0) //Block all urls or allow all urls
-                {
-                    ListURLs.IsEnabled = false;
-                    btnAddAllowedURLs.IsEnabled = false;
-                    btnAddDeleteAllowedURLs.IsEnabled = false;
+                ////if (ComboBoxHowDoYouWant.SelectedIndex == 0) //Block all urls or allow all urls
+                ////{
+                ////    ListURLs.IsEnabled = false;
+                ////    btnAddAllowedURLs.IsEnabled = false;
+                ////    btnAddDeleteAllowedURLs.IsEnabled = false;
 
-                    ListURLs.Visibility = Visibility.Collapsed;
-                    btnAddAllowedURLs.Visibility = Visibility.Collapsed;
-                    btnAddDeleteAllowedURLs.Visibility = Visibility.Collapsed;
+                ////    ListURLs.Visibility = Visibility.Collapsed;
+                ////    btnAddAllowedURLs.Visibility = Visibility.Collapsed;
+                ////    btnAddDeleteAllowedURLs.Visibility = Visibility.Collapsed;
 
-                }
-                else
+                ////}
+                ////else
                 {
                     ListURLs.IsEnabled = true;
                     btnAddAllowedURLs.IsEnabled = true;
@@ -257,7 +261,7 @@ namespace Focus_Bear.Preferences
             btnAdvanced.IsEnabled = true; //Enable the advanced button to show the blocked list
 
             // Add the handler again.
-            ComboBoxHowDoYouWant.SelectionChanged += ComboBoxHowDoYouWant_SelectionChanged;
+            ////ComboBoxHowDoYouWant.SelectionChanged += ComboBoxHowDoYouWant_SelectionChanged;
         }
 
         private void AllowEverything_Checked(object sender, RoutedEventArgs e)
@@ -266,37 +270,37 @@ namespace Focus_Bear.Preferences
 
             // Remove the handler
             //do not want to raise SelectionChanged event programmatically here
-            ComboBoxHowDoYouWant.SelectionChanged -= ComboBoxHowDoYouWant_SelectionChanged;
+            ////ComboBoxHowDoYouWant.SelectionChanged -= ComboBoxHowDoYouWant_SelectionChanged;
 
-            ComboBoxHowDoYouWant.Items.Clear();
-            ComboBoxHowDoYouWant.Items.Add(appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockedAllUrls"].ToString());
-            ComboBoxHowDoYouWant.Items.Add(appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockedSelectedUrls"].ToString());
+            ////ComboBoxHowDoYouWant.Items.Clear();
+            ////ComboBoxHowDoYouWant.Items.Add(appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockedAllUrls"].ToString());
+            ////ComboBoxHowDoYouWant.Items.Add(appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockedSelectedUrls"].ToString());
             
 
             var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
             if (selectedFocusMode != null)
             {
-                if (selectedFocusMode.isBlockedAllUrls) //Set the combo box by reading the existing value
-                {
-                    ComboBoxHowDoYouWant.SelectedIndex = 0;
-                }
-                else
-                {
-                    ComboBoxHowDoYouWant.SelectedIndex = 1;
-                }
+                ////if (selectedFocusMode.isBlockedAllUrls) //Set the combo box by reading the existing value
+                ////{
+                ////    ComboBoxHowDoYouWant.SelectedIndex = 0;
+                ////}
+                ////else
+                ////{
+                ////    ComboBoxHowDoYouWant.SelectedIndex = 1;
+                ////}
 
-                if (ComboBoxHowDoYouWant.SelectedIndex == 0) //Block all urls or allow all urls
-                {
-                    ListURLs.IsEnabled = false;
-                    btnAddAllowedURLs.IsEnabled = false;
-                    btnAddDeleteAllowedURLs.IsEnabled = false;
+                ////if (ComboBoxHowDoYouWant.SelectedIndex == 0) //Block all urls or allow all urls
+                ////{
+                ////    ListURLs.IsEnabled = false;
+                ////    btnAddAllowedURLs.IsEnabled = false;
+                ////    btnAddDeleteAllowedURLs.IsEnabled = false;
 
-                    ListURLs.Visibility = Visibility.Collapsed;
-                    btnAddAllowedURLs.Visibility = Visibility.Collapsed;
-                    btnAddDeleteAllowedURLs.Visibility = Visibility.Collapsed;
+                ////    ListURLs.Visibility = Visibility.Collapsed;
+                ////    btnAddAllowedURLs.Visibility = Visibility.Collapsed;
+                ////    btnAddDeleteAllowedURLs.Visibility = Visibility.Collapsed;
 
-                }
-                else
+                ////}
+                ////else
                 {
                     ListURLs.IsEnabled = true;
                     btnAddAllowedURLs.IsEnabled = true;
@@ -314,60 +318,60 @@ namespace Focus_Bear.Preferences
             btnAdvanced.IsEnabled = false;//Disable the advanced button 
 
             // Add the handler again.
-            ComboBoxHowDoYouWant.SelectionChanged += ComboBoxHowDoYouWant_SelectionChanged;
+            ////ComboBoxHowDoYouWant.SelectionChanged += ComboBoxHowDoYouWant_SelectionChanged;
         }
 
-        private void ComboBoxHowDoYouWant_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {   
-            if (ComboBoxHowDoYouWant.SelectedIndex == 0) //Block all urls or allow all urls
-            {
-                ListURLs.IsEnabled = false;
-                btnAddAllowedURLs.IsEnabled = false;
-                btnAddDeleteAllowedURLs.IsEnabled = false;
+        ////private void ComboBoxHowDoYouWant_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        ////{   
+        ////    if (ComboBoxHowDoYouWant.SelectedIndex == 0) //Block all urls or allow all urls
+        ////    {
+        ////        ListURLs.IsEnabled = false;
+        ////        btnAddAllowedURLs.IsEnabled = false;
+        ////        btnAddDeleteAllowedURLs.IsEnabled = false;
 
-                ListURLs.Visibility = Visibility.Collapsed;
-                btnAddAllowedURLs.Visibility = Visibility.Collapsed;
-                btnAddDeleteAllowedURLs.Visibility = Visibility.Collapsed;
+        ////        ListURLs.Visibility = Visibility.Collapsed;
+        ////        btnAddAllowedURLs.Visibility = Visibility.Collapsed;
+        ////        btnAddDeleteAllowedURLs.Visibility = Visibility.Collapsed;
 
-            }
-            else
-            {
-                ListURLs.IsEnabled = true;
-                btnAddAllowedURLs.IsEnabled = true;
-                btnAddDeleteAllowedURLs.IsEnabled = true;
+        ////    }
+        ////    else
+        ////    {
+        ////        ListURLs.IsEnabled = true;
+        ////        btnAddAllowedURLs.IsEnabled = true;
+        ////        btnAddDeleteAllowedURLs.IsEnabled = true;
 
-                ListURLs.Visibility = Visibility.Visible;
-                btnAddAllowedURLs.Visibility = Visibility.Visible;
-                btnAddDeleteAllowedURLs.Visibility = Visibility.Visible;
-            }
+        ////        ListURLs.Visibility = Visibility.Visible;
+        ////        btnAddAllowedURLs.Visibility = Visibility.Visible;
+        ////        btnAddDeleteAllowedURLs.Visibility = Visibility.Visible;
+        ////    }
 
-            var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
-            if (selectedFocusMode != null)
-            {
-                if(selectedFocusMode.isAllowedListApproach)
-                {
-                    if (ComboBoxHowDoYouWant.SelectedIndex == 0)
-                    {
-                        selectedFocusMode.isAllowedAllUrls = true;
-                    }
-                    else
-                    {
-                        selectedFocusMode.isAllowedAllUrls = false;
-                    }
-                }
-                else
-                {
-                    if (ComboBoxHowDoYouWant.SelectedIndex == 0)
-                    {
-                        selectedFocusMode.isBlockedAllUrls = true;
-                    }
-                    else
-                    {
-                        selectedFocusMode.isBlockedAllUrls = false;
-                    }
-                }
-            }
-        }
+        ////    var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
+        ////    if (selectedFocusMode != null)
+        ////    {
+        ////        if(selectedFocusMode.isAllowedListApproach)
+        ////        {
+        ////            if (ComboBoxHowDoYouWant.SelectedIndex == 0)
+        ////            {
+        ////                selectedFocusMode.isAllowedAllUrls = true;
+        ////            }
+        ////            else
+        ////            {
+        ////                selectedFocusMode.isAllowedAllUrls = false;
+        ////            }
+        ////        }
+        ////        else
+        ////        {
+        ////            if (ComboBoxHowDoYouWant.SelectedIndex == 0)
+        ////            {
+        ////                selectedFocusMode.isBlockedAllUrls = true;
+        ////            }
+        ////            else
+        ////            {
+        ////                selectedFocusMode.isBlockedAllUrls = false;
+        ////            }
+        ////        }
+        ////    }
+        ////}
 
         private void btnadvanced_Click(object sender, RoutedEventArgs e)
         {
@@ -614,7 +618,9 @@ namespace Focus_Bear.Preferences
                             //"urlAlreadyExistsText":"<APPNAME> already exists in the list.",
                             string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
                             sErr = sErr.Replace("<APPNAME>", url);
-                            MessageBox.Show(sErr, "");
+                           //// MessageBox.Show(sErr, "");
+                            FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                            ff.ShowDialog();
                         }
                     }
                     else
@@ -631,7 +637,9 @@ namespace Focus_Bear.Preferences
                             //"urlAlreadyExistsText":"<APPNAME> already exists in the list.",
                             string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
                             sErr = sErr.Replace("<APPNAME>", url);
-                            MessageBox.Show(sErr, "");
+                            ///MessageBox.Show(sErr, "");
+                            FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                            ff.ShowDialog();
                         }
                     }
                 }
@@ -663,7 +671,7 @@ namespace Focus_Bear.Preferences
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                LogWriter.LogWrite("btnAddDeleteAllowedURLs_Click EX = " + ex.Message);
             }
         }
 
@@ -697,8 +705,8 @@ namespace Focus_Bear.Preferences
                 appSettings.CapturePostHog("add-new-focus-mode");
                 //Call the API to upload the newly cread focus mode
                 //add to focus modes  array and Upload to api
-                //#d0953c is the default color
-                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sFocusName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#d0953c", false, true, true, true, false, false, false, false));
+                //#A3FFA1 is the default color
+                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sFocusName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true,   false, false, false));
             }
 
         }
@@ -713,7 +721,7 @@ namespace Focus_Bear.Preferences
                 {
                     // Remove the handler
                     //do not want to raise SelectionChanged event programmatically here
-                    ComboBoxHowDoYouWant.SelectionChanged -= ComboBoxHowDoYouWant_SelectionChanged;
+                    ////ComboBoxHowDoYouWant.SelectionChanged -= ComboBoxHowDoYouWant_SelectionChanged;
                     
                     TxtFocusName.Text = selectedItem.name;
                     if(selectedItem.isDefault || selectedItem.isMeetings || selectedItem.isLockedFocus)
@@ -738,42 +746,42 @@ namespace Focus_Bear.Preferences
                     if (selectedItem.isAllowedListApproach)
                     {
                         BlockEverything.IsChecked = true;
-                        if (selectedItem.isAllowedAllUrls)
-                        {
-                            ComboBoxHowDoYouWant.SelectedIndex = 0;
-                        }
-                        else
-                        {
-                            ComboBoxHowDoYouWant.SelectedIndex = 1;
-                        }
+                        ////if (selectedItem.isAllowedAllUrls)
+                        ////{
+                        ////    ComboBoxHowDoYouWant.SelectedIndex = 0;
+                        ////}
+                        ////else
+                        ////{
+                        ////    ComboBoxHowDoYouWant.SelectedIndex = 1;
+                        ////}
                         ListURLs.ItemsSource = selectedItem.arrAllowedUrls;
                     }
                     else
                     {
                         AllowEverything.IsChecked = true;
-                        if (selectedItem.isBlockedAllUrls)
-                        {
-                            ComboBoxHowDoYouWant.SelectedIndex = 0;
-                        }
-                        else
-                        {
-                            ComboBoxHowDoYouWant.SelectedIndex = 1;
-                        }
+                        ////if (selectedItem.isBlockedAllUrls)
+                        ////{
+                        ////    ComboBoxHowDoYouWant.SelectedIndex = 0;
+                        ////}
+                        ////else
+                        ////{
+                        ////    ComboBoxHowDoYouWant.SelectedIndex = 1;
+                        ////}
                         ListURLs.ItemsSource = selectedItem.arrBlockedUrls;
                     }
 
-                    if (ComboBoxHowDoYouWant.SelectedIndex == 0) //Block all urls or allow all urls
-                    {
-                        ListURLs.IsEnabled = false;
-                        btnAddAllowedURLs.IsEnabled = false;
-                        btnAddDeleteAllowedURLs.IsEnabled = false;
+                    ////if (ComboBoxHowDoYouWant.SelectedIndex == 0) //Block all urls or allow all urls
+                    ////{
+                    ////    ListURLs.IsEnabled = false;
+                    ////    btnAddAllowedURLs.IsEnabled = false;
+                    ////    btnAddDeleteAllowedURLs.IsEnabled = false;
 
-                        ListURLs.Visibility = Visibility.Collapsed;
-                        btnAddAllowedURLs.Visibility = Visibility.Collapsed;
-                        btnAddDeleteAllowedURLs.Visibility = Visibility.Collapsed;
+                    ////    ListURLs.Visibility = Visibility.Collapsed;
+                    ////    btnAddAllowedURLs.Visibility = Visibility.Collapsed;
+                    ////    btnAddDeleteAllowedURLs.Visibility = Visibility.Collapsed;
 
-                    }
-                    else
+                    ////}
+                    ////else
                     {
                         ListURLs.IsEnabled = true;
                         btnAddAllowedURLs.IsEnabled = true;
@@ -788,13 +796,13 @@ namespace Focus_Bear.Preferences
                     ListApps.ItemsSource = selectedItem.arrAllowedAppsWin;
 
                     // Add the handler again.
-                    ComboBoxHowDoYouWant.SelectionChanged += ComboBoxHowDoYouWant_SelectionChanged;
+                    ////ComboBoxHowDoYouWant.SelectionChanged += ComboBoxHowDoYouWant_SelectionChanged;
 
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ListFocusModes_SelectionChanged in PReferences" + ex.Message);
+                LogWriter.LogWrite("ListFocusModes_SelectionChanged in PReferences" + ex.Message);
             }
 
         }
@@ -838,7 +846,9 @@ namespace Focus_Bear.Preferences
                 else
                 {
                     //"errorSameFocusType":"Focus type with the same name already exists.",
-                    MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["errorSameFocusType"].ToString(), "Focus Bear");
+                    ///MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["errorSameFocusType"].ToString(), "Focus Bear");
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["errorSameFocusType"].ToString(), "Focus Bear");
+                    ff.ShowDialog();
                     TxtFocusName.Text = selectedItem.name;
                 }
             }
@@ -929,7 +939,9 @@ namespace Focus_Bear.Preferences
                                     //"urlAlreadyExistsText":"<APPNAME> already exists in the list.",
                                     string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
                                     sErr = sErr.Replace("<APPNAME>", url);
-                                    MessageBox.Show(sErr, "");
+                                    ///MessageBox.Show(sErr, "");
+                                    FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                                    ff.ShowDialog();
                                 }
                             }
                             else
@@ -952,7 +964,9 @@ namespace Focus_Bear.Preferences
                                     //"urlAlreadyExistsText":"<APPNAME> already exists in the list.",
                                     string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
                                     sErr = sErr.Replace("<APPNAME>", url);
-                                    MessageBox.Show(sErr, "");
+                                    ///MessageBox.Show(sErr, "");
+                                    FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                                    ff.ShowDialog();
                                 }
                             }
                         }

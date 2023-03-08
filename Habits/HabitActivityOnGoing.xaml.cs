@@ -34,7 +34,7 @@ namespace Focus_Bear.Habits
 
         int nTimer = 30;
         int nTickCount;
-        DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal );
         public bool bTimerRunning;
         bool isVideoPresent;
 
@@ -51,6 +51,8 @@ namespace Focus_Bear.Habits
             InitializeComponent();
 
             SetWebView();
+
+            webView.NavigationCompleted += CoreWebView2NavigationCompleted;
 
             _parentWindow = parentWindow;
 
@@ -85,28 +87,38 @@ namespace Focus_Bear.Habits
                 int nAllowedURLs = 0;
                 int nVideoUrlsCount = 0;
                 List<string> videoUrlsBreaks = new List<string>();
-
+      
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
                     sActivityIdToGetDataFromAPI = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id;
 
                     Heading.Text = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name; //ACtivity Name
+                    appSettings.sCurrentRunningActivity = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name; //ACtivity Name
+                    appSettings.sHabitTypeForUseFocusModeIDInActivity = "morning-habit";//evening-habit, morning-habit, break-activity
+
                     if (!bStartingAfterPostponed)
                         nTimer = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds; //DurationSeconds;
                     nAllowedApps = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedApps.Count;
                     nAllowedURLs = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedUrls.Count;
                     nVideoUrlsCount = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].videoUrls.Count;
+                    appSettings.sUseFocusModeIDInActivity = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedFocusMode;
+                    
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
                     sActivityIdToGetDataFromAPI = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id;
 
                     Heading.Text = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name; //ACtivity Name
+                    appSettings.sCurrentRunningActivity = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name; //ACtivity Name
+                    appSettings.sHabitTypeForUseFocusModeIDInActivity = "evening-habit";//evening-habit, morning-habit, break-activity
+
+
                     if (!bStartingAfterPostponed) 
                         nTimer = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds; //DurationSeconds;
                     nAllowedApps = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedApps.Count;
                     nAllowedURLs = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedUrls.Count;
                     nVideoUrlsCount = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].videoUrls.Count;
+                    appSettings.sUseFocusModeIDInActivity = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedFocusMode;
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
@@ -126,12 +138,16 @@ namespace Focus_Bear.Habits
                     if (!currentActivity.isRandomChoice)
                     {
                         Heading.Text = currentActivity.name; //ACtivity Name
+                        appSettings.sCurrentRunningActivity = currentActivity.name; //ACtivity Name
+                        appSettings.sHabitTypeForUseFocusModeIDInActivity = "break-activity";//evening-habit, morning-habit, break-activity
+
+
                         nTimer = currentActivity.durationSeconds; //DurationSeconds;
                         nAllowedApps = currentActivity.allowedApps.Count;
                         nAllowedURLs = currentActivity.allowedUrls.Count;
                         nVideoUrlsCount = currentActivity.videoUrls.Count;
                         videoUrlsBreaks = currentActivity.videoUrls;
-
+                        appSettings.sUseFocusModeIDInActivity = currentActivity.allowedFocusMode;
                     }
                     else
                     {
@@ -142,12 +158,16 @@ namespace Focus_Bear.Habits
                             sActivityChoiceIdToGetDataFromAPI = randomChoice.id;
 
                             Heading.Text = randomChoice.name; //ACtivity Name
+                            appSettings.sCurrentRunningActivity = currentActivity.name; //ACtivity Name
+                            appSettings.sHabitTypeForUseFocusModeIDInActivity = "break-activity";//evening-habit, morning-habit, break-activity
+
                             nVideoUrlsCount = randomChoice.videoUrls.Count;
                             videoUrlsBreaks = randomChoice.videoUrls;
 
                             nTimer = currentActivity.durationSeconds; //DurationSeconds;
                             nAllowedApps = currentActivity.allowedApps.Count;
                             nAllowedURLs = currentActivity.allowedUrls.Count;
+                            appSettings.sUseFocusModeIDInActivity = currentActivity.allowedFocusMode;
                         }
                     }
                 }
@@ -156,12 +176,16 @@ namespace Focus_Bear.Habits
                 TxtTimer.Text = appSettings.SecondsToTimerText(nTimer);
 
 
-                if (nAllowedApps > 0 || nAllowedURLs > 0)
+                if (nAllowedApps > 0 || nAllowedURLs > 0 || appSettings.sUseFocusModeIDInActivity.Length > 0)
                 {
                     appSettings.bHabitwithAllowedAppsRunning = true;
                     _parentWindow.WindowState = WindowState.Minimized;
                     _parentWindow.ShowInTaskbar = false;
 
+                    if (appSettings.sUseFocusModeIDInActivity.Length > 0)//means there is a focus mode in activity
+                    {
+                        appSettings.bHabitwithUseFocusModeRunning = true;
+                    }
                     //we will need to show the break window with the duration and the timer
                     //Show the Break Window
                     ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, Heading.Text);
@@ -232,8 +256,7 @@ namespace Focus_Bear.Habits
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("HabitActivityOnGoing - " + ex.Message);
-                Debug.WriteLine(ex.Message);
+                LogWriter.LogWrite("HabitActivityOnGoing EX - " + ex.Message);
             }
 
             _parentWindow.ActivityStartTime = DateTime.UtcNow;
@@ -243,9 +266,19 @@ namespace Focus_Bear.Habits
             bTimerRunning = true;
             pause.Visibility = Visibility.Visible;
             play.Visibility = Visibility.Collapsed;
-            dispatcherTimer.Start();
-            CommandManager.InvalidateRequerySuggested();
+
+            //moving to navigation completed
+            //dispatcherTimer.Start(); 
+            //CommandManager.InvalidateRequerySuggested();
+            //Start only if video is not present
+            if(!isVideoPresent)
+            {
+                dispatcherTimer.Start();
+                CommandManager.InvalidateRequerySuggested();
+            }
+
             Global.DisableSystemSleep();
+            
             try
             {
                 //Also get the activity data from server as soon as we start the timer as these will be used to show graph on finish screen
@@ -265,7 +298,6 @@ namespace Focus_Bear.Habits
             catch (Exception ex)
             {
                 LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
             }
         }
         private async void SetWebView()
@@ -282,14 +314,30 @@ namespace Focus_Bear.Habits
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("SetWebView()" + ex.Message);
-                Debug.WriteLine(ex.Message);
+                LogWriter.LogWrite("Activity ongoing SetWebView() EX - " + ex.Message);
             }
         }
+
+        private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            if (e.IsSuccess)
+            {
+                Debug.Print("NavigationId: " + e.NavigationId.ToString());
+                Debug.Print("URL: " + this.webView.CoreWebView2.Source);
+                if (!(this.webView.CoreWebView2.Source == "about:blank")) //this is set when ending the ongoing screen so avoid restarting timer here
+                {
+                    //we will start the timer here after youtube video has been loaded
+                    dispatcherTimer.Start();
+                    CommandManager.InvalidateRequerySuggested();
+                }
+
+            }
+        }
+
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer -= 20;
+            int val = nTimer -= 10;
 #else
             int val = nTimer--;
 #endif
@@ -320,13 +368,11 @@ namespace Focus_Bear.Habits
                     {
                         nAllowedApps = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedApps.Count;
                         nAllowedURLs = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedUrls.Count;
-
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                     {
                         nAllowedApps = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedApps.Count;
                         nAllowedURLs = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedUrls.Count;
-
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                     {
@@ -344,17 +390,33 @@ namespace Focus_Bear.Habits
 
                     }
 
-                    if (nAllowedApps > 0 || nAllowedURLs > 0)
+                    if (nAllowedApps > 0 || nAllowedURLs > 0 || appSettings.sUseFocusModeIDInActivity.Length > 0)
                     {
+                        if (appSettings.sUseFocusModeIDInActivity.Length > 0)//means there is a focus mode in activity
+                        {
+                            appSettings.bHabitwithUseFocusModeRunning = false;
+                            appSettings.sUseFocusModeIDInActivity = "";
+                        }
+
                         appSettings.bHabitwithAllowedAppsRunning = false;
                         _parentWindow.WindowState = WindowState.Normal;
+                        //May be the timer small window is running, close that
+                        //Check here if the Breaks window is visible, we will hide it.
+                        if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
+                        {
+                            ((App)(Application.Current)).wndTakeABreak.HideBreakWindowAndStopTimer();
+                        }
+
                         CommandManager.InvalidateRequerySuggested();
                     }
              
-                    _parentWindow.ShowACtivityFinishedScreen();
+                   
                     CommandManager.InvalidateRequerySuggested();
                     dispatcherTimer.Stop();
+                    CommandManager.InvalidateRequerySuggested();
                     Global.EnableSystemSleep();
+                    _parentWindow.ShowACtivityFinishedScreen();
+
                 }
                 catch (Exception ex)
                 {
@@ -410,9 +472,12 @@ namespace Focus_Bear.Habits
             }
             else
             {
-                dispatcherTimer.Start();
                 Global.DisableSystemSleep();
-                CommandManager.InvalidateRequerySuggested();
+                if (bTimerRunning)//If it was not paused then start it
+                {
+                    dispatcherTimer.Start();
+                    CommandManager.InvalidateRequerySuggested();
+                }
             }
         }
 

@@ -71,7 +71,9 @@ namespace Focus_Bear.Habits
         }
         private void btnCompletelySkip_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Work In progress!", "Focus Bear");
+            FBMessageBox ff = new FBMessageBox("Work In progress!", "Focus Bear");
+            ff.ShowDialog();
+           // MessageBox.Show("Work In progress!", "Focus Bear");
         }
 
         private void btnPostpone_Click(object sender, RoutedEventArgs e)

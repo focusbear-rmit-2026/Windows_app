@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.Habits;
 using Focus_Bear.Models;
+using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
@@ -33,8 +34,8 @@ namespace Focus_Bear.ShutOff
         }
         CurrentShutOffState nState = CurrentShutOffState.GET_ACCESS;
 
-        DispatcherTimer dispatcherTimer = new DispatcherTimer();
-        DispatcherTimer dispatcherTimerUnlock = new DispatcherTimer();
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+        DispatcherTimer dispatcherTimerUnlock = new DispatcherTimer(DispatcherPriority.Normal);
         int nTimer = 30;
 
         public ShutOffWindow()
@@ -96,6 +97,32 @@ namespace Focus_Bear.ShutOff
             {
                 case CurrentShutOffState.GET_ACCESS:
                     {
+                        //If a password is set, ask fopr a password
+                        if (appSettings.isPasswordSet)
+                        {
+                            if (appSettings.bPasswordRequireInAbortShutoff)
+                            {
+                                AskPassword pwdWnd = new AskPassword();
+                                pwdWnd.Owner = this;
+                                GridShade.Visibility = Visibility.Visible;
+
+                                bool? bResult = pwdWnd.ShowDialog();
+
+                                GridShade.Visibility = Visibility.Collapsed;
+
+                                if (bResult.Value)
+                                {
+                                    //Password is correct
+                                }
+                                else
+                                {
+                                    //Hide();
+                                    return;
+                                }
+
+                            }
+                        }
+
                         nState = CurrentShutOffState.CANCELABLE;
                         StartTimer();
                         break;
@@ -211,6 +238,7 @@ namespace Focus_Bear.ShutOff
                     }
                     
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Now this needs to be set to none.
+                    LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
                     RegistryManager.SetShutOffAbortedTillDate(); 
 

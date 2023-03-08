@@ -48,6 +48,7 @@ namespace Focus_Bear.Models
 
         public async Task<bool> CheckForUpdate()
         {
+            LogWriter.LogWrite("Task<bool> CheckForUpdate()");
             try
             {
                 string iniFileURL = AppSettings.AppIniFileURL;
@@ -64,12 +65,15 @@ namespace Focus_Bear.Models
             catch (Exception ex)
             {
                 Debug.WriteLine("1" + ex.Message);
+                LogWriter.LogWrite("Task<bool> CheckForUpdate() Exception - " + ex.Message);
                 return false;
             }
         }
 
         private bool ReadUpdateDetails(string updateINIPath)
         {
+            LogWriter.LogWrite("ReadUpdateDetails()");
+
             try
             {
                 INIParser objIniParser = new INIParser(updateINIPath);
@@ -77,7 +81,7 @@ namespace Focus_Bear.Models
                 string versionInsideINIFile = objIniParser.ReadValue(section, "program_version");
 
                 _DownloadUpdateFileName = "FocusBearSetup.exe";
-                _DownloadSize = Convert.ToInt32(objIniParser.ReadValue(section, "program_size"));
+               // _DownloadSize = Convert.ToInt32(objIniParser.ReadValue(section, "program_size"));
                 _DownloadUpdateURL = objIniParser.ReadValue(section, "program_url");
                 //ForceUpdate = Convert.ToBoolean(Convert.ToInt16(objIniParser.ReadValue(section, "force_update")));
 
@@ -85,13 +89,13 @@ namespace Focus_Bear.Models
                 Version.TryParse(versionInsideINIFile, out updateVersion);
                 if (updateVersion != null && appSettings.AppVersion != null && updateVersion > appSettings.AppVersion)
                 {
-                    Debug.WriteLine("Update available");
+                    LogWriter.LogWrite("Update available");
                     return true;
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                LogWriter.LogWrite("ReadUpdateDetails() EX - " + ex.Message);
             }
 
             return false;
@@ -118,7 +122,7 @@ namespace Focus_Bear.Models
             //    http.AsyncCompletedEventArgsHandler -= Http_AsyncCompletedEventArgsHandler;
             //}
 
-            Debug.WriteLine("Update Downloaded successfully");
+            LogWriter.LogWrite("Update Downloaded successfully"); //todo win text
             return true;
         }
 

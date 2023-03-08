@@ -638,6 +638,35 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
+        
+        <!--Ellipse Button for after login in onboarding screens-->
+        <Style x:Key="BtnStyleEllipseSmall" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                     
+                        <ControlTemplate>
+                            <Ellipse x:Name="ellipse_2" 
+                            Height="13"
+                            Width="13"
+                            Margin="0,0,0,0"
+                            Stroke="DarkGray">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource AncestorType=Button}}" Value="false">
+                                                <Setter Property="Fill" Value="White"></Setter>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource AncestorType=Button}}" Value="true">
+                                                <Setter Property="Fill" Value="Blue"></Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                        </ControlTemplate>
+                     
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Application.Resources>
 </Application>

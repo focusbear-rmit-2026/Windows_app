@@ -4,102 +4,105 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
+        xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="814" Width="954" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged">
-    <Grid>
-        <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="80" />
-            <RowDefinition Height="60" />
-            <RowDefinition Height="50" />
-            <RowDefinition Height="100" />
-            <RowDefinition Height="50" />
-            <RowDefinition Height="100" />
-            <RowDefinition Height="50" />
-            <RowDefinition Height="100" />
-            <RowDefinition Height="*" />
+        Title="Focus Bear" Height="814" Width="954" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged" Closing="Window_Closing" Loaded="Window_Loaded">
+    <local1:DpiDecorator>
+        <Grid>
+            <Grid.Background>
+                <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            </Grid.Background>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="80" />
+                <RowDefinition Height="60" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="100" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="100" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="100" />
+                <RowDefinition Height="*" />
 
-        </Grid.RowDefinitions>
+            </Grid.RowDefinitions>
 
 
-        <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0"  Width="755" TextWrapping="Wrap" Text="xYou Did it!" Foreground="#e88800" FontSize="35" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0"  Width="755" TextWrapping="Wrap" Text="xYou Did it!" Foreground="#e88800" FontSize="35" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <TextBlock  Grid.Row="1" Name="Description" Margin="0,0,0,0"  Width="755" TextWrapping="Wrap" Text="xxYou have successfully completed the focus block - FOCUSTYPE" Foreground="#272727" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="1" Name="Description" Margin="0,0,0,0"  Width="755" TextWrapping="Wrap" Text="xxYou have successfully completed the focus block - FOCUSTYPE" Foreground="#272727" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <TextBlock  Grid.Row="2" Name="YourIntention" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxYour intention was" Foreground="#272727" FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="2" Name="YourIntention" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxYour intention was" Foreground="#272727" FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <TextBox  Grid.Row="3" Name="TxtIntention" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"   VerticalAlignment="Center"  FontSize="15" IsEnabled="False">
-            <TextBox.Effect>
-                <DropShadowEffect ShadowDepth="3"
-                          Direction="330"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="6"
-                           />
-            </TextBox.Effect>
-            <TextBox.FocusVisualStyle>
-                <Style>
-                    <Setter Property="Control.Template">
-                        <Setter.Value>
-                            <ControlTemplate/>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </TextBox.FocusVisualStyle>
-        </TextBox>
+            <TextBox  Grid.Row="3" Name="TxtIntention" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"   VerticalAlignment="Center"  FontSize="15" IsEnabled="False">
+                <TextBox.Effect>
+                    <DropShadowEffect ShadowDepth="3"
+                              Direction="330"
+                              Color="Gray"
+                              Opacity="0.5"
+                              BlurRadius="6"
+                               />
+                </TextBox.Effect>
+                <TextBox.FocusVisualStyle>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.FocusVisualStyle>
+            </TextBox>
 
-        <TextBlock  Grid.Row="4" Name="Achieve" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxWhat did you achieve during this time?" Foreground="#272727" FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="4" Name="Achieve" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxWhat did you achieve during this time?" Foreground="#272727" FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <TextBox  Grid.Row="5" Name="TxtAchieve" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"   VerticalAlignment="Center"  FontSize="15">
-            <TextBox.Effect>
-                <DropShadowEffect ShadowDepth="3"
-                          Direction="330"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="6"
-                           />
-            </TextBox.Effect>
-            <TextBox.FocusVisualStyle>
-                <Style>
-                    <Setter Property="Control.Template">
-                        <Setter.Value>
-                            <ControlTemplate/>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </TextBox.FocusVisualStyle>
-        </TextBox>
-        <TextBlock  Grid.Row="6" Name="Distractions" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxAny distractions?" Foreground="#272727" FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBox  Grid.Row="5" Name="TxtAchieve" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"   VerticalAlignment="Center"  FontSize="15">
+                <TextBox.Effect>
+                    <DropShadowEffect ShadowDepth="3"
+                              Direction="330"
+                              Color="Gray"
+                              Opacity="0.5"
+                              BlurRadius="6"
+                               />
+                </TextBox.Effect>
+                <TextBox.FocusVisualStyle>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.FocusVisualStyle>
+            </TextBox>
+            <TextBlock  Grid.Row="6" Name="Distractions" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxAny distractions?" Foreground="#272727" FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <TextBox  Grid.Row="7" Name="TxtDistractions" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"  VerticalAlignment="Center"  FontSize="15">
-            <TextBox.Effect>
-                <DropShadowEffect ShadowDepth="3"
-                          Direction="330"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="6"
-                           />
-            </TextBox.Effect>
-            <TextBox.FocusVisualStyle>
-                <Style>
-                    <Setter Property="Control.Template">
-                        <Setter.Value>
-                            <ControlTemplate/>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </TextBox.FocusVisualStyle>
-        </TextBox>
+            <TextBox  Grid.Row="7" Name="TxtDistractions" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"  VerticalAlignment="Center"  FontSize="15">
+                <TextBox.Effect>
+                    <DropShadowEffect ShadowDepth="3"
+                              Direction="330"
+                              Color="Gray"
+                              Opacity="0.5"
+                              BlurRadius="6"
+                               />
+                </TextBox.Effect>
+                <TextBox.FocusVisualStyle>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.FocusVisualStyle>
+            </TextBox>
 
-        <Button  Grid.Row="8" x:Name="btnTakeBreak"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="300" Height="43" HorizontalContentAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnTakeBreak_Click">
-            <Button.Content>
-                <StackPanel  Orientation="Horizontal">
-                    <TextBlock Name="btnTakeBreakText" Margin="8" Text="xTake a 5 minutes break"/>
-                </StackPanel>
-            </Button.Content>
-        </Button>
+            <Button  Grid.Row="8" x:Name="btnTakeBreak"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="300" Height="43" HorizontalContentAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnTakeBreak_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnTakeBreakText" Margin="8" Text="xTake a 5 minutes break"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
         
-    </Grid>
+        </Grid>
+    </local1:DpiDecorator>
 </Window>

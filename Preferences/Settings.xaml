@@ -11,16 +11,16 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="80"/>
+            <RowDefinition Height="75"/>
         </Grid.RowDefinitions>
-        <Grid Background="#fff" Margin="20">
+        <Grid Background="#fff" Margin="20,10,20,15">
             <TabControl Background="#fcf8f0" BorderBrush="LightGray">
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabPanel}">
                         <Setter Property="HorizontalAlignment" Value="Center" />
                     </Style>
                 </TabControl.Resources>
-                <TabItem Header="xGeneral" >
+                <TabItem Name="GeneralTab" Header="xGeneral" >
 
                     <Grid >
                         <Grid.ColumnDefinitions>
@@ -44,7 +44,7 @@
                                 <RowDefinition Height="27"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            
+
                             <RadioButton Grid.Row="0" VerticalAlignment="Center"  Name="CuddlyMode" Margin="0,0,0,0" Padding="5,-4,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="CuddlyMode_Checked">
                                 xCuddly Bear mode
                             </RadioButton>
@@ -60,9 +60,112 @@
                     </Grid>
 
                 </TabItem>
-                <!--<TabItem Header="Tab 2">abc</TabItem>-->
+                <TabItem Name="PasswordTab" Header="xPassword">
+                    <Grid HorizontalAlignment="Center" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0"   Name="PasswordHeading" Margin="0,0,0,0"  TextWrapping="NoWrap"    Text="xSet Password"  Foreground="#000" FontSize="16" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"  />
+                        <TextBlock Grid.Row="1"   Name="PasswordDesc" Margin="20,0,20,0"  TextWrapping="Wrap"      Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"  >
+                            If you're struggling to stick to your habits, get a housemate/partner to set a password. You won't be able to skip habits without the password.
+                        </TextBlock>
+                        <TextBlock  Grid.Row="2"  Width="300"  Name="lblPassword" Margin="0,20,0,0" TextWrapping="NoWrap" Text="xNew Password:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                        <Grid  Grid.Row="3" Width="300" VerticalAlignment="Center">
+
+                            <PasswordBox Width="230" TabIndex="2" x:Name="TxtPassword" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="14"  PasswordChanged="TxtPassword_PasswordChanged"    >
+                                <PasswordBox.Effect>
+                                    <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6" />
+                                </PasswordBox.Effect>
+                                <PasswordBox.FocusVisualStyle>
+                                    <Style>
+                                        <Setter Property="Control.Template">
+                                            <Setter.Value>
+                                                <ControlTemplate/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </PasswordBox.FocusVisualStyle>
+                            </PasswordBox>
+
+                        </Grid>
+
+                        <TextBlock  Grid.Row="4"  Width="300"  Name="lblConfirmPassword" Margin="0,20,0,0" TextWrapping="Wrap" Text="xConfirm Password:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                        <Grid  Grid.Row="5" Width="300" VerticalAlignment="Center">
+                            <PasswordBox Width="230" TabIndex="3" x:Name="TxtConfirmPassword" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"   BorderThickness="1" FontSize="14"  PasswordChanged="TxtConfirmPassword_PasswordChanged"  >
+                                <PasswordBox.Effect>
+                                    <DropShadowEffect ShadowDepth="3"
+                              Direction="330"
+                              Color="Gray"
+                              Opacity="0.5"
+                              BlurRadius="6"
+                               />
+                                </PasswordBox.Effect>
+                                <PasswordBox.FocusVisualStyle>
+                                    <Style>
+                                        <Setter Property="Control.Template">
+                                            <Setter.Value>
+                                                <ControlTemplate/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </PasswordBox.FocusVisualStyle>
+                            </PasswordBox>
+
+                        </Grid>
+
+                        <Button  Grid.Row="6" x:Name="btnSetPassword"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="27" Width="180" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSetPassword_Click" >
+                            <Button.Content>
+                                <StackPanel  Orientation="Horizontal">
+                                    <TextBlock x:Name="btnSetPasswordTXT" Text="xSet Password"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                        <TextBlock Grid.Row="7" x:Name="DisablePassword" Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" Height="22" Cursor="Hand">
+                             <Hyperlink x:Name="btnDisablePassword"  Foreground="#000" Click="btnDisablePassword_Click"   TextDecorations="Underline" ><Run x:Name="btnDisablePasswordTXT" Text="xDisable Password"/></Hyperlink>
+                        </TextBlock>
+
+                        <Grid Grid.Row="8" Margin="0,10,0,0" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="235"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" Margin="0,0,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="27"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0"   Name="AskForPassword" Margin="0,0,0,0"  TextWrapping="Wrap"    Text="xAsk for password"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
+
+                            </Grid>
+                            <Grid Grid.Column="1" Margin="0,0,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="27"/>
+                                    <RowDefinition Height="15"/>
+                                    <RowDefinition Height="125"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0"   Name="WhenRequire" Margin="20,0,0,0"  TextWrapping="Wrap"    Text="xWhen do you want to require a password?"  Foreground="Gray" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+                                <StackPanel  Grid.Row="1"  Orientation="Vertical" Width="300" Margin="20,0,0,0" Grid.RowSpan="2" HorizontalAlignment="Left">
+                                    <CheckBox Margin="0,10,0,10" x:Name="CheckChangingSettings" FontSize="14" Checked="CheckChangingSettings_Checked" Unchecked="CheckChangingSettings_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xChanging Settings</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingMorningRoutine" FontSize="14" Checked="CheckPostponingMorningRoutine_Checked"  Unchecked="CheckPostponingMorningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping morning routine</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingEveningRoutine" FontSize="14" Checked="CheckPostponingEveningRoutine_Checked"  Unchecked="CheckPostponingEveningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping evening routine</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckUsingComputerLateNight" FontSize="14" Checked="CheckUsingComputerLateNight_Checked"  Unchecked="CheckUsingComputerLateNight_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xUsing your computer late at night</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckQuittingApp" FontSize="14" Checked="CheckQuittingApp_Checked" Unchecked="CheckQuittingApp_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xQuitting app</CheckBox>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </TabItem>
             </TabControl>
-           
+
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal"  >

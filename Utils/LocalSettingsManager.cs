@@ -53,6 +53,13 @@ namespace Focus_Bear.Utils
               "kCuddlyModeEnabled":true,
               "kIsPasswordRequireInQuitApp":true,
               "kHardcorePomodoroSkipMicroBreaks":false
+
+             let kIsPasswordRequireInChangeSettings = "kIsPasswordRequireInChangeSettings"
+        let kIsPasswordRequireInSkipMorning = "kIsPasswordRequireInSkipMorning"
+        let kIsPasswordRequireInSkipEvening = "kIsPasswordRequireInSkipEvening"
+        let kIsPasswordRequireInAbortShutoff = "kIsPasswordRequireInAbortShutoff"
+        let kIsPasswordRequireInStopPomodoro = "kIsPasswordRequireInStopPomodoro"
+        let kIsPasswordRequireInQuitApp = "kIsPasswordRequireInQuitApp"
            },
 
            "Windows":{
@@ -68,7 +75,7 @@ namespace Focus_Bear.Utils
            }
         }            */
 
-            if (appSettings.sUserLocalDeviceSettings.Length > 0)
+            if (appSettings.sUserLocalDeviceSettings.Length > 0 && appSettings.sUserLocalDeviceSettings != null)
             {
 
                 //Parse the JSON string
@@ -80,19 +87,117 @@ namespace Focus_Bear.Utils
                     {
                         string sMacOSSettings = LocalSettings.ContainsKey("MacOS") ? LocalSettings["MacOS"].ToString() : "";
 
-                        JObject sMacOSSettingsOBJ = JObject.Parse(sMacOSSettings);
-
-                        if (sMacOSSettingsOBJ.ContainsKey("kArrBlockedUrls"))
+                        if (sMacOSSettings.Length > 0)
                         {
-                            sMacOSSettingsOBJ.Remove("kArrBlockedUrls"); //Remove blocked URL
-                            //Add new upadted blocked URLs
+                            JObject sMacOSSettingsOBJ = JObject.Parse(sMacOSSettings);
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kArrBlockedUrls"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kArrBlockedUrls"); //Remove blocked URL
+                                                                             //Add new upadted blocked URLs
+                                sMacOSSettingsOBJ.Add("kArrBlockedUrls", JArray.FromObject(appSettings.arrAlwaysBlockedURLs));
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kArrBlockedUrls", JArray.FromObject(appSettings.arrAlwaysBlockedURLs));
+                            }
+                            
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsOfficeModeEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsOfficeModeEnabled"); //Remove blocked URL
+                                                                                  //Add new upadted blocked URLs
+                                sMacOSSettingsOBJ.Add("kIsOfficeModeEnabled", appSettings.isOfficeModeEnabled);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsOfficeModeEnabled", appSettings.isOfficeModeEnabled);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kAppPassword"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kAppPassword"); //Remove blocked URL
+                                                                             //Add new upadted blocked URLs
+                                sMacOSSettingsOBJ.Add("kAppPassword", appSettings.sUserPassword);
+                            }
+                            else
+                            {
+                                if(appSettings.isPasswordSet)
+                                    sMacOSSettingsOBJ.Add("kAppPassword", appSettings.sUserPassword);
+                            }
+
+                            // bPasswordRequireInStopPomodoro = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInStopPomodoro") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInStopPomodoro") : false;
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInChangeSettings"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsPasswordRequireInChangeSettings"); //Remove  
+                                                                                                //Add new updated
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInChangeSettings", (appSettings.bPasswordRequireInChangeSettings));
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInChangeSettings", (appSettings.bPasswordRequireInChangeSettings)); 
+                            }
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipMorning"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsPasswordRequireInSkipMorning"); //Remove  
+                                                                                  //Add new updated  
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInSkipMorning", (appSettings.bPasswordRequireInSkipMorning));
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInSkipMorning", (appSettings.bPasswordRequireInSkipMorning));
+                            }
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipEvening"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsPasswordRequireInSkipEvening"); //Remove  
+                                                                                             //Add new updated
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInSkipEvening", (appSettings.bPasswordRequireInSkipEvening));
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInSkipEvening", (appSettings.bPasswordRequireInSkipEvening));
+                            }
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInAbortShutoff"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsPasswordRequireInAbortShutoff"); //Remove  
+                                                                                  //Add new 
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInAbortShutoff", (appSettings.bPasswordRequireInAbortShutoff));
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInAbortShutoff", (appSettings.bPasswordRequireInAbortShutoff));
+                            }
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsPasswordRequireInQuitApp"); //Remove  
+                                                                                  //Add new  
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInQuitApp",  appSettings.bPasswordRequireInQuitApp);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInQuitApp", appSettings.bPasswordRequireInQuitApp);
+                            }
+
+                            //Now remove macOS from local and add updated one
+                            LocalSettings.Remove("MacOS");
+
+                            //add updated for macOS
+                            LocalSettings.Add("MacOS", sMacOSSettingsOBJ);
+                        }
+                        else
+                        {
+                            JObject sMacOSSettingsOBJ = new JObject();
                             sMacOSSettingsOBJ.Add("kArrBlockedUrls", JArray.FromObject(appSettings.arrAlwaysBlockedURLs));
+                            sMacOSSettingsOBJ.Add("kIsOfficeModeEnabled", JsonConvert.SerializeObject(appSettings.isOfficeModeEnabled));
+
+                            //Now remove macOS from local and add updated one
+                            LocalSettings.Remove("MacOS");
+
+                            //add updated for macOS
+                            LocalSettings.Add("MacOS", sMacOSSettingsOBJ);
                         }
                        
-                        //Now remove macOS from local and add updated one
-                        LocalSettings.Remove("MacOS");
-                        //add updated for macOS
-                        LocalSettings.Add("MacOS", sMacOSSettingsOBJ);
 
                         //Also save the udpated settings to Registry
                         appSettings.sUserLocalDeviceSettings = LocalSettings.ToString();
@@ -107,7 +212,7 @@ namespace Focus_Bear.Utils
                 }
                 catch (Exception ex)
                 {
-                    LogWriter.LogWrite("ReadAndParseUserLocalDeviceSettingsJson() ex - " + ex.Message);
+                    LogWriter.LogWrite("PutUserLocalDeviceSettingsInfo() ex - " + ex.Message);
                 }
             }
         }

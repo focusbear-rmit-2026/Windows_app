@@ -30,7 +30,7 @@ namespace Focus_Bear.Onboarding
         AppSettings appSettings = AppSettings.GetInstance;
 
         int nTimer = 30;
-        DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         bool bTimerRunning;
         public OnboardingMindfulBreathing()
         {

@@ -32,7 +32,7 @@ namespace Focus_Bear.Login
 
             Heading.Text = appSettings.ConfigFileStrings["welcomeInfo"]["preloadFocusModesDoneText"].ToString();
 
-            string videoUrl = appSettings.ConfigFileStrings["welcomeInfo"]["welcomeVideoUrl"].ToString();
+            string videoUrl = appSettings.ConfigFileStrings["WindowsSpecific"]["welcomeVideoUrl"].ToString();
 
             if (videoUrl.Contains("watch?v="))
             {
@@ -85,7 +85,7 @@ namespace Focus_Bear.Login
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("SetWebView()" + ex.Message);
+                LogWriter.LogWrite("onboarding video SetWebView() EX - " + ex.Message);
                 Debug.WriteLine(ex.Message);
             }
         }

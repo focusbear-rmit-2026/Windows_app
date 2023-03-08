@@ -1,0 +1,1 @@
+signtool sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /n "Focus Bear Pty Ltd"   "output/FocusBearSetup1.0.37.0.exe"

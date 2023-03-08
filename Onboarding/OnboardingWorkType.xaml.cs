@@ -40,28 +40,10 @@ namespace Focus_Bear.Onboarding
             Title = Title.Replace("<ACTIVITY>", sActivityName);
             Heading.Text = Title.ToString();
 
-            TypeOfWork.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["title"].ToString();
-
-            /*
-              "preloadFocusModesViewInfo":{
-                "title":"What type of work do you mainly do?",
-                "titleSelectWorkType":"Select work type",
-                "titleProgramming":"Programming",
-                "titleGraphicDesign":"Graphic Design",
-                "titleDataAnalysis":"Data Analysis",
-                "titleSomethingElse":"Something else",
-                "buttonContinueText":"Continue",
-                "workText":"Work"
-            }, 
-            */
-
-            ComboBoxWorkType.Items.Add(appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["titleSelectWorkType"].ToString());
-            ComboBoxWorkType.Items.Add(appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["titleProgramming"].ToString());
-            ComboBoxWorkType.Items.Add(appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["titleGraphicDesign"].ToString());
-            ComboBoxWorkType.Items.Add(appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["titleDataAnalysis"].ToString());
-            ComboBoxWorkType.Items.Add(appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["titleSomethingElse"].ToString());
-
-            btnContinueTxt.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["buttonContinueText"].ToString();
+            //       "letsCreatAccountText":"Now let's set up an account for you",
+            TypeOfWork.Text = appSettings.ConfigFileStrings["common"]["letsCreatAccountText"].ToString();
+ 
+                btnContinueTxt.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["buttonContinueText"].ToString();
             //int nDurationSeconds = (int)appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["duration_seconds"];
             //nTimer = nDurationSeconds;
 
@@ -70,45 +52,45 @@ namespace Focus_Bear.Onboarding
             //Random rnd = new Random();
             //int nRandom = rnd.Next(0, n - 1);
             //string videoUrl = array[nRandom].ToString();
-            btnContinue.IsEnabled = false;
+            btnContinue.IsEnabled = true;
 
         }
 
-        private void ComboBoxWorkType_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            btnContinue.IsEnabled = false;
+        //private void ComboBoxWorkType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    btnContinue.IsEnabled = false;
 
-            if (ComboBoxWorkType.SelectedIndex == 4) //Something Else Selected
-            {
-                TxtSomethingElse.Visibility = Visibility.Visible;
-                TxtSomethingElse.Focus();
-            }
-            else
-            {
-                TxtSomethingElse.Text = "";
-                TxtSomethingElse.Visibility = Visibility.Collapsed;
-                if(ComboBoxWorkType.SelectedIndex != 0)
-                {
-                    btnContinue.IsEnabled = true;
-                }
-                else
-                {
-                    btnContinue.IsEnabled = false;
-                }
-            }
-        }
+        //    if (ComboBoxWorkType.SelectedIndex == 4) //Something Else Selected
+        //    {
+        //        TxtSomethingElse.Visibility = Visibility.Visible;
+        //        TxtSomethingElse.Focus();
+        //    }
+        //    else
+        //    {
+        //        TxtSomethingElse.Text = "";
+        //        TxtSomethingElse.Visibility = Visibility.Collapsed;
+        //        if(ComboBoxWorkType.SelectedIndex != 0)
+        //        {
+        //            btnContinue.IsEnabled = true;
+        //        }
+        //        else
+        //        {
+        //            btnContinue.IsEnabled = false;
+        //        }
+        //    }
+        //}
 
-        private void TxtSomethingElse_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if(TxtSomethingElse.Text.Length > 0)
-            {
-                btnContinue.IsEnabled = true;
-            }
-            else
-            {
-                btnContinue.IsEnabled = false;
-            }
-        }
+        //private void TxtSomethingElse_TextChanged(object sender, TextChangedEventArgs e)
+        //{
+        //    if(TxtSomethingElse.Text.Length > 0)
+        //    {
+        //        btnContinue.IsEnabled = true;
+        //    }
+        //    else
+        //    {
+        //        btnContinue.IsEnabled = false;
+        //    }
+        //}
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {

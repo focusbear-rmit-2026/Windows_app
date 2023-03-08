@@ -1,0 +1,133 @@
+﻿using Focus_Bear.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using System.Windows.Threading;
+
+namespace Focus_Bear.Focus
+{
+    /// <summary>
+    /// Interaction logic for FocusProgress.xaml
+    /// </summary>
+    public partial class FocusProgress : Window
+    {
+        AppSettings appSettings = AppSettings.GetInstance;
+        int nTimer = 300; //Five minutes
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+        string sRemaining = "";
+
+        public FocusProgress()
+        {
+            InitializeComponent();
+
+            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            this.Left = (desktopWorkingArea.Right - this.Width);
+            this.Top = (desktopWorkingArea.Bottom - this.Height);
+
+            try
+            {
+                Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
+
+                sRemaining = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("FocusProgress() ex = " + ex.Message);
+            }
+
+
+
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimer.Start();
+            CommandManager.InvalidateRequerySuggested();
+        }
+
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+#if DEBUG
+            int val = nTimer--;
+#else
+            int val = nTimer--;
+#endif
+
+            try
+            {
+                //"menuInfo":{
+                //menuItemFocusTitle":"Focus"
+                //     "untilTimeText":"ends at <TIME>",
+
+                //"brainDumpVcInfo": { //    "titleTimeRemainingText": "Time remaining:",
+                //Time remaining: 19m 21s (On Until 10:26 PM)
+
+                try
+                {
+                    DateTime now = DateTime.Now;
+                    TimeSpan difference = DateTime.Parse(appSettings.sRunningFocusModeEndTime).Subtract(now); // could also write `now - otherTime`
+                    var durationSeconds = difference.TotalSeconds;
+                    string ss = sRemaining + appSettings.SecondsToTextHMS(Convert.ToInt32(durationSeconds));
+
+                    /* "menuInfo":{
+                       "untilTimeText":"On Until <TIME>",*/
+                    string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
+                    sTill = sTill.Replace("<TIME>", DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToString("HH:mm tt"));
+                    OnUntill.Content = ss + " (" + sTill + ")";
+
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("FocusProgress dispatcherTimer_Tick ex = " + ex.Message);
+                }
+
+                CommandManager.InvalidateRequerySuggested();
+
+                if (nTimer < 0)
+                {
+                    OnUntill.Content = "";
+                    dispatcherTimer.Stop();
+                    ((App)(Application.Current)).CloseFocusProgressWindow();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("FocusProgress ex = " + ex.Message);
+            }
+
+        }
+        private void Window_MouseEnter(object sender, MouseEventArgs e)
+        {
+            this.Opacity = 1;
+        }
+
+        private void Window_MouseLeave(object sender, MouseEventArgs e)
+        {
+            this.Opacity = 0.5;
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            dispatcherTimer.Stop();
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)(Application.Current)).CloseFocusProgressWindow();
+        }
+    }
+}

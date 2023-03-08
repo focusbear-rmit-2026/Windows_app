@@ -20,6 +20,9 @@ using System.Windows.Threading;
 using System.Reflection;
 using Focus_Bear.API;
 using Focus_Bear.Models;
+using Focus_Bear.Quit;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Focus_Bear
 {
@@ -32,7 +35,7 @@ namespace Focus_Bear
 
         bool isFocusModeWindowOpen = false;
         
-        DispatcherTimer dispatcherTimerFocus = new DispatcherTimer();
+        DispatcherTimer dispatcherTimerFocus = new DispatcherTimer(DispatcherPriority.Normal);
 
       
         public TrayMenu()
@@ -87,14 +90,22 @@ namespace Focus_Bear
             *           "trialExpiredText":"Your trial has expired!",
         * */
 
-            Reactivate.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemReactivateTitle"].ToString();
-            Preferences.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemPreferencesTitle"].ToString();
-            lblOfficeMode.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemEnableOfficeModeTitle"].ToString();
-            PomodoroMode.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStartPomodoroTitle"].ToString();
-            Quit.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemQuitTitle"].ToString();
-            UpgradeNow.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemUpgradeNowTitle"].ToString();
-            Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
-
+            try
+            {
+                Reactivate.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemReactivateTitle"].ToString();
+                Preferences.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemPreferencesTitle"].ToString();
+                lblOfficeMode.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemEnableOfficeModeTitle"].ToString();
+                PomodoroMode.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStartPomodoroTitle"].ToString();
+                Quit.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemQuitTitle"].ToString();
+                UpgradeNow.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemUpgradeNowTitle"].ToString();
+                Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
+                btnResumeHabitsTxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();
+                btnBrainDumpTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("TrayMenu InitializeSettings() text setting + " + ex.Message);
+            }
             UpdateTrayMenu();
 
         }
@@ -105,7 +116,12 @@ namespace Focus_Bear
 
             try
             {
-                if (appSettings.isExpired)
+                 if (appSettings.isPurchased)
+                {
+                    //hide the upgrade now button
+                    btnUpgradeNow.Visibility = Visibility.Collapsed;
+                }
+                else if (appSettings.isExpired)
                 {
                     TrialInfo.Text = appSettings.ConfigFileStrings["menuInfo"]["subscriptionExpiredText"].ToString();
                 }
@@ -116,11 +132,7 @@ namespace Focus_Bear
                     TrialInfo.Text = sTrial.Replace("<DAYS>", appSettings.nTrialDays.ToString()); ;
                 }
 
-                if (appSettings.isPurchased)
-                {
-                    //hide the upgrade now button
-                    btnUpgradeNow.Visibility = Visibility.Collapsed;
-                }
+               
 
                 if (appSettings.IsAppDeactivated())
                 {
@@ -129,6 +141,26 @@ namespace Focus_Bear
                 else
                 {
                     btnReactivate.Visibility = Visibility.Collapsed;
+                }
+
+                if (appSettings.isOfficeModeEnabled)
+                {
+                    btnOfficeMode.IsChecked = true;
+                    lblOfficeMode.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemEnableOfficeModeTitle"].ToString();
+                }
+                else
+                {
+                    lblOfficeMode.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemDisableOfficeModeTitle"].ToString();
+                    btnOfficeMode.IsChecked = false;
+                }
+
+                if (appSettings.bHabitsPostponedState)
+                {
+                    btnResumeHabits.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    btnResumeHabits.Visibility = Visibility.Collapsed;
                 }
             }
             catch (Exception ex)
@@ -141,8 +173,108 @@ namespace Focus_Bear
 
         private void OfficeModeButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Work In Progress!", "WIP", MessageBoxButton.OK, MessageBoxImage.Error);
-           // Close();
+            //MessageBox.Show("Work In Progress!", "WIP", MessageBoxButton.OK, MessageBoxImage.Error);
+            //return;
+
+            /*        "menuInfo":{    "noOfficeFriendlyActivityAlertText":"You don't have any office friendly break activities. Do you want me to add one for you to stand up and stretch for 20 seconds?",
+             "noOfficeFriendlyActivityButtonFirstText":"Yeah sounds good",
+             "noOfficeFriendlyActivityButtonSecondText":"No I'm a machine! I don't need breaks",
+             
+              "officeModeEnabledSuccessfullyText":"Ok! I'll just prompt you to do activities that won't weird other people out (doing handstand pushups in the office might raise a few eyebrows).",
+            */
+
+            if (btnOfficeMode.IsChecked.Value) //means officemode enabled
+            {
+               
+                //if office friendly activity added then show alert
+                var listItems = appSettings.arrAllbreakActivities.Where(i => i.isOfficeFriendly == true);
+                if (listItems.Count() == 0)
+                {
+                    //No office friendly activity is there
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["noOfficeFriendlyActivityAlertText"].ToString(),"",MessageBoxButton.YesNo, appSettings.ConfigFileStrings["menuInfo"]["noOfficeFriendlyActivityButtonFirstText"].ToString(), appSettings.ConfigFileStrings["menuInfo"]["noOfficeFriendlyActivityButtonSecondText"].ToString());
+                    ff.ShowDialog();
+                    if(ff.btnClicked == MessageBoxResult.Yes)
+                    {
+                        appSettings.isOfficeModeEnabled = true;
+                        //create an office friendly activity
+
+                        string ActivityID = System.Guid.NewGuid().ToString();
+                        string SequenceID = System.Guid.NewGuid().ToString();
+                        if (appSettings.arrAllbreakActivities.Count() > 0)
+                        {
+                            SequenceID = appSettings.arrAllbreakActivities[0].activity_sequence_id;
+                        }
+
+                        // arrAllbreakActivities.append(breakActivity(id:id,name: "Stand up and stretch", durationSeconds: 20, IncludeInEveryBreak: false, urlsArray: [], logQuantity:false, isRandomChoice: false, choices: [], logQuantityQuestion: "", openSpecificApps: false, allowUrls: [], allowApps: [], isOfficeFriendly: true, allowedFocusMode: "", logQuantityType: "",activity_sequence_id:activity_sequence_id))
+                        //add to our array
+                        appSettings.arrAllbreakActivities.Add(new breakActivity(ActivityID, "Stand up and stretch", 20, new List<string>(), false, "", false, new List<string>(), new List<string>(), "", SequenceID, false, false, new List<activityChoice>(), true, ""));
+
+                        //add to the json
+                        String jsonString = appSettings.sRawUserSettings;
+                        ////
+                        ///
+                        JObject UserSettings = JObject.Parse(appSettings.sRawUserSettings);
+
+                        if (UserSettings.ContainsKey("break_activities"))
+                        {
+                            JArray break_activities_Array = (JArray)UserSettings.GetValue("break_activities");
+                            JObject newActivity = new JObject(
+                               new JProperty("id", ActivityID),
+                               new JProperty("name", "Stand up and stretch"),
+                               new JProperty("duration_seconds", 20),
+                               new JProperty("is_office_friendly", true),
+                               new JProperty("activity_sequence_id", SequenceID));
+                            break_activities_Array.Add(newActivity);
+
+                            UserSettings.Remove("break_activities");
+                            UserSettings.Add("break_activities", break_activities_Array);
+
+                            //Also save the udpated settings to Registry
+                            appSettings.sRawUserSettings = UserSettings.ToString();
+                            RegistryManager.SaveUserSettings();
+
+                            //We will need to put the settings.
+                            FocusBearAPIClient client = new FocusBearAPIClient();
+                            var x = client.PutUserSettings();
+
+                            FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["officeModeEnabledSuccessfullyText"].ToString());
+                            ff1.ShowDialog();
+                        }
+                            ///
+                           
+                    }
+                    else
+                    {
+                        appSettings.isOfficeModeEnabled = false;
+                        btnOfficeMode.IsChecked = false;
+                    }
+                }
+                else
+                {
+                    //Office friendly activity is there
+                    // "officeModeEnabledSuccessfullyText":"Ok! I'll just prompt you to do activities that won't weird other people out (doing handstand pushups in the office might raise a few eyebrows).",
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["officeModeEnabledSuccessfullyText"].ToString());
+                    ff.ShowDialog();
+                    appSettings.isOfficeModeEnabled = true;
+                }
+            }
+            else
+            {
+                appSettings.isOfficeModeEnabled = false;
+            }
+
+            if (appSettings.isOfficeModeEnabled)
+            {
+                lblOfficeMode.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemEnableOfficeModeTitle"].ToString();
+            }
+            else
+            {
+                lblOfficeMode.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemDisableOfficeModeTitle"].ToString();
+            }
+
+            //SAve thelocal settings and upload to server
+            LocalSettingsManager.PutLocalSettings();
+            // Close();
         }
 
         private void btnQuit_Click(object sender, RoutedEventArgs e)
@@ -158,6 +290,8 @@ namespace Focus_Bear
                 if (appSettings.isFocusModeRunning)
                 {
                     appSettings.isFocusModeRunning = false;
+                    ((App)Application.Current).CloseFocusProgressWindow();
+
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var x = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
                 }
@@ -166,10 +300,12 @@ namespace Focus_Bear
                 // isClosed = true;
                 //mainWin.ShouldShutDown = true; // App should show BeforeClosing Nag
                 //Application.Current.Shutdown(0);
-                Close();
+                ///Close();
                 // mainWin.ShouldShutDown = true;
                 // mainWin.BringToTopAndClose();
-                Application.Current.Shutdown(0);
+                //Application.Current.Shutdown(0);
+                QuitWindow aa = new QuitWindow();
+                aa.ShowDialog();
             }
             catch (Exception ex)
             {
@@ -185,6 +321,24 @@ namespace Focus_Bear
             RegistryManager.RemoveAppDeactivatedTillDate();
 
             Hide();
+
+            //Restart the app.
+            try
+            {
+                LogWriter.LogWrite("Restart app now for Reactivation to take Effect!");
+
+                string currentAppPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+
+                appSettings.bRestartAppNeeded = true;
+
+                Application.Current.Shutdown(0);
+
+                //Process.Start(currentAppPath, "/restartbyself");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("btnReactivate_Click app restart= " + ex.Message);
+            }
         }
 
         private void btnUpgradeNow_Click(object sender, RoutedEventArgs e)
@@ -199,6 +353,14 @@ namespace Focus_Bear
         private void btnSettings_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnSettings_Click() Tray Menu");
+
+            if (appSettings.isExpired)
+            {
+                Hide();
+                ((App)(Application.Current)).ShowExpiredNag();
+                return;
+            }
+
             //MessageBox.Show("Work In Progress!", "WIP", MessageBoxButton.OK, MessageBoxImage.Error);
             Hide();
 
@@ -210,7 +372,30 @@ namespace Focus_Bear
 
         private void btnStartPomodoroMode_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Work In Progress!", "WIP", MessageBoxButton.OK, MessageBoxImage.Error);
+
+            if (appSettings.isExpired)
+            {
+                Hide();
+                ((App)(Application.Current)).ShowExpiredNag();
+                return;
+            }
+
+            //todo Win text
+            FBMessageBox ff = new FBMessageBox("With Pomodoro mode, you automatically cycle between focus sessions and breaks (e.g. 25 minutes on, 5 minutes off)", "We haven't built Pomodoro mode yet on Windows. How badly do you want this feature?", MessageBoxButton.YesNoCancel, "I need this!", "I probably wouldn't use it", "I might use it"  );
+            ff.ShowDialog();
+            if(ff.btnClicked == MessageBoxResult.Yes) // "I need this!"
+            {
+                appSettings.CapturePostHog("need-pomodoro");
+            }
+            else if (ff.btnClicked == MessageBoxResult.No) //"I probably wouldn't use it" 
+            {
+                appSettings.CapturePostHog("probably-wont-use-pomodoro");
+            }
+            else if (ff.btnClicked == MessageBoxResult.Cancel) //"I might use it"
+            {
+                appSettings.CapturePostHog("might-use-pomodoro");
+            }
+
             Hide();
         }
 
@@ -222,6 +407,12 @@ namespace Focus_Bear
         private void ListFocusModes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             LogWriter.LogWrite("ListFocusModes_SelectionChanged Tray Menu");
+            if(appSettings.isExpired)
+            {
+                Hide();
+                ((App)(Application.Current)).ShowExpiredNag();
+                return;
+            }
             try
             {
                 var selectedItem = ListFocusModes.SelectedItem as FocusMode;
@@ -268,11 +459,18 @@ namespace Focus_Bear
                             //Make the global variable true
                             appSettings.isFocusModeRunning = true;
 
+                            ((App)Application.Current).ShowFocusProgressWindow();
+
+                            if( ((App) Application.Current).wndBrainDump != null && ((App)Application.Current).wndBrainDump.IsVisible) //Update the window if its made or is visible
+                            {
+                                ((App)Application.Current).wndBrainDump.ShowBrainDumpWindowAndStartTimer();
+                            }
+
                             //If is the loacked FOcus we need to add the active app and active url in allowed apps/urls
                             if (selectedItem.isLockedFocus)
                             {
                                 selectedItem.isAllowedListApproach = true;
-                                selectedItem.isAllowedAllUrls = false;
+                                ////selectedItem.isAllowedAllUrls = false;
 
                                 selectedItem.isAllowedAllApps = false;
                                 selectedItem.arrAllowedAppsWin.Clear();//Remove old
@@ -305,7 +503,15 @@ namespace Focus_Bear
                             appSettings.sRunningFocusModeName = selectedItem.name;
                             appSettings.sRunningFocusModeEndTime = dTill.ToString();
                             appSettings.sRunningFocusModeIntention = sIntention;
-                            
+
+                            //Clear any old stuff for gentle blocking
+                            appSettings.TemporaryAllowedAppsGentleBlock.Clear();
+                            appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                            appSettings.TemporaryAllowedURLsGentleBlock.Clear();
+                            appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+                            appSettings.TemporaryAllowedKeywords.Clear();
+                            appSettings.TemporaryAllowedURLsTabTitles.Clear();
                             //Start the Focus Mode Timer to end after x hours / minutes
                             StartFocusModeTimer(nHours, nMinutes);
 
@@ -344,8 +550,17 @@ namespace Focus_Bear
                                 selectedItem.isOn = false;
                                 Sounds.PlayFocusModeEndSound();
 
+
+                                //Clear the Gentle block temp arrays
+                                ////appSettings.TemporaryAllowedAppsGentleBlock.Clear();
+                                appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                                ///appSettings.TemporaryAllowedURLsGentleBlock.Clear();
+                                appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
                                 //Make the global variable false
                                 appSettings.isFocusModeRunning = false;
+
+                                ((App)Application.Current).CloseFocusProgressWindow();
 
                                 //Show and Set on untill value
                                 OnUntill.Visibility = Visibility.Collapsed;
@@ -363,7 +578,9 @@ namespace Focus_Bear
 
                                 /*"focusInfo":{
                                 "focusAlreadyRunningText":"A focus mode is already running. Please deactivate the running focus mode to start a new one.",*/
-                                MessageBox.Show(appSettings.ConfigFileStrings["focusInfo"]["focusAlreadyRunningText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                                ///MessageBox.Show(, "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusInfo"]["focusAlreadyRunningText"].ToString(), "Focus Bear");
+                                ff.ShowDialog();
                             }
 
                         }
@@ -454,6 +671,15 @@ namespace Focus_Bear
                         //Make the global variable false
                         appSettings.isFocusModeRunning = false;
 
+                        ((App)Application.Current).CloseFocusProgressWindow();
+
+                        //Clear the Gentle block temp arrays
+                        ////appSettings.TemporaryAllowedAppsGentleBlock.Clear();
+                        appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                        ////appSettings.TemporaryAllowedURLsGentleBlock.Clear();
+                        appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+
                         //Show and Set on untill value
                         OnUntill.Visibility = Visibility.Collapsed;
                         //Increase hearder height
@@ -478,6 +704,28 @@ namespace Focus_Bear
                 LogWriter.LogWrite("dispatcherTimer_Focus" + ex.Message);
                // Debug.WriteLine(ex.Message);
             }
+        }
+
+        private void btnResumeHabits_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnResumeHabits_Click" );
+            ((App)(Application.Current)).ResumeAfterPostponeFinished();
+        }
+
+        private void btnBrainDump_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (appSettings.isExpired)
+            {
+                Hide();
+                ((App)(Application.Current)).ShowExpiredNag();
+                return;
+            }
+
+            ((App)(Application.Current)).ShowBrainDumpWindow();
+
+            Hide();
+ 
         }
     }
 }

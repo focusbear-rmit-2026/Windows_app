@@ -232,7 +232,7 @@ namespace Focus_Bear.Models
 
         internal bool CreateTask(string AppName, string args)
         {
-            LogWriter.LogWrite("CreateTask(string AppName, string args)");
+            LogWriter.LogWrite("CreateTask(string AppName, string args) - Add to Startup");
             try
             {
                 ITaskService taskService = new TaskScheduler.TaskScheduler();
@@ -262,6 +262,9 @@ namespace Focus_Bear.Models
                 execAction.Path = appPath;
                 ITaskFolder rootFolder = taskService.GetFolder(@"\");
 
+                ITaskSettings set = taskDef.Settings;
+                set.DisallowStartIfOnBatteries = false;
+                set.StopIfGoingOnBatteries = false;
                 rootFolder.RegisterTaskDefinition(appName, taskDef, 6, null, null, _TASK_LOGON_TYPE.TASK_LOGON_NONE, null);
             }
             catch (UnauthorizedAccessException ex)

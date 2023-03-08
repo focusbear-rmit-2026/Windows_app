@@ -1,5 +1,8 @@
 ﻿using Focus_Bear.API;
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,23 +29,23 @@ namespace Focus_Bear.Focus
         AppSettings appSettings = AppSettings.GetInstance;
 
 
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
-        [DllImport("user32.dll")]
-        private static extern bool EnableMenuItem(IntPtr hMenu, uint uIDEnableItem, uint uEnable);
+        //[DllImport("user32.dll")]
+        //private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+        //[DllImport("user32.dll")]
+        //private static extern bool EnableMenuItem(IntPtr hMenu, uint uIDEnableItem, uint uEnable);
 
-        private const uint MF_BYCOMMAND = 0x00000000;
-        private const uint MF_GRAYED = 0x00000001;
-        private const uint SC_CLOSE = 0xF060;
-        private const int WM_SHOWWINDOW = 0x00000018;
+        //private const uint MF_BYCOMMAND = 0x00000000;
+        //private const uint MF_GRAYED = 0x00000001;
+        //private const uint SC_CLOSE = 0xF060;
+        //private const int WM_SHOWWINDOW = 0x00000018;
 
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-            var hWnd = new WindowInteropHelper(this);
-            var sysMenu = GetSystemMenu(hWnd.Handle, false);
-            EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
-        }
+        //protected override void OnSourceInitialized(EventArgs e)
+        //{
+        //    base.OnSourceInitialized(e);
+        //    var hWnd = new WindowInteropHelper(this);
+        //    var sysMenu = GetSystemMenu(hWnd.Handle, false);
+        //    EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+        //}
         public FocusModeEnd()
         {
             InitializeComponent();
@@ -62,6 +65,11 @@ namespace Focus_Bear.Focus
         }
 
         private void btnTakeBreak_Click(object sender, RoutedEventArgs e)
+        {
+            Take5MinsBreak();
+        }
+
+        private async void Take5MinsBreak()
         {
             /*
                Log type,Timestamp,Activity,Duration in seconds,Quantity Question,Quantity Logged,Start Time,Work achieved,Distractions encountered,Abort reason,Feedback
@@ -87,8 +95,91 @@ namespace Focus_Bear.Focus
             //Show the Break Window
             ((App)(Application.Current)).ShowBreakWindow();
 
-        }
+            //Ask the user for adding temp apps / urls
+            if (appSettings.TemporaryAllowedAppsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsTabTitles.Count != 0)
+            {
+                if(appSettings.TemporaryAllowedURLsTabTitles.Count > 0)
+                {
+                    var m = await client.GetKeywords();
+                    if(m == 1)
+                    {
+                        ///
+                        appSettings.TemporaryAllowedKeywords.Clear();
 
+                        //Check is we got some response from keywords api
+                        if (appSettings.sRawKeywords != null || (appSettings.sRawKeywords.Length != 0))
+                        {
+                            //Parse the JSON string
+                            try
+                            {
+                                //JObject UserSettings = JObject.Parse(appSettings.sRawKeywords);
+                                // JArray array = (JArray)appSettings.sRawKeywords;
+                                List<string> array = new List<string>();
+                                array = JsonConvert.DeserializeObject<List<string>>(appSettings.sRawKeywords);
+                                if (array.Count > 0)
+                                {
+                                    foreach(string ss in array)
+                                    {
+                                        appSettings.TemporaryAllowedKeywords.Add(new DistractingURL(ss, false));
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogWriter.LogWrite("ReadAndParseSettingsJson() EX - " + ex.Message);
+                            }
+                        }
+                            ///
+
+                    }
+                }
+
+                AddTempAllowedToFocusModeWindow aa = new AddTempAllowedToFocusModeWindow();
+                aa.Topmost = true;
+                bool? bResult = aa.ShowDialog();
+                if(bResult.Value)
+                {
+
+                    var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
+                    if (listItems.Count() != 0)
+                    {
+                        FocusMode ff = listItems.First();
+
+                        try
+                        {
+                            foreach (DistractingURL dd in appSettings.TemporaryAllowedAppsGentleBlock)
+                            {
+                                 if(dd.IsItemChecked)
+                                ff.arrAllowedAppsWin.Add(new AppDetails(dd.sURL, dd.sURL));
+                            }
+                            foreach (DistractingURL dd in appSettings.TemporaryAllowedURLsGentleBlock)
+                            {
+                                if(dd.IsItemChecked)
+                                    ff.arrAllowedUrls.Add(dd.sURL);
+                            }
+                            foreach (DistractingURL dd in appSettings.TemporaryAllowedKeywords)
+                            {
+                                if(dd.IsItemChecked)
+                                    ff.arrAllowedUrls.Add(dd.sURL);
+                            }
+                            //we will call the API to update all the focus modes.
+                            LogWriter.LogWrite("attempt to UpdateAllFocusModes() API");
+                            var response = client.UpdateAllFocusModes();
+
+                        }
+                        catch (Exception ex)
+                        {
+                            LogWriter.LogWrite("btnAddDeleteAllowedURLs_Click EX = " + ex.Message);
+                        }
+
+
+                    }
+
+                    
+                }
+            }
+             
+        }
         private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if(IsVisible)
@@ -113,6 +204,38 @@ namespace Focus_Bear.Focus
                 //Empty the boxes
                 TxtAchieve.Text = "";
                 TxtDistractions.Text = "";
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            Take5MinsBreak();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (null != e)
+                e.Handled = true;
+
+
+            var source = PresentationSource.FromVisual(this);
+
+            if (null != source && null != source.CompositionTarget)
+            {
+                var matrix = source.CompositionTarget.TransformToDevice;
+
+                var dpiTransform = new ScaleTransform(1 / matrix.M11, 1 / matrix.M22);
+
+                if (dpiTransform.CanFreeze)
+                    dpiTransform.Freeze();
+
+                LayoutTransform = dpiTransform;
+                this.Width = this.Width * dpiTransform.ScaleX;
+                this.Height = this.Height * dpiTransform.ScaleY;
+                var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+                this.Left = (desktopWorkingArea.Width - this.Width) / 2;
+                this.Top = (desktopWorkingArea.Height - this.Height) / 2;
             }
         }
     }

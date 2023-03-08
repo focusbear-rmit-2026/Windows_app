@@ -54,6 +54,9 @@
   <PropertyGroup>
     <ApplicationIcon>focus-bear.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Auth0.AuthenticationApi, Version=7.17.3.0, Culture=neutral, PublicKeyToken=afe355c419914736, processorArchitecture=MSIL">
       <HintPath>packages\Auth0.AuthenticationApi.7.17.3\lib\net452\Auth0.AuthenticationApi.dll</HintPath>
@@ -131,6 +134,12 @@
     </ApplicationDefinition>
     <Compile Include="API\Authentication.cs" />
     <Compile Include="API\FocusBearAPIClient.cs" />
+    <Compile Include="BrainDump\BrainDumpWindow.xaml.cs">
+      <DependentUpon>BrainDumpWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Focus\AddTempAllowedToFocusModeWindow.xaml.cs">
+      <DependentUpon>AddTempAllowedToFocusModeWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\BreakWindow.xaml.cs">
       <DependentUpon>BreakWindow.xaml</DependentUpon>
     </Compile>
@@ -143,6 +152,9 @@
     <Compile Include="Focus\FocusModeEnd.xaml.cs">
       <DependentUpon>FocusModeEnd.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\FocusProgress.xaml.cs">
+      <DependentUpon>FocusProgress.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\GentleBlock.xaml.cs">
       <DependentUpon>GentleBlock.xaml</DependentUpon>
     </Compile>
@@ -154,6 +166,9 @@
     </Compile>
     <Compile Include="Habits\BlankWindow.xaml.cs">
       <DependentUpon>BlankWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\BreakActivityBrainDump.xaml.cs">
+      <DependentUpon>BreakActivityBrainDump.xaml</DependentUpon>
     </Compile>
     <Compile Include="Habits\BreakWarning\BreakWarning.xaml.cs">
       <DependentUpon>BreakWarning.xaml</DependentUpon>
@@ -210,6 +225,33 @@
     <Compile Include="Models\RegistryManager.cs" />
     <Compile Include="Models\UserAccount.cs" />
     <Compile Include="Models\WinSecurity.cs" />
+    <Compile Include="Onboarding\AfterLogin\OnboardingNotesWindow.xaml.cs">
+      <DependentUpon>OnboardingNotesWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\AfterLogin\OnboardingSetupAndTipsWindow.xaml.cs">
+      <DependentUpon>OnboardingSetupAndTipsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\AfterLogin\OnboardingDistractingSites.xaml.cs">
+      <DependentUpon>OnboardingDistractingSites.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\AfterLogin\OnboardingSetupFocusApps.xaml.cs">
+      <DependentUpon>OnboardingSetupFocusApps.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\AfterLogin\OnboardingSetupFocusTips.xaml.cs">
+      <DependentUpon>OnboardingSetupFocusTips.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\AfterLogin\OnboardingSetupFocusUrls.xaml.cs">
+      <DependentUpon>OnboardingSetupFocusUrls.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\AfterLogin\OnboardingSetWorkType.xaml.cs">
+      <DependentUpon>OnboardingSetWorkType.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\OnboardingAskWorkTime.xaml.cs">
+      <DependentUpon>OnboardingAskWorkTime.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\OnboardingGoals.xaml.cs">
+      <DependentUpon>OnboardingGoals.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Onboarding\OnboardingMindfulBreathing.xaml.cs">
       <DependentUpon>OnboardingMindfulBreathing.xaml</DependentUpon>
     </Compile>
@@ -240,6 +282,9 @@
     <Compile Include="Preferences\AlwaysBlockedURLs.xaml.cs">
       <DependentUpon>AlwaysBlockedURLs.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\AskPassword.xaml.cs">
+      <DependentUpon>AskPassword.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Preferences\EditHabits.xaml.cs">
       <DependentUpon>EditHabits.xaml</DependentUpon>
     </Compile>
@@ -261,8 +306,14 @@
     <Compile Include="Preferences\UninstallFeedback.xaml.cs">
       <DependentUpon>UninstallFeedback.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Quit\QuitWindow.xaml.cs">
+      <DependentUpon>QuitWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ShutOff\ShutOffWindow.xaml.cs">
       <DependentUpon>ShutOffWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SplashWindow.xaml.cs">
+      <DependentUpon>SplashWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TrayMenu.xaml.cs">
       <DependentUpon>TrayMenu.xaml</DependentUpon>
@@ -275,6 +326,10 @@
     </Compile>
     <Compile Include="Utils\AppSettings.cs" />
     <Compile Include="Utils\DeviceNotification.cs" />
+    <Compile Include="Utils\DpiDecorator.cs" />
+    <Compile Include="Utils\FBMessageBox.xaml.cs">
+      <DependentUpon>FBMessageBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\FocusChangedHandler.cs" />
     <Compile Include="Utils\FullScreenParent.cs" />
     <Compile Include="Utils\Global.cs" />
@@ -284,12 +339,24 @@
     <Compile Include="Onboarding\WelcomeAbordPostpone.xaml.cs">
       <DependentUpon>WelcomeAbordPostpone.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\HourControl.xaml.cs">
+      <DependentUpon>HourControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\LocalSettingsManager.cs" />
     <Compile Include="Utils\LogWriter.cs" />
+    <Compile Include="Utils\ProcessBrowserURLs.cs" />
     <Compile Include="Utils\Sounds.cs" />
     <Compile Include="Utils\TrayBalloon.xaml.cs">
       <DependentUpon>TrayBalloon.xaml</DependentUpon>
     </Compile>
+    <Page Include="BrainDump\BrainDumpWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\AddTempAllowedToFocusModeWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Focus\BreakWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -306,6 +373,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Focus\FocusProgress.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Focus\GentleBlock.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -319,6 +390,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Habits\BlankWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\BreakActivityBrainDump.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -390,6 +465,42 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Onboarding\AfterLogin\OnboardingNotesWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\AfterLogin\OnboardingSetupAndTipsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\AfterLogin\OnboardingDistractingSites.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\AfterLogin\OnboardingSetupFocusApps.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\AfterLogin\OnboardingSetupFocusTips.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\AfterLogin\OnboardingSetupFocusUrls.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\AfterLogin\OnboardingSetWorkType.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\OnboardingAskWorkTime.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\OnboardingGoals.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Onboarding\OnboardingMindfulBreathing.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -430,6 +541,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Preferences\AskPassword.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Preferences\EditHabits.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -458,7 +573,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Quit\QuitWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ShutOff\ShutOffWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SplashWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -481,6 +604,14 @@
     <Page Include="Upgrade\UpgradeNow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Utils\FBMessageBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Utils\HourControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
     <Page Include="Utils\TrayBalloon.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -505,6 +636,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.manifest" />
+    <None Include="config-es.json" />
     <None Include="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -549,6 +682,14 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\FocusTips\focusTip_1.png" />
+    <Resource Include="Images\FocusTips\focusTip_2.png" />
+    <Resource Include="Images\FocusTips\focusTip_3.png" />
+    <Resource Include="Images\FocusTips\focusTip_4.png" />
+    <Resource Include="Images\cards\brainBreaks_card.png" />
+    <Resource Include="Images\cards\betterHabits_card.png" />
+    <Resource Include="Images\copy.png" />
+    <Resource Include="Images\fb_big.png" />
     <Resource Include="Images\validIcon.png" />
     <Resource Include="Images\eye-gray.png" />
     <Resource Include="Images\eye-orange.png" />

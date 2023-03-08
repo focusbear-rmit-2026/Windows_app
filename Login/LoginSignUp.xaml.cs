@@ -156,10 +156,12 @@ namespace Focus_Bear.Login
                                                         {
                                                             await Dispatcher.BeginInvoke((Action)(() =>
                                                             {
-                                                                LogWriter.LogWrite("SignUp Success, Login ERROR !!");
+                                                                LogWriter.LogWrite("SignUp Success, Login ERROR !! + " + authenticator.sErrorMessage);
                                                                 Mouse.OverrideCursor = null;
                                                                 EnablControls(true);
-                                                                MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                                ///MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                                FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, "Focus Bear");
+                                                                ff.ShowDialog();
                                                             }));
                                                         }
                                                     }
@@ -195,14 +197,18 @@ namespace Focus_Bear.Login
 
                                                     Mouse.OverrideCursor = null;
                                                     EnablControls(true);
-                                                    MessageBox.Show(policy, msg, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                    //MessageBox.Show(policy, msg, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                    FBMessageBox ff = new FBMessageBox(policy, "Focus Bear");
+                                                    ff.ShowDialog();
                                                 }
                                                 catch (Exception ex)
                                                 {
                                                     Mouse.OverrideCursor = null;
                                                     EnablControls(true);
                                                     LogWriter.LogWrite(ex.Message);
-                                                    MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                    //MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                    FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, "Focus Bear");
+                                                    ff.ShowDialog();
                                                 }
                                                
 
@@ -221,26 +227,34 @@ namespace Focus_Bear.Login
                             {
                                  //appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCreateAccountText"].ToString();
                                 // "passwordNotMatchAlertSubTitle":"Confirm Password does not match with the main password. Please re enter.",
-                                MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["confirmPasswordNotMatchText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                                ///MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["confirmPasswordNotMatchText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["confirmPasswordNotMatchText"].ToString(), "Focus Bear");
+                                ff.ShowDialog();
                             }
 
                         }
                         else
                         {
                             //  "passwordBlankAlertTitle":"Password cannot be blank.",
-                            MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                            //MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear");
+                            ff.ShowDialog();
                         }
                     }
                     else
                     {
                         // "emailInvalidText": "Please enter a valid Email.",
-                        MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                        //MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                        FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear");
+                        ff.ShowDialog();
                     }
                 }
                 else
                 {
                     // "titleEmailIsBlank": "Email cannot be blank.",
-                    MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                    //MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear");
+                    ff.ShowDialog();
                 }
             }
             catch (Exception ex)

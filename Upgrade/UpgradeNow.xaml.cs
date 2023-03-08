@@ -54,7 +54,11 @@ namespace Focus_Bear.Upgrade
             AfterPay.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["syncInfoText"].ToString();
             btnSyncPaymentTXT.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["buttonRestoreText"].ToString();
 
-            if(appSettings.isExpired)
+            YourUserId.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["titleUserId"].ToString();
+            TxtUserId.Text = appSettings.sUser_id;
+            btnCopyUserId.ToolTip  = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopyId"].ToString();
+
+            if (appSettings.isExpired)
             {
                 Subscription.Visibility = Visibility.Visible;
             }
@@ -107,7 +111,7 @@ namespace Focus_Bear.Upgrade
                     //All Good, Proceed Normally
                     appSettings.GetAllTrialInfo();
 
-                    if(appSettings.isPurchased)
+                    if(appSettings.isPurchased || appSettings.nTrialDays > 0)
                     {
                         if (((App)(Application.Current)).wndTrayMenu != null)
                         {
@@ -122,8 +126,9 @@ namespace Focus_Bear.Upgrade
                     else 
                     {
                         //noPurchasesFoundText
-                        MessageBox.Show(appSettings.ConfigFileStrings["common"]["noPurchasesFoundText"].ToString() ,"Focus Bear");
-                        LogWriter.LogWrite("no Purchases Found ");
+                        FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["common"]["noPurchasesFoundText"].ToString(), "Focus Bear");
+                        ff.ShowDialog();
+                        LogWriter.LogWrite("No Purchases Found ");
                         btnUpgradeNow.IsEnabled = true;
                         btnSyncPayment.IsEnabled = true;
                         ImgUpdateAppProgress.Visibility = Visibility.Collapsed;
@@ -145,6 +150,31 @@ namespace Focus_Bear.Upgrade
                 LogWriter.LogWrite("btnSyncPayment_Click ex + " + ex.Message);
             }
 
+        }
+
+        private void btnCopyUserId_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(appSettings.sUser_id);
+
+            btnCopyUserId.ToolTip = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopied"].ToString();
+            var toolTip = new ToolTip();
+
+            if (btnCopyUserId.ToolTip != null)
+            {
+                if (btnCopyUserId.ToolTip is ToolTip)
+                {
+                    var castToolTip = (ToolTip)btnCopyUserId.ToolTip;
+                    castToolTip.IsOpen = true;
+                }
+                else
+                {
+                    toolTip.Content = btnCopyUserId.ToolTip;
+                    toolTip.StaysOpen = false;
+                    toolTip.IsOpen = true;
+                }
+            }
+
+            btnCopyUserId.ToolTip = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopyId"].ToString();
         }
     }
 }

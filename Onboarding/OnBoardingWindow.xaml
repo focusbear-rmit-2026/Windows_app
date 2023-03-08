@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Onboarding"
         mc:Ignorable="d"
-        Title="OnBoardingWindow" Height="450" Width="800" WindowState="Maximized" WindowStyle="None" PreviewKeyDown="Window_PreviewKeyDown" >
+        Title="OnBoardingWindow" Height="650" Width="850" WindowState="Maximized" WindowStyle="None" PreviewKeyDown="Window_PreviewKeyDown" >
     <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>

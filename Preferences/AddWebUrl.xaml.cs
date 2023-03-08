@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Onboarding.AfterLogin;
+using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,16 @@ namespace Focus_Bear.Preferences
         bool _isBlockedURLsMode = false;
         public AddWebUrl()
         {
+        }
+        public AddWebUrl(OnboardingSetupAndTipsWindow _ParentWindow)
+        {
+            InitializeComponent();
+
+            this.Owner = _ParentWindow;
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                       
+            SetTexts();
+
         }
         public AddWebUrl(PreferencesWindow _ParentWindow, string sURLToEdit = "", bool bEditURLMode = false, bool isBlockedURLsMode = false)
         {

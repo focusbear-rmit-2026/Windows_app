@@ -1,15 +1,20 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
 using Focus_Bear.Onboarding;
+using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -34,12 +39,16 @@ namespace Focus_Bear.Habits
 
         int nTimer = 15;
         string TxtTimer = "";
-        DispatcherTimer dispatcherTimerSkippingIn = new DispatcherTimer();
 
+        DispatcherTimer dispatcherTimerSkippingIn = new DispatcherTimer(DispatcherPriority.Normal);
+
+       
 
         public HabitWindow()
         {
             InitializeComponent();
+
+          ///  _hookID = SetHook(_proc);
 
 #if DEBUG
             this.WindowState = WindowState.Normal;
@@ -54,15 +63,22 @@ namespace Focus_Bear.Habits
 
             dispatcherTimerSkippingIn.Tick += new EventHandler(dispatcherTimerSkippingIn_Tick);
             dispatcherTimerSkippingIn.Interval = new TimeSpan(0, 0, 1);
- 
+
+            if (nScreenHabitActivityFinished == null)
+            {
+                nScreenHabitActivityFinished = new HabitActivityFinished(this);
+            }
 
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
                 //We need to hide the Please SPare Me Button
-               /// btnPleaseSpareMe.Visibility = Visibility.Collapsed; - not hiding as we need postpone in breaks too...
-               /// 
+                /// btnPleaseSpareMe.Visibility = Visibility.Collapsed; - not hiding as we need postpone in breaks too...
+                /// 
 
-                AppFrameHabitScreens.Navigate(new StartBreakActivity(this));
+                //AppFrameHabitScreens.Navigate(new StartBreakActivity(this));
+
+                AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(this));
+
             }
             else
             {
@@ -73,9 +89,19 @@ namespace Focus_Bear.Habits
                 string sPostponedActivityId = RegistryManager.GetCurrentActivityPostponedID();
                 if(sPostponedActivityId != null && sPostponedActivityId.Length > 0)
                 {
+                    if(appSettings.bShowActivitiesFromMid)
+                    {
+                        //Increment the habit index to show the correct activity ongoing which was postponed
+                        appSettings.nHabitIndex++;
+                    }
                     string sActivityID = (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) ? appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id : ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) ? appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id : "");
                     if(sPostponedActivityId == sActivityID)
                     {
+                       
+                        //Maybe the last aqctivity was a skipped activity but now we are starting a postponed activity..so adjust the vailable
+                        appSettings.bShowActivitiesFromMidLastSkipped = false;
+                        appSettings.bShowActivitiesFromMid= false;
+                        //
                         //Means it was the same activity that was postponed after starting
                         ShowActivityStartScreen(true);
                         return;
@@ -107,13 +133,24 @@ namespace Focus_Bear.Habits
 
         }
       
-
+        public void ShowStartBreakActivityScreen()
+        {
+            AppFrameHabitScreens.Navigate(new StartBreakActivity(this));
+        }
         public void ShowExtraPersonalFocus()
         {
             AppFrameHabitScreens.Navigate(new HabitExtraPersonal(this));
         }
         public void ShowActivityStartScreen(bool bStartingAfterPostponed = false)
         {
+            //Dispose the web view if left from old screen
+            //if (nScreenHabitActivityFinished != null)
+            //{
+            //    nScreenHabitActivityFinished.webView.Dispose();
+            //    nScreenHabitActivityFinished.webView1.Dispose();
+            //    nScreenHabitActivityFinished = null;//setting to null so that new webview is created
+            //}
+
             appSettings.dLastActivityPerformedStartTime = DateTime.Now; //SEt the activity Start Time
 
             PageHabitActivityOnGoing = new HabitActivityOnGoing(this, bStartingAfterPostponed);
@@ -130,11 +167,18 @@ namespace Focus_Bear.Habits
                 //On activity Finished, do clear the Postponed variables
                 RegistryManager.RemovePostponedHabitData();
                 //////////////////////////////////////////////////////////
-
-                if (nScreenHabitActivityFinished == null)
+                //Here we need to set the activity ongoing screen as null so that postpone timers can be handled as there we check if the object is not null
+                if (PageHabitActivityOnGoing != null)
                 {
-                    nScreenHabitActivityFinished = new HabitActivityFinished(this);
+                    PageHabitActivityOnGoing.webView.Dispose();
                 }
+
+                PageHabitActivityOnGoing = null;
+
+                //if (nScreenHabitActivityFinished == null)
+                //{
+                //    nScreenHabitActivityFinished = new HabitActivityFinished(this);
+                //}
 
                 AppFrameHabitScreens.Navigate(nScreenHabitActivityFinished);
 
@@ -142,7 +186,13 @@ namespace Focus_Bear.Habits
 
                 if(appSettings.bShowActivitiesFromMid)//Justload the graph data in this case
                 {
-                    nScreenHabitActivityFinished.LoadGraphData();
+                    System.Threading.Tasks.Task.Factory.StartNew(() =>
+                    {
+                        Thread.Sleep(900);
+                        Dispatcher.BeginInvoke((Action)(() => nScreenHabitActivityFinished.LoadGraphData()));
+                    });
+
+                   
                     return;
                 }
 
@@ -273,6 +323,18 @@ namespace Focus_Bear.Habits
         {
             appSettings.bShowActivitiesFromMid = false;//Reseting it
 
+            //Dispose the web views
+            if(nScreenHabitActivityFinished != null)
+            {
+                nScreenHabitActivityFinished.webView.Dispose();
+                nScreenHabitActivityFinished.webView1.Dispose();
+            }
+
+            if (PageHabitActivityOnGoing != null)
+            {
+                PageHabitActivityOnGoing.webView.Dispose();
+            }
+
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
                 LogWriter.LogWrite("LAST BREAK_ACTIVITY Finished");
@@ -300,6 +362,7 @@ namespace Focus_Bear.Habits
 
                 //Set the current activity type to NONE
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
                 //Start the break Activities Timer
                 ((App)(Application.Current)).StartBreakActivityTimer();
@@ -338,6 +401,7 @@ namespace Focus_Bear.Habits
 
                     //Set the current activity type to NONE
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                    LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
                     //Show the Shutoff Screen
                     ((App)(Application.Current)).ShowShutOffScreen();
@@ -361,6 +425,10 @@ namespace Focus_Bear.Habits
                 Close();
             }
 #endif
+            //if (e.Key == Key.System && e.SystemKey == Key.F4)
+            //{
+            //    e.Handled = true;
+            //}
         }
 
         //GridLogQuantityNag Event Handlers
@@ -418,6 +486,7 @@ namespace Focus_Bear.Habits
 
             btnOK.IsEnabled = false; //Initially
 
+            nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
 
             GridShade.Visibility = Visibility.Visible;
             GridLogQuantityNag.Visibility = Visibility.Visible;
@@ -832,9 +901,109 @@ namespace Focus_Bear.Habits
             }
         }
 
+        public void SimulatePleaseSpareMeClick()
+        {
+            LogWriter.LogWrite("Habit Window SimulatePleaseSpareMeClick()");
+            if (!this.IsVisible || GridShade.IsVisible) //Either the window is not visible means its postponsed or the grid share is visible mean either log window or the skip confirm window is there..so return from here
+            {
+                LogWriter.LogWrite("Habit Window Not visible or GridShade.IsVisible, return ");
+                return;
+            }
+            if(!btnPleaseSpareMe.IsVisible)
+            {
+                LogWriter.LogWrite("btnPleaseSpareMe Not visible, return");
+                return;
+            }
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnPleaseSpareMe);
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
+        }
         private void btnPleaseSpareMe_Click(object sender, RoutedEventArgs e)
         {
-            if (appSettings.nCurrentActivityType != CurrentActivityType.BREAK_ACTIVITY) //Only for Morning and Evening Habits. FOr Breaks we will simply cancel the current routine.
+            //If a password is set, ask fop a password
+            if (appSettings.isPasswordSet)
+            {
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                {
+                    if (appSettings.bPasswordRequireInSkipMorning)
+                    {
+                        //It might be possible that a webview is visible, we will need to hide that
+                        if(nScreenHabitActivityFinished != null)
+                        {
+                            if(nScreenHabitActivityFinished.webView.IsVisible)
+                                nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
+                            if( nScreenHabitActivityFinished.webView1.IsVisible)
+                                nScreenHabitActivityFinished.webView1.Visibility = Visibility.Collapsed;
+                        }
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = this;
+                        GridShade.Visibility = Visibility.Visible;
+
+                        bool? bResult = pwdWnd.ShowDialog();
+
+                        GridShade.Visibility = Visibility.Collapsed;
+                        if (nScreenHabitActivityFinished != null)
+                        {
+                            if (!nScreenHabitActivityFinished.webView.IsVisible)
+                                nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
+                            if (!nScreenHabitActivityFinished.webView1.IsVisible)
+                                nScreenHabitActivityFinished.webView1.Visibility = Visibility.Visible;
+                        }
+
+                        if (bResult.Value)
+                        {
+                            //Password is correct
+                        }
+                        else
+                        {
+                            //Hide();
+                            return;
+                        }
+
+                    }
+                }
+                else if(appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                {
+                    if (appSettings.bPasswordRequireInSkipEvening)
+                    {
+                        //It might be possible that a webview is visible, we will need to hide that
+                        if (nScreenHabitActivityFinished != null)
+                        {
+                            if (nScreenHabitActivityFinished.webView.IsVisible)
+                                nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
+                            if (nScreenHabitActivityFinished.webView1.IsVisible)
+                                nScreenHabitActivityFinished.webView1.Visibility = Visibility.Collapsed;
+                        }
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = this;
+                        GridShade.Visibility = Visibility.Visible;
+
+                        bool? bResult = pwdWnd.ShowDialog();
+
+                        GridShade.Visibility = Visibility.Collapsed;
+                        if (nScreenHabitActivityFinished != null)
+                        {
+                            if (!nScreenHabitActivityFinished.webView.IsVisible)
+                                nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
+                            if (!nScreenHabitActivityFinished.webView1.IsVisible)
+                                nScreenHabitActivityFinished.webView1.Visibility = Visibility.Visible;
+                        }
+
+                        if (bResult.Value)
+                        {
+                            //Password is correct
+                        }
+                        else
+                        {
+                            //Hide();
+                            return;
+                        }
+                    }
+                }
+
+            }
+
+            // if (appSettings.nCurrentActivityType != CurrentActivityType.BREAK_ACTIVITY) //Only for Morning and Evening Habits. FOr Breaks we will simply cancel the current routine.
             {
                 if (PageHabitActivityOnGoing != null)
                 {
@@ -843,10 +1012,10 @@ namespace Focus_Bear.Habits
 
                 Hide();
             }
-            else
-            {
-                Close();//FOr Breaks we will simply cancel the current break activities and start afresh.
-            }
+            //else
+            //{
+            //    Close();//For Breaks we will simply cancel the current break activities and start afresh.
+            //}
 
             appSettings.RemoveSecondaryWindows();
             
@@ -855,9 +1024,17 @@ namespace Focus_Bear.Habits
             
         }
 
+        public void EasyPostponeCancelled()
+        {
+            if (PageHabitActivityOnGoing != null)
+            {
+                PageHabitActivityOnGoing.HandleTimerForPostpone(false); //start the timer
+            }
+        }
         private void Window_Closed(object sender, EventArgs e)
         {
             appSettings.RemoveSecondaryWindows();
+            ////UnhookWindowsHookEx(_hookID);
         }
 
         public void ShowWhySkipHabitsWindow()
@@ -910,10 +1087,21 @@ namespace Focus_Bear.Habits
         public void HideSkippingHabitInWindow()
         {
             LogWriter.LogWrite("HideSkippingHabitInWindow()");
-            GridShade.Visibility = Visibility.Collapsed;
-            GridSkippingHabitIn.Visibility = Visibility.Collapsed;
-            //We will need to show the webview that we had hidden when showing this box
-            nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
+            try
+            {
+                GridShade.Visibility = Visibility.Collapsed;
+                GridSkippingHabitIn.Visibility = Visibility.Collapsed;
+                //We will need to show the webview that we had hidden when showing this box
+                if (nScreenHabitActivityFinished != null)
+                {
+                    if (!nScreenHabitActivityFinished.webView.IsVisible)
+                        nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("HideSkippingHabitInWindow() ex = " + ex.Message);
+            }
         }
         private void btnAlreadyDidIt_Click(object sender, RoutedEventArgs e)
         {
@@ -927,7 +1115,7 @@ namespace Focus_Bear.Habits
             ShowACtivityFinishedScreen(true);
 
             //We will need to show the webview that we had hidden when showing this box
-            nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
+           // nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
         }
 
         private void btnCantDoItToday_Click(object sender, RoutedEventArgs e)

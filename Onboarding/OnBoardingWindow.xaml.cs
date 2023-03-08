@@ -37,9 +37,22 @@ namespace Focus_Bear.Onboarding
             
             AppFrameOnboarding.Visibility = Visibility.Visible;
 
-            AppFrameOnboarding.Navigate(new OnboardingWelcome(this));
+            AppFrameOnboarding.Navigate(new OnboardingGoals(this));
         }
 
+        //public void ShowOnboardingDistractingSitesScreen()
+        //{
+        //    AppFrameOnboarding.Navigate(new OnboardingDistractingSites(this));
+        //} 
+        
+        public void ShowOnboardingAskWorkTimeScreen()
+        {
+            AppFrameOnboarding.Navigate(new OnboardingAskWorkTime(this));
+        }
+        public void ShowOnboardingWelcomeScreen()
+        {
+            AppFrameOnboarding.Navigate(new OnboardingWelcome(this));
+        }
         public void ShowMindFullBreathing()
         {
             AppFrameOnboarding.Navigate(new OnboardingMindfulBreathing(this));
@@ -50,12 +63,12 @@ namespace Focus_Bear.Onboarding
             AppFrameOnboarding.Navigate(new OnboardingWorkType(this));
         }
 
-        public async void HideFrameAndClose()
+        public void HideFrameAndClose()
         {
             // "stayFocusedText":"Now let's set up an account for you",
-            Heading.Text = appSettings.ConfigFileStrings["common"]["letsCreatAccountText"].ToString();
-            AppFrameOnboarding.Visibility = Visibility.Collapsed;
-            await Task.Delay(3000);
+            //Heading.Text = appSettings.ConfigFileStrings["common"]["letsCreatAccountText"].ToString();
+            //AppFrameOnboarding.Visibility = Visibility.Collapsed;
+            //await Task.Delay(3000);
             ((App)(Application.Current)).ShowLoginWindow();
             Close();
         }

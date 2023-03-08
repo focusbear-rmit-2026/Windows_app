@@ -29,7 +29,7 @@ namespace Focus_Bear.Habits
 
         bool bSecondTime15SecTimerRunning;
         int nTimer = 30;
-        DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
 
         [DllImport("user32.dll")]
@@ -103,14 +103,16 @@ namespace Focus_Bear.Habits
                     if (bSecondTime15SecTimerRunning)
                     {
                         dispatcherTimer.Stop();
-                        DialogResult = true;
+                        //DialogResult = true;
+                        ((App)(Application.Current)).StartBreakActivityTimer(true, 5);
                         Close();
                     }
                     else
                     {
                         TxtTimer.Text = "00:00";
                         dispatcherTimer.Stop();
-                        DialogResult = false;
+                        // DialogResult = false;
+                        ((App)(Application.Current)).ShowBreakActivities();
                         Close();
                     }
                   
@@ -134,7 +136,8 @@ namespace Focus_Bear.Habits
                     {
                         dispatcherTimer.Stop();
                         //User clicked means he wants to do the habits
-                        DialogResult = false;
+                        // DialogResult = false;
+                        ((App)(Application.Current)).ShowBreakActivities();
                         Close();
                         return;
                     }
@@ -159,7 +162,6 @@ namespace Focus_Bear.Habits
                     catch (Exception ex)
                     {
                         LogWriter.LogWrite("BreakWarning = " + ex.Message);
-                        Debug.WriteLine(ex.Message);
                     }
 
 
@@ -184,16 +186,18 @@ namespace Focus_Bear.Habits
                 else
                 {
                     //Set the break timer fro five minutes from now
-                    DialogResult = true;
+                    ///DialogResult = true;
                     dispatcherTimer.Stop();
                     appSettings.nCountBreaksPostponedTimes++; //Increase the counter after first time
+
+                    ((App)(Application.Current)).StartBreakActivityTimer(true, 5);
+
                     Close();
                 }
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("BreakWarning = " + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
 
         }

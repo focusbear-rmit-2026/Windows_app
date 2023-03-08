@@ -39,6 +39,14 @@ namespace Focus_Bear.Preferences
                 "restoreText":"If you've already purchased Focus Bear subscription, you can restore that purchase.",
                 "buttonRestoreText":"Sync Payment Status"
             },*/
+
+            LoadTexts();
+          
+
+        }
+
+        public void LoadTexts()
+        {
             Heading.Text = appSettings.ConfigFileStrings["accountVcInfo"]["title"].ToString();
             LblEmail.Text = appSettings.ConfigFileStrings["accountVcInfo"]["titleEmailIdText"].ToString();
             LblName.Text = appSettings.ConfigFileStrings["accountVcInfo"]["titleNameText"].ToString();
@@ -66,16 +74,22 @@ namespace Focus_Bear.Preferences
             LblPurchase.Text = appSettings.ConfigFileStrings["accountVcInfo"]["restoreText"].ToString(); ;
             btnLogoutTXT.Text = appSettings.ConfigFileStrings["accountVcInfo"]["buttonLogoutText"].ToString();
             btnSyncPaymentTXT.Text = appSettings.ConfigFileStrings["accountVcInfo"]["buttonRestoreText"].ToString();
-
         }
 
         private void btnLogout_Click(object sender, RoutedEventArgs e)
         {
-            if(MessageBox.Show(appSettings.ConfigFileStrings["accountVcInfo"]["logoutAlertText"].ToString(),"Focus Bear", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["accountVcInfo"]["logoutAlertText"].ToString(), "Focus Bear", MessageBoxButton.YesNo);
+            ff.ShowDialog();
+            if(ff.btnClicked == MessageBoxResult.Yes)
+           /// if (MessageBox.Show(appSettings.ConfigFileStrings["accountVcInfo"]["logoutAlertText"].ToString(),"Focus Bear", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 RegistryManager.RemoveLoggedInStatus();
+                
+                appSettings.bRestartAppNeeded = true;
+
                 Application.Current.Shutdown(0);
-                Process.Start(System.Reflection.Assembly.GetEntryAssembly().Location );
+                
+                //Process.Start(System.Reflection.Assembly.GetEntryAssembly().Location, "/restartbyself");
             }
         }
 
@@ -130,7 +144,9 @@ namespace Focus_Bear.Preferences
                     else
                     {
                         //noPurchasesFoundText
-                        MessageBox.Show(appSettings.ConfigFileStrings["common"]["noPurchasesFoundText"].ToString(), "Focus Bear");
+                        ///MessageBox.Show(appSettings.ConfigFileStrings["common"]["noPurchasesFoundText"].ToString(), "Focus Bear");
+                        FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["common"]["noPurchasesFoundText"].ToString(), "Focus Bear");
+                        ff.ShowDialog();
                         LogWriter.LogWrite("no Purchases Found ");
                     }
                     btnLogout.IsEnabled = true;

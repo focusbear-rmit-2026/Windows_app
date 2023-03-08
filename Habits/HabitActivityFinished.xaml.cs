@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.Models;
 using Focus_Bear.Onboarding;
+using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json;
@@ -7,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,11 +35,12 @@ namespace Focus_Bear.Habits
 
         int nTimer = 30;
  
-        DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
         int bExcludedActivityIndex = -1;
 
         private bool bBreakActivitiesFinished;
+
         public HabitActivityFinished()
         {
            
@@ -70,12 +73,12 @@ namespace Focus_Bear.Habits
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("SetWebView()" + ex.Message);
-                Debug.WriteLine(ex.Message);
+                LogWriter.LogWrite("Activity Finished SetWebView() EX - " + ex.Message);
             }
         }
         public void LoadData(bool bSkipCurrentActivity = false)
         {
+            LogWriter.LogWrite("ActivityFinished LoadData()");
             /*
             *   "activityInfo":{
              "activityFinishedText":"<ACTIVITY> finished!✅",
@@ -107,6 +110,9 @@ namespace Focus_Bear.Habits
 
                 bool bLastActivity = false;
 
+                //Show the skip this habit button initially, it will be handled below
+                SkipThisHabitText.Visibility = Visibility.Visible;
+
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
                     sTextCompletedDuration.Visibility = Visibility.Visible;
@@ -122,7 +128,7 @@ namespace Focus_Bear.Habits
                                 break;
                             }
                         }
-                        if (!bIsSkipped && !appSettings.bSkipCurrentActivityCantDoItToday)
+                        if (!bIsSkipped && !(i == appSettings.nHabitIndex && appSettings.bSkipCurrentActivityCantDoItToday))
                         {
                             totalSecondsAllHabits += appSettings.arrAllMorningHabits[i].durationSeconds;
                             if (i <= appSettings.nHabitIndex)
@@ -154,6 +160,9 @@ namespace Focus_Bear.Habits
 
                         //Hide the skip this habit button on last activity
                         SkipThisHabitText.Visibility = Visibility.Collapsed;
+
+                        //We need to hide the Please SPare Me Button
+                        _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
 
                         //Progress text
 
@@ -196,7 +205,7 @@ namespace Focus_Bear.Habits
                     }
 
                     //Reset the cnt do it today variable here
-                    appSettings.bSkipCurrentActivityCantDoItToday = false;
+                    //appSettings.bSkipCurrentActivityCantDoItToday = false;
 
                     sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name);
                 }
@@ -215,7 +224,7 @@ namespace Focus_Bear.Habits
                                 break;
                             }
                         }
-                        if (!bIsSkipped && !appSettings.bSkipCurrentActivityCantDoItToday)
+                        if (!bIsSkipped && !(i == appSettings.nHabitIndex && appSettings.bSkipCurrentActivityCantDoItToday))
                         {
                             totalSecondsAllHabits += appSettings.arrAllEveningHabits[i].durationSeconds;
                             if (i <= appSettings.nHabitIndex)
@@ -299,7 +308,7 @@ namespace Focus_Bear.Habits
                     }
 
                     //Reset the cnt do it today variable here
-                    appSettings.bSkipCurrentActivityCantDoItToday = false;
+                    //appSettings.bSkipCurrentActivityCantDoItToday = false;
 
                     sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name);
 
@@ -309,6 +318,9 @@ namespace Focus_Bear.Habits
                     sTextCompletedDuration.Text = ""; //Nothing to show in Breaks
 
                     Sounds.PlayHabitFinishedSound();
+
+                    //Hide the skip this habit button in breaks
+                    SkipThisHabitText.Visibility = Visibility.Collapsed;
 
                     if (appSettings.isAnyMandatoryActivityIncluded)
                     {
@@ -326,6 +338,9 @@ namespace Focus_Bear.Habits
 
                                     sHeading = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
                                     sButtonTitle = appSettings.ConfigFileStrings["common"]["unlockMachineButtonText"].ToString();
+
+                                    //We need to hide the Please SPare Me Button
+                                    _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
 
                                     var currentActivity = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex];
                                     if (!currentActivity.isRandomChoice)
@@ -421,9 +436,14 @@ namespace Focus_Bear.Habits
                         else
                         {
                             bBreakActivitiesFinished = true;
+                            appSettings.nCountBreaksPostponedTimes = 0; //Resettings the postpone breaks counter as break activities have been finished.
+
 
                             sHeading = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
                             sButtonTitle = appSettings.ConfigFileStrings["common"]["unlockMachineButtonText"].ToString();
+
+                            //We need to hide the Please SPare Me Button
+                            _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
 
                             var currentActivity = appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex];
                             if (!currentActivity.isRandomChoice)
@@ -441,10 +461,17 @@ namespace Focus_Bear.Habits
                         sHeading = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
                         sButtonTitle = appSettings.ConfigFileStrings["common"]["unlockMachineButtonText"].ToString();
 
-                        sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex].name);
+                        //We need to hide the Please SPare Me Button
+                        _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+
+                        sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex].name);
+                        bLastActivity = true;
+                        bBreakActivitiesFinished = true;
+                        appSettings.nCountBreaksPostponedTimes = 0; //Resettings the postpone breaks counter as break activities have been finished.
+
                     }
 
-                    
+
                 }
 
                 LogWriter.LogWrite(sHeading);
@@ -468,7 +495,6 @@ namespace Focus_Bear.Habits
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ActivityFinished LoadData() - " + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
         }
 
@@ -518,12 +544,30 @@ namespace Focus_Bear.Habits
                 "graphDateText":"Date",
                 "graphTimeText":"Time"
              * */
+            try
+            {
+                //double check graph files exists
+                LogWriter.LogWrite("double check graph files exists");
+                if (!File.Exists(appSettings.sGraphDaysPath))
+                    File.Copy(@"Graph/GraphDays.html", appSettings.sGraphDaysPath);
+                if (!File.Exists(appSettings.sGraphDaysDurationPath))
+                    File.Copy(@"Graph/GraphDaysDuration.html", appSettings.sGraphDaysDurationPath);
+                if (!File.Exists(appSettings.sGraphTimePath))
+                    File.Copy(@"Graph/GraphTime.html", appSettings.sGraphTimePath);
+                if (!File.Exists(appSettings.sGraphTimesDurationPath))
+                    File.Copy(@"Graph/GraphTimeDuration.html", appSettings.sGraphTimesDurationPath);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("double check graph files exists EX- " + ex.Message);
+            }
 
             string sLabelQuantity = appSettings.ConfigFileStrings["common"]["graphQuantityText"].ToString();
             string sLabelMinutes = appSettings.ConfigFileStrings["common"]["graphMinutesText"].ToString();
             string sLabelDate = appSettings.ConfigFileStrings["common"]["graphDateText"].ToString();
             string sLabelTime = appSettings.ConfigFileStrings["common"]["graphTimeText"].ToString();
 
+            
             webView.Visibility = Visibility.Visible;
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
@@ -729,6 +773,8 @@ namespace Focus_Bear.Habits
                     int nCountForAverage = 0;
                     foreach (var m in ListDataForGraph)
                     {
+                        int nQtyLogged = (m.sQuantityLogged.Length > 0) ? int.Parse(m.sQuantityLogged) : 0;
+
                         DateTime activityDate = DateTime.Parse(m.sStartTime).Date;
                         if (d30dayaback == activityDate)
                         {
@@ -739,7 +785,7 @@ namespace Focus_Bear.Habits
                                 //Lets see if we need to show the Duration Data or the Log Quantity data
                                 if (bLogQuantity)
                                 {
-                                    nTotalQuantityForTheDay += int.Parse(m.sQuantityLogged);
+                                    nTotalQuantityForTheDay += nQtyLogged;
                                     nCountForAverage++;
                                 }
                                 else
@@ -753,10 +799,11 @@ namespace Focus_Bear.Habits
                                 if (bLogQuantity)
                                 {
                                     Console.WriteLine(m.sQuantityLogged);
-                                    dataarrayDaysGraph = dataarrayDaysGraph + m.sQuantityLogged;
+                                   
+                                    dataarrayDaysGraph = dataarrayDaysGraph + nQtyLogged.ToString();
 
-                                    if (int.Parse(m.sQuantityLogged) > nMax)
-                                        nMax = int.Parse(m.sQuantityLogged);
+                                    if (nQtyLogged > nMax)
+                                        nMax = nQtyLogged;
                                 }
                                 else
                                 {
@@ -820,6 +867,9 @@ namespace Focus_Bear.Habits
                 //bool bFound = false;
                 foreach (var m in timedata)
                 {
+                    int nQtyLogged = (m.sQuantityLogged.Length > 0) ? int.Parse(m.sQuantityLogged) : 0;
+
+
                     //Chck if the date is current date
                     Console.WriteLine("{0} ---{1}...{2}", m.sStartTime, DateTime.Parse(m.sStartTime).Date.ToString("yyyy-MM-dd"), DateTime.Now.Date.ToString("yyyy-MM-dd"));
                     if ((DateTime.Parse(m.sStartTime).Date.ToString("yyyy-MM-dd") == DateTime.Now.Date.ToString("yyyy-MM-dd")))
@@ -829,12 +879,12 @@ namespace Focus_Bear.Habits
                         if (bLogQuantity)
                         {
                             Console.WriteLine(m.sQuantityLogged);
-                            dataarrayTimeGraph = dataarrayTimeGraph + m.sQuantityLogged.ToString();
+                            dataarrayTimeGraph = dataarrayTimeGraph + nQtyLogged.ToString();
 
                             TimeValues = TimeValues + "\"" + m.sStartTime + "\"";
 
-                            if (int.Parse(m.sQuantityLogged) > nMax)
-                                nMax = int.Parse(m.sQuantityLogged);
+                            if (nQtyLogged > nMax)
+                                nMax = nQtyLogged;
                         }
                         else
                         {
@@ -957,6 +1007,9 @@ namespace Focus_Bear.Habits
                 
                 if (bBreakActivitiesFinished)
                 {
+
+                    ((App)(Application.Current)).ShowBrainDumpWindow();
+                    
                     _parentWindow.HideFrameAndClose();
                     return;
                 }
@@ -1002,6 +1055,76 @@ namespace Focus_Bear.Habits
         private void btnSkipThisHabit_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Activity Finished Screen btnSkipThisHabit_Clicked ");
+
+            ///
+            if (appSettings.isPasswordSet)
+            {
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                {
+                    if (appSettings.bPasswordRequireInSkipMorning)
+                    {
+                        //It might be possible that a webview is visible, we will need to hide that
+                        webView.Visibility = Visibility.Collapsed;
+                        webView1.Visibility = Visibility.Collapsed;
+
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = _parentWindow;
+                        _parentWindow.GridShade.Visibility = Visibility.Visible;
+
+                        bool? bResult = pwdWnd.ShowDialog();
+
+                        _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+                         webView.Visibility = Visibility.Visible;
+                         webView1.Visibility = Visibility.Visible;
+                        
+
+                        if (bResult.Value)
+                        {
+                            //Password is correct
+                        }
+                        else
+                        {
+                            //Hide();
+                            return;
+                        }
+
+                    }
+                }
+                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                {
+                    if (appSettings.bPasswordRequireInSkipEvening)
+                    {
+                        //It might be possible that a webview is visible, we will need to hide that
+                       
+                        webView.Visibility = Visibility.Collapsed;
+                        webView1.Visibility = Visibility.Collapsed;
+                       
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = _parentWindow;
+                        _parentWindow.GridShade.Visibility = Visibility.Visible;
+
+                        bool? bResult = pwdWnd.ShowDialog();
+
+                        _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+                         webView.Visibility = Visibility.Visible;
+                         webView1.Visibility = Visibility.Visible;
+                         
+
+                        if (bResult.Value)
+                        {
+                            //Password is correct
+                        }
+                        else
+                        {
+                            //Hide();
+                            return;
+                        }
+                    }
+                }
+
+            }
+            ///
+
             webView.Visibility = Visibility.Collapsed; /*When using Webview2 in WPF, unable to overlay WPF controls on the Webview - https://github.com/MicrosoftEdge/WebView2Feedback/issues/286*/
             _parentWindow.ShowWhySkipHabitsWindow();
         }

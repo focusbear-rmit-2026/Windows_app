@@ -27,7 +27,7 @@ namespace Focus_Bear.Onboarding
     public partial class WelcomeAbord : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         int nPostponeTime;
         public WelcomeAbord()
         {
@@ -55,10 +55,23 @@ namespace Focus_Bear.Onboarding
 
         private void btnLetsDoIt_Click(object sender, RoutedEventArgs e)
         {
-            RegistryManager.SetWelcomeAboardingDoneStatus();
-            
-            ((App)(Application.Current)).ShowOnBoradingFlow();
-            Close();
+            FBMessageBox ff = new FBMessageBox( "",appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["confirmText"].ToString(), MessageBoxButton.YesNo, appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonConfirmLetsDoItText"].ToString(), appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonNeedMoreTimeText"].ToString());
+            ff.Owner = this;
+            GridShade.Visibility = Visibility.Visible;
+            ff.ShowDialog();
+            GridShade.Visibility = Visibility.Collapsed;
+            if (ff.btnClicked == MessageBoxResult.Yes)
+            {
+                RegistryManager.SetWelcomeAboardingDoneStatus();
+
+                ((App)(Application.Current)).ShowOnBoradingFlow();
+                Close();
+            }
+            else
+            {
+                WelcomeAbordPostpone wndPostpone = new WelcomeAbordPostpone();
+                wndPostpone.ShowDialog();
+            }
         }
 
         private void btnABitLaterPlease_Click(object sender, RoutedEventArgs e)

@@ -25,7 +25,7 @@ namespace Focus_Bear.Focus
     {
         AppSettings appSettings = AppSettings.GetInstance;
 
-        DispatcherTimer dispatcherTimerDeactivate = new DispatcherTimer();
+        DispatcherTimer dispatcherTimerDeactivate = new DispatcherTimer(DispatcherPriority.Normal);
         int nTimer = 5;
 
         public StopFocusMode()

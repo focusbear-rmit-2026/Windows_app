@@ -93,7 +93,9 @@ namespace Focus_Bear.Preferences
                         //"urlAlreadyExistsText":"<APPNAME> already exists in the list.",
                         string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
                         sErr = sErr.Replace("<APPNAME>", url);
-                        MessageBox.Show(sErr, "");
+                        ///MessageBox.Show(sErr, "");
+                        FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                        ff.ShowDialog();
                     }
                      
                 }
@@ -177,7 +179,9 @@ namespace Focus_Bear.Preferences
                             //"urlAlreadyExistsText":"<APPNAME> already exists in the list.",
                             string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
                             sErr = sErr.Replace("<APPNAME>", url);
-                            MessageBox.Show(sErr, "");
+                            // MessageBox.Show(sErr, "");
+                            FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                            ff.ShowDialog();
                         }
 
                     }

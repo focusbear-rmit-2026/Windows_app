@@ -24,7 +24,8 @@ namespace FocusBear.Utils
     {
         AppSettings appSettings = AppSettings.GetInstance;
 
-  
+        string sAppNameInFocus = "";
+
         [DllImport("user32.dll")]
         static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
 
@@ -43,12 +44,12 @@ namespace FocusBear.Utils
         public static readonly List<string> BLOCKED_URLS = new List<string> { "*.google.com", "facebook.com", "twitter.com" };
         public static readonly List<string> BLOCKED_APPS = new List<string> { "notepad", "regedit", "registry editor" };
 
-        string sAlwaysBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type=always-blocked";
-        string sFcousBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked/?old_url={0}&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
-        string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
+        string sAlwaysBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type=always-blocked";
+        string sFcousBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
+        string sActivityBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
 
 
-        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "explorer", "FocusBear", "Focus Bear", "devenv", "taskmgr" };
+        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui" };
         public static readonly int SW_MINIMIZE = 6;
 
         public static readonly List<string> UNBLOCKED_URLS = new List<string> { "about:blank", 
@@ -61,11 +62,13 @@ namespace FocusBear.Utils
             "focusbear.io",
             "view-source:",
             "about:blank",
-            "focus-bear.github.io"};
+            "focus-bear.github.io",
+            "focus-block.html",};
 
 
         private Boolean MatchWildcardString(String input, String pattern)
         {
+
             String regexPattern = "^";
 
             foreach (Char c in pattern)
@@ -92,28 +95,43 @@ namespace FocusBear.Utils
             //this.listener = listener;
         }
 
+ 
         public void HandleFocusChangedEvent(IUIAutomationElement element)
         {
             ///  string currentPomodoro = Settings.preferenceSetting.synchronizeSetting.currentPomodoroMode;
             /// string currentFocus = Settings.preferenceSetting.synchronizeSetting.currentFocusMode;
             /// if (!string.IsNullOrEmpty(currentPomodoro))
-            if (appSettings.bHabitwithAllowedAppsRunning)
+            /// 
+
+          
+            //if(appSettings.sLastActiveAppName != sAppNameInFocus)
+            //{
+            //    sAppNameInFocus = appSettings.sLastActiveAppName;
+            //}
+            //else 
+            //{
+            //    return;
+            //}
+
+            if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
             {
-                ProcessAllowedAppInActivity(element);
-                ProcessAlloweURLsInActivity(element);
+                ProcessAllowedAppAndURLsInActivity(element);
+               // ProcessAlloweURLsInActivity(element);
             }
 
-            if (appSettings.isFocusModeRunning)
+            if (appSettings.isFocusModeRunning || appSettings.bHabitwithUseFocusModeRunning)
             {
                 processCurrentFocusElement(element);
             }
+ 
             if (appSettings.bHabitwithAllowedAppsRunning || appSettings.isFocusModeRunning)
                 return;
 
-#if !DEBUG
-            processCurrentURL(element); //For always Blocked URLS
-#endif
-
+//#if !DEBUG
+            if(appSettings.arrAlwaysBlockedURLs.Count() > 0)
+                processCurrentURL(element); //For always Blocked URLS
+//#endif
+ 
             //    processCurrentPomodoroElement(element);
             ///  else if (!string.IsNullOrEmpty(currentFocus))
             //  processCurrentFocusElement(element);
@@ -123,7 +141,7 @@ namespace FocusBear.Utils
 
         }
 
-        private void ProcessAllowedAppInActivity(IUIAutomationElement element)
+        private void ProcessAllowedAppAndURLsInActivity(IUIAutomationElement element)
         {
             try
             {
@@ -142,11 +160,12 @@ namespace FocusBear.Utils
                         {
                             foreach (string sApp in appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedApps)
                             {
-                                if (sApp.ToLower() == process.ProcessName.ToLower())
+                                string App = sApp.ToLower().Replace(".exe", "");
+                                if (App == process.ProcessName.ToLower())
                                 {
                                     bAllowedAppFound = true;
-                                    LogWriter.LogWrite(sApp + " allow app found in MORNING_HABITS activity - Rrturn");
-                                    return;
+                                    LogWriter.LogWrite(sApp + " allow app found in MORNING_HABITS activity - break");
+                                    break;
                                 }
                             }
                             if (!bAllowedAppFound)
@@ -160,11 +179,12 @@ namespace FocusBear.Utils
                         {
                             foreach (string sApp in appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedApps)
                             {
-                                if (sApp.ToLower() == process.ProcessName.ToLower())
+                                string App = sApp.ToLower().Replace(".exe", "");
+                                if (App == process.ProcessName.ToLower())
                                 {
                                     bAllowedAppFound = true;
-                                    LogWriter.LogWrite(sApp + " allow app found in EVENING_HABITS activity - Rrturn");
-                                    return;
+                                    LogWriter.LogWrite(sApp + " allow app found in EVENING_HABITS activity -  break;");
+                                    break;
                                 }
                             }
                             if (!bAllowedAppFound)
@@ -181,11 +201,12 @@ namespace FocusBear.Utils
                             {
                                 foreach (string sApp in appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex].allowedApps)
                                 {
-                                    if (sApp.ToLower() == process.ProcessName.ToLower())
+                                    string App = sApp.ToLower().Replace(".exe", "");
+                                    if (App == process.ProcessName.ToLower())
                                     {
                                         bAllowedAppFound = true;
-                                        LogWriter.LogWrite(sApp + " allow app found in BREAK_ACTIVITY activity - Rrturn");
-                                        return;
+                                        LogWriter.LogWrite(sApp + " allow app found in BREAK_ACTIVITY activity -  break;");
+                                        break;
                                     }
                                 }
                                 if (!bAllowedAppFound)
@@ -199,11 +220,12 @@ namespace FocusBear.Utils
                             {
                                 foreach (string sApp in appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex].allowedApps)
                                 {
-                                    if (sApp.ToLower() == process.ProcessName.ToLower())
+                                    string App = sApp.ToLower().Replace(".exe", "");
+                                    if (App == process.ProcessName.ToLower())
                                     {
                                         bAllowedAppFound = true;
-                                        LogWriter.LogWrite(sApp + " allow app found in BREAK_ACTIVITY activity - Rrturn");
-                                        return;
+                                        LogWriter.LogWrite(sApp + " allow app found in BREAK_ACTIVITY activity -  break;");
+                                        break;
                                     }
                                 }
                                 if (!bAllowedAppFound)
@@ -216,6 +238,41 @@ namespace FocusBear.Utils
 
                         }
 
+                        //If its an allowed app and if its browser, then let's check the URLs
+                        if(bAllowedAppFound)
+                        {
+                            // block or Unblock URLS
+                            if (BROWSERS.Exists(ele => ele == process.ProcessName))
+                            {
+                               /// if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedApps.Exists(ele => ele == process.ProcessName))
+                                {
+                                    if (process.ProcessName == "firefox" || process.ProcessName == "chrome" || process.ProcessName == "msedge")
+                                    {
+                                        return;
+                                        //ProcessAlloweURLsInActivity(appSettings.sLastActiveURLInFirefox,  process.MainWindowHandle, element, null, true);
+                                    }
+                                    else
+                                    {
+                                        IUIAutomationElement elm = appSettings.automation.ElementFromHandle(process.MainWindowHandle);
+                                        IUIAutomationCondition Cond = appSettings.automation.CreatePropertyCondition(UIA_ControlTypePropertyId, UIA_EditControlTypeId);
+                                        IUIAutomationElementArray elm2 = elm.FindAll(TreeScope.TreeScope_Descendants, Cond);
+                                        if (elm2 != null)
+                                        {
+                                            for (int i = 0; i < elm2.Length; i++)
+                                            {
+                                                IUIAutomationElement elm3 = elm2.GetElement(i);
+                                                IUIAutomationValuePattern val = (IUIAutomationValuePattern)elm3.GetCurrentPattern(UIA_PATTERN_ID);
+                                                if (val != null && !string.IsNullOrEmpty(val.CurrentValue) && (!val.CurrentValue.ToString().Contains("focus-block.html")))
+                                                {
+                                                    ProcessAlloweURLsInActivity(val.CurrentValue, process.MainWindowHandle, element, val);
+                                                }
+                                            }
+                                        }
+                                    }
+                                   
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -226,310 +283,304 @@ namespace FocusBear.Utils
             }
 
         }
-        private void ProcessAlloweURLsInActivity(IUIAutomationElement element)
+        private void ProcessAlloweURLsInActivity(string sURL, IntPtr hWnd, IUIAutomationElement element, IUIAutomationValuePattern val, bool bForFirefox = false)
         {
             try
             {
-                using (Process process = Process.GetProcessById(element.CurrentProcessId))
+                //if (val != null && !string.IsNullOrEmpty(val.CurrentValue) && (!val.CurrentValue.ToString().Contains("focus-block.html")))
                 {
-                    if (element != null && process != null)
+                    if (sURL.Contains("file://"))
                     {
-                        // block or Unblock URLS
-                        if (BROWSERS.Exists(ele => ele == process.ProcessName))
+                        return;
+                    }
+                    //Check if its an always unblocked url
+                    for (int m = 0; m < UNBLOCKED_URLS.Count(); m++)
+                    {
+                        string sToCheck = UNBLOCKED_URLS[m];
+                        if (sURL.Contains(sToCheck))
                         {
-                            if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedApps.Exists(ele => ele == process.ProcessName))
+                            return;
+                        }
+                    }
+
+                    bool bAllowedURLFound = false;
+                    string sHabitType = "";
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                    {
+                        sHabitType = "morning-habit";
+                        foreach (string url in appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedUrls)
+                        {
+                            /////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
                             {
-                                IUIAutomationElement elm = appSettings.automation.ElementFromHandle(process.MainWindowHandle);
-                                IUIAutomationCondition Cond = appSettings.automation.CreatePropertyCondition(UIA_ControlTypePropertyId, UIA_EditControlTypeId);
-                                IUIAutomationElementArray elm2 = elm.FindAll(TreeScope.TreeScope_Descendants, Cond);
-                                if (elm2 != null)
+                                var sUrlToCheck = sURL.Replace("http://", "");
+                                sUrlToCheck = sUrlToCheck.Replace("https://", "");
+                                sUrlToCheck = sUrlToCheck.Replace("www.", "");
+
+                                var allowedURL = url.Replace("http://", "");
+                                allowedURL = allowedURL.Replace("https://", "");
+                                allowedURL = allowedURL.Replace("www.", "");
+
+                                //Remove last slash from allowed url
+                                allowedURL = allowedURL.TrimEnd(new[] { '/' });
+
+                                if (sUrlToCheck.StartsWith(allowedURL))
                                 {
-                                    for (int i = 0; i < elm2.Length; i++)
+                                    LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of MORNING_HABITS - ALLOW");
+                                    bAllowedURLFound = true;
+                                    //break;
+                                    return;
+                                }
+                                else
+                                {
+                                    //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
+                                    allowedURL = "*" + allowedURL + "*";
+                                    if (MatchWildcardString(sUrlToCheck, allowedURL))
                                     {
-                                        IUIAutomationElement elm3 = elm2.GetElement(i);
-                                        IUIAutomationValuePattern val = (IUIAutomationValuePattern)elm3.GetCurrentPattern(UIA_PATTERN_ID);
-                                        if (val != null && !string.IsNullOrEmpty(val.CurrentValue) && (!val.CurrentValue.ToString().Contains("focus-bear.github.io")))
+                                        LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of MORNING_HABITS - ALLOW");
+                                        bAllowedURLFound = true;
+                                        //break;
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        try
                                         {
-                                            if (val.CurrentValue.Contains("file://"))
+                                            //Check title
+                                            const int nChars = 256;
+                                            StringBuilder Buff = new StringBuilder(nChars);
+                                            if (GetWindowText(hWnd, Buff, nChars) > 0)
                                             {
-                                                return;
-                                            }
-                                            //Check if its an always unblocked url
-                                            for (int m = 0; m < UNBLOCKED_URLS.Count(); m++)
-                                            {
-                                                string sToCheck = UNBLOCKED_URLS[m];
-                                                if (val.CurrentValue.Contains(sToCheck))
+                                                string sTitle = Buff.ToString();
+                                                if (MatchWildcardString(sTitle, allowedURL))
                                                 {
+                                                    LogWriter.LogWrite(sTitle + "titlefound in ALLOWED URLS MatchWildcardString of MORNING_HABITS - ALLOW");
+                                                    bAllowedURLFound = true;
                                                     return;
                                                 }
                                             }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogWriter.LogWrite("ProcessAlloweURLsInActivity GetWindowText MORNING_HABITS ALLOWED URLS EX - " + ex.Message);
+                                        }
 
-                                            bool bAllowedURLFound = false;
-                                            string sHabitType = "";
-                                            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    {
+                        sHabitType = "evening-habit";
+
+                        foreach (string url in appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedUrls)
+                        {
+                            //////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                            {
+                                var sUrlToCheck = sURL.Replace("http://", "");
+                                sUrlToCheck = sUrlToCheck.Replace("https://", "");
+                                sUrlToCheck = sUrlToCheck.Replace("www.", "");
+
+                                var allowedURL = url.Replace("http://", "");
+                                allowedURL = allowedURL.Replace("https://", "");
+                                allowedURL = allowedURL.Replace("www.", "");
+                                //Remove last slash from allowed url
+                                allowedURL = allowedURL.TrimEnd(new[] { '/' });
+
+                                if (sUrlToCheck.StartsWith(allowedURL))
+                                {
+                                    LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of EVENING_HABITS - ALLOW");
+                                    bAllowedURLFound = true;
+                                    // break;
+                                    return;
+                                }
+                                else
+                                {
+                                    //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
+                                    allowedURL = "*" + allowedURL + "*";
+                                    if (MatchWildcardString(sUrlToCheck, allowedURL))
+                                    {
+                                        LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of EVENING_HABITS - ALLOW");
+
+                                        bAllowedURLFound = true;
+                                        //break;
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        try
+                                        {
+                                            //Check title
+                                            const int nChars = 256;
+                                            StringBuilder Buff = new StringBuilder(nChars);
+                                            if (GetWindowText(hWnd, Buff, nChars) > 0)
                                             {
-                                                sHabitType = "morning-habit";
-                                                foreach (string url in appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedUrls)
+                                                string sTitle = Buff.ToString();
+                                                if (MatchWildcardString(sTitle, allowedURL))
                                                 {
-                                                    /////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                                                    LogWriter.LogWrite(sTitle + "titlefound in ALLOWED URLS MatchWildcardString of EVENING_HABITS - ALLOW");
+                                                    bAllowedURLFound = true;
+                                                    return;
+                                                }
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogWriter.LogWrite("ProcessAlloweURLsInActivity GetWindowText EVENING_HABITS ALLOWED URLS EX - " + ex.Message);
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                    {
+                        sHabitType = "break-activity";
+
+
+                        if (appSettings.isMandatoryActivityGoing)
+                        {
+                            foreach (string url in appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex].allowedUrls)
+                            {
+                                ///// if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                                {
+                                    var sUrlToCheck = sURL.Replace("http://", "");
+                                    sUrlToCheck = sUrlToCheck.Replace("https://", "");
+                                    sUrlToCheck = sUrlToCheck.Replace("www.", "");
+
+                                    var allowedURL = url.Replace("http://", "");
+                                    allowedURL = allowedURL.Replace("https://", "");
+                                    allowedURL = allowedURL.Replace("www.", "");
+
+                                    //Remove last slash from allowed url
+                                    allowedURL = allowedURL.TrimEnd(new[] { '/' });
+
+                                    if (sUrlToCheck.StartsWith(allowedURL))
+                                    {
+                                        LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of BREAK_ACTIVITY - ALLOW");
+                                        bAllowedURLFound = true;
+                                        // break;
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
+                                        allowedURL = "*" + allowedURL + "*";
+                                        if (MatchWildcardString(sUrlToCheck, allowedURL))
+                                        {
+                                            LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of BREAK_ACTIVITY - ALLOW");
+                                            bAllowedURLFound = true;
+                                            //break;
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            try
+                                            {
+                                                //Check title
+                                                const int nChars = 256;
+                                                StringBuilder Buff = new StringBuilder(nChars);
+                                                if (GetWindowText(hWnd, Buff, nChars) > 0)
+                                                {
+                                                    string sTitle = Buff.ToString();
+                                                    if (MatchWildcardString(sTitle, allowedURL))
                                                     {
-                                                        var sUrlToCheck = val.CurrentValue.Replace("http://", "");
-                                                        sUrlToCheck = sUrlToCheck.Replace("https://", "");
-                                                        sUrlToCheck = sUrlToCheck.Replace("www.", "");
-
-                                                        var allowedURL = url.Replace("http://", "");
-                                                        allowedURL = allowedURL.Replace("https://", "");
-                                                        allowedURL = allowedURL.Replace("www.", "");
-
-                                                        if (sUrlToCheck.StartsWith(allowedURL))
-                                                        {
-                                                            LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of MORNING_HABITS - ALLOW");
-                                                            bAllowedURLFound = true;
-                                                            //break;
-                                                            return;
-                                                        }
-                                                        else
-                                                        {
-                                                            //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
-                                                            allowedURL = "*" + allowedURL + "*";
-                                                            if (MatchWildcardString(sUrlToCheck, allowedURL))
-                                                            { 
-                                                                LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of MORNING_HABITS - ALLOW");
-                                                                bAllowedURLFound = true;
-                                                                //break;
-                                                                return;
-                                                            }
-                                                            else
-                                                            {
-                                                                try
-                                                                {
-                                                                    //Check title
-                                                                    const int nChars = 256;
-                                                                    StringBuilder Buff = new StringBuilder(nChars);
-                                                                    if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
-                                                                    {
-                                                                        string sTitle = Buff.ToString();
-                                                                        if (MatchWildcardString(sTitle, allowedURL))
-                                                                        {
-                                                                            LogWriter.LogWrite(sTitle + "titlefound in ALLOWED URLS MatchWildcardString of MORNING_HABITS - ALLOW");
-                                                                            bAllowedURLFound = true;
-                                                                            return;
-                                                                        }
-                                                                    }
-                                                                }
-                                                                catch (Exception ex)
-                                                                {
-                                                                    LogWriter.LogWrite("ProcessAlloweURLsInActivity GetWindowText MORNING_HABITS ALLOWED URLS EX - " + ex.Message);
-                                                                }
-
-                                                            }
-                                                        }
+                                                        LogWriter.LogWrite(sTitle + " - titlefound in ALLOWED URLS MatchWildcardString of BREAK_ACTIVITY - ALLOW");
+                                                        bAllowedURLFound = true;
+                                                        return;
                                                     }
                                                 }
                                             }
-                                            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                                            catch (Exception ex)
                                             {
-                                                sHabitType = "evening-habit";
+                                                LogWriter.LogWrite("ProcessAlloweURLsInActivity GetWindowText BREAK_ACTIVITY ALLOWED URLS EX - " + ex.Message);
+                                            }
 
-                                                foreach (string url in appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedUrls)
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            foreach (string url in appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex].allowedUrls)
+                            {
+                                ////// if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                                {
+                                    var sUrlToCheck = sURL.Replace("http://", "");
+                                    sUrlToCheck = sUrlToCheck.Replace("https://", "");
+                                    sUrlToCheck = sUrlToCheck.Replace("www.", "");
+
+                                    var allowedURL = url.Replace("http://", "");
+                                    allowedURL = allowedURL.Replace("https://", "");
+                                    allowedURL = allowedURL.Replace("www.", "");
+                                    //Remove last slash from allowed url
+                                    allowedURL = allowedURL.TrimEnd(new[] { '/' });
+
+                                    if (sUrlToCheck.StartsWith(allowedURL))
+                                    {
+                                        LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of BREAK_ACTIVITY - ALLOW");
+                                        bAllowedURLFound = true;
+                                        // break;
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
+                                        allowedURL = "*" + allowedURL + "*";
+                                        if (MatchWildcardString(sUrlToCheck, allowedURL))
+                                        {
+                                            LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of BREAK_ACTIVITY - ALLOW");
+                                            bAllowedURLFound = true;
+                                            //break;
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            try
+                                            {
+                                                //Check title
+                                                const int nChars = 256;
+                                                StringBuilder Buff = new StringBuilder(nChars);
+                                                if (GetWindowText(hWnd, Buff, nChars) > 0)
                                                 {
-                                                    //////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                                                    string sTitle = Buff.ToString();
+                                                    if (MatchWildcardString(sTitle, allowedURL))
                                                     {
-                                                        var sUrlToCheck = val.CurrentValue.Replace("http://", "");
-                                                        sUrlToCheck = sUrlToCheck.Replace("https://", "");
-                                                        sUrlToCheck = sUrlToCheck.Replace("www.", "");
-
-                                                        var allowedURL = url.Replace("http://", "");
-                                                        allowedURL = allowedURL.Replace("https://", "");
-                                                        allowedURL = allowedURL.Replace("www.", "");
-
-                                                        if (sUrlToCheck.StartsWith(allowedURL))
-                                                        {
-                                                            LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of EVENING_HABITS - ALLOW");
-                                                            bAllowedURLFound = true;
-                                                            // break;
-                                                            return;
-                                                        }
-                                                        else
-                                                        {
-                                                            //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
-                                                            allowedURL = "*" + allowedURL + "*";
-                                                            if (MatchWildcardString(sUrlToCheck, allowedURL))
-                                                            {
-                                                                LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of EVENING_HABITS - ALLOW");
-
-                                                                bAllowedURLFound = true;
-                                                                //break;
-                                                                return;
-                                                            }
-                                                            else
-                                                            {
-                                                                try
-                                                                {
-                                                                    //Check title
-                                                                    const int nChars = 256;
-                                                                    StringBuilder Buff = new StringBuilder(nChars);
-                                                                    if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
-                                                                    {
-                                                                        string sTitle = Buff.ToString();
-                                                                        if (MatchWildcardString(sTitle, allowedURL))
-                                                                        {
-                                                                            LogWriter.LogWrite(sTitle + "titlefound in ALLOWED URLS MatchWildcardString of EVENING_HABITS - ALLOW");
-                                                                            bAllowedURLFound = true;
-                                                                            return;
-                                                                        }
-                                                                    }
-                                                                }
-                                                                catch (Exception ex)
-                                                                {
-                                                                    LogWriter.LogWrite("ProcessAlloweURLsInActivity GetWindowText EVENING_HABITS ALLOWED URLS EX - " + ex.Message);
-                                                                }
-
-                                                            }
-                                                        }
+                                                        LogWriter.LogWrite(sTitle + " - titlefound in ALLOWED URLS MatchWildcardString of BREAK_ACTIVITY - ALLOW");
+                                                        bAllowedURLFound = true;
+                                                        return;
                                                     }
                                                 }
                                             }
-                                            else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                                            catch (Exception ex)
                                             {
-                                                sHabitType = "break-activity";
-
-
-                                                if (appSettings.isMandatoryActivityGoing)
-                                                {
-                                                    foreach (string url in appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex].allowedUrls)
-                                                    {
-                                                       ///// if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
-                                                        {
-                                                            var sUrlToCheck = val.CurrentValue.Replace("http://", "");
-                                                            sUrlToCheck = sUrlToCheck.Replace("https://", "");
-                                                            sUrlToCheck = sUrlToCheck.Replace("www.", "");
-
-                                                            var allowedURL = url.Replace("http://", "");
-                                                            allowedURL = allowedURL.Replace("https://", "");
-                                                            allowedURL = allowedURL.Replace("www.", "");
-
-                                                            if (sUrlToCheck.StartsWith(allowedURL))
-                                                            {
-                                                                LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of BREAK_ACTIVITY - ALLOW");
-                                                                bAllowedURLFound = true;
-                                                                // break;
-                                                                return;
-                                                            }
-                                                            else
-                                                            {
-                                                                //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
-                                                                allowedURL = "*" + allowedURL + "*";
-                                                                if (MatchWildcardString(sUrlToCheck, allowedURL))
-                                                                {
-                                                                    LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of BREAK_ACTIVITY - ALLOW");
-                                                                    bAllowedURLFound = true;
-                                                                    //break;
-                                                                    return;
-                                                                }
-                                                                else
-                                                                {
-                                                                    try
-                                                                    {
-                                                                        //Check title
-                                                                        const int nChars = 256;
-                                                                        StringBuilder Buff = new StringBuilder(nChars);
-                                                                        if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
-                                                                        {
-                                                                            string sTitle = Buff.ToString();
-                                                                            if (MatchWildcardString(sTitle, allowedURL))
-                                                                            {
-                                                                                LogWriter.LogWrite(sTitle + "titlefound in ALLOWED URLS MatchWildcardString of BREAK_ACTIVITY - ALLOW");
-                                                                                bAllowedURLFound = true;
-                                                                                return;
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    catch (Exception ex)
-                                                                    {
-                                                                        LogWriter.LogWrite("ProcessAlloweURLsInActivity GetWindowText BREAK_ACTIVITY ALLOWED URLS EX - " + ex.Message);
-                                                                    }
-
-                                                                }
-                                                            }
-                                                        }
-                                                    }
- 
-                                                }
-                                                else
-                                                {
-                                                    foreach (string url in appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex].allowedUrls)
-                                                    {
-                                                       ////// if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
-                                                        {
-                                                            var sUrlToCheck = val.CurrentValue.Replace("http://", "");
-                                                            sUrlToCheck = sUrlToCheck.Replace("https://", "");
-                                                            sUrlToCheck = sUrlToCheck.Replace("www.", "");
-
-                                                            var allowedURL = url.Replace("http://", "");
-                                                            allowedURL = allowedURL.Replace("https://", "");
-                                                            allowedURL = allowedURL.Replace("www.", "");
-
-                                                            if (sUrlToCheck.StartsWith(allowedURL))
-                                                            {
-                                                                LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of BREAK_ACTIVITY - ALLOW");
-                                                                bAllowedURLFound = true;
-                                                                // break;
-                                                                return;
-                                                            }
-                                                            else
-                                                            {
-                                                                //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
-                                                                allowedURL = "*" + allowedURL + "*";
-                                                                if (MatchWildcardString(sUrlToCheck, allowedURL))
-                                                                {
-                                                                    LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of BREAK_ACTIVITY - ALLOW");
-                                                                    bAllowedURLFound = true;
-                                                                    //break;
-                                                                    return;
-                                                                }
-                                                                else
-                                                                {
-                                                                    try
-                                                                    {
-                                                                        //Check title
-                                                                        const int nChars = 256;
-                                                                        StringBuilder Buff = new StringBuilder(nChars);
-                                                                        if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
-                                                                        {
-                                                                            string sTitle = Buff.ToString();
-                                                                            if (MatchWildcardString(sTitle, allowedURL))
-                                                                            {
-                                                                                LogWriter.LogWrite(sTitle + "titlefound in ALLOWED URLS MatchWildcardString of BREAK_ACTIVITY - ALLOW");
-                                                                                bAllowedURLFound = true;
-                                                                                return;
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    catch (Exception ex)
-                                                                    {
-                                                                        LogWriter.LogWrite("ProcessAlloweURLsInActivity GetWindowText BREAK_ACTIVITY ALLOWED URLS EX - " + ex.Message);
-                                                                    }
-
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-
+                                                LogWriter.LogWrite("ProcessAlloweURLsInActivity GetWindowText BREAK_ACTIVITY ALLOWED URLS EX - " + ex.Message);
                                             }
 
-                                            if (!bAllowedURLFound)
-                                            {
-                                                LogWriter.LogWrite(val.CurrentValue + " BLOCKED URL found in activity - BLOCK");
-                                                //  string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={0}"; //evening-habit, morning-habit, break-activity
-                                                suppressURL(val, sHabitType);
-                                            }
                                         }
                                     }
                                 }
                             }
                         }
+
+                    }
+
+                    if (!bAllowedURLFound)
+                    {
+                        LogWriter.LogWrite(sURL + " BLOCKED URL found in activity - BLOCK");
+                        //  string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={0}"; //evening-habit, morning-habit, break-activity
+                        if (bForFirefox)
+                        {
+                            suppressURLForFirefox(hWnd, sURL, sHabitType);
+                        }
+                        else
+                        {
+                            suppressURL(hWnd, val, sHabitType);
+                        }
+
                     }
                 }
             }
@@ -616,41 +667,41 @@ namespace FocusBear.Utils
             }
         }
 
-        static private string ProcessExecutablePath(Process process)
-        {
-            try
-            {
-                return process.MainModule.FileName; //32 bit
-            }
-            catch //64 bit apps
-            {
-                string query = "SELECT ExecutablePath, ProcessID FROM Win32_Process";
-                ManagementObjectSearcher searcher = new ManagementObjectSearcher(query);
+        //static private string ProcessExecutablePath(Process process)
+        //{
+        //    try
+        //    {
+        //        return process.MainModule.FileName; //32 bit
+        //    }
+        //    catch //64 bit apps
+        //    {
+        //        string query = "SELECT ExecutablePath, ProcessID FROM Win32_Process";
+        //        ManagementObjectSearcher searcher = new ManagementObjectSearcher(query);
 
-                foreach (ManagementObject item in searcher.Get())
-                {
-                    object id = item["ProcessID"];
-                    object path = item["ExecutablePath"];
+        //        foreach (ManagementObject item in searcher.Get())
+        //        {
+        //            object id = item["ProcessID"];
+        //            object path = item["ExecutablePath"];
 
-                    if (path != null && id.ToString() == process.Id.ToString())
-                    {
-                        string MyPath = path.ToString();
-                        string MyPathWithoutDriveOrNetworkShare = "";  MyPath.Substring(Path.GetPathRoot(MyPath).Length);
+        //            if (path != null && id.ToString() == process.Id.ToString())
+        //            {
+        //                string MyPath = path.ToString();
+        //                string MyPathWithoutDriveOrNetworkShare = "";  MyPath.Substring(Path.GetPathRoot(MyPath).Length);
 
-                        if ((MyPath.IndexOf(":") == 1) || (MyPath.IndexOf("\\\\") == 0))
-                        {
-                            MyPathWithoutDriveOrNetworkShare = MyPath.Substring(2); 
-                        }
-                        if (MyPathWithoutDriveOrNetworkShare.IndexOf("\\") > 0)
-                            MyPathWithoutDriveOrNetworkShare = MyPathWithoutDriveOrNetworkShare.Substring(MyPathWithoutDriveOrNetworkShare.IndexOf("\\"));
+        //                if ((MyPath.IndexOf(":") == 1) || (MyPath.IndexOf("\\\\") == 0))
+        //                {
+        //                    MyPathWithoutDriveOrNetworkShare = MyPath.Substring(2); 
+        //                }
+        //                if (MyPathWithoutDriveOrNetworkShare.IndexOf("\\") > 0)
+        //                    MyPathWithoutDriveOrNetworkShare = MyPathWithoutDriveOrNetworkShare.Substring(MyPathWithoutDriveOrNetworkShare.IndexOf("\\"));
 
-                        return MyPathWithoutDriveOrNetworkShare;
-                    }
-                }
-            }
+        //                return MyPathWithoutDriveOrNetworkShare;
+        //            }
+        //        }
+        //    }
 
-            return "";
-        }
+        //    return "";
+        //}
         private void processCurrentFocusElement(IUIAutomationElement element)
         {
             try
@@ -661,14 +712,23 @@ namespace FocusBear.Utils
                     {
                         // block or Unblock apps
                         // block or Unblock apps
-                        if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName))
+                        if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName.ToLower()))
                         {
                             return;
                         }
 
-                      /////  string fullPath = ProcessExecutablePath(process);
+                        /////  string fullPath = ProcessExecutablePath(process);
+                        List<FocusMode> listItems = new List<FocusMode>();
 
-                        var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
+                        if(appSettings.bHabitwithUseFocusModeRunning)
+                        {
+                            listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.sUseFocusModeIDInActivity).ToList();
+                        }
+                        else //Normal focus mode running
+                        {
+                            listItems = appSettings.arrFocusModes.Where(i => i.isOn == true).ToList();
+                        }
+  
                         if (listItems.Count() != 0)
                         {
                             FocusMode focusType = listItems.First();
@@ -694,11 +754,11 @@ namespace FocusBear.Utils
                                 {
                                     if (appSettings.nFocudBearMode == 1)//Cuddly bearMode
                                     {
-                                        var allowedApps = appSettings.TemporaryAllowedAppsGentleBlock.Where(i => i.ToLower() == process.ProcessName.ToLower());
+                                        var allowedApps = appSettings.TemporaryAllowedAppsGentleBlock.Where(i => i.sURL.ToLower() == process.ProcessName.ToLower());
                                         if (allowedApps.Count() != 0)
                                         {
                                             //found in allowed app
-                                            return;//allow the app
+                                            bAllowedAppFound = true; //allow the app //If its a browser we will check the urls too
                                         }
                                         else
                                         {
@@ -709,12 +769,14 @@ namespace FocusBear.Utils
                                             }
                                             else
                                             {
-                                                appSettings.ShowGentleBlockWindow(process.ProcessName);
+                                                appSettings.ShowGentleBlockWindow(process.MainWindowHandle, process.ProcessName);
                                                 return;
                                             }
                                         }
                                     }
-                                    
+                                }
+                                if (!bAllowedAppFound)
+                                {
                                     if (IsWindowVisible(process.MainWindowHandle))
                                         ShowWindow(process.MainWindowHandle, SW_MINIMIZE);
 
@@ -729,287 +791,43 @@ namespace FocusBear.Utils
                             {
                                 if (focusType.isAllowedListApproach )//Block everything except safe sites I choose
                                 {
-                                    if (focusType.isAllowedAllUrls) //All urls are allowed, nothng to block
-                                    {
-                                        LogWriter.LogWrite("isAllowedListApproach - isAllowedAllUrls, return No need to get the url");
-                                        return; //No need to get the url
-                                    }
+                                    //if (focusType.isAllowedAllUrls) //All urls are allowed, nothng to block
+                                    //{
+                                    //    LogWriter.LogWrite("isAllowedListApproach - isAllowedAllUrls, return No need to get the url");
+                                    //    return; //No need to get the url
+                                    //}
                                 }
 
                                 //
                                 LogWriter.LogWrite("RUNNING Focus Mode is:" + focusType.name);
 
-                                //First let's get the URL value
-
-                                IUIAutomationElement elm = appSettings.automation.ElementFromHandle(process.MainWindowHandle);
-                                IUIAutomationCondition Cond = appSettings.automation.CreatePropertyCondition(UIA_ControlTypePropertyId, UIA_EditControlTypeId);
-                                IUIAutomationElementArray elm2 = elm.FindAll(TreeScope.TreeScope_Descendants, Cond);
-                                if (elm2 != null)
+                                if (process.ProcessName == "firefox" || process.ProcessName == "chrome" || process.ProcessName == "msedge")
                                 {
-                                    for (int i = 0; i < elm2.Length; i++)
+                                    return;
+                                    ///ProcessURLForFocusModes(appSettings.sLastActiveURLInFirefox, focusType, process.MainWindowHandle, element, null, true);
+                                }
+                                else
+                                {
+                                    //First let's get the URL value
+
+                                    IUIAutomationElement elm = appSettings.automation.ElementFromHandle(process.MainWindowHandle);
+                                    IUIAutomationCondition Cond = appSettings.automation.CreatePropertyCondition(UIA_ControlTypePropertyId, UIA_EditControlTypeId);
+                                    IUIAutomationElementArray elm2 = elm.FindAll(TreeScope.TreeScope_Descendants, Cond);
+                                    if (elm2 != null)
                                     {
-                                        IUIAutomationElement elm3 = elm2.GetElement(i);
-                                        IUIAutomationValuePattern val = (IUIAutomationValuePattern)elm3.GetCurrentPattern(UIA_PATTERN_ID);
-                                        if (val != null && !string.IsNullOrEmpty(val.CurrentValue) && (!val.CurrentValue.ToString().Contains("focus-bear.github.io")))
+                                        for (int i = 0; i < elm2.Length; i++)
                                         {
-                                          
-                                            if (val.CurrentValue.Contains("file://"))
+                                            IUIAutomationElement elm3 = elm2.GetElement(i);
+                                            IUIAutomationValuePattern val = (IUIAutomationValuePattern)elm3.GetCurrentPattern(UIA_PATTERN_ID);
+                                            if (val != null && !string.IsNullOrEmpty(val.CurrentValue) && (!val.CurrentValue.ToString().Contains("focus-block.html")))
                                             {
-                                                return;
-                                            }
-                                            //Check if its an always unblocked url
-                                            for (int m= 0; m < UNBLOCKED_URLS.Count(); m++)
-                                            {
-                                                string sToCheck = UNBLOCKED_URLS[m];
-                                                if(val.CurrentValue.Contains(sToCheck))
-                                                {
-                                                    return;
-                                                }
-                                            }
-
-                                            bool bAllowedURLFound = true; //by default allowed url is true
-
-                                            if (focusType.isAllowedListApproach)//Block everything except safe sites I choose
-                                            {
-                                                LogWriter.LogWrite("isAllowedListApproach - Block everything except safe sites I choose - " + focusType.name);
-
-                                                if (focusType.isAllowedAllUrls) //All urls are allowed, nothng to block
-                                                {
-                                                    LogWriter.LogWrite("isAllowedListApproach - isAllowedAllUrls, return");
-                                                    return;
-                                                }
-                                                else //Selected URLs are allowed
-                                                {
-                                                    LogWriter.LogWrite("isAllowedListApproach - Selected URLs are allowed");
-                                                    //We will first check if the url is in the blocked urls list of the focusmode, then we will not check allowed
-                                                    bAllowedURLFound = true; //allowed unless we find it in the blocked urls array
-
-                                                   // LogWriter.LogWrite("focusType.arrBlockedUrls COUNT is:" + focusType.arrBlockedUrls.Count().ToString());
-
-                                                    //check if the current URL is in the list of Blocked urls, then block else allow
-                                                    foreach (string url in focusType.arrBlockedUrls)
-                                                    {
-                                                        ////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
-                                                        {
-                                                            var sUrlToCheck = val.CurrentValue.Replace("http://", "");
-                                                            sUrlToCheck = sUrlToCheck.Replace("https://", "");
-                                                            sUrlToCheck = sUrlToCheck.Replace("www.", "");
-
-                                                            var allowedURL = url.Replace("http://", "");
-                                                            allowedURL = allowedURL.Replace("https://", "");
-                                                            allowedURL = allowedURL.Replace("www.", "");
-
-                                                            if (sUrlToCheck.StartsWith(allowedURL))
-                                                            {
-                                                                LogWriter.LogWrite(sUrlToCheck + " found in blocked URLS of focus mode - BLOCK");
-                                                                bAllowedURLFound = false;
-                                                                break;
-                                                            }
-                                                            else
-                                                            {
-                                                                
-                                                                // if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
-                                                                allowedURL = "*" + allowedURL + "*";
-                                                                if (MatchWildcardString(sUrlToCheck, allowedURL))
-                                                                {
-                                                                    LogWriter.LogWrite(sUrlToCheck + " found in blocked URLS WILDCARD match of focus mode - BLOCK");
-                                                                    bAllowedURLFound = false;
-                                                                    break;
-                                                                }
-                                                                else
-                                                                {
-                                                                    try
-                                                                    {
-                                                                        //Check title
-                                                                        const int nChars = 256;
-                                                                        StringBuilder Buff = new StringBuilder(nChars);
-                                                                        if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
-                                                                        {
-                                                                            string sTitle = Buff.ToString();
-                                                                            if (MatchWildcardString(sTitle, allowedURL))
-                                                                            {
-                                                                                LogWriter.LogWrite(sTitle + "title found in blocked URLS WILDCARD match of focus mode - BLOCK");
-                                                                                bAllowedURLFound = false;
-                                                                                break;
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    catch (Exception ex)
-                                                                    {
-                                                                        LogWriter.LogWrite("processCurrentFocusElement GetWindowText blockedurls EX - " + ex.Message);
-                                                                    }
-
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-
-                                                    if (bAllowedURLFound)//Means it was not found in the blocked urls..now let's check Allowed URLs
-                                                    {
-                                                        bAllowedURLFound = false;
-
-                                                        //LogWriter.LogWrite("focusType.arrAllowedUrls COUNT is:" + focusType.arrAllowedUrls.Count().ToString());
-
-                                                        //check if the current URL is in the list of allowed urls, then allow else block
-                                                        foreach (string url in focusType.arrAllowedUrls)
-                                                        {
-                                                           /// LogWriter.LogWrite("focusType.arrAllowedUrl ITEM = " + url);
-
-                                                           //// if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
-                                                            {
-                                                               /// LogWriter.LogWrite("focusType.arrAllowedUrl ITEM Uri.IsWellFormedUriString OK");
-
-                                                                var sUrlToCheck = val.CurrentValue.Replace("http://", "");
-                                                                sUrlToCheck = sUrlToCheck.Replace("https://", "");
-                                                                sUrlToCheck = sUrlToCheck.Replace("www.", "");
-
-                                                                var allowedURL = url.Replace("http://", "");
-                                                                allowedURL = allowedURL.Replace("https://", "");
-                                                                allowedURL = allowedURL.Replace("www.", "");
-
-                                                                if (sUrlToCheck.StartsWith(allowedURL))
-                                                                {
-                                                                    LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of focus mode - ALLOW");
-                                                                    bAllowedURLFound = true;
-                                                                    return;
-                                                                }
-                                                                else
-                                                                {
-                                                                    //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
-                                                                    allowedURL = "*" + allowedURL + "*";
-                                                                    if (MatchWildcardString(sUrlToCheck, allowedURL))
-                                                                    {
-                                                                        LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
-
-                                                                        bAllowedURLFound = true;
-                                                                        return;
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        try
-                                                                        {
-                                                                            //Check title
-                                                                            const int nChars = 256;
-                                                                            StringBuilder Buff = new StringBuilder(nChars);
-                                                                            if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
-                                                                            {
-                                                                                string sTitle = Buff.ToString();
-                                                                                if (MatchWildcardString(sTitle, allowedURL))
-                                                                                {
-                                                                                    LogWriter.LogWrite(sTitle + "title found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
-                                                                                    bAllowedURLFound = true;
-                                                                                    return;
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                        catch (Exception ex)
-                                                                        {
-                                                                            LogWriter.LogWrite("processCurrentFocusElement GetWindowText ALLOWED URLS EX - " + ex.Message);
-                                                                        }
-
-                                                                    }
-                                                                }
-
-                                                            }
-                                                        }
-                                                    }
-
-                                                    if (!bAllowedURLFound)
-                                                    {
-                                                        LogWriter.LogWrite("processCurrentFocusElement  isAllowedListApproach - Attempt to Suppress URL");
-                                                        suppressURL(val, "focus");
-                                                        return;
-                                                    }
-                                                }
-                                            }
-                                            else //Allow everything except districting sites
-                                            {
-                                                LogWriter.LogWrite("isBlockedListApproach - Allow everything except districting sites");
-
-                                                if (focusType.isBlockedAllUrls) //All urls are BLOCKED
-                                                {
-                                                    LogWriter.LogWrite("isBlockedListApproach - isBlockedAllUrls");
-                                                    bAllowedURLFound = false;
-
-                                                    LogWriter.LogWrite("processCurrentFocusElement  isBlockedListApproach isBlockedAllUrls - Attempt to Suppress URL");
-                                                    suppressURL(val, "focus");
-                                                    return;
-
-                                                }
-                                                else //selected URLS are blocked
-                                                {
-                                                    LogWriter.LogWrite("isBlockedListApproach - selected URLS are blocked");
-
-                                                    bAllowedURLFound = true; //allowed unless we find it in the blocked urls array
-
-                                                    //check if the current URL is in the list of Blocked urls, then block else allow
-                                                    foreach (string url in focusType.arrBlockedUrls)
-                                                    {
-                                                        ////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
-                                                        {
-                                                            var sUrlToCheck = val.CurrentValue.Replace("http://", "");
-                                                            sUrlToCheck = sUrlToCheck.Replace("https://", "");
-                                                            sUrlToCheck = sUrlToCheck.Replace("www.", "");
-
-                                                            var allowedURL = url.Replace("http://", "");
-                                                            allowedURL = allowedURL.Replace("https://", "");
-                                                            allowedURL = allowedURL.Replace("www.", "");
-
-                                                            if (sUrlToCheck.StartsWith(allowedURL))
-                                                            {
-                                                                LogWriter.LogWrite(sUrlToCheck + " (BLocked List APproach) found in blocked URLS of focus mode - BLOCK");
-                                                                bAllowedURLFound = false;
-                                                                break;
-                                                            }
-                                                            else
-                                                            {
-                                                                // if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
-                                                                allowedURL = "*" + allowedURL + "*";
-                                                                if (MatchWildcardString(sUrlToCheck, allowedURL))
-                                                                {
-                                                                    bAllowedURLFound = false;
-                                                                    LogWriter.LogWrite(sUrlToCheck + " (BLocked List APproach MatchWildcardString) found in blocked URLS of focus mode - BLOCK");
-                                                                    break;
-                                                                }
-                                                                else
-                                                                {
-                                                                    try
-                                                                    {
-                                                                        //Check title
-                                                                        const int nChars = 256;
-                                                                        StringBuilder Buff = new StringBuilder(nChars);
-                                                                        if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
-                                                                        {
-                                                                            string sTitle = Buff.ToString();
-                                                                            if (MatchWildcardString(sTitle, allowedURL))
-                                                                            {
-                                                                                LogWriter.LogWrite(sTitle + "title found in (BLocked List APproach MatchWildcardString) match of focus mode - BLOCK");
-                                                                                bAllowedURLFound = false;
-                                                                                break;
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    catch (Exception ex)
-                                                                    {
-                                                                        LogWriter.LogWrite("processCurrentFocusElement GetWindowText blockedurls EX - " + ex.Message);
-                                                                    }
-
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    if (!bAllowedURLFound)
-                                                    {
-                                                        LogWriter.LogWrite("processCurrentFocusElement isBlockedListApproach - Attempt to Suppress URL");
-                                                        suppressURL(val, "focus");
-                                                        return;
-                                                    }
-                                                }
+                                                ProcessURLForFocusModes(val.CurrentValue, focusType, process.MainWindowHandle, element, val);
                                             }
                                         }
                                     }
+                                    ///
                                 }
-                                ///
+
 
                             }
 
@@ -1055,6 +873,302 @@ namespace FocusBear.Utils
             }
         }
 
+        private void ProcessURLForFocusModes(string sURL, FocusMode focusType, IntPtr hWnd, IUIAutomationElement element, IUIAutomationValuePattern val, bool bForFirefox = false )
+        {
+
+            if (sURL.Contains("file://"))
+            {
+                return;
+            }
+            if (appSettings.nFocudBearMode == 1)
+            {
+                if (sURL.Contains("focus_bear_temporarily_allow=true"))
+                {
+                    return;
+                }
+            }
+           
+            //Check if its an always unblocked url
+            for (int m = 0; m < UNBLOCKED_URLS.Count(); m++)
+            {
+                string sToCheck = UNBLOCKED_URLS[m];
+                if (sURL.Contains(sToCheck))
+                {
+                    return;
+                }
+            }
+
+            bool bAllowedURLFound = true; //by default allowed url is true
+
+            if (focusType.isAllowedListApproach)//Block everything except safe sites I choose
+            {
+                LogWriter.LogWrite("isAllowedListApproach - Block everything except safe sites I choose - " + focusType.name);
+
+                ////if (focusType.isAllowedAllUrls) //All urls are allowed, nothng to block
+                ////{
+                ////    LogWriter.LogWrite("isAllowedListApproach - isAllowedAllUrls, return");
+                ////    return;
+                ////}
+                ////else //Selected URLs are allowed
+                {
+                    LogWriter.LogWrite("isAllowedListApproach - Selected URLs are allowed");
+                    //We will first check if the url is in the blocked urls list of the focusmode, then we will not check allowed
+                    bAllowedURLFound = true; //allowed unless we find it in the blocked urls array
+
+                    // LogWriter.LogWrite("focusType.arrBlockedUrls COUNT is:" + focusType.arrBlockedUrls.Count().ToString());
+
+                    //check if the current URL is in the list of Blocked urls, then block else allow
+                    foreach (string url in focusType.arrBlockedUrls)
+                    {
+                        ////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                        {
+                            var sUrlToCheck = sURL.Replace("http://", "");
+                            sUrlToCheck = sUrlToCheck.Replace("https://", "");
+                            sUrlToCheck = sUrlToCheck.Replace("www.", "");
+
+                            var allowedURL = url.Replace("http://", "");
+                            allowedURL = allowedURL.Replace("https://", "");
+                            allowedURL = allowedURL.Replace("www.", "");
+                            //Remove last slash from allowed url
+                            allowedURL = allowedURL.TrimEnd(new[] { '/' });
+
+                            if (sUrlToCheck.StartsWith(allowedURL))
+                            {
+                                LogWriter.LogWrite(sUrlToCheck + " found in blocked URLS of focus mode - BLOCK");
+                                bAllowedURLFound = false;
+                                break;
+                            }
+                            else
+                            {
+
+                                // if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
+                                allowedURL = "*" + allowedURL + "*";
+                                if (MatchWildcardString(sUrlToCheck, allowedURL))
+                                {
+                                    LogWriter.LogWrite(sUrlToCheck + " found in blocked URLS WILDCARD match of focus mode - BLOCK");
+                                    bAllowedURLFound = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        //Check title
+                                        const int nChars = 256;
+                                        StringBuilder Buff = new StringBuilder(nChars);
+                                        if (GetWindowText(hWnd, Buff, nChars) > 0)
+                                        {
+                                            string sTitle = Buff.ToString();
+                                            if (MatchWildcardString(sTitle, allowedURL))
+                                            {
+                                                LogWriter.LogWrite(sTitle + "title found in blocked URLS WILDCARD match of focus mode - BLOCK");
+                                                bAllowedURLFound = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogWriter.LogWrite("processCurrentFocusElement GetWindowText blockedurls EX - " + ex.Message);
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+
+                    if (bAllowedURLFound)//Means it was not found in the blocked urls..now let's check Allowed URLs
+                    {
+                        bAllowedURLFound = false;
+
+                        //LogWriter.LogWrite("focusType.arrAllowedUrls COUNT is:" + focusType.arrAllowedUrls.Count().ToString());
+
+                        //check if the current URL is in the list of allowed urls, then allow else block
+                        foreach (string url in focusType.arrAllowedUrls)
+                        {
+                            /// LogWriter.LogWrite("focusType.arrAllowedUrl ITEM = " + url);
+
+                            //// if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                            {
+                                /// LogWriter.LogWrite("focusType.arrAllowedUrl ITEM Uri.IsWellFormedUriString OK");
+
+                                var sUrlToCheck = sURL.Replace("http://", "");
+                                sUrlToCheck = sUrlToCheck.Replace("https://", "");
+                                sUrlToCheck = sUrlToCheck.Replace("www.", "");
+
+                                var allowedURL = url.Replace("http://", "");
+                                allowedURL = allowedURL.Replace("https://", "");
+                                allowedURL = allowedURL.Replace("www.", "");
+
+                                //Remove last slash from allowed url
+                                allowedURL = allowedURL.TrimEnd(new[] { '/' });
+
+                                if (sUrlToCheck.StartsWith(allowedURL))
+                                {
+                                    LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of focus mode - ALLOW");
+                                    bAllowedURLFound = true;
+                                    return;
+                                }
+                                else
+                                {
+                                    //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
+                                    allowedURL = "*" + allowedURL + "*";
+                                    if (MatchWildcardString(sUrlToCheck, allowedURL))
+                                    {
+                                        LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
+
+                                        bAllowedURLFound = true;
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        try
+                                        {
+                                            //Check title
+                                            const int nChars = 256;
+                                            StringBuilder Buff = new StringBuilder(nChars);
+                                            if (GetWindowText(hWnd, Buff, nChars) > 0)
+                                            {
+                                                string sTitle = Buff.ToString();
+                                                if (MatchWildcardString(sTitle, allowedURL))
+                                                {
+                                                    LogWriter.LogWrite(sTitle + "title found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
+                                                    bAllowedURLFound = true;
+                                                    return;
+                                                }
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogWriter.LogWrite("processCurrentFocusElement GetWindowText ALLOWED URLS EX - " + ex.Message);
+                                        }
+
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+
+                    if (!bAllowedURLFound)
+                    {
+                        LogWriter.LogWrite("processCurrentFocusElement  isAllowedListApproach - Attempt to Suppress URL");
+                        if(bForFirefox)
+                        {
+                            suppressURLForFirefox(hWnd,sURL, "focus");
+                        }
+                        else
+                        {
+                            suppressURL(hWnd, val, "focus");
+                        }
+                        
+                        return;
+                    }
+                }
+            }
+            else //Allow everything except districting sites
+            {
+                LogWriter.LogWrite("isBlockedListApproach - Allow everything except districting sites");
+
+                ////if (focusType.isBlockedAllUrls) //All urls are BLOCKED
+                ////{
+                ////    LogWriter.LogWrite("isBlockedListApproach - isBlockedAllUrls");
+                ////    bAllowedURLFound = false;
+
+                ////    LogWriter.LogWrite("processCurrentFocusElement  isBlockedListApproach isBlockedAllUrls - Attempt to Suppress URL");
+                ////    suppressURL(val, "focus");
+                ////    return;
+
+                ////}
+                ////else //selected URLS are blocked
+                {
+                    LogWriter.LogWrite("isBlockedListApproach - selected URLS are blocked");
+
+                    bAllowedURLFound = true; //allowed unless we find it in the blocked urls array
+
+                    //check if the current URL is in the list of Blocked urls, then block else allow
+                    foreach (string url in focusType.arrBlockedUrls)
+                    {
+                        ////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                        {
+                            var sUrlToCheck = sURL.Replace("http://", "");
+                            sUrlToCheck = sUrlToCheck.Replace("https://", "");
+                            sUrlToCheck = sUrlToCheck.Replace("www.", "");
+
+                            var allowedURL = url.Replace("http://", "");
+                            allowedURL = allowedURL.Replace("https://", "");
+                            allowedURL = allowedURL.Replace("www.", "");
+                            //Remove last slash from allowed url
+                            allowedURL = allowedURL.TrimEnd(new[] { '/' });
+
+                            if (sUrlToCheck.StartsWith(allowedURL))
+                            {
+                                LogWriter.LogWrite(sUrlToCheck + " (BLocked List APproach) found in blocked URLS of focus mode - BLOCK");
+                                bAllowedURLFound = false;
+                                break;
+                            }
+                            else
+                            {
+                                // if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
+                                allowedURL = "*" + allowedURL + "*";
+                                if (MatchWildcardString(sUrlToCheck, allowedURL))
+                                {
+                                    bAllowedURLFound = false;
+                                    LogWriter.LogWrite(sUrlToCheck + " (BLocked List APproach MatchWildcardString) found in blocked URLS of focus mode - BLOCK");
+                                    break;
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        //Check title
+                                        const int nChars = 256;
+                                        StringBuilder Buff = new StringBuilder(nChars);
+                                        if (GetWindowText(hWnd, Buff, nChars) > 0)
+                                        {
+                                            string sTitle = Buff.ToString();
+                                            if (MatchWildcardString(sTitle, allowedURL))
+                                            {
+                                                LogWriter.LogWrite(sTitle + "title found in (BLocked List APproach MatchWildcardString) match of focus mode - BLOCK");
+                                                bAllowedURLFound = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogWriter.LogWrite("processCurrentFocusElement GetWindowText blockedurls EX - " + ex.Message);
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                    if (!bAllowedURLFound)
+                    {
+                        LogWriter.LogWrite("processCurrentFocusElement isBlockedListApproach - Attempt to Suppress URL");
+                        if (bForFirefox)
+                        {
+                            suppressURLForFirefox(hWnd, sURL, "focus");
+                        }
+                        else
+                        {
+                            suppressURL(hWnd, val, "focus");
+                        }
+                        return;
+                    }
+                    else //Check the URL in Always BLocked URL List
+                    {
+                        if (appSettings.arrAlwaysBlockedURLs.Count() > 0)
+                            processCurrentURL(element); //For always Blocked URLS
+                    }
+                }
+            }
+
+        }
+
+        private int CurrentProcessIdProcessed = -1;
+        string sPreviousFFURL = "";
         private void processCurrentURL(IUIAutomationElement element)
         {
             try
@@ -1066,9 +1180,125 @@ namespace FocusBear.Utils
                         // block or Unblock URLS
                         if (BROWSERS.Exists(ele => ele == process.ProcessName))
                         {
+                            //{
+                            //    string sCurrentURL = "";
+                            //    SendKeys.SendWait("{F6}"); 
+                            //    SendKeys.SendWait("^c");
+                            //    //Thread.Sleep(1000);
+
+                            //    IDataObject idat = null;
+                            //    Exception threadEx = null;
+                            //    Thread staThread = new Thread(
+                            //        delegate ()
+                            //        {
+                            //            try
+                            //            {
+                            //                idat = Clipboard.GetDataObject();
+                            //                if (idat.GetDataPresent(DataFormats.Text))
+                            //                {
+                            //                    // Yes it is, so display it in a text box.
+                            //                    sCurrentURL = (string)idat.GetData(DataFormats.Text);
+                            //                    Debug.WriteLine(sCurrentURL);
+                            //                }
+                            //            }
+                            //            catch (Exception ex)
+                            //            {
+                            //                threadEx = ex;
+                            //            }
+                            //        });
+                            //    staThread.SetApartmentState(ApartmentState.STA);
+                            //    staThread.Start();
+                            //    staThread.Join();
+
+                            //    if (Clipboard.ContainsData(DataFormats.Text))
+                            //    {
+                            //        sCurrentURL = Clipboard.GetText();
+                            //        Debug.WriteLine(sCurrentURL);
+                            //    }
+                            //    SendKeys.SendWait("{F6}");
+                            //    SendKeys.Flush();
+                            //    return;
+                            //}
+
+                            if(process.ProcessName == "firefox" || process.ProcessName == "chrome" || process.ProcessName == "msedge")
+                            {
+                                //if (appSettings.FirefoxLastAccWindow != null && (appSettings.sLastActiveURLInFirefox != null && appSettings.sLastActiveURLInFirefox.Length > 0 &&  (!appSettings.sLastActiveURLInFirefox.Contains("focus-block.html"))))
+                                //{
+                                //    foreach (string url in appSettings.arrAlwaysBlockedURLs)
+                                //    {
+                                //        ////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                                //        {
+
+                                //            var sUrlToCheck = appSettings.sLastActiveURLInFirefox.Replace("http://", "");
+                                //            sUrlToCheck = sUrlToCheck.Replace("https://", "");
+                                //            sUrlToCheck = sUrlToCheck.Replace("www.", "");
+
+                                //            var allowedURL = url.Replace("http://", "");
+                                //            allowedURL = allowedURL.Replace("https://", "");
+                                //            allowedURL = allowedURL.Replace("www.", "");
+                                //            //Remove last slash from allowed url
+                                //            allowedURL = allowedURL.TrimEnd(new[] { '/' });
+
+                                //            if (sUrlToCheck.StartsWith(allowedURL))
+                                //            {
+                                //                LogWriter.LogWrite(sUrlToCheck + "found in ALWAYS blocked URLS - BLOCK");
+                                //                suppressURLForFirefox(appSettings.sLastActiveURLInFirefox, "blocked");
+                                                
+                                //                return;
+                                //            }
+                                //            else
+                                //            {
+                                //                // if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
+                                //                allowedURL = "*" + allowedURL + "*";
+                                //                if (MatchWildcardString(sUrlToCheck, allowedURL))
+                                //                {
+                                                    
+                                //                    LogWriter.LogWrite(sUrlToCheck + "found in ALWAYS blocked URLS MatchWildcardString - BLOCK");
+                                //                    suppressURLForFirefox(appSettings.sLastActiveURLInFirefox, "blocked");
+                                                   
+                                //                    return;
+                                //                }
+                                //                else
+                                //                {
+                                //                    try
+                                //                    {
+                                //                        //Check title
+                                //                        const int nChars = 256;
+                                //                        StringBuilder Buff = new StringBuilder(nChars);
+                                //                        if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
+                                //                        {
+                                //                            string sTitle = Buff.ToString();
+                                //                            if (MatchWildcardString(sTitle, allowedURL))
+                                //                            {
+                                //                                LogWriter.LogWrite(sTitle + "title found in ALWAYS blocked URLS MatchWildcardString - BLOCK");
+                                //                                suppressURLForFirefox(appSettings.sLastActiveURLInFirefox, "blocked");
+                                                                
+                                //                                return;
+                                //                            }
+                                //                        }
+                                //                    }
+                                //                    catch (Exception ex)
+                                //                    {
+                                //                        LogWriter.LogWrite("alwaysblockedurls GetWindowText blockedurls EX - " + ex.Message);
+                                //                    }
+
+                                //                }
+                                //            }
+                                //        }
+                                //    }
+                                //}
+
+                                return;
+                            }
+                            //else
+                            //{
+
+                            //}
                             IUIAutomationElement elm = appSettings.automation.ElementFromHandle(process.MainWindowHandle);
                             IUIAutomationCondition Cond = appSettings.automation.CreatePropertyCondition(UIA_ControlTypePropertyId, UIA_EditControlTypeId);
                             IUIAutomationElementArray elm2 = elm.FindAll(TreeScope.TreeScope_Descendants, Cond);
+                            
+                      
                             if (elm2 != null)
                             {
                                
@@ -1076,7 +1306,7 @@ namespace FocusBear.Utils
                                 {
                                     IUIAutomationElement elm3 = elm2.GetElement(i);
                                     IUIAutomationValuePattern val = (IUIAutomationValuePattern)elm3.GetCurrentPattern(UIA_PATTERN_ID);
-                                    if (val != null && !string.IsNullOrEmpty(val.CurrentValue) && (!val.CurrentValue.ToString().Contains("focus-bear.github.io")) )
+                                    if (val != null && !string.IsNullOrEmpty(val.CurrentValue) && (!val.CurrentValue.ToString().Contains("focus-block.html")) )
                                     {
                                         foreach (string url in appSettings.arrAlwaysBlockedURLs)
                                         {
@@ -1089,13 +1319,16 @@ namespace FocusBear.Utils
                                                 var allowedURL = url.Replace("http://", "");
                                                 allowedURL = allowedURL.Replace("https://", "");
                                                 allowedURL = allowedURL.Replace("www.", "");
+                                                //Remove last slash from allowed url
+                                                allowedURL = allowedURL.TrimEnd(new[] { '/' });
 
                                                 if (sUrlToCheck.StartsWith(allowedURL))
                                                 {
                                                     LogWriter.LogWrite(sUrlToCheck + "found in ALWAYS blocked URLS - BLOCK");
-                                                    suppressURL(val, "blocked");
-                                                    
-                                                    break;
+                                                    suppressURL(process.MainWindowHandle, val, "blocked");
+
+                                                    //CurrentProcessIdProcessed = -1;
+                                                    return;
                                                 }
                                                 else
                                                 {
@@ -1104,8 +1337,10 @@ namespace FocusBear.Utils
                                                     if (MatchWildcardString(sUrlToCheck, allowedURL))
                                                     {
                                                         LogWriter.LogWrite(sUrlToCheck + "found in ALWAYS blocked URLS MatchWildcardString - BLOCK");
-                                                        suppressURL(val, "blocked");
-                                                        break;
+                                                        suppressURL(process.MainWindowHandle, val, "blocked");
+
+                                                        //CurrentProcessIdProcessed = -1;
+                                                        return;
                                                     }
                                                     else
                                                     {
@@ -1120,8 +1355,10 @@ namespace FocusBear.Utils
                                                                 if (MatchWildcardString(sTitle, allowedURL))
                                                                 {
                                                                     LogWriter.LogWrite(sTitle + "title found in ALWAYS blocked URLS MatchWildcardString - BLOCK");
-                                                                    suppressURL(val, "blocked");
-                                                                    break;
+                                                                    suppressURL(process.MainWindowHandle, val, "blocked");
+
+                                                                    //CurrentProcessIdProcessed = -1;
+                                                                    return;
                                                                 }
                                                             }
                                                         }
@@ -1147,9 +1384,147 @@ namespace FocusBear.Utils
             }
 
         }
-         
 
-        private void suppressURL(IUIAutomationValuePattern val, string type, string focusMode = null)
+        private void suppressURLForFirefox(IntPtr hWnd, string val, string type, string focusMode = null)
+        {
+            try
+            {
+                LogWriter.LogWrite("suppressURLForFirefox - Block URL - " + val);
+
+
+                if (type == "focus")
+                {
+                    if (appSettings.nFocudBearMode == 1)//Cuddly bearMode
+                    {
+                        string sURLForFocusMode = "";
+                        try
+                        {
+                            Uri myUri = new Uri(val);
+                            string host = myUri.Host; //fails if ther eis no http://
+                            sURLForFocusMode = host;
+                            Debug.WriteLine(sURLForFocusMode);
+                        }
+                        catch (Exception ex)
+                        {
+                            /*
+                            This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                            If uri does not specify a scheme, the scheme defaults to "http:".
+                            */
+                            Uri myUri = new UriBuilder(val).Uri;
+                            sURLForFocusMode = myUri.Host;
+                            Debug.WriteLine(ex.Message);
+                        }
+
+                        var allowedURLs = appSettings.TemporaryAllowedURLsGentleBlock.Where(i => i.sURL.ToLower() == sURLForFocusMode.ToLower());
+                        if (allowedURLs.Count() != 0)
+                        {
+                            //found in allowed url
+                            //if found in allowed URLs then add the title in the keywords list
+                            try
+                            {
+                                //Check title
+                                const int nChars = 256;
+                                StringBuilder Buff = new StringBuilder(nChars);
+                                if (GetWindowText(hWnd, Buff, nChars) > 0)
+                                {
+                                    string sTitle = Buff.ToString();
+                                    if(sTitle.Length > 0)
+                                    {
+                                        var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sTitle.ToLower());
+                                        if (titleExists.Count() == 0)
+                                        {
+                                            //add to list
+                                            appSettings.TemporaryAllowedURLsTabTitles.Add(sTitle);
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogWriter.LogWrite("alwaysblockedurls GetWindowText blockedurls EX - " + ex.Message);
+                            }
+
+                            return;//allow the url
+                        }
+                        else
+                        {
+                            var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == sURLForFocusMode.ToLower());
+                            
+                            if (blockedURLs.Count() != 0)
+                            {
+                                //found in blocked urls..block
+                            }
+                            else
+                            {
+                                string sTitle = "";
+                                try
+                                {
+                                    //Check title
+                                    const int nChars = 256;
+                                    StringBuilder Buff = new StringBuilder(nChars);
+                                    if (GetWindowText(hWnd, Buff, nChars) > 0)
+                                    {
+                                        sTitle = Buff.ToString();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogWriter.LogWrite("FCS suppressURLForFirefox 1 GetWindowText blockedurls EX - " + ex.Message);
+                                }
+
+                                appSettings.ShowGentleBlockWindow(hWnd, "", sURLForFocusMode, sTitle);
+                                return;
+                            }
+                        }
+                    }
+
+                    
+                    if (appSettings.bHabitwithUseFocusModeRunning)
+                    {
+                        //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
+                        string sURL = string.Format(sActivityBlockedWebUrl, val, appSettings.sHabitTypeForUseFocusModeIDInActivity);
+                        if (appSettings.nFocudBearMode == 1)//cuddly mode
+                            sURL = sURL + "&cuddly_bear_mode=true";
+                        appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = sURL;
+
+                    }
+                    else
+                    {
+                        DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
+                        string sEndTime = end.ToString("o");
+                        string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, val, sEndTime, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention);
+                        // "https://focus-bear.github.io/assets/focus-blocked/?old_url={0)&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
+                        
+                        if(appSettings.nFocudBearMode == 1)//cuddly mode
+                            sFcousBlockedUrl = sFcousBlockedUrl + "&cuddly_bear_mode=true";
+
+                        appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = sFcousBlockedUrl;
+
+                    }
+
+                }
+                else if (type == "blocked")
+                {
+                    appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, val);
+                }
+                else
+                {
+                    //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
+                    appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sActivityBlockedWebUrl, val, type);
+                }
+
+                SendKeys.SendWait("{ENTER}");
+
+                appSettings.CapturePostHog("block-distracting-url");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("suppressURLForFirefox EX -" + ex.Message);
+            }
+
+
+        }
+        private void suppressURL(IntPtr hWnd,  IUIAutomationValuePattern val, string type, string focusMode = null)
         {
             try
             {
@@ -1170,11 +1545,16 @@ namespace FocusBear.Utils
                         }
                         catch (Exception ex)
                         {
-                            sURLForFocusMode = val.CurrentValue;
+                            /*
+                            This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                            If uri does not specify a scheme, the scheme defaults to "http:".
+                            */
+                            Uri myUri = new UriBuilder(val.CurrentValue).Uri; 
+                            sURLForFocusMode = myUri.Host; 
                             Debug.WriteLine(ex.Message);
                         }
 
-                        var allowedURLs = appSettings.TemporaryAllowedURLsGentleBlock.Where(i => i.ToLower() == sURLForFocusMode.ToLower());
+                        var allowedURLs = appSettings.TemporaryAllowedURLsGentleBlock.Where(i => i.sURL.ToLower() == sURLForFocusMode.ToLower());
                         if (allowedURLs.Count() != 0)
                         {
                             //found in allowed app
@@ -1189,7 +1569,23 @@ namespace FocusBear.Utils
                             }
                             else
                             {
-                                appSettings.ShowGentleBlockWindow("", sURLForFocusMode);
+                                string sTitle = "";
+                                try
+                                {
+                                    //Check title
+                                    const int nChars = 256;
+                                    StringBuilder Buff = new StringBuilder(nChars);
+                                    if (GetWindowText(hWnd, Buff, nChars) > 0)
+                                    {
+                                        sTitle = Buff.ToString();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogWriter.LogWrite("FCS suppressURLForFirefox 1 GetWindowText blockedurls EX - " + ex.Message);
+                                }
+
+                                appSettings.ShowGentleBlockWindow(hWnd,"", sURLForFocusMode, sTitle);
                                 return;
                             }
                         }
@@ -1198,18 +1594,33 @@ namespace FocusBear.Utils
                     DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
                     string sEndTime = end.ToString("o");
 
-                    string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, val.CurrentValue, sEndTime, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention);
-                    // "https://focus-bear.github.io/assets/focus-blocked/?old_url={0)&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
-                    val.SetValue(string.Format(sFcousBlockedUrl, val.CurrentValue));
+                    if (appSettings.bHabitwithUseFocusModeRunning)
+                    {
+                        //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
+                        string sURL = string.Format(sActivityBlockedWebUrl, val.CurrentValue, appSettings.sHabitTypeForUseFocusModeIDInActivity);
+                        if (appSettings.nFocudBearMode == 1)//cuddly mode
+                            sURL = sURL + "&cuddly_bear_mode=true";
+
+                        val.SetValue(sURL);
+                    }
+                    else
+                    {
+                        string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, val.CurrentValue, sEndTime, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention);
+                        // "https://focus-bear.github.io/assets/focus-blocked/?old_url={0)&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
+                        if (appSettings.nFocudBearMode == 1)//cuddly mode
+                            sFcousBlockedUrl = sFcousBlockedUrl + "&cuddly_bear_mode=true";
+                        val.SetValue(sFcousBlockedUrl);
+                    }
                 }
                 else if(type == "blocked")
                 {
                     val.SetValue(string.Format(sAlwaysBlockedWebUrl, val.CurrentValue));
+                
                 }
                 else
                 {
                     //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
-                    val.SetValue(string.Format(sActivityBlockedWebUrl, val.CurrentValue, focusMode));
+                    val.SetValue(string.Format(sActivityBlockedWebUrl, val.CurrentValue, type));
                 }
 
                 //else
@@ -1218,6 +1629,7 @@ namespace FocusBear.Utils
                 //        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Focus Bear"), val.CurrentValue));
                 //}
                 SendKeys.SendWait("{ENTER}");
+
 
                 appSettings.CapturePostHog("block-distracting-url");
             }

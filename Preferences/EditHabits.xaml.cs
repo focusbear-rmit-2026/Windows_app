@@ -56,6 +56,7 @@ namespace Focus_Bear.Preferences
                 //Set environment in settings page
                 appSettings.sRawUserSettings = e.WebMessageAsJson;
                 
+                //string ss = e.WebMessageAsJson.ToString();
                 //We will need to put the settings.
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var x = await client.PutUserSettings();
@@ -68,8 +69,9 @@ namespace Focus_Bear.Preferences
                      *                  "settingIsNotValidText":"Sorry it seems like your settings aren’t valid. Please generate settings at https://settings.focusbear.io",
                      *                  
                      */
-                    MessageBox.Show(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear", MessageBoxButton.OK);
-
+                   /// MessageBox.Show(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear", MessageBoxButton.OK);
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear");
+                    ff.ShowDialog();
                     appSettings.CapturePostHog("save-edited-habits");
 
                     RegistryManager.SaveUserSettings();//save to local
@@ -79,10 +81,11 @@ namespace Focus_Bear.Preferences
                     {
                         LogWriter.LogWrite("Restart app now for settings to take Effect!");
 
-                        string currentAppPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                        // _MainWin.ShouldShutDown = true;
+                        appSettings.bRestartAppNeeded = true;
+
                         Application.Current.Shutdown(0);
-                        Process.Start(currentAppPath);
+                        
+                      
                     }
                     catch (Exception ex)
                     {
@@ -93,7 +96,9 @@ namespace Focus_Bear.Preferences
                 else
                 {
                     LogWriter.LogWrite("Settings cannot be validated from API.");
-                    MessageBox.Show(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear", MessageBoxButton.OK);
+                    ///MessageBox.Show(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear", MessageBoxButton.OK);
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear");
+                    ff.ShowDialog();
                 }
             }
             catch (Exception ex)
@@ -124,9 +129,32 @@ namespace Focus_Bear.Preferences
                 //Load Settings in the webview
                 if (appSettings.sRawUserSettings.Length > 0)
                 {
-                    string settingsFunc = string.Format("loadSettingsData({0});", appSettings.sRawUserSettings);
+                    string Settings = string.Format("{{ \"metadata\":{{\"access_token\":\"{0}\"}},\"settings\":{1}}}", appSettings.userAccount.accessToken, appSettings.sRawUserSettings);
+                    string settingsFunc = string.Format("loadSettingsData({0});", Settings);
                     webView.ExecuteScriptAsync(settingsFunc);
                 }
+
+                if(appSettings.arrFocusModes.Count > 0)
+                {
+                    string arrAllFocusModesArray = $"{{\"focusNames\":[";
+
+                    foreach (FocusMode FF in appSettings.arrFocusModes)
+                    {
+                        
+                        string addFocusJsonString = $"{{\"id\":\"{FF.id}\"," +
+                            $"\"name\":\"{FF.name}\"}},";
+                        arrAllFocusModesArray = arrAllFocusModesArray + addFocusJsonString;
+                    }
+
+                    //Remove last comma -  we have 100% added above
+                    arrAllFocusModesArray = arrAllFocusModesArray.Remove(arrAllFocusModesArray.Length - 1, 1);
+
+                    arrAllFocusModesArray = arrAllFocusModesArray + "]}";
+
+                    string settingsFunc = string.Format("LoadFocusNames({0});", arrAllFocusModesArray);
+                    webView.ExecuteScriptAsync(settingsFunc);
+                }
+
                 CommandManager.InvalidateRequerySuggested();
             }
             catch (Exception ex)
@@ -153,7 +181,7 @@ namespace Focus_Bear.Preferences
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("SetWebView()" + ex.Message);
+                LogWriter.LogWrite("EDIT habits SetWebView() Ex - " + ex.Message);
                 Debug.WriteLine(ex.Message);
             }
         }
@@ -173,14 +201,17 @@ namespace Focus_Bear.Preferences
                 {
 
                
-                //this.webView.NavigationStarting += NavigationStarting;
-                //this.webView.NavigationCompleted += NavigationCompleted;
-                webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
-                webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
-                webView.CoreWebView2.Settings.IsScriptEnabled = true;
-                webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
+                    //this.webView.NavigationStarting += NavigationStarting;
+                    //this.webView.NavigationCompleted += NavigationCompleted;
+                    webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
+                    webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
+                    webView.CoreWebView2.Settings.IsScriptEnabled = true;
+                    webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
 
-                webView.WebMessageReceived += webView_WebMessageReceived;
+                    webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
+                    webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+
+                    webView.WebMessageReceived += webView_WebMessageReceived;
 
                     //this.webView.CoreWebView2.WebMessageReceived += webView_WebMessageReceived;
                 }

@@ -37,8 +37,14 @@ namespace Focus_Bear.Onboarding
             InitializeComponent();
 
             Heading.Text = appSettings.ConfigFileStrings["welcomeInfo"]["welcomeMessageHeading"].ToString();
+
+            /* "welcomeMessageOnlyBreakIntro": "Throughout the day, I'll remind you to take regular breaks to keep your mind sharp and your body flexible. Here's an example of a break activity: 30 seconds of deep breathing."
+            */
+          
             Description.Text = appSettings.ConfigFileStrings["welcomeInfo"]["welcomeMessageIntro"].ToString();
 
+            if (!appSettings.bGoalHealthyHabits)
+                Description.Text = appSettings.ConfigFileStrings["welcomeInfo"]["welcomeMessageOnlyBreakIntro"].ToString();
 
             //    "startActivityButtonText":"Start <TIME> <NAME>",
             string Title = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
@@ -60,8 +66,7 @@ namespace Focus_Bear.Onboarding
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
+                LogWriter.LogWrite("btnStartMindfulBreathing_Click ex - " + ex.Message);
             }
         }
     }

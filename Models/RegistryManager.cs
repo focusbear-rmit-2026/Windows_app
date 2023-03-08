@@ -2166,6 +2166,40 @@ namespace Focus_Bear.Models
                 //Debug.WriteLine(ex.Message);
             }
         }
+
+        internal static bool GetUserPassword()
+        {
+            try
+            {
+                var regData = ReadStr("UP");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.sUserPassword = regData.ToString();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetUserPassword ex - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetUserPassword()
+        {
+            try
+            {
+                Write("UP", appSettings.sUserPassword);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetUserPassword() ex - " + ex.Message);
+                //Debug.WriteLine(ex.Message);
+            }
+        }
+
         internal static void SaveUserSettings()
         {
             LogWriter.LogWrite("RM SaveUserSettings()");
@@ -2300,6 +2334,48 @@ namespace Focus_Bear.Models
             {
                 LogWriter.LogWrite("RemoveAppDeactivatedTillDate - " + ex.Message);
                 //Debug.WriteLine(ex.Message);
+            }
+        }
+
+        internal static void SaveBrainDump()
+        {
+            LogWriter.LogWrite("RM SaveBrainDump()");
+            try
+            {
+                Encoding unicode = Encoding.Unicode;
+                // Convert unicode string into a byte array.  
+                byte[] regSettingsData = unicode.GetBytes(appSettings.sBrainDump);
+                Write("braindump", regSettingsData);
+
+                regSettingsData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveBrainDump - " + ex.Message);
+            }
+        }
+
+        internal static bool GetBrainDump()
+        {
+            LogWriter.LogWrite("RM GetBrainDump()");
+
+            try
+            {
+                byte[] regSettingsData = (byte[])Read("braindump");
+
+                if (regSettingsData == null)
+                    return false;
+
+                appSettings.sBrainDump = Encoding.Unicode.GetString(regSettingsData);
+
+                regSettingsData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetBrainDump - " + ex.Message);
+                return false;
             }
         }
 

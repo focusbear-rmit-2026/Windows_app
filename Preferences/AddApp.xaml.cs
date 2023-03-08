@@ -1,4 +1,5 @@
 ﻿using Focus_Bear.Models;
+using Focus_Bear.Onboarding.AfterLogin;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
@@ -26,9 +27,23 @@ namespace Focus_Bear.Preferences
 
         FocusMode selectedFocusMode = null;
 
+        List<AppDetails> FilteredList = new List<AppDetails>();
         public AddApp()
         {
 
+        }
+
+        public AddApp(OnboardingSetupAndTipsWindow ParentWindow, FocusMode sFocusMode)
+        {
+            InitializeComponent();
+
+            selectedFocusMode = sFocusMode;
+
+            this.Owner = ParentWindow;
+
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+            LoadTexts();
         }
         public AddApp(PreferencesWindow ParentWindow, FocusMode sFocusMode)
         {
@@ -40,8 +55,13 @@ namespace Focus_Bear.Preferences
 
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-            ListInstalledApps.ItemsSource = appSettings.InstalledApps;
+            LoadTexts();
+        }
 
+        void LoadTexts()
+        {
+            FilteredList = appSettings.InstalledApps;
+            ListInstalledApps.ItemsSource = FilteredList;
 
             /* "focusPreferencesInfo":{
              * "buttonAddText":"Add",
@@ -82,7 +102,9 @@ namespace Focus_Bear.Preferences
                 }
                 else
                 {
-                    MessageBox.Show("No items selected to Add.", "Focus Bear"); //todo win text
+                    FBMessageBox ff = new FBMessageBox("No items selected to Add.", "Focus Bear");
+                    ff.ShowDialog();
+                   /// MessageBox.Show("No items selected to Add.", "Focus Bear"); //todo win text
                 }
             }
             catch (Exception ex)
@@ -95,6 +117,12 @@ namespace Focus_Bear.Preferences
         {
             DialogResult = false;
             Close();
+        }
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            FilteredList = appSettings.InstalledApps.Where(i => i.AppName.ToLower().Contains(SearchBox.Text.ToLower())).ToList();
+            ListInstalledApps.ItemsSource = FilteredList;
         }
     }
 }

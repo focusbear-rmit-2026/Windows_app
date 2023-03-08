@@ -68,7 +68,7 @@ namespace Focus_Bear.Habits
                 btnPostponeText.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["buttonPostponeText"].ToString();
                 btnDeactivateTXT.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["buttonDeactivateText"].ToString();
                 FrictionLevel.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["infoText"].ToString();
-
+                btnCancelText.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
             }
             catch (Exception ex)
             {
@@ -146,6 +146,7 @@ namespace Focus_Bear.Habits
             }
 
             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //We will set this a none and rest will be taken care of
+            LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
             Close();
         }
@@ -160,6 +161,8 @@ namespace Focus_Bear.Habits
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) // FOr Breaks we will simply cancel the current routine.
             {
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+
                 //simply set the timer for thenext break activity.
                 ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);
             }
@@ -168,6 +171,12 @@ namespace Focus_Bear.Habits
                 ((App)(Application.Current)).PostponeHabitWork(nMinutesToPostpone);
             }
 
+            Close();
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)(Application.Current)).EasyPostponeCancelled();
             Close();
         }
     }

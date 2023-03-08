@@ -1,0 +1,91 @@
+﻿<Window x:Class="Focus_Bear.Focus.AddTempAllowedToFocusModeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Focus"
+        mc:Ignorable="d"
+        Title="Focus Bear" Height="auto" Width="360"  MaxWidth="360" MaxHeight="600" ResizeMode="NoResize">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto" MinHeight="38"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto" MinHeight="38"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Vertical" Margin="20,20,20,5" >
+            <TextBlock    Name="Heading" Margin="0,0,0,15"    TextWrapping="Wrap" Text="xxDo you want to permanently allow these Apps or URLs that you used during this session?" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock    Name="AppsTitle" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xxApps:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+
+             
+            <ListView    x:Name="ListApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"   MaxHeight="120" VerticalAlignment="Top">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
+                                <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="#000"  FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
+                            </StackPanel>
+
+
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            
+            <TextBlock   Name="URLSTitle" Margin="0,10,0,5"   TextWrapping="Wrap" Text="xxURLs:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+        </StackPanel>
+        <ListView    x:Name="ListURLs"  Grid.Row="1" Margin="20,0,20,10" MaxHeight="120"  SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"  VerticalAlignment="Stretch" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
+                            <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="#000"  FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
+                        </StackPanel>
+
+
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <TextBlock Grid.Row="2"  Name="KeywordsTitle" Margin="20,10,0,5"   TextWrapping="Wrap" Text="xxKeywords:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+        <ListView    x:Name="ListKeywords"  Grid.Row="3" Margin="20,0,20,10" MaxHeight="120" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"  VerticalAlignment="Stretch" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
+                            <TextBox Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="#000"  FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Button  Grid.Row="4" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,5" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock x:Name="btnCancelTXT" Text="xCancel"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+        <Button Grid.Row="4"  x:Name="btnAdd"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,5" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAdd_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock x:Name="btnAddTXT" Text="xAdd"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+    </Grid>
+</Window>

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Upgrade"
         xmlns:Models="clr-namespace:Focus_Bear.Models"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="603" Width="531" ResizeMode="NoResize">
+        Title="Focus Bear" Height="633" Width="531" ResizeMode="NoResize">
     <Grid Background="#eee" >
         <Grid.RowDefinitions>
             <RowDefinition Height="*"   />
@@ -29,6 +29,7 @@
                 
                 <RowDefinition Height="33" />
                 <RowDefinition Height="60" />
+                <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
             </Grid.RowDefinitions>
 
@@ -54,7 +55,7 @@
 
             <TextBlock  Grid.Row="7" Visibility="Collapsed" TextWrapping="NoWrap" Name="Subscription"  Foreground="Red" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center">xYour Subscription has expired!</TextBlock>
 
-            <Button Grid.Row="8" Grid.ColumnSpan="2" x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" VerticalAlignment="Bottom" Click="btnUpgradeNow_Click">
+            <Button Grid.Row="8" Grid.ColumnSpan="2" x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="18" Cursor="Hand" FontFamily="Segoe UI Semibold" VerticalAlignment="Bottom" Click="btnUpgradeNow_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnUpgradeNowTXT" Margin="8" Text="xUpgrade Now"/>
@@ -62,6 +63,18 @@
                 </Button.Content>
             </Button>
             <TextBlock Grid.Row="9"  Name="MoneyBack" Margin="0,0,0,0" TextWrapping="NoWrap" Text="xx30 Days Money Back.." Foreground="#272727" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <StackPanel Grid.Row="10" Orientation="Horizontal" HorizontalAlignment="Center">
+                
+                <TextBlock   Name="YourUserId" Margin="0,0,10,0" TextWrapping="Wrap" Text="xYour user Id:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBox TabIndex="0" x:Name="TxtUserId" IsReadOnly="True" Margin="0" Width="270" Height="22" TextWrapping="NoWrap" Background="#FFF" BorderBrush="#999" Foreground="#000" Padding="1,2,1,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1"  >
+                   
+                </TextBox>
+                <Button  x:Name="btnCopyUserId"  IsEnabled="True"   Margin="10,0,0,0" Width="22" Height="22" HorizontalContentAlignment="Center" Padding="0"  FontSize="15" Cursor="Hand"   VerticalAlignment="Center" BorderBrush="#eee" Background="#eee" Click="btnCopyUserId_Click" ToolTip="xClose">
+                    <Button.Content>
+                        <Image Grid.Row="0" Height="20"  Width="20"  Margin="0,0,0,0" Source="../Images/copy.png" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
         </Grid>
         <Grid Grid.Row="1"  Background="White">
             <Grid.RowDefinitions>
@@ -71,7 +84,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0"  Name="AfterPay" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxAfter you pay, click the Sync Payment Status button below" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <Button Grid.Row="1"   x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnSyncPayment_Click">
+            <Button Grid.Row="1"   x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="18" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnSyncPayment_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnSyncPaymentTXT" Margin="8" Text="xSync Payment Status"/>
