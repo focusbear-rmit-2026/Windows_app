@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Focus Bear"
-#define MyAppVersion "1.0.40.0"
+#define MyAppVersion "1.0.60.0"
 #define MyAppPublisher "Focus Bear Pty Ltd"
 #define MyAppURL "https://www.focusbear.io"
 #define MyAppExeName "Focus Bear.exe"
@@ -49,6 +49,7 @@ Source: "Files\Auth0.AuthenticationApi.xml"; DestDir: "{app}"; Flags: ignorevers
 Source: "Files\Auth0.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\Auth0.Core.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\config.json"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\config-es.json"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\Focus Bear.exe.config"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\Interop.UIAutomationClient.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\Microsoft.IdentityModel.JsonWebTokens.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
@@ -71,6 +72,31 @@ Source: "Files\Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversion rest
 Source: "Files\Newtonsoft.Json.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\System.IdentityModel.Tokens.Jwt.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\System.IdentityModel.Tokens.Jwt.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\Microsoft.Bcl.AsyncInterfaces.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\Microsoft.Bcl.AsyncInterfaces.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\Sentry.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\Sentry.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Buffers.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Buffers.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Collections.Immutable.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Collections.Immutable.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Memory.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Memory.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Numerics.Vectors.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Numerics.Vectors.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Reflection.Metadata.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Reflection.Metadata.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Runtime.CompilerServices.Unsafe.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Runtime.CompilerServices.Unsafe.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Text.Encodings.Web.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Text.Encodings.Web.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Text.Json.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Text.Json.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Threading.Tasks.Extensions.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.Threading.Tasks.Extensions.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.ValueTuple.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\System.ValueTuple.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+
 Source: "Files\Graph\*"; DestDir: "{app}\graph"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
 Source: "Files\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -81,8 +107,8 @@ Source: "logo.svg"; DestDir: "{localappdata}\focus bear"; Flags: ignoreversion r
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
-[Run]
-Filename: "{app}\{#MyAppName}"; Flags: Nowait
+;[Run]
+;Filename: "{app}\{#MyAppName}"; Flags: Nowait
 
 [code]
 function InitializeSetup(): Boolean;
@@ -96,4 +122,36 @@ begin
      end;
 
     Result := true;
+end;
+
+
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+ErrorCode: Integer;
+sLanguageCode:String;
+sInstallUrl:String;
+begin
+
+  if CurStep=ssDone then
+  begin
+
+    sLanguageCode :=  ExpandConstant('{language}');
+    if(sLanguageCode = 'english') then
+    begin
+      RegWriteStringValue(HKEY_LOCAL_MACHINE, 'Software\{#MyAppName}', 'APP_LANG', 'en');
+      RegWriteStringValue(HKEY_CURRENT_USER, 'Software\{#MyAppName}', 'APP_LANG', 'en');
+    end
+    else  if(sLanguageCode = 'spanish') then
+    begin
+      RegWriteStringValue(HKEY_LOCAL_MACHINE, 'Software\{#MyAppName}', 'APP_LANG', 'es');
+      RegWriteStringValue(HKEY_CURRENT_USER, 'Software\{#MyAppName}', 'APP_LANG', 'es');
+    end;
+
+    if not ShellExec('', ExpandConstant('{app}\{#MyAppExeName}'), '', '', SW_SHOW, ewNoWait, ErrorCode) then
+    begin
+     // handle failure if necessary
+    end;
+
+
+  end;
 end;

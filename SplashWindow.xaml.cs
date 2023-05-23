@@ -34,7 +34,7 @@ namespace Focus_Bear
             }
             catch (Exception ex)
             {
-                Heading.Text = "Loading..."; //todo win texts
+                Heading.Text = "Loading...";  
                 LogWriter.LogWrite("SplashWindow Exception - " + ex.Message);
             }
            

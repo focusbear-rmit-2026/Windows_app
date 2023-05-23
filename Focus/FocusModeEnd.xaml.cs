@@ -28,7 +28,6 @@ namespace Focus_Bear.Focus
     {
         AppSettings appSettings = AppSettings.GetInstance;
 
-
         //[DllImport("user32.dll")]
         //private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
         //[DllImport("user32.dll")]
@@ -49,7 +48,8 @@ namespace Focus_Bear.Focus
         public FocusModeEnd()
         {
             InitializeComponent();
-
+            LogWriter.LogWrite("FocusModeEnd()");
+            appSettings.bStartingAnotherFocusMode = false;
             /*  "focusInfo":{ "focusCompletedInfo":{
             "title":"You did it!",
             "subTitle":"You have successfully completed the focus block - <FOCUSTYPE>",
@@ -71,6 +71,7 @@ namespace Focus_Bear.Focus
 
         private async void Take5MinsBreak()
         {
+            LogWriter.LogWrite("Take5MinsBreak() Clicked");
             /*
                Log type,Timestamp,Activity,Duration in seconds,Quantity Question,Quantity Logged,Start Time,Work achieved,Distractions encountered,Abort reason,Feedback
                focus mode abort,2022-11-29 16:57:32,focus block - Meetings,9,,,2022-11-29 16:57:22,,,I have an emergency,
@@ -95,14 +96,19 @@ namespace Focus_Bear.Focus
             //Show the Break Window
             ((App)(Application.Current)).ShowBreakWindow();
 
+            //Show the brain dump window
+            ((App)(Application.Current)).ShowBrainDumpWindow();
+
             //Ask the user for adding temp apps / urls
             if (appSettings.TemporaryAllowedAppsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsTabTitles.Count != 0)
             {
                 if(appSettings.TemporaryAllowedURLsTabTitles.Count > 0)
                 {
+                    LogWriter.LogWrite("Attempt to GetKeywords() -");
                     var m = await client.GetKeywords();
                     if(m == 1)
                     {
+                        LogWriter.LogWrite("GetKeywords() Done-");
                         ///
                         appSettings.TemporaryAllowedKeywords.Clear();
 
@@ -126,7 +132,7 @@ namespace Focus_Bear.Focus
                             }
                             catch (Exception ex)
                             {
-                                LogWriter.LogWrite("ReadAndParseSettingsJson() EX - " + ex.Message);
+                                LogWriter.LogWrite("Parsing appSettings.sRawKeywords  EX - " + ex.Message);
                             }
                         }
                             ///
@@ -159,7 +165,7 @@ namespace Focus_Bear.Focus
                             }
                             foreach (DistractingURL dd in appSettings.TemporaryAllowedKeywords)
                             {
-                                if(dd.IsItemChecked)
+                                if(dd.IsItemChecked && dd.sURL.Length > 0)
                                     ff.arrAllowedUrls.Add(dd.sURL);
                             }
                             //we will call the API to update all the focus modes.
@@ -184,33 +190,44 @@ namespace Focus_Bear.Focus
         {
             if(IsVisible)
             {
-                Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["title"].ToString();
 
-                string sDescription = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["subTitle"].ToString();
-                Description.Text = sDescription.Replace("<FOCUSTYPE>", appSettings.sRunningFocusModeName);
+                try
+                {
+                    Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["title"].ToString();
 
-                YourIntention.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleIntention"].ToString();
-                Achieve.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["questionFirstText"].ToString();
-                Distractions.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["questionSecondText"].ToString();
+                    string sDescription = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["subTitle"].ToString();
+                    Description.Text = sDescription.Replace("<FOCUSTYPE>", appSettings.sRunningFocusModeName);
 
-                btnTakeBreakText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonTakeBreakText"].ToString();
+                    YourIntention.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleIntention"].ToString();
+                    Achieve.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["questionFirstText"].ToString();
+                    Distractions.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["questionSecondText"].ToString();
 
-                TxtIntention.Text = appSettings.sRunningFocusModeIntention; //Place the text
+                    btnTakeBreakText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonTakeBreakText"].ToString();
 
-                //Empty the boxes
-                TxtAchieve.Text = "";
-                TxtDistractions.Text = "";
+                    TxtIntention.Text = appSettings.sRunningFocusModeIntention; //Place the text
 
-                //Empty the boxes
-                TxtAchieve.Text = "";
-                TxtDistractions.Text = "";
+                    btnStartAnotherFocusModeText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonStartFocusText"].ToString();
+
+                    //Empty the boxes
+                    TxtAchieve.Text = "";
+                    TxtDistractions.Text = "";
+
+                    //Empty the boxes
+                    TxtAchieve.Text = "";
+                    TxtDistractions.Text = "";
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("FocusModeEnd Window_IsVisibleChanged EX = " + ex.Message);
+                }
             }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
-            Take5MinsBreak();
+            if(!appSettings.bStartingAnotherFocusMode)
+                Take5MinsBreak();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -237,6 +254,20 @@ namespace Focus_Bear.Focus
                 this.Left = (desktopWorkingArea.Width - this.Width) / 2;
                 this.Top = (desktopWorkingArea.Height - this.Height) / 2;
             }
+        }
+
+        private void btnStartAnotherFocusMode_Click(object sender, RoutedEventArgs e)
+        {
+            appSettings.bStartingAnotherFocusMode = true;
+
+            Hide();
+
+            var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
+            if (listItems.Count() != 0)
+            {
+                ((App)(Application.Current)).wndTrayMenu.ListFocusModes.SelectedItem = listItems.First();
+            }
+           
         }
     }
 }

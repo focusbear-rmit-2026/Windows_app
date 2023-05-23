@@ -38,8 +38,13 @@ namespace Focus_Bear.Habits
                     "description":"Taking regular breaks (every 20 minutes is recommended) is crucial for avoiding eye strain and postural issues. You might be worried that it will take you out of your flow and disrupt your productivity. Let's capture what you were just working on so that you won't lose your train of thought after the break. BTW you'll often find that when you take a break and give your brain some time in the \"default mode network\", you'll come up with novel solutions to a problem you'd been struggling with. Not necessarily a productivity killer at all 😉",
                     "buttonStartBreakText":"Start Break"
                 },
-            */ 
-            TxtDumpDown.Text = appSettings.sBrainDump;
+            */
+            if (RegistryManager.GetBrainDump())
+            {
+                TxtDumpDown.Text = appSettings.sBrainDump;
+            }
+
+           // TxtDumpDown.Text = appSettings.sBrainDump;
             
             try
             {

@@ -28,9 +28,15 @@ namespace Focus_Bear.Preferences
     public partial class Settings : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        PreferencesWindow _ParentWindow = null;
         public Settings()
         {
+        }
+        public Settings(PreferencesWindow pp)
+        {
             InitializeComponent();
+            _ParentWindow = pp;
+
             /*  "preferencesInfo":{
              *  "titleAppMode":"Focus bear mode:",
              "checkBoxCuddlyBearText":"Cuddly Bear mode",
@@ -47,6 +53,7 @@ namespace Focus_Bear.Preferences
               */
             try
             {
+
                 FocusBearMode.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleAppMode"].ToString();
                 CuddlyMode.Content = appSettings.ConfigFileStrings["preferencesInfo"]["checkBoxCuddlyBearText"].ToString();
                 GrizzlyMode.Content = appSettings.ConfigFileStrings["preferencesInfo"]["checkBoxGrizzlyBearText"].ToString();
@@ -55,8 +62,7 @@ namespace Focus_Bear.Preferences
                 GrizzlyModeDesc.Text = appSettings.ConfigFileStrings["preferencesInfo"]["descriptionGrizzlyBearText"].ToString();
 
                 Version.Text = appSettings.ConfigFileStrings["preferencesInfo"]["versionText"].ToString() + appSettings.AppVersion.ToString();
-                btnExportLogsTXT.Text = appSettings.ConfigFileStrings["preferencesInfo"]["buttonExportLogsText"].ToString();
-
+               
                 btnExportStatisticsTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemExportStatisticsTitle"].ToString();
                 btnCheckForUpdatesTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemCheckForUpdatesTitle"].ToString();
 
@@ -64,6 +70,11 @@ namespace Focus_Bear.Preferences
 
                 GeneralTab.Header = appSettings.ConfigFileStrings["common"]["tabGeneralText"].ToString();
                 PasswordTab.Header = appSettings.ConfigFileStrings["common"]["tabPasswordText"].ToString();
+                BlockedURLTab.Header = appSettings.ConfigFileStrings["common"]["tabBlockedURLsText"].ToString();
+                AccountTab.Header = appSettings.ConfigFileStrings["common"]["tabAccountsText"].ToString();
+
+                AITab.Header = appSettings.ConfigFileStrings["common"]["tabAIText"].ToString();
+                UninstallTab.Header = appSettings.ConfigFileStrings["common"]["tabUninstallText"].ToString();
 
                 //Password Tab Texts:
                 SetPasswordTabTexts();
@@ -79,6 +90,31 @@ namespace Focus_Bear.Preferences
                 CheckPostponingEveningRoutine.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonSkipEveningHabitText"].ToString();
                 CheckUsingComputerLateNight.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonAbortingShutoffText"].ToString();
                 CheckQuittingApp.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonQuitAppText"].ToString();
+
+                SelectLanguage.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleSelectLanguage"].ToString();
+
+                /*  "languageInfo": {
+                "languageEnglish":"English",
+                    "languageSpanish":"Spanish"
+                },*/
+
+                Language.Items.Add(appSettings.ConfigFileStrings["languageInfo"]["languageEnglish"].ToString());
+                Language.Items.Add(appSettings.ConfigFileStrings["languageInfo"]["languageSpanish"].ToString());
+
+                if(appSettings.sLangCode == "en")
+                {
+                    Language.SelectedIndex = 0;
+                }
+                else if(appSettings.sLangCode == "es")
+                {
+                    Language.SelectedIndex = 1;
+                }
+
+                //creating manually as we need to pass the paterent window object
+                Uninstall control = new Uninstall(_ParentWindow);
+                UninstallTab.Content = control;
+
+                BlockedURLTab.Content = new AlwaysBlockedURLs(_ParentWindow); ;
 
             }
             catch (Exception ex)
@@ -190,44 +226,7 @@ namespace Focus_Bear.Preferences
 
         }
 
-        private void btnExportLogs_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                /*        "buttonPanelExportLogsText":"Export Logs",
-                "panelExportLogsText":"Export logs to share with Focus Bear Support Team",
-                "exportSuccessText":"Your logs are available to share in the FocusBearLogs.zip file in the <URL> directory",*/
-                
-                var folderBrowserDialog1 = new FolderBrowserDialog();
-                folderBrowserDialog1.Description = appSettings.ConfigFileStrings["preferencesInfo"]["panelExportLogsText"].ToString();
-                
-                // Show the FolderBrowserDialog.
-                DialogResult result = folderBrowserDialog1.ShowDialog();
-                if (result == DialogResult.OK)
-                {
-                    string folderName = folderBrowserDialog1.SelectedPath;
-                    string startPath = AppSettings.AppDataDirLogsPath;
-                    string zipPath = folderName + "\\FocusBearLogs.zip";
-
-                    if(File.Exists(zipPath))
-                    {
-                        Global.DeleteFile(zipPath, false);
-                    }
-
-                    ZipFile.CreateFromDirectory(startPath, zipPath, CompressionLevel.Fastest, false);
-                    string ss = appSettings.ConfigFileStrings["preferencesInfo"]["exportSuccessText"].ToString();
-                    ///MessageBox.Show(ss.Replace("<URL>", folderName), "Focus Bear");
-                    FBMessageBox ff = new FBMessageBox(ss.Replace("<URL>", folderName), "Focus Bear");
-                    ff.ShowDialog();
-                }
-            
-               
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("btnExportLogs_Click ex -" + ex.Message);
-            }
-        }
+       
 
         private void GrizzlyMode_Checked(object sender, RoutedEventArgs e)
         {
@@ -367,6 +366,49 @@ namespace Focus_Bear.Preferences
         private void CheckQuittingApp_Unchecked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireInQuitApp = false;
+        }
+
+        private void Language_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int nSelectedIndex = 0;
+
+            if (appSettings.sLangCode == "en")
+            {
+                nSelectedIndex = 0;
+            }
+            else if (appSettings.sLangCode == "es")
+            {
+                nSelectedIndex = 1;
+            }
+
+            if (Language.SelectedIndex != nSelectedIndex)
+            {
+                string ss = appSettings.ConfigFileStrings["preferencesInfo"]["alertChangeLanguageMessageText"].ToString();// "alertChangeLanguageMessageText":"Are you sure you want to change the language to <LANGUAGE>?",
+                ss = ss.Replace("<LANGUAGE>", Language.SelectedItem.ToString());
+                FBMessageBox ff = new FBMessageBox(ss,"Focus Bear", MessageBoxButton.YesNo);
+                ff.ShowDialog();
+                if (ff.btnClicked == MessageBoxResult.No)
+                {
+                    Language.SelectedIndex = nSelectedIndex;
+                    return;
+                }
+                else
+                {
+                    //we will need to write the lang code and restart the app.
+                    if(Language.SelectedIndex == 0)//en
+                    {
+                        appSettings.sLangCode = "en";
+                    }
+                    else if (Language.SelectedIndex == 1)//es
+                    {
+                        appSettings.sLangCode = "es";
+                    }
+                    RegistryManager.SetLangCode();
+                    appSettings.bRestartAppNeeded = true;
+                    Application.Current.Shutdown(0);
+                }
+
+            }
         }
     }
 }

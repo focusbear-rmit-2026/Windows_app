@@ -9,28 +9,28 @@
       d:DesignHeight="1080" d:DesignWidth="1920"
       Title="OnboardingWelcome" Background="#fff">
 
-    <Grid>
+    <Grid VerticalAlignment="Center">
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto"   />
+            <RowDefinition Height="185" />
+            <RowDefinition Height="50"   />
             <RowDefinition Height="*"  />
-            <RowDefinition Height="Auto"  />
-            <RowDefinition Height="Auto"  />
-
+            <RowDefinition Height="85"  />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="40"  />
         </Grid.RowDefinitions>
 
         <Image Name="TopIcon" Grid.Row="0"  Margin="0,50,0,0" Height="135"  Width="135" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,30,0,0" TextWrapping="Wrap" Text="xMindful Breathing" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xMindful Breathing" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Viewbox Grid.Row="2"  Stretch="Uniform">
 
-            <DockPanel  Margin="50,25,50,25" Width="853" Height="505">
+            <DockPanel  Margin="50,25,50,25" Width="853" Height="495">
                 <wv2:WebView2 Name="webView"  />
             </DockPanel>
         </Viewbox>
-      
+
 
         <Border  Grid.Row="3" BorderThickness="0" BorderBrush="#edeeee" CornerRadius="17" Padding="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Width="190" Height="85">
             <Grid>
@@ -43,7 +43,7 @@
                            />
                 </Grid.Effect>
                 <!-- Rounded mask (stretches to fill Grid) -->
-                <Border Name="mask" Background="#edeeee" CornerRadius="17"/>
+                <Border Name="mask" Background="#edeeee" CornerRadius="17" Height="81" VerticalAlignment="Top"/>
                 <!-- Main content container -->
                 <StackPanel >
                     <!-- Use a VisualBrush of 'mask' as the opacity mask -->
@@ -52,16 +52,16 @@
                     </StackPanel.OpacityMask>
 
                     <!-- Any content -->
-                   
-                    <TextBlock x:Name="TxtTimer" Margin="0,22,0,0" TextWrapping="Wrap" Text="00:30" Foreground="#000" Padding="0" FontSize="27" FontWeight="SemiBold" HorizontalAlignment="Center" Height="30" VerticalAlignment="Center" />
-                  
+
+                    <TextBlock x:Name="TxtTimer" Margin="0,22,60,0" TextWrapping="Wrap" Text="00:30" Foreground="#000" Padding="0" FontSize="27" FontWeight="SemiBold" HorizontalAlignment="Right" Height="30" VerticalAlignment="Center" />
+
                 </StackPanel>
 
             </Grid>
 
         </Border>
 
-        <Button Grid.Row="4"  x:Name="btnPausePlay"   Style="{StaticResource BtnStylePlay}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="40" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPausePlay_Click" >
+        <Button Grid.Row="4"  x:Name="btnPausePlay"   Style="{StaticResource BtnStylePlay}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="40" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPausePlay_Click" >
             <Button.Effect>
                 <DropShadowEffect ShadowDepth="3"
                           Direction="320"
@@ -77,5 +77,9 @@
                 </StackPanel>
             </Button.Content>
         </Button>
+
+        <TextBlock  Grid.Row="5"  x:Name="SkipThisHabitText" Margin="0,3,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="22" Cursor="Hand" Visibility="Collapsed"  >
+             <Hyperlink x:Name="btnSkipThisHabit"  Foreground="#000" Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
+        </TextBlock>
     </Grid>
 </Page>

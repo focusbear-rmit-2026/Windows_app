@@ -9,6 +9,8 @@
       Title="FocusPage" Background="#fff" >
 
     <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        
         <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}" />
@@ -39,6 +41,7 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Setter Property="Visibility" Value="{Binding isShowAbleInList, Converter={StaticResource BoolToVis}}" />
         </Style>
     </Page.Resources>
     
@@ -53,7 +56,7 @@
 
         <Grid  Grid.Row="1" Margin="30,0,30,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="235"/>
+                <ColumnDefinition Width="315"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0" Background="#fcf8f0" Margin="0,0,0,0">
@@ -69,9 +72,11 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="25"/>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="25"/>
                                 </Grid.ColumnDefinitions>
                                 <Rectangle Fill="{Binding color, StringFormat=\{0\}}" Width="25" Height="25"  RadiusX="4" RadiusY="4"></Rectangle>
                                 <TextBlock Grid.Column="1" Text="{Binding name, StringFormat=\{0\}}" Foreground="#000"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                <Image x:Name="InfoImageMeetings" Grid.Column="2" Source="../images/info.png" Width="18"  Margin="0,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{Binding Path=isMeetings, Converter={StaticResource BoolToVis}}" ToolTip="{Binding sToolTip, StringFormat=\{0\}}"></Image>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -111,7 +116,7 @@
                 <RadioButton Grid.Row="2" Name="AllowSelectedApps" Margin="20,5,0,0" GroupName="allowApps"  FontSize="13" Checked="AllowSelectedApps_Checked">
                     xAllow Selected apps
                 </RadioButton>
-                <Grid Grid.Row="3" Background="#fff" Margin="20,5,20,15">
+                <Grid Grid.Row="3" x:Name="SelectedAppsListBG" Background="#fff" Margin="20,5,20,15">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="1"/>
@@ -129,7 +134,7 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Grid Grid.Row="1" Background="LightGray" ></Grid>
+                    <Grid Grid.Row="1"  x:Name="SelectedAppsListBGSeperator" Background="LightGray" ></Grid>
                     <StackPanel Grid.Row="2" Orientation="Horizontal">
                         <Button   x:Name="btnAddAllowedApp"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAddAllowedApp_Click" >
                             
@@ -150,15 +155,16 @@
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="4" Background="LightGray" Margin="20,0,20,0" />
-                <RadioButton Grid.Row="5"  Name="BlockEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="BlockEverything_Checked">
+                <TextBlock  Grid.Row="5" Name="HowDoYouWant" Margin="20,0,0,0"   Text="xHow do you want to block URLs"   FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+
+                <RadioButton Grid.Row="6"  Name="BlockEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="BlockEverything_Checked">
                     xBlock everything except safe sites that I choose sdsdsd sdsdsd sdsdsdsd
                 </RadioButton>
-                <RadioButton Grid.Row="6" Name="AllowEverything" Margin="20,0,0,0" GroupName="URLsEverything"  FontSize="13" Checked="AllowEverything_Checked">
+                <RadioButton Grid.Row="7" Name="AllowEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="AllowEverything_Checked">
                     xAllow everything except certain distracting sites
                 </RadioButton>
 
-                <TextBlock  Grid.Row="7" Name="HowDoYouWant" Margin="20,0,0,0"   Text="xHow do you want to block URLs"   FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
-                <!--<ComboBox  Grid.Row="8" Name="ComboBoxHowDoYouWant"  Width="250" Height="23" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0"  SelectedIndex="0" FontSize="13" SelectionChanged="ComboBoxHowDoYouWant_SelectionChanged">
+               <!--<ComboBox  Grid.Row="8" Name="ComboBoxHowDoYouWant"  Width="250" Height="23" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0"  SelectedIndex="0" FontSize="13" SelectionChanged="ComboBoxHowDoYouWant_SelectionChanged">
                 </ComboBox>-->
 
                 <Grid Grid.Row="9" Background="#fff" Margin="20,5,20,8">

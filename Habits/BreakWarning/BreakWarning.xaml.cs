@@ -65,9 +65,7 @@ namespace Focus_Bear.Habits
             bSecondTime15SecTimerRunning = false;
 
             nTimer = 30;
-            Description.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["title"].ToString();
-            btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString();
-
+           
             ShowInTaskbar = false;
 
             var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
@@ -79,8 +77,17 @@ namespace Focus_Bear.Habits
             dispatcherTimer.Start();
             CommandManager.InvalidateRequerySuggested();
 
-           
-        }
+            try
+            {
+                btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString();
+                Description.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["titleWIN"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("BreakWarning text setting ex - " + ex.Message);
+            }
+
+}
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
@@ -121,7 +128,6 @@ namespace Focus_Bear.Habits
             catch (Exception ex)
             {
                 LogWriter.LogWrite("BreakWarning = " + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
 
         }
@@ -188,7 +194,9 @@ namespace Focus_Bear.Habits
                     //Set the break timer fro five minutes from now
                     ///DialogResult = true;
                     dispatcherTimer.Stop();
-                    appSettings.nCountBreaksPostponedTimes++; //Increase the counter after first time
+
+                    //Now we do not need to show 15 second timer...so easy fix is do not incrase this count
+                    ////appSettings.nCountBreaksPostponedTimes++; //Increase the counter after first time
 
                     ((App)(Application.Current)).StartBreakActivityTimer(true, 5);
 

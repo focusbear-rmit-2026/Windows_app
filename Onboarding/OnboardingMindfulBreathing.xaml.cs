@@ -44,57 +44,21 @@ namespace Focus_Bear.Onboarding
             InitializeComponent();
 
             SetWebView();
+            webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
 
-            var Title = appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["name"];
-            Heading.Text = Title.ToString();
+            btnSkipThisHabitTXT.Text = appSettings.ConfigFileStrings["welcomeInfo"]["buttonSkipText"].ToString();
+            /// var Title = appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["name"];
+            Heading.Text = appSettings.OnboardingActivityName; ///Title.ToString();
 
-            int nDurationSeconds = (int) appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["duration_seconds"];
-            nTimer = nDurationSeconds;
+            ////int nDurationSeconds = (int) appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["duration_seconds"];
+            nTimer = appSettings.OnboardingActivityDurationSeconds;
 
-            JArray array = (JArray)appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["video_urls"];
+            /**JArray array = (JArray)appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["video_urls"];
             int n = array.Count;
             Random rnd = new Random();
             int nRandom = rnd.Next(0, n-1);
-            string videoUrl = array[nRandom].ToString();
-
-
-            //string videoUrl = "https://www.youtube.com/watch?v=HhMXYsk_Pvo";
-            //string videoUrl = "https://youtu.be/lExuhKRS8vo";
-            if (videoUrl.Contains("watch?v=") )
-            {
-                videoUrl = videoUrl.Replace("watch?v=", "embed/");
-            }
-            else
-            {
-                if (videoUrl.ToLower().Contains("https://youtu.be/")){
-                    //Handle non permitted embedded videos
-                    //https://youtu.be/lExuhKRS8vo
-                    string lastItem = videoUrl.Split('/').Last();
-                    if(lastItem.Length > 0)
-                    {
-                        videoUrl = "https://www.youtube.com/embed/" + lastItem;
-                    }
-
-                }
-            }
-            if (videoUrl.Contains("?")){
-                videoUrl = videoUrl + "&autoplay=1";
-            }
-            else
-            {
-                videoUrl = videoUrl + "?autoplay=1";
-            }
-       
-            webView.Source = new System.Uri(videoUrl);
-
-            
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-            bTimerRunning = true;
-            pause.Visibility = Visibility.Visible;
-            play.Visibility = Visibility.Collapsed;
-            dispatcherTimer.Start();
-            CommandManager.InvalidateRequerySuggested();
+            string videoUrl = array[nRandom].ToString();**/
+           
         }
 
         private async void SetWebView()
@@ -116,10 +80,79 @@ namespace Focus_Bear.Onboarding
             }
         }
 
+        private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+        {
+            if (e.IsSuccess)
+            {
+                try
+                {
+
+
+                    //this.webView.NavigationStarting += NavigationStarting;
+                    //this.webView.NavigationCompleted += NavigationCompleted;
+                    webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
+                    webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
+                    webView.CoreWebView2.Settings.IsScriptEnabled = true;
+                    webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
+
+                    webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
+                    webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+
+                    // webView.WebMessageReceived += webView_WebMessageReceived;
+
+                    string videoUrl = appSettings.OnboardingVideoUrl;
+                    //string videoUrl = "https://www.youtube.com/watch?v=HhMXYsk_Pvo";
+                    //string videoUrl = "https://youtu.be/lExuhKRS8vo";
+                    if (videoUrl.Contains("watch?v="))
+                    {
+                        videoUrl = videoUrl.Replace("watch?v=", "embed/");
+                    }
+                    else
+                    {
+                        if (videoUrl.ToLower().Contains("https://youtu.be/"))
+                        {
+                            //Handle non permitted embedded videos
+                            //https://youtu.be/lExuhKRS8vo
+                            string lastItem = videoUrl.Split('/').Last();
+                            if (lastItem.Length > 0)
+                            {
+                                videoUrl = "https://www.youtube.com/embed/" + lastItem;
+                            }
+
+                        }
+                    }
+                    if (videoUrl.Contains("?"))
+                    {
+                        videoUrl = videoUrl + "&autoplay=1";
+                    }
+                    else
+                    {
+                        videoUrl = videoUrl + "?autoplay=1";
+                    }
+
+                    webView.Source = new System.Uri(videoUrl);
+
+
+                    dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                    dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+                    bTimerRunning = true;
+                    pause.Visibility = Visibility.Visible;
+                    play.Visibility = Visibility.Collapsed;
+                    dispatcherTimer.Start();
+                    CommandManager.InvalidateRequerySuggested();
+
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("CoreWebView2InitializationCompleted()" + ex.Message);
+                }
+            }
+        }
+
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer-=5;
+            int val = nTimer-=1;
 #else
             int val = nTimer--;
 #endif
@@ -128,7 +161,7 @@ namespace Focus_Bear.Onboarding
             if (nTimer < 25) //Hide the top image after 5 seconds
             {
                 TopIcon.Visibility = Visibility.Collapsed;
-                btnPausePlay.Margin = new Thickness(0, 10, 0, 40);
+                //btnPausePlay.Margin = new Thickness(0, 10, 0, 40);
             }
             string msg = "00:" + val.ToString("D2");
             TxtTimer.Text = msg;
@@ -160,6 +193,8 @@ namespace Focus_Bear.Onboarding
                 bTimerRunning = false;
                 pause.Visibility = Visibility.Collapsed;
                 play.Visibility = Visibility.Visible;
+
+                SkipThisHabitText.Visibility = Visibility.Visible; //Show the skip button
             }
             else
             {
@@ -167,10 +202,30 @@ namespace Focus_Bear.Onboarding
                 play.Visibility = Visibility.Collapsed;
                 pause.Visibility = Visibility.Visible;
                 dispatcherTimer.Start();
+
+                SkipThisHabitText.Visibility = Visibility.Collapsed;//Hide the skip button
             }
           //  _parentWindow.Close();
         }
 
-      
+        private void btnSkipThisHabit_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("OnboardingMindfulBreathing - btnSkipThisHabit_Click");
+
+            TxtTimer.Text = "00:00";
+            appSettings.bOnboardingActivitySkipped = true;
+            //Stop the video too
+            webView.Source = new System.Uri("about:blank");
+            try
+            {
+                _parentWindow.ShowMindFullBreathingFinished();
+                dispatcherTimer.Stop();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("OnboardingMindfulBreathing btnSkipThisHabit_Click ex" + ex.Message);
+                //Debug.WriteLine(ex.Message);
+            }
+        }
     }
 }

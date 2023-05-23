@@ -11,7 +11,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="75"/>
+            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <Grid Background="#fff" Margin="20,10,20,15">
             <TabControl Background="#fcf8f0" BorderBrush="LightGray">
@@ -21,8 +21,13 @@
                     </Style>
                 </TabControl.Resources>
                 <TabItem Name="GeneralTab" Header="xGeneral" >
-
-                    <Grid >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="235"/>
                             <ColumnDefinition Width="*"/>
@@ -35,7 +40,6 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0"   Name="FocusBearMode" Margin="0,2,15,0"  TextWrapping="Wrap"    Text="Focus Bear mode:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
-
                         </Grid>
                         <Grid Grid.Column="1" Margin="0,50,20,0">
                             <Grid.RowDefinitions>
@@ -57,8 +61,34 @@
 
                         </Grid>
 
-                    </Grid>
+                        </Grid>
 
+                        <Grid Grid.Row="1" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="235"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" Margin="0,50,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="27"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0"   Name="SelectLanguage" Margin="0,2,15,0"  TextWrapping="Wrap"    Text="xxSelect Language:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
+                            </Grid>
+                            <Grid Grid.Column="1" Margin="0,50,20,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="27"/>
+                                </Grid.RowDefinitions>
+
+                                <ComboBox Name="Language" Width="200" HorizontalAlignment="Left" Margin="20,0,0,0" SelectionChanged="Language_SelectionChanged"></ComboBox>
+                               
+                            </Grid>
+
+                        </Grid>
+                        
+                    </Grid>
+                </TabItem>
+                <TabItem Name="BlockedURLTab" Header="xBlocked URLs">
+                    <!--<local:AITab x:Name="AITAB" />-->
                 </TabItem>
                 <TabItem Name="PasswordTab" Header="xPassword">
                     <Grid HorizontalAlignment="Center" >
@@ -153,7 +183,7 @@
                                     <RowDefinition Height="125"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0"   Name="WhenRequire" Margin="20,0,0,0"  TextWrapping="Wrap"    Text="xWhen do you want to require a password?"  Foreground="Gray" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
-                                <StackPanel  Grid.Row="1"  Orientation="Vertical" Width="300" Margin="20,0,0,0" Grid.RowSpan="2" HorizontalAlignment="Left">
+                                <StackPanel  Grid.Row="1"  Orientation="Vertical" Width="340" Margin="20,0,0,0" Grid.RowSpan="2" HorizontalAlignment="Left">
                                     <CheckBox Margin="0,10,0,10" x:Name="CheckChangingSettings" FontSize="14" Checked="CheckChangingSettings_Checked" Unchecked="CheckChangingSettings_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xChanging Settings</CheckBox>
                                     <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingMorningRoutine" FontSize="14" Checked="CheckPostponingMorningRoutine_Checked"  Unchecked="CheckPostponingMorningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping morning routine</CheckBox>
                                     <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingEveningRoutine" FontSize="14" Checked="CheckPostponingEveningRoutine_Checked"  Unchecked="CheckPostponingEveningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping evening routine</CheckBox>
@@ -163,6 +193,18 @@
                             </Grid>
                         </Grid>
                     </Grid>
+                </TabItem>
+
+                <TabItem Name="AccountTab" Header="xAccount">
+                    <local:AccountTab x:Name="AccountTab1" />
+                </TabItem>
+                
+                <TabItem Name="AITab" Header="xAI">
+                    <local:AITab x:Name="AITAB" />
+                </TabItem>
+
+                <TabItem Name="UninstallTab" Header="xUninstall">
+                    <!--<local:Uninstall x:Name="UninstallTab" />-->
                 </TabItem>
             </TabControl>
 
@@ -187,8 +229,5 @@
 
         </StackPanel>
 
-        <TextBlock Grid.Row="1" x:Name="ExportLogs" Margin="20,20,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="14" Height="22" Cursor="Hand">
-             <Hyperlink x:Name="btnExportLogs"  Foreground="#000" Click="btnExportLogs_Click"   TextDecorations="Underline" ><Run x:Name="btnExportLogsTXT" Text="xClick here to export logs to share with Support Team."/></Hyperlink>
-        </TextBlock>
     </Grid>
 </Page>

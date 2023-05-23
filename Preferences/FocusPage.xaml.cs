@@ -62,17 +62,25 @@ namespace Focus_Bear.Preferences
                    "buttonAdvancedText":"Advanced",
                          "buttonAddFocusTypeText":"Add Focus Mode",
         */
-            Heading.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleFocusType"].ToString();
-            AllowAllApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedAllApps"].ToString();
-            AllowSelectedApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedSelectedApps"].ToString();
-          
-            BlockEverything.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowUrlListApproch"].ToString();
-            AllowEverything.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockUrlListApproch"].ToString();
+            try
+            {
+                Heading.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleFocusType"].ToString();
+                AllowAllApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedAllApps"].ToString();
+                AllowSelectedApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedSelectedApps"].ToString();
 
-            btnDeleteFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonDeleteFocusTypeText"].ToString();
-            btnDuplicateFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["duplicateText"].ToString();
-            btnAdvancedTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAdvancedText"].ToString();
-            btnAddFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddFocusTypeText"].ToString();
+                BlockEverything.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowUrlListApproch"].ToString();
+                AllowEverything.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockUrlListApproch"].ToString();
+
+                btnDeleteFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonDeleteFocusTypeText"].ToString();
+                btnDuplicateFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["duplicateText"].ToString();
+                btnAdvancedTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAdvancedText"].ToString();
+                btnAddFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddFocusTypeText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("FocusPage() EX - " + ex.Message);
+            }
+
 
             ListFocusModes.ItemsSource = appSettings.arrFocusModes;
 
@@ -84,28 +92,39 @@ namespace Focus_Bear.Preferences
             try
             {
                 var selectedItem = ListFocusModes.SelectedItem as FocusMode;
-                if(selectedItem.isDefault || selectedItem.isMeetings || selectedItem.isLockedFocus)
-                {
-                    /*  "focusPreferencesInfo":{
-                    "focusCanNotDeleteTitle":"Can not delete.",
-                    "focusCanNotDeleteSubTitle":"The Default focus type cannot be deleted.",
-                    */
-                   /// MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteSubTitle"].ToString(), appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteTitle"].ToString(), MessageBoxButton.OK);
-                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteSubTitle"].ToString(), "Focus Bear");
-                    ff.ShowDialog();
-                    return;
-                }
                 if (selectedItem != null)
                 {
+                    if (selectedItem.isDefault || selectedItem.isMeetings || selectedItem.isLockedFocus)
+                    {
+                        /*  "focusPreferencesInfo":{
+                        "focusCanNotDeleteTitle":"Can not delete.",
+                        "focusCanNotDeleteSubTitle":"The Default focus type cannot be deleted.",
+                        */
+                       /// MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteSubTitle"].ToString(), appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteTitle"].ToString(), MessageBoxButton.OK);
+                        FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteSubTitle"].ToString(), "Focus Bear");
+                        ff.ShowDialog();
+                        return;
+                    }
+
+                    if (selectedItem.isOn)
+                    {
+                        /*  "focusPreferencesInfo":{
+                        "focusModeOnText": "Focus mode is on. Please deactivate the focus mode to delete it.",
+                        */
+                        FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusModeOnText"].ToString(), "Focus Bear");
+                        ff1.ShowDialog();
+                        return;
+                    }
+
                     /*
                     "deleteFocusTypeMessageText":"Are you sure you want to delete the selected Focus type?",
                        "yesText":"Yes",
                    "noText":"No",
                    */
-                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["deleteFocusTypeMessageText"].ToString(), "Focus Bear", MessageBoxButton.YesNo);
-                    ff.ShowDialog();
+                    FBMessageBox ff2 = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["deleteFocusTypeMessageText"].ToString(), "Focus Bear", MessageBoxButton.YesNo);
+                    ff2.ShowDialog();
                     ////MessageBoxResult mb = MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["deleteFocusTypeMessageText"].ToString(), "", MessageBoxButton.YesNo);
-                    if (ff.btnClicked == MessageBoxResult.Yes)
+                    if (ff2.btnClicked == MessageBoxResult.Yes)
                     {
                         appSettings.arrFocusModes.Remove(selectedItem);
 
@@ -187,6 +206,13 @@ namespace Focus_Bear.Preferences
             btnAddAllowedApp.IsEnabled = false;
             btnAddDeleteAllowedApp.IsEnabled = false;
 
+            ListApps.Visibility = Visibility.Hidden;
+            btnAddAllowedApp.Visibility = Visibility.Hidden;
+            btnAddDeleteAllowedApp.Visibility = Visibility.Hidden;
+
+            SelectedAppsListBG.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fcf8f0");
+            SelectedAppsListBGSeperator.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fcf8f0");
+
             var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
             if (selectedFocusMode != null)
             {
@@ -199,6 +225,13 @@ namespace Focus_Bear.Preferences
             ListApps.IsEnabled = true;
             btnAddAllowedApp.IsEnabled = true;
             btnAddDeleteAllowedApp.IsEnabled = true;
+
+            ListApps.Visibility = Visibility.Visible;
+            btnAddAllowedApp.Visibility = Visibility.Visible;
+            btnAddDeleteAllowedApp.Visibility = Visibility.Visible;
+            SelectedAppsListBG.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fff");
+            SelectedAppsListBGSeperator.Background = new SolidColorBrush(Colors.LightGray);
+
             var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
             if (selectedFocusMode != null)
             {
@@ -702,6 +735,11 @@ namespace Focus_Bear.Preferences
             }
             if (sFocusName.Length > 0)
             {
+                if (sFocusName.Length > 250)
+                {
+                    sFocusName = sFocusName.Substring(0, 250);
+                }
+
                 appSettings.CapturePostHog("add-new-focus-mode");
                 //Call the API to upload the newly cread focus mode
                 //add to focus modes  array and Upload to api
@@ -834,6 +872,11 @@ namespace Focus_Bear.Preferences
                 {
                     TxtFocusName.Text = selectedItem.name;
                     return;
+                }
+                if (sNewName.Length > 250) //no more than 250
+                {
+                    sNewName = sNewName.Substring(0,250);
+                     
                 }
 
                 var listItems = appSettings.arrFocusModes.Where(i => i.name.ToLower() == sNewName.ToLower());

@@ -1,0 +1,93 @@
+﻿using Focus_Bear.API;
+using Focus_Bear.Models;
+using Focus_Bear.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace Focus_Bear.Onboarding.AfterLogin
+{
+    /// <summary>
+    /// Interaction logic for OnboardingConfirmForAI.xaml
+    /// </summary>
+    public partial class OnboardingConfirmForAI : Page
+    {
+        AppSettings appSettings = AppSettings.GetInstance;
+        private OnboardingSetupAndTipsWindow _parentWindow;
+        public OnboardingConfirmForAI()
+        {
+
+        }
+        public OnboardingConfirmForAI(OnboardingSetupAndTipsWindow parentWindow)
+        {
+            InitializeComponent();
+            _parentWindow = parentWindow;
+
+            LogWriter.LogWrite("OnboardingConfirmForAI screen");
+
+            try
+            {
+                /*
+                  "aiPermissionVcInfo":{
+                    "title": "Do you want to use AI to decide if websites should be allowed?",
+                    "descriptionText": "We'll use Open AI to decide if the site is valid based on your current focus mode, intention, the URL, the website title and the first 100 characters of the content. This is anonymous - no identifying details are shared.",
+                    "buttonCancelText": "No thanks",
+                    "titleAlertText": "Alright. You can change this setting later under Preferences - Settings - AI"
+                },
+                }, 
+                */
+                Heading.Text = appSettings.ConfigFileStrings["aiPermissionVcInfo"]["title"].ToString();
+                Description.Text = appSettings.ConfigFileStrings["aiPermissionVcInfo"]["descriptionText"].ToString();
+
+                btnNoThanksTXT.Text = appSettings.ConfigFileStrings["aiPermissionVcInfo"]["buttonCancelText"].ToString();
+                btnOKTXT.Text = appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("Onboarding set work type () EX -" + ex.Message);
+            }
+         
+        }
+         
+        private void btnNoThanks_Click(object sender, RoutedEventArgs e)
+        {
+            FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["aiPermissionVcInfo"]["titleAlertText"].ToString());
+            ff.Owner = _parentWindow;
+            _parentWindow.GridShade.Visibility = Visibility.Visible;
+            ff.ShowDialog();
+            _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+            appSettings.bAiCheckUrlEnabled = false;
+
+            _parentWindow.ShowFocusTipsScreen();
+        }
+
+        private void btnOK_Click(object sender, RoutedEventArgs e)
+        {
+            FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["aiPermissionVcInfo"]["titleAlertText"].ToString());
+            ff.Owner = _parentWindow;
+            _parentWindow.GridShade.Visibility = Visibility.Visible;
+            ff.ShowDialog();
+            _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+
+            appSettings.bAiCheckUrlEnabled = true;
+
+            _parentWindow.ShowFocusTipsScreen();
+        }
+    }
+}

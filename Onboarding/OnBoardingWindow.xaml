@@ -1,16 +1,28 @@
-﻿<Window x:Class="Focus_Bear.Onboarding.OnBoardingWindow"
+﻿<local2:FullScreenParent x:Class="Focus_Bear.Onboarding.OnBoardingWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Onboarding"
+        xmlns:local1="clr-namespace:Focus_Bear.Utils"
+        xmlns:local2="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
         Title="OnBoardingWindow" Height="650" Width="850" WindowState="Maximized" WindowStyle="None" PreviewKeyDown="Window_PreviewKeyDown" >
+    <local1:DpiDecorator>
     <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <TextBlock  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xNow let's set up an account for you." Foreground="#e88800" FontSize="40" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Frame x:Name="AppFrameOnboarding" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed" />
+        <Button   x:Name="btnPleaseSpareMe" IsDefault="False"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" MinWidth="180" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPleaseSpareMe_Click"  >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal" Margin="5,2,0,0" VerticalAlignment="Center">
+                    <Image Source="../Images/spare.png" Width="25" Height="25" HorizontalAlignment="Left"></Image>
+                    <TextBlock Name="btnPleaseSpareMeTXT" Margin="8,8" Text="xPlease Spare Me "/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
     </Grid>
-</Window>
+    </local1:DpiDecorator>
+</local2:FullScreenParent>

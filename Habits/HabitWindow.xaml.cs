@@ -36,13 +36,32 @@ namespace Focus_Bear.Habits
         public DateTime ActivityStartTime;
 
         public HabitActivityOnGoing PageHabitActivityOnGoing = null;
+        public HabitsWelcomeList PageWelcomeList = null;
+        public HabitExtraPersonal PageHabitExtraPersonal;
 
         int nTimer = 15;
         string TxtTimer = "";
 
         DispatcherTimer dispatcherTimerSkippingIn = new DispatcherTimer(DispatcherPriority.Normal);
 
-       
+
+        protected override async void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+            try
+            {
+                if (nScreenHabitActivityFinished != null)
+                {
+                    await nScreenHabitActivityFinished.SetWebView();
+                    await nScreenHabitActivityFinished.SetWebView1();
+                
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+        }
 
         public HabitWindow()
         {
@@ -127,7 +146,8 @@ namespace Focus_Bear.Habits
                 }
                 else
                 {
-                    AppFrameHabitScreens.Navigate(new HabitsWelcomeList(this)); //Normal process
+                    PageWelcomeList = new HabitsWelcomeList(this);
+                    AppFrameHabitScreens.Navigate(PageWelcomeList); //Normal process
                 }
             }
 
@@ -139,7 +159,8 @@ namespace Focus_Bear.Habits
         }
         public void ShowExtraPersonalFocus()
         {
-            AppFrameHabitScreens.Navigate(new HabitExtraPersonal(this));
+            PageHabitExtraPersonal = new HabitExtraPersonal(this);
+            AppFrameHabitScreens.Navigate(PageHabitExtraPersonal);
         }
         public void ShowActivityStartScreen(bool bStartingAfterPostponed = false)
         {
@@ -186,12 +207,12 @@ namespace Focus_Bear.Habits
 
                 if(appSettings.bShowActivitiesFromMid)//Justload the graph data in this case
                 {
-                    System.Threading.Tasks.Task.Factory.StartNew(() =>
-                    {
-                        Thread.Sleep(900);
-                        Dispatcher.BeginInvoke((Action)(() => nScreenHabitActivityFinished.LoadGraphData()));
-                    });
-
+                    //System.Threading.Tasks.Task.Factory.StartNew(() =>
+                    //{
+                    //    Thread.Sleep(900);
+                    //    Dispatcher.BeginInvoke((Action)(() => nScreenHabitActivityFinished.LoadGraphData()));
+                    //});
+                    //Moved to oninitializationcomplete of webview
                    
                     return;
                 }
@@ -306,7 +327,10 @@ namespace Focus_Bear.Habits
                         
                     }
 
-                    nScreenHabitActivityFinished.LoadGraphData();
+                    if(nScreenHabitActivityFinished.bWebViewInitialized)
+                        nScreenHabitActivityFinished.LoadGraphData();
+                    else
+                        nScreenHabitActivityFinished.bCallLoadGraphDataAfterWebViewInitialized = true;
                 }
 
                    
@@ -649,8 +673,7 @@ namespace Focus_Bear.Habits
             GridShade.Visibility = Visibility.Collapsed;
             GridLogQuantityNag.Visibility = Visibility.Collapsed;
 
-            //Load the Graph DAta
-           // nScreenHabitActivityFinished.LoadGraphData();
+         
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
@@ -724,7 +747,10 @@ namespace Focus_Bear.Habits
                 HideLogWindow();
 
                 //Load the Graph DAta
-                nScreenHabitActivityFinished.LoadGraphData();
+                if (nScreenHabitActivityFinished.bWebViewInitialized)
+                    nScreenHabitActivityFinished.LoadGraphData();
+                else
+                    nScreenHabitActivityFinished.bCallLoadGraphDataAfterWebViewInitialized = true;
             }
             catch (Exception ex)
             {
@@ -850,8 +876,11 @@ namespace Focus_Bear.Habits
 
                 HideLogWindow();
 
-                //Load the Graph DAta
-                nScreenHabitActivityFinished.LoadGraphData();
+                //Load the Graph Data
+                if (nScreenHabitActivityFinished.bWebViewInitialized)
+                    nScreenHabitActivityFinished.LoadGraphData();
+                else
+                    nScreenHabitActivityFinished.bCallLoadGraphDataAfterWebViewInitialized = true;
             }
             catch (Exception ex)
             {
@@ -935,6 +964,24 @@ namespace Focus_Bear.Habits
                             if( nScreenHabitActivityFinished.webView1.IsVisible)
                                 nScreenHabitActivityFinished.webView1.Visibility = Visibility.Collapsed;
                         }
+
+                        //If edits habits is open in welcome list, hide it
+                        bool bshowPageWelcomeListWebView = false;
+                        if (PageWelcomeList != null)
+                        {
+                            if (PageWelcomeList.webView.IsVisible)
+                            {
+                                PageWelcomeList.webView.Visibility = Visibility.Collapsed;
+                                bshowPageWelcomeListWebView = true;
+                            }
+                        }
+
+                        if(PageHabitExtraPersonal != null)
+                        {
+                            if (appSettings.bMotivationalMessageEnabled)
+                                PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
+                        }
+
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = this;
                         GridShade.Visibility = Visibility.Visible;
@@ -948,6 +995,19 @@ namespace Focus_Bear.Habits
                                 nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
                             if (!nScreenHabitActivityFinished.webView1.IsVisible)
                                 nScreenHabitActivityFinished.webView1.Visibility = Visibility.Visible;
+                        }
+
+                        //If edits habits is open in welcome list, hide it
+                        if (PageWelcomeList != null)
+                        {
+                            if (bshowPageWelcomeListWebView)
+                                PageWelcomeList.webView.Visibility = Visibility.Visible;
+                        }
+
+                        if (PageHabitExtraPersonal != null)
+                        {
+                            if (appSettings.bMotivationalMessageEnabled)
+                                PageHabitExtraPersonal.webView.Visibility = Visibility.Visible;
                         }
 
                         if (bResult.Value)
@@ -1110,7 +1170,8 @@ namespace Focus_Bear.Habits
             HideWhySkipHabitsWindow();
             appSettings.bSkipCurrentActivity = true;
             //appSettings.indexSkippedActivities.Add(new SKIPPED_ACTIVITY(false, true));
-            appSettings.nHabitIndex++; //Increment the index to do the next habit
+            if(!appSettings.bSkipWhileActivityOngoing) //Increase the index only if the activity was skipped other than when it was ongoing.
+                appSettings.nHabitIndex++; //Increment the index to do the next habit
 
             ShowACtivityFinishedScreen(true);
 
@@ -1127,9 +1188,13 @@ namespace Focus_Bear.Habits
             //Work to skip the habit
 
         }
-
+        private void btnGridWhyDoYouWantToSkipClose_Click(object sender, RoutedEventArgs e)
+        {
+            HideWhySkipHabitsWindow();
+        }
         private void btnChangedMyMind_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.bSkipWhileActivityOngoing = false;
             HideSkippingHabitInWindow();
             dispatcherTimerSkippingIn.Stop(); //Stop the timer as user had cancelled skipping
         }
@@ -1154,7 +1219,8 @@ namespace Focus_Bear.Habits
 
                     HideSkippingHabitInWindow();
                     appSettings.bSkipCurrentActivityCantDoItToday = true;
-                    appSettings.nHabitIndex++; //Increment the index to do the next habit
+                    if (!appSettings.bSkipWhileActivityOngoing) //Increase the index only if the activity was skipped other than when it was ongoing.
+                        appSettings.nHabitIndex++; //Increment the index to do the next habit
                     ShowACtivityFinishedScreen(true);
                 }
             }
@@ -1164,5 +1230,7 @@ namespace Focus_Bear.Habits
             }
 
         }
+
+       
     }
 }

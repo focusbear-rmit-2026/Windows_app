@@ -39,24 +39,32 @@ namespace Focus_Bear.Upgrade
             "buttonRestoreText": "Sync Payment Status",
             "subscriptionExpiredText":"Your subscription has expired"
             },*/
-            
-            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
-            Point1.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["pointFirstText"].ToString();
-            Point2.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["pointSecondText"].ToString();
-            Point3.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["pointThirdText"].ToString();
-            Point4.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["pointFourthText"].ToString();
+            try
+            {
+                this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
-            Subscription.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["subscriptionExpiredText"].ToString();
-            btnUpgradeNowTXT.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["buttonUpgradeNowText"].ToString();
-            MoneyBack.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["moneyBackText"].ToString();
+                Point1.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["pointFirstText"].ToString();
+                Point2.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["pointSecondText"].ToString();
+                Point3.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["pointThirdText"].ToString();
+                Point4.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["pointFourthText"].ToString();
 
-            AfterPay.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["syncInfoText"].ToString();
-            btnSyncPaymentTXT.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["buttonRestoreText"].ToString();
+                Subscription.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["subscriptionExpiredText"].ToString();
+                btnUpgradeNowTXT.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["buttonUpgradeNowText"].ToString();
+                MoneyBack.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["moneyBackText"].ToString();
 
-            YourUserId.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["titleUserId"].ToString();
-            TxtUserId.Text = appSettings.sUser_id;
-            btnCopyUserId.ToolTip  = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopyId"].ToString();
+                AfterPay.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["syncInfoText"].ToString();
+                btnSyncPaymentTXT.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["buttonRestoreText"].ToString();
+
+                YourUserId.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["titleUserId"].ToString();
+                TxtUserId.Text = appSettings.sUser_id;
+                btnCopyUserId.ToolTip = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopyId"].ToString();
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpgradeNow() text set ex -" + ex.Message);
+            }
 
             if (appSettings.isExpired)
             {

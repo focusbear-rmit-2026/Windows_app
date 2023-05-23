@@ -34,33 +34,35 @@ namespace Focus_Bear.Onboarding
 
             try
             {
-                Heading.Text = appSettings.ConfigFileStrings["welcomeInfo"]["welcomeMessageHeading"].ToString();
-                Description.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionText"].ToString();
-                StartupTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["titleStartupTime"].ToString();
-                ShutdownTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["titleShutDownTime"].ToString();
+                Heading.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionText"].ToString();
+               // Description.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionText"].ToString();
+                StartupTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionStartWorkTimeText"].ToString();
+                ShutdownTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionFinishWorkTimeText"].ToString();
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
-                string ss = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["descriptionStartupTime"].ToString();
-                ss = ss.Replace("<STARTTIME>", "05:15 AM");
-                ss = ss.Replace("<SHUTOFFTIME>", "08:30 PM");
-                StartupTimeDesc.Text = ss;
+                // string ss = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["descriptionStartupTime"].ToString();
+                // ss = ss.Replace("<STARTTIME>", "05:15 AM");
+                // ss = ss.Replace("<SHUTOFFTIME>", "08:30 PM");
+                //// StartupTimeDesc.Text = ss;
 
-                string ss1 = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["descriptionShutDownTime"].ToString();
-                ss1 = ss1.Replace("<SHUTOFFTIME>", "08:30 PM");
-                ShutdownTimeDesc.Text = ss1;
+                // string ss1 = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["descriptionShutDownTime"].ToString();
+                // ss1 = ss1.Replace("<SHUTOFFTIME>", "08:30 PM");
+                //  ShutdownTimeDesc.Text = ss1;
+
+                //explanationText
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("OnboardingAskWorkTime() ex - " + ex.Message);
             }
 
-            StartupTimePicker.NUDHTextBox.Text = "05";
-            StartupTimePicker.NUDMTextBox.Text = "15";
-            StartupTimePicker.NUDSTextBox.Text = "0";
+            StartupTimePicker.NUDHTextBox.Text = "08";
+            StartupTimePicker.NUDMTextBox.Text = "30";
+            //StartupTimePicker.NUDSTextBox.Text = "0";
             StartupTimePicker.NUDAMPTextBox.Text = "AM";
 
-            ShutdownTimePicker.NUDHTextBox.Text = "08";
+            ShutdownTimePicker.NUDHTextBox.Text = "06";
             ShutdownTimePicker.NUDMTextBox.Text = "30";
-            ShutdownTimePicker.NUDSTextBox.Text = "0";
+            //ShutdownTimePicker.NUDSTextBox.Text = "0";
             ShutdownTimePicker.NUDAMPTextBox.Text = "PM";
         }
 
@@ -80,7 +82,7 @@ namespace Focus_Bear.Onboarding
             appSettings.InitialShutoffTimeValue = Convert.ToDateTime(sShutdownHours + ":" + sShutdownMinutes + " " + sShutdownAMPM);
             Console.WriteLine(appSettings.InitialShutoffTimeValue.ToString("HH:mm"));
 
-            _parentWindow.ShowOnboardingWelcomeScreen();
+            _parentWindow.ShowOnboardingBreakRemindersScreen();
         }
 
         private void StartupTimePicker_ValueChanged(object sender, bool e)
@@ -96,6 +98,12 @@ namespace Focus_Bear.Onboarding
         {
             try
             {
+                /*"explanationText": "Your schedule looks like:\n\n
+                 * 🐥* <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n
+                 * 💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n
+                 * 💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n
+                 * 🥱 <END_WORK_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n
+                 * 😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)"*/
                 string sStartupHours = StartupTimePicker.NUDHTextBox.Text;
                 string sStartupMinutes = StartupTimePicker.NUDMTextBox.Text;
                 string sStartupAMPM = StartupTimePicker.NUDAMPTextBox.Text; ;
@@ -105,20 +113,23 @@ namespace Focus_Bear.Onboarding
                 string sShutdownAMPM = ShutdownTimePicker.NUDAMPTextBox.Text; ;
 
                 appSettings.InitialStartupTimeValue = Convert.ToDateTime(sStartupHours + ":" + sStartupMinutes + " " + sStartupAMPM);
-                Console.WriteLine(appSettings.InitialStartupTimeValue.ToString("HH:mm"));
+                Console.WriteLine(appSettings.InitialStartupTimeValue.ToString("hh:mm tt"));
 
                 appSettings.InitialShutoffTimeValue = Convert.ToDateTime(sShutdownHours + ":" + sShutdownMinutes + " " + sShutdownAMPM);
-                Console.WriteLine(appSettings.InitialShutoffTimeValue.ToString("HH:mm"));
+                Console.WriteLine(appSettings.InitialShutoffTimeValue.ToString("hh:mm tt"));
 
 
-                string ss = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["descriptionStartupTime"].ToString();
-                ss = ss.Replace("<STARTTIME>", appSettings.InitialStartupTimeValue.ToString("HH:mm"));
-                ss = ss.Replace("<SHUTOFFTIME>", appSettings.InitialShutoffTimeValue.ToString("HH:mm"));
-                StartupTimeDesc.Text = ss;
+                string ss = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["explanationText"].ToString();
+                int nStartDiff = -1 * (((15*60) + int.Parse(appSettings.sMorningRoutineDuration))/60) ;
+                ss = ss.Replace("<MORNING_ROUTINE_START_TIME>", appSettings.InitialStartupTimeValue.AddMinutes(nStartDiff).ToString("hh:mm tt"));
+                ss = ss.Replace("<MORNING_ROUTINE_END_TIME>", appSettings.InitialStartupTimeValue.AddMinutes(-15).ToString("hh:mm tt"));
 
-                string ss1 = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["descriptionShutDownTime"].ToString();
-                ss1 = ss1.Replace("<SHUTOFFTIME>", appSettings.InitialShutoffTimeValue.ToString("HH:mm"));
-                ShutdownTimeDesc.Text = ss1;
+                ss = ss.Replace("<START_WORK_TIME>", appSettings.InitialStartupTimeValue.ToString("hh:mm tt"));
+                ss = ss.Replace("<END_WORK_TIME>", appSettings.InitialShutoffTimeValue.ToString("hh:mm tt"));
+
+                ss = ss.Replace("<EVENING_ROUTINE_END_TIME>", appSettings.InitialShutoffTimeValue.AddMinutes(int.Parse(appSettings.sEveningRoutineDuration) / 60).ToString("hh:mm tt"));
+
+                Schedule.Text = ss;
             }
             catch (Exception ex)
             {

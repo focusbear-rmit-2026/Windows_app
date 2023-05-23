@@ -22,7 +22,7 @@ namespace Focus_Bear.Preferences
     /// <summary>
     /// Interaction logic for Uninstall.xaml
     /// </summary>
-    public partial class Uninstall : Page
+    public partial class Uninstall : UserControl
     {
         PreferencesWindow _ParentWindow = null;
 

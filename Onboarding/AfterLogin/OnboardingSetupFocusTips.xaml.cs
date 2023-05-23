@@ -23,7 +23,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
     {
         AppSettings appSettings = AppSettings.GetInstance;
         OnboardingSetupAndTipsWindow _parentWindow;
-        int nStep = 1;
+        int nStep = 0;
         public OnboardingSetupFocusTips()
         {
         }
@@ -38,11 +38,10 @@ namespace Focus_Bear.Onboarding.AfterLogin
             {
                 HeadingAllSetup.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["title"].ToString();
 
-                //initial
                 /* focusTipsVcInfo =  "tip1title": "Tip 1:",
-                            "tip1Text":"You can try it out now by clicking the Play icon next to your new focus mode in the list that appears on clicking the top menu icon.",,*/
+                          "tip1Text":"You can try it out now by clicking the Play icon next to your new focus mode in the list that appears on clicking the top menu icon.",,*/
                 TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1title"].ToString();
-                TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1Text"].ToString();
+                TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1TextWIN"].ToString();
 
                 string imagePath = ("pack://application:,,,/Focus Bear;component/images/focustips/focusTip_1.png");
                 var image = new BitmapImage();
@@ -58,26 +57,14 @@ namespace Focus_Bear.Onboarding.AfterLogin
 
                 /* "howHeardVcInfo": {
                      "title": "How did you hear about Focus Bear?",
-             "buttonContinueText":"Continue",
-             "optionFirstText":"Friend recommended it",
-             "optionSecondText":"Google",
-             "optionThirdText":"Ad on Reddit or Twitter",
-             "optionFourthText":"Somewhere else"*/
-
-                HeadingHear.Text = appSettings.ConfigFileStrings["howHeardVcInfo"]["title"].ToString();
-                btnContinueTxt.Text = appSettings.ConfigFileStrings["howHeardVcInfo"]["buttonContinueText"].ToString();
-                btnContinue.IsEnabled = false;
-                                    
-        
-                var arrOptions = new string[] { appSettings.ConfigFileStrings["howHeardVcInfo"]["optionFirstText"].ToString(), appSettings.ConfigFileStrings["howHeardVcInfo"]["optionSecondText"].ToString(), appSettings.ConfigFileStrings["howHeardVcInfo"]["optionThirdText"].ToString() };
-                Random rnd = new Random();
-                string[] MyRandomArray = arrOptions.OrderBy(x => rnd.Next()).ToArray();
-
-                Radio1.Content = MyRandomArray[0];
-                Radio2.Content = MyRandomArray[1];
-                Radio3.Content = MyRandomArray[2];
-
-                SomewhereElse.Content = appSettings.ConfigFileStrings["howHeardVcInfo"]["optionFourthText"].ToString();
+                     "buttonContinueText":"Continue",
+                     "optionFirstText":"Friend recommended it",
+                     "optionSecondText":"Google",
+                     "optionThirdText":"Ad on Reddit or Twitter",
+                     "optionFourthText":"Somewhere else"
+                 optionRemarkableText": "Remarkable"    
+                 */
+              
             }
             catch (Exception ex)
             {
@@ -95,9 +82,29 @@ namespace Focus_Bear.Onboarding.AfterLogin
 
                 switch (nStep)
                 {
-                    case 1:
-                        Dot1.IsEnabled = true;
-                        Dot2.IsEnabled = false;
+                    //case 0:
+                    //    Dot0.IsEnabled = true;
+                    //    Dot1.IsEnabled = false;
+
+                    //    btnBack.IsEnabled = false;
+                    //    btnBack.Visibility = Visibility.Collapsed;
+
+                    //    /* focusTipsVcInfo =  " "tip0title": "Create a Focus Mode",
+                    //    "tip0Text": "To help you get more done, let's set up a Focus Mode. A Focus Mode is a set of apps and websites that are productive. When you start a Focus Block, non-productive apps/sites are blocked to help you avoid going down rabbitholes." */
+                    //    TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip0title"].ToString();
+                    //    TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip0Text"].ToString();
+
+                    //    string imagePath0 = ("pack://application:,,,/Focus Bear;component/images/fb_big.png");
+                    //    var image0 = new BitmapImage();
+                    //    image0.BeginInit();
+                    //    image0.UriSource = new Uri(imagePath0);
+                    //    image0.EndInit();
+                    //    TipImage.Source = image0;
+
+                    //    break;
+                    case 0:
+                        Dot0.IsEnabled = true;
+                        Dot1.IsEnabled = false;
 
                         btnBack.IsEnabled = false;
                         btnBack.Visibility = Visibility.Collapsed;
@@ -105,7 +112,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         /* focusTipsVcInfo =  "tip1title": "Tip 1:",
                          "tip1Text":"You can try it out now by clicking the Play icon next to your new focus mode in the list that appears on clicking the top menu icon.",,*/
                         TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1title"].ToString();
-                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1Text"].ToString();
+                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1TextWIN"].ToString();
 
                         string imagePath = ("pack://application:,,,/Focus Bear;component/images/focustips/focusTip_1.png");
                         var image = new BitmapImage();
@@ -115,16 +122,16 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         TipImage.Source = image;
 
                         break;
-                    case 2:
-                        Dot2.IsEnabled = true;
-                        Dot3.IsEnabled = false;
+                    case 1:
+                        Dot1.IsEnabled = true;
+                        Dot2.IsEnabled = false;
 
-                        /* focusTipsVcInfo = "tip2title": "Tip 2:",
-                            "tip2Text":"To modify this Focus Mode, first click on Preferences in the Focus Bear popup menu.",*/
-                        TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2title"].ToString(); 
-                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2Text"].ToString(); 
+                        /* focusTipsVcInfo = "tip2Newtitle": "Tip 2: Teach Focus Bear what is productive",
+                            "tip2NewText":"As you use this Focus Mode, Focus Bear will ask you whether each website/app is productive.",*/
+                        TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2Newtitle"].ToString(); 
+                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2NewText"].ToString(); 
 
-                        string imagePath2 = ("pack://application:,,,/Focus Bear;component/images/focustips/focusTip_2.png");
+                        string imagePath2 = ("pack://application:,,,/Focus Bear;component/images/focustips/tip_blockPopup.png");
                         var image2 = new BitmapImage();
                         image2.BeginInit();
                         image2.UriSource = new Uri(imagePath2);
@@ -132,16 +139,16 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         TipImage.Source = image2;
 
                         break;
-                    case 3:
-                        Dot3.IsEnabled = true;
-                        Dot4.IsEnabled = false;
+                    case 2:
+                        Dot2.IsEnabled = true;
+                        Dot3.IsEnabled = false;
 
-                        /* "tip3title":"Tip 3:",
-                        "tip3Text":"Then click on the Focus tab in the Preferences window that opens up.", */
-                        TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3title"].ToString();
-                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3Text"].ToString();
+                        /* tip3Newtitle":"Tip 3: Permanently allow apps/websites",
+        "tip3NewText":"At the end of the focus block, you can permanently allow those apps/websites (or choose not to).", */
+                        TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3Newtitle"].ToString();
+                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3NewText"].ToString();
 
-                        string imagePath1 = ("pack://application:,,,/Focus Bear;component/images/focustips/focusTip_3.png");
+                        string imagePath1 = ("pack://application:,,,/Focus Bear;component/images/focustips/tip_allowApps.png");
                         var image1 = new BitmapImage();
                         image1.BeginInit();
                         image1.UriSource = new Uri(imagePath1);
@@ -169,15 +176,31 @@ namespace Focus_Bear.Onboarding.AfterLogin
 
                 switch (nStep)
                 {
-                    case 2:
-                        Dot1.IsEnabled = false;
-                        Dot2.IsEnabled = true;
-                        /* focusTipsVcInfo = "tip2title": "Tip 2:",
-                             "tip2Text":"To modify this Focus Mode, first click on Preferences in the Focus Bear popup menu.",*/
-                        TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2title"].ToString();
-                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2Text"].ToString();
+                    //case 1:
+                    //    Dot0.IsEnabled = false;
+                    //    Dot1.IsEnabled = true;
+                    //    /* focusTipsVcInfo =  "tip1title": "Tip 1:",
+                    //    "tip1Text":"You can try it out now by clicking the Play icon next to your new focus mode in the list that appears on clicking the top menu icon.",,*/
+                    //    TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1title"].ToString();
+                    //    TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1TextWIN"].ToString();
 
-                        string imagePath2 = ("pack://application:,,,/Focus Bear;component/images/focustips/focusTip_2.png");
+                    //    string imagePath0 = ("pack://application:,,,/Focus Bear;component/images/focustips/focusTip_1.png");
+                    //    var image0 = new BitmapImage();
+                    //    image0.BeginInit();
+                    //    image0.UriSource = new Uri(imagePath0);
+                    //    image0.EndInit();
+                    //    TipImage.Source = image0;
+
+                    //    break;
+                    case 1:
+                        Dot0.IsEnabled = false;
+                        Dot1.IsEnabled = true;
+                        /* focusTipsVcInfo = "tip2Newtitle": "Tip 2: Teach Focus Bear what is productive",
+                            "tip2NewText":"As you use this Focus Mode, Focus Bear will ask you whether each website/app is productive.",*/
+                        TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2Newtitle"].ToString();
+                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2NewText"].ToString();
+
+                        string imagePath2 = ("pack://application:,,,/Focus Bear;component/images/focustips/tip_blockPopup.png");
                         var image2 = new BitmapImage();
                         image2.BeginInit();
                         image2.UriSource = new Uri(imagePath2);
@@ -185,16 +208,16 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         TipImage.Source = image2;
 
                         break;
-                    case 3:
-                        Dot2.IsEnabled = false;
-                        Dot3.IsEnabled = true;
+                    case 2:
+                        Dot1.IsEnabled = false;
+                        Dot2.IsEnabled = true;
 
-                        /* "tip3title":"Tip 3:",
-                        "tip3Text":"Then click on the Focus tab in the Preferences window that opens up.", */
-                        TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3title"].ToString();
-                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3Text"].ToString();
+                        /* "tip3Newtitle":"Tip 3: Permanently allow apps/websites",
+        "tip3NewText":"At the end of the focus block, you can permanently allow those apps/websites (or choose not to).", */
+                        TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3Newtitle"].ToString();
+                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3NewText"].ToString();
 
-                        string imagePath1 = ("pack://application:,,,/Focus Bear;component/images/focustips/focusTip_3.png");
+                        string imagePath1 = ("pack://application:,,,/Focus Bear;component/images/focustips/tip_allowApps.png");
                         var image1 = new BitmapImage();
                         image1.BeginInit();
                         image1.UriSource = new Uri(imagePath1);
@@ -205,18 +228,18 @@ namespace Focus_Bear.Onboarding.AfterLogin
 
 
                         break;
-                    case 4:
-                        Dot3.IsEnabled = false;
-                        Dot4.IsEnabled = true;
+                    case 3:
+                        Dot2.IsEnabled = false;
+                        Dot3.IsEnabled = true;
                         btnNextTXT.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["buttonGotItText"].ToString();
 
 
-                        /*  "tip4title":"Tip 4:",
-                         "tip4Text":"Then choose your focus mode from the left list of Focus Types. Edit the settings in the right side.",   */
-                        TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip4title"].ToString(); 
-                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip4Text"].ToString(); 
+                        /*   "tip4Newtitle":"Tip 4: Use keywords",
+                        "tip4NewText":"You can even add keywords, e.g. \"React Native\" and any website with that keyword will be allowed.",  */
+                        TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip4Newtitle"].ToString(); 
+                        TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip4NewText"].ToString(); 
                       
-                        string imagePath3 = ("pack://application:,,,/Focus Bear;component/images/focustips/focusTip_4.png");
+                        string imagePath3 = ("pack://application:,,,/Focus Bear;component/images/focustips/tip_allowKeywords.png");
                         var image3 = new BitmapImage();
                         image3.BeginInit();
                         image3.UriSource = new Uri(imagePath3);
@@ -224,85 +247,19 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         TipImage.Source = image3;
                         //TipImage.Height = 140;
                         break;
-                    case 5:
-                        GridFocusTips.Visibility = Visibility.Collapsed;
-                        GridHowDidYouHearAboutFocusBear.Visibility = Visibility.Visible;
+                    case 4:
+                        //GridFocusTips.Visibility = Visibility.Collapsed;
+                        ///GridHowDidYouHearAboutFocusBear.Visibility = Visibility.Visible;
+                        _parentWindow.Close();
                         break;
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex )
             {
                 LogWriter.LogWrite("OnboardingSetupFocusTips btnNext_Click EX + " + ex.Message);
             }
         }
 
-        private void btnContinue_Click(object sender, RoutedEventArgs e)
-        {
-            if(Radio1.IsChecked.Value)
-            {
-                string ss = string.Format("\"heard-from\":\"{0}\"", Radio1.Content.ToString());
-                appSettings.CapturePostHog("heard_about_focus_bear", ss);
-
-            }
-            else if(Radio2.IsChecked.Value)
-            {
-                string ss = string.Format("\"heard-from\":\"{0}\"", Radio2.Content.ToString());
-                appSettings.CapturePostHog("heard_about_focus_bear", ss);
-            }
-            else if (Radio3.IsChecked.Value)
-            {
-                string ss = string.Format("\"heard-from\":\"{0}\"", Radio3.Content.ToString());
-                appSettings.CapturePostHog("heard_about_focus_bear", ss);
-            }
-            else if (SomewhereElse.IsChecked.Value)
-            {
-                string ss = string.Format("\"heard-from\":\"{0}\"", TxtSomewhereElse.Text);
-                appSettings.CapturePostHog("heard_about_focus_bear", ss);
-            }
-            _parentWindow.Close();
-        }
-
-        private void TxtSomewhereElse_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if(TxtSomewhereElse.Text.Length > 0)
-            {
-                btnContinue.IsEnabled = true;
-            }
-            else
-            {
-                btnContinue.IsEnabled = false;
-            }
-        }
-
-        private void SomewhereElse_Checked(object sender, RoutedEventArgs e)
-        {
-            TxtSomewhereElse.Visibility = Visibility.Visible;
-            if (TxtSomewhereElse.Text.Length > 0)
-            {
-                btnContinue.IsEnabled = true;
-            }
-            else
-            {
-                btnContinue.IsEnabled = false;
-            }
-        }
-
-        private void Radio3_Checked(object sender, RoutedEventArgs e)
-        {
-            btnContinue.IsEnabled = true;
-            TxtSomewhereElse.Visibility = Visibility.Collapsed;
-        }
-
-        private void Radio2_Checked(object sender, RoutedEventArgs e)
-        {
-            btnContinue.IsEnabled = true;
-            TxtSomewhereElse.Visibility = Visibility.Collapsed;
-        }
-
-        private void Radio1_Checked(object sender, RoutedEventArgs e)
-        {
-            btnContinue.IsEnabled = true;
-            TxtSomewhereElse.Visibility = Visibility.Collapsed;
-        }
+       
     }
 }

@@ -1,0 +1,43 @@
+﻿<Page x:Class="Focus_Bear.Onboarding.AfterLogin.OnboardingConfirmForAI"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Onboarding.AfterLogin"
+      mc:Ignorable="d" 
+      Height="660" Width="750"
+      Title="OnboardingSetWorkType" Background="#fff"  >
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MinHeight="360" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="200"   />
+
+        </Grid.RowDefinitions>
+        
+        <StackPanel  Grid.Row="0"  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock    Name="Heading" Margin="40,0,40,0" TextWrapping="Wrap" Text="xDo you want to use AI to decide if websites should be allowed?" Foreground="#272727" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock    Name="Description" Margin="40,20,40,0" TextWrapping="Wrap" Text="xWe'll use Open AI to decide if the site is valid based on your current focus mode, intention, the URL, the website title and the first 100 characters of the content. This is anonymous - no identifying details are shared." Foreground="#272727" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+         </StackPanel>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button  x:Name="btnNoThanks"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="236" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,10,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnNoThanks_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock x:Name="btnNoThanksTXT" Text="xNo Thanks"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+            <Button   x:Name="btnOK"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="236" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="10,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnOK_Click" >
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock x:Name="btnOKTXT" Text="xOK"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Page>

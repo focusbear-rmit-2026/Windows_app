@@ -39,7 +39,7 @@ namespace Focus_Bear
     {
         private bool isClosed = true;
 
-       
+        AppSettings appSettings = AppSettings.GetInstance;
         public TrayBalloon()
         {
         }
@@ -68,7 +68,14 @@ namespace Focus_Bear
             try
             {
                 TooltipTimer = new Timer();
-                TooltipTimer.Interval = 5000;
+                if (appSettings.IsFirstInstall)
+                {
+                    TooltipTimer.Interval = 60000; //1 minute
+                }
+                else
+                {
+                    TooltipTimer.Interval = 5000;
+                }
                 TooltipTimer.Tick += TooltipTimer_Tick;
                 TooltipTimer.Enabled = true;
             }

@@ -81,7 +81,7 @@ namespace Focus_Bear.Focus
                        "untilTimeText":"On Until <TIME>",*/
                     string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
                     sTill = sTill.Replace("<TIME>", DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToString("HH:mm tt"));
-                    OnUntill.Content = ss + " (" + sTill + ")";
+                    OnUntill.Text = ss + " (" + sTill + ")";
 
                 }
                 catch (Exception ex)
@@ -93,7 +93,7 @@ namespace Focus_Bear.Focus
 
                 if (nTimer < 0)
                 {
-                    OnUntill.Content = "";
+                    OnUntill.Text = "";
                     dispatcherTimer.Stop();
                     ((App)(Application.Current)).CloseFocusProgressWindow();
                 }

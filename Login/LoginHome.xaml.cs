@@ -39,11 +39,19 @@ namespace Focus_Bear.Login
                 "buttonSignUpText": "Sign Up"
     },
              */
-            Heading.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["title"].ToString();
-            Descriptiopn.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["messageText"].ToString();
-            btnSignInText.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonSignInText"].ToString();
-            btnSignUpText.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonSignUpText"].ToString();
- 
+            try
+            {
+                Heading.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["title"].ToString();
+                Descriptiopn.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["messageText"].ToString();
+                btnSignInText.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonSignInText"].ToString();
+                btnSignUpText.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCreateAccountText"].ToString();
+
+                Suggest.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["descriptionText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("LoginHome set texts ex - " + ex.Message);
+            }
         }
        
         private void btnSignIn_Click(object sender, RoutedEventArgs e)
@@ -55,5 +63,14 @@ namespace Focus_Bear.Login
         {
             _parentWindow.ShowSignUpWindow();
         }
+
+        private void btnInfo_Click(object sender, RoutedEventArgs e)
+        {
+            Descriptiopn.Visibility = Visibility.Visible;
+            Suggest.Visibility = Visibility.Collapsed;
+            btnInfo.Visibility = Visibility.Collapsed;
+        }
+
+        
     }
 }

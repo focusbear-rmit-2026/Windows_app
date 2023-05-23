@@ -27,7 +27,15 @@
                 <RowDefinition Height="100" />
             </Grid.RowDefinitions>
             <TextBlock   Grid.Row="0"  Name="DoYouWantToQuitCompletely" Margin="30,0,0,0" TextWrapping="Wrap" Text="xDo you want to quit the app completely or just take a break for a few hours?..." Foreground="#000" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <StackPanel  Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                <TextBlock  Margin="0,0,0,0" Name="TurnOffMinsText" TextWrapping="Wrap" Text="xChoose how long to turn it off for:" Foreground="#000" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
+                <ComboBox Name="ComboBoxMinutes" Width="125" Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" SelectionChanged="ComboBoxMinutes_SelectionChanged" FontSize="16" >
+                     
+                </ComboBox>
+
+
+            </StackPanel>
             <Button Grid.Row="2" IsDefault="True" x:Name="btnGiveMeABreak"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnGiveMeABreak_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >

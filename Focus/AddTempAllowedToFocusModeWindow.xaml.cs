@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -23,6 +25,7 @@ namespace Focus_Bear.Focus
         AppSettings appSettings = AppSettings.GetInstance;
         public AddTempAllowedToFocusModeWindow()
         {
+            LogWriter.LogWrite("AddTempAllowedToFocusModeWindow() shown ");
             InitializeComponent();
 
             /* "addFocusTempUrlsOrAppsVcInfo": {
@@ -31,14 +34,15 @@ namespace Focus_Bear.Focus
             },*/
 
             try
-            { 
+            {
+                
                 Heading.Text = appSettings.ConfigFileStrings["addFocusTempUrlsOrAppsVcInfo"]["title"].ToString();
                 btnAddTXT.Text = appSettings.ConfigFileStrings["addFocusTempUrlsOrAppsVcInfo"]["buttonAllowText"].ToString();
                 btnCancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
                 AppsTitle.Text = appSettings.ConfigFileStrings["toolBoxVcInfo"]["appsText"].ToString();
                 URLSTitle.Text = appSettings.ConfigFileStrings["toolBoxVcInfo"]["urlsText"].ToString();
-
                 KeywordsTitle.Text = appSettings.ConfigFileStrings["addFocusTempUrlsOrAppsVcInfo"]["titleKeywords"].ToString();
+                Title = appSettings.ConfigFileStrings["addFocusTempUrlsOrAppsVcInfo"]["titleWindowText"].ToString();
             }
             catch (Exception ex)
             {
@@ -61,11 +65,11 @@ namespace Focus_Bear.Focus
                 URLSTitle.Visibility = Visibility.Collapsed;
                 ListURLs.Visibility = Visibility.Collapsed;
             }
-            if(appSettings.TemporaryAllowedURLsTabTitles.Count == 0)
-            {
-                KeywordsTitle.Visibility = Visibility.Collapsed;
-                ListKeywords.Visibility = Visibility.Collapsed;
-            }
+            //if(appSettings.TemporaryAllowedKeywords.Count == 0)
+            //{
+            //    KeywordsTitle.Visibility = Visibility.Collapsed;
+            //    ListKeywords.Visibility = Visibility.Collapsed;
+            //}
             // Manually alter window height and width
             this.SizeToContent = SizeToContent.Manual;
 
@@ -82,12 +86,22 @@ namespace Focus_Bear.Focus
 
         private void btnAdd_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("AddTempAllowedToFocusModeWindow() btnAdd_Click ");
             DialogResult = true;
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("AddTempAllowedToFocusModeWindow() btnCancel_Click ");
             DialogResult = false;
         }
+
+        private void btnAddKeyword_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("AddTempAllowedToFocusModeWindow() btnAddKeyword_Click ");
+            appSettings.TemporaryAllowedKeywords.Add(new DistractingURL("",true));
+            ListKeywords.SelectedItem = (appSettings.TemporaryAllowedKeywords.Count() - 1);
+        }
+ 
     }
 }

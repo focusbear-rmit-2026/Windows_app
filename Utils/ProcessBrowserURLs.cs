@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Models;
+﻿using Focus_Bear.API;
+using Focus_Bear.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -62,12 +63,16 @@ namespace Focus_Bear.Utils
             if (appSettings.bHabitwithAllowedAppsRunning || appSettings.isFocusModeRunning)
                 return;
 
+            if(appSettings.IsAppDeactivated())//no need to track always blocked urls
+            {
+                return;
+            }
             //#if !DEBUG
             if (appSettings.arrAlwaysBlockedURLs.Count() > 0)
                 ProcessCurrentAlwaysBlockedURL(hwnd); //For always Blocked URLS
         }
 
-        public static void ProcessCurrentAlwaysBlockedURL(IntPtr hwnd)
+        public static bool ProcessCurrentAlwaysBlockedURL(IntPtr hwnd)
         {
             AppSettings appSettings = AppSettings.GetInstance;
 
@@ -79,7 +84,7 @@ namespace Focus_Bear.Utils
                     string sToCheck = UNBLOCKED_URLS[m];
                     if (appSettings.sLastActiveURLInFirefox.Contains(sToCheck))
                     {
-                        return;
+                        return false;
                     }
                 }
 
@@ -103,7 +108,7 @@ namespace Focus_Bear.Utils
                             LogWriter.LogWrite(sUrlToCheck + "found in ALWAYS blocked URLS - BLOCK");
                             suppressURLForFirefox(hwnd,appSettings.sLastActiveURLInFirefox, "blocked");
 
-                            return;
+                            return true;
                         }
                         else
                         {
@@ -115,7 +120,7 @@ namespace Focus_Bear.Utils
                                 LogWriter.LogWrite(sUrlToCheck + "found in ALWAYS blocked URLS MatchWildcardString - BLOCK");
                                 suppressURLForFirefox(hwnd, appSettings.sLastActiveURLInFirefox, "blocked");
 
-                                return;
+                                return true;
                             }
                             else
                             {
@@ -132,7 +137,7 @@ namespace Focus_Bear.Utils
                                             LogWriter.LogWrite(sTitle + "title found in ALWAYS blocked URLS MatchWildcardString - BLOCK");
                                             suppressURLForFirefox(hwnd, appSettings.sLastActiveURLInFirefox, "blocked");
 
-                                            return;
+                                            return true;
                                         }
                                     }
                                 }
@@ -146,6 +151,7 @@ namespace Focus_Bear.Utils
                     }
                 }
             }
+            return false;
         }
 
         
@@ -201,7 +207,7 @@ namespace Focus_Bear.Utils
             if (listItems.Count() != 0)
             {
                 FocusMode focusType = listItems.First();
-                if (focusType != null && !focusType.isAllowedAllApps)
+                if (focusType != null /*&& !focusType.isAllowedAllApps*/)
                 {
                     if (focusType.isAllowedListApproach)//Block everything except safe sites I choose
                     {
@@ -355,7 +361,18 @@ namespace Focus_Bear.Utils
 
                             if (!bAllowedURLFound)
                             {
-                                LogWriter.LogWrite("processCurrentFocusElement  isAllowedListApproach - Attempt to Suppress URL");
+                                LogWriter.LogWrite("PBU processCurrentFocusElement  isAllowedListApproach - Attempt to Suppress URL");
+
+                                //Check the URL in Always BLocked URL List
+                                {
+                                    if (appSettings.arrAlwaysBlockedURLs.Count() > 0)
+                                    {
+                                        if (ProcessCurrentAlwaysBlockedURL(hWnd))//For always Blocked URLS
+                                        {
+                                            return; //return as this is handled byy always blocked url
+                                        }
+                                    }
+                                }
 
                                 suppressURLForFirefox(hWnd, sURL, "focus");
                                 return;
@@ -841,6 +858,11 @@ namespace Focus_Bear.Utils
                                     if (GetWindowText(hWnd, Buff, nChars) > 0)
                                     {
                                         string sTitle = Buff.ToString();
+
+                                        sTitle = sTitle.Replace(" - Google Chrome", "");
+                                        sTitle = sTitle.Replace(" — Mozilla Firefox", "");
+                                        sTitle = sTitle.Replace(" - Microsoft? Edge", "");
+
                                         if (sTitle.Length > 0)
                                         {
                                             var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sTitle.ToLower());
@@ -886,7 +908,6 @@ namespace Focus_Bear.Utils
                                     LogWriter.LogWrite("suppressURLForFirefox 1 GetWindowText blockedurls EX - " + ex.Message);
                                 }
 
-
                                 appSettings.ShowGentleBlockWindow(hWnd, "", val, sTitle); //we will send full url here
                                 return;
                             }
@@ -930,7 +951,7 @@ namespace Focus_Bear.Utils
                                
                 SetForegroundWindow(hWnd);
                 Task.Delay(1); 
-                //appSettings.FirefoxLastAccWindow.accSelect(0x1, appSettings.objChild);//take selection
+                appSettings.FirefoxLastAccWindow.accSelect(0x1, appSettings.objChild);//take selection
                 
                 SendKeys.SendWait("{ENTER}");
 

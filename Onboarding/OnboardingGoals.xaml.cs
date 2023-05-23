@@ -1,4 +1,6 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.API;
+using Focus_Bear.Utils;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,15 +50,18 @@ namespace Focus_Bear.Onboarding
 
                 TXTCheckBoxHealthyHabits.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["checkBoxFirstText"].ToString();
                 TXTCheckBoxFocused.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["checkBoxSecondText"].ToString();
-
+                AnythingElse.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["anythingElseText"].ToString();
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("OnboardingGoals() ex - " + ex.Message);
             }
-            HealthyHabits.IsChecked = true;
-            StayFocused.IsChecked = true;
+            HealthyHabits.IsChecked = false;
+            StayFocused.IsChecked = false;
+            btnContinue.IsEnabled = false;
 
+            AnythingElse.Visibility = Visibility.Collapsed;
+            AnythingElseVALUE.Visibility = Visibility.Collapsed;
         }
 
         private void HealthyHabits_Checked(object sender, RoutedEventArgs e)
@@ -64,10 +69,15 @@ namespace Focus_Bear.Onboarding
             if (HealthyHabits.IsChecked.Value || StayFocused.IsChecked.Value)
             {
                 btnContinue.IsEnabled = true;
+                AnythingElse.Visibility = Visibility.Visible;
+                AnythingElseVALUE.Visibility = Visibility.Visible;
             }
             else
             {
                 btnContinue.IsEnabled = false;
+
+                AnythingElse.Visibility = Visibility.Collapsed;
+                AnythingElseVALUE.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -76,10 +86,15 @@ namespace Focus_Bear.Onboarding
             if (HealthyHabits.IsChecked.Value || StayFocused.IsChecked.Value)
             {
                 btnContinue.IsEnabled = true;
+                AnythingElse.Visibility = Visibility.Visible;
+                AnythingElseVALUE.Visibility = Visibility.Visible;
             }
             else
             {
                 btnContinue.IsEnabled = false;
+
+                AnythingElse.Visibility = Visibility.Collapsed;
+                AnythingElseVALUE.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -89,10 +104,15 @@ namespace Focus_Bear.Onboarding
             if (HealthyHabits.IsChecked.Value || StayFocused.IsChecked.Value)
             {
                 btnContinue.IsEnabled = true;
+                AnythingElse.Visibility = Visibility.Visible;
+                AnythingElseVALUE.Visibility = Visibility.Visible;
             }
             else
             {
                 btnContinue.IsEnabled = false;
+
+                AnythingElse.Visibility = Visibility.Collapsed;
+                AnythingElseVALUE.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -101,15 +121,20 @@ namespace Focus_Bear.Onboarding
             if (HealthyHabits.IsChecked.Value || StayFocused.IsChecked.Value)
             {
                 btnContinue.IsEnabled = true;
+                AnythingElse.Visibility = Visibility.Visible;
+                AnythingElseVALUE.Visibility = Visibility.Visible;
             }
             else
             {
                 btnContinue.IsEnabled = false;
+
+                AnythingElse.Visibility = Visibility.Collapsed;
+                AnythingElseVALUE.Visibility = Visibility.Collapsed;
             }
         }
 
 
-        private void btnContinue_Click(object sender, RoutedEventArgs e)
+        public async void btnContinue_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -139,12 +164,42 @@ namespace Focus_Bear.Onboarding
                     appSettings.CapturePostHog("activate-productivity-only");
                 }
 
-                _parentWindow.ShowOnboardingAskWorkTimeScreen();
+                /*if !textFieldAnythingElse.stringValue.isEmpty{
+               allApiObject.capturePosthog(event: "anything-else-goals-feedback", metadata: ["feedback":textFieldAnythingElse.stringValue])
+               }*/
+                if (AnythingElseVALUE.Text.Length > 0)
+                {
+                    string sData = string.Format("\"feedback\":\"{0}\"", AnythingElseVALUE.Text);
+                    appSettings.CapturePostHog("anything-else-goals-feedback", sData);
+                }
+
+                //If the user hadclicked EXIT full screen we will take up the default values in case he had unchecked both
+                if (appSettings.bExitFullScreenClickedWhileOnboarding)
+                {   //taking the default values
+                    appSettings.bGoalHealthyHabits = true;
+                    appSettings.bGoalStayFocused = true;
+                }
+
+                Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+                //Here firat we need to call the API to get the packs list
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var x = await client.GetHabitPacks();
+
+               
+                Mouse.OverrideCursor = null;
+        
+                //Proceed normally to the next screen
+                _parentWindow.ShowOnboardingSelectHabitPacksScreen();
+            
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("btnContinue_Click ex - " + ex.Message);
             }
+        }
+
+        private void AnythingElseVALUE_TextChanged(object sender, TextChangedEventArgs e)
+        {
         }
     }
 }

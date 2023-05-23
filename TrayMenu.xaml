@@ -156,6 +156,13 @@
                 </DataTemplate>-->
                 </ListView.ItemTemplate>
             </ListView>
+            <Button   x:Name="btnSetupFocusMode"  Click="btnSetupFocusMode_Click"  Style="{StaticResource BtnStyleDarkOrangeBordered}" IsEnabled="True" Foreground="#fff" Height="35" HorizontalContentAlignment="Left" Padding="0" Margin="25,0,25,20" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" >
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Margin="10" Name="btnSetupFocusModeText">xSetup Focus Modes</TextBlock>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
         </StackPanel>
         <StackPanel Grid.Row="3" Grid.ColumnSpan="2">
             <Button   x:Name="btnBrainDump"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True" Foreground="#e88800" Height="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnBrainDump_Click">

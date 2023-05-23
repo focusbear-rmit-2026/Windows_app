@@ -49,7 +49,7 @@ namespace FocusBear.Utils
         string sActivityBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
 
 
-        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui" };
+        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "csrss", "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui" };
         public static readonly int SW_MINIMIZE = 6;
 
         public static readonly List<string> UNBLOCKED_URLS = new List<string> { "about:blank", 
@@ -127,8 +127,13 @@ namespace FocusBear.Utils
             if (appSettings.bHabitwithAllowedAppsRunning || appSettings.isFocusModeRunning)
                 return;
 
-//#if !DEBUG
-            if(appSettings.arrAlwaysBlockedURLs.Count() > 0)
+            if (appSettings.IsAppDeactivated())//no need to track always blocked urls
+            {
+                return;
+            }
+
+            //#if !DEBUG
+            if (appSettings.arrAlwaysBlockedURLs.Count() > 0)
                 processCurrentURL(element); //For always Blocked URLS
 //#endif
  
@@ -150,7 +155,7 @@ namespace FocusBear.Utils
                     if (element != null && process != null)
                     {
                         // block or Unblock apps
-                        if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName))
+                        if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName.ToLower()))
                         {
                             return;
                         }
@@ -166,6 +171,29 @@ namespace FocusBear.Utils
                                     bAllowedAppFound = true;
                                     LogWriter.LogWrite(sApp + " allow app found in MORNING_HABITS activity - break");
                                     break;
+                                }
+
+                                //Now if we have not found any we need to look and match the app and allow / block apps with window title
+                                try
+                                {
+                                    //Check title
+                                    const int nChars = 256;
+                                    StringBuilder Buff = new StringBuilder(nChars);
+                                    if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
+                                    {
+                                        string sTitle = Buff.ToString().ToLower();
+                                        string allowedAppTitle = "*" + sApp + "*";
+                                        if (MatchWildcardString(sTitle, allowedAppTitle))
+                                        {
+                                            LogWriter.LogWrite(sTitle + "title found in ALLOWED apps apps with window title matched in MORNING_HABITS activity - ALLOW");
+                                            bAllowedAppFound = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogWriter.LogWrite("ProcessAllowedAppAndURLsInActivity GetWindowText ALLOWED app EX - " + ex.Message);
                                 }
                             }
                             if (!bAllowedAppFound)
@@ -185,6 +213,29 @@ namespace FocusBear.Utils
                                     bAllowedAppFound = true;
                                     LogWriter.LogWrite(sApp + " allow app found in EVENING_HABITS activity -  break;");
                                     break;
+                                }
+
+                                //Now if we have not found any we need to look and match the app and allow / block apps with window title
+                                try
+                                {
+                                    //Check title
+                                    const int nChars = 256;
+                                    StringBuilder Buff = new StringBuilder(nChars);
+                                    if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
+                                    {
+                                        string sTitle = Buff.ToString().ToLower();
+                                        string allowedAppTitle = "*" + sApp + "*";
+                                        if (MatchWildcardString(sTitle, allowedAppTitle))
+                                        {
+                                            LogWriter.LogWrite(sTitle + "title found in ALLOWED apps apps with window title matched in EVENING_HABITS activity - ALLOW");
+                                            bAllowedAppFound = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogWriter.LogWrite("ProcessAllowedAppAndURLsInActivity GetWindowText ALLOWED app EX - " + ex.Message);
                                 }
                             }
                             if (!bAllowedAppFound)
@@ -208,6 +259,30 @@ namespace FocusBear.Utils
                                         LogWriter.LogWrite(sApp + " allow app found in BREAK_ACTIVITY activity -  break;");
                                         break;
                                     }
+
+                                    //Now if we have not found any we need to look and match the app and allow / block apps with window title
+                                    try
+                                    {
+                                        //Check title
+                                        const int nChars = 256;
+                                        StringBuilder Buff = new StringBuilder(nChars);
+                                        if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
+                                        {
+                                            string sTitle = Buff.ToString().ToLower();
+                                            string allowedAppTitle = "*" + sApp + "*";
+                                            if (MatchWildcardString(sTitle, allowedAppTitle))
+                                            {
+                                                LogWriter.LogWrite(sTitle + "title found in ALLOWED apps apps with window title matched in BREAK_ACTIVITY activity - ALLOW");
+                                                bAllowedAppFound = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogWriter.LogWrite("ProcessAllowedAppAndURLsInActivity GetWindowText ALLOWED app EX - " + ex.Message);
+                                    }
+
                                 }
                                 if (!bAllowedAppFound)
                                 {
@@ -226,6 +301,29 @@ namespace FocusBear.Utils
                                         bAllowedAppFound = true;
                                         LogWriter.LogWrite(sApp + " allow app found in BREAK_ACTIVITY activity -  break;");
                                         break;
+                                    }
+
+                                    //Now if we have not found any we need to look and match the app and allow / block apps with window title
+                                    try
+                                    {
+                                        //Check title
+                                        const int nChars = 256;
+                                        StringBuilder Buff = new StringBuilder(nChars);
+                                        if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
+                                        {
+                                            string sTitle = Buff.ToString().ToLower();
+                                            string allowedAppTitle = "*" + sApp + "*";
+                                            if (MatchWildcardString(sTitle, allowedAppTitle))
+                                            {
+                                                LogWriter.LogWrite(sTitle + "title found in ALLOWED apps apps with window title matched in BREAK_ACTIVITY activity - ALLOW");
+                                                bAllowedAppFound = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogWriter.LogWrite("ProcessAllowedAppAndURLsInActivity GetWindowText ALLOWED app EX - " + ex.Message);
                                     }
                                 }
                                 if (!bAllowedAppFound)
@@ -246,7 +344,7 @@ namespace FocusBear.Utils
                             {
                                /// if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedApps.Exists(ele => ele == process.ProcessName))
                                 {
-                                    if (process.ProcessName == "firefox" || process.ProcessName == "chrome" || process.ProcessName == "msedge")
+                                    if (process.ProcessName.ToLower() == "firefox" || process.ProcessName.ToLower() == "chrome" || process.ProcessName.ToLower() == "msedge")
                                     {
                                         return;
                                         //ProcessAlloweURLsInActivity(appSettings.sLastActiveURLInFirefox,  process.MainWindowHandle, element, null, true);
@@ -601,7 +699,7 @@ namespace FocusBear.Utils
                     if (element != null && process != null)
                     {
                         // block or Unblock apps
-                        if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName))
+                        if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName.ToLower()))
                         {
                             return;
                         }
@@ -747,8 +845,32 @@ namespace FocusBear.Utils
                                         }
                                     }
 
-                                    if (bAllowedAppFound)
+                                    if (bAllowedAppFound) //we have found a matching exe name
                                         break;
+
+                                    //Now if we have not found any we need to look and match the app and allow / block apps with window title
+                                    try
+                                    {
+                                        //Check title
+                                        const int nChars = 256;
+                                        StringBuilder Buff = new StringBuilder(nChars);
+                                        if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
+                                        {
+                                            string sTitle = Buff.ToString().ToLower();
+                                            string allowedAppTitle = "*" + sApp.AppName.ToLower() + "*";
+                                            if (MatchWildcardString(sTitle, allowedAppTitle))
+                                            {
+                                                LogWriter.LogWrite(sTitle + "title found in ALLOWED apps  apps with window title matched in focus mode - ALLOW");
+                                                bAllowedAppFound = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogWriter.LogWrite("processCurrentFocusElement GetWindowText ALLOWED URLS EX - " + ex.Message);
+                                    }
+
                                 }
                                 if (!bAllowedAppFound)
                                 {
@@ -801,7 +923,7 @@ namespace FocusBear.Utils
                                 //
                                 LogWriter.LogWrite("RUNNING Focus Mode is:" + focusType.name);
 
-                                if (process.ProcessName == "firefox" || process.ProcessName == "chrome" || process.ProcessName == "msedge")
+                                if (process.ProcessName.ToLower() == "firefox" || process.ProcessName.ToLower() == "chrome" || process.ProcessName.ToLower() == "msedge")
                                 {
                                     return;
                                     ///ProcessURLForFocusModes(appSettings.sLastActiveURLInFirefox, focusType, process.MainWindowHandle, element, null, true);
@@ -1052,7 +1174,7 @@ namespace FocusBear.Utils
 
                     if (!bAllowedURLFound)
                     {
-                        LogWriter.LogWrite("processCurrentFocusElement  isAllowedListApproach - Attempt to Suppress URL");
+                        LogWriter.LogWrite("FCH processCurrentFocusElement  isAllowedListApproach - Attempt to Suppress URL");
                         if(bForFirefox)
                         {
                             suppressURLForFirefox(hWnd,sURL, "focus");
@@ -1380,7 +1502,7 @@ namespace FocusBear.Utils
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("processCurrentURL EX - " + ex.Message);
+                LogWriter.LogWrite("processCurrentURL EX focus change handler - " + ex.Message);
             }
 
         }

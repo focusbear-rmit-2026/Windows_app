@@ -44,7 +44,7 @@ namespace Focus_Bear.Preferences
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
 
-            LoadURL();
+            //LoadURL();
 
         }
 
@@ -117,21 +117,22 @@ namespace Focus_Bear.Preferences
 
         }
  
-        public void LoadSettings()
+        public async void LoadSettings()
         {
             try
             {
 
                 //Set environment in settings page
                 string functiontocall = string.Format("focusbearEnv('win');");
-                webView.ExecuteScriptAsync(functiontocall);
+                string ss = await webView.ExecuteScriptAsync(functiontocall);
+                //Now await will keep waiting till the eecution return OK, no need to check it as we will still call load settings.
 
                 //Load Settings in the webview
                 if (appSettings.sRawUserSettings.Length > 0)
                 {
                     string Settings = string.Format("{{ \"metadata\":{{\"access_token\":\"{0}\"}},\"settings\":{1}}}", appSettings.userAccount.accessToken, appSettings.sRawUserSettings);
                     string settingsFunc = string.Format("loadSettingsData({0});", Settings);
-                    webView.ExecuteScriptAsync(settingsFunc);
+                    string ss1 = await webView.ExecuteScriptAsync(settingsFunc);
                 }
 
                 if(appSettings.arrFocusModes.Count > 0)
@@ -152,7 +153,7 @@ namespace Focus_Bear.Preferences
                     arrAllFocusModesArray = arrAllFocusModesArray + "]}";
 
                     string settingsFunc = string.Format("LoadFocusNames({0});", arrAllFocusModesArray);
-                    webView.ExecuteScriptAsync(settingsFunc);
+                    await webView.ExecuteScriptAsync(settingsFunc);
                 }
 
                 CommandManager.InvalidateRequerySuggested();
@@ -160,11 +161,10 @@ namespace Focus_Bear.Preferences
             catch (Exception ex)
             {
                 LogWriter.LogWrite("Loading settings in webview()" + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
         }
 
-        private async void SetWebView()
+        private async Task SetWebView()
         {
             try
             {
@@ -182,7 +182,6 @@ namespace Focus_Bear.Preferences
             catch (Exception ex)
             {
                 LogWriter.LogWrite("EDIT habits SetWebView() Ex - " + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
         }
         private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
@@ -213,12 +212,13 @@ namespace Focus_Bear.Preferences
 
                     webView.WebMessageReceived += webView_WebMessageReceived;
 
+                    LoadURL();
+
                     //this.webView.CoreWebView2.WebMessageReceived += webView_WebMessageReceived;
                 }
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite("CoreWebView2InitializationCompleted()" + ex.Message);
-                    Debug.WriteLine(ex.Message);
                 }
             }
         }

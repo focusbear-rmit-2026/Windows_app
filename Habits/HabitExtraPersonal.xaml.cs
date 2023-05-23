@@ -1,5 +1,7 @@
 ﻿using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
+using Microsoft.Web.WebView2.Core;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -45,13 +47,25 @@ namespace Focus_Bear.Habits
                 "startActivityButtonText":"Start <TIME> <NAME>",
                         "buttonSkipHabitText":"Skip this habit for today",
              */
-            Heading.Text = appSettings.ConfigFileStrings["activityInfo"]["titleGetFocused"].ToString();
-            Description.Text = appSettings.ConfigFileStrings["activityInfo"]["visualizeDescriptionText"].ToString();
-            btnSkipThisHabitTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonSkipHabitText"].ToString();
-            //Get the First activity name and duration to set on the Button
+           //Get the First activity name and duration to set on the Button
+           if(appSettings.bMotivationalMessageEnabled)
+           {
+                SetWebView();
+
+                webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
+                webView.NavigationCompleted += CoreWebView2NavigationCompleted;
+
+                ConatainerWebView.Visibility = Visibility.Visible;
+                CrossHair.Visibility = Visibility.Collapsed;
+
+            }
+
             try
             {
-               
+                Heading.Text = appSettings.ConfigFileStrings["activityInfo"]["titleGetFocused"].ToString();
+                Description.Text = appSettings.ConfigFileStrings["activityInfo"]["visualizeDescriptionText"].ToString();
+                btnSkipThisHabitTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonSkipHabitText"].ToString();
+   
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
                     appSettings.CapturePostHog("visualize-morning-routine");
@@ -82,7 +96,14 @@ namespace Focus_Bear.Habits
 
                 }
 
-
+                if (appSettings.bMotivationalMessageEnabled)
+                {
+                    JArray arrMessages = (JArray)appSettings.ConfigFileStrings["inspirations"];
+                    int n = arrMessages.Count;
+                    Random rnd = new Random();
+                    int nRandom = rnd.Next(0, n - 1);
+                    btnStartACtivityTXT.Text = arrMessages[nRandom].ToString();
+                }
             }
             catch (Exception ex)
             {
@@ -132,6 +153,10 @@ namespace Focus_Bear.Habits
         private void btnStartACtivity_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("extra personal btnStartACtivity_Clicked " );
+
+            if (appSettings.bMotivationalMessageEnabled)
+                webView.Dispose();
+
             appSettings.nHabitIndex = 0;
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
@@ -155,7 +180,8 @@ namespace Focus_Bear.Habits
                 {
                     if (appSettings.bPasswordRequireInSkipMorning)
                     {
-                    
+                        if (appSettings.bMotivationalMessageEnabled)
+                            webView.Visibility = Visibility.Collapsed;
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = _parentWindow;
                         _parentWindow.GridShade.Visibility = Visibility.Visible;
@@ -163,7 +189,9 @@ namespace Focus_Bear.Habits
                         bool? bResult = pwdWnd.ShowDialog();
 
                         _parentWindow.GridShade.Visibility = Visibility.Collapsed;
-                      
+
+                        if (appSettings.bMotivationalMessageEnabled)
+                            webView.Visibility = Visibility.Visible;
 
                         if (bResult.Value)
                         {
@@ -204,7 +232,7 @@ namespace Focus_Bear.Habits
 
             }
 
-            appSettings.nHabitIndex = -1; //Starting with minus 1 as we will inclement this on why skip nags screen
+            appSettings.nHabitIndex = -1; //Starting with minus 1 as we will increment this on why skip nags screen
             
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
@@ -215,6 +243,66 @@ namespace Focus_Bear.Habits
                 appSettings.CapturePostHog("start-evening-routine");
             }
             _parentWindow.ShowWhySkipHabitsWindow();
+        }
+
+        private async Task SetWebView()
+        {
+            try
+            {
+                var userDataFolder = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FBCustomWebView2");
+
+                var task = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
+                if (webView != null)
+                {
+                    await webView.EnsureCoreWebView2Async(task);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("HabitsWelcomeList SetWebView() EX - " + ex.Message);
+            }
+        }
+
+        private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+        {
+            if (e.IsSuccess)
+            {
+                try
+                {
+
+
+                    //this.webView.NavigationStarting += NavigationStarting;
+                    //this.webView.NavigationCompleted += NavigationCompleted;
+                    webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
+                    webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
+                    webView.CoreWebView2.Settings.IsScriptEnabled = true;
+                    webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
+
+                    webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
+                    webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+ 
+                    string sSettingsURL = "http://dashboard.focusbear.io/webview/motivational-summary";
+
+                    webView.Source = new System.Uri(sSettingsURL);
+
+                    CommandManager.InvalidateRequerySuggested();
+
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("Habit WelcomeList CoreWebView2InitializationCompleted() EX=" + ex.Message);
+                }
+            }
+        }
+
+        private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            if (e.IsSuccess)
+            {
+                string Settings = string.Format("{{\"access_token\":\"{0}\"}}", appSettings.userAccount.accessToken);
+                string settingsFunc = string.Format("loadAccessTokenForInspirationPage({0});", Settings);
+                var ss = webView.ExecuteScriptAsync(settingsFunc);
+            }
         }
     }
 }

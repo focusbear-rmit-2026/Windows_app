@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -30,6 +32,10 @@ namespace Focus_Bear.Quit
 
         bool bEmergencyTimer = false;
 
+        // Step 1: Array Declaration
+        string[] stringarr;
+        
+       
         public QuitWindow()
         {
             InitializeComponent();
@@ -70,40 +76,118 @@ namespace Focus_Bear.Quit
                 "buttonDiableAppText":"Give me a break for 4hrs",
                 "buttonQuitText":"Turn it off completely - I'll turn it back on when I'm ready"
             }*/
+            try
+            {
+                Heading.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingTitle"].ToString();
+                DoYouWantToQuitCompletely.Text = appSettings.ConfigFileStrings["quitInfo"]["askQuitVcInfo"]["subTitle"].ToString();
+                
+                btnTurnOfCompletelyTXT.Text = appSettings.ConfigFileStrings["quitInfo"]["askQuitVcInfo"]["buttonQuitText"].ToString();
 
-            Heading.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingTitle"].ToString();
-            DoYouWantToQuitCompletely.Text = appSettings.ConfigFileStrings["quitInfo"]["askQuitVcInfo"]["subTitle"].ToString();
-            btnGiveMeABreakTXT.Text = appSettings.ConfigFileStrings["quitInfo"]["askQuitVcInfo"]["buttonDiableAppText"].ToString();
-            btnTurnOfCompletelyTXT.Text = appSettings.ConfigFileStrings["quitInfo"]["askQuitVcInfo"]["buttonQuitText"].ToString();
+                TurnOffMinsText.Text = appSettings.ConfigFileStrings["quitInfo"]["askQuitVcInfo"]["selectHoursText"].ToString();
+
+                AreYouSureToQuit.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingCountDownInfo"]["subTitle"].ToString();
+                WhileYouWait.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingCountDownInfo"]["message"].ToString();
+                PleaseEmail.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingCountDownInfo"]["pleaseEmailText"].ToString() + " " + appSettings.ConfigFileStrings["common"]["emailId"].ToString();
+                btnLetMeDoMyHabitsTXT.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingCountDownInfo"]["buttonQuitCancelText"].ToString();
+
+                ShareWhyQuit.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["subTitle"].ToString();
+
+                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_0"]["title"].ToString());
+                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_1"]["title"].ToString());
+                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_2"]["title"].ToString());
+
+                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownMeeting"]["title"].ToString());
+                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownSomeOneElse"]["title"].ToString());
+                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownAnnoying"]["title"].ToString());
+                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownRelax"]["title"].ToString());
+
+                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_3"]["title"].ToString());
+
+                ComboBoxReason.SelectedIndex = 0;
+                //ReasonTitle
+                //TxtExplanation
+                btnQuitTXT.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["buttonQuitText"].ToString();
+                btnQuit.IsEnabled = false;
+
+                string sHour = appSettings.ConfigFileStrings["common"]["hourText"].ToString();
+                string sHours = appSettings.ConfigFileStrings["common"]["hoursText"].ToString();
+                string sMinutes = appSettings.ConfigFileStrings["common"]["minutesText"].ToString(); 
+
+                //["5 \(minutesText)", "15 \(minutesText)", "30 \(minutesText)", "1 \(hourText)", "2 \(hoursText)", "4 \(hoursText)", "12 \(hoursText)", "24 \(hoursText)"]
+                // Step 2:Array Initialization
+                stringarr = new string[8] { string.Format("5 {0}", sMinutes),
+                    string.Format("15 {0}", sMinutes),
+                     string.Format("30 {0}", sMinutes),
+                     string.Format("1 {0}", sHour),
+                     string.Format("2 {0}", sHours),
+                     string.Format("4 {0}", sHours),
+                     string.Format("12 {0}", sHours),
+                     string.Format("24 {0}", sHours)
+                };
+
+                ComboBoxMinutes.ItemsSource = stringarr;
+                ComboBoxMinutes.SelectedIndex = 3;
+
+                /* "buttonBreakOneHourText": "Turn it off for 1 hour",
+                "buttonBreakFewHourText": "Turn it off for <HOUR> hours",
+                "buttonBreakFewMinutesText": "Turn it off for <MINUTE> minutes",*/
+                //default is one hour
+                btnGiveMeABreakTXT.Text = appSettings.ConfigFileStrings["quitInfo"]["askQuitVcInfo"]["buttonBreakOneHourText"].ToString();
 
 
-            AreYouSureToQuit.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingCountDownInfo"]["subTitle"].ToString();
-            WhileYouWait.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingCountDownInfo"]["message"].ToString();
-            PleaseEmail.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingCountDownInfo"]["pleaseEmailText"].ToString() + " " + appSettings.ConfigFileStrings["common"]["emailId"].ToString();
-            btnLetMeDoMyHabitsTXT.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingCountDownInfo"]["buttonQuitCancelText"].ToString();
-
-            ShareWhyQuit.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["subTitle"].ToString();
-
-            ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_0"]["title"].ToString());
-            ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_1"]["title"].ToString());
-            ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_2"]["title"].ToString());
-            ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_3"]["title"].ToString());
-            ComboBoxReason.SelectedIndex = 0;
-            //ReasonTitle
-            //TxtExplanation
-            btnQuitTXT.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["buttonQuitText"].ToString();
-            btnQuit.IsEnabled = false;
+                //If app is deactivated, we diorectly need to go to the next screen, so we will click the next button
+                if (appSettings.IsAppDeactivated())
+                {
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(btnTurnOfCompletely);
+                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                    invokeProv.Invoke();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("Quit Window set texts ex = " + ex.Message);
+            }
         }
 
         private void btnGiveMeABreak_Click(object sender, RoutedEventArgs e)
         {
-            LogWriter.LogWrite("QuitWindow - btnGiveMeABreak_Click - App should deactivate for 4 hours");
+            LogWriter.LogWrite("QuitWindow - btnGiveMeABreak_Click - App should deactivate for selected hours");
 
-            appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(4);
+            switch (ComboBoxMinutes.SelectedIndex)
+            {
+                case 0:
+                    appSettings.AppDeactivatedTillDate = DateTime.Now.AddMinutes(5);
+                    break;
+                case 1:
+                    appSettings.AppDeactivatedTillDate = DateTime.Now.AddMinutes(15);
+                    break;
+                case 2:
+                    appSettings.AppDeactivatedTillDate = DateTime.Now.AddMinutes(30);
+                    break;
+                case 3:
+                    appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(1);
+                    break;
+                case 4:
+                    appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(2);
+                    break;
+                case 5:
+                    appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(4);
+                    break;
+                case 6:
+                    appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(12);
+                    break;
+                case 7:
+                    appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(24);
+                    break;
+
+            }
+
+            
 
             RegistryManager.SetAppDeactivatedTillDate();
 
-            appSettings.CapturePostHog("give-me-4hr-break");
+            appSettings.CapturePostHog("turn-it-off-for-x-duration");
 
             Close();
         }
@@ -243,6 +327,66 @@ namespace Focus_Bear.Quit
             }
             else if (ComboBoxReason.SelectedIndex == 3)
             {
+                ReasonTitle.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownMeeting"]["description"].ToString();
+                ReasonTitle.Visibility = Visibility.Visible;
+
+                ComboBoxReason.IsEnabled = false;
+                TxtExplanation.Visibility = Visibility.Collapsed;
+
+                bEmergencyTimer = true;
+                nTimer = 2;
+                TxtFinalTimer.Text = "00:02";
+                TxtFinalTimer.Visibility = Visibility.Visible;
+
+                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
+                appSettings.CapturePostHog("app-quit", sMetadata);
+
+                dispatcherTimer.Start();
+            }
+            else if (ComboBoxReason.SelectedIndex == 4)
+            {
+                ReasonTitle.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownSomeOneElse"]["description"].ToString();
+                ReasonTitle.Visibility = Visibility.Visible;
+
+                ComboBoxReason.IsEnabled = false;
+                TxtExplanation.Visibility = Visibility.Collapsed;
+
+                bEmergencyTimer = true;
+                nTimer = 2;
+                TxtFinalTimer.Text = "00:02";
+                TxtFinalTimer.Visibility = Visibility.Visible;
+
+                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
+                appSettings.CapturePostHog("app-quit", sMetadata);
+
+                dispatcherTimer.Start();
+            }
+            else if (ComboBoxReason.SelectedIndex == 5) //annoying
+            {
+                ReasonTitle.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownAnnoying"]["description"].ToString();
+                ReasonTitle.Visibility = Visibility.Visible;
+                TxtExplanation.Visibility = Visibility.Visible;
+            }
+            else if (ComboBoxReason.SelectedIndex == 6)
+            {
+                ReasonTitle.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownRelax"]["description"].ToString();
+                ReasonTitle.Visibility = Visibility.Visible;
+
+                ComboBoxReason.IsEnabled = false;
+                TxtExplanation.Visibility = Visibility.Collapsed;
+
+                bEmergencyTimer = true;
+                nTimer = 2;
+                TxtFinalTimer.Text = "00:02";
+                TxtFinalTimer.Visibility = Visibility.Visible;
+
+                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
+                appSettings.CapturePostHog("app-quit", sMetadata);
+
+                dispatcherTimer.Start();
+            }
+            else if (ComboBoxReason.SelectedIndex == 7) //Something else
+            {
                 ReasonTitle.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_3"]["description"].ToString();
                 ReasonTitle.Visibility = Visibility.Visible;
                 TxtExplanation.Visibility = Visibility.Visible;
@@ -287,6 +431,54 @@ namespace Focus_Bear.Quit
             else
             {
                 btnQuit.IsEnabled = false;
+            }
+        }
+
+        private void ComboBoxMinutes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            /* stringarr = new string[8] { string.Format("5 {0}", sMinutes),
+                    string.Format("15 {0}", sMinutes),
+                     string.Format("30 {0}", sMinutes),
+                     string.Format("1 {0}", sHour),
+                     string.Format("2 {0}", sHours),
+                     string.Format("4 {0}", sHours),
+                     string.Format("12 {0}", sHours),
+                     string.Format("24 {0}", sHours)
+                };
+             * "buttonBreakOneHourText": "Turn it off for 1 hour",
+                "buttonBreakFewHourText": "Turn it off for <HOUR> hours",
+                "buttonBreakFewMinutesText": "Turn it off for <MINUTE> minutes",*/
+            //default is one hour
+            string ssH = appSettings.ConfigFileStrings["quitInfo"]["askQuitVcInfo"]["buttonBreakFewHourText"].ToString();
+            string ssM = appSettings.ConfigFileStrings["quitInfo"]["askQuitVcInfo"]["buttonBreakFewMinutesText"].ToString();
+
+            switch (ComboBoxMinutes.SelectedIndex)
+            {
+                case 0:
+                    btnGiveMeABreakTXT.Text = ssM.Replace("<MINUTE>", "5");
+                    break;
+                case 1:
+                    btnGiveMeABreakTXT.Text = ssM.Replace("<MINUTE>", "15");
+                    break;
+                case 2:
+                    btnGiveMeABreakTXT.Text = ssM.Replace("<MINUTE>", "30");
+                    break;
+                case 3:
+                    btnGiveMeABreakTXT.Text = appSettings.ConfigFileStrings["quitInfo"]["askQuitVcInfo"]["buttonBreakOneHourText"].ToString();
+                    break;
+                case 4:
+                    btnGiveMeABreakTXT.Text = ssH.Replace("<HOUR>", "2");
+                    break;
+                case 5:
+                    btnGiveMeABreakTXT.Text = ssH.Replace("<HOUR>", "4");
+                    break;
+                case 6:
+                    btnGiveMeABreakTXT.Text = ssH.Replace("<HOUR>", "12");
+                    break;
+                case 7:
+                    btnGiveMeABreakTXT.Text = ssH.Replace("<HOUR>", "24");
+                    break;
+
             }
         }
     }

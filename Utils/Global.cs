@@ -379,14 +379,20 @@ namespace Focus_Bear.Utils
         ////public bool isAllowedAllUrls;
         ////public bool isBlockedAllUrls;
         public bool isDefault;
-        public bool isMeetings;
+        public bool isMeetings { get; set; }
         public bool isLockedFocus;
+
+        public bool isShowAbleInList
+        {
+            get { return !isLockedFocus; }
+        }
+        public string sToolTip { get; set; }
 
         public FocusMode()
         {
 
         }
-        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus)
+        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, string sToolTip = "")
         {
             this.id = id;
             this.name = name;
@@ -402,7 +408,7 @@ namespace Focus_Bear.Utils
             this.isDefault = isDefault;
             this.isMeetings = isMeetings;
             this.isLockedFocus = isLockedFocus;
-
+            this.sToolTip = sToolTip;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -52,7 +52,7 @@ namespace Focus_Bear.Preferences
                 ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["common"]["brokenAppReasonText"].ToString());
                 ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["common"]["habitsHardReasonText"].ToString());
                 ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["common"]["otherReasonText"].ToString());
-
+                
                 Minimum.Text = appSettings.ConfigFileStrings["common"]["minimumCharacterText"].ToString();
                 btnCancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
                 btnUninstallTXT.Text = appSettings.ConfigFileStrings["common"]["tabUninstallText"].ToString();
@@ -63,6 +63,8 @@ namespace Focus_Bear.Preferences
             }
 
             btnUninstall.IsEnabled = false;
+            ComboBoxReason.Focus();
+            ComboBoxReason.IsDropDownOpen = true;
         }
 
         private void ComboBoxReason_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -102,6 +104,7 @@ namespace Focus_Bear.Preferences
                 // "All the app related processes will stop and the app will close itself and run the Focus Bear Uninstaller.",//todo win text
                 ///MessageBox.Show(, "Focus Bear");
                 FBMessageBox ff1 = new FBMessageBox("All the app related processes will stop and the app will close itself and run the Focus Bear Uninstaller.", "Focus Bear");
+                //allProcessesWillStop
                 ff1.ShowDialog();
                 DialogResult = true;
                 Close();

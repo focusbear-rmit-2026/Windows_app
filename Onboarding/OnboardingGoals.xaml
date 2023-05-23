@@ -22,17 +22,21 @@
 
         <Image Grid.Row="0" Height="135"  Width="135" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWelcome to Focus Bear" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <StackPanel  Grid.Row="2"  Orientation="Vertical" VerticalAlignment="Center"  Margin="0,0,0,0">
+        <StackPanel  Grid.Row="2"  Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0,0,0,0">
             <TextBlock  Name="WhatGoals" Margin="0,0,0,50" TextWrapping="Wrap" Text="xWhat are your Goals?" Foreground="#272727" FontSize="28" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-            <StackPanel Orientation="Horizontal" Width="700"  Margin="20,0,0,0">
+            <StackPanel Orientation="Horizontal" Width="300"  Margin="20,0,0,0">
                 <CheckBox x:Name="HealthyHabits" FontSize="18" Checked="HealthyHabits_Checked" Unchecked="HealthyHabits_Unchecked" Cursor="Hand"></CheckBox>
-                <TextBlock  Name="TXTCheckBoxHealthyHabits" Margin="15,-6,0,0" Height="90" Width="650" TextWrapping="Wrap" Text="xHelp me develop healthy habits in the morning (e.g. meditate before starting work) and evening (e.g. have dinner with loved ones)" Foreground="#000" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
+                <TextBlock  Name="TXTCheckBoxHealthyHabits" Margin="15,-6,0,0" Height="60"  TextWrapping="Wrap" Text="xBuild healthy habits" Foreground="#000" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Width="700" Margin="20,0,0,0">
+            <StackPanel Orientation="Horizontal" Width="300" Margin="20,0,0,0">
                 <CheckBox x:Name="StayFocused" FontSize="18" Checked="StayFocused_Checked" Unchecked="StayFocused_Unchecked" Cursor="Hand"></CheckBox>
-                <TextBlock  Name="TXTCheckBoxFocused" Margin="15,-6,0,0" Height="70" Width="650" TextWrapping="Wrap" Text="xHelp me stay focused during the work day" Foreground="#000" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
+                <TextBlock  Name="TXTCheckBoxFocused" Margin="15,-6,0,0" Height="60"   TextWrapping="Wrap" Text="xStay focused at work fdfdfdf dfdf dfdf dfdf dfdf dfdfdfdfdf dfdf  d " Foreground="#000" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
             </StackPanel>
+            <TextBlock  Name="AnythingElse" Margin="0" Height="50" Width="550" TextWrapping="Wrap" Text="xAnything else you hope Focus Bear can help with? (We'll try to take your feedback on board)" Foreground="#000" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
+            <TextBox   TabIndex="0" x:Name="AnythingElseVALUE" Margin="0,15,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="18" TextAlignment="Left" MaxLines="1" Height="30" TextChanged="AnythingElseVALUE_TextChanged">
+
+            </TextBox>
         </StackPanel>
 
         <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="400" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click" >

@@ -4,21 +4,24 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Focus_Bear.Habits"
+      xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
      d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="HabitsWelcomeList" Background="#fff">
+      Title="HabitsWelcomeList" Background="#fff" IsVisibleChanged="Page_IsVisibleChanged">
     <Grid>
+        <Grid x:Name="Normal">
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center" />
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="185" />
             <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" MinHeight="200" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="Auto" MinHeight="140" />
 
         </Grid.RowDefinitions>
-
+ 
         <Image Grid.Row="0" Name="TopIcon" Height="160"  Width="160" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xGood Morning! Here are the habits to kick off an awesome day." Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
@@ -46,14 +49,29 @@
             </ListView.ItemTemplate>
  
         </ListView>
-
-        <Button Grid.Row="3" IsDefault="True" x:Name="btnBegin"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnBegin_Click" >
+        <Button Grid.Row="3" x:Name="btnCustomizeHabits"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCustomizeHabits_Click">
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock x:Name="btnCustomizeHabitsTXT" Text="xCustomize my habits first"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+        <Button Grid.Row="4" IsDefault="True"  x:Name="btnBegin"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnBegin_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnBeginTXT" Text="xBegin"/>
                 </StackPanel>
             </Button.Content>
         </Button>
+        </Grid>
+        <Grid x:Name="WebGrid" Visibility="Collapsed" Margin="0,70,0,50">
+            <Viewbox   Stretch="Uniform">
+                <DockPanel  Margin="0" Width="853" Height="505">
+                    <wv2:WebView2 Name="webView" />
+                </DockPanel>
+            </Viewbox>
+        </Grid>
+      
     </Grid>
  
 </Page>

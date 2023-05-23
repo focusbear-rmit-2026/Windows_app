@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="auto" Width="360"  MaxWidth="360" MaxHeight="600" ResizeMode="NoResize">
+        Title="xTeach Focus Bear how you focus" Height="auto" Width="360"  MaxWidth="360" MaxHeight="660" ResizeMode="NoResize">
     <Grid>
 
         <Grid.RowDefinitions>
@@ -13,6 +13,7 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto" MinHeight="38"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto" MinHeight="30"/>
             <RowDefinition Height="auto" MinHeight="38"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Vertical" Margin="20,20,20,5" >
@@ -58,7 +59,7 @@
             </ListView.ItemTemplate>
         </ListView>
         <TextBlock Grid.Row="2"  Name="KeywordsTitle" Margin="20,10,0,5"   TextWrapping="Wrap" Text="xxKeywords:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
-        <ListView    x:Name="ListKeywords"  Grid.Row="3" Margin="20,0,20,10" MaxHeight="120" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"  VerticalAlignment="Stretch" >
+        <ListView    x:Name="ListKeywords"  Grid.Row="3" Margin="20,0,20,0" MinHeight="100" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"  VerticalAlignment="Top" Height="101" >
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -67,20 +68,29 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
-                            <TextBox Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="#000"  FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
+                            <TextBox x:Name="ItemText" Grid.Column="0" MinWidth="250" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="#000"  FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Button  Grid.Row="4" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,5" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click" >
+        <Grid Grid.Row="4" Margin="20,0,20,10" Background="LightGray" >
+            <Button   x:Name="btnAddKeyword"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800" Background="LightGray" Height="20" Width="20" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Padding="0" Margin="5,2,0,1"  Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAddKeyword_Click"  >
+
+                <Button.Content>
+                    <Image Name="btnAddKeywordTXT" Height="20"  Width="20" Source="../Images/plus.png" Stretch="Uniform" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
+
+                </Button.Content>
+            </Button>
+        </Grid>
+        <Button  Grid.Row="5" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,5" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnCancelTXT" Text="xCancel"/>
                 </StackPanel>
             </Button.Content>
         </Button>
-        <Button Grid.Row="4"  x:Name="btnAdd"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,5" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAdd_Click" >
+        <Button Grid.Row="5"  x:Name="btnAdd"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,5" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAdd_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnAddTXT" Text="xAdd"/>

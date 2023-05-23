@@ -41,6 +41,14 @@ namespace Focus_Bear.Habits
             Topmost = true;
 
         }
-      
+
+        private void FullScreenParent_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            //if(IsVisible)
+            //{
+            //    if( ((App)(Application.Current)).wndHabits.IsVisible &&
+            //        ((App)(Application.Current)).wndFocusSummary.IsVisible)
+            //}
+        }
     }
 }

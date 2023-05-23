@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.API;
+using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +9,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -55,6 +58,8 @@ namespace Focus_Bear.Focus
         public string sFullURLForBlockedPage = "";
         public string sCurrentTabTitle = "";
         IntPtr HWND = IntPtr.Zero;
+
+        public string CurrentURLBeingProcessedWithChatGPTAPI = "";
         public GentleBlock()
         {
             InitializeComponent();
@@ -81,6 +86,8 @@ namespace Focus_Bear.Focus
             sCurrentTabTitle = sTabTitle;
             HWND = hWnd;
 
+            string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
+
             if (sURL.Length > 0)
             {
                 try
@@ -100,13 +107,19 @@ namespace Focus_Bear.Focus
                     sActiveURL = myUri.Host;
                     Debug.WriteLine(ex.Message);
                 }
+
+                if(appSettings.bAiCheckUrlEnabled)
+                    sHeading = sHeading + "\n\n" + appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkingUrlText"].ToString();//"Checking if this URL is safe to use for your current focus mode. Will take about 4-5 seconds to check. If safe, it will automatically be allowed.";
             }
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
             btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
-            btnEditSettingsText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonEditSettingsText"].ToString();
+            ///btnEditSettingsText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonEditSettingsText"].ToString();
 
-            string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
+           
+            //if(appSettings.sChatGPTReasonForCurrentURL.Length > 0) //add reason from chat gpt
+            //    sHeading = sHeading + "\n" + appSettings.sChatGPTReasonForCurrentURL;
+
             if (sAppName.Length > 0)
             {
                 sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
@@ -124,12 +137,12 @@ namespace Focus_Bear.Focus
                 sInt = sInt.Replace("<INTENTION>",sIntention);
                 Intention.Text = sInt;
 
-                this.Height = 400;
+                this.Height = 420;
                 Intention.Visibility = Visibility.Visible;
             }
             else
             {
-                this.Height = 360;
+                this.Height = 380;
                 Intention.Visibility = Visibility.Collapsed;
             }
             dispatcherTimer.Stop();
@@ -155,6 +168,9 @@ namespace Focus_Bear.Focus
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
             CommandManager.InvalidateRequerySuggested();
+
+             if (sURL.Length > 0 && appSettings.bAiCheckUrlEnabled) //check settings from AI tab
+                CheckWithChatGPT();
         }
         //public void HideBreakWindowAndStopTimer()
         //{
@@ -163,6 +179,112 @@ namespace Focus_Bear.Focus
         //    TxtTimer.Text = "00:00";
         //}
 
+        private async void CheckWithChatGPT()
+        {
+            //Here first we need to call the chat GPT API and decide per that to show the Gentle block window or not
+            ///
+            if (CurrentURLBeingProcessedWithChatGPTAPI == sActiveURL)
+                return;
+            CurrentURLBeingProcessedWithChatGPTAPI = sActiveURL;
+
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    var nRes = await client.ChatGPTIsURLSafe(sActiveURL, sCurrentTabTitle, "", appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
+                    int x = int.Parse(nRes.ToString());
+
+                    await Task.Delay(20);
+
+                    string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
+
+                    if (x == -1)
+                    {
+                        //API failed. Nothing to do.
+                       
+                        await Dispatcher.BeginInvoke((Action)(() =>
+                        {
+                            sHeading = sHeading + "\n\n" + "The status of this url could not be verified.";
+                            sHeading = sHeading.Replace("<URL>", sActiveURL);
+                            sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
+                            Heading.Text = sHeading;
+                            CommandManager.InvalidateRequerySuggested();
+                        }));
+                    }
+                    else if (x == 1) //Safe URL
+                    {
+                        await Dispatcher.BeginInvoke((Action)(() =>
+                        {
+                            //Safe URL, need to allow.
+                            
+                            if (appSettings.sChatGPTReasonForCurrentURL.Length > 0) //add reason from chat gpt
+                            {
+                                sHeading = sHeading + "\n\n" + appSettings.sChatGPTReasonForCurrentURL;
+                                sHeading = sHeading.Replace("<URL>", sActiveURL);
+                                sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
+                                Heading.Text = sHeading;
+                                CommandManager.InvalidateRequerySuggested();
+                            }
+                            
+                            Task.Delay(2000);
+
+                            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnJustThisTime);
+                            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                            invokeProv.Invoke();
+
+                            /*  "titleUrlSafeText": "Safe site according to AI (probability <PERCENTAGE>%)",
+                                "reasonText": "Reason: <REASON>",
+                                "buttonBadDecisionText": "Bad decision",
+                                "checkboxDonotShowText": "Don't show this anymore"*/
+
+                            if (appSettings.bAiAllowUrlShowAlertEnabled)
+                            {
+                                string heading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["titleUrlSafeText"].ToString();
+                                heading = heading.Replace("<PERCENTAGE>", (appSettings.dProbablity * 100).ToString());
+
+                                string sReason = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["reasonText"].ToString();
+                                sReason = sReason.Replace("<REASON>", appSettings.sChatGPTReasonForCurrentURL);
+                                FBMessageBox ff = new FBMessageBox(sReason, heading, MessageBoxButton.YesNo, appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString(), appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBadDecisionText"].ToString(),"",true);
+                                ff.ShowDialog();
+                                if (ff.btnClicked == MessageBoxResult.No) //
+                                {
+                                    //Bad Decision
+                                    string ss = string.Format("\"payload\":{0},\"response\":{1}", appSettings.sChatGPTPayLoad, appSettings.sChatGPTResponse);
+                                    appSettings.CapturePostHog("bad-decision-ai-allowed-url", ss);
+                                }
+                            }
+
+                        }));
+                        
+                        return;//allow the url
+                    }
+                    else //if (x == 2) //Need to ASk USER if 2 or 0
+                    {
+                        await Dispatcher.BeginInvoke((Action)(() =>
+                        {
+                            if (appSettings.sChatGPTReasonForCurrentURL.Length > 0) //add reason from chat gpt
+                            {
+                                sHeading = sHeading + "\n\n" + appSettings.sChatGPTReasonForCurrentURL;
+                                sHeading = sHeading.Replace("<URL>", sActiveURL);
+                                sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
+                                Heading.Text = sHeading;
+                                CommandManager.InvalidateRequerySuggested();
+                            }
+                        }));
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("attemp to ChatGPTIsURLSafe EX -" + ex.Message);
+                }
+            });
+
+           
+            ///
+
+        }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
@@ -188,6 +310,7 @@ namespace Focus_Bear.Focus
                     else
                     {
                         appSettings.TemporarryBlockedURLsGentleBlock.Add(sActiveURL.ToLower());//block the URL
+                        ProcessBrowserURLs.suppressURLForFirefox(HWND, sFullURLForBlockedPage, "focus"); //here we will send the full URL
                     }
                     TxtTimer.Text = "00:00";
                     dispatcherTimer.Stop();
@@ -211,6 +334,9 @@ namespace Focus_Bear.Focus
             {
                 appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
 
+                sCurrentTabTitle = sCurrentTabTitle.Replace(" - Google Chrome", "");
+                sCurrentTabTitle = sCurrentTabTitle.Replace(" — Mozilla Firefox", "");
+                sCurrentTabTitle = sCurrentTabTitle.Replace(" - Microsoft? Edge", "");
                 //Lets add it to keyword array, if its not already there
                 if (sCurrentTabTitle.Length > 0)
                 {
@@ -241,12 +367,12 @@ namespace Focus_Bear.Focus
             Hide();
         }
 
-        private void btnEditSettings_Click(object sender, RoutedEventArgs e)
-        {
-            ((App)(Application.Current)).ShowPreferencesWindow();
-            ((App)(Application.Current)).wndPreferences.ShowFocusMode(sFocusModeName);
-            dispatcherTimer.Stop();
-            Hide();
-        }
+        //private void btnEditSettings_Click(object sender, RoutedEventArgs e)
+        //{
+        //    ((App)(Application.Current)).ShowPreferencesWindow();
+        //    ((App)(Application.Current)).wndPreferences.ShowFocusMode(sFocusModeName);
+        //    dispatcherTimer.Stop();
+        //    Hide();
+        //}
     }
 }

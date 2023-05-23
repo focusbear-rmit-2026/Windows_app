@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Onboarding.New;
+using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,9 +23,13 @@ namespace Focus_Bear.Onboarding
     public partial class WelcomeAbordPostpone : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        private WelcomeAbord parentWin = null;
+        private NewOnboardingStart parentWin = null;
         public WelcomeAbordPostpone()
         {
+        }
+            public WelcomeAbordPostpone(NewOnboardingStart _parentWin)
+        {
+            parentWin = _parentWin;
             InitializeComponent();
             InitializeSettings();
 
@@ -32,7 +37,7 @@ namespace Focus_Bear.Onboarding
         }
         void InitializeSettings()
         {
-            parentWin = Application.Current.MainWindow as WelcomeAbord;
+           
             this.Owner = parentWin;
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
            // parentWin.RepositionWindow();
@@ -83,7 +88,7 @@ namespace Focus_Bear.Onboarding
             {
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
                 int nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
-                parentWin.PostponeOnboarding(nMinutesToPostpone);
+                parentWin.pageBuildHabits.PostponeOnboarding(nMinutesToPostpone);
                 parentWin.GridShade.Visibility = Visibility.Collapsed;
                 Close();
             }

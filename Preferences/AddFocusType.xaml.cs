@@ -37,7 +37,7 @@ namespace Focus_Bear.Preferences
             btnAdd.IsEnabled = false; //Initially
             btnAdd.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddText"].ToString();
             btnCancel.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonCancelText"].ToString();
-
+            TxtFocusName.Focus();
 
         }
 

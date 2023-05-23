@@ -4,9 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Login"
+         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="720" Width="945"  ResizeMode="NoResize" Closed="Window_Closed"  >
+        Title="Focus Bear" Height="720" Width="945"  ResizeMode="NoResize" Closed="Window_Closed" Loaded="Window_Loaded" >
+    <local1:DpiDecorator>
     <Grid>
         <Frame x:Name="AppFrameLogin" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" />
     </Grid>
+        </local1:DpiDecorator>
 </Window>

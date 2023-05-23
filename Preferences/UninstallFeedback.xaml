@@ -19,10 +19,10 @@
 
             <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0"   Text="xUninstalling..."  Foreground="#e88800" FontSize="24" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"  />
             <TextBlock  Grid.Row="1"   Name="Description" Margin="20,0,20,0"  TextWrapping="Wrap" Text="xDamn sorry, it seems like we let you down. We're in the early stages of this product and really want to get feedback to make it better. Could you tell us why you're uninstalling?"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
-            <ComboBox Name="ComboBoxReason"  Grid.Row="2" Width="250" Height="25" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0"  SelectedIndex="0" FontSize="14" SelectionChanged="ComboBoxReason_SelectionChanged">
+            <ComboBox Name="ComboBoxReason"  Grid.Row="2" Focusable="True" TabIndex="1" Width="250" Height="25" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0"  SelectedIndex="0" FontSize="14" SelectionChanged="ComboBoxReason_SelectionChanged">
             </ComboBox>
 
-            <TextBox  Grid.Row="3" Name="TxtFeedback" TextWrapping="Wrap" AcceptsReturn="True"  Height="70" Margin="20,0,20,0"   VerticalAlignment="Center"  FontSize="14" TextChanged="TxtFeedback_TextChanged">
+            <TextBox  Grid.Row="3" Name="TxtFeedback" TabIndex="2" TextWrapping="Wrap" AcceptsReturn="True"  Height="70" Margin="20,0,20,0"   VerticalAlignment="Center"  FontSize="14" TextChanged="TxtFeedback_TextChanged">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -43,14 +43,14 @@
             </TextBox>
             <TextBlock  Grid.Row="4" Name="Minimum" Margin="20,0,20,0"   Text="x(Minimum 10 characters)..."  Foreground="#000" FontSize="12" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-            <Button  Grid.Row="5" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click" >
+            <Button  Grid.Row="5" x:Name="btnCancel" TabIndex="3"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnCancelTXT" Text="xCancel"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  Grid.Row="5" x:Name="btnUninstall"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnUninstall_Click" >
+            <Button  Grid.Row="5" x:Name="btnUninstall"  TabIndex="4" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnUninstall_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnUninstallTXT" Text="xUninstall"/>

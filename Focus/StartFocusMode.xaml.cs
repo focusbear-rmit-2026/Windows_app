@@ -57,33 +57,52 @@ namespace Focus_Bear.Focus
             "explanationText":"Setting an intention for the focus block helps prime your brain to accomplish that task. To edit the intention after starting the focus mode, click Brain Dump in the menu bar."
         },
         */
-           
-            bIsDefaultFocusMode = bIsDefault;
-            bIsisLockedFocusMode = isLockedFocus;
+            try 
+            { 
+                bIsDefaultFocusMode = bIsDefault;
+                bIsisLockedFocusMode = isLockedFocus;
 
-            Title = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["buttonStartFocusText"].ToString();
+                Title = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["buttonStartFocusText"].ToString();
 
-            string sHeading = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["title"].ToString();
-            sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusName);
+                string sHeading = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["title"].ToString();
+                sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusName);
 
-            Heading.Text = sHeading;
-            HowMuchTime.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["howMuchTimeText"].ToString();
-            WhatPlan.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["questionText"].ToString();
-            Descriptiopn.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["explanationText"].ToString();
+                Heading.Text = sHeading;
+                HowMuchTime.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["howMuchTimeText"].ToString();
+                WhatPlan.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["questionText"].ToString();
+                Descriptiopn.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["explanationText"].ToString();
 
-            HoursTitle.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["hoursText"].ToString();
-            MinutesTitle.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["minutesText"].ToString();
-            btnStartFocusText.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["buttonStartFocusText"].ToString();
+                HoursTitle.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["hoursText"].ToString();
+                MinutesTitle.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["minutesText"].ToString();
+                btnStartFocusText.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["buttonStartFocusText"].ToString();
 
-            SkipMicroBreaks.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonSkipMicrobreaksText"].ToString();
+                SkipMicroBreaks.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonSkipMicrobreaksText"].ToString();
 
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StartFocusMode()" + ex.Message);
+            }
             Hours.Text = "00";
             Minutes.Text = "20"; //Defaults
 
-            appSettings.bSkipMicroBreaksDuringFocus = false;
-            SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
+            if (!appSettings.bStartingAnotherFocusMode)
+            {
+                appSettings.bSkipMicroBreaksDuringFocus = false;
+                SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
+            }
         }
 
+        public void SetTextsIfStartingAnotherFocuModeBlock()
+        {
+            TxtIntention.Text = appSettings.sRunningFocusModeIntention;
+            SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
+            Hours.Text = appSettings.sRunningFocusModeHours;
+            Minutes.Text = appSettings.sRunningFocusModeMinutes;
+
+            //here our varialbe work gets over and we can make it false;
+            appSettings.bStartingAnotherFocusMode = false;
+        }
         private void btnStartFocus_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             try
@@ -91,6 +110,10 @@ namespace Focus_Bear.Focus
                 sIntention = TxtIntention.Text;
                 sHours = Hours.Text;
                 sMinutes = Minutes.Text;
+
+                appSettings.sRunningFocusModeHours = Hours.Text; 
+                appSettings.sRunningFocusModeMinutes = Minutes.Text;
+
                 DialogResult = true;
                 Close();
 
@@ -285,6 +308,10 @@ namespace Focus_Bear.Focus
                 }
                 this.Cursor = Cursors.Arrow;
 
+            }
+            else if(appSettings.bStartingAnotherFocusMode)
+            {
+                SetTextsIfStartingAnotherFocuModeBlock();
             }
 
         }

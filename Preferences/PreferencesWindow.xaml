@@ -4,9 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Preferences"
+        xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="Preferences" Height="700" Width="670" ResizeMode="NoResize" Loaded="Window_Loaded" Closing="Window_Closing" IsVisibleChanged="Window_IsVisibleChanged">
-    <Grid>
+        Title="Preferences" Height="700" Width="670" ResizeMode="CanResize" Loaded="Window_Loaded" Closing="Window_Closing" IsVisibleChanged="Window_IsVisibleChanged"  >
+    <local1:DpiDecorator>
+        <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="81" MinHeight="81" />
             <RowDefinition Height="*" />
@@ -17,12 +19,13 @@
             <Grid Margin="0" Grid.Row="0" Background="#faf9f6" >
 
                 <StackPanel Orientation="Horizontal" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center"  >
-                    <Button x:Name="btnSettings" Style="{StaticResource BtnStylePreferences}" Click="btnSettings_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" >
-                        <StackPanel Orientation="Vertical">
-                            <Image Source="../images/gear_alt.png" Margin="0,5,0,0" Height="24" Width="24" />
-                            <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnSettingsTXT" >xSettings</TextBlock>
-                        </StackPanel>
-                    </Button>
+                        <Button x:Name="btnStats" Style="{StaticResource BtnStylePreferences}" Click="btnStats_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" >
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="../images/person.png" Margin="0,5,0,0" Height="24" Width="24" />
+                                <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnStatsTXT" >xStats</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        
 
                     <Button x:Name="btnFocus" Style="{StaticResource BtnStylePreferences}" Click="btnFocus_Click"  MinWidth="55" Height="55" Margin="0,0,5,0">
                         <StackPanel Orientation="Vertical">
@@ -37,15 +40,20 @@
                             <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnEditHabitsTXT">xEdit Habits</TextBlock>
                         </StackPanel>
                     </Button>
-
-                    <!--<Button x:Name="btnPassword" Style="{StaticResource BtnStylePreferences}" Click="btnPassword_Click"  MinWidth="55" Height="55" Margin="0,0,5,0">
+                        <Button x:Name="btnSettings" Style="{StaticResource BtnStylePreferences}" Click="btnSettings_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" >
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="../images/gear_alt.png" Margin="0,5,0,0" Height="24" Width="24" />
+                                <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnSettingsTXT" >xSettings</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <!--<Button x:Name="btnPassword" Style="{StaticResource BtnStylePreferences}" Click="btnPassword_Click"  MinWidth="55" Height="55" Margin="0,0,5,0">
                         <StackPanel Orientation="Vertical">
                             <Image Source="../images/lock.png" Margin="0,5,0,0" Height="24" Width="24" />
                             <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnPasswordTXT">xPassword</TextBlock>
                         </StackPanel>
                     </Button>-->
 
-                    <Button x:Name="btnBlockedURLs" Style="{StaticResource BtnStylePreferences}" Click="btnBlockedURLs_Click"  MinWidth="55" Height="55" Margin="0,0,5,0">
+                    <!--<Button x:Name="btnBlockedURLs" Style="{StaticResource BtnStylePreferences}" Click="btnBlockedURLs_Click"  MinWidth="55" Height="55" Margin="0,0,5,0">
                         <StackPanel Orientation="Vertical">
                             <Image Source="../images/Globe.png" Margin="0,5,0,0" Height="24" Width="24" />
                             <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnBlockedURLsTXT">xBlocked URLs</TextBlock>
@@ -64,12 +72,19 @@
                             <Image Source="../images/minus.png" Margin="0,5,0,0" Height="24" Width="24" />
                             <TextBlock Margin="0,3,0,0" Padding="6,0,6,0" x:Name="btnUninstallTXT">xUninstall</TextBlock>
                         </StackPanel>
-                    </Button>
-
-                </StackPanel>
+                    </Button>-->
+                        <Button x:Name="btnHelp" Style="{StaticResource BtnStylePreferences}" Click="btnHelp_Click"  MinWidth="55" Height="55"  >
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="../images/info.png" Margin="0,5,0,0" Height="24" Width="24" />
+                                <TextBlock Margin="0,3,0,0" Padding="6,0,6,0" x:Name="btnHelpTXT">xHelp</TextBlock>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
 
             </Grid>
         </Border>
+        
+        <Frame x:Name="FrameStats" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
         <Frame x:Name="FrameSettings" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
 
         <Frame x:Name="FrameEditHabits" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
@@ -77,8 +92,10 @@
         <Frame x:Name="FrameBlockedURLs" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
         <Frame x:Name="FrameAccountTab" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
         <Frame x:Name="FrameUninstallTab" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
+        <Frame x:Name="FrameHelpTab" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
 
         <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
         
     </Grid>
+        </local1:DpiDecorator>
 </Window>

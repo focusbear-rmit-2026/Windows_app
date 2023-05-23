@@ -72,6 +72,9 @@
       <HintPath>packages\Interop.UIAutomationClient.10.19041.0\lib\net45\Interop.UIAutomationClient.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.5.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.IdentityModel.JsonWebTokens, Version=6.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.IdentityModel.JsonWebTokens.6.5.0\lib\net461\Microsoft.IdentityModel.JsonWebTokens.dll</HintPath>
     </Reference>
@@ -99,7 +102,16 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Sentry, Version=3.29.1.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0, processorArchitecture=MSIL">
+      <HintPath>packages\Sentry.3.29.1\lib\net461\Sentry.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Collections.Immutable.5.0.0\lib\net461\System.Collections.Immutable.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
@@ -109,6 +121,36 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Metadata, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Reflection.Metadata.5.0.0\lib\net461\System.Reflection.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.5.0.0\lib\net45\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Text.Encodings.Web, Version=5.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Encodings.Web.5.0.1\lib\net461\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=5.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Json.5.0.2\lib\net461\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -173,6 +215,9 @@
     <Compile Include="Habits\BreakWarning\BreakWarning.xaml.cs">
       <DependentUpon>BreakWarning.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Habits\HabitsResumeInPopup.xaml.cs">
+      <DependentUpon>HabitsResumeInPopup.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Habits\EasySkipPostpone.xaml.cs">
       <DependentUpon>EasySkipPostpone.xaml</DependentUpon>
     </Compile>
@@ -231,7 +276,10 @@
     <Compile Include="Onboarding\AfterLogin\OnboardingSetupAndTipsWindow.xaml.cs">
       <DependentUpon>OnboardingSetupAndTipsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\AfterLogin\OnboardingDistractingSites.xaml.cs">
+    <Compile Include="Onboarding\AfterLogin\OnboardingConfirmForAI.xaml.cs">
+      <DependentUpon>OnboardingConfirmForAI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\NEW\OnboardingDistractingSites.xaml.cs">
       <DependentUpon>OnboardingDistractingSites.xaml</DependentUpon>
     </Compile>
     <Compile Include="Onboarding\AfterLogin\OnboardingSetupFocusApps.xaml.cs">
@@ -246,6 +294,30 @@
     <Compile Include="Onboarding\AfterLogin\OnboardingSetWorkType.xaml.cs">
       <DependentUpon>OnboardingSetWorkType.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Onboarding\NEW\NewOnboardingStart.xaml.cs">
+      <DependentUpon>NewOnboardingStart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\NEW\OnboardingSetupFocusBearAccount.xaml.cs">
+      <DependentUpon>OnboardingSetupFocusBearAccount.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\NEW\OnboardingNewBuildingHabits.xaml.cs">
+      <DependentUpon>OnboardingNewBuildingHabits.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\NEW\OnboardingNewWhichBrowser.xaml.cs">
+      <DependentUpon>OnboardingNewWhichBrowser.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\NEW\OnboardingNewDistractionsShieldActivated.xaml.cs">
+      <DependentUpon>OnboardingNewDistractionsShieldActivated.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\NEW\OnboardingNewPrivacy.xaml.cs">
+      <DependentUpon>OnboardingNewPrivacy.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\NEW\OnboardingNewWelcome.xaml.cs">
+      <DependentUpon>OnboardingNewWelcome.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\OnboardingBreakReminder.xaml.cs">
+      <DependentUpon>OnboardingBreakReminder.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Onboarding\OnboardingAskWorkTime.xaml.cs">
       <DependentUpon>OnboardingAskWorkTime.xaml</DependentUpon>
     </Compile>
@@ -254,6 +326,9 @@
     </Compile>
     <Compile Include="Onboarding\OnboardingMindfulBreathing.xaml.cs">
       <DependentUpon>OnboardingMindfulBreathing.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\OnboardingSelectHabitPacks.xaml.cs">
+      <DependentUpon>OnboardingSelectHabitPacks.xaml</DependentUpon>
     </Compile>
     <Compile Include="Onboarding\OnboardingWelcome.xaml.cs">
       <DependentUpon>OnboardingWelcome.xaml</DependentUpon>
@@ -279,6 +354,9 @@
     <Compile Include="Preferences\AddWebUrl.xaml.cs">
       <DependentUpon>AddWebUrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\AITab.xaml.cs">
+      <DependentUpon>AITab.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Preferences\AlwaysBlockedURLs.xaml.cs">
       <DependentUpon>AlwaysBlockedURLs.xaml</DependentUpon>
     </Compile>
@@ -294,11 +372,17 @@
     <Compile Include="Preferences\FocusPage.xaml.cs">
       <DependentUpon>FocusPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\HelpTab.xaml.cs">
+      <DependentUpon>HelpTab.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Preferences\PreferencesWindow.xaml.cs">
       <DependentUpon>PreferencesWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Preferences\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\Stats.xaml.cs">
+      <DependentUpon>Stats.xaml</DependentUpon>
     </Compile>
     <Compile Include="Preferences\Uninstall.xaml.cs">
       <DependentUpon>Uninstall.xaml</DependentUpon>
@@ -401,6 +485,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Habits\HabitsResumeInPopup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Page>
     <Page Include="Habits\EasySkipPostpone.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -473,7 +561,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Onboarding\AfterLogin\OnboardingDistractingSites.xaml">
+    <Page Include="Onboarding\AfterLogin\OnboardingConfirmForAI.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\NEW\OnboardingDistractingSites.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -493,6 +585,38 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Onboarding\NEW\NewOnboardingStart.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\NEW\OnboardingSetupFocusBearAccount.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\NEW\OnboardingNewBuildingHabits.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\NEW\OnboardingNewWhichBrowser.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\NEW\OnboardingNewDistractionsShieldActivated.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\NEW\OnboardingNewPrivacy.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\NEW\OnboardingNewWelcome.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\OnboardingBreakReminder.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Onboarding\OnboardingAskWorkTime.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -502,6 +626,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Onboarding\OnboardingMindfulBreathing.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\OnboardingSelectHabitPacks.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -537,6 +665,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Preferences\AITab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Preferences\AlwaysBlockedURLs.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -557,11 +689,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Preferences\HelpTab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Preferences\PreferencesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Preferences\Settings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\Stats.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -637,7 +777,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.manifest" />
-    <None Include="config-es.json" />
+    <None Include="config-es.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -682,6 +824,13 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\img_browsers.png" />
+    <Resource Include="Images\blocked.png" />
+    <Resource Include="Images\bulb_small.png" />
+    <Resource Include="Images\img_videoScreenshot.png" />
+    <Resource Include="Images\FocusTips\tip_allowApps.png" />
+    <Resource Include="Images\FocusTips\tip_allowKeywords.png" />
+    <Resource Include="Images\FocusTips\tip_blockPopup.png" />
     <Resource Include="Images\FocusTips\focusTip_1.png" />
     <Resource Include="Images\FocusTips\focusTip_2.png" />
     <Resource Include="Images\FocusTips\focusTip_3.png" />
@@ -718,9 +867,9 @@
     <Resource Include="Images\checkmark_rectangle.png" />
     <Resource Include="Images\Globe.png" />
     <Resource Include="focus-bear.ico" />
-    <Content Include="Graph\GraphDays.html">
+    <None Include="Graph\GraphDays.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Content Include="Graph\GraphDaysDuration.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -773,6 +922,8 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\Microsoft.Web.WebView2.1.0.1370.28\build\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Web.WebView2.1.0.1370.28\build\Microsoft.Web.WebView2.targets'))" />
     <Error Condition="!Exists('packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets'))" />
+    <Error Condition="!Exists('packages\Sentry.3.29.1\build\Sentry.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Sentry.3.29.1\build\Sentry.targets'))" />
   </Target>
   <Import Project="packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets" Condition="Exists('packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets')" />
+  <Import Project="packages\Sentry.3.29.1\build\Sentry.targets" Condition="Exists('packages\Sentry.3.29.1\build\Sentry.targets')" />
 </Project>

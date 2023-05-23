@@ -25,13 +25,13 @@ namespace Focus_Bear.Utils
         public FBMessageBox()
         {
         }
-        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "")
+        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false)
         {
             InitializeComponent();
 
             this.Topmost = true;
-            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            
             if (sCaption.Length > 0)
             {
                 Caption.Visibility = Visibility.Visible;
@@ -65,6 +65,10 @@ namespace Focus_Bear.Utils
             btnYesTxt.Text = appSettings.ConfigFileStrings["common"]["yesText"].ToString();
             btnNoTxt.Text = appSettings.ConfigFileStrings["common"]["noText"].ToString();
             btnCancelTxt.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
+            
+            DoNotShowAnymore.Content = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkboxDonotShowText"].ToString();
+            if (bShowDontShowCheckbox)
+                DoNotShowAnymore.Visibility = Visibility.Visible;
 
             if (btnYesText.Length > 0)
             {
@@ -101,6 +105,16 @@ namespace Focus_Bear.Utils
         {
             btnClicked = MessageBoxResult.Cancel;
             Close();
+        }
+
+        private void DoNotShowAnymore_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bAiAllowUrlShowAlertEnabled = false;
+        }
+
+        private void DoNotShowAnymore_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bAiAllowUrlShowAlertEnabled = true;
         }
     }
 }

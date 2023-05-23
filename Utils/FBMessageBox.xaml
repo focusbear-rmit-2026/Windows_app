@@ -13,6 +13,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto" MinHeight="72"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <Image Grid.Row="0" Width="60" Height="60"  Margin="0" Source="../Images/FBicon-64.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" VerticalAlignment="Bottom"   HorizontalAlignment="Center"/>
@@ -49,6 +50,7 @@
                     </Button.Content>
                 </Button>
             </StackPanel>
+            <CheckBox Grid.Row="4"  x:Name="DoNotShowAnymore" Margin="10,0,0,10" Checked="DoNotShowAnymore_Checked" Unchecked="DoNotShowAnymore_Unchecked" Visibility="Collapsed">xDon't show this anymore</CheckBox>
         </Grid>
     </Border>
 </Window>

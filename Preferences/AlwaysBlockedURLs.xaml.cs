@@ -20,7 +20,7 @@ namespace Focus_Bear.Preferences
     /// <summary>
     /// Interaction logic for AlwaysBlockedURLs.xaml
     /// </summary>
-    public partial class AlwaysBlockedURLs : Page
+    public partial class AlwaysBlockedURLs : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
 

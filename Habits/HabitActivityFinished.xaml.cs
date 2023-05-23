@@ -41,6 +41,8 @@ namespace Focus_Bear.Habits
 
         private bool bBreakActivitiesFinished;
 
+        public bool bWebViewInitialized = false;
+        public bool bCallLoadGraphDataAfterWebViewInitialized = false;
         public HabitActivityFinished()
         {
            
@@ -48,12 +50,17 @@ namespace Focus_Bear.Habits
         public HabitActivityFinished(HabitWindow parentWindow) : this()
         {
             InitializeComponent();
+            webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
+            webView1.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted1;
+
+
             _parentWindow = parentWindow;
             bBreakActivitiesFinished = false;
             bExcludedActivityIndex = -1;
-            SetWebView();
+           /// SetWebView();
         }
-        private async void SetWebView()
+       
+        public async Task SetWebView()
         {
             try
             {
@@ -66,6 +73,20 @@ namespace Focus_Bear.Habits
                     await webView.EnsureCoreWebView2Async(task);
                 }
 
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("Activity Finished SetWebView() EX - " + ex.Message);
+            }
+        }
+        public async Task SetWebView1()
+        {
+            try
+            {
+                var userDataFolder = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FBCustomWebView2");
+
+                var task = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
+
                 if (webView1 != null)
                 {
                     await webView1.EnsureCoreWebView2Async(task);
@@ -73,9 +94,74 @@ namespace Focus_Bear.Habits
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("Activity Finished SetWebView() EX - " + ex.Message);
+                LogWriter.LogWrite("Activity Finished SetWebView1() EX - " + ex.Message);
             }
         }
+
+        private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+        {
+            if (e.IsSuccess)
+            {
+                try
+                {
+
+                       //this.webView.NavigationStarting += NavigationStarting;
+                    //this.webView.NavigationCompleted += NavigationCompleted;
+                    webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
+                    webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
+                    webView.CoreWebView2.Settings.IsScriptEnabled = true;
+                    webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
+
+                    webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
+                    webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+
+                    string curDir = Directory.GetCurrentDirectory() + "\\Graph";
+                    webView.CoreWebView2.SetVirtualHostNameToFolderMapping("focusbear", curDir, CoreWebView2HostResourceAccessKind.Allow);
+
+                    bWebViewInitialized = true;
+
+                    if (appSettings.bShowActivitiesFromMid || bCallLoadGraphDataAfterWebViewInitialized)//Justload the graph data in this case
+                    {
+                        LoadGraphData();
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("Activity Finished CoreWebView2InitializationCompleted()" + ex.Message);
+                }
+            }
+        }
+
+        private void CoreWebView2InitializationCompleted1(object sender, CoreWebView2InitializationCompletedEventArgs e)
+        {
+            if (e.IsSuccess)
+            {
+                try
+                {
+
+                    //this.webView.NavigationStarting += NavigationStarting;
+                    //this.webView.NavigationCompleted += NavigationCompleted;
+                    webView1.CoreWebView2.Settings.AreHostObjectsAllowed = true;
+                    webView1.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
+                    webView1.CoreWebView2.Settings.IsScriptEnabled = true;
+                    webView1.CoreWebView2.Settings.IsWebMessageEnabled = true;
+
+                    webView1.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
+                    webView1.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+
+                    string curDir = Directory.GetCurrentDirectory() + "\\Graph";
+                    webView1.CoreWebView2.SetVirtualHostNameToFolderMapping("focusbear", curDir, CoreWebView2HostResourceAccessKind.Allow);
+
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("Activity Finished CoreWebView2InitializationCompleted1()" + ex.Message);
+                    Debug.WriteLine(ex.Message);
+                }
+            }
+        }
+
         public void LoadData(bool bSkipCurrentActivity = false)
         {
             LogWriter.LogWrite("ActivityFinished LoadData()");
@@ -544,6 +630,7 @@ namespace Focus_Bear.Habits
                 "graphDateText":"Date",
                 "graphTimeText":"Time"
              * */
+              
             try
             {
                 //double check graph files exists
@@ -560,14 +647,16 @@ namespace Focus_Bear.Habits
             catch (Exception ex)
             {
                 LogWriter.LogWrite("double check graph files exists EX- " + ex.Message);
-            }
+            } 
 
             string sLabelQuantity = appSettings.ConfigFileStrings["common"]["graphQuantityText"].ToString();
             string sLabelMinutes = appSettings.ConfigFileStrings["common"]["graphMinutesText"].ToString();
             string sLabelDate = appSettings.ConfigFileStrings["common"]["graphDateText"].ToString();
             string sLabelTime = appSettings.ConfigFileStrings["common"]["graphTimeText"].ToString();
 
-            
+            string curDir = Directory.GetCurrentDirectory();
+            //Uri Url = new Uri(String.Format("file:///{0}/graph/GraphDays.html", curDir));
+
             webView.Visibility = Visibility.Visible;
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
@@ -576,12 +665,14 @@ namespace Focus_Bear.Habits
                 sCurrentLogType = "morning routine";
                 if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantity)
                 {
-                    webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysPath), System.UriKind.Absolute);
+                   //mj// webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysPath), System.UriKind.Absolute);
+                    webView.Source = new Uri(String.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
                 }
                 else
                 {
                     //Prepare Duration data
-                    webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysDurationPath), System.UriKind.Absolute);
+                    //mj//webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysDurationPath), System.UriKind.Absolute);
+                    webView.Source = new Uri(string.Format("file:///{0}/graph/GraphDaysDuration.html", curDir), System.UriKind.Absolute);
                 }
                 sCurrentActivityName = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name;
                 bLogQuantity = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantity;
@@ -594,12 +685,14 @@ namespace Focus_Bear.Habits
 
                 if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantity)
                 {
-                    webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysPath), System.UriKind.Absolute);
+                    //mj//webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysPath), System.UriKind.Absolute);
+                    webView.Source = new Uri(String.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
                 }
                 else
                 {
                     //Prepare Duration data
-                    webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysDurationPath), System.UriKind.Absolute);
+                    //mj//webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysDurationPath), System.UriKind.Absolute);
+                    webView.Source = new Uri(string.Format("file:///{0}/graph/GraphDaysDuration.html", curDir), System.UriKind.Absolute);
                 }
                 sCurrentActivityName = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name;
                 bLogQuantity = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantity;
@@ -640,14 +733,19 @@ namespace Focus_Bear.Habits
 
                 if (bLogQuantity)
                 {
-                    webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphTimePath), System.UriKind.Absolute);
-                    webView1.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysPath), System.UriKind.Absolute);
+                    //mj//webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphTimePath), System.UriKind.Absolute);
+                    webView.Source = new Uri(String.Format("file:///{0}/graph/GraphTime.html", curDir), System.UriKind.Absolute);
+                    //mj//webView1.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysPath), System.UriKind.Absolute);
+                    webView1.Source = new Uri(String.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
                 }
                 else
                 {
                     //Prepare Duration data
-                    webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphTimesDurationPath), System.UriKind.Absolute);
-                    webView1.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysDurationPath), System.UriKind.Absolute);
+                    //mj//webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphTimesDurationPath), System.UriKind.Absolute);
+                    webView.Source = new Uri(String.Format("file:///{0}/graph/GraphTimeDuration.html", curDir), System.UriKind.Absolute);
+                    //mj//webView1.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysDurationPath), System.UriKind.Absolute);
+                    webView1.Source = new Uri(String.Format("file:///{0}/graph/GraphDaysDuration.html", curDir), System.UriKind.Absolute);
+
                 }
 
             }
@@ -659,9 +757,9 @@ namespace Focus_Bear.Habits
             }
             else
             {
-                await Task.Delay(1300); 
+                await Task.Delay(1300);
             }
-            
+
 
             CommandManager.InvalidateRequerySuggested();
 
@@ -985,12 +1083,12 @@ namespace Focus_Bear.Habits
 
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
-                    webView.ExecuteScriptAsync(functiontocallTime);
-                    webView1.ExecuteScriptAsync(functiontocall);
+                    await webView.ExecuteScriptAsync(functiontocallTime);
+                    await webView1.ExecuteScriptAsync(functiontocall);
                 }
                 else
                 {
-                    webView.ExecuteScriptAsync(functiontocall);
+                    await webView.ExecuteScriptAsync(functiontocall);
                 }
             }
             catch (Exception ex)
@@ -1007,8 +1105,8 @@ namespace Focus_Bear.Habits
                 
                 if (bBreakActivitiesFinished)
                 {
-
-                    ((App)(Application.Current)).ShowBrainDumpWindow();
+                    if(appSettings.sBrainDump.Length > 0) //Onmly show if there is text.
+                        ((App)(Application.Current)).ShowBrainDumpWindow();
                     
                     _parentWindow.HideFrameAndClose();
                     return;

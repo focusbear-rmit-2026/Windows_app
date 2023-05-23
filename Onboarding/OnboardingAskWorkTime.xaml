@@ -5,11 +5,11 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Focus_Bear.Onboarding"
       xmlns:localView="clr-namespace:Focus_Bear.Utils"
-      xmlns:local1="clr-namespace:Focus_Bear.Utils"
+ 
       mc:Ignorable="d" 
      d:DesignHeight="1080" d:DesignWidth="1920"
       Title="OnboardingAskWorkTime" Background="White">
-    <local1:DpiDecorator>
+ 
         <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
@@ -23,25 +23,21 @@
         </Grid.RowDefinitions>
 
         <Image Grid.Row="0" Height="135"  Width="135" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWelcome to Focus Bear" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <StackPanel  Grid.Row="2"  Orientation="Vertical" VerticalAlignment="Center"  Margin="0,0,0,0">
-            <TextBlock  Name="Description" Margin="0,0,0,50" TextWrapping="Wrap" Text="xSet Startup and Shutdown Time" Foreground="#272727" FontSize="28" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-            <StackPanel Orientation="Vertical" Width="1000"  Margin="20,0,0,0">
-                <Grid>
-                    <TextBlock  Name="StartupTime" Margin="-20,0,0,0"   Width="450" TextWrapping="Wrap" Text="xStartup Time:" Foreground="#000" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Left" />
-                    <localView:HourControl x:Name="StartupTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="450,0,0,0"  ValueChanged="StartupTimePicker_ValueChanged"/>
-                </Grid>
-                <TextBlock  Name="StartupTimeDesc" Margin="450,10,0,0"    TextWrapping="Wrap" Text="xChoose the absolute earliest time you ever plan to start your morning routine. You can start your morning routine at any time after SHUTOFFTIME. Before STARTTIME your computer will be locked because you should be sleeping 😴 (you can still unlock it if you have an emergency)." Foreground="#000" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWhen do you want to start and finish work?" Foreground="#000" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <StackPanel  Grid.Row="2"  Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center"  Width="650"   Margin="0,0,0,0">
+            <StackPanel Orientation="Horizontal"   Margin="20,0,0,0">
+                 
+                    <TextBlock  Name="StartupTime" Margin="-20,0,0,0"     TextWrapping="Wrap" Text="xWhat time do you start work?" Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <localView:HourControl x:Name="StartupTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0"  ValueChanged="StartupTimePicker_ValueChanged"/>
+                 
             </StackPanel>
-
-            <StackPanel Orientation="Vertical" Width="1000" Margin="20,30,0,0">
-                <Grid>
-                    <TextBlock  Name="ShutdownTime" Margin="-20,0,0,0"  Width="450" TextWrapping="Wrap" Text="xShutdown Time:" Foreground="#000" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Left" />
-                    <localView:HourControl x:Name="ShutdownTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="450,0,0,0" ValueChanged="ShutdownTimePicker_ValueChanged" />
-                   
-                </Grid>
-                <TextBlock  Name="ShutdownTimeDesc" Margin="450,10,0,0"     TextWrapping="Wrap" Text="xAt SHUTOFFTIME, Focus Bear will take over your computer and other devices and guide you through your evening routine to help you wind down for the evening." Foreground="#000" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+            <StackPanel Orientation="Horizontal"  Margin="20,30,0,0">
+         
+                    <TextBlock  Name="ShutdownTime" Margin="-20,0,0,0"    TextWrapping="Wrap" Text="xWhat time do you finish work?" Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <localView:HourControl x:Name="ShutdownTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0" ValueChanged="ShutdownTimePicker_ValueChanged" />
+               
             </StackPanel>
+            <TextBlock Name="Schedule" Margin="0,50,0,0" TextWrapping="Wrap" Text="xYour schedule looks like:\n\n🐥 MORNING_ROUTINE_START_TIME - MORNING_ROUTINE_END_TIME - Morning routine\n\n💼 MORNING_ROUTINE_END_TIME - START_WORK_TIME - Prepare to start work (buffer time)\n\n💪 START_WORK_TIME - END_WORK_TIME - Work\n\n🥱 END_WORK_TIME - EVENING_ROUTINE_END_TIME - Do evening routine.\n\n😴 EVENING_ROUTINE_END_TIME - Finish evening routine - computer locked (you can unlock it if you need it)" Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
         </StackPanel>
 
         <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="400" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click">
@@ -52,5 +48,5 @@
             </Button.Content>
         </Button>
     </Grid>
-    </local1:DpiDecorator>
+ 
 </Page>

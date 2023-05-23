@@ -147,7 +147,9 @@ namespace Focus_Bear.Habits
 
         private void MainWindow_VisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (IsVisible)
+
+            //04-04-2023: Disabled this in build 1.0.50
+            /*if (IsVisible)
             {
                 try
                 {
@@ -162,7 +164,8 @@ namespace Focus_Bear.Habits
             else
             {
                 DetachKeyboardHook();
-            }
+            }*/
+
         }
         private static void MainWindow_Closed(object sender, EventArgs e)
         {
@@ -201,7 +204,7 @@ namespace Focus_Bear.Habits
             if (msg != DeviceNotification.WmDeviceChange)
                 return IntPtr.Zero;
 
-            Debug.WriteLine("WM_DEVICE_CHANGE TRIGGERED");
+            LogWriter.LogWrite("WM_DEVICE_CHANGE TRIGGERED");
 
             switch ((int)wParam)
             {
@@ -210,7 +213,7 @@ namespace Focus_Bear.Habits
                     {
                         if (DeviceNotification.IsMonitor(lParam))
                         {
-                            Debug.WriteLine($"Monitor {((int)wParam == DeviceNotification.DbtDeviceArrival ? "arrived" : "removed")}");
+                            LogWriter.LogWrite($"Monitor {((int)wParam == DeviceNotification.DbtDeviceArrival ? "arrived" : "removed")}");
                             if ((int)wParam == DeviceNotification.DbtDeviceArrival)
                             {
                                 ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
@@ -223,7 +226,7 @@ namespace Focus_Bear.Habits
                         }
 
                         if (DeviceNotification.IsUsbDevice(lParam))
-                            Debug.WriteLine($"Usb device {((int)wParam == DeviceNotification.DbtDeviceArrival ? "arrived" : "removed")}");
+                            LogWriter.LogWrite($"Usb device {((int)wParam == DeviceNotification.DbtDeviceArrival ? "arrived" : "removed")}");
                     }
                     break;
             }

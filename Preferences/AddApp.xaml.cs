@@ -60,6 +60,11 @@ namespace Focus_Bear.Preferences
 
         void LoadTexts()
         {
+            foreach (AppDetails sApp in appSettings.InstalledApps)
+            {
+                sApp.IsSelected = false;
+            }
+
             FilteredList = appSettings.InstalledApps;
             ListInstalledApps.ItemsSource = FilteredList;
 
@@ -67,10 +72,17 @@ namespace Focus_Bear.Preferences
              * "buttonAddText":"Add",
              */
 
-            btnAddTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddText"].ToString(); //"Add";
-            btnCancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString(); //"Cancel";
-            Heading.Text = "Select Apps to use while focusing:"; //todo win text
-            btnEnterManuallyTXT.Text = "Can't find your app in the above list? Click here to enter manually."; //todo win text
+            try
+            {
+                btnAddTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddText"].ToString(); //"Add";
+                btnCancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString(); //"Cancel";
+                Heading.Text = "Select Apps to use while focusing:"; //todo win text
+                btnEnterManuallyTXT.Text = "Can't find your app in the above list? Click here to enter manually."; //todo win text
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AddApp load text ex + " + ex.Message);
+            }
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
@@ -103,6 +115,7 @@ namespace Focus_Bear.Preferences
                 else
                 {
                     FBMessageBox ff = new FBMessageBox("No items selected to Add.", "Focus Bear");
+                    ff.Owner = this;
                     ff.ShowDialog();
                    /// MessageBox.Show("No items selected to Add.", "Focus Bear"); //todo win text
                 }

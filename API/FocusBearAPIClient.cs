@@ -131,17 +131,21 @@ namespace Focus_Bear.API
                     HttpClient client = new HttpClient();
 
                     DateTime finish_time = DateTime.UtcNow;
+
+                    bool bTrue = true;
+                    string metadata = $"{{}}"; ;
+
                     if (is_skipped) //if activity is skipped just add one second to finish time
                     {
+                        metadata = $"{{\"skipped_did_complete\":{JsonConvert.SerializeObject(bTrue)}}}";
                         finish_time = finish_time.AddSeconds(1);
                     }
                     else
                     {
                         finish_time = finish_time.AddSeconds(duration_logged);
                     }
-                    bool bTrue = true;
-                    string metadata = $"{{\"skipped_did_complete\":{JsonConvert.SerializeObject(bTrue)}}}";
-
+                   
+                   
                     string addItemJsonString = $"{{\"activity_id\":\"{activity_id}\"," +
                         $"\"duration_logged\":{duration_logged}," +
                         $"\"device_id\":\"{appSettings.sDeviceID}\"," +
@@ -1266,14 +1270,15 @@ namespace Focus_Bear.API
 
                     if (appSettings.IsFirstInstall)
                     {
-                        if (appSettings.bGoalHealthyHabits)
-                        {
-                            responsePath = "https://api.focusbear.io/habit-packs/default?pack_id=45ede897-9008-494f-b810-8d5495f6baca&format=routine_and_break";
-                        }
-                        else
-                        {
-                            responsePath = "https://api.focusbear.io/habit-packs/default?pack_id=7cff2a97-90ad-4791-98b0-4a79dad32f73&format=break_only";
-                        }
+                        //if (appSettings.bGoalHealthyHabits)
+                        //{
+                        //    responsePath = "https://api.focusbear.io/habit-packs/default?pack_id=45ede897-9008-494f-b810-8d5495f6baca&format=routine_and_break";
+                        //}
+                        //else
+                        //{
+                        //    responsePath = "https://api.focusbear.io/habit-packs/default?pack_id=7cff2a97-90ad-4791-98b0-4a79dad32f73&format=break_only";
+                        //}
+                        responsePath = string.Format("https://api.focusbear.io/habit-packs/default?pack_id={0}", appSettings.sHabitPackIdToInstall);
                     }
                     var response = await client.GetAsync(responsePath);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
@@ -1483,7 +1488,7 @@ namespace Focus_Bear.API
                     }
                     else
                     {
-                        //GetUserSettings Failed
+                        //GetLastActivityInfo Failed
                         if (response.Content != null)
                         {
                             var responseCode = await response.Content.ReadAsStringAsync();
@@ -2111,6 +2116,175 @@ namespace Focus_Bear.API
             return 0;
         }
 
+
+        internal async Task<int> GetHabitPacks() //OK
+        {
+            LogWriter.LogWrite("GetHabitPacks()");
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    
+                    HttpClient client = new HttpClient();
+
+                    //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+                    client.DefaultRequestHeaders.Add("platform", "Windows");
+                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                    string responsePath = "";
+
+                   // if (appSettings.IsFirstInstall)
+                    {
+                        if (appSettings.bGoalHealthyHabits)
+                        {
+                            responsePath = "https://api.focusbear.io/habit-packs?featured_for_onboarding=true&breaks_only=false";
+                        }
+                        else
+                        {
+                            responsePath = "https://api.focusbear.io/habit-packs?featured_for_onboarding=true&breaks_only=true";
+                        }
+                    }
+                    var response = await client.GetAsync(responsePath);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            //JObject resJson = JObject.Parse(responseCode);
+                            //appSettings.sDeviceID = resJson["id"].ToString();
+                            appSettings.sRawHabitPacks = responseCode.ToString();
+
+                            LogWriter.LogWrite("habit-packs - " + appSettings.sRawHabitPacks);
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        //GetUserSettings Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            //JObject resJson = JObject.Parse(responseCode);
+                            //string sErrorMessage = resJson["message"].ToString();
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetHabitPacks - WebException" + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetHabitPacks - Exception" + ex.Message);
+
+            }
+            return 0;
+        }
+
+        internal async Task<int> GetFocusTemplates() //OK
+        {
+            LogWriter.LogWrite("GetFocusTemplates()");
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        //Renew the token and check again
+                        LogWriter.LogWrite("Attempting RenewToken before API call");
+                        var authenticator = new Authentication();
+                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                        if (x)
+                        {
+                            //token renewed
+                            LogWriter.LogWrite("RenewToken DONE before API call");
+                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                            {
+                                return 0;
+                            }
+                            //All Good, Proceed Normally
+                        }
+                        else
+                        {
+                            //token renewed failed
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = new HttpClient();
+
+                    //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+                    client.DefaultRequestHeaders.Add("platform", "Windows");
+                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+                    {
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+                    }
+                    else
+                    {
+                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
+                        return 0;
+                    }
+
+                    string apiPath = string.Format("https://api.focusbear.io/focus-mode-template?featured_for_onboarding=true&language={0}", appSettings.sLangCode);
+
+                    var response = await client.GetAsync(apiPath);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+
+                            appSettings.sFocusModeTemplates = responseCode.ToString();
+
+                            LogWriter.LogWrite("GetFocusTemplates() GOT Success");
+
+                            //RegistryManager.SaveUserSettings();
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        //GetUserSettings Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            JObject resJson = JObject.Parse(responseCode);
+                            string sErrorMessage = resJson["message"].ToString();
+                            LogWriter.LogWrite("GetFocusTemplates() FAILED - " + sErrorMessage);
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetFocusTemplates WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetFocusTemplates Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+
         internal async Task<int> CapturePostHog(string sEvent, string sMetadata) // OK
         {
             LogWriter.LogWrite("CapturePostHog() - " + sEvent);
@@ -2193,7 +2367,7 @@ namespace Focus_Bear.API
                             {
                                 var responseCode = await response.Content.ReadAsStringAsync();
                                 JObject resJson = JObject.Parse(responseCode);
-                                LogWriter.LogWrite("CapturePostHog() GOT Success");
+                                //LogWriter.LogWrite("CapturePostHog() GOT Success");
                                 return 1;
                             }
                         }
@@ -2326,7 +2500,7 @@ namespace Focus_Bear.API
                             {
                                 //var responseCode = await response.Content.ReadAsStringAsync();
                                 //JObject resJson = JObject.Parse(responseCode);
-                                LogWriter.LogWrite("CaptureEventEndpoint() GOT Success");
+                               // LogWriter.LogWrite("CaptureEventEndpoint() GOT Success");
                                 return 1;
                             }
                         }
@@ -2362,6 +2536,152 @@ namespace Focus_Bear.API
             }
             return 0;
         }
+
+        internal async Task<int> ChatGPTIsURLSafe(string url, string tab_title, string meta_description, string focus_mode, string intention, string language)
+        {
+            LogWriter.LogWrite("ChatGPTIsURLSafe() = " + url);
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        //Renew the token and check again
+                        LogWriter.LogWrite("Attempting Renew Token before API call");
+                        var authenticator = new Authentication();
+                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                        if (x)
+                        {
+                            //token renewed
+                            LogWriter.LogWrite("RenewToken DONE before API call");
+                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                            {
+                                return -1;
+                            }
+                            //All Good, Proceed Normally
+                        }
+                        else
+                        {
+                            //token renewed failed
+                            return -1;
+                        }
+                    }
+
+                    HttpClient client = new HttpClient();
+
+                    string lang = "english";
+                    if (language == "es")
+                        lang = "spanish";
+
+                    string addItemJsonString = $"{{\"url\":\"{url}\"," +
+                        $"\"tab_title\":\"{tab_title}\"," +
+                        $"\"meta_description\":\"{meta_description}\"," +
+                        $"\"focus_mode\":\"{focus_mode}\"," +
+                        $"\"intention\":\"{intention}\"," +
+                        $"\"language\":\"{lang}\"}}";
+
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+                        client.DefaultRequestHeaders.Add("platform", "Windows");
+                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+                        {
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+
+                        appSettings.sChatGPTPayLoad = addItemJsonString;
+
+                        var response = await client.PostAsync("https://api.focusbear.io/user/is-url-safe-to-use", content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                        {
+                            LogWriter.LogWrite("ChatGPTIsURLSafe() SUCCESS");
+                            LogWriter.LogWrite("response = " + response.ToString());
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                if (responseCode == "")
+                                {
+                                    LogWriter.LogWrite("responseCode = null" );
+                                    
+                                    return -1;
+                                }
+                                
+                                appSettings.sChatGPTResponse = responseCode;
+
+                                JObject resJson = JObject.Parse(responseCode);
+
+                                if (resJson.ContainsKey("reason"))
+                                {
+                                    appSettings.sChatGPTReasonForCurrentURL = resJson["reason"].ToString();
+                                }
+
+                                if (resJson.ContainsKey("allowed_probability"))
+                                {
+                                    double dProbability = double.Parse( resJson["allowed_probability"].ToString());
+                                    appSettings.dProbablity = dProbability;
+
+                                    if (dProbability >= 0.80)
+                                    {
+                                        return 1; // Safe URL
+                                    }
+                                    else if(dProbability >= 0.50 && dProbability < 0.80)
+                                    {
+                                        //Ask user
+                                        return 2;//we will check with "2" if we need to ask user
+                                    }
+                                    else
+                                    {
+                                        return 0; //Unsafe url
+                                    }
+                                }
+                               
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //  Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("ChatGPTIsURLSafe() FAILED - " + sErrorMessage);
+                                return -1;
+                            }
+                            return -1;
+                        }
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("ChatGPTIsURLSafe WebException" + ex.Message);
+
+                Debug.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ChatGPTIsURLSafe Exception" + ex.Message);
+                Debug.WriteLine(ex.Message);
+            }
+            return -1;
+        }
+
+
     }
 
 }

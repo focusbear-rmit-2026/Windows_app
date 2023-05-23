@@ -22,7 +22,7 @@
         </Grid.RowDefinitions>
 
 
-        <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xDeactivating Focus type - FOCUSTYPE" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="0"  Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap" Text="xDeactivating Focus type - FOCUSTYPE" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
        
         <TextBlock Grid.Row="2"  Name="Timer" Margin="10,0,10,0" TextWrapping="Wrap" Text="xx00:05" Foreground="#272727" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
@@ -41,7 +41,7 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  x:Name="btnStopFocus"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="270" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,20" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStopFocus_Click">
+            <Button  x:Name="btnStopFocus"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,20" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStopFocus_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock Name="btnStopFocusText" Margin="8" Text="xDeactivate Focus Block"/>

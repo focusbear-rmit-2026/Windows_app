@@ -22,23 +22,23 @@ namespace Focus_Bear.Onboarding.AfterLogin
     /// </summary>
     public partial class OnboardingSetupAndTipsWindow : Window
     {
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
-        [DllImport("user32.dll")]
-        private static extern bool EnableMenuItem(IntPtr hMenu, uint uIDEnableItem, uint uEnable);
+        //[DllImport("user32.dll")]
+        //private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+        //[DllImport("user32.dll")]
+        //private static extern bool EnableMenuItem(IntPtr hMenu, uint uIDEnableItem, uint uEnable);
 
-        private const uint MF_BYCOMMAND = 0x00000000;
-        private const uint MF_GRAYED = 0x00000001;
-        private const uint SC_CLOSE = 0xF060;
-        private const int WM_SHOWWINDOW = 0x00000018;
+        //private const uint MF_BYCOMMAND = 0x00000000;
+        //private const uint MF_GRAYED = 0x00000001;
+        //private const uint SC_CLOSE = 0xF060;
+        //private const int WM_SHOWWINDOW = 0x00000018;
 
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-            var hWnd = new WindowInteropHelper(this);
-            var sysMenu = GetSystemMenu(hWnd.Handle, false);
-            EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
-        }
+        //protected override void OnSourceInitialized(EventArgs e)
+        //{
+        //    base.OnSourceInitialized(e);
+        //    var hWnd = new WindowInteropHelper(this);
+        //    var sysMenu = GetSystemMenu(hWnd.Handle, false);
+        //    EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+        //}
 
         AppSettings appSettings = AppSettings.GetInstance;
         
@@ -46,16 +46,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
         {
             InitializeComponent();
 
-            if(appSettings.arrAlwaysBlockedURLs.Count > 0)
-            {
-                ShowTypeOfWorkScreen();
-            }
-            else
-            {
-                FrameSteps.Navigate(new OnboardingDistractingSites(this));
-            }
-           
-
+            ShowTypeOfWorkScreen();
         }
 
         public void ShowTypeOfWorkScreen()
@@ -72,8 +63,11 @@ namespace Focus_Bear.Onboarding.AfterLogin
         }
         public void ShowFocusTipsScreen()
         {
-            FrameSteps.Navigate(new OnboardingSetupFocusTips(this)); //also includes how did you hear about focus bear screen
+            FrameSteps.Navigate(new OnboardingSetupFocusTips(this)); 
         }
-
+        public void ShowAIConfirmScreen()
+        {
+            FrameSteps.Navigate(new OnboardingConfirmForAI(this));
+        }
     }
 }

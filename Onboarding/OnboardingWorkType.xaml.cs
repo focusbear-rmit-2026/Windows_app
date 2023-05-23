@@ -35,15 +35,25 @@ namespace Focus_Bear.Onboarding
             _parentWindow = parentWindow;
             InitializeComponent();
 
-            string sActivityName = appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["name"].ToString();
+            string sActivityName = appSettings.OnboardingActivityName;///appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["name"].ToString();
             string Title = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
+            if (appSettings.bOnboardingActivitySkipped)
+            {
+                Title = appSettings.ConfigFileStrings["activityInfo"]["lastActivitySkippedText"].ToString();
+            }
+            else
+            {
+                Title = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
+            }
+            
             Title = Title.Replace("<ACTIVITY>", sActivityName);
             Heading.Text = Title.ToString();
 
+           
             //       "letsCreatAccountText":"Now let's set up an account for you",
             TypeOfWork.Text = appSettings.ConfigFileStrings["common"]["letsCreatAccountText"].ToString();
  
-                btnContinueTxt.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["buttonContinueText"].ToString();
+            btnContinueTxt.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["buttonContinueText"].ToString();
             //int nDurationSeconds = (int)appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["duration_seconds"];
             //nTimer = nDurationSeconds;
 

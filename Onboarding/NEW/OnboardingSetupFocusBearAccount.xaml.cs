@@ -1,0 +1,100 @@
+﻿using Focus_Bear.Models;
+using Focus_Bear.Onboarding.New;
+using Focus_Bear.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using System.Windows.Threading;
+
+namespace Focus_Bear.Onboarding.NEW
+{
+    /// <summary>
+    /// Interaction logic for OnboardingSetupFocusBearAccount.xaml
+    /// </summary>
+    public partial class OnboardingSetupFocusBearAccount : Page
+    {
+        AppSettings appSettings = AppSettings.GetInstance;
+        private NewOnboardingStart _parentWindow;
+
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+        int nPostponeTime;
+
+        public OnboardingSetupFocusBearAccount()
+        {
+        }
+        public OnboardingSetupFocusBearAccount(NewOnboardingStart parentWindow)
+        {
+            InitializeComponent();
+            _parentWindow = parentWindow;
+
+            /*
+                  "askAccountVcInfo": {
+        "title": "Setting up a Focus Bear Account",
+        "descriptionText": "How about setting up an account so you can sync your block preferences across your devices?",
+        "tipText": "Setting up an account doesn't cost anything - you still get a 31 day free trial- but it is necessary to enable the more advanced features.",
+        "buttonNotRightNowText": "Not right now",
+        "buttonSignUpText": "Sure - let me sign up",
+        "alertText": "If you feel like setting up an account, just click on the Focus Bear menu icon."
+    },
+          */
+            try
+            {
+                Heading.Text = appSettings.ConfigFileStrings["askAccountVcInfo"]["title"].ToString();
+                Description.Text = appSettings.ConfigFileStrings["askAccountVcInfo"]["descriptionText"].ToString();
+                AccountCost.Text = appSettings.ConfigFileStrings["askAccountVcInfo"]["tipText"].ToString();
+                
+                btnNotRightNowText.Text = appSettings.ConfigFileStrings["askAccountVcInfo"]["buttonNotRightNowText"].ToString();  
+                btnSignupText.Text = appSettings.ConfigFileStrings["askAccountVcInfo"]["buttonSignUpText"].ToString(); 
+                 
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("OnboardingSetupFocusBearAccount()k EX -" + ex.Message);
+            }
+        }
+         
+ 
+        private void btnNotRightNow_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["askAccountVcInfo"]["alertText"].ToString() );
+                ff.Owner = _parentWindow;
+                _parentWindow.GridShade.Visibility = Visibility.Visible;
+                ff.ShowDialog();
+                _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                _parentWindow.WindowState = WindowState.Minimized;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnNoThanks_Click + " + ex.Message);
+            }
+        }
+
+        private void btnSignup_Click(object sender, RoutedEventArgs e)
+        {
+            //Here we need to show the login window but we need to pass through the way of the onblarding flow so that all APIs are called and defaults are selected
+            //Show we will simulate loading of onboarding flow but will not show the window and hit the please spare me window
+            //Lastly that will show the login window
+
+            ((App)(Application.Current)).ShowOnBoradingFlow(true);
+
+            _parentWindow.bShutdownApp = false;
+            _parentWindow.Close();
+        }
+    }
+}

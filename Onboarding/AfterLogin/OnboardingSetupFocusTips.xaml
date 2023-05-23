@@ -15,61 +15,7 @@
 
        
 
-        <Grid   Name="GridHowDidYouHearAboutFocusBear"  Visibility="Collapsed">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="70"   />
-                <RowDefinition Height="Auto" MinHeight="140" />
-                <RowDefinition Height="Auto" MinHeight="60" />
-                <RowDefinition Height="Auto" MinHeight="160" />
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <Image Grid.Row="1" Height="140"  Width="140" Source="../../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="191,0,191,5"/>
-            <TextBlock  Grid.Row="2" x:Name="HeadingHear" Margin="0,0,0,0" TextWrapping="Wrap" Text="xHow did you hear about Focus Bear?" Foreground="#000" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
-            <StackPanel  Grid.Row="3"  Orientation="Vertical"  HorizontalAlignment="Center">
-                <RadioButton  Name="Radio1" Margin="0,30,0,0" GroupName="HearChoices"  FontSize="17"  FontWeight="SemiBold" Padding="5,-5,0,0" Cursor="Hand" Checked="Radio1_Checked">
-                    xFriend recommended it
-                </RadioButton>
-                <RadioButton Name="Radio2" Margin="0,13,0,0" GroupName="HearChoices"  FontSize="16" FontWeight="SemiBold" Padding="5,-5,0,0" Cursor="Hand"  Checked="Radio2_Checked" >
-                    xGoogle
-                </RadioButton>
-                <RadioButton  Name="Radio3" Margin="0,13,0,0" GroupName="HearChoices"  FontSize="16" FontWeight="SemiBold" Padding="5,-5,0,0" Cursor="Hand" Checked="Radio3_Checked"  >
-                    xAd on reddit
-                </RadioButton>
-                <RadioButton Name="SomewhereElse" Margin="0,13,0,0" GroupName="HearChoices"  FontSize="16" FontWeight="SemiBold"  Padding="5,-5,0,0" Cursor="Hand" Checked="SomewhereElse_Checked" >
-                    xSomewhere else
-                </RadioButton>
-                <TextBox    Height="30" x:Name="TxtSomewhereElse"    Margin="0,30" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" Width="200" Visibility="Collapsed" TextChanged="TxtSomewhereElse_TextChanged">
-                    <TextBox.Effect>
-                        <DropShadowEffect ShadowDepth="3"
-                          Direction="330"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="6"
-                           />
-                    </TextBox.Effect>
-                    <TextBox.FocusVisualStyle>
-                        <Style>
-                            <Setter Property="Control.Template">
-                                <Setter.Value>
-                                    <ControlTemplate/>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </TextBox.FocusVisualStyle>
-                </TextBox>
-            </StackPanel>
-           
-            <Button Grid.Row="5"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click" >
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnContinueTxt" Text="xContinue"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-        </Grid>
-
-        <Grid  Name="GridFocusTips"  Visibility="Visible">
+            <Grid  Name="GridFocusTips"  Visibility="Visible">
             
        <Grid.RowDefinitions>
             <RowDefinition Height="535" />
@@ -87,19 +33,19 @@
 
             </Grid.RowDefinitions>
             <TextBlock  Grid.Row="0" x:Name="HeadingAllSetup" Margin="0,0,0,0" TextWrapping="Wrap" Text="xAll Setup" Foreground="#000" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
-            <Image Grid.Row="1" Height="auto" x:Name="TipImage" Source="../../Images/focustips/focustip_1.png" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center"  />
+            <Image Grid.Row="1" Margin="40,0,40,0" Height="auto" x:Name="TipImage" Source="../../Images/focustips/focustip_1.png" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center"  />
             <TextBlock  Grid.Row="2" x:Name="TipTitle" Margin="0,0,0,0" TextWrapping="Wrap" Text="xTip 1:" Foreground="#000" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
-            <TextBlock  Grid.Row="3" Name="TipDescription" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxYou can try it out now by clicking the Play icon next to your new focus mode in the list that appears on clicking the top menu icon." Foreground="#272727" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock  Grid.Row="3" Name="TipDescription" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxYou can try it out now by clicking the Play icon next to your new focus mode in the list that appears on clicking the Focus Bear menu icon in the System Tray." Foreground="#272727" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             
         </Grid>
 
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
 
-            <Button x:Name="Dot1" Width="13" Height="13"  Margin="0,0,5,0" Style="{StaticResource BtnStyleEllipseSmall}" IsEnabled="True" />
+            <Button x:Name="Dot0" Width="13" Height="13"  Margin="0,0,5,0" Style="{StaticResource BtnStyleEllipseSmall}" IsEnabled="True" />
+            <Button x:Name="Dot1" Width="13" Height="13"  Margin="0,0,5,0" Style="{StaticResource BtnStyleEllipseSmall}" IsEnabled="False" />
             <Button x:Name="Dot2" Width="13" Height="13"  Margin="0,0,5,0" Style="{StaticResource BtnStyleEllipseSmall}" IsEnabled="False" />
             <Button x:Name="Dot3" Width="13" Height="13"  Margin="0,0,5,0" Style="{StaticResource BtnStyleEllipseSmall}" IsEnabled="False" />
-            <Button x:Name="Dot4" Width="13" Height="13"  Margin="0,0,5,0" Style="{StaticResource BtnStyleEllipseSmall}" IsEnabled="False" />
         </StackPanel>
         <Button Grid.Row="2" x:Name="btnBack"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="30" Width="133" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="15" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnBack_Click" Visibility="Collapsed">
             <Button.Content>

@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
+using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using FocusBear.Utils;
 using Microsoft.Web.WebView2.Core;
@@ -41,6 +42,8 @@ namespace Focus_Bear.Habits
         string sActivityIdToGetDataFromAPI = "";
         string sActivityChoiceIdToGetDataFromAPI = "";
 
+        int nVideoUrlsCount = 0;
+        List<string> videoUrlsBreaks = new List<string>();
         public HabitActivityOnGoing()
         {
             bTimerRunning = false;
@@ -52,10 +55,12 @@ namespace Focus_Bear.Habits
 
             SetWebView();
 
+            webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
 
             _parentWindow = parentWindow;
 
+            appSettings.bSkipWhileActivityOngoing = false;
 
             try
             {
@@ -85,9 +90,11 @@ namespace Focus_Bear.Habits
 
                 int nAllowedApps = 0;
                 int nAllowedURLs = 0;
-                int nVideoUrlsCount = 0;
-                List<string> videoUrlsBreaks = new List<string>();
-      
+               
+                videoUrlsBreaks.Clear();
+
+                btnSkipThisHabitTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonSkipHabitText"].ToString();
+                SkipThisHabitText.Visibility = Visibility.Collapsed;
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
                     sActivityIdToGetDataFromAPI = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id;
@@ -181,6 +188,8 @@ namespace Focus_Bear.Habits
                     appSettings.bHabitwithAllowedAppsRunning = true;
                     _parentWindow.WindowState = WindowState.Minimized;
                     _parentWindow.ShowInTaskbar = false;
+                    //here we also need to remove the secondary screen windows.
+                    appSettings.RemoveSecondaryWindows();
 
                     if (appSettings.sUseFocusModeIDInActivity.Length > 0)//means there is a focus mode in activity
                     {
@@ -190,69 +199,7 @@ namespace Focus_Bear.Habits
                     //Show the Break Window
                     ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, Heading.Text);
                 }
-
-
-                if (nVideoUrlsCount > 0)
-                {
-                    webView.Visibility = Visibility.Visible;
-                    isVideoPresent = true;
-
-                    Random rnd = new Random();
-                    int nRandom = rnd.Next(0, nVideoUrlsCount - 1);
-                    string videoUrl = "";
-                    if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-                    {
-                        videoUrl = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].videoUrls[nRandom].ToString();
-                    }
-                    else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                    {
-                        videoUrl = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].videoUrls[nRandom].ToString();
-                    }
-                    else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
-                    {
-                        videoUrl = videoUrlsBreaks[nRandom].ToString();
-                    }
-
-                    //string videoUrl = "https://www.youtube.com/watch?v=HhMXYsk_Pvo";
-                    //string videoUrl = "https://youtu.be/lExuhKRS8vo";
-                    if (videoUrl.Contains("watch?v="))
-                    {
-                        videoUrl = videoUrl.Replace("watch?v=", "embed/");
-                    }
-                    else
-                    {
-                        if (videoUrl.ToLower().Contains("https://youtu.be/"))
-                        {
-                            //Handle non permitted embedded videos
-                            //https://youtu.be/lExuhKRS8vo
-                            string lastItem = videoUrl.Split('/').Last();
-                            if (lastItem.Length > 0)
-                            {
-                                videoUrl = "https://www.youtube.com/embed/" + lastItem;
-                            }
-
-                        }
-                    }
-                    if (videoUrl.Contains("?"))
-                    {
-                        videoUrl = videoUrl + "&autoplay=1";
-                    }
-                    else
-                    {
-                        videoUrl = videoUrl + "?autoplay=1";
-                    }
-
-                    webView.Source = new System.Uri(videoUrl);
-
-                    appSettings.CapturePostHog("play-youtube-video-in-activity");
-                }
-                else
-                {
-                    isVideoPresent = false;
-                    webView.Source = new System.Uri("about:blank");
-                    webView.Visibility = Visibility.Collapsed;
-                }
-
+ 
             }
             catch (Exception ex)
             {
@@ -300,7 +247,7 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite(ex.Message);
             }
         }
-        private async void SetWebView()
+        private async Task SetWebView()
         {
             try
             {
@@ -318,9 +265,96 @@ namespace Focus_Bear.Habits
             }
         }
 
-        private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
             if (e.IsSuccess)
+            {
+                try
+                {
+
+
+                    //this.webView.NavigationStarting += NavigationStarting;
+                    //this.webView.NavigationCompleted += NavigationCompleted;
+                    webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
+                    webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
+                    webView.CoreWebView2.Settings.IsScriptEnabled = true;
+                    webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
+
+                    webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
+                    webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+
+                    // webView.WebMessageReceived += webView_WebMessageReceived;
+                    if (nVideoUrlsCount > 0)
+                    {
+                        webView.Visibility = Visibility.Visible;
+                        isVideoPresent = true;
+
+                        Random rnd = new Random();
+                        int nRandom = rnd.Next(0, nVideoUrlsCount - 1);
+                        string videoUrl = "";
+                        if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                        {
+                            videoUrl = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].videoUrls[nRandom].ToString();
+                        }
+                        else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                        {
+                            videoUrl = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].videoUrls[nRandom].ToString();
+                        }
+                        else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                        {
+                            videoUrl = videoUrlsBreaks[nRandom].ToString();
+                        }
+
+                        //string videoUrl = "https://www.youtube.com/watch?v=HhMXYsk_Pvo";
+                        //string videoUrl = "https://youtu.be/lExuhKRS8vo";
+                        if (videoUrl.Contains("watch?v="))
+                        {
+                            videoUrl = videoUrl.Replace("watch?v=", "embed/");
+                        }
+                        else
+                        {
+                            if (videoUrl.ToLower().Contains("https://youtu.be/"))
+                            {
+                                //Handle non permitted embedded videos
+                                //https://youtu.be/lExuhKRS8vo
+                                string lastItem = videoUrl.Split('/').Last();
+                                if (lastItem.Length > 0)
+                                {
+                                    videoUrl = "https://www.youtube.com/embed/" + lastItem;
+                                }
+
+                            }
+                        }
+                        if (videoUrl.Contains("?"))
+                        {
+                            videoUrl = videoUrl + "&autoplay=1";
+                        }
+                        else
+                        {
+                            videoUrl = videoUrl + "?autoplay=1";
+                        }
+
+                        webView.Source = new System.Uri(videoUrl);
+
+                        appSettings.CapturePostHog("play-youtube-video-in-activity");
+                    }
+                    else
+                    {
+                        isVideoPresent = false;
+                        webView.Source = new System.Uri("about:blank");
+                        webView.Visibility = Visibility.Collapsed;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("CoreWebView2InitializationCompleted()" + ex.Message);
+                }
+            }
+        }
+        private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            //if (e.IsSuccess)//We need to remove this as in offline the timer did not start, possibly wont start when the video is not available.
             {
                 Debug.Print("NavigationId: " + e.NavigationId.ToString());
                 Debug.Print("URL: " + this.webView.CoreWebView2.Source);
@@ -337,7 +371,7 @@ namespace Focus_Bear.Habits
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer -= 10;
+            int val = nTimer -= 20;
 #else
             int val = nTimer--;
 #endif
@@ -400,6 +434,9 @@ namespace Focus_Bear.Habits
 
                         appSettings.bHabitwithAllowedAppsRunning = false;
                         _parentWindow.WindowState = WindowState.Normal;
+
+                        ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
+
                         //May be the timer small window is running, close that
                         //Check here if the Breaks window is visible, we will hide it.
                         if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
@@ -438,6 +475,10 @@ namespace Focus_Bear.Habits
                 bTimerRunning = false;
                 pause.Visibility = Visibility.Collapsed;
                 play.Visibility = Visibility.Visible;
+                if (appSettings.nCurrentActivityType != CurrentActivityType.BREAK_ACTIVITY)
+                {
+                    SkipThisHabitText.Visibility = Visibility.Visible;//Only show in paused mode
+                }
 
                 appSettings.CapturePostHog("pause-activity");
             }
@@ -446,6 +487,11 @@ namespace Focus_Bear.Habits
                 bTimerRunning = true;
                 play.Visibility = Visibility.Collapsed;
                 pause.Visibility = Visibility.Visible;
+                if (appSettings.nCurrentActivityType != CurrentActivityType.BREAK_ACTIVITY)
+                {
+                    SkipThisHabitText.Visibility = Visibility.Collapsed;
+                }
+
                 dispatcherTimer.Start();
                 CommandManager.InvalidateRequerySuggested();
                 
@@ -481,5 +527,77 @@ namespace Focus_Bear.Habits
             }
         }
 
+        private void btnSkipThisHabit_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("Activity OnGOing Screen btnSkipThisHabit_Clicked ");
+
+            ///
+            if (appSettings.isPasswordSet)
+            {
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                {
+                    if (appSettings.bPasswordRequireInSkipMorning)
+                    {
+                        //It might be possible that a webview is visible, we will need to hide that
+                        webView.Visibility = Visibility.Collapsed;
+                       
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = _parentWindow;
+                        _parentWindow.GridShade.Visibility = Visibility.Visible;
+
+                        bool? bResult = pwdWnd.ShowDialog();
+
+                        _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+                        webView.Visibility = Visibility.Visible;
+                      
+
+                        if (bResult.Value)
+                        {
+                            //Password is correct
+                        }
+                        else
+                        {
+                            //Hide();
+                            return;
+                        }
+
+                    }
+                }
+                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                {
+                    if (appSettings.bPasswordRequireInSkipEvening)
+                    {
+                        //It might be possible that a webview is visible, we will need to hide that
+
+                        webView.Visibility = Visibility.Collapsed;
+                       
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = _parentWindow;
+                        _parentWindow.GridShade.Visibility = Visibility.Visible;
+
+                        bool? bResult = pwdWnd.ShowDialog();
+
+                        _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+                        webView.Visibility = Visibility.Visible;
+                       
+
+                        if (bResult.Value)
+                        {
+                            //Password is correct
+                        }
+                        else
+                        {
+                            //Hide();
+                            return;
+                        }
+                    }
+                }
+
+            }
+            ///
+            appSettings.bSkipWhileActivityOngoing = true;
+            webView.Visibility = Visibility.Collapsed; /*When using Webview2 in WPF, unable to overlay WPF controls on the Webview - https://github.com/MicrosoftEdge/WebView2Feedback/issues/286*/
+            _parentWindow.ShowWhySkipHabitsWindow();
+        }
     }
 }

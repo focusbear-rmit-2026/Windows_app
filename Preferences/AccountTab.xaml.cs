@@ -22,7 +22,7 @@ namespace Focus_Bear.Preferences
     /// <summary>
     /// Interaction logic for AccountTab.xaml
     /// </summary>
-    public partial class AccountTab : Page
+    public partial class AccountTab : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         public AccountTab()

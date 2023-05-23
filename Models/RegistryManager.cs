@@ -421,6 +421,57 @@ namespace Focus_Bear.Models
             return null;
         }
 
+        private static string ReadStrGlobal(string value)
+        {
+            try
+            {
+                string root = GetRegistryGlobalPath();
+                RegistryKey rootKey = Registry.CurrentUser.OpenSubKey(root);
+
+                if (rootKey != null)
+                {
+                    return rootKey.GetValue(value).ToString();
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                LogWriter.LogWrite(ex.Message);
+            }
+            catch (NullReferenceException ex)
+            {
+                ///LogWriter.LogWrite(ex.Message);
+                Debug.WriteLine(ex.Message);
+            }
+            return null;
+        }
+
+        private static void WriteStrGlobal(string name, string value)
+        {
+            try
+            {
+                string root = GetRegistryGlobalPath();
+                using (RegistryKey rootKey = Registry.CurrentUser.CreateSubKey(root))
+                {
+                    rootKey.SetValue(name, value, RegistryValueKind.String);
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                LogWriter.LogWrite(ex.Message);
+                Debug.WriteLine(ex.Message);
+            }
+            catch (NullReferenceException ex)
+            {
+                LogWriter.LogWrite(ex.Message);
+                Debug.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite(ex.Message);
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
         private static object ReadLocalMachine(string value)
         {
             try
@@ -1667,6 +1718,38 @@ namespace Focus_Bear.Models
         /// </summary>
         /// 
 
+        internal static bool GetLangCode()
+        {
+            try
+            {
+                var regData = ReadStrGlobal("APP_LANG");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.sLangCode = regData.ToString();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetLangCode - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetLangCode()
+        {
+            try
+            {
+                WriteStrGlobal("APP_LANG", appSettings.sLangCode);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetLangCode()" + ex.Message);
+                //Debug.WriteLine(ex.Message);
+            }
+        }
         internal static void SetWelcomeAboardingDoneStatus()
         {
             try
@@ -1745,6 +1828,34 @@ namespace Focus_Bear.Models
         internal static bool GetisOfficeModeEnabled()
         {
             byte[] regData = (byte[])Read("OFFICEMODEENABLED");
+
+            if (regData == null)
+                return false;
+
+            bool res = Convert.ToBoolean(regData[0]);
+
+            regData = null;
+            return res;
+        }
+
+        internal static void SetFocusModeSetupDone(bool status)
+        {
+            try
+            {
+                byte[] regData = new byte[1] { Convert.ToByte(status) };
+                Write("FOCUSMODESETUPDONE", regData);
+
+                regData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetFocusModeSetupDone - " + ex.Message);
+                //Debug.WriteLine(ex.Message);
+            }
+        }
+        internal static bool GetFocusModeSetupDone()
+        {
+            byte[] regData = (byte[])Read("FOCUSMODESETUPDONE");
 
             if (regData == null)
                 return false;

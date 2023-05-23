@@ -23,6 +23,7 @@ using Focus_Bear.Models;
 using Focus_Bear.Quit;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using Focus_Bear.Onboarding.AfterLogin;
 
 namespace Focus_Bear
 {
@@ -101,6 +102,8 @@ namespace Focus_Bear
                 Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
                 btnResumeHabitsTxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();
                 btnBrainDumpTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
+
+                btnSetupFocusModeText.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemSetFocusModesTitle"].ToString();
             }
             catch (Exception ex)
             {
@@ -137,9 +140,12 @@ namespace Focus_Bear
                 if (appSettings.IsAppDeactivated())
                 {
                     btnReactivate.Visibility = Visibility.Visible;
+                    //set title to Quit
+                    Quit.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["buttonQuitText"].ToString();
                 }
                 else
                 {
+                    Quit.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemQuitTitle"].ToString();
                     btnReactivate.Visibility = Visibility.Collapsed;
                 }
 
@@ -162,6 +168,15 @@ namespace Focus_Bear
                 {
                     btnResumeHabits.Visibility = Visibility.Collapsed;
                 }
+
+                if (RegistryManager.GetFocusModeSetupDone())
+                {
+                   // if (appSettings.arrFocusModes.Count > 3)
+                    {
+                        btnSetupFocusMode.Visibility = Visibility.Collapsed;
+                    }
+                }
+              
             }
             catch (Exception ex)
             {
@@ -220,7 +235,7 @@ namespace Focus_Bear
                             JArray break_activities_Array = (JArray)UserSettings.GetValue("break_activities");
                             JObject newActivity = new JObject(
                                new JProperty("id", ActivityID),
-                               new JProperty("name", "Stand up and stretch"),
+                               new JProperty("name", appSettings.ConfigFileStrings["common"]["officeFriendlyActivityName"].ToString() ), //"Stand up and stretch"
                                new JProperty("duration_seconds", 20),
                                new JProperty("is_office_friendly", true),
                                new JProperty("activity_sequence_id", SequenceID));
@@ -709,6 +724,7 @@ namespace Focus_Bear
         private void btnResumeHabits_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnResumeHabits_Click" );
+            Hide();
             ((App)(Application.Current)).ResumeAfterPostponeFinished();
         }
 
@@ -726,6 +742,16 @@ namespace Focus_Bear
 
             Hide();
  
+        }
+
+        private void btnSetupFocusMode_Click(object sender, RoutedEventArgs e)
+        {
+            OnboardingSetupAndTipsWindow windOnBoardingNotes1 = new OnboardingSetupAndTipsWindow();
+            windOnBoardingNotes1.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            windOnBoardingNotes1.Topmost = true;
+            windOnBoardingNotes1.ShowDialog();
+            windOnBoardingNotes1.Activate();
+            windOnBoardingNotes1.Focus();
         }
     }
 }

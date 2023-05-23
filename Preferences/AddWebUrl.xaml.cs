@@ -113,6 +113,7 @@ namespace Focus_Bear.Preferences
 
 
             btnCancel.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonCancelText"].ToString();
+            TxtURL.Focus();
         }
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {

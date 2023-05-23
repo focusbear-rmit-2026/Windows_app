@@ -279,7 +279,7 @@ namespace Focus_Bear.Focus
                 dispatcherTimer.Stop(); //Tick Once Only
                 btnNeedOneMinuteTXT.Text = appSettings.ConfigFileStrings["focusInfo"]["focusSummaryInfo"]["buttonStillNeedMoreTimeText"].ToString();
                 bNeedMoreTime = true;
-
+                ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
                 Show();
             }
             catch (Exception ex)
@@ -300,7 +300,8 @@ namespace Focus_Bear.Focus
 #endif
             dispatcherTimer.Start();
 
-            Hide(); 
+            Hide();
+            appSettings.RemoveSecondaryWindows();
 
             CommandManager.InvalidateRequerySuggested();
         }

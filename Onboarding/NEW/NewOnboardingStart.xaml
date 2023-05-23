@@ -1,0 +1,22 @@
+﻿<Window x:Class="Focus_Bear.Onboarding.New.NewOnboardingStart"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Onboarding.AfterLogin"
+        mc:Ignorable="d"
+        Title="Focus Bear" Height="660" Width="770" ResizeMode="NoResize" Topmost="True" ShowInTaskbar="True" Closed="Window_Closed">
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"  /> 
+
+        </Grid.RowDefinitions>
+        <Frame Grid.Row="0" x:Name="FrameSteps" Margin="0,0,0,0" NavigationUIVisibility="Hidden" HorizontalAlignment="Center" VerticalAlignment="Center"    Foreground="{x:Null}" Visibility="Visible" />
+
+        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
+
+    </Grid>
+</Window>

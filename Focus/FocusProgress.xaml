@@ -5,17 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="FocusProgress" Height="70" Width="330" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" WindowStyle="None" Opacity="0.5" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseDown="Window_MouseDown" Closing="Window_Closing">
+        Title="FocusProgress" Height="80" Width="330" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" WindowStyle="None" Opacity="0.5" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseDown="Window_MouseDown" Closing="Window_Closing">
     <Border CornerRadius="15" BorderBrush="Black" BorderThickness="2" Padding="6" Background="#e88800">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="25"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="50"></RowDefinition>
             </Grid.RowDefinitions>
-            <Label Grid.Row="0" Name="Focus"  Margin="10,0,0,0"  Height="25"  VerticalAlignment="Center"  Foreground="White" FontSize="14" FontFamily="Segoe UI Semibold" >xFocus</Label>
+            <Label Grid.Row="0" Name="Focus"  Margin="10,0,0,0"   VerticalAlignment="Top"  Foreground="White" FontSize="14" FontFamily="Segoe UI Semibold" >xFocus</Label>
             <Button  Grid.Row="0" x:Name="btnClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="22" VerticalAlignment="Top" Width="22" ToolTip="Close" Click="btnClose_Click"  Cursor="Hand"/>
 
-            <Label Grid.Row="1" Name="OnUntill" Visibility="Visible"  Margin="10,0,0,0"  Height="30"  VerticalAlignment="Center"  Foreground="White" FontSize="14" FontFamily="Segoe UI" >Time remaining: 19m 21s (On Until 10:26 PM)</Label>
+            <TextBlock Grid.Row="1" Name="OnUntill" TextWrapping="Wrap" Visibility="Visible" Margin="15,0,0,0"   VerticalAlignment="Top" TextAlignment="Left" Foreground="White" FontSize="14" FontFamily="Segoe UI" >Time remaining: 19m 21s (On Until 10:26 PM)  </TextBlock>
 
         </Grid>
     </Border>

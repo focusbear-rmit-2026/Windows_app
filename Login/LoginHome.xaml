@@ -23,23 +23,29 @@
         <Image Grid.Row="0" Height="140"  Width="140" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWin your habits.&#10;Amp up your productivity." Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <TextBlock  Grid.Row="2" Name="Descriptiopn" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxSign In with a Focus Bear account to manage your time without thinking about it. Having an account helps you Set your computer use hours, create a custom morning and night routine, and customize your focus modes for different activities." Foreground="#272727" FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <StackPanel  Grid.Row="2"  Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock Name="Suggest" Margin="0,0,0,0" TextWrapping="Wrap" Text="xNearly done! Let's grab a few details to save your habits." Foreground="#000" FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <Button x:Name="btnInfo" Style="{StaticResource BtnStyleInfo}" Click="btnInfo_Click" MinWidth="35" Height="35" Cursor="Hand" >
+                <StackPanel Orientation="Vertical">
+                    <Image Source="../images/info.png" Margin="0,0,0,0" Height="24" Width="24" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        <TextBlock  Grid.Row="2" Visibility="Collapsed" Name="Descriptiopn" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxSign In with a Focus Bear account to manage your time without thinking about it. Having an account helps you Set your computer use hours, create a custom morning and night routine, and customize your focus modes for different activities." Foreground="#272727" FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
        
         <StackPanel  Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center">
-            <Button  Grid.ColumnSpan="2" x:Name="btnSignUp"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,17" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSignUp_Click">
+            <Button  Grid.ColumnSpan="2" x:Name="btnSignUp"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="306" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,17" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSignUp_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnSignUpText" Margin="8" Text="xSign Up"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  Grid.ColumnSpan="2" x:Name="btnSignIn"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,17" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSignIn_Click" >
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnSignInText" Margin="8" Text="xSign In"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
+
+            <TextBlock x:Name="DeactivateText"  Margin="7,17" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="22" Height="30" Cursor="Hand">
+             <Hyperlink x:Name="btnSignIn"  Foreground="#000" Click="btnSignIn_Click"   TextDecorations="Underline" ><Run x:Name="btnSignInText" Text="xSign In"/></Hyperlink>
+            </TextBlock>
+           
             
         </StackPanel>
       

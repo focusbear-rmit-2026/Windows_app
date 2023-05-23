@@ -1,0 +1,61 @@
+﻿<Page x:Class="Focus_Bear.Onboarding.NEW.OnboardingNewBuildingHabits"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+       xmlns:Models="clr-namespace:Focus_Bear.Models"
+      xmlns:local="clr-namespace:Focus_Bear.Onboarding.NEW"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800" Height="660" Width="750"
+      Title="OnboardingNewWelcome" Background="#fff">
+
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="160" />
+            <RowDefinition Height="60" />
+            <RowDefinition Height="190" />
+            <RowDefinition Height="70"   />
+            <RowDefinition Height="40" />
+            
+        </Grid.RowDefinitions>
+        <TextBlock  Grid.Row="0" Margin="0,10,0,0" Name="Heading" TextWrapping="Wrap" Text="xAwesome! We look forward to helping you block distractions." Foreground="#000" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+        <Image Grid.Row="1" Height="160"  Width="160" Models:ImageBehavior.AnimatedSource="../../images/gifs/random/4.gif" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        <TextBlock  Grid.Row="2" Name="NextUp" Margin="40,18,40,0" TextWrapping="Wrap" Text="xNext Up: Building habits to support focus." Foreground="#000" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <TextBlock Name="Suggest" Margin="0,0,0,0" TextWrapping="Wrap" Text="xGot two minutes to try out our habit guide feature?" Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <Button x:Name="btnInfo" Style="{StaticResource BtnStyleInfo}" Click="btnInfo_Click"   MinWidth="35" Height="35" Cursor="Hand"  >
+                <StackPanel Orientation="Vertical">
+                    <Image Source="../../images/info.png" Margin="0,0,0,0" Height="24" Width="24" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        <TextBlock  Grid.Row="3" Visibility="Collapsed" Name="Descriptiopn1" Margin="40,0,40,0" TextWrapping="Wrap" Text="xLooking forward to helping you form healthy habits and get more deep work done. To start off, we want to show you a demo of how Focus Bear works. It takes 2 minutes and requires 100% attention from you." Foreground="#272727" FontSize="18" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
+       
+        <StackPanel  Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button  Grid.ColumnSpan="2" x:Name="btnABitLaterPlease"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnABitLaterPlease_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnABitLaterPleaseText" Margin="8" Text="xA bit later please"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button  Grid.ColumnSpan="2" x:Name="btnLetsDoIt"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnLetsDoIt_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="buttonLetsDoItText" Margin="8" Text="xLet's do it"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </StackPanel>
+        <TextBlock x:Name="NoThanks"  Grid.Row="5"  TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
+             <Hyperlink x:Name="btnNoThanks"  Foreground="#000" Click="btnNoThanks_Click"   TextDecorations="Underline" ><Run x:Name="btnNoThanksText" Text="xNo Thanks"/></Hyperlink>
+        </TextBlock>
+
+    </Grid>
+</Page>

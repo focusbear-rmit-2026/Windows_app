@@ -1,0 +1,38 @@
+﻿<Page x:Class="Focus_Bear.Preferences.HelpTab"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Preferences"
+      xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800" Background="#fff" 
+      Title="HelpTab">
+
+    <Grid>
+
+        <TabControl Background="#fcf8f0" BorderBrush="LightGray" Margin="20,25,20,20">
+            <TabControl.Resources>
+                <Style TargetType="{x:Type TabPanel}">
+                    <Setter Property="HorizontalAlignment" Value="Center" />
+                </Style>
+            </TabControl.Resources>
+            <TabItem Name="ReportProblemTab" Header="xReport Problem" >
+                <Grid Background="#fcf8f0" Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock  Grid.Row="0" Name="Heading" Margin="20,20,20,0"   Text="xFocus Bear is still a new app and you might encounter issues (or have great ideas on how to make it better). We'd really appreciate your feedback. You can email us at team@focusbear.io. Screenshots are really helpful to let us understand the problem. Also if you had a problem, please export your logs (use the link below) and attach it to the email." Foreground="#181818" TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+                    <TextBlock Grid.Row="1" x:Name="ExportLogs" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15"  Cursor="Hand">
+                         <Hyperlink x:Name="btnExportLogs"  Foreground="#000" Click="btnExportLogs_Click"   TextDecorations="Underline"  ><Run x:Name="btnExportLogsTXT" Text="xClick here to export logs to share with Support Team."/></Hyperlink>
+                    </TextBlock>
+                </Grid>
+            </TabItem>
+
+            <TabItem Name="ChatTab" Header="xChat with Focus Bear" >
+                <wv2:WebView2 Name="webView" />
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Page>

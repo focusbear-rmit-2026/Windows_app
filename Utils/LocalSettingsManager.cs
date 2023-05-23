@@ -102,6 +102,17 @@ namespace Focus_Bear.Utils
                                 sMacOSSettingsOBJ.Add("kArrBlockedUrls", JArray.FromObject(appSettings.arrAlwaysBlockedURLs));
                             }
                             
+                            if (sMacOSSettingsOBJ.ContainsKey("kCuddlyModeEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kCuddlyModeEnabled"); //Remove blocked URL
+                                                                                  //Add new upadted blocked URLs
+                                sMacOSSettingsOBJ.Add("kCuddlyModeEnabled", (appSettings.nFocudBearMode == 1) ? true : false);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kCuddlyModeEnabled", (appSettings.nFocudBearMode == 1) ? true : false);
+                            }
+
 
                             if (sMacOSSettingsOBJ.ContainsKey("kIsOfficeModeEnabled"))
                             {
@@ -178,6 +189,41 @@ namespace Focus_Bear.Utils
                             {
                                 sMacOSSettingsOBJ.Add("kIsPasswordRequireInQuitApp", appSettings.bPasswordRequireInQuitApp);
                             }
+
+                            //AI Tab settings
+                            if (sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kMotivationalMessageEnabled"); //Remove  
+                                                                                         //Add new  
+                                sMacOSSettingsOBJ.Add("kMotivationalMessageEnabled", appSettings.bMotivationalMessageEnabled);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kMotivationalMessageEnabled", appSettings.bMotivationalMessageEnabled);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kAiCheckUrlEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kAiCheckUrlEnabled"); //Remove  
+                                                                                         //Add new  
+                                sMacOSSettingsOBJ.Add("kAiCheckUrlEnabled", appSettings.bAiCheckUrlEnabled);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kAiCheckUrlEnabled", appSettings.bAiCheckUrlEnabled);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kAiAllowUrlShowAlertEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kAiAllowUrlShowAlertEnabled"); //Remove  
+                                                                                         //Add new  
+                                sMacOSSettingsOBJ.Add("kAiAllowUrlShowAlertEnabled", appSettings.bAiAllowUrlShowAlertEnabled);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kAiAllowUrlShowAlertEnabled", appSettings.bAiAllowUrlShowAlertEnabled);
+                            }
+
 
                             //Now remove macOS from local and add updated one
                             LocalSettings.Remove("MacOS");

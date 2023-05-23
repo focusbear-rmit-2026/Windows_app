@@ -16,6 +16,7 @@ using System.Diagnostics;
 using Focus_Bear.Utils;
 using System.Windows.Threading;
 using Focus_Bear.Models;
+using System.Windows.Interop;
 
 namespace Focus_Bear.Onboarding
 {
@@ -26,9 +27,28 @@ namespace Focus_Bear.Onboarding
     /// </summary>
     public partial class WelcomeAbord : Window
     {
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+        [DllImport("user32.dll")]
+        private static extern bool EnableMenuItem(IntPtr hMenu, uint uIDEnableItem, uint uEnable);
+
+        private const uint MF_BYCOMMAND = 0x00000000;
+        private const uint MF_GRAYED = 0x00000001;
+        private const uint SC_CLOSE = 0xF060;
+        private const int WM_SHOWWINDOW = 0x00000018;
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            var hWnd = new WindowInteropHelper(this);
+            var sysMenu = GetSystemMenu(hWnd.Handle, false);
+            EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+        }
+
         AppSettings appSettings = AppSettings.GetInstance;
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         int nPostponeTime;
+        bool bShutdownApp = true;
         public WelcomeAbord()
         {
            InitializeComponent();
@@ -62,9 +82,11 @@ namespace Focus_Bear.Onboarding
             GridShade.Visibility = Visibility.Collapsed;
             if (ff.btnClicked == MessageBoxResult.Yes)
             {
+                bShutdownApp = false;
                 RegistryManager.SetWelcomeAboardingDoneStatus();
 
                 ((App)(Application.Current)).ShowOnBoradingFlow();
+               
                 Close();
             }
             else
@@ -120,11 +142,17 @@ namespace Focus_Bear.Onboarding
 
         }
 
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            if(bShutdownApp)
+                Application.Current.Shutdown(0);
+        }
+
         //public void RepositionWindow()
         //{
         //    try
         //    {
-              
+
         //        Rect workArea = System.Windows.SystemParameters.WorkArea;
         //        if (Left < workArea.Left || Top < workArea.Top || (Left + Width) > workArea.Right || (Top + Height) > workArea.Bottom)
         //        {
