@@ -41,7 +41,7 @@ namespace Focus_Bear.Utils
             "view-source:",
             "about:blank",
             "focus-bear.github.io",
-            "focus-block.html",};
+            "focus-block.html","brave://",};
 
        // public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "msedgewebview2.exe", "explorer.exe", "focus bear.exe", "focusbear.exe", "devenv.exe", "taskmgr.exe" };
         //public static readonly int SW_MINIMIZE = 6;

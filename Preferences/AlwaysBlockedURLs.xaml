@@ -17,7 +17,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0"   Text="xAlways Blocked URLs" Foreground="#181818" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
-            <TextBlock  Grid.Row="1" Name="Description" Margin="20,0,20,0"   Text="xBlock these URLs even if you're not in a focus block. You might want to put social media or news sites that you would rather not use at any time. You can always set up an evening routine activity where you explicitly allow access to Facebook so that you can still stay connected - just not during your morning routine/work day." Foreground="#606060" FontSize="12" TextWrapping="Wrap" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+            <TextBlock  Grid.Row="1" Name="Description" Margin="20,0,20,0"   Text="xBlock these URLs even if you're not in a focus block. You might want to put social media or news sites that you would rather not use at any time. You can always set up an evening routine activity where you explicitly allow access to Facebook so that you can still stay connected - just not during your morning routine/work day." Foreground="#000" FontSize="12" TextWrapping="Wrap" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
 
             <Grid Grid.Row="2" Background="#fff" Margin="20,0,20,20">
                 <Grid.RowDefinitions>

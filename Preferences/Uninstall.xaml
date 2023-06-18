@@ -10,7 +10,7 @@
 
     <Grid>
         <Grid Background="#fcf8f0" >
-            <Button    x:Name="btnUninstall"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="27" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnUninstall_Click" >
+            <Button    x:Name="btnUninstall"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnUninstall_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnUninstallTXT" Text="xUninstall Focus Bear"/>

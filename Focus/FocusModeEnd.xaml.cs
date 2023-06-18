@@ -89,7 +89,7 @@ namespace Focus_Bear.Focus
 
             //Call api top finish focus mode
             FocusBearAPIClient client = new FocusBearAPIClient();
-            var x = client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
+            var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
 
             Hide();
 
@@ -97,10 +97,11 @@ namespace Focus_Bear.Focus
             ((App)(Application.Current)).ShowBreakWindow();
 
             //Show the brain dump window
-            ((App)(Application.Current)).ShowBrainDumpWindow();
+            if (appSettings.sBrainDump.Length > 0) //Only show if there is text.
+                ((App)(Application.Current)).ShowBrainDumpWindow();
 
-            //Ask the user for adding temp apps / urls
-            if (appSettings.TemporaryAllowedAppsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsTabTitles.Count != 0)
+                //Ask the user for adding temp apps / urls
+                if (appSettings.TemporaryAllowedAppsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsTabTitles.Count != 0)
             {
                 if(appSettings.TemporaryAllowedURLsTabTitles.Count > 0)
                 {

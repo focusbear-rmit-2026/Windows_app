@@ -37,14 +37,14 @@
         </Border>
          
         <StackPanel  Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button  Grid.ColumnSpan="2" x:Name="btnNotRightNow"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnNotRightNow_Click">
+            <Button  Grid.ColumnSpan="2" x:Name="btnNotRightNow"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnNotRightNow_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnNotRightNowText" Margin="8" Text="xNot right now"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  Grid.ColumnSpan="2" x:Name="btnSignup"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" MinWidth="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSignup_Click">
+            <Button  Grid.ColumnSpan="2" x:Name="btnSignup"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   MinWidth="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSignup_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnSignupText" Margin="8" Text="xSure - let me sign up"/>

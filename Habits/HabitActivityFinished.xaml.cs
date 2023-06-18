@@ -38,6 +38,8 @@ namespace Focus_Bear.Habits
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
         int bExcludedActivityIndex = -1;
+        
+        public int nQuestionIndexToShowGraphs = 0;
 
         private bool bBreakActivitiesFinished;
 
@@ -630,7 +632,11 @@ namespace Focus_Bear.Habits
                 "graphDateText":"Date",
                 "graphTimeText":"Time"
              * */
-              
+
+            //Clean old data
+            ///webView.Source = new System.Uri("about:blank");
+            ///webView1.Source = new System.Uri("about:blank");
+
             try
             {
                 //double check graph files exists
@@ -773,7 +779,8 @@ namespace Focus_Bear.Habits
                 List<LogEntry> ListDataForGraph = new List<LogEntry>();
 
                 List<LogEntry> ListAPIData = new List<LogEntry>();
-
+                string sQuestionLabelToDisplayOnGraph = "";
+                string sQuestionIDToDisplayOnGraph = "";
                 if (appSettings.sOneMonthActivityDataForGraph != null && appSettings.sOneMonthActivityDataForGraph.Length > 0)
                 {
                     LogWriter.LogWrite("sOneMonthActivityDataForGraph from API Found!");
@@ -781,16 +788,73 @@ namespace Focus_Bear.Habits
                      * {"activity_id":"9a794979-3cf9-44c6-9be7-d69955168635","days_number":30,"timezone":"UTC","log_summary_type":"SUM","stat_type":"duration","items":[{"date":"2022-11-16T00:00:00.000Z","summary":"18"}]}
                      * 
                      */
+                    
                     JObject sLastActivityData = JObject.Parse(appSettings.sOneMonthActivityDataForGraph);
-                    if (sLastActivityData.ContainsKey("items"))
+                    if (sLastActivityData.ContainsKey("log_quantity_answers_stats"))
                     {
-                        JArray arrayItems = (JArray)sLastActivityData["items"];
-                        foreach (JObject item in arrayItems)
+                        JArray log_quantity_answer_stats_arrayItems = (JArray)sLastActivityData["log_quantity_answers_stats"];
+                        
+                        if(log_quantity_answer_stats_arrayItems.Count() > 1)
                         {
-                            string date = item.ContainsKey("date") ? item.GetValue("date").ToString() : "";
-                            string summary = item.ContainsKey("summary") ? item.GetValue("summary").ToString() : "";
-                            LogEntry ll = new LogEntry("", "", sCurrentActivityName, (bLogQuantity ? "" : summary), "", (bLogQuantity ? summary : ""), date, "", "", "", "");
-                            ListAPIData.Add(ll);
+                            if (nQuestionIndexToShowGraphs > log_quantity_answer_stats_arrayItems.Count() - 1)
+                            {
+                                nQuestionIndexToShowGraphs = log_quantity_answer_stats_arrayItems.Count() - 1; //Handling for multiple clicks
+                               // return;
+                            }
+                            if (nQuestionIndexToShowGraphs == log_quantity_answer_stats_arrayItems.Count()-1)
+                            {
+                                //Last element
+                                ButtonRight.Visibility = Visibility.Collapsed;
+                            }
+                            else
+                            {
+                                ButtonRight.Visibility = Visibility.Visible;
+                            }
+
+                            if(nQuestionIndexToShowGraphs == 0)
+                            {
+                                ButtonLeft.Visibility = Visibility.Collapsed;
+                            }
+                            else
+                            {
+                                ButtonLeft.Visibility = Visibility.Visible;
+                            }
+                        }
+                        else
+                        {
+                            ButtonRight.Visibility = Visibility.Collapsed;
+                            ButtonLeft.Visibility = Visibility.Collapsed;
+                        }
+
+                        int i = 0;
+                        foreach (JObject answeritem in log_quantity_answer_stats_arrayItems)
+                        {
+                            if (i == nQuestionIndexToShowGraphs)
+                            {
+                                if (answeritem.ContainsKey("items"))
+                                {
+                                    JArray arrayItems = (JArray)answeritem["items"];
+                                    foreach (JObject item in arrayItems)
+                                    {
+                                        string date = item.ContainsKey("date") ? item.GetValue("date").ToString() : "";
+                                        string summary = item.ContainsKey("summary") ? item.GetValue("summary").ToString() : "";
+                                        LogEntry ll = new LogEntry("", "", sCurrentActivityName, (bLogQuantity ? "" : summary), "", (bLogQuantity ? summary : ""), date, "", "", "", "");
+                                        ListAPIData.Add(ll);
+                                    }
+                                }
+                                if (answeritem.ContainsKey("question"))
+                                {
+                                    JObject QuestionDetails = JObject.Parse(answeritem.GetValue("question").ToString());
+                                    if(QuestionDetails.ContainsKey("question"))
+                                    {
+                                        sQuestionLabelToDisplayOnGraph = QuestionDetails.GetValue("question").ToString();
+                                        sQuestionIDToDisplayOnGraph = QuestionDetails.GetValue("id").ToString();
+                                    }
+                                }
+
+                                break;
+                            }
+                            i++;
                         }
                     }
                 }
@@ -815,16 +879,127 @@ namespace Focus_Bear.Habits
                 //We need to add Todays Current Activity Done data. Logically that should be the last entry of the CSV for sure. So we can read from there and add it.
                 if (appSettings.bShowActivitiesFromMid)
                 {
-                   appSettings.bShowActivitiesFromMid = false; //This is the last point we need it so we should reset it to be able to post completed API further.
+                  // appSettings.bShowActivitiesFromMid = false; //This is the last point we need it so we should reset it to be able to post completed API further.
+                  //Removed from here to support multiple graphs for multiple questions. This is now set below on action button click
                 }
                 else
                 {
-                    if(ss.Count > 0)
+                    /** if(ss.Count > 0)
+                     {
+                         lastOne = ss[ss.Count - 1];
+                         ListAPIData.Add(lastOne);
+                     }**/
+                    //Now we cannot get the current activity stats from the CSV so we need to get them from the array itself.
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                     {
-                        lastOne = ss[ss.Count - 1];
-                        ListAPIData.Add(lastOne);
+
+                        if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestions != null)
+                        {
+                            int m = 0;
+                            foreach (QuantityQuestion question in appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestions)
+                            {
+                                if (nQuestionIndexToShowGraphs == m)
+                                {
+                                    string date = DateTime.Now.ToString();
+                                    string summary = question.quantity.ToString();
+
+                                    LogEntry ll = new LogEntry("", "", sCurrentActivityName, (bLogQuantity ? "" : summary), "", (bLogQuantity ? summary : ""), date, "", "", "", "");
+                                    ListAPIData.Add(ll);
+                                    break;
+                                }
+                                m++;
+                            }
+                        }
                     }
+                    else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    {
+                        if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantityQuestions != null)
+                        {
+                            int m = 0;
+                            foreach (QuantityQuestion question in appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantityQuestions)
+                            {
+                                if (nQuestionIndexToShowGraphs == m)
+                                {
+                                    string date = DateTime.Now.ToString();
+                                    string summary = question.quantity.ToString();
+
+                                    LogEntry ll = new LogEntry("", "", sCurrentActivityName, (bLogQuantity ? "" : summary), "", (bLogQuantity ? summary : ""), date, "", "", "", "");
+                                    ListAPIData.Add(ll);
+                                    break;
+                                }
+                                m++;
+                            }
+                        }
+                    }
+                    else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                    {
+                        breakActivity currentActivity;
+                        if (appSettings.isMandatoryActivityGoing)
+                        {
+                            currentActivity = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex];
+                        }
+                        else
+                        {
+                            currentActivity = appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex];
+                        }
+                        if (!currentActivity.isRandomChoice)
+                        {
+                            bLogQuantity = currentActivity.logQuantity;
+                            sCurrentActivityName = currentActivity.name;
+                            bAverage = (currentActivity.logQuantityType == "AVG") ? true : false;
+                            if (currentActivity.logQuantityQuestions != null)
+                            {
+                                int m = 0;
+                                foreach (QuantityQuestion question in currentActivity.logQuantityQuestions)
+                                {
+                                    if (nQuestionIndexToShowGraphs == m)
+                                    {
+                                        string date = DateTime.Now.ToString();
+                                        string summary = question.quantity.ToString();
+
+                                        LogEntry ll = new LogEntry("", "", sCurrentActivityName, (bLogQuantity ? "" : summary), "", (bLogQuantity ? summary : ""), date, "", "", "", "");
+                                        ListAPIData.Add(ll);
+                                        break;
+                                    }
+                                    m++;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //random choice
+                            var randomChoice = appSettings.currentActivityChoice;
+                            if (randomChoice.id != null)
+                            {
+                                bLogQuantity = randomChoice.logQuantity;
+                                sCurrentActivityName = randomChoice.name;
+                                bAverage = (currentActivity.logQuantityType == "AVG") ? true : false;
+                                if (randomChoice.logQuantityQuestions != null)
+                                {
+                                    int m = 0;
+                                    foreach (QuantityQuestion question in randomChoice.logQuantityQuestions)
+                                    {
+                                        if (nQuestionIndexToShowGraphs == m)
+                                        {
+                                            string date = DateTime.Now.ToString();
+                                            string summary = question.quantity.ToString();
+
+                                            LogEntry ll = new LogEntry("", "", sCurrentActivityName, (bLogQuantity ? "" : summary), "", (bLogQuantity ? summary : ""), date, "", "", "", "");
+                                            ListAPIData.Add(ll);
+                                            break;
+                                        }
+                                        m++;
+                                    }
+                                }
+                            }
+                        }
+                        
+                    }
+
+                        ///
                 }
+                ///
+
 
                 if (ListAPIData.Count > 0) //Means we got something from the API
                 {
@@ -866,12 +1041,12 @@ namespace Focus_Bear.Habits
                     DateTime d30dayaback = DateTime.Now.AddDays(-n).Date;
 
                     bool bFound = false;
-                    int nTotalQuantityForTheDay = 0;
+                    double nTotalQuantityForTheDay = 0;
                     int nTotalDurationForTheDay = 0;
                     int nCountForAverage = 0;
                     foreach (var m in ListDataForGraph)
                     {
-                        int nQtyLogged = (m.sQuantityLogged.Length > 0) ? int.Parse(m.sQuantityLogged) : 0;
+                        double nQtyLogged = (m.sQuantityLogged.Length > 0) ? double.Parse(m.sQuantityLogged) : 0;
 
                         DateTime activityDate = DateTime.Parse(m.sStartTime).Date;
                         if (d30dayaback == activityDate)
@@ -901,7 +1076,7 @@ namespace Focus_Bear.Habits
                                     dataarrayDaysGraph = dataarrayDaysGraph + nQtyLogged.ToString();
 
                                     if (nQtyLogged > nMax)
-                                        nMax = nQtyLogged;
+                                        nMax = (int) nQtyLogged;
                                 }
                                 else
                                 {
@@ -938,7 +1113,7 @@ namespace Focus_Bear.Habits
                                 }
                                
                                 if (nTotalQuantityForTheDay > nMax)
-                                    nMax = nTotalQuantityForTheDay;
+                                    nMax = (int) nTotalQuantityForTheDay;
                             }
                             else
                             {
@@ -951,58 +1126,216 @@ namespace Focus_Bear.Habits
                     }
                 }
 
-                nMax = nMax + 100;
+                // nMax = nMax + 100;
 
-                nMax = nMax.Round(100) ;
+                // nMax = nMax.Round(100) ;
+                //WE need to keep the graph stats close to the actual data..so set the max values
+                if (nMax < 50)
+                {
+                    nMax = nMax + 5;
+                }
+                else if (nMax < 99)
+                {
+                    nMax = nMax + 10;
+                }
+                else if (nMax < 999)
+                {
+                    nMax = nMax + 20;
+                }
+                else if (nMax < 9999)
+                {
+                    nMax = nMax + 50;
+                }
+                else
+                {
+                    nMax = nMax + 200;
+                }
 
-              
                 dataarrayDaysGraph = dataarrayDaysGraph.Remove(dataarrayDaysGraph.Length - 1, 1) + "]";
 
                 //Make the time array
                 ///
                 Func<LogEntry, bool> GetCurrentActivityStatsTime = x => (x.sActivityName == sCurrentActivityName && x.sLogType == sCurrentLogType );
                 var timedata = ss.Where(GetCurrentActivityStatsTime); //Todays Data
-                //bool bFound = false;
-                foreach (var m in timedata)
+                                                                      //bool bFound = false;
+                int nMaxTimeGraph = 0;
+                ///
+                if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
-                    int nQtyLogged = (m.sQuantityLogged.Length > 0) ? int.Parse(m.sQuantityLogged) : 0;
-
-
-                    //Chck if the date is current date
-                    Console.WriteLine("{0} ---{1}...{2}", m.sStartTime, DateTime.Parse(m.sStartTime).Date.ToString("yyyy-MM-dd"), DateTime.Now.Date.ToString("yyyy-MM-dd"));
-                    if ((DateTime.Parse(m.sStartTime).Date.ToString("yyyy-MM-dd") == DateTime.Now.Date.ToString("yyyy-MM-dd")))
+                    if (bLogQuantity)
                     {
-                        Console.WriteLine("Yes");
-                        //Lets see if we need to show the Duration Data or the Log Quantity data
-                        if (bLogQuantity)
+                        if (appSettings.sCurrentDayActivityDataForGraphQuestionsStats != null && appSettings.sCurrentDayActivityDataForGraphQuestionsStats.Length > 0)
                         {
-                            Console.WriteLine(m.sQuantityLogged);
-                            dataarrayTimeGraph = dataarrayTimeGraph + nQtyLogged.ToString();
+                            LogWriter.LogWrite("sCurrentDayActivityDataForGraphQuestionsStats from API Found!");
+                           
 
-                            TimeValues = TimeValues + "\"" + m.sStartTime + "\"";
+                            JObject sLastActivityData = JObject.Parse(appSettings.sCurrentDayActivityDataForGraphQuestionsStats);
+                            if (sLastActivityData.ContainsKey(sQuestionIDToDisplayOnGraph))
+                            {
+                                JArray log_quantity_answer_stats_arrayItems = (JArray)sLastActivityData[sQuestionIDToDisplayOnGraph];
+                                //int i = 0;
+                                foreach (JObject answeritem in log_quantity_answer_stats_arrayItems)
+                                {
+                                    string date = answeritem.ContainsKey("date_logged") ? answeritem.GetValue("date_logged").ToString() : "";
+                                    string summary = answeritem.ContainsKey("logged_value") ? answeritem.GetValue("logged_value").ToString() : "";
+                                    DateTime DTime = DateTime.Parse(date).ToLocalTime(); //Need to convert utc to local time
+                                    Console.WriteLine(summary);
+                                    dataarrayTimeGraph = dataarrayTimeGraph + summary.ToString();
 
-                            if (nQtyLogged > nMax)
-                                nMax = nQtyLogged;
+                                    TimeValues = TimeValues + "\"" + DTime.ToString("yyyy-MM-dd HH:mm:ss") + "\"";
+
+                                    double nQtyLogged = (summary.Length > 0) ? double.Parse(summary) : 0;
+
+                                    if (nQtyLogged > nMaxTimeGraph)
+                                        nMaxTimeGraph = (int)nQtyLogged;
+
+                                    dataarrayTimeGraph = dataarrayTimeGraph + ",";
+                                    TimeValues = TimeValues + ",";
+
+                                }
+                            }
+                        }
+                        //Now we need to add the current done value
+                        ///
+                        breakActivity currentActivity;
+                        if (appSettings.isMandatoryActivityGoing)
+                        {
+                            currentActivity = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex];
                         }
                         else
                         {
-                            TimeValues = TimeValues + "\"" + m.sStartTime + "\"";
-
-                            dataarrayTimeGraph = dataarrayTimeGraph +  m.sDurationInSeconds.ToString() ;
-                            if (int.Parse(m.sDurationInSeconds) > nMax)
-                                nMax = int.Parse(m.sDurationInSeconds);
+                            currentActivity = appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex];
                         }
+                        if (!currentActivity.isRandomChoice)
+                        {
+                            if (currentActivity.logQuantityQuestions != null)
+                            {
+                                int m = 0;
+                                foreach (QuantityQuestion question in currentActivity.logQuantityQuestions)
+                                {
+                                    if (nQuestionIndexToShowGraphs == m)
+                                    {
+                                       // string date = DateTime.Now.ToString();
+                                        string summary = question.quantity.ToString();
 
-                        dataarrayTimeGraph = dataarrayTimeGraph + ",";
-                        TimeValues = TimeValues + ",";
+                                        dataarrayTimeGraph = dataarrayTimeGraph + summary.ToString();
+
+                                        TimeValues = TimeValues + "\"" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\"";
+
+                                        double nQtyLogged = (summary.Length > 0) ? double.Parse(summary) : 0;
+
+                                        if (nQtyLogged > nMaxTimeGraph)
+                                            nMaxTimeGraph = (int)nQtyLogged;
+
+                                        dataarrayTimeGraph = dataarrayTimeGraph + ",";
+                                        TimeValues = TimeValues + ",";
+
+                                        break;
+                                    }
+                                    m++;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //random choice
+                            var randomChoice = appSettings.currentActivityChoice;
+                            if (randomChoice.id != null)
+                            {
+                                 if (randomChoice.logQuantityQuestions != null)
+                                {
+                                    int m = 0;
+                                    foreach (QuantityQuestion question in randomChoice.logQuantityQuestions)
+                                    {
+                                        if (nQuestionIndexToShowGraphs == m)
+                                        {
+                                            string date = DateTime.Now.ToString();
+                                            string summary = question.quantity.ToString();
+
+                                            dataarrayTimeGraph = dataarrayTimeGraph + summary.ToString();
+
+                                            TimeValues = TimeValues + "\"" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\"";
+
+                                            double nQtyLogged = (summary.Length > 0) ? double.Parse(summary) : 0;
+
+                                            if (nQtyLogged > nMaxTimeGraph)
+                                                nMaxTimeGraph = (int)nQtyLogged;
+
+                                            dataarrayTimeGraph = dataarrayTimeGraph + ",";
+                                            TimeValues = TimeValues + ",";
+                                            break;
+                                        }
+                                        m++;
+                                    }
+                                }
+                            }
+                        }
+                        ///
+
                     }
                     else
                     {
-                        Console.WriteLine("No");
-                    }
-                   
+                        foreach (var m in timedata)
+                        {
+ 
+                            //Chck if the date is current date
+                            Console.WriteLine("{0} ---{1}...{2}", m.sStartTime, DateTime.Parse(m.sStartTime).Date.ToString("yyyy-MM-dd"), DateTime.Now.Date.ToString("yyyy-MM-dd"));
+                            if ((DateTime.Parse(m.sStartTime).Date.ToString("yyyy-MM-dd") == DateTime.Now.Date.ToString("yyyy-MM-dd")))
+                            {
+                                Console.WriteLine("Yes");
+                                //Lets see if we need to show the Duration Data or the Log Quantity data
+                                if (bLogQuantity)
+                                {
+                                   
+                                }
+                                else
+                                {
+                                    TimeValues = TimeValues + "\"" + m.sStartTime + "\"";
 
+                                    dataarrayTimeGraph = dataarrayTimeGraph + m.sDurationInSeconds.ToString();
+                                    if (int.Parse(m.sDurationInSeconds) > nMaxTimeGraph)
+                                        nMaxTimeGraph = int.Parse(m.sDurationInSeconds);
+                                }
+
+                                dataarrayTimeGraph = dataarrayTimeGraph + ",";
+                                TimeValues = TimeValues + ",";
+                            }
+                            else
+                            {
+                                Console.WriteLine("No");
+                            }
+
+
+                        }
+                    }
+                    ///
+                    if (nMaxTimeGraph < 50)
+                    {
+                        nMaxTimeGraph = nMaxTimeGraph + 5;
+                    }
+                    else if (nMaxTimeGraph < 99)
+                    {
+                        nMaxTimeGraph = nMaxTimeGraph + 10;
+                    }
+                    else if (nMaxTimeGraph < 999)
+                    {
+                        nMaxTimeGraph = nMaxTimeGraph + 20;
+                    }
+                    else if (nMaxTimeGraph < 9999)
+                    {
+                        nMaxTimeGraph = nMaxTimeGraph + 50;
+                    }
+                    else
+                    {
+                        nMaxTimeGraph = nMaxTimeGraph + 200;
+                    }
+                    ///
+
+                    //nMaxTimeGraph = nMaxTimeGraph + 50;
                 }
+                ///
+
+               
 
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
@@ -1036,20 +1369,20 @@ namespace Focus_Bear.Habits
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                     {
                         //Prepare Log Quantity data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
+                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sQuestionLabelToDisplayOnGraph, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
 
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                     {
                         //Prepare Log Quantity data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
+                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sQuestionLabelToDisplayOnGraph, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
 
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                     {
                         //Prepare Log Quantity data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sCurrentActivityName, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
-                        jsonTime = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4}, \"TimeValues\": {5} }}", sCurrentActivityName, sLabelTime, sLabelQuantity, dataarrayTimeGraph, nMax.ToString(), TimeValues);
+                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sQuestionLabelToDisplayOnGraph, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
+                        jsonTime = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4}, \"TimeValues\": {5} }}", sQuestionLabelToDisplayOnGraph, sLabelTime, sLabelQuantity, dataarrayTimeGraph, nMaxTimeGraph.ToString(), TimeValues);
                     }
 
                 }
@@ -1072,7 +1405,7 @@ namespace Focus_Bear.Habits
                     {
                         //Prepare Duration data
                         json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sCurrentActivityName, sLabelDate, sLabelMinutes, dataarrayDaysGraph, nMax.ToString());
-                        jsonTime = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4}, \"TimeValues\": {5} }}", sCurrentActivityName, sLabelTime, sLabelMinutes, dataarrayTimeGraph, nMax.ToString(), TimeValues);
+                        jsonTime = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4}, \"TimeValues\": {5} }}", sCurrentActivityName, sLabelTime, sLabelMinutes, dataarrayTimeGraph, nMaxTimeGraph.ToString(), TimeValues);
                     }
                 }
 
@@ -1100,6 +1433,11 @@ namespace Focus_Bear.Habits
         }
         private void btnStartNextActivity_Click(object sender, RoutedEventArgs e)
         {
+            if (appSettings.bShowActivitiesFromMid)
+            {
+                appSettings.bShowActivitiesFromMid = false; //This is the last point we need it so we should reset it to be able to post completed API further.
+            }
+
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
                 
@@ -1153,6 +1491,11 @@ namespace Focus_Bear.Habits
         private void btnSkipThisHabit_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Activity Finished Screen btnSkipThisHabit_Clicked ");
+
+            if (appSettings.bShowActivitiesFromMid)
+            {
+                appSettings.bShowActivitiesFromMid = false; //This is the last point we need it so we should reset it to be able to post completed API further.
+            }
 
             ///
             if (appSettings.isPasswordSet)
@@ -1225,6 +1568,18 @@ namespace Focus_Bear.Habits
 
             webView.Visibility = Visibility.Collapsed; /*When using Webview2 in WPF, unable to overlay WPF controls on the Webview - https://github.com/MicrosoftEdge/WebView2Feedback/issues/286*/
             _parentWindow.ShowWhySkipHabitsWindow();
+        }
+
+        private void ButtonLeft_Click(object sender, RoutedEventArgs e)
+        {
+            nQuestionIndexToShowGraphs--;
+            LoadGraphData();
+        }
+
+        private void ButtonRight_Click(object sender, RoutedEventArgs e)
+        {
+            nQuestionIndexToShowGraphs++;
+            LoadGraphData();
         }
     }
 }

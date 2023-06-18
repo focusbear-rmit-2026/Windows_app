@@ -42,7 +42,7 @@
                 <TextBlock  Grid.Row="0"  Width="290" Name="LblUserIdValue" Margin="20,0,20,0"   Text="xFocusBear Mail"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Right"  />
 
             </Grid>
-            <Button  Grid.Row="5" x:Name="btnLogout"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="27" Width="135" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnLogout_Click" >
+            <Button  Grid.Row="5" x:Name="btnLogout"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="135" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnLogout_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnLogoutTXT" Text="xLogout"/>
@@ -56,7 +56,7 @@
 
             <TextBlock  Grid.Row="8" Width="500" Name="LblPurchase" Margin="20,0,20,0"  TextWrapping="Wrap" Text="xIf you've already purchased Focus Bear subscription, you can restore that purchase."  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
 
-            <Button  Grid.Row="9" x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="27" Width="200" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSyncPayment_Click" >
+            <Button  Grid.Row="9" x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="200" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSyncPayment_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnSyncPaymentTXT" Text="xSync Payment Status"/>

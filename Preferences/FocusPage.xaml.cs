@@ -102,6 +102,7 @@ namespace Focus_Bear.Preferences
                         */
                        /// MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteSubTitle"].ToString(), appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteTitle"].ToString(), MessageBoxButton.OK);
                         FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteSubTitle"].ToString(), "Focus Bear");
+                        ff.Owner = _ParentWindow;
                         ff.ShowDialog();
                         return;
                     }
@@ -653,6 +654,7 @@ namespace Focus_Bear.Preferences
                             sErr = sErr.Replace("<APPNAME>", url);
                            //// MessageBox.Show(sErr, "");
                             FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                            ff.Owner = _ParentWindow;
                             ff.ShowDialog();
                         }
                     }
@@ -672,6 +674,7 @@ namespace Focus_Bear.Preferences
                             sErr = sErr.Replace("<APPNAME>", url);
                             ///MessageBox.Show(sErr, "");
                             FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                            ff.Owner = _ParentWindow;
                             ff.ShowDialog();
                         }
                     }
@@ -891,6 +894,7 @@ namespace Focus_Bear.Preferences
                     //"errorSameFocusType":"Focus type with the same name already exists.",
                     ///MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["errorSameFocusType"].ToString(), "Focus Bear");
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["errorSameFocusType"].ToString(), "Focus Bear");
+                    ff.Owner = _ParentWindow;
                     ff.ShowDialog();
                     TxtFocusName.Text = selectedItem.name;
                 }
@@ -984,6 +988,7 @@ namespace Focus_Bear.Preferences
                                     sErr = sErr.Replace("<APPNAME>", url);
                                     ///MessageBox.Show(sErr, "");
                                     FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                                    ff.Owner = _ParentWindow;
                                     ff.ShowDialog();
                                 }
                             }
@@ -1009,6 +1014,7 @@ namespace Focus_Bear.Preferences
                                     sErr = sErr.Replace("<APPNAME>", url);
                                     ///MessageBox.Show(sErr, "");
                                     FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                                    ff.Owner = _ParentWindow;
                                     ff.ShowDialog();
                                 }
                             }

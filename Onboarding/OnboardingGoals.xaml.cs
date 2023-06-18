@@ -183,7 +183,7 @@ namespace Focus_Bear.Onboarding
                 Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
                 //Here firat we need to call the API to get the packs list
                 FocusBearAPIClient client = new FocusBearAPIClient();
-                var x = await client.GetHabitPacks();
+                var xResponse = await client.GetHabitPacks();
 
                
                 Mouse.OverrideCursor = null;

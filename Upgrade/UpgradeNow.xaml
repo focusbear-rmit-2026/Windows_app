@@ -55,7 +55,7 @@
 
             <TextBlock  Grid.Row="7" Visibility="Collapsed" TextWrapping="NoWrap" Name="Subscription"  Foreground="Red" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center">xYour Subscription has expired!</TextBlock>
 
-            <Button Grid.Row="8" Grid.ColumnSpan="2" x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="18" Cursor="Hand" FontFamily="Segoe UI Semibold" VerticalAlignment="Bottom" Click="btnUpgradeNow_Click">
+            <Button Grid.Row="8" Grid.ColumnSpan="2" x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="18" Cursor="Hand" FontFamily="Segoe UI Semibold" VerticalAlignment="Bottom" Click="btnUpgradeNow_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnUpgradeNowTXT" Margin="8" Text="xUpgrade Now"/>
@@ -84,7 +84,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0"  Name="AfterPay" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxAfter you pay, click the Sync Payment Status button below" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <Button Grid.Row="1"   x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="18" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnSyncPayment_Click">
+            <Button Grid.Row="1"   x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="18" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnSyncPayment_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnSyncPaymentTXT" Margin="8" Text="xSync Payment Status"/>

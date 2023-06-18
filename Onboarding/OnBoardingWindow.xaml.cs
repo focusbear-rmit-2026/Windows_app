@@ -71,6 +71,8 @@ namespace Focus_Bear.Onboarding
 
         public void ShowOnboardingSelectHabitPacksScreen()
         {
+            LogWriter.LogWrite("ShowOnboardingSelectHabitPacksScreen()");
+
             nScreenNumberWeAreOn = 2;
             WndOnboardingSelectHabitPacks = new OnboardingSelectHabitPacks(this);
             AppFrameOnboarding.Navigate(WndOnboardingSelectHabitPacks);

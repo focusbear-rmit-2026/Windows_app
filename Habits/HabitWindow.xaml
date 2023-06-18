@@ -6,6 +6,27 @@
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
         Title="HabitWindow" Height="850" Width="900"   PreviewKeyDown="Window_PreviewKeyDown" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Border  x:Name="IconBorder" Background="{x:Null}"  >
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                             
+
+                        
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
@@ -18,7 +39,7 @@
         <Frame x:Name="AppFrameLogQuantity" Margin="0" NavigationUIVisibility="Hidden"  Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed" Opacity="0.5" />
 
        
-        <Button   x:Name="btnPleaseSpareMe" IsDefault="False"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" MinWidth="180" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPleaseSpareMe_Click"  >
+        <Button   x:Name="btnPleaseSpareMe" IsDefault="False"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" MinWidth="180" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPleaseSpareMe_Click"  >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal" Margin="5,2,0,0" VerticalAlignment="Center">
                     <Image Source="../Images/spare.png" Width="25" Height="25" HorizontalAlignment="Left"></Image>
@@ -29,18 +50,78 @@
         
         <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed"  />
 
-        <Grid x:Name="GridLogQuantityNag"  Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="280" Width="498" Background="White">
+        <Grid x:Name="GridLogQuantityNag"  Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="auto" MaxHeight="550" Width="603" Background="White">
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
-                <RowDefinition Height="70"/>
-                <RowDefinition Height="50"/>
-                <RowDefinition Height="120"/>
+                <RowDefinition Height="auto"/>
+                <!--<RowDefinition Height="70"/>
+                <RowDefinition Height="50"/>-->
+                <RowDefinition Height="100"/>
                 <RowDefinition />
             </Grid.RowDefinitions>
 
             <TextBlock  Grid.Row="0" Name="HeadingLogQuantity" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxLog Quantity of activity" Foreground="#000" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock  Grid.Row="1" Name="HeadingLogQuantityQuestion" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxHow much did you do?" Foreground="#000" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBox  Grid.Row="2" TabIndex="0" x:Name="Quantity"  Height="30"  Width="200" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown" PreviewKeyUp="Quantity_PreviewKeyUp">
+
+            <ListView  MaxHeight="320" Width="540" Grid.Row="1"  Margin="0,5,0,20" x:Name="ListLogQuestions"   VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource ListViewItemStyle}" Background="{x:Null}"  BorderThickness="1" Foreground="{x:Null}"  >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid x:Name="ItemHeader"  Height="72"  Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True"   >
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="45"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="{Binding question, StringFormat=\{0\}}" Foreground="#000"  FontSize="13" FontFamily="Segoe UI Semibold" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                            <Grid  Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="30"/>  
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="150"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding minValueDescription, StringFormat=\{0\}}" Foreground="#000"  FontSize="12" FontFamily="Segoe UI" TextWrapping="Wrap"   VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                <TextBox  Grid.Column="0" TabIndex="0"  x:Name="Quantity" Text="{Binding quantity, StringFormat=\{0\}}"  Height="25"  Margin="5,0,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Visibility="{Binding Path=bShowTextBox, Converter={StaticResource BoolToVis}}" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown" PreviewKeyUp="Quantity_PreviewKeyUp">
+                                    <TextBox.Effect>
+                                        <DropShadowEffect ShadowDepth="3"
+                                                          Direction="330"
+                                                          Color="Gray"
+                                                          Opacity="0.5"
+                                                          BlurRadius="6"
+                                                           />
+                                    </TextBox.Effect>
+                                    <TextBox.FocusVisualStyle>
+                                        <Style>
+                                            <Setter Property="Control.Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </TextBox.FocusVisualStyle>
+                                </TextBox>
+                                <TextBlock Grid.Column="1" Text="{Binding minValue, StringFormat=(\{0\})}" Foreground="#000"  FontSize="13" FontFamily="Segoe UI" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                <Grid Grid.Column="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="15"/>
+                                        <RowDefinition Height="30"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="{Binding quantity, StringFormat=\{0\}}" Foreground="#000"  FontSize="13" FontFamily="Segoe Ui" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Center" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                    <Slider Grid.Row="1" Margin="0,0,0,10" TabIndex="1" VerticalAlignment="Bottom" LargeChange="0.5" TickFrequency="0.1"  Minimum="{Binding minValue, StringFormat=(\{0\})}" Maximum="{Binding maxValue, StringFormat=(\{0\})}" Value="{Binding quantity, StringFormat=(\{0\})}" Cursor="Hand" IsSnapToTickEnabled="True" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"></Slider>
+                                   
+
+                                </Grid>
+
+                                <TextBlock Grid.Column="3" Text="{Binding maxValue, StringFormat=(\{0\})}" Foreground="#000"  FontSize="13" FontFamily="Segoe UI" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                <TextBlock Grid.Column="4" Text="{Binding maxValueDescription, StringFormat=\{0\}}" Foreground="#000"  FontSize="12" FontFamily="Segoe UI"  TextWrapping="Wrap" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <!--<TextBlock  Grid.Row="2" Name="HeadingLogQuantityQuestion" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxHow much did you do?" Foreground="#000" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBox  Grid.Row="3" TabIndex="0" x:Name="Quantity"  Height="30"  Width="200" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown" PreviewKeyUp="Quantity_PreviewKeyUp">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -58,16 +139,16 @@
                         </Setter>
                     </Style>
                 </TextBox.FocusVisualStyle>
-            </TextBox>
-            <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button    x:Name="btnCancel"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="160" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnCancel_Click">
+            </TextBox>-->
+            <StackPanel  Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button    x:Name="btnCancel" TabIndex="3"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="160" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnCancel_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnCancelText" Margin="8" Text="xCancel"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <Button   x:Name="btnOK" IsDefault="True"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="160" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnOK_Click"  >
+                <Button   x:Name="btnOK" IsDefault="True" TabIndex="2"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="160" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnOK_Click"  >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnOKText" Margin="8" Text="xOK"/>
@@ -92,14 +173,14 @@
             <TextBlock  Grid.Row="1" Name="HeadingWhySkip" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxWhy do you want to skip?" Foreground="#000" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             
             <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button    x:Name="btnAlreadyDidIt"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" MinWidth="160" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnAlreadyDidIt_Click">
+                <Button    x:Name="btnAlreadyDidIt"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinWidth="160" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnAlreadyDidIt_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnAlreadyDidItTXT" Margin="8" Text="xI already did it" />
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <Button   x:Name="btnCantDoItToday" IsDefault="True"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" MinWidth="160" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCantDoItToday_Click"  >
+                <Button   x:Name="btnCantDoItToday" IsDefault="True"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   MinWidth="160" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCantDoItToday_Click"  >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnCantDoItTodayTXT" Margin="8" Text="xCan't do it today"/>
@@ -123,7 +204,7 @@
             <TextBlock  Grid.Row="0" Name="HeadingSkippingIn" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxSkipping habit in" Foreground="#000" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             <TextBlock  Grid.Row="1" Name="HeadingSkippingInTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="00:15" Foreground="#000" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
            
-            <Button  Grid.Row="3"   x:Name="btnChangedMyMind" IsDefault="True"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="360" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnChangedMyMind_Click"  >
+            <Button  Grid.Row="3"   x:Name="btnChangedMyMind" IsDefault="True"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="360" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnChangedMyMind_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                     <TextBlock Name="btnChangedMyMindTXT" Margin="8" Text="xI changed my mind - I will do"/>

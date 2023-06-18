@@ -102,7 +102,7 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-                <Button   x:Name="btnStartAnotherFocusMode" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" Height="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStartAnotherFocusMode_Click">
+                <Button   x:Name="btnStartAnotherFocusMode" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStartAnotherFocusMode_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnStartAnotherFocusModeText" Margin="8" Text="xStart another Focus Mode"/>

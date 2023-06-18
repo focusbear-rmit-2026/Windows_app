@@ -25,8 +25,13 @@ namespace Focus_Bear.Preferences
     public partial class AccountTab : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        public AccountTab()
+        //PreferencesWindow _ParentWindow = null;
+        //public AccountTab()
+        //{
+        //}
+        public AccountTab( )
         {
+      
             InitializeComponent();
             /* "accountVcInfo": {
         "title": "Your Account Information",
@@ -79,9 +84,9 @@ namespace Focus_Bear.Preferences
         private void btnLogout_Click(object sender, RoutedEventArgs e)
         {
             FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["accountVcInfo"]["logoutAlertText"].ToString(), "Focus Bear", MessageBoxButton.YesNo);
+             
             ff.ShowDialog();
             if(ff.btnClicked == MessageBoxResult.Yes)
-           /// if (MessageBox.Show(appSettings.ConfigFileStrings["accountVcInfo"]["logoutAlertText"].ToString(),"Focus Bear", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 RegistryManager.RemoveLoggedInStatus();
                 
@@ -146,6 +151,7 @@ namespace Focus_Bear.Preferences
                         //noPurchasesFoundText
                         ///MessageBox.Show(appSettings.ConfigFileStrings["common"]["noPurchasesFoundText"].ToString(), "Focus Bear");
                         FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["common"]["noPurchasesFoundText"].ToString(), "Focus Bear");
+                       
                         ff.ShowDialog();
                         LogWriter.LogWrite("no Purchases Found ");
                     }

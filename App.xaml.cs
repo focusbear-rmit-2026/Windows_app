@@ -167,7 +167,7 @@ namespace Focus_Bear
                         }
                     }
                 }
-                else if (appSettings.sLastActiveAppName == "chrome.exe" || appSettings.sLastActiveAppName == "msedge.exe")
+                else if (appSettings.sLastActiveAppName == "chrome.exe" || appSettings.sLastActiveAppName == "msedge.exe" || appSettings.sLastActiveAppName == "brave.exe")
                 {
                     int nRet;
                     // Pre-allocate 256 characters, since this is the maximum class name length.
@@ -283,7 +283,7 @@ namespace Focus_Bear
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("GetLastActiveAppName() - " + ex.Message);
+                //LogWriter.LogWrite("GetLastActiveAppName() - " + ex.Message);
             }
 
             return "";
@@ -355,23 +355,7 @@ namespace Focus_Bear
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             LogWriter.LogWrite( string.Format("App Started - Version {0}", appSettings.AppVersion.ToString()) );
-
-            //SentrySdk.CaptureMessage("Something went wrong123");
-
-            //int num = 10;
-            //int t = 5;
-            //t = t - 5;
-            //int error = num / t;
-
-            //output = HttpUtility.UrlEncode(output);//
-            //var authenticator = new Authentication();
-            //var x = authenticator.SendMagicLink("manishjain9@gmail.com");
-
-
-            //FocusBearAPIClient client = new FocusBearAPIClient();
-            //var x = client.CapturePostHog("login-universal", "");
-            //var x = client.GetActivityAllDaySummary();
-            ///
+            
             bool bStartingAfterReactivate = false;
             if (e.Args.Length > 0)
             {
@@ -1253,18 +1237,6 @@ namespace Focus_Bear
             //FocusBearAPIClient client = new FocusBearAPIClient();
             //var x = client.ChatGPTIsURLSafe("facebook.com", "");
 
-
-            //StartFocusMode menu = new StartFocusMode();
-            //menu.Topmost = true;
-            //menu.ShowDialog();
-            // ShowFocusSummaryWindow();
-            //ShowBreakActivities();
-            // appSettings.CapturePostHog("deactivate-routine", "\"routine-type\":\"evening_routine\",\"deactivate_reason\":\"easy postpone\"");
-            // GentleBlock gg = new GentleBlock();
-            //// gg.Show();
-            // gg.ShowGentleBlockWindowAndStartTimer("Meetings", "testapp","kya intent");
-            // gg.ShowDialog();
-
 #endif
 
             if (appSettings.IsFirstInstall)
@@ -1590,8 +1562,8 @@ namespace Focus_Bear
      
 
             var sResponse = await client.GetLastActivityInfo();
-            int x = int.Parse(sResponse.ToString());
-            if (x == 1)
+            int xResponse = int.Parse(sResponse.ToString());
+            if (xResponse == 1)
             {
                 LogWriter.LogWrite("GetLastActivityInfo Success");
 
@@ -1733,8 +1705,8 @@ namespace Focus_Bear
                                                     {
                                                         LogWriter.LogWrite("Pending routine is not from current day clean all running sequence");
                                                         var sResponse1 = await client.ForceCompleteCurrentSequence(sequenceId);
-                                                        int x1 = int.Parse(sResponse1.ToString());
-                                                        if (x1 == 1)
+                                                        int xResponse1 = int.Parse(sResponse1.ToString());
+                                                        if (xResponse1 == 1)
                                                         {
                                                             ////Start Default
                                                         }
@@ -1885,8 +1857,8 @@ namespace Focus_Bear
             FocusBearAPIClient client = new FocusBearAPIClient();
             
             var sResponse = await client.GetLastActivityInfo();
-            int x = int.Parse(sResponse.ToString());
-            if (x == 1)
+            int xResponse = int.Parse(sResponse.ToString());
+            if (xResponse == 1)
             {
                 LogWriter.LogWrite("GetLastActivityInfo Success - checking before evening routine");
 
@@ -2457,7 +2429,7 @@ namespace Focus_Bear
                 appSettings.sActivityAllDaySummaryData = "";
 
                 FocusBearAPIClient client = new FocusBearAPIClient();
-                var x = await client.GetActivityAllDaySummary();
+                var xResponse = await client.GetActivityAllDaySummary();
 
 
                 if (wndFocusSummary == null)

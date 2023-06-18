@@ -32,6 +32,8 @@ namespace Focus_Bear.Onboarding
         }
         public OnboardingSelectHabitPacks(OnBoardingWindow parentWindow) : this()
         {
+            LogWriter.LogWrite("OnboardingSelectHabitPacks(OnBoardingWindow parentWindow)");
+
             _parentWindow = parentWindow;
 
             InitializeComponent();

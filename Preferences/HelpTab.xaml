@@ -17,6 +17,9 @@
                     <Setter Property="HorizontalAlignment" Value="Center" />
                 </Style>
             </TabControl.Resources>
+            <TabItem Name="ChatTab" Header="xChat with Focus Bear" >
+                <wv2:WebView2 Name="webView" />
+            </TabItem>
             <TabItem Name="ReportProblemTab" Header="xReport Problem" >
                 <Grid Background="#fcf8f0" Margin="20">
                     <Grid.RowDefinitions>
@@ -30,9 +33,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Name="ChatTab" Header="xChat with Focus Bear" >
-                <wv2:WebView2 Name="webView" />
-            </TabItem>
+           
         </TabControl>
     </Grid>
 </Page>

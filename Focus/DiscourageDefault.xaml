@@ -14,14 +14,14 @@
         </Grid.RowDefinitions>
         <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0" Width="500" TextWrapping="Wrap" Text="xAre you sure? It's pretty easy to get distracted without using a more restrictive focus mode" Foreground="#000" FontSize="23" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
         <StackPanel x:Name="buttons" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-            <Button   IsDefault="True" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="63" Width="250"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,20,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click" >
+            <Button   IsDefault="True" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="63" Width="250"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,20,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click" >
                 <Button.Content>
      
                         <TextBlock x:Name="btnCancelTXT" Width="200" TextWrapping="Wrap" Text="xBah I guess you're right - CANCEL!" TextAlignment="Center"/>
          
                 </Button.Content>
             </Button>
-            <Button Grid.Row="3" IsDefault="True" x:Name="btnShutup"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="63"  Width="250"   HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnShutup_Click" >
+            <Button Grid.Row="3" IsDefault="True" x:Name="btnShutup"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="63"  Width="250"   HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnShutup_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnShutupTXT" Width="200" TextWrapping="Wrap" Text="xShutup I know what I'm doing" TextAlignment="Center"/>

@@ -57,14 +57,14 @@
 
         </Grid>
 
-        <Button  Grid.Row="2" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,5" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click" >
+        <Button  Grid.Row="2" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,5" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnCancelTXT" Text="xCancel"/>
                 </StackPanel>
             </Button.Content>
         </Button>
-        <Button  Grid.Row="2" x:Name="btnAdd"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,5" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAdd_Click" >
+        <Button  Grid.Row="2" x:Name="btnAdd"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,5" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAdd_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnAddTXT" Text="xAdd"/>

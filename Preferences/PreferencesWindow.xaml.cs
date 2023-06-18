@@ -34,6 +34,7 @@ namespace Focus_Bear.Preferences
         public EditHabits PageEditHabits;
         FocusPage PageFocusModes;
         AccountTab PageAccountsTab;
+        Stats PageStats;
 
         double ScaleX = 1;
         double ScaleY = 1;
@@ -74,7 +75,7 @@ namespace Focus_Bear.Preferences
 
             FrameSettings.Navigate(new Settings(this));
 
-            PageEditHabits = new EditHabits();
+            PageEditHabits = new EditHabits(this);
             FrameEditHabits.Navigate(PageEditHabits);
 
             PageFocusModes = new FocusPage(this);
@@ -89,7 +90,8 @@ namespace Focus_Bear.Preferences
 
             FrameHelpTab.Navigate(new HelpTab(this));
 
-            FrameStats.Navigate(new Stats());
+            PageStats = new Stats();
+            FrameStats.Navigate(PageStats);
 
             EnableAll();
             //btnSettings.IsEnabled = false;
@@ -357,6 +359,10 @@ namespace Focus_Bear.Preferences
                         {
                             PageEditHabits.webView.Visibility = Visibility.Collapsed;
                         }
+                        if (!btnStats.IsEnabled)
+                        {
+                            PageStats.webView.Visibility = Visibility.Collapsed;
+                        }
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = this;
                         GridShade.Visibility = Visibility.Visible;
@@ -368,7 +374,10 @@ namespace Focus_Bear.Preferences
                         {
                             PageEditHabits.webView.Visibility = Visibility.Visible;
                         }
-
+                        if (!btnStats.IsEnabled)
+                        {
+                            PageStats.webView.Visibility = Visibility.Visible;
+                        }
                         if (bResult.Value)
                         {
                              //Password is correct
@@ -395,7 +404,7 @@ namespace Focus_Bear.Preferences
             btnHelp.IsEnabled = false;
             btnHelp.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
             this.Width = 680 * ScaleX;
-            this.Height = 600 * ScaleY;
+            this.Height = 750 * ScaleY;
 
             FrameHelpTab.Visibility = Visibility.Visible;
         }

@@ -261,7 +261,7 @@
                                         <VisualTransition GeneratedDuration="0">
                                         </VisualTransition>
                                     </VisualStateGroup.Transitions>
-                                    <VisualState x:Name="Normal"/>
+                                    <VisualState x:Name="Normal" />
                                     <VisualState x:Name="MouseOver">
                                         <Storyboard>
                                             <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Storyboard.TargetName="rectangle">
@@ -283,8 +283,8 @@
                                     </VisualState>
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
-                            <Rectangle x:Name="rectangle" Fill="#ffe4c6" Stroke="#e88800" StrokeThickness="1" RadiusX="7" RadiusY="7"/>
-                            <ContentPresenter x:Name="contentPresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="Auto" Margin="0,-2,0,0"/>
+                            <Rectangle x:Name="rectangle"  Fill="#ffe4c6" Stroke="#e88800" StrokeThickness="1" RadiusX="7" RadiusY="7"/>
+                            <ContentPresenter x:Name="contentPresenter"  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="Auto" Margin="0,-2,0,0"/>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True"/>
@@ -296,6 +296,7 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Setter Property="Foreground"  Value="#000" />
         </Style>
         <Style x:Key="BtnStyleDarkOrangeBordered" TargetType="{x:Type Button}">
             <Setter Property="Template">
@@ -537,6 +538,7 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Setter Property="Foreground"  Value="#000" />
         </Style>
         
 

@@ -135,6 +135,7 @@ namespace Focus_Bear.Upgrade
                     {
                         //noPurchasesFoundText
                         FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["common"]["noPurchasesFoundText"].ToString(), "Focus Bear");
+                        ff.Owner = this;
                         ff.ShowDialog();
                         LogWriter.LogWrite("No Purchases Found ");
                         btnUpgradeNow.IsEnabled = true;

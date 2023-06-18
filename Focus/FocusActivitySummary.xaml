@@ -372,14 +372,14 @@
 
         
             <StackPanel Grid.Row="4" Orientation="Horizontal"   HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button  IsDefault="True" x:Name="btnNeedOneMinute"    Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" MinWidth="350"  HorizontalAlignment="Center" Padding="0" Margin="0,0,30,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnNeedOneMinute_Click" >
+            <Button  IsDefault="True" x:Name="btnNeedOneMinute"    Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" Padding="0" Margin="0,0,30,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnNeedOneMinute_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnNeedOneMinuteTXT" Text="xI need One More Minute"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  IsDefault="True" x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" MinWidth="200"  HorizontalAlignment="Center"   Padding="0" Margin="30,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click" >
+            <Button  IsDefault="True" x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="200"  HorizontalAlignment="Center"   Padding="0" Margin="30,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnContinueTXT" Text="xContinue"/>

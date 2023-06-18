@@ -95,6 +95,7 @@ namespace Focus_Bear.Preferences
                         sErr = sErr.Replace("<APPNAME>", url);
                         ///MessageBox.Show(sErr, "");
                         FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                        ff.Owner = _ParentWindow;
                         ff.ShowDialog();
                     }
                      
@@ -181,6 +182,7 @@ namespace Focus_Bear.Preferences
                             sErr = sErr.Replace("<APPNAME>", url);
                             // MessageBox.Show(sErr, "");
                             FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                            ff.Owner = _ParentWindow;
                             ff.ShowDialog();
                         }
 

@@ -27,7 +27,7 @@ namespace Focus_Bear.Quit
     {
         AppSettings appSettings = AppSettings.GetInstance;
 
-        int nTimer = 5; //10 seconds
+        int nTimer = 2; //10 seconds
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
         bool bEmergencyTimer = false;
@@ -184,12 +184,19 @@ namespace Focus_Bear.Quit
             }
 
             
-
             RegistryManager.SetAppDeactivatedTillDate();
 
             appSettings.CapturePostHog("turn-it-off-for-x-duration");
 
-            Close();
+           // Close();
+
+            //We will restart the app here
+            LogWriter.LogWrite("Restart app now for DEACTIVATE to take Effect!");
+
+            appSettings.bRestartAppNeeded = true;
+
+            Application.Current.Shutdown(0);
+
         }
 
         private void btnTurnOfCompletely_Click(object sender, RoutedEventArgs e)
@@ -224,9 +231,9 @@ namespace Focus_Bear.Quit
             GridQuitCompletely.Visibility = Visibility.Collapsed;
             GridSureToQuit.Visibility = Visibility.Visible;
 
-            TxtTimer.Text = "00:05";
+            TxtTimer.Text = "00:02";
             //start the timer for 10 seconds
-            nTimer = 5;
+            nTimer = 2;
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
@@ -311,8 +318,8 @@ namespace Focus_Bear.Quit
 
                 bEmergencyTimer = true;
                 nTimer = 2;
-                TxtFinalTimer.Text = "00:02";
-                TxtFinalTimer.Visibility = Visibility.Visible;
+                ///TxtFinalTimer.Text = "00:02";
+                ///TxtFinalTimer.Visibility = Visibility.Visible;
 
                 string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
@@ -335,8 +342,8 @@ namespace Focus_Bear.Quit
 
                 bEmergencyTimer = true;
                 nTimer = 2;
-                TxtFinalTimer.Text = "00:02";
-                TxtFinalTimer.Visibility = Visibility.Visible;
+                ///TxtFinalTimer.Text = "00:02";
+               /// TxtFinalTimer.Visibility = Visibility.Visible;
 
                 string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
@@ -353,8 +360,8 @@ namespace Focus_Bear.Quit
 
                 bEmergencyTimer = true;
                 nTimer = 2;
-                TxtFinalTimer.Text = "00:02";
-                TxtFinalTimer.Visibility = Visibility.Visible;
+              ///  TxtFinalTimer.Text = "00:02";
+              ///  TxtFinalTimer.Visibility = Visibility.Visible;
 
                 string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
@@ -377,8 +384,8 @@ namespace Focus_Bear.Quit
 
                 bEmergencyTimer = true;
                 nTimer = 2;
-                TxtFinalTimer.Text = "00:02";
-                TxtFinalTimer.Visibility = Visibility.Visible;
+               /// TxtFinalTimer.Text = "00:02";
+               /// TxtFinalTimer.Visibility = Visibility.Visible;
 
                 string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
@@ -415,10 +422,11 @@ namespace Focus_Bear.Quit
             ComboBoxReason.IsEnabled = false;
             TxtExplanation.Visibility = Visibility.Collapsed;
 
-            TxtFinalTimer.Text = "00:05";
-            TxtFinalTimer.Visibility = Visibility.Visible;
+            //TxtFinalTimer.Text = "00:01";
+            //25-May-2023 - WE will not be showing the timer but easy fix is having 1 second invisible timer.
+            TxtFinalTimer.Visibility = Visibility.Collapsed;
             bEmergencyTimer = true;
-            nTimer = 5;
+            nTimer = 1;
             dispatcherTimer.Start();
         }
 

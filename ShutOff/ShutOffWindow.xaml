@@ -55,7 +55,7 @@
             </TextBox.FocusVisualStyle>
         </TextBox>
         
-        <Button Grid.Row="6"  Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,60" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAction_Click" >
+        <Button Grid.Row="6"  Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,60" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAction_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnActionText" Text="xGet Access Now"/>

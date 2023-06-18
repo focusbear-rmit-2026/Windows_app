@@ -44,6 +44,7 @@ namespace Focus_Bear.Preferences
             {
                 /*enterPasswordViewInfo "blankPasswordErrorTitle":"Password cannot be blank.",*/
                 FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["enterPasswordViewInfo"]["blankPasswordErrorTitle"].ToString(), "Focus Bear");
+                ff.Owner = this;
                 ff.ShowDialog();
             }
             else
@@ -55,6 +56,7 @@ namespace Focus_Bear.Preferences
                 else
                 {
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["enterPasswordViewInfo"]["blankPasswordErrorSubTitle"].ToString(), appSettings.ConfigFileStrings["enterPasswordViewInfo"]["incorrectPasswordErrorTitle"].ToString());
+                    ff.Owner = this;
                     ff.ShowDialog();
                 }
             }

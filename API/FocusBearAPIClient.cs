@@ -98,7 +98,7 @@ namespace Focus_Bear.API
         //    return 0;
         //}
 
-        internal async Task<int> PostActivityCompleted(string activity_id, string activity_sequence_id, DateTime start_time, int duration_logged, string choice_id, Double quantity_logged = -1, bool is_skipped = false)
+        internal async Task<int> PostActivityCompleted(string activity_id, string activity_sequence_id, DateTime start_time, int duration_logged, string choice_id, /*Double quantity_logged = -1*/ List<QuantityQuestion> logQuantityQuestions = null, bool is_skipped = false)
         {
             LogWriter.LogWrite("PostActivityCompleted() = " + activity_id);
             try
@@ -159,9 +159,23 @@ namespace Focus_Bear.API
                         addItemJsonString = addItemJsonString + $"\"choice_id\":\"{choice_id}\",";
                     }
 
-                    if( quantity_logged != -1)
+                    //if( quantity_logged != -1)
+                    //{
+                    //    addItemJsonString = addItemJsonString + $"\"quantity_logged\":{quantity_logged},";
+                    //}
+                    if (logQuantityQuestions != null)
                     {
-                        addItemJsonString = addItemJsonString + $"\"quantity_logged\":{quantity_logged},";
+                        // List<LogQuantityAnswer> arrAnswers = new List<LogQuantityAnswer>();
+                        string LogQuantityAnswers = $"[";
+                        foreach (QuantityQuestion question in logQuantityQuestions)
+                        {
+                            LogQuantityAnswers += $"{{\"question_id\":\"{question.id}\"," +
+                            $"\"logged_value\":{question.quantity}}},";
+                        }
+                        LogQuantityAnswers = LogQuantityAnswers.Remove(LogQuantityAnswers.Length - 1, 1);
+                        LogQuantityAnswers = LogQuantityAnswers + "]";
+
+                        addItemJsonString = addItemJsonString + $"\"log_quantity_answers\":{LogQuantityAnswers},";
                     }
 
                     //Remove last comma -  we have 100% added above
@@ -169,7 +183,9 @@ namespace Focus_Bear.API
                     Console.WriteLine(addItemJsonString);
 
                     addItemJsonString = addItemJsonString + "}";
-                   
+
+                    
+
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
                         //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
@@ -2012,7 +2028,141 @@ namespace Focus_Bear.API
             }
             return 0;
         }
+        //Used for break activities questions wise stats
+        internal async Task<int> GetActivityCurrentDayQuestionsStats(string activityId, string activityChoiceId, List<QuantityQuestion> logQuantityQuestions)   //OK
+        {
+            LogWriter.LogWrite("getActivityCurrentDayQuestionsStats()");
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        //Renew the token and check again
+                        LogWriter.LogWrite("Attempting RenewToken before API call");
+                        var authenticator = new Authentication();
+                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                        if (x)
+                        {
+                            //token renewed
+                            LogWriter.LogWrite("RenewToken DONE before API call");
+                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                            {
+                                return 0;
+                            }
+                            //All Good, Proceed Normally
+                        }
+                        else
+                        {
+                            //token renewed failed
+                            return 0;
+                        }
+                    }
 
+                    HttpClient client = new HttpClient();
+
+                    TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+
+                    DateTime now = DateTime.Now;
+                    DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00).ToUniversalTime();
+                    Console.WriteLine("{0}", myShutOffTime.ToString());
+
+                    TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                    DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00).ToUniversalTime();
+                    Console.WriteLine("{0}", myStartTime.ToString());
+
+                    string apiPath = string.Format("https://api.focusbear.io/completed-activity/answer-logs?from_time={0}&to_time={1}", myStartTime.ToString("o"), myShutOffTime.ToString("o"));
+
+                    LogWriter.LogWrite("GetActivityCurrentDayQuestionsStats() URL - " + apiPath);
+
+
+                    string addItemJsonString = $"{{";
+                    if (logQuantityQuestions != null)
+                    {
+                        // List<LogQuantityAnswer> arrAnswers = new List<LogQuantityAnswer>();
+                        string LogQuantityQuestions = $"[";
+                        foreach (QuantityQuestion question in logQuantityQuestions)
+                        {
+                            LogQuantityQuestions += $"\"{question.id}\",";
+                        }
+                        LogQuantityQuestions = LogQuantityQuestions.Remove(LogQuantityQuestions.Length - 1, 1);
+                        LogQuantityQuestions = LogQuantityQuestions + "]";
+
+                        addItemJsonString = addItemJsonString + $"\"question_ids\":{LogQuantityQuestions}";
+                    }
+                    addItemJsonString = addItemJsonString + "}";
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+                        client.DefaultRequestHeaders.Add("platform", "Windows");
+                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+
+                        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+                        client.DefaultRequestHeaders.Add("platform", "Windows");
+                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+                        {
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+                        }
+                        else
+                        {
+                            LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
+                            return 0;
+                        }
+
+
+                        var response = await client.PostAsync(apiPath, content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //200
+                        {
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                //JObject resJson = JObject.Parse(responseCode);
+                                //appSettings.sDeviceID = resJson["id"].ToString();
+                                appSettings.sCurrentDayActivityDataForGraphQuestionsStats = responseCode.ToString();
+
+                                LogWriter.LogWrite("GetActivityCurrentDayQuestionsStats() GOT Success");
+
+                                //RegistryManager.SaveUserSettings();
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //GetUserSettings Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("GetActivityCurrentDayQuestionsStats() FAILED - " + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+
+                    }
+                    else
+                    {
+                        LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetActivityCurrentDayQuestionsStats WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetActivityCurrentDayQuestionsStats WebException - " + ex.Message);
+            }
+            return 0;
+        }
         internal async Task<int> GetActivityAllDaySummary()   //OK
         {
             LogWriter.LogWrite("GetActivityAllDaySummary()");

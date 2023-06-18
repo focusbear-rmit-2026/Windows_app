@@ -206,9 +206,9 @@ namespace Focus_Bear.Utils
         public List<string> allowedApps;
         public string allowedFocusMode;
         public string activity_sequence_id;
+        public List<QuantityQuestion> logQuantityQuestions; 
 
-
-        public habit(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id)
+        public habit(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions)
         {
             this.id = id;
             this.name = name;
@@ -221,6 +221,7 @@ namespace Focus_Bear.Utils
             this.allowedApps = allowedApps;
             this.allowedFocusMode = allowedFocusMode;
             this.activity_sequence_id = activity_sequence_id;
+            this.logQuantityQuestions = logQuantityQuestions;
         }
     }
 
@@ -243,9 +244,9 @@ namespace Focus_Bear.Utils
         public List<activityChoice> choices;
         public bool isOfficeFriendly;
         public string logQuantityType;
+        public List<QuantityQuestion> logQuantityQuestions;
 
-
-        public breakActivity(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, bool IncludeInEveryBreak, bool isRandomChoice, List<activityChoice> choices, bool isOfficeFriendly, string logQuantityType)
+        public breakActivity(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, bool IncludeInEveryBreak, bool isRandomChoice, List<activityChoice> choices, bool isOfficeFriendly, string logQuantityType, List<QuantityQuestion> logQuantityQuestions)
         {
             this.id = id;
             this.name = name;
@@ -263,7 +264,7 @@ namespace Focus_Bear.Utils
             this.choices = choices;
             this.isOfficeFriendly = isOfficeFriendly;
             this.logQuantityType = logQuantityType;
-
+            this.logQuantityQuestions = logQuantityQuestions;
         }
     }
 
@@ -275,8 +276,8 @@ namespace Focus_Bear.Utils
         public string logQuantityQuestion;
         public bool logQuantity;
         public string logQuantityType;
-
-        public activityChoice(string id, string name, List<string> videoUrls, string logQuantityQuestion, bool logQuantity, string logQuantityType)
+        public List<QuantityQuestion> logQuantityQuestions;
+        public activityChoice(string id, string name, List<string> videoUrls, string logQuantityQuestion, bool logQuantity, string logQuantityType, List<QuantityQuestion> logQuantityQuestions)
         {
             this.id = id;
             this.name = name;
@@ -284,6 +285,7 @@ namespace Focus_Bear.Utils
             this.logQuantityQuestion = logQuantityQuestion;
             this.logQuantity = logQuantity;
             this.logQuantityType = logQuantityType;
+            this.logQuantityQuestions = logQuantityQuestions;
         }
     }
 
@@ -458,4 +460,55 @@ namespace Focus_Bear.Utils
 
     }
 
+    public class QuantityQuestion
+    {
+        public string id;
+        public int minValue { get; set; }
+        public int maxValue { get; set; }
+        public string question { get; set; }
+        public string logQuantityType;
+        public double quantity { get; set; }
+        public string minValueDescription { get; set; }
+        public string maxValueDescription { get; set; }
+        public bool bShowSlider { get; set; }
+        public bool bShowTextBox { get; set; } 
+        public QuantityQuestion()
+        {
+
+        }
+
+        public QuantityQuestion(string id, int minValue, int maxValue, string question, string logQuantityType, double quantity, string minValueDescription, string maxValueDescription)
+        {
+            this.id = id;
+            this.minValue = minValue;
+            this.maxValue = maxValue; 
+            this.question = question;
+            this.logQuantityType = logQuantityType;
+            this.quantity = (double)((minValue + maxValue) / 2);
+
+            if(minValue == 0 && maxValue == 0)
+            {
+                bShowSlider = false;
+                bShowTextBox = true;
+            }
+            else
+            {
+                bShowSlider = true;
+                bShowTextBox = false;
+            }
+            this.minValueDescription = minValueDescription;
+            this.maxValueDescription = maxValueDescription;
+        }
+    }
+    public struct LogQuantityAnswer
+    {
+        public string question_id;
+        public double logged_value;
+        public LogQuantityAnswer(string question_id, double logged_value)
+        {
+            this.question_id = question_id;
+            this.logged_value = logged_value;
+        }
+    }
 }
+ 

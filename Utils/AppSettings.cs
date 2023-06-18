@@ -128,6 +128,7 @@ namespace Focus_Bear.Utils
 
         public string sOneMonthActivityDataForGraph;
         public string sCurrentDayActivityDataForGraph;
+        public string sCurrentDayActivityDataForGraphQuestionsStats;
 
 
         public string sActivityAllDaySummaryData;
@@ -705,9 +706,37 @@ namespace Focus_Bear.Utils
                             }
 
                             //string[] urlsArray = item.GetValue("allowed_urls") ;
-                            bool logQuantity = item.ContainsKey("log_quantity") ? (bool)item.GetValue("log_quantity") : false;
-
+                           
                             string logQuantityQuestion = item.ContainsKey("log_quantity_question") ? item.GetValue("log_quantity_question").ToString() : "";
+
+                            List<QuantityQuestion> logQuantityQuestions = new List<QuantityQuestion>(); ;
+                            if (item.ContainsKey("log_quantity_questions"))
+                            {
+                                JArray quesArray = (JArray)item.GetValue("log_quantity_questions");
+                                //Read one by one
+                                ////
+                                if (quesArray.Count() > 0)
+                                {
+                                    foreach (JObject ques in quesArray)
+                                    {
+                                        string qid = ques.ContainsKey("id") ? ques.GetValue("id").ToString() : "";
+                                        int minValue = ques.ContainsKey("min_value") ? (int)ques.GetValue("min_value") : 0;
+                                        int maxValue = ques.ContainsKey("max_value") ? (int)ques.GetValue("max_value") : 0;
+                                        string question = ques.ContainsKey("question") ? ques.GetValue("question").ToString() : "";
+                                        string logQuantityType = ques.ContainsKey("log_summary_type") ? ques.GetValue("log_summary_type").ToString() : "";
+                                        string min_value_description = ques.ContainsKey("min_value_description") ? ques.GetValue("min_value_description").ToString() : "";
+                                        string max_value_description = ques.ContainsKey("max_value_description") ? ques.GetValue("max_value_description").ToString() : "";
+                                       
+                                        logQuantityQuestions.Add(new QuantityQuestion(qid, minValue, maxValue, question, logQuantityType, 0, min_value_description, max_value_description));
+                                    }
+                                }
+                            }
+
+                            bool logQuantity = item.ContainsKey("log_quantity") ? (bool)item.GetValue("log_quantity") : false;
+                            if (logQuantityQuestions.Count() == 0)
+                            {
+                                logQuantity = false;
+                            }
 
                             List<string> allowedUrls = new List<string>(); ;
                             if (item.ContainsKey("allowed_urls"))
@@ -732,7 +761,7 @@ namespace Focus_Bear.Utils
                             string allowedFocusMode = item.ContainsKey("allowed_focus_mode_id") ? item.GetValue("allowed_focus_mode_id").ToString() : "";
                             string activity_sequence_id = item.ContainsKey("activity_sequence_id") ? item.GetValue("activity_sequence_id").ToString() : "";
 
-                            arrAllMorningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id));
+                            arrAllMorningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions));
                         }
                     }
                     if (arrayEveningActivities.Count() > 0)
@@ -752,11 +781,39 @@ namespace Focus_Bear.Utils
                                 arrVideoUrlsArray = arrayurlsArray.ToObject<List<string>>();
                             }
 
-                            //string[] urlsArray = item.GetValue("allowed_urls") ;
-                            bool logQuantity = item.ContainsKey("log_quantity") ? (bool)item.GetValue("log_quantity") : false;
 
                             string logQuantityQuestion = item.ContainsKey("log_quantity_question") ? item.GetValue("log_quantity_question").ToString() : "";
 
+
+                            List<QuantityQuestion> logQuantityQuestions = new List<QuantityQuestion>(); ;
+                            if (item.ContainsKey("log_quantity_questions"))
+                            {
+                                JArray quesArray = (JArray)item.GetValue("log_quantity_questions");
+                                //Read one by one
+                                ////
+                                if (quesArray.Count() > 0)
+                                {
+                                    foreach (JObject ques in quesArray)
+                                    {
+                                        string qid = ques.ContainsKey("id") ? ques.GetValue("id").ToString() : "";
+                                        int minValue = ques.ContainsKey("min_value") ? (int)ques.GetValue("min_value") : 0;
+                                        int maxValue = ques.ContainsKey("max_value") ? (int)ques.GetValue("max_value") : 0;
+                                        string question = ques.ContainsKey("question") ? ques.GetValue("question").ToString() : "";
+                                        string logQuantityType = ques.ContainsKey("log_summary_type") ? ques.GetValue("log_summary_type").ToString() : "";
+                                        string min_value_description = ques.ContainsKey("min_value_description") ? ques.GetValue("min_value_description").ToString() : "";
+                                        string max_value_description = ques.ContainsKey("max_value_description") ? ques.GetValue("max_value_description").ToString() : "";
+
+                                        logQuantityQuestions.Add(new QuantityQuestion(qid, minValue, maxValue, question, logQuantityType, 0, min_value_description, max_value_description));
+                                    }
+                                }
+                            }
+
+                            bool logQuantity = item.ContainsKey("log_quantity") ? (bool)item.GetValue("log_quantity") : false;
+                            if (logQuantityQuestions.Count() == 0)
+                            {
+                                logQuantity = false;
+                            }
+                           
                             List<string> allowedUrls = new List<string>(); ;
                             if (item.ContainsKey("allowed_urls"))
                             {
@@ -780,7 +837,7 @@ namespace Focus_Bear.Utils
                             string allowedFocusMode = item.ContainsKey("allowed_focus_mode_id") ? item.GetValue("allowed_focus_mode_id").ToString() : "";
                             string activity_sequence_id = item.ContainsKey("activity_sequence_id") ? item.GetValue("activity_sequence_id").ToString() : "";
 
-                            arrAllEveningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id));
+                            arrAllEveningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions));
                         }
                     }
                     if (arrayBreakActivities.Count() > 0)
@@ -802,8 +859,7 @@ namespace Focus_Bear.Utils
                                 arrVideoUrlsArray = arrayurlsArray.ToObject<List<string>>();
                             }
 
-                            bool logQuantity = item.ContainsKey("log_quantity") ? (bool)item.GetValue("log_quantity") : false;
-
+                            
                             List<string> allowedUrls = new List<string>(); ;
                             if (item.ContainsKey("allowed_urls"))
                             {
@@ -854,9 +910,38 @@ namespace Focus_Bear.Utils
                                         arrVideoUrlsArraychoice = arrayurlsArraychoice.ToObject<List<string>>();
                                     }
                                     string logQuantityQuestionchoice = choiceitem.ContainsKey("log_quantity_question") ? choiceitem.GetValue("log_quantity_question").ToString() : "";
-                                    bool logQuantitychoice = choiceitem.ContainsKey("log_quantity") ? (bool)choiceitem.GetValue("log_quantity") : false;
                                     string logQuantityTypechoice = choiceitem.ContainsKey("log_summary_type") ? choiceitem.GetValue("log_summary_type").ToString() : "";
-                                    choicesToAdd.Add(new activityChoice(idchoice, namechoice, arrVideoUrlsArraychoice, logQuantityQuestionchoice, logQuantitychoice, logQuantityTypechoice));
+
+                                    List<QuantityQuestion> logQuantityQuestionsCh = new List<QuantityQuestion>(); 
+                                    if (item.ContainsKey("log_quantity_questions"))
+                                    {
+                                        JArray quesArray = (JArray)choiceitem.GetValue("log_quantity_questions");
+                                        //Read one by one
+                                        ////
+                                        if (quesArray.Count() > 0)
+                                        {
+                                            foreach (JObject ques in quesArray)
+                                            {
+                                                string qid = ques.ContainsKey("id") ? ques.GetValue("id").ToString() : "";
+                                                int minValue = ques.ContainsKey("min_value") ? (int)ques.GetValue("min_value") : 0;
+                                                int maxValue = ques.ContainsKey("max_value") ? (int)ques.GetValue("max_value") : 0;
+                                                string question = ques.ContainsKey("question") ? ques.GetValue("question").ToString() : "";
+                                                string logQuantityTypeQ = ques.ContainsKey("log_summary_type") ? ques.GetValue("log_summary_type").ToString() : "";
+                                                string min_value_description = ques.ContainsKey("min_value_description") ? ques.GetValue("min_value_description").ToString() : "";
+                                                string max_value_description = ques.ContainsKey("max_value_description") ? ques.GetValue("max_value_description").ToString() : "";
+
+                                                logQuantityQuestionsCh.Add(new QuantityQuestion(qid, minValue, maxValue, question, logQuantityTypeQ, 0, min_value_description, max_value_description));
+                                            }
+                                        }
+                                    }
+                                    bool logQuantitychoice = choiceitem.ContainsKey("log_quantity") ? (bool)choiceitem.GetValue("log_quantity") : false;
+
+                                    if (logQuantityQuestionsCh.Count() == 0)
+                                    {
+                                        logQuantitychoice = false;
+                                    }
+
+                                    choicesToAdd.Add(new activityChoice(idchoice, namechoice, arrVideoUrlsArraychoice, logQuantityQuestionchoice, logQuantitychoice, logQuantityTypechoice,logQuantityQuestionsCh));
 
                                 }
                             }
@@ -867,9 +952,37 @@ namespace Focus_Bear.Utils
 
                             string logQuantityQuestion = item.ContainsKey("log_quantity_question") ? item.GetValue("log_quantity_question").ToString() : "";
                             string logQuantityType = item.ContainsKey("log_summary_type") ? item.GetValue("log_summary_type").ToString() : "";
+                            List<QuantityQuestion> logQuantityQuestions = new List<QuantityQuestion>(); ;
+                            if (item.ContainsKey("log_quantity_questions"))
+                            {
+                                JArray quesArray = (JArray)item.GetValue("log_quantity_questions");
+                                //Read one by one
+                                ////
+                                if (quesArray.Count() > 0)
+                                {
+                                    foreach (JObject ques in quesArray)
+                                    {
+                                        string qid = ques.ContainsKey("id") ? ques.GetValue("id").ToString() : "";
+                                        int minValue = ques.ContainsKey("min_value") ? (int)ques.GetValue("min_value") : 0;
+                                        int maxValue = ques.ContainsKey("max_value") ? (int)ques.GetValue("max_value") : 0;
+                                        string question = ques.ContainsKey("question") ? ques.GetValue("question").ToString() : "";
+                                        string logQuantityTypeQ = ques.ContainsKey("log_summary_type") ? ques.GetValue("log_summary_type").ToString() : "";
+                                        string min_value_description = ques.ContainsKey("min_value_description") ? ques.GetValue("min_value_description").ToString() : "";
+                                        string max_value_description = ques.ContainsKey("max_value_description") ? ques.GetValue("max_value_description").ToString() : "";
+
+                                        logQuantityQuestions.Add(new QuantityQuestion(qid, minValue, maxValue, question, logQuantityTypeQ, 0, min_value_description, max_value_description));
+                                    }
+                                }
+                            }
+
+                            bool logQuantity = item.ContainsKey("log_quantity") ? (bool)item.GetValue("log_quantity") : false;
+                            if (logQuantityQuestions.Count() == 0)
+                            {
+                                logQuantity = false;
+                            }
 
 
-                            arrAllbreakActivities.Add(new breakActivity(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, IncludeInEveryBreak, isRandomChoice, choicesToAdd, isOfficeFriendly, logQuantityType));
+                            arrAllbreakActivities.Add(new breakActivity(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, IncludeInEveryBreak, isRandomChoice, choicesToAdd, isOfficeFriendly, logQuantityType, logQuantityQuestions));
                         }
                     }
                 }
@@ -1079,8 +1192,13 @@ namespace Focus_Bear.Utils
                             isPasswordSet = false;
                         }
 
+                        bool bCuddlyMode = true;
                         //Cuddly bear or grizlly bear mode
-                        bool bCuddlyMode = sMacOSSettingsOBJ.ContainsKey("kCuddlyModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kCuddlyModeEnabled") : false;
+                        if (sMacOSSettingsOBJ.ContainsKey("kCuddlyModeEnabled"))
+                        {
+                            bCuddlyMode = (bool)sMacOSSettingsOBJ.GetValue("kCuddlyModeEnabled");
+                        }
+                       
                         if (bCuddlyMode)
                             nFocudBearMode = 1;//cuddly bear mode
                         else
@@ -1656,7 +1774,7 @@ namespace Focus_Bear.Utils
         public void CapturePostHog(string sEvent, string sMetadataJSON = "")
         {
             FocusBearAPIClient client = new FocusBearAPIClient();
-            var x = client.CapturePostHog(sEvent, sMetadataJSON);
+            var xResponse = client.CapturePostHog(sEvent, sMetadataJSON);
 
             if (userAccount.accessToken.Length > 0) //it is possible that this function is called before the user actually logs in, in that case we willnot call thebelow endpoint
             {

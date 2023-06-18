@@ -111,11 +111,20 @@ namespace Focus_Bear.Habits
                 //Debug.WriteLine(ex.Message);
             }
 
-           
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-            dispatcherTimer.Start();
-            CommandManager.InvalidateRequerySuggested();
+            //Start timer only when we are not showing the webview
+            if (!appSettings.bMotivationalMessageEnabled)
+            {
+                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+                dispatcherTimer.Start();
+                CommandManager.InvalidateRequerySuggested();
+            }
+            else
+            {
+                LowerButtons.Visibility = Visibility.Visible;
+                TxtTimer.Visibility = Visibility.Collapsed;
+                Description.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)

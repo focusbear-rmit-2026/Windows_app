@@ -62,6 +62,8 @@ namespace Focus_Bear.Habits
 
             appSettings.bSkipWhileActivityOngoing = false;
 
+            breakActivity currentActivity = new breakActivity();
+
             try
             {
                 if(bStartingAfterPostponed)
@@ -90,7 +92,9 @@ namespace Focus_Bear.Habits
 
                 int nAllowedApps = 0;
                 int nAllowedURLs = 0;
+
                
+
                 videoUrlsBreaks.Clear();
 
                 btnSkipThisHabitTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonSkipHabitText"].ToString();
@@ -129,8 +133,7 @@ namespace Focus_Bear.Habits
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
-                    breakActivity currentActivity;
-
+                  
                     if (appSettings.isMandatoryActivityGoing)
                     {
                         currentActivity = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex];
@@ -237,9 +240,43 @@ namespace Focus_Bear.Habits
 
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
-                    var sResponse1 = client.GetActivityCurrentDayStats(sActivityIdToGetDataFromAPI, sActivityChoiceIdToGetDataFromAPI);
                     //int x1 = int.Parse(sResponse.ToString());
                     // if (x1 == 1) {}
+
+                    if (!currentActivity.isRandomChoice)
+                    {
+                        if (currentActivity.logQuantity)
+                        {
+                            //call the apI to get the log quantity questions data
+                            var sResponseActivityCurrentDayQuestionsStats = client.GetActivityCurrentDayQuestionsStats(sActivityIdToGetDataFromAPI, sActivityChoiceIdToGetDataFromAPI, currentActivity.logQuantityQuestions);
+
+                        }
+                        else
+                        {
+                            var sResponse1 = client.GetActivityCurrentDayStats(sActivityIdToGetDataFromAPI, sActivityChoiceIdToGetDataFromAPI);
+
+                        }
+                    }
+                    else
+                    {
+                        var randomChoice = appSettings.currentActivityChoice;
+                        if (randomChoice.id != null)
+                        {
+                            if (randomChoice.logQuantity)
+                            {
+                                //call the apI to get the log quantity questions data
+                                var sResponseActivityCurrentDayQuestionsStats = client.GetActivityCurrentDayQuestionsStats(sActivityIdToGetDataFromAPI, sActivityChoiceIdToGetDataFromAPI, randomChoice.logQuantityQuestions);
+
+                            }
+                            else
+                            {
+                                var sResponse1 = client.GetActivityCurrentDayStats(sActivityIdToGetDataFromAPI, sActivityChoiceIdToGetDataFromAPI);
+
+                            }
+                        }
+                    }
+                  
+
                 }
             }
             catch (Exception ex)

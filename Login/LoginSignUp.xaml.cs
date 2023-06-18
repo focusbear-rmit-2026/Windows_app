@@ -175,6 +175,7 @@ namespace Focus_Bear.Login
                                                                 EnablControls(true);
                                                                 ///MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
                                                                 FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, "Focus Bear");
+                                                                ff.Owner = _parentWindow;
                                                                 ff.ShowDialog();
                                                             }));
                                                         }
@@ -213,6 +214,7 @@ namespace Focus_Bear.Login
                                                     EnablControls(true);
                                                     //MessageBox.Show(policy, msg, MessageBoxButton.OK, MessageBoxImage.Error);
                                                     FBMessageBox ff = new FBMessageBox(policy, "Focus Bear");
+                                                    ff.Owner = _parentWindow;
                                                     ff.ShowDialog();
                                                 }
                                                 catch (Exception ex)
@@ -222,6 +224,7 @@ namespace Focus_Bear.Login
                                                     LogWriter.LogWrite(ex.Message);
                                                     //MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
                                                     FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, "Focus Bear");
+                                                    ff.Owner = _parentWindow;
                                                     ff.ShowDialog();
                                                 }
                                                
@@ -252,6 +255,7 @@ namespace Focus_Bear.Login
                             //  "passwordBlankAlertTitle":"Password cannot be blank.",
                             //MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
                             FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear");
+                            ff.Owner = _parentWindow;
                             ff.ShowDialog();
                         }
                     }
@@ -260,6 +264,7 @@ namespace Focus_Bear.Login
                         // "emailInvalidText": "Please enter a valid Email.",
                         //MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
                         FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear");
+                        ff.Owner = _parentWindow;
                         ff.ShowDialog();
                     }
                 }
@@ -268,6 +273,7 @@ namespace Focus_Bear.Login
                     // "titleEmailIsBlank": "Email cannot be blank.",
                     //MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear");
+                    ff.Owner = _parentWindow;
                     ff.ShowDialog();
                 }
             }

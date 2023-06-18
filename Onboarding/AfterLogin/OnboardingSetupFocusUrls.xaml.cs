@@ -109,6 +109,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         sErr = sErr.Replace("<APPNAME>", url);
                         //// MessageBox.Show(sErr, "");
                         FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                        ff.Owner = _parentWindow;
                         ff.ShowDialog();
                     }
                 }

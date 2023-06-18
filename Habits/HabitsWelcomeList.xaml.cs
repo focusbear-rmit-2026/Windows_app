@@ -292,9 +292,9 @@ namespace Focus_Bear.Habits
                 //string ss = e.WebMessageAsJson.ToString();
                 //We will need to put the settings.
                 FocusBearAPIClient client = new FocusBearAPIClient();
-                var x = await client.PutUserSettings();
+                var xResponse = await client.PutUserSettings();
 
-                if (x == 1) //valid settings
+                if (xResponse == 1) //valid settings
                 {
                     /*
                      *  "settings":{
@@ -323,7 +323,7 @@ namespace Focus_Bear.Habits
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("webView_WebMessageReceived app restart= " + ex.Message);
+                        LogWriter.LogWrite("webView_WebMessageReceived app restart= " + ex.Message);
                     }
 
                 }

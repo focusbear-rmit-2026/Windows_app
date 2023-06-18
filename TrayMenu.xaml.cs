@@ -222,7 +222,7 @@ namespace Focus_Bear
 
                         // arrAllbreakActivities.append(breakActivity(id:id,name: "Stand up and stretch", durationSeconds: 20, IncludeInEveryBreak: false, urlsArray: [], logQuantity:false, isRandomChoice: false, choices: [], logQuantityQuestion: "", openSpecificApps: false, allowUrls: [], allowApps: [], isOfficeFriendly: true, allowedFocusMode: "", logQuantityType: "",activity_sequence_id:activity_sequence_id))
                         //add to our array
-                        appSettings.arrAllbreakActivities.Add(new breakActivity(ActivityID, "Stand up and stretch", 20, new List<string>(), false, "", false, new List<string>(), new List<string>(), "", SequenceID, false, false, new List<activityChoice>(), true, ""));
+                        appSettings.arrAllbreakActivities.Add(new breakActivity(ActivityID, "Stand up and stretch", 20, new List<string>(), false, "", false, new List<string>(), new List<string>(), "", SequenceID, false, false, new List<activityChoice>(), true, "", new List<QuantityQuestion>()));
 
                         //add to the json
                         String jsonString = appSettings.sRawUserSettings;
@@ -250,7 +250,7 @@ namespace Focus_Bear
 
                             //We will need to put the settings.
                             FocusBearAPIClient client = new FocusBearAPIClient();
-                            var x = client.PutUserSettings();
+                            var xResponse = client.PutUserSettings();
 
                             FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["officeModeEnabledSuccessfullyText"].ToString());
                             ff1.ShowDialog();
@@ -308,7 +308,7 @@ namespace Focus_Bear
                     ((App)Application.Current).CloseFocusProgressWindow();
 
                     FocusBearAPIClient client = new FocusBearAPIClient();
-                    var x = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
+                    var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
                 }
 
 
@@ -534,7 +534,7 @@ namespace Focus_Bear
                             SetTrayMenuPosition();
 
                             FocusBearAPIClient client = new FocusBearAPIClient();
-                            var x = client.StartFocusMode(selectedItem.id);
+                            var xResponse = client.StartFocusMode(selectedItem.id);
 
                         }
                         //Deselect the Seleted list view item

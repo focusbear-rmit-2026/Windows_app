@@ -24,14 +24,14 @@
             <TextBlock    Name="Description" Margin="40,20,40,0" TextWrapping="Wrap" Text="xWe'll use Open AI to decide if the site is valid based on your current focus mode, intention, the URL, the website title and the first 100 characters of the content. This is anonymous - no identifying details are shared." Foreground="#272727" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
          </StackPanel>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button  x:Name="btnNoThanks"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="236" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,10,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnNoThanks_Click" >
+            <Button  x:Name="btnNoThanks"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" Width="236" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,10,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnNoThanks_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnNoThanksTXT" Text="xNo Thanks"/>
                 </StackPanel>
             </Button.Content>
         </Button>
-            <Button   x:Name="btnOK"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="236" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="10,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnOK_Click" >
+            <Button   x:Name="btnOK"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="236" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="10,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnOK_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnOKTXT" Text="xOK"/>

@@ -24,18 +24,28 @@
          <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,30,0,0" TextWrapping="Wrap" Text="xactivity finished" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Viewbox Grid.Row="2"  Stretch="Uniform">
             <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                <Button x:Name="ButtonLeft" Height="30" Width="30" Cursor="Hand" Background="Transparent" BorderThickness="0" Visibility="Collapsed" Click="ButtonLeft_Click">
+                    <Button.Content>
+                        <Image Source="../Images/Back.png"/>
+                    </Button.Content>
+                </Button>
                 <DockPanel Margin="50,25,20,25" Width="853" Height="495">
                     <wv2:WebView2 Name="webView" Visibility="Collapsed" />
                 </DockPanel>
                 <DockPanel Name="BreakGraph2" Margin="20,25,50,25" Width="853" Height="495"  Visibility="Collapsed">
                     <wv2:WebView2 Name="webView1"  />
                 </DockPanel>
+                <Button x:Name="ButtonRight" Height="30" Width="30" Cursor="Hand" Background="Transparent" BorderThickness="0" Visibility="Collapsed" Click="ButtonRight_Click">
+                    <Button.Content>
+                        <Image Source="../Images/forward.png"/>
+                    </Button.Content>
+                </Button>
             </StackPanel >
         </Viewbox>
         <TextBlock  Grid.Row="2" Name="sTextTimerWrapUp" Margin="2" TextWrapping="Wrap" Text="xx30:00" Foreground="#272727" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
 
         <StackPanel x:Name="LowerButtons" Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Visible">
-            <Button   IsDefault="True" x:Name="btnStartNextActivity"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStartNextActivity_Click" >
+            <Button   IsDefault="True" x:Name="btnStartNextActivity"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStartNextActivity_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnStartNextActivityTXT" Text="xstart next activity"/>

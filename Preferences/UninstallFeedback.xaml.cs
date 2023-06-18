@@ -95,6 +95,7 @@ namespace Focus_Bear.Preferences
             sUninstallReason = ComboBoxReason.SelectedItem.ToString();
             sUninstallDesc = TxtFeedback.Text;
             FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["common"]["uninstallConfirmText"].ToString(), "Focus Bear", MessageBoxButton.YesNo);
+            ff.Owner = this;
             ff.ShowDialog();
             if (ff.btnClicked == MessageBoxResult.Yes)
             {

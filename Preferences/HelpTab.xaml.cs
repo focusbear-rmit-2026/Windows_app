@@ -84,6 +84,7 @@ namespace Focus_Bear.Preferences
                     string ss = appSettings.ConfigFileStrings["preferencesInfo"]["exportSuccessText"].ToString();
                     ///MessageBox.Show(ss.Replace("<URL>", folderName), "Focus Bear");
                     FBMessageBox ff = new FBMessageBox(ss.Replace("<URL>", folderName), "Focus Bear");
+                    ff.Owner = _ParentWindow;
                     ff.ShowDialog();
                 }
 
@@ -120,11 +121,13 @@ namespace Focus_Bear.Preferences
             if (e.IsSuccess)
             {
                 Mouse.OverrideCursor = null;
-
+                LogWriter.LogWrite("Chat CoreWebView2NavigationCompleted() Success, Load Access token");
                 string Settings = string.Format("{{\"access_token\":\"{0}\"}}", appSettings.userAccount.accessToken);
-                string settingsFunc = string.Format("loadAccessTokenForChat({0});", Settings);
+                //string settingsFunc = string.Format("loadAccessTokenForChat({0});", Settings);
+                string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForChat) {{ loadAccessTokenForChat({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                 var ss = webView.ExecuteScriptAsync(settingsFunc);
 
+                
             }
         }
         private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
@@ -134,7 +137,7 @@ namespace Focus_Bear.Preferences
                 try
                 {
 
-
+                    LogWriter.LogWrite("Chat CoreWebView2InitializationCompleted() Success, Load URL");
                     //this.webView.NavigationStarting += NavigationStarting;
                     //this.webView.NavigationCompleted += NavigationCompleted;
                     webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
@@ -153,7 +156,7 @@ namespace Focus_Bear.Preferences
                 }
                 catch (Exception ex)
                 {
-                    LogWriter.LogWrite("HelpTab CoreWebView2InitializationCompleted()" + ex.Message);
+                    LogWriter.LogWrite("HelpTab CoreWebView2InitializationCompleted() ex - " + ex.Message);
                 }
             }
         }

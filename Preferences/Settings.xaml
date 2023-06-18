@@ -52,12 +52,12 @@
                             <RadioButton Grid.Row="0" VerticalAlignment="Center"  Name="CuddlyMode" Margin="0,0,0,0" Padding="5,-4,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="CuddlyMode_Checked">
                                 xCuddly Bear mode
                             </RadioButton>
-                            <TextBlock Grid.Row="1"   Name="CuddlyModeDesc" Margin="20,0,0,20"  TextWrapping="Wrap"    Text="xCuddly Bear mode: kind and gentle - gives you the benefit of the doubt when you open a non-allowed URL. Lets you temporarily allow blocked URLs during a focus mode."  Foreground="Gray" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+                            <TextBlock Grid.Row="1"   Name="CuddlyModeDesc" Margin="20,0,0,20"  TextWrapping="Wrap"    Text="xCuddly Bear mode: kind and gentle - gives you the benefit of the doubt when you open a non-allowed URL. Lets you temporarily allow blocked URLs during a focus mode."  Foreground="Black" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
 
                             <RadioButton Grid.Row="2" VerticalAlignment="Center"  Name="GrizzlyMode" Margin="0,0,0,0" Padding="5,-3,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="GrizzlyMode_Checked">
                                 xGrizzly Bear mode
                             </RadioButton>
-                            <TextBlock Grid.Row="3"    Name="GrizzlyModeDesc" Margin="20,0,0,20" TextWrapping="Wrap"   Text="xGrizzly Bear mode: super strict - immediately block URLs that aren't allowed and don't let yourself allow them until the focus mode is over."  Foreground="Gray" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+                            <TextBlock Grid.Row="3"    Name="GrizzlyModeDesc" Margin="20,0,0,20" TextWrapping="Wrap"   Text="xGrizzly Bear mode: super strict - immediately block URLs that aren't allowed and don't let yourself allow them until the focus mode is over."  Foreground="Black" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
 
                         </Grid>
 
@@ -151,7 +151,7 @@
 
                         </Grid>
 
-                        <Button  Grid.Row="6" x:Name="btnSetPassword"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="27" Width="180" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSetPassword_Click" >
+                        <Button  Grid.Row="6" x:Name="btnSetPassword"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="27" Width="180" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSetPassword_Click" >
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
                                     <TextBlock x:Name="btnSetPasswordTXT" Text="xSet Password"/>
@@ -182,7 +182,7 @@
                                     <RowDefinition Height="15"/>
                                     <RowDefinition Height="125"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0"   Name="WhenRequire" Margin="20,0,0,0"  TextWrapping="Wrap"    Text="xWhen do you want to require a password?"  Foreground="Gray" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+                                <TextBlock Grid.Row="0"   Name="WhenRequire" Margin="20,0,0,0"  TextWrapping="Wrap"    Text="xWhen do you want to require a password?"  Foreground="Black" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
                                 <StackPanel  Grid.Row="1"  Orientation="Vertical" Width="340" Margin="20,0,0,0" Grid.RowSpan="2" HorizontalAlignment="Left">
                                     <CheckBox Margin="0,10,0,10" x:Name="CheckChangingSettings" FontSize="14" Checked="CheckChangingSettings_Checked" Unchecked="CheckChangingSettings_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xChanging Settings</CheckBox>
                                     <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingMorningRoutine" FontSize="14" Checked="CheckPostponingMorningRoutine_Checked"  Unchecked="CheckPostponingMorningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping morning routine</CheckBox>
@@ -211,14 +211,14 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal"  >
-            <Button  x:Name="btnExportStatistics"   Margin="20,0,0,0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnExportStatistics_Click" >
+            <Button  x:Name="btnExportStatistics"   Margin="20,0,0,0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnExportStatistics_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnExportStatisticsTXT" Text="xExport Statistics"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  x:Name="btnCheckForUpdates" Margin="15,0,0,0"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800" Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCheckForUpdates_Click" >
+            <Button  x:Name="btnCheckForUpdates" Margin="15,0,0,0"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCheckForUpdates_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnCheckForUpdatesTXT" Text="xCheck for Updates"/>

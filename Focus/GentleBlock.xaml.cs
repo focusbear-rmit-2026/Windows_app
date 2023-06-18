@@ -192,14 +192,14 @@ namespace Focus_Bear.Focus
                 try
                 {
                     FocusBearAPIClient client = new FocusBearAPIClient();
-                    var nRes = await client.ChatGPTIsURLSafe(sActiveURL, sCurrentTabTitle, "", appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
-                    int x = int.Parse(nRes.ToString());
+                    var nResponse = await client.ChatGPTIsURLSafe(sActiveURL, sCurrentTabTitle, "", appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
+                    int xResponse = int.Parse(nResponse.ToString());
 
                     await Task.Delay(20);
 
                     string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
 
-                    if (x == -1)
+                    if (xResponse == -1)
                     {
                         //API failed. Nothing to do.
                        
@@ -212,7 +212,7 @@ namespace Focus_Bear.Focus
                             CommandManager.InvalidateRequerySuggested();
                         }));
                     }
-                    else if (x == 1) //Safe URL
+                    else if (xResponse == 1) //Safe URL
                     {
                         await Dispatcher.BeginInvoke((Action)(() =>
                         {

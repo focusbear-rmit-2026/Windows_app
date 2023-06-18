@@ -21,7 +21,7 @@
         <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="00:30" Foreground="#000" Padding="0" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Center" />
         <ProgressBar Grid.Row="2" x:Name="Progress" Value="30"  Maximum="30" Height="10" Width="200" IsIndeterminate = "False"  Foreground="DodgerBlue"/>
         
-        <Button Grid.Row="3"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAction_Click" >
+        <Button Grid.Row="3"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAction_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnActionTXT" Text="xPostpone for 5 Minutes"/>

@@ -116,7 +116,7 @@ namespace Focus_Bear.Focus
 
                     //Call api top finish focus mode
                     FocusBearAPIClient client = new FocusBearAPIClient();
-                    var x = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
+                    var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
                 }
 
                 DialogResult = true;

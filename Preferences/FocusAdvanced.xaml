@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0"   Text="xBlocked URLs" Foreground="#272727" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
-        <TextBlock  Grid.Row="1" Name="Description" Margin="20,0,20,0"   Text="xThe URLs here will be blocked during this focus mode. Useful if you want to allow some websites but block others. For example, you could have *.google.com as an allowed URL but block tv.google.com" Foreground="#606060" FontSize="12" TextWrapping="Wrap" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+        <TextBlock  Grid.Row="1" Name="Description" Margin="20,0,20,0"   Text="xThe URLs here will be blocked during this focus mode. Useful if you want to allow some websites but block others. For example, you could have *.google.com as an allowed URL but block tv.google.com" Foreground="#000" FontSize="12" TextWrapping="Wrap" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
 
         <Grid Grid.Row="2" Background="#fff" Margin="20,0,20,0">
             <Grid.RowDefinitions>
@@ -56,7 +56,7 @@
             </StackPanel>
         </Grid>
         
-        <Button Grid.Row="3" x:Name="btnOK"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnOK_Click" >
+        <Button Grid.Row="3" x:Name="btnOK"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnOK_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnOKTXT" Text="xOK"/>

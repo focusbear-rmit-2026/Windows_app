@@ -67,6 +67,7 @@ namespace Focus_Bear.Preferences
                 btnCheckForUpdatesTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemCheckForUpdatesTitle"].ToString();
 
                 CuddlyMode.IsChecked = (appSettings.nFocudBearMode == 1) ? true : false;//1 is cuddly bear mode
+                GrizzlyMode.IsChecked = (appSettings.nFocudBearMode == 2) ? true : false;//2 is grizzly bear mode
 
                 GeneralTab.Header = appSettings.ConfigFileStrings["common"]["tabGeneralText"].ToString();
                 PasswordTab.Header = appSettings.ConfigFileStrings["common"]["tabPasswordText"].ToString();
@@ -266,16 +267,19 @@ namespace Focus_Bear.Preferences
             if (TxtPassword.Password.Length == 0)
             {
                 FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordBlankAlertSubTitle"].ToString(), appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordBlankAlertTitle"].ToString());
+                ff.Owner = _ParentWindow;
                 ff.ShowDialog();
             }
             else if (TxtConfirmPassword.Password.Length == 0)
             {
                 FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["passwordPreferencesInfo"]["confirmPasswordBlankAlertSubTitle"].ToString(), appSettings.ConfigFileStrings["passwordPreferencesInfo"]["confirmPasswordBlankAlertTitle"].ToString());
+                ff.Owner = _ParentWindow;
                 ff.ShowDialog();
             }
             else if(TxtPassword.Password != TxtConfirmPassword.Password)
             {
                 FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordNotMatchAlertSubTitle"].ToString(), appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordNotMatchAlertTitle"].ToString());
+                ff.Owner = _ParentWindow;
                 ff.ShowDialog();
             }
             else
@@ -285,11 +289,13 @@ namespace Focus_Bear.Preferences
                 if(appSettings.isPasswordSet) //If it was already set and is changed
                 {
                     FBMessageBox ff = new FBMessageBox("",appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordChagedAlertTitle"].ToString());
+                    ff.Owner = _ParentWindow;
                     ff.ShowDialog();
                 }
                 else
                 {
                     FBMessageBox ff = new FBMessageBox("",appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordSetAlertTitle"].ToString());
+                    ff.Owner = _ParentWindow;
                     ff.ShowDialog();
                 }
                 SetPasswordTabTexts();
@@ -304,6 +310,7 @@ namespace Focus_Bear.Preferences
             /* passwordPreferencesInfo       "passwordDisableAskText":"Are you sure you want to disable your password?",
             "passwordDisableDoneText":"Your password has been disabled.",*/
             FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordDisableAskText"].ToString(), MessageBoxButton.YesNo);
+            ff.Owner = _ParentWindow;
             ff.ShowDialog();
             if(ff.btnClicked == MessageBoxResult.Yes)
             {
@@ -386,6 +393,7 @@ namespace Focus_Bear.Preferences
                 string ss = appSettings.ConfigFileStrings["preferencesInfo"]["alertChangeLanguageMessageText"].ToString();// "alertChangeLanguageMessageText":"Are you sure you want to change the language to <LANGUAGE>?",
                 ss = ss.Replace("<LANGUAGE>", Language.SelectedItem.ToString());
                 FBMessageBox ff = new FBMessageBox(ss,"Focus Bear", MessageBoxButton.YesNo);
+                ff.Owner = _ParentWindow;
                 ff.ShowDialog();
                 if (ff.btnClicked == MessageBoxResult.No)
                 {

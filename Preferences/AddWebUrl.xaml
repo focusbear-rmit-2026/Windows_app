@@ -26,7 +26,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Button x:Name="btnCancel" Grid.Column="0" Height="23" Width="100" Margin="20,0,0,0" HorizontalAlignment="Left" Click="btnCancel_Click">xCancel</Button>
-            <Button x:Name="btnAdd"  Grid.Column="1" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right" Click="btnAdd_Click">xAdd</Button>
+            <Button x:Name="btnAdd"  Grid.Column="1" IsDefault="True" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right" Click="btnAdd_Click">xAdd</Button>
 
         </Grid>
  

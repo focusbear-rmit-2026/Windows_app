@@ -57,12 +57,15 @@ namespace Focus_Bear.Preferences
         {
             if (e.IsSuccess)
             {
+                LogWriter.LogWrite("stats CoreWebView2NavigationCompleted() Success, Load Access token");
                 Mouse.OverrideCursor = null;
 
                 string Settings = string.Format("{{\"access_token\":\"{0}\"}}", appSettings.userAccount.accessToken);
-                string settingsFunc = string.Format("loadAccessTokenForStats({0});", Settings);
+                //string settingsFunc = string.Format("loadAccessTokenForStats({0});", Settings);
+                string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForStats) {{ loadAccessTokenForStats({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+
                 var ss = webView.ExecuteScriptAsync(settingsFunc);
- 
+                LogWriter.LogWrite(ss.ToString());
             }
         }
         private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
@@ -72,7 +75,7 @@ namespace Focus_Bear.Preferences
                 try
                 {
 
-
+                    LogWriter.LogWrite("stats CoreWebView2InitializationCompleted() Success");
                     //this.webView.NavigationStarting += NavigationStarting;
                     //this.webView.NavigationCompleted += NavigationCompleted;
                     webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
@@ -91,7 +94,7 @@ namespace Focus_Bear.Preferences
                 }
                 catch (Exception ex)
                 {
-                    LogWriter.LogWrite("CoreWebView2InitializationCompleted()" + ex.Message);
+                    LogWriter.LogWrite("stats CoreWebView2InitializationCompleted() ex - " + ex.Message);
                 }
             }
         }

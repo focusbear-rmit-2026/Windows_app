@@ -37,14 +37,14 @@
         </StackPanel>
 
         <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button   x:Name="btnCancel"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="180" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click">
+            <Button   x:Name="btnCancel"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Width="180" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnCancelText" Margin="8" Text="xCancel"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button   x:Name="btnPostpone"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="180" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPostpone_Click">
+            <Button   x:Name="btnPostpone"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="180" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPostpone_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnPostponeText" Margin="8" Text="xPostpone"/>
