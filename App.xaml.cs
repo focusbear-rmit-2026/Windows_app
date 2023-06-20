@@ -37,6 +37,7 @@ using System.Windows.Threading;
 using WinForms = System.Windows.Forms;
 using Sentry;
 using Focus_Bear.Onboarding.New;
+using Microsoft.Win32;
 
 namespace Focus_Bear
 {
@@ -74,7 +75,6 @@ namespace Focus_Bear
         private const uint EVENT_SYSTEM_FOREGROUND = 3;
         private const uint WINEVENT_SKIPOWNPROCESS = 0x0002 ;
 
-        
         /////
         //AutomationElement element = AutomationElement.FromHandle(hwnd);
         //if (element != null)
@@ -436,9 +436,43 @@ namespace Focus_Bear
             ///appSettings.ReadAndParseSettingsJson();
 #endif
             ///////////////////////////////////////////
- 
+            ///
+            //System sleep / wake up event
+            SystemEvents.PowerModeChanged += OnPowerChange;
+
+            //screensaver and session event
+            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
         }
 
+        private void OnPowerChange(object s, PowerModeChangedEventArgs e)
+        {
+            switch (e.Mode)
+            {
+                case PowerModes.Resume:
+                    LogWriter.LogWrite("PowerModes.Resume");
+                    ResumeHabitsAfterSystemWakeup();
+                    break;
+                case PowerModes.Suspend:
+                    LogWriter.LogWrite("PowerModes.Suspend");
+                    PauseHabitsOnSystemSleep();
+                    break;
+            }
+        }
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            if (e.Reason == SessionSwitchReason.SessionLock)
+            {
+                // Screen saver is starting or the user locked the session
+                Console.WriteLine("trigger for session locked.");
+                PauseHabitsOnSystemSleep();
+            }
+            else if (e.Reason == SessionSwitchReason.SessionUnlock)
+            {
+                // Screen saver is stopping or the user unlocked the session
+                Console.WriteLine("trigger for session unlocked.");
+                ResumeHabitsAfterSystemWakeup();
+            }
+        }
         public void SetAtWindowsStartup()
         {
             LogWriter.LogWrite("SetAtWindowsStartup()");
@@ -2595,6 +2629,10 @@ namespace Focus_Bear
                     UnhookWinEvent(m_hhook);
                 LogWriter.LogWrite("Application_Exit() 4");
 
+                // Unsubscribe from the events when you're done
+                SystemEvents.PowerModeChanged -= OnPowerChange;
+                SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
+
                 LogWriter.LogWrite("Application_Exit() done");
 
             }
@@ -2635,5 +2673,32 @@ namespace Focus_Bear
             }
         }
 
+        void ResumeHabitsAfterSystemWakeup()
+        {
+            LogWriter.LogWrite("ResumeHabitsAfterSystemWakeup()");
+            //We will call the same function as we do when it resumes from postpone.
+            //The reason is that it might be possible that the system went to sleep when it was the postpone event 
+            //or also when the resume in 2 minutes was being shown
+            //this function will handle all.
+
+            ResumeAfterPostponeFinished();
+
+        }
+        void PauseHabitsOnSystemSleep()
+        {
+            LogWriter.LogWrite("PauseHabitsOnSystemSleep()");
+            if (wndHabits != null)
+            {
+                if (wndHabits.PageHabitActivityOnGoing != null)
+                {
+                    wndHabits.PageHabitActivityOnGoing.HandleTimerForPostpone(true); //Stop the timer
+                }
+                wndHabits.Hide();
+
+                appSettings.RemoveSecondaryWindows();
+            }
+            
+            
+        }
     }
 }

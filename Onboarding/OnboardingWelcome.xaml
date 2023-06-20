@@ -16,7 +16,7 @@
             <RowDefinition Height="Auto" MinHeight="185" />
             <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="Auto" MinHeight="280" />
-            <RowDefinition Height="*"  />
+            <RowDefinition Height="*" MinHeight="60" MaxHeight="100" />
             <RowDefinition Height="180" />
 
         </Grid.RowDefinitions>
@@ -33,9 +33,10 @@
             </Button>
         </StackPanel>
         
-        <TextBlock  Grid.Row="2" Name="Description" Visibility="Collapsed" Margin="180,0,180,0" TextWrapping="Wrap" Text="xEvery morning, I will help you quiet your urge to check email/Facebook and help you to do your morning routine instead. You can configure your own routine later but for now, I'll give you a suggested activity: 30 seconds of mindful breathing. While you breathe deeply, think of how awesome you'll be if you stick to your morning routine every day." Foreground="#272727" FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+        <TextBlock  Grid.Row="2" Name="Description" Visibility="Collapsed" Margin="180,0,180,0" TextWrapping="Wrap" Text="xEvery morning, I will help you quiet your urge to check email/Facebook and help you to do your morning routine instead. You can configure your own routine later but for now, I'll give you a suggested activity: 30 seconds of mindful breathing. While you breathe deeply, think of how awesome you'll be if you stick to your morning routine every day." Foreground="#272727" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
 
-        <StackPanel  Grid.Row="3"  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Viewbox  Grid.Row="3">
+        <StackPanel   Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock    Name="WhatActivity" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWhat 30 seconds of activity do you want to do?" Foreground="#272727" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
             <ComboBox Name="ComboBoxActivityType"    Width="200" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,30,0,0"    FontSize="15" SelectionChanged="ComboBoxActivityType_SelectionChanged">
             </ComboBox>
@@ -60,7 +61,7 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
         </StackPanel>
-
+        </Viewbox>
         <Button Grid.Row="4"  x:Name="btnStartMindfulBreathing"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStartMindfulBreathing_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal" Margin="20,0,20,0">

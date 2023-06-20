@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="814" Width="954" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged" Closing="Window_Closing" Loaded="Window_Loaded">
+        Title="Focus Bear" Height="730" Width="954" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged" Closing="Window_Closing" Loaded="Window_Loaded">
     <local1:DpiDecorator>
         <Grid>
             <Grid.Background>

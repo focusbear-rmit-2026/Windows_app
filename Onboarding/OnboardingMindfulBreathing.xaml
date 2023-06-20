@@ -14,7 +14,7 @@
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="185" />
+            <RowDefinition Height="auto" />
             <RowDefinition Height="50"   />
             <RowDefinition Height="*"  />
             <RowDefinition Height="85"  />
