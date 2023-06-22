@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Models;
+﻿using Focus_Bear.API;
+using Focus_Bear.Models;
 using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using System;
@@ -400,7 +401,7 @@ namespace Focus_Bear.Quit
             }
         }
 
-        private void btnQuit_Click(object sender, RoutedEventArgs e)
+        private async void btnQuit_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("QuitWindow - btnQuit_Click");
             btnQuit.IsEnabled = false;
@@ -409,11 +410,11 @@ namespace Focus_Bear.Quit
             appSettings.CapturePostHog("app-quit", sMetadata);
 
 
-            if ( ComboBoxReason.SelectedIndex == 2 )
+            if ( ComboBoxReason.SelectedIndex == 2 ) //app broken
             {
                 ReasonTitle.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_2"]["finalDescription"].ToString();
             }
-            else if (ComboBoxReason.SelectedIndex == 3)
+            else if (ComboBoxReason.SelectedIndex == 3) //something else
             {
                 ReasonTitle.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_3"]["finalDescription"].ToString();
             }
@@ -422,12 +423,37 @@ namespace Focus_Bear.Quit
             ComboBoxReason.IsEnabled = false;
             TxtExplanation.Visibility = Visibility.Collapsed;
 
-            //TxtFinalTimer.Text = "00:01";
-            //25-May-2023 - WE will not be showing the timer but easy fix is having 1 second invisible timer.
-            TxtFinalTimer.Visibility = Visibility.Collapsed;
-            bEmergencyTimer = true;
-            nTimer = 1;
-            dispatcherTimer.Start();
+            if (ComboBoxReason.SelectedIndex == 2) //app broken, we will need to post the logs if the user wants
+            {
+                FBMessageBox messageBox = new FBMessageBox("Do you want to upload the logs to our server for us to review what was broken?", "", MessageBoxButton.YesNo); //TODO wintexts
+                messageBox.Owner = this;
+                messageBox.ShowDialog();
+                if (messageBox.btnClicked == MessageBoxResult.Yes)
+                {
+                    //we will hide the window here
+                    Hide();
+
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    var sResponse = await client.PostAppLogs(TxtExplanation.Text);
+                }
+
+                //TxtFinalTimer.Text = "00:01";
+                //25-May-2023 - WE will not be showing the timer but easy fix is having 1 second invisible timer.
+                TxtFinalTimer.Visibility = Visibility.Collapsed;
+                bEmergencyTimer = true;
+                nTimer = 1;
+                dispatcherTimer.Start();
+            }
+            else
+            {
+                //TxtFinalTimer.Text = "00:01";
+                //25-May-2023 - WE will not be showing the timer but easy fix is having 1 second invisible timer.
+                TxtFinalTimer.Visibility = Visibility.Collapsed;
+                bEmergencyTimer = true;
+                nTimer = 1;
+                dispatcherTimer.Start();
+            }
+              
         }
 
         private void TxtExplanation_TextChanged(object sender, TextChangedEventArgs e)

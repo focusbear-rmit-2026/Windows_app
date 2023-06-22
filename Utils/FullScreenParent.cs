@@ -224,7 +224,7 @@ namespace Focus_Bear.Habits
                                 ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
                             }
                         }
-
+                         
                         if (DeviceNotification.IsUsbDevice(lParam))
                             LogWriter.LogWrite($"Usb device {((int)wParam == DeviceNotification.DbtDeviceArrival ? "arrived" : "removed")}");
                     }

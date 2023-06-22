@@ -21,6 +21,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -2831,7 +2832,112 @@ namespace Focus_Bear.API
             return -1;
         }
 
+        internal async Task<int> PostAppLogs(string sFeedbackMessage = "")
+        {
+           // LogWriter.LogWrite("PostAppLogs() = " + activity_id);
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        //Renew the token and check again
+                        LogWriter.LogWrite("Attempting Renew Token before API call");
+                        var authenticator = new Authentication();
+                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                        if (x)
+                        {
+                            //token renewed
+                            LogWriter.LogWrite("RenewToken DONE before API call");
+                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                            {
+                                return 0;
+                            }
+                            //All Good, Proceed Normally
+                        }
+                        else
+                        {
+                            //token renewed failed
+                            return 0;
+                        }
+                    }
 
+                    HttpClient client = new HttpClient();
+
+                    var filePath = AppSettings.AppDataDirLogsPath + "\\Debug_Logs.txt";
+
+                    using (var multipartFormContent = new MultipartFormDataContent())
+                    {
+                        //Load the file and set the file's Content-Type header
+                        var fileStreamContent = new StreamContent(File.OpenRead(filePath));
+                        fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+
+                        //Add the file
+                        multipartFormContent.Add(fileStreamContent, name: "file", fileName: "Debug_Logs.txt");
+
+                         
+                        //if (!string.IsNullOrEmpty(multipartFormContent))
+                        {
+                            //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+                            client.DefaultRequestHeaders.Add("platform", "Windows");
+                            client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                            client.DefaultRequestHeaders.Add("feedback_message", HttpUtility.UrlEncode(sFeedbackMessage) );
+                           // StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                            if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+                            {
+                                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+                            }
+                            else
+                            {
+                                return 0;
+                            }
+
+                            var response = await client.PostAsync("https://api.focusbear.io/app-logs", multipartFormContent);
+                            if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                            {
+                                LogWriter.LogWrite("PostAppLogs() SUCCESS");
+
+                                if (response.Content != null)
+                                {
+                                    var responseCode = await response.Content.ReadAsStringAsync();
+                                    //JObject resJson = JObject.Parse(responseCode);
+
+                                    return 1;
+                                }
+                            }
+                            else
+                            {
+                                //Get Device ID Failed
+                                if (response.Content != null)
+                                {
+                                    var responseCode = await response.Content.ReadAsStringAsync();
+                                    JObject resJson = JObject.Parse(responseCode);
+                                    string sErrorMessage = resJson["message"].ToString();
+                                    LogWriter.LogWrite("PostAppLogs() FAILED - " + sErrorMessage);
+                                    return 0;
+                                }
+                                return 0;
+                            }
+                        }
+                        //else
+                        //{
+                        //    return 0;
+                        //}
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("PostAppLogs WebException" + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("PostAppLogs Exception" + ex.Message);
+            }
+            return 0;
+        }
     }
 
 }

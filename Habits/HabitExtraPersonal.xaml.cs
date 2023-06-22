@@ -218,6 +218,8 @@ namespace Focus_Bear.Habits
                 {
                     if (appSettings.bPasswordRequireInSkipEvening)
                     {
+                        if (appSettings.bMotivationalMessageEnabled)
+                            webView.Visibility = Visibility.Collapsed;
 
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = _parentWindow;
@@ -226,7 +228,12 @@ namespace Focus_Bear.Habits
                         bool? bResult = pwdWnd.ShowDialog();
 
                         _parentWindow.GridShade.Visibility = Visibility.Collapsed;
-              
+
+
+                        if (appSettings.bMotivationalMessageEnabled)
+                            webView.Visibility = Visibility.Visible;
+
+
                         if (bResult.Value)
                         {
                             //Password is correct

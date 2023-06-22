@@ -1088,6 +1088,36 @@ namespace Focus_Bear.Habits
                 "buttonAlreadyDidItText": "I already did it",
                 "buttonCanNotDoItText": "Can't do it today"
             },*/
+            //It might be possible that a webview is visible, we will need to hide that
+            //if (nScreenHabitActivityFinished != null)
+            //{
+            //    if (nScreenHabitActivityFinished.webView.IsVisible)
+            //        nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
+            //    if (nScreenHabitActivityFinished.webView1.IsVisible)
+            //        nScreenHabitActivityFinished.webView1.Visibility = Visibility.Collapsed;
+            //}
+
+            ////If edits habits is open in welcome list, hide it
+            //bool bshowPageWelcomeListWebView = false;
+            //if (PageWelcomeList != null)
+            //{
+            //    if (PageWelcomeList.webView.IsVisible)
+            //    {
+            //        PageWelcomeList.webView.Visibility = Visibility.Collapsed;
+            //        bshowPageWelcomeListWebView = true;
+            //    }
+            //}
+
+            if (PageHabitExtraPersonal != null)
+            {
+                if (appSettings.bMotivationalMessageEnabled)
+                    PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
+            }
+            if (nScreenHabitActivityFinished != null)
+            {
+                if (nScreenHabitActivityFinished.webView.IsVisible)
+                    nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
+            }
 
             appSettings.bSkipCurrentActivity = false; //initiating, will be true after showing the nag for why do you want to skip
             appSettings.bSkipCurrentActivityCantDoItToday = false;
@@ -1106,6 +1136,18 @@ namespace Focus_Bear.Habits
 
             GridShade.Visibility = Visibility.Collapsed;
             GridWhyDoYouWantToSkip.Visibility = Visibility.Collapsed;
+
+            if (PageHabitExtraPersonal != null)
+            {
+                if (appSettings.bMotivationalMessageEnabled)
+                    PageHabitExtraPersonal.webView.Visibility = Visibility.Visible;
+            }
+            if (nScreenHabitActivityFinished != null)
+            {
+                if (!nScreenHabitActivityFinished.webView.IsVisible)
+                    nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
+            }
+
         }
         public void ShowSkippingHabitInWindow()
         {
@@ -1121,6 +1163,18 @@ namespace Focus_Bear.Habits
 
             GridShade.Visibility = Visibility.Visible;
             GridSkippingHabitIn.Visibility = Visibility.Visible;
+
+            if (PageHabitExtraPersonal != null)
+            {
+                if (appSettings.bMotivationalMessageEnabled)
+                    PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
+            }
+
+            if (nScreenHabitActivityFinished != null)
+            {
+                if (nScreenHabitActivityFinished.webView.IsVisible)
+                    nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
+            }
 
             nTimer = 15;
             dispatcherTimerSkippingIn.Start();
@@ -1139,6 +1193,11 @@ namespace Focus_Bear.Habits
                 {
                     if (!nScreenHabitActivityFinished.webView.IsVisible)
                         nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
+                }
+                if (PageHabitExtraPersonal != null)
+                {
+                    if (appSettings.bMotivationalMessageEnabled)
+                        PageHabitExtraPersonal.webView.Visibility = Visibility.Visible;
                 }
             }
             catch (Exception ex)

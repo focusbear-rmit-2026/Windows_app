@@ -16,9 +16,9 @@
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="110" />
+            <RowDefinition Height="Auto" MinHeight="80" />
             <RowDefinition Height="Auto" MinHeight="70" />
-            <RowDefinition Height="Auto" MinHeight="200" />
+            <RowDefinition Height="Auto" MinHeight="180" />
             <RowDefinition Height="Auto" MinHeight="100" />
             <RowDefinition Height="Auto" MinHeight="100" />
             <RowDefinition Height="Auto" MinHeight="100" />
@@ -55,7 +55,7 @@
             </TextBox.FocusVisualStyle>
         </TextBox>
         
-        <Button Grid.Row="6"  Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,60" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAction_Click" >
+        <Button Grid.Row="6"  Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAction_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnActionText" Text="xGet Access Now"/>

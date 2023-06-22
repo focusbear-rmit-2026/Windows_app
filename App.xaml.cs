@@ -355,7 +355,7 @@ namespace Focus_Bear
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             LogWriter.LogWrite( string.Format("App Started - Version {0}", appSettings.AppVersion.ToString()) );
-            
+
             bool bStartingAfterReactivate = false;
             if (e.Args.Length > 0)
             {
@@ -1270,6 +1270,9 @@ namespace Focus_Bear
 #if DEBUG
             //FocusBearAPIClient client = new FocusBearAPIClient();
             //var x = client.ChatGPTIsURLSafe("facebook.com", "");
+            //FocusBearAPIClient client = new FocusBearAPIClient();
+            //var sResponse = client.PostAppLogs("testwin");
+            //int x = int.Parse(sResponse.ToString());
 
 #endif
 

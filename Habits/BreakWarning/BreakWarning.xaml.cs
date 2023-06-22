@@ -42,6 +42,7 @@ namespace Focus_Bear.Habits
         private const uint SC_CLOSE = 0xF060;
         private const int WM_SHOWWINDOW = 0x00000018;
 
+        int nMinutesToPostpone = 5;
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -81,6 +82,8 @@ namespace Focus_Bear.Habits
             {
                 btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString();
                 Description.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["titleWIN"].ToString();
+                PostponeMinsText.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["titleSelectMinutes"].ToString();
+
             }
             catch (Exception ex)
             {
@@ -198,7 +201,7 @@ namespace Focus_Bear.Habits
                     //Now we do not need to show 15 second timer...so easy fix is do not incrase this count
                     ////appSettings.nCountBreaksPostponedTimes++; //Increase the counter after first time
 
-                    ((App)(Application.Current)).StartBreakActivityTimer(true, 5);
+                    ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);
 
                     Close();
                 }
@@ -208,6 +211,22 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("BreakWarning = " + ex.Message);
             }
 
+        }
+
+        private void ComboBoxMinutes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
+                nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
+
+                btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString().Replace("5", nMinutesToPostpone.ToString());
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ComboBoxMinutes_SelectionChanged parse= " + ex.Message);
+            }
         }
     }
 }
