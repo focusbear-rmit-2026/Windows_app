@@ -130,7 +130,7 @@ namespace Focus_Bear.Preferences
                     }
 
                     //All Good, Proceed Normally
-                    appSettings.GetAllTrialInfo();
+                    await appSettings.GetAllTrialInfo();
 
                     if (appSettings.isPurchased)
                     {

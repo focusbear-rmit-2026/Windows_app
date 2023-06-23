@@ -75,6 +75,9 @@ namespace Focus_Bear.Utils
         public CurrentActivityType nCurrentActivityType { get; set; }
         public int nHabitIndex; //This is used to track the activity number from the activities array
         public DateTime dLastActivityPerformedStartTime; //This is the start time of the Last activity recently started.
+
+        public DateTime dSettingsFetchedTime;
+        public string sSubscriptionInfo { get; set; }
         public int nTrialDays { get; set; }
         public bool isPurchased { get; set; }
         public bool isExpired { get; set; }
@@ -308,7 +311,7 @@ namespace Focus_Bear.Utils
 
             bSkipMicroBreaksDuringFocus = false;
         }
-        public void GetLoginAndTokenValidSettings()
+        public async void GetLoginAndTokenValidSettings()
         {
             LogWriter.LogWrite("GetLoginAndTokenValidSettings()");
             try
@@ -328,7 +331,7 @@ namespace Focus_Bear.Utils
                         LogWriter.LogWrite("Token valid, GEt all trial Info");
 
                         //Token valid, GEt all trial Info
-                        GetAllTrialInfo();
+                        await GetAllTrialInfo();
                         ((App)(Application.Current)).ProceedAfterGetLoginAndTokenValidSettings();
                     }
                     else
@@ -353,26 +356,23 @@ namespace Focus_Bear.Utils
 
         }
 
-        public void GetAllTrialInfo()
+        public async Task GetAllTrialInfo()
         {
             LogWriter.LogWrite("GetAllTrialInfo()");
             try
             {
-
-
-                var authenticator = new Authentication();
-
-                string strTopLevelClaim = authenticator.getJWTTokenClaim(userAccount.accessToken, "https://eyst-backend-prod-8th3.onrender.com/user");
-
-                if (strTopLevelClaim.Length > 0)
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var xResponse = await client.GetSubscriptionInfo();
+                
+                //var authenticator = new Authentication();
+                //string strTopLevelClaim = authenticator.getJWTTokenClaim(userAccount.accessToken, "https://eyst-backend-prod-8th3.onrender.com/user");
+ 
+                if (sSubscriptionInfo.Length > 0)
                 {
-                    JObject strTopLevelClaimsParsed = JObject.Parse(strTopLevelClaim);
+                     
+                    LogWriter.LogWrite("subscriptionStatus - " + sSubscriptionInfo);
 
-                    string subscriptionStatus = strTopLevelClaimsParsed["subscriptionStatus"].ToString();
-
-                    LogWriter.LogWrite("subscriptionStatus - " + subscriptionStatus);
-
-                    /*
+                    /* OLD
                      {
                       "activeEntitlements": [
                         "trial"
@@ -386,8 +386,22 @@ namespace Focus_Bear.Utils
                       },
                       "hasActiveSubscription": true
                     }
+                    NEW
+                    {
+                        "hasActiveSubscription":true,
+                        "activeEntitlements":["trial"],
+                        "expirations":
+                            {
+                                "trial":
+                                    {
+                                        "expires_date":"2023-07-16T13:38:08Z",
+                                        "purchase_date":"2023-06-15T13:38:08Z",
+                                        "days_left":24
+                                     }
+                             }
+                     }
                     */
-                    JObject subscriptionStatusParsed = JObject.Parse(subscriptionStatus);
+                    JObject subscriptionStatusParsed = JObject.Parse(sSubscriptionInfo);
                     bool hasActiveSubscription = (bool)subscriptionStatusParsed["hasActiveSubscription"];
                     if (hasActiveSubscription)
                     {
@@ -1021,8 +1035,8 @@ namespace Focus_Bear.Utils
                     try
                     {
                         JObject UserSettings = JObject.Parse(sUserDetailsInfo);
-                        sUser_name = UserSettings.ContainsKey("email") ? UserSettings["email"].ToString() : "";
-                        sUser_email = UserSettings.ContainsKey("name") ? UserSettings["name"].ToString() : "";
+                        sUser_email = UserSettings.ContainsKey("email") ? UserSettings["email"].ToString() : "";
+                        sUser_name = UserSettings.ContainsKey("username") ? UserSettings["username"].ToString() : "";
                         sUser_id = UserSettings.ContainsKey("id") ? UserSettings["id"].ToString() : "";
 
                         LogWriter.LogWrite("EMAIL IS:" + sUser_email);
@@ -1211,7 +1225,7 @@ namespace Focus_Bear.Utils
                         // bPasswordRequireInStopPomodoro = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInStopPomodoro") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInStopPomodoro") : false;
                         bPasswordRequireInQuitApp = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInQuitApp") : false;
 
-                        bMotivationalMessageEnabled =  sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kMotivationalMessageEnabled") : false;
+                        bMotivationalMessageEnabled =  sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kMotivationalMessageEnabled") : true; //Deafult true on 23 June 2023 #188
                         bAiCheckUrlEnabled = sMacOSSettingsOBJ.ContainsKey("kAiCheckUrlEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiCheckUrlEnabled") : true;
                         bAiAllowUrlShowAlertEnabled = sMacOSSettingsOBJ.ContainsKey("kAiAllowUrlShowAlertEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiAllowUrlShowAlertEnabled") : true;
 

@@ -388,6 +388,23 @@ namespace Focus_Bear.Utils
         {
             get { return !isLockedFocus; }
         }
+
+        public bool isShowAbleInTrayMenuList
+        {
+            get 
+            {
+                if (RegistryManager.GetFocusModeSetupDone())
+                    return true;
+                else
+                {
+                    if (isLockedFocus || isMeetings)
+                        return false;
+                    else
+                        return true;
+                }
+                    
+            }
+        }
         public string sToolTip { get; set; }
 
         public FocusMode()

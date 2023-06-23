@@ -113,6 +113,7 @@ namespace Focus_Bear.Preferences
                         "focusModeOnText": "Focus mode is on. Please deactivate the focus mode to delete it.",
                         */
                         FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusModeOnText"].ToString(), "Focus Bear");
+                        ff1.Owner = _ParentWindow;
                         ff1.ShowDialog();
                         return;
                     }
@@ -123,6 +124,7 @@ namespace Focus_Bear.Preferences
                    "noText":"No",
                    */
                     FBMessageBox ff2 = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["deleteFocusTypeMessageText"].ToString(), "Focus Bear", MessageBoxButton.YesNo);
+                    ff2.Owner = _ParentWindow;
                     ff2.ShowDialog();
                     ////MessageBoxResult mb = MessageBox.Show(appSettings.ConfigFileStrings["focusPreferencesInfo"]["deleteFocusTypeMessageText"].ToString(), "", MessageBoxButton.YesNo);
                     if (ff2.btnClicked == MessageBoxResult.Yes)

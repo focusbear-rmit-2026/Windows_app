@@ -820,6 +820,14 @@ namespace Focus_Bear
                             try
                             {
                                 JObject sLastActivityDone = JObject.Parse(appSettings.sLastActivityDoneInfo);
+                                //first Detect if the user has changed their habits and pull the new habits from the backend
+                                if (sLastActivityDone.ContainsKey("last_time_user_settings_modified"))
+                                {
+                                    string s_edited_settings_date = sLastActivityDone["last_time_user_settings_modified"].ToString();
+                                    ValidateSettingsChange(s_edited_settings_date);
+
+                                }
+
                                 if (sLastActivityDone.ContainsKey("current_activity_sequence"))
                                 {
                                     string currentActivitySequence = sLastActivityDone["current_activity_sequence"].ToString();
@@ -1268,8 +1276,7 @@ namespace Focus_Bear
 
 
 #if DEBUG
-            //FocusBearAPIClient client = new FocusBearAPIClient();
-            //var x = client.ChatGPTIsURLSafe("facebook.com", "");
+           
             //FocusBearAPIClient client = new FocusBearAPIClient();
             //var sResponse = client.PostAppLogs("testwin");
             //int x = int.Parse(sResponse.ToString());
@@ -1609,7 +1616,15 @@ namespace Focus_Bear
                     //Parse the JSON string
                     try
                     {
-                         JObject sLastActivityDone = JObject.Parse(appSettings.sLastActivityDoneInfo);
+                        JObject sLastActivityDone = JObject.Parse(appSettings.sLastActivityDoneInfo);
+
+                        //first Detect if the user has changed their habits and pull the new habits from the backend
+                        if (sLastActivityDone.ContainsKey("last_time_user_settings_modified"))
+                        {
+                            string s_edited_settings_date = sLastActivityDone["last_time_user_settings_modified"].ToString();
+                            ValidateSettingsChange(s_edited_settings_date);
+                          
+                        }
 
                         DateTime now = DateTime.Now;
                         TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
@@ -1906,6 +1921,13 @@ namespace Focus_Bear
                     {
                         JObject sLastActivityDone = JObject.Parse(appSettings.sLastActivityDoneInfo);
 
+                        //first Detect if the user has changed their habits and pull the new habits from the backend
+                        if (sLastActivityDone.ContainsKey("last_time_user_settings_modified"))
+                        {
+                            string s_edited_settings_date = sLastActivityDone["last_time_user_settings_modified"].ToString();
+                            ValidateSettingsChange(s_edited_settings_date);
+
+                        }
                         DateTime now = DateTime.Now;
                         TimeSpan tsShutoffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
                         DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutoffTime.Hours, tsShutoffTime.Minutes, 00).ToUniversalTime();
@@ -2151,14 +2173,14 @@ namespace Focus_Bear
 
       
 
-        public void ShowExpiredNag(bool bStarting = false)
+        public void ShowExpiredNag(bool bShowingOnAppStartedExpired = false)
         {
             LogWriter.LogWrite("ShowExpiredNag()");
 
             UpgradeNow up = new UpgradeNow();
             bool? bResult = up.ShowDialog();
 
-            if (bStarting)
+            if (bShowingOnAppStartedExpired)
             {
                 if (bResult.Value == false)
                 {
@@ -2493,6 +2515,9 @@ namespace Focus_Bear
                 {
                     //check for App update
                     var updater = new AppUpdater();
+                    
+                    
+                    
                     var status = await updater.CheckForUpdate();
                     if (status)
                     {
@@ -2509,7 +2534,7 @@ namespace Focus_Bear
                                 ff.ShowDialog();
                                // MessageBoxResult boxResult = MessageBox.Show(displayMsg, "New Update Available", MessageBoxButton.OKCancel);
                                 //if user has cancelled the update process
-                                if (ff.btnClicked == MessageBoxResult.Cancel)
+                                if (ff.btnClicked == MessageBoxResult.No)
                                 {
                                     return;
                                 }
@@ -2702,6 +2727,24 @@ namespace Focus_Bear
             }
             
             
+        }
+
+        void ValidateSettingsChange(string s_edited_settings_date)
+        {
+            DateTime d_edited_settings_date = DateTime.Parse(s_edited_settings_date);
+            if (d_edited_settings_date > appSettings.dSettingsFetchedTime)
+            {
+                //User had edited settings after we have feteched
+                //Need to alert and ask to restart.
+                FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["common"]["settingsChangedText"].ToString());
+                msg.ShowDialog();
+
+                LogWriter.LogWrite("Restart app now for settings to take Effect!");
+
+                appSettings.bRestartAppNeeded = true;
+
+                Application.Current.Shutdown(0);
+            }
         }
     }
 }

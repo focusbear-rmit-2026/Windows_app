@@ -43,6 +43,7 @@ namespace Focus_Bear.Upgrade
             try
             {
                 this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                this.Topmost = true;
 
                 Point1.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["pointFirstText"].ToString();
                 Point2.Text = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["pointSecondText"].ToString();
@@ -117,7 +118,7 @@ namespace Focus_Bear.Upgrade
                     }
 
                     //All Good, Proceed Normally
-                    appSettings.GetAllTrialInfo();
+                    await appSettings.GetAllTrialInfo();
 
                     if(appSettings.isPurchased || appSettings.nTrialDays > 0)
                     {

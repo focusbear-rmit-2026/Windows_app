@@ -52,6 +52,8 @@ namespace Focus_Bear.API
 
         public static string GetUserLocalDeviceSettings { get { return "https://api.focusbear.io/user-local-device-settings"; } }
 
+        public static string SubscriptionInfo { get { return "https://api.focusbear.io/user/subscription"; } }
+
         //internal async Task<int> InstallKey(RequestLicense details)
         //{
         //    try
@@ -1306,7 +1308,8 @@ namespace Focus_Bear.API
                             //JObject resJson = JObject.Parse(responseCode);
                             //appSettings.sDeviceID = resJson["id"].ToString();
                             appSettings.sRawUserSettings = responseCode.ToString();
-                            
+                            appSettings.dSettingsFetchedTime = DateTime.UtcNow;
+
                             LogWriter.LogWrite("UserSettings - " + appSettings.sRawUserSettings);
 
                             RegistryManager.SaveUserSettings();
@@ -2935,6 +2938,96 @@ namespace Focus_Bear.API
             catch (Exception ex)
             {
                 LogWriter.LogWrite("PostAppLogs Exception" + ex.Message);
+            }
+            return 0;
+        }
+
+        internal async Task<int> GetSubscriptionInfo() //OK
+        {
+            LogWriter.LogWrite("GetSubscriptionInfo()");
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        //Renew the token and check again
+                        LogWriter.LogWrite("Attempting RenewToken before API call");
+                        var authenticator = new Authentication();
+                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                        if (x)
+                        {
+                            //token renewed
+                            LogWriter.LogWrite("RenewToken DONE before API call");
+                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                            {
+                                return 0;
+                            }
+                            //All Good, Proceed Normally
+                        }
+                        else
+                        {
+                            //token renewed failed
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = new HttpClient();
+
+                    //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+                    client.DefaultRequestHeaders.Add("platform", "Windows");
+                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+                    {
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+                    }
+                    else
+                    {
+                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
+                        return 0;
+                    }
+
+                    var response = await client.GetAsync(SubscriptionInfo);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            appSettings.sSubscriptionInfo = responseCode.ToString();
+
+                            LogWriter.LogWrite("GetSubscriptionInfo() GOT Success");
+
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        //GetLastActivityInfo Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            JObject resJson = JObject.Parse(responseCode);
+                            string sErrorMessage = resJson["message"].ToString();
+                            LogWriter.LogWrite("GetSubscriptionInfo() FAILED - " + sErrorMessage);
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetSubscriptionInfo WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSubscriptionInfo Exception - " + ex.Message);
             }
             return 0;
         }
