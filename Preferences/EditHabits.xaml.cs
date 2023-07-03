@@ -128,7 +128,7 @@ namespace Focus_Bear.Preferences
             {
                 LogWriter.LogWrite("LoadSettings()"  );
                 //Set environment in settings page
-               
+               /**
                 try
                 {
                     //string functiontocall = string.Format("focusbearEnv('win');");
@@ -137,27 +137,33 @@ namespace Focus_Bear.Preferences
 
                     var ss = webView.ExecuteScriptAsync(functiontocall);
                     LogWriter.LogWrite("Load focusbearEnv Done res: " + ss);
-                    await Task.Delay(180);
+                    await Task.Delay(270);
                 }
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite("Load focusbearEnv EX: " + ex);
                 }
-
+                **/
 
                 //Now await will keep waiting till the eecution return OK, no need to check it as we will still call load settings.
 
                 try
                 {
                     //Load Settings in the webview
-                    if (appSettings.sRawUserSettings.Length > 0)
+                    //if (appSettings.sRawUserSettings.Length > 0)
+                    if (appSettings.userAccount.accessToken.Length > 0)
                     {
                         LogWriter.LogWrite("attempt to LoadSettings()");
-                        string Settings = string.Format("{{ \"metadata\":{{\"access_token\":\"{0}\"}},\"settings\":{1}}}", appSettings.userAccount.accessToken, appSettings.sRawUserSettings);
-                        string settingsFunc = string.Format("loadSettingsData({0});", Settings);
+                        //Old way
+                        ///string Settings = string.Format("{{ \"metadata\":{{\"access_token\":\"{0}\"}},\"settings\":{1}}}", appSettings.userAccount.accessToken, appSettings.sRawUserSettings);
                         
-                        ///string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
-
+                        //New format 03 July 2023
+                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\"}}", appSettings.userAccount.accessToken);
+                        //string settingsFunc = string.Format("loadSettingsData({0});", Settings);
+                        
+                        //await Task.Delay(270);
+                        
+                        string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                         var ss1 =  webView.ExecuteScriptAsync(settingsFunc);
                         LogWriter.LogWrite("attempt to LoadSettings() done res:" + ss1.ToString());
                     }

@@ -164,6 +164,10 @@ namespace Focus_Bear.Habits
             }
         }
 
+        public void SwapTempChoiceData()
+        {
+            appSettings.currentActivityChoice = appSettings.currentActivityChoiceTemp;
+        }
         public void LoadData(bool bSkipCurrentActivity = false)
         {
             LogWriter.LogWrite("ActivityFinished LoadData()");
@@ -273,10 +277,19 @@ namespace Focus_Bear.Habits
                         {
                             sHeading = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
                         }
-                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].name);
-                        sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].durationSeconds));
+                        
+                        if(appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].useTimer)
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].name);
+                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].durationSeconds));
 
+                        }
+                        else
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].name);
+                        }
                         //Progress text
                         /*
                            * "activityInfo":{
@@ -376,17 +389,25 @@ namespace Focus_Bear.Habits
                             sHeading = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
                         }
 
-                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].name);
-                        sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].durationSeconds));
+                        if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].useTimer)
+                        {
 
-                        //Progress text
-                        /*
-                           * "activityInfo":{
-                          "habitsProgressText":"You have completed <duration> of habits - <totalduration> to go. You can do it!",
-                          "habitsCompleteText":"You have completed <duration> of habits.",
-                          */
-                        string sProgress = appSettings.ConfigFileStrings["activityInfo"]["habitsProgressText"].ToString();
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].name);
+                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].durationSeconds));
+                        }
+                        else
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].name);
+                        }
+                            //Progress text
+                            /*
+                               * "activityInfo":{
+                              "habitsProgressText":"You have completed <duration> of habits - <totalduration> to go. You can do it!",
+                              "habitsCompleteText":"You have completed <duration> of habits.",
+                              */
+                            string sProgress = appSettings.ConfigFileStrings["activityInfo"]["habitsProgressText"].ToString();
                         sProgress = sProgress.Replace("<duration>", sCompleted);
                         sProgress = sProgress.Replace("<totalduration>", sRemaining);
 
@@ -474,10 +495,10 @@ namespace Focus_Bear.Habits
                                         //random choice
                                         Random rnd1 = new Random();
                                         int nRandom1 = rnd1.Next(0, currentExcludeActivity.choices.Count() - 1);
-                                        appSettings.currentActivityChoice = currentExcludeActivity.choices[nRandom1]; //currentActivityChoice is the choice that we need to perform as the first activity.
+                                        appSettings.currentActivityChoiceTemp = currentExcludeActivity.choices[nRandom1]; //currentActivityChoice is the choice that we need to perform as the first activity.
 
                                         sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoice.name);
+                                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoiceTemp.name);
                                         sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(currentExcludeActivity.durationSeconds));
                                     }
                                 }
@@ -503,9 +524,19 @@ namespace Focus_Bear.Habits
 
                                 if (!currentActivity.isRandomChoice)
                                 {
-                                    sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                                    sButtonTitle = sButtonTitle.Replace("<NAME>", currentActivity.name);
-                                    sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(currentActivity.durationSeconds));
+                                    if(currentActivity.useTimer)
+                                    {
+                                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                                        sButtonTitle = sButtonTitle.Replace("<NAME>", currentActivity.name);
+                                        sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(currentActivity.durationSeconds));
+                                    }
+                                    else
+                                    {
+                                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                                        sButtonTitle = sButtonTitle.Replace("<NAME>", currentActivity.name);
+
+                                    }
+                                   
                                 }
                                 else
                                 {
@@ -513,11 +544,20 @@ namespace Focus_Bear.Habits
                                     //random choice
                                     Random rnd = new Random();
                                     int nRandom = rnd.Next(0, currentActivity.choices.Count() - 1);
-                                    appSettings.currentActivityChoice = currentActivity.choices[nRandom]; //currentActivityChoice is the choice that we need to perform as the first activity.
+                                    appSettings.currentActivityChoiceTemp = currentActivity.choices[nRandom]; //currentActivityChoice is the choice that we need to perform as the first activity.
 
-                                    sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                                    sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoice.name);
-                                    sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(currentActivity.durationSeconds));
+                                    if (currentActivity.useTimer)
+                                    {
+                                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoiceTemp.name);
+                                        sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(currentActivity.durationSeconds));
+                                    }
+                                    else
+                                    {
+                                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoiceTemp.name);
+
+                                    }
                                 }
                             }
                         }
@@ -1408,6 +1448,10 @@ namespace Focus_Bear.Habits
                         jsonTime = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4}, \"TimeValues\": {5} }}", sCurrentActivityName, sLabelTime, sLabelMinutes, dataarrayTimeGraph, nMaxTimeGraph.ToString(), TimeValues);
                     }
                 }
+
+                //Once we are done with the activitychoice with all data we need to load graph, we will load thenext temp one
+                //mj//
+                SwapTempChoiceData();
 
 
                 string functiontocall = string.Format("getData({0});", json);

@@ -95,9 +95,14 @@ namespace Focus_Bear.Login
                 btnCreatAccount.IsEnabled = false;
 
                 Loaded += (sender, e) => TxtEmailAddress.Focus();
+
+                EyePassword.ToolTip = appSettings.ConfigFileStrings["customLoginVcInfo"]["tooltipShowPassword"].ToString();
+                WeGeneratedPassword.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordGenerateText"].ToString();
             }
             catch (Exception ex)
             {
+                EyePassword.ToolTip = "Show Password"; //for time being
+                WeGeneratedPassword.Text = "We generated a password for you";
                 LogWriter.LogWrite("LoginSignUp Texts Exception - " + ex.Message);
             }
 
@@ -159,8 +164,8 @@ namespace Focus_Bear.Login
 
                                                                 //Login Success
                                                                 appSettings.CapturePostHog("login-homemade");
-
-                                                                ((App)(Application.Current)).ProceedAfterLogin();
+                                                                appSettings.GetLoginAndTokenValidSettings();
+                                                                ///((App)(Application.Current)).ProceedAfterLogin();
                                                                 _parentWindow.bDoNotShutDown = true;
                                                                 _parentWindow.Close();
 
@@ -478,6 +483,16 @@ namespace Focus_Bear.Login
 
                 TxtPasswordVisible.Visibility = Visibility.Visible;
                 TxtPassword.Visibility = Visibility.Collapsed;
+
+                try
+                {
+                    EyePassword.ToolTip = appSettings.ConfigFileStrings["customLoginVcInfo"]["tooltipHidePassword"].ToString();
+                }
+                catch (Exception ex)
+                {
+                    EyePassword.ToolTip = "Hide Password"; //Fore Time Being
+                    LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
+                }
             }
             else
             {
@@ -490,6 +505,16 @@ namespace Focus_Bear.Login
 
                 TxtPasswordVisible.Visibility = Visibility.Collapsed;
                 TxtPassword.Visibility = Visibility.Visible;
+
+                try
+                {
+                    EyePassword.ToolTip = appSettings.ConfigFileStrings["customLoginVcInfo"]["tooltipShowPassword"].ToString();
+                }
+                catch (Exception ex)
+                {
+                    EyePassword.ToolTip = "Show Password"; //for time being
+                    LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
+                }
             }
         }
 
@@ -526,7 +551,7 @@ namespace Focus_Bear.Login
         {
             GridGeneratePassRelated.Visibility = Visibility.Collapsed;
             GridPasswordRules.Visibility = Visibility.Visible;
-
+            WeGeneratedPassword.Visibility = Visibility.Collapsed;
             TxtPassword.Password = "";
         }
 
@@ -534,7 +559,7 @@ namespace Focus_Bear.Login
         {
             GridGeneratePassRelated.Visibility = Visibility.Visible;
             GridPasswordRules.Visibility = Visibility.Collapsed;
-
+            WeGeneratedPassword.Visibility = Visibility.Visible;
             TxtPassword.Password = GenerateSecurePassword();
         }
 

@@ -75,7 +75,7 @@ namespace Focus_Bear.Focus
                     DateTime now = DateTime.Now;
                     TimeSpan difference = DateTime.Parse(appSettings.sRunningFocusModeEndTime).Subtract(now); // could also write `now - otherTime`
                     var durationSeconds = difference.TotalSeconds;
-                    string ss = sRemaining + appSettings.SecondsToTextHMS(Convert.ToInt32(durationSeconds));
+                    string ss = sRemaining + " " + appSettings.SecondsToTextHMS(Convert.ToInt32(durationSeconds));
 
                     /* "menuInfo":{
                        "untilTimeText":"On Until <TIME>",*/

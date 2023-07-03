@@ -97,12 +97,27 @@ namespace Focus_Bear.Habits
             seconds = currentActivity.durationSeconds;
 
             string sHeading = appSettings.ConfigFileStrings["activityInfo"]["startBreakActivityTitleText"].ToString();
-            sHeading = sHeading.Replace("<ACTIVITY>", activityName);
-            Heading.Text = sHeading.Replace("<TIME>", appSettings.SecondsToText(seconds));
-
+           
             string sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-            sButtonTitle = sButtonTitle.Replace("<NAME>", activityName);
-            btnStartNextActivityTXT.Text = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(seconds));
+            
+            if (currentActivity.useTimer)
+            {
+                sHeading = sHeading.Replace("<ACTIVITY>", activityName);
+                Heading.Text = sHeading.Replace("<TIME>", appSettings.SecondsToText(seconds));
+
+                sButtonTitle = sButtonTitle.Replace("<NAME>", activityName);
+                btnStartNextActivityTXT.Text = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(seconds));
+            }
+            else
+            {
+                sHeading = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerBreakActivityTitleText"].ToString();
+                sHeading = sHeading.Replace("<ACTIVITY>", activityName);
+                Heading.Text = sHeading;
+
+                sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                sButtonTitle = sButtonTitle.Replace("<NAME>", activityName);
+                btnStartNextActivityTXT.Text = sButtonTitle;
+            }
 
             /// addLog(text: "start-break-activity")//complete break activity//
 

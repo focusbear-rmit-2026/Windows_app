@@ -109,6 +109,23 @@ namespace Focus_Bear.Habits
 
                     if (!bStartingAfterPostponed)
                         nTimer = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds; //DurationSeconds;
+
+                    if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].useTimer)
+                    {
+                        SectionNonTimer.Visibility = Visibility.Collapsed;
+                        SectionTimer.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        nTimer = 86400;
+                        SectionNonTimer.Visibility = Visibility.Visible;
+                        SectionTimer.Visibility = Visibility.Collapsed;
+                        string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString(); // "completionRequirementsText": "Complete After: <REQUIREMENTS>",
+                        sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].completion_requirements);
+                        CompleteAfter.Text = sCompleteTxt;
+                        btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
+                    }
+
                     nAllowedApps = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedApps.Count;
                     nAllowedURLs = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedUrls.Count;
                     nVideoUrlsCount = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].videoUrls.Count;
@@ -122,10 +139,26 @@ namespace Focus_Bear.Habits
                     Heading.Text = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name; //ACtivity Name
                     appSettings.sCurrentRunningActivity = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name; //ACtivity Name
                     appSettings.sHabitTypeForUseFocusModeIDInActivity = "evening-habit";//evening-habit, morning-habit, break-activity
-
-
-                    if (!bStartingAfterPostponed) 
+                   
+                    if (!bStartingAfterPostponed)
                         nTimer = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds; //DurationSeconds;
+
+                    if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].useTimer)
+                    {
+                        SectionNonTimer.Visibility = Visibility.Collapsed;
+                        SectionTimer.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        nTimer = 86400;
+                        SectionNonTimer.Visibility = Visibility.Visible;
+                        SectionTimer.Visibility = Visibility.Collapsed;
+                        string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString(); // "completionRequirementsText": "Complete After: <REQUIREMENTS>",
+                        sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].completion_requirements);
+                        CompleteAfter.Text = sCompleteTxt;
+                        btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
+                    }
+
                     nAllowedApps = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedApps.Count;
                     nAllowedURLs = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedUrls.Count;
                     nVideoUrlsCount = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].videoUrls.Count;
@@ -158,6 +191,23 @@ namespace Focus_Bear.Habits
                         nVideoUrlsCount = currentActivity.videoUrls.Count;
                         videoUrlsBreaks = currentActivity.videoUrls;
                         appSettings.sUseFocusModeIDInActivity = currentActivity.allowedFocusMode;
+
+                        if (currentActivity.useTimer)
+                        {
+                            SectionNonTimer.Visibility = Visibility.Collapsed;
+                            SectionTimer.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            nTimer = 86400;
+                            SectionNonTimer.Visibility = Visibility.Visible;
+                            SectionTimer.Visibility = Visibility.Collapsed;
+                            string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString(); // "completionRequirementsText": "Complete After: <REQUIREMENTS>",
+                            sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", currentActivity.completion_requirements);
+                            CompleteAfter.Text = sCompleteTxt;
+                            btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
+                        }
+
                     }
                     else
                     {
@@ -178,6 +228,23 @@ namespace Focus_Bear.Habits
                             nAllowedApps = currentActivity.allowedApps.Count;
                             nAllowedURLs = currentActivity.allowedUrls.Count;
                             appSettings.sUseFocusModeIDInActivity = currentActivity.allowedFocusMode;
+
+                            if (currentActivity.useTimer) //still using the current activity and not the choice
+                            {
+                                SectionNonTimer.Visibility = Visibility.Collapsed;
+                                SectionTimer.Visibility = Visibility.Visible;
+                            }
+                            else
+                            {
+                                nTimer = 86400;
+                                SectionNonTimer.Visibility = Visibility.Visible;
+                                SectionTimer.Visibility = Visibility.Collapsed;
+                                string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString(); // "completionRequirementsText": "Complete After: <REQUIREMENTS>",
+                                sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", currentActivity.completion_requirements);
+                                CompleteAfter.Text = sCompleteTxt;
+                                btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
+                            }
+
                         }
                     }
                 }
@@ -200,7 +267,8 @@ namespace Focus_Bear.Habits
                     }
                     //we will need to show the break window with the duration and the timer
                     //Show the Break Window
-                    ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, Heading.Text);
+                    //If its a non timer (86400) activity, pass the completre after text, else pass the heading text (activity name)
+                    ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (nTimer == 86400) ? CompleteAfter.Text : Heading.Text);
                 }
  
             }
@@ -635,6 +703,45 @@ namespace Focus_Bear.Habits
             appSettings.bSkipWhileActivityOngoing = true;
             webView.Visibility = Visibility.Collapsed; /*When using Webview2 in WPF, unable to overlay WPF controls on the Webview - https://github.com/MicrosoftEdge/WebView2Feedback/issues/286*/
             _parentWindow.ShowWhySkipHabitsWindow();
+        }
+
+        private void btnIAmDone_Click(object sender, RoutedEventArgs e)
+        {
+            //Earlier I did a lot of checks to manage the timer in the non timer activities 
+            //but then I set the duration to 24 hours initially and worked same as the timer activities.
+            //Now we just hide the timer in case of non timer activities but it keeps running in background.
+            //WE now need to set the duration seconds to actual for the grpahs and logging
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+            {
+                habit tempHabit =  appSettings.arrAllMorningHabits[appSettings.nHabitIndex] ;
+                tempHabit.durationSeconds = 86400 - nTimer;
+                appSettings.arrAllMorningHabits[appSettings.nHabitIndex] = tempHabit;
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            {
+                habit tempHabit = appSettings.arrAllEveningHabits[appSettings.nHabitIndex];
+                tempHabit.durationSeconds = 86400 - nTimer;
+                appSettings.arrAllEveningHabits[appSettings.nHabitIndex] = tempHabit;
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+            {
+                breakActivity tempHabit;
+                if (appSettings.isMandatoryActivityGoing)
+                {
+                    tempHabit = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex];
+                    tempHabit.durationSeconds = 86400 - nTimer;
+                    appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex] = tempHabit;
+                }
+                else
+                {
+                    tempHabit = appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex];
+                    tempHabit.durationSeconds = 86400 - nTimer;
+                    appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex] = tempHabit;
+                }
+ 
+            }
+
+            nTimer = 0;
         }
     }
 }

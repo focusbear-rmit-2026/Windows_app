@@ -622,6 +622,13 @@ namespace Focus_Bear
                 //    trayIcon = null;
                 //}
 
+                if (((App)(Application.Current)).wndTakeABreak != null && !(((App)(Application.Current)).wndTakeABreak.IsVisible))
+                {
+                    if(((App)(Application.Current)).wndTakeABreak.DoNotUseTimerRelated.IsVisible)
+                    {
+                        ((App)(Application.Current)).wndTakeABreak.Show();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -1586,6 +1593,10 @@ namespace Focus_Bear
                 return;
             }
 
+            if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
+            {
+                ((App)(Application.Current)).wndTakeABreak.HideBreakWindowAndStopTimer();
+            }
 
             LogWriter.LogWrite("ShowMorningRoutine() - show morning habits screen now");
 

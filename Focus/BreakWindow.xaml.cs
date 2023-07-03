@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -32,17 +34,41 @@ namespace Focus_Bear.Focus
         {
             InitializeComponent();
 
-            /*     common "focusBreakNotificationTitle":"Your break ends in",*/
-            Description.Text = appSettings.ConfigFileStrings["common"]["focusBreakNotificationTitle"].ToString();
+            try
+            {
+                /*     common "focusBreakNotificationTitle":"Your break ends in",*/
+                Description.Text = appSettings.ConfigFileStrings["common"]["focusBreakNotificationTitle"].ToString();
+                btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShowBreakWindowAndStartTimer - " + ex.Message);
+            }
             ShowInTaskbar = false;
             this.Topmost = true;
         }
         public void ShowBreakWindowAndStartTimer(int nSeconds, string sTitle = "")
         {
             nTimer = nSeconds;
-            if(sTitle.Length > 0) //Set the activity title if thelength is > 0
-                Description.Text = sTitle;
+            if (nTimer == 86400) //Means its an activity with no timer
+            {
+                TxtTimer.Visibility = Visibility.Collapsed;
+                
+                UseTimerRelated.Visibility = Visibility.Collapsed;
+                DoNotUseTimerRelated.Visibility = Visibility.Visible;
 
+                if (sTitle.Length > 0) //Set the activity title if thelength is > 0
+                    DescriptionNoTimer.Text = sTitle;
+            }
+            else
+            {
+                UseTimerRelated.Visibility = Visibility.Visible;
+                DoNotUseTimerRelated.Visibility = Visibility.Collapsed;
+            }
+
+            if (sTitle.Length > 0) //Set the activity title if thelength is > 0
+                Description.Text = sTitle;
+ 
             var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
             this.Left = (desktopWorkingArea.Right - this.Width);
             this.Top = (desktopWorkingArea.Top + 25);
@@ -63,7 +89,6 @@ namespace Focus_Bear.Focus
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ShowBreakWindowAndStartTimer - " + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
 
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -113,6 +138,22 @@ namespace Focus_Bear.Focus
         {
             e.Cancel = true;
             HideBreakWindowAndStopTimer();
+        }
+
+        private void btnIAmDone_Click(object sender, RoutedEventArgs e)
+        {
+            HideBreakWindowAndStopTimer();
+            if (((App)(Application.Current)).wndHabits != null /*&& !(((App)(Application.Current)).wndHabits.IsVisible)*/)
+            {
+                //show the habit window
+                ((App)(Application.Current)).wndHabits.Show();
+                //CLick the I am done button on the main window
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.btnIAmDone);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+
+            }
+            Close(); //Best to close here and open new when we have the activity with completion requirement.
         }
     }
 }

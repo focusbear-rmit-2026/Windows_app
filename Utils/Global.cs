@@ -197,7 +197,7 @@ namespace Focus_Bear.Utils
     {
         public string id;
         public string name;
-        public int durationSeconds;
+        public int durationSeconds { get; set; }
         public List<string> videoUrls;
         public bool logQuantity;
         public string logQuantityQuestion;
@@ -206,9 +206,10 @@ namespace Focus_Bear.Utils
         public List<string> allowedApps;
         public string allowedFocusMode;
         public string activity_sequence_id;
-        public List<QuantityQuestion> logQuantityQuestions; 
-
-        public habit(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions)
+        public List<QuantityQuestion> logQuantityQuestions;
+        public string completion_requirements;
+        public bool useTimer;
+        public habit(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer)
         {
             this.id = id;
             this.name = name;
@@ -222,6 +223,8 @@ namespace Focus_Bear.Utils
             this.allowedFocusMode = allowedFocusMode;
             this.activity_sequence_id = activity_sequence_id;
             this.logQuantityQuestions = logQuantityQuestions;
+            this.completion_requirements = completion_requirements;
+            this.useTimer = useTimer;
         }
     }
 
@@ -245,8 +248,9 @@ namespace Focus_Bear.Utils
         public bool isOfficeFriendly;
         public string logQuantityType;
         public List<QuantityQuestion> logQuantityQuestions;
-
-        public breakActivity(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, bool IncludeInEveryBreak, bool isRandomChoice, List<activityChoice> choices, bool isOfficeFriendly, string logQuantityType, List<QuantityQuestion> logQuantityQuestions)
+        public string completion_requirements;
+        public bool useTimer;
+        public breakActivity(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, bool IncludeInEveryBreak, bool isRandomChoice, List<activityChoice> choices, bool isOfficeFriendly, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer)
         {
             this.id = id;
             this.name = name;
@@ -265,6 +269,8 @@ namespace Focus_Bear.Utils
             this.isOfficeFriendly = isOfficeFriendly;
             this.logQuantityType = logQuantityType;
             this.logQuantityQuestions = logQuantityQuestions;
+            this.completion_requirements = completion_requirements;
+            this.useTimer = useTimer;
         }
     }
 
@@ -277,7 +283,9 @@ namespace Focus_Bear.Utils
         public bool logQuantity;
         public string logQuantityType;
         public List<QuantityQuestion> logQuantityQuestions;
-        public activityChoice(string id, string name, List<string> videoUrls, string logQuantityQuestion, bool logQuantity, string logQuantityType, List<QuantityQuestion> logQuantityQuestions)
+        public string completion_requirements;
+        public bool useTimer;
+        public activityChoice(string id, string name, List<string> videoUrls, string logQuantityQuestion, bool logQuantity, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer)
         {
             this.id = id;
             this.name = name;
@@ -286,6 +294,8 @@ namespace Focus_Bear.Utils
             this.logQuantity = logQuantity;
             this.logQuantityType = logQuantityType;
             this.logQuantityQuestions = logQuantityQuestions;
+            this.completion_requirements = completion_requirements;
+            this.useTimer = useTimer;
         }
     }
 

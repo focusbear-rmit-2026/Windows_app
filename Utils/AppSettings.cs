@@ -185,6 +185,8 @@ namespace Focus_Bear.Utils
 
         public activityChoice currentActivityChoice;
 
+        public activityChoice currentActivityChoiceTemp;
+
         public List<LastShownActivityChoice> arrLastShownRandomChoice = new List<LastShownActivityChoice>();
 
         public List<AppDetails> InstalledApps = new List<AppDetails>();
@@ -303,8 +305,8 @@ namespace Focus_Bear.Utils
 
             isOfficeModeEnabled = false;
 
-            bGoalHealthyHabits = true;
-            bGoalStayFocused = true;
+            bGoalHealthyHabits = false;
+            bGoalStayFocused = false;
             bExitFullScreenClickedWhileOnboarding = false;
 
             isPasswordSet = false;
@@ -774,8 +776,14 @@ namespace Focus_Bear.Utils
 
                             string allowedFocusMode = item.ContainsKey("allowed_focus_mode_id") ? item.GetValue("allowed_focus_mode_id").ToString() : "";
                             string activity_sequence_id = item.ContainsKey("activity_sequence_id") ? item.GetValue("activity_sequence_id").ToString() : "";
-
-                            arrAllMorningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions));
+                            string completion_requirements = item.ContainsKey("completion_requirements") ? item.GetValue("completion_requirements").ToString() : "";
+                            bool useTimer = true;
+                            if (completion_requirements.Length > 0)
+                            {
+                                useTimer = false;
+                            }
+                            
+                            arrAllMorningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer));
                         }
                     }
                     if (arrayEveningActivities.Count() > 0)
@@ -851,7 +859,14 @@ namespace Focus_Bear.Utils
                             string allowedFocusMode = item.ContainsKey("allowed_focus_mode_id") ? item.GetValue("allowed_focus_mode_id").ToString() : "";
                             string activity_sequence_id = item.ContainsKey("activity_sequence_id") ? item.GetValue("activity_sequence_id").ToString() : "";
 
-                            arrAllEveningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions));
+                            string completion_requirements = item.ContainsKey("completion_requirements") ? item.GetValue("completion_requirements").ToString() : "";
+                            bool useTimer = true;
+                            if (completion_requirements.Length > 0)
+                            {
+                                useTimer = false;
+                            }
+
+                            arrAllEveningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer));
                         }
                     }
                     if (arrayBreakActivities.Count() > 0)
@@ -899,6 +914,13 @@ namespace Focus_Bear.Utils
                             string allowedFocusMode = item.ContainsKey("allowed_focus_mode_id") ? item.GetValue("allowed_focus_mode_id").ToString() : "";
 
                             string activity_sequence_id = item.ContainsKey("activity_sequence_id") ? item.GetValue("activity_sequence_id").ToString() : "";
+
+                            string completion_requirements = item.ContainsKey("completion_requirements") ? item.GetValue("completion_requirements").ToString() : "";
+                            bool useTimer = true;
+                            if (completion_requirements.Length > 0)
+                            {
+                                useTimer = false;
+                            }
 
                             bool isRandomChoice = false;
                             string random_choice_type = item.ContainsKey("choice_type") ? item.GetValue("choice_type").ToString() : "";
@@ -955,7 +977,14 @@ namespace Focus_Bear.Utils
                                         logQuantitychoice = false;
                                     }
 
-                                    choicesToAdd.Add(new activityChoice(idchoice, namechoice, arrVideoUrlsArraychoice, logQuantityQuestionchoice, logQuantitychoice, logQuantityTypechoice,logQuantityQuestionsCh));
+                                    string completion_requirementsCH = choiceitem.ContainsKey("completion_requirements") ? choiceitem.GetValue("completion_requirements").ToString() : "";
+                                    bool useTimerCH = true;
+                                    if (completion_requirementsCH.Length > 0)
+                                    {
+                                        useTimerCH = false;
+                                    }
+
+                                    choicesToAdd.Add(new activityChoice(idchoice, namechoice, arrVideoUrlsArraychoice, logQuantityQuestionchoice, logQuantitychoice, logQuantityTypechoice,logQuantityQuestionsCh, completion_requirementsCH, useTimerCH));
 
                                 }
                             }
@@ -996,7 +1025,7 @@ namespace Focus_Bear.Utils
                             }
 
 
-                            arrAllbreakActivities.Add(new breakActivity(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, IncludeInEveryBreak, isRandomChoice, choicesToAdd, isOfficeFriendly, logQuantityType, logQuantityQuestions));
+                            arrAllbreakActivities.Add(new breakActivity(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, IncludeInEveryBreak, isRandomChoice, choicesToAdd, isOfficeFriendly, logQuantityType, logQuantityQuestions, completion_requirements, useTimer));
                         }
                     }
                 }

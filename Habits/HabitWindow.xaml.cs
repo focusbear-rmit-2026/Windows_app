@@ -205,6 +205,7 @@ namespace Focus_Bear.Habits
 
                 AppFrameHabitScreens.Navigate(nScreenHabitActivityFinished);
 
+
                 nScreenHabitActivityFinished.LoadData(appSettings.bSkipCurrentActivity);
 
                 if(appSettings.bShowActivitiesFromMid)//Justload the graph data in this case
@@ -933,6 +934,13 @@ namespace Focus_Bear.Habits
                                 PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
                         }
 
+                        if(PageHabitActivityOnGoing != null)
+                        {
+                            if (PageHabitActivityOnGoing.webView.IsVisible)
+                            {
+                                PageHabitActivityOnGoing.webView.Visibility = Visibility.Collapsed;
+                            }
+                        }
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = this;
                         GridShade.Visibility = Visibility.Visible;
@@ -960,7 +968,13 @@ namespace Focus_Bear.Habits
                             if (appSettings.bMotivationalMessageEnabled)
                                 PageHabitExtraPersonal.webView.Visibility = Visibility.Visible;
                         }
-
+                        if (PageHabitActivityOnGoing != null)
+                        {
+                            if (!PageHabitActivityOnGoing.webView.IsVisible)
+                            {
+                                PageHabitActivityOnGoing.webView.Visibility = Visibility.Visible;
+                            }
+                        }
                         if (bResult.Value)
                         {
                             //Password is correct

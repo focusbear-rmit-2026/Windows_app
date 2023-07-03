@@ -20,14 +20,29 @@
             </Grid.ColumnDefinitions>
 
             <Image Name="TopIcon" Grid.Column="0"  Margin="0,0,0,10" Height="64" Width="64" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="1" x:Name="UseTimerRelated" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xYour break ends in: " Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xYour break ends in:"  Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
                 <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="05:00" Foreground="#000" Padding="0" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Top" />
 
+            </Grid>
+            <Grid Grid.Column="1" x:Name="DoNotUseTimerRelated" Visibility="Visible">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="48" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock  Grid.Row="0" Name="DescriptionNoTimer" Margin="10,0,10,0" TextWrapping="Wrap" Text="xDo xx Activity: " Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                
+                <Button Grid.Row="1"  x:Name="btnIAmDone"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="25"  Width="180" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,5" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnIAmDone_Click" >
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock x:Name="btnIAmDoneTXT" Text="xI'm Done!"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
             </Grid>
         </Grid>
     </Grid>

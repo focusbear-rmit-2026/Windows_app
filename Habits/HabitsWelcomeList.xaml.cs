@@ -125,7 +125,7 @@ namespace Focus_Bear.Habits
                 }
 
                 btnBeginTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonBeginText"].ToString();
-                btnCustomizeHabitsTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonEditHabitsText"].ToString();
+                btnCustomizeHabitsTXT.Text = appSettings.ConfigFileStrings["welcomeInfo"]["buttonEditHabitsText"].ToString();
 
             }
             catch (Exception ex)

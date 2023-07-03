@@ -47,12 +47,18 @@ namespace Focus_Bear.Onboarding
             {
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
 
-                Heading.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["titleSelectHabitPack"].ToString();
+                if (appSettings.bGoalHealthyHabits)
+                    Heading.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["titleSelectHabitPack"].ToString();
+                else
+                    Heading.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["titleSelectBreaks"].ToString();
                 //SelectHabits.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["titleSelectHabitPack"].ToString();
+                //"titleSelectBreaks": "Choose your break activities to get started",
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("OnboardingSelectHabitPacks()" + ex.Message);
+                if (!appSettings.bGoalHealthyHabits)
+                    Heading.Text = "Choose your break activities to get started"; //for time being
             }
 
             //ComboBoxPack
