@@ -44,6 +44,7 @@ namespace Focus_Bear.Habits
         private bool bBreakActivitiesFinished;
 
         public bool bWebViewInitialized = false;
+        public bool bWebView2Initialized = false;
         public bool bCallLoadGraphDataAfterWebViewInitialized = false;
         public HabitActivityFinished()
         {
@@ -122,10 +123,24 @@ namespace Focus_Bear.Habits
 
                     bWebViewInitialized = true;
 
-                    if (appSettings.bShowActivitiesFromMid || bCallLoadGraphDataAfterWebViewInitialized)//Justload the graph data in this case
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                     {
-                        LoadGraphData();
+                        if(bWebView2Initialized) //Only if webview 2 is also initialized in case of break activities
+                        {
+                            if (appSettings.bShowActivitiesFromMid || bCallLoadGraphDataAfterWebViewInitialized)//Justload the graph data in this case
+                            {
+                                LoadGraphData();
+                            }
+                        }
                     }
+                    else
+                    {
+                        if (appSettings.bShowActivitiesFromMid || bCallLoadGraphDataAfterWebViewInitialized)//Justload the graph data in this case
+                        {
+                            LoadGraphData();
+                        }
+                    }
+                   
 
                 }
                 catch (Exception ex)
@@ -154,6 +169,19 @@ namespace Focus_Bear.Habits
 
                     string curDir = Directory.GetCurrentDirectory() + "\\Graph";
                     webView1.CoreWebView2.SetVirtualHostNameToFolderMapping("focusbear", curDir, CoreWebView2HostResourceAccessKind.Allow);
+
+                    bWebView2Initialized = true;
+
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                    {
+                        if (bWebViewInitialized) //Only if webview 1 is also initialized in case of break activities
+                        {
+                            if (appSettings.bShowActivitiesFromMid || bCallLoadGraphDataAfterWebViewInitialized)//Justload the graph data in this case
+                            {
+                                LoadGraphData();
+                            }
+                        }
+                    }
 
                 }
                 catch (Exception ex)

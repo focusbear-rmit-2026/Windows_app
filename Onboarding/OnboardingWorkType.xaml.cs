@@ -36,14 +36,14 @@ namespace Focus_Bear.Onboarding
             InitializeComponent();
 
             string sActivityName = appSettings.OnboardingActivityName;///appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["name"].ToString();
-            string Title = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
+            string Title = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
             if (appSettings.bOnboardingActivitySkipped)
             {
-                Title = appSettings.ConfigFileStrings["activityInfo"]["lastActivitySkippedText"].ToString();
+                Title = appSettings.ConfigFileStrings["activityInfo"]["activitySkippedText"].ToString();
             }
             else
             {
-                Title = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
+                Title = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
             }
             
             Title = Title.Replace("<ACTIVITY>", sActivityName);

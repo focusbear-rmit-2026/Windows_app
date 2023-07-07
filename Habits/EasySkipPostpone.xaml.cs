@@ -84,7 +84,7 @@ namespace Focus_Bear.Habits
             try
             {
                 appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(4);
-
+                LogWriter.LogWrite("EasyPostpone app deactivated till: )" + appSettings.AppDeactivatedTillDate );
                 RegistryManager.SetAppDeactivatedTillDate();
 
                 //////////////////////////////////////////////////////////
@@ -170,10 +170,12 @@ namespace Focus_Bear.Habits
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
                 int nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
 
+                LogWriter.LogWrite("nMinutesToPostpone - " + nMinutesToPostpone.ToString());
+
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) // FOr Breaks we will simply cancel the current routine.
                 {
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
-                    LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+                    LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
                     //simply set the timer for thenext break activity.
                     ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);

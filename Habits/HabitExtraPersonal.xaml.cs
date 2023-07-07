@@ -275,7 +275,7 @@ namespace Focus_Bear.Habits
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("HabitsWelcomeList SetWebView() EX - " + ex.Message);
+                LogWriter.LogWrite("HabitExtraPersonal SetWebView() EX - " + ex.Message);
             }
         }
 

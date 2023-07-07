@@ -441,7 +441,8 @@ namespace Focus_Bear
             SystemEvents.PowerModeChanged += OnPowerChange;
 
             //screensaver and session event
-            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+            //REmoving this as it was triggering double events for DEON
+            //SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
         }
 
         private void OnPowerChange(object s, PowerModeChangedEventArgs e)
@@ -458,21 +459,22 @@ namespace Focus_Bear
                     break;
             }
         }
-        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
-        {
-            if (e.Reason == SessionSwitchReason.SessionLock)
-            {
-                // Screen saver is starting or the user locked the session
-                Console.WriteLine("trigger for session locked.");
-                PauseHabitsOnSystemSleep();
-            }
-            else if (e.Reason == SessionSwitchReason.SessionUnlock)
-            {
-                // Screen saver is stopping or the user unlocked the session
-                Console.WriteLine("trigger for session unlocked.");
-                ResumeHabitsAfterSystemWakeup();
-            }
-        }
+
+        //private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        //{
+        //    if (e.Reason == SessionSwitchReason.SessionLock)
+        //    {
+        //        // Screen saver is starting or the user locked the session
+        //        LogWriter.LogWrite("trigger for session locked.");
+        //        PauseHabitsOnSystemSleep();
+        //    }
+        //    else if (e.Reason == SessionSwitchReason.SessionUnlock)
+        //    {
+        //        // Screen saver is stopping or the user unlocked the session
+        //        LogWriter.LogWrite("trigger for session unlocked.");
+        //        ResumeHabitsAfterSystemWakeup();
+        //    }
+        //}
         public void SetAtWindowsStartup()
         {
             LogWriter.LogWrite("SetAtWindowsStartup()");
@@ -665,7 +667,6 @@ namespace Focus_Bear
             catch (Exception ex)
             {
                 LogWriter.LogWrite("StartBreakActivityTimer" + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
 
             try
@@ -696,7 +697,6 @@ namespace Focus_Bear
             catch (Exception ex)
             {
                 LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
             }
 
         }
@@ -1015,6 +1015,9 @@ namespace Focus_Bear
                 }
 
                 await Task.Delay(1000); //Let the login window be closed
+
+                var userConsentResponseUnused = client.RecordUserConsent();
+                
 
                 if (wndSplash != null)
                 {
@@ -1487,7 +1490,10 @@ namespace Focus_Bear
                 {
                     //Here first we will check if the app is deactivated then we need not show the Morning routine or the break activities
                     if (appSettings.IsAppDeactivated())
+                    {
+                        LogWriter.LogWrite("appSettings.IsAppDeactivated() - DO not show morning routine");
                         return;
+                    }
                     
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                         return;
@@ -1835,6 +1841,8 @@ namespace Focus_Bear
 
             try
             {
+                LogWriter.LogWrite("ShowMorningRoutine - Now show the HabitWindow");
+
                 wndHabits = new HabitWindow();
                
                 wndHabits.Topmost = true;
@@ -2385,7 +2393,7 @@ namespace Focus_Bear
                     wndHabitsResumeInPopup = new HabitsResumeInPopup();
                 }
                 wndHabitsResumeInPopup.Show();
-                wndHabitsResumeInPopup.BringIntoView();
+               // wndHabitsResumeInPopup.BringIntoView();
                 wndHabitsResumeInPopup.ShowHabitsResumeInPopupAndStartTimer(120);
 
             }
@@ -2670,7 +2678,7 @@ namespace Focus_Bear
 
                 // Unsubscribe from the events when you're done
                 SystemEvents.PowerModeChanged -= OnPowerChange;
-                SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
+                //SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
 
                 LogWriter.LogWrite("Application_Exit() done");
 
@@ -2732,6 +2740,7 @@ namespace Focus_Bear
                 {
                     wndHabits.PageHabitActivityOnGoing.HandleTimerForPostpone(true); //Stop the timer
                 }
+                LogWriter.LogWrite(" wndHabits.Hide()");
                 wndHabits.Hide();
 
                 appSettings.RemoveSecondaryWindows();

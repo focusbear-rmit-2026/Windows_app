@@ -231,17 +231,36 @@ namespace Focus_Bear.Habits
             {
 
                 //Set environment in settings page
-                string functiontocall = string.Format("focusbearEnv('win');");
-                string ss = await webView.ExecuteScriptAsync(functiontocall);
+                // string functiontocall = string.Format("focusbearEnv('win');");
+                //string ss = await webView.ExecuteScriptAsync(functiontocall);
                 //Now await will keep waiting till the eecution return OK, no need to check it as we will still call load settings.
 
                 //Load Settings in the webview
-                if (appSettings.sRawUserSettings.Length > 0)
+                try
                 {
-                    string Settings = string.Format("{{ \"metadata\":{{\"access_token\":\"{0}\"}},\"settings\":{1}}}", appSettings.userAccount.accessToken, appSettings.sRawUserSettings);
-                    string settingsFunc = string.Format("loadSettingsData({0});", Settings);
-                    string ss1 = await webView.ExecuteScriptAsync(settingsFunc);
+                     
+                    if (appSettings.userAccount.accessToken.Length > 0)
+                    {
+                        LogWriter.LogWrite("attempt to LoadSettings()");
+                        
+                        //New format 03 July 2023
+                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\"}}", appSettings.userAccount.accessToken);
+                        string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+                        var ss1 = await webView.ExecuteScriptAsync(settingsFunc);
+                        LogWriter.LogWrite("attempt to LoadSettings() done res:" + ss1.ToString());
+                    }
                 }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("attempt to LoadSettings()  EX: " + ex);
+                }
+
+                //if (appSettings.sRawUserSettings.Length > 0)
+                //{
+                //    string Settings = string.Format("{{ \"metadata\":{{\"access_token\":\"{0}\"}},\"settings\":{1}}}", appSettings.userAccount.accessToken, appSettings.sRawUserSettings);
+                //    string settingsFunc = string.Format("loadSettingsData({0});", Settings);
+                //    string ss1 = await webView.ExecuteScriptAsync(settingsFunc);
+                //}
 
                 if (appSettings.arrFocusModes.Count > 0)
                 {

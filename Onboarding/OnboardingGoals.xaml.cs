@@ -51,6 +51,10 @@ namespace Focus_Bear.Onboarding
                 TXTCheckBoxHealthyHabits.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["checkBoxFirstText"].ToString();
                 TXTCheckBoxFocused.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["checkBoxSecondText"].ToString();
                 AnythingElse.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["anythingElseText"].ToString();
+
+                InfoHealthyHabits.ToolTip = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["infoBuildHabitsText"].ToString();
+                InfoStayFocused.ToolTip = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["infoStayFocusedText"].ToString();
+
             }
             catch (Exception ex)
             {

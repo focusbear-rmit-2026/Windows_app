@@ -629,6 +629,9 @@ namespace Focus_Bear.API
                    string metadata = $"{{\"blockUrlsArray\":{JsonConvert.SerializeObject(FF.arrBlockedUrls.ToArray<string>())}," +
                    $"\"allowed_apps_win\":{JsonConvert.SerializeObject(FF.arrAllowedAppsWin.ToArray<AppDetails>())}," +
                    $"\"color\":\"{color}\"," +
+                   $"\"isDefault\":{JsonConvert.SerializeObject(FF.isDefault)}," +
+                   $"\"isMeetings\":{JsonConvert.SerializeObject(FF.isMeetings)}," +
+                   $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
                    $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
                    $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
                     ///$"\"isAllowedAllUrls\":{JsonConvert.SerializeObject(FF.isAllowedAllUrls)}," +
@@ -1298,6 +1301,10 @@ namespace Focus_Bear.API
                         //    responsePath = "https://api.focusbear.io/habit-packs/default?pack_id=7cff2a97-90ad-4791-98b0-4a79dad32f73&format=break_only";
                         //}
                         responsePath = string.Format("https://api.focusbear.io/habit-packs/default?pack_id={0}", appSettings.sHabitPackIdToInstall);
+                    }
+                    else
+                    {
+                        responsePath = responsePath + "?language=" + appSettings.sLangCode;
                     }
                     var response = await client.GetAsync(responsePath);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
@@ -3028,6 +3035,109 @@ namespace Focus_Bear.API
             catch (Exception ex)
             {
                 LogWriter.LogWrite("GetSubscriptionInfo Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+        internal async Task<int> RecordUserConsent() // OK
+        {
+            LogWriter.LogWrite("RecordUserConsent()");
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        //Renew the token and check again
+                        LogWriter.LogWrite("Attempting RenewToken before API call");
+                        var authenticator = new Authentication();
+                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                        if (x)
+                        {
+                            //token renewed
+                            LogWriter.LogWrite("RenewToken DONE before API call");
+                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                            {
+                                return 0;
+                            }
+                            //All Good, Proceed Normally
+                        }
+                        else
+                        {
+                            //token renewed failed
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = new HttpClient();
+                    //{ "consent_type": "terms_of_service", "consent_status": true, "metadata": { "policy_version": "1.0.0" } }
+                    bool bConsentStatus = true;
+                    string addItemJsonString = $"{{\"consent_type\":\"terms_of_service\"," +
+                           $"\"consent_status\":\"{JsonConvert.SerializeObject(bConsentStatus)}\"," +
+                           $"\"metadata\":{{\"policy_version\":\"1.0.0\"}}}}";
+
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+
+                        if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        
+                        client.DefaultRequestHeaders.Add("platform", "Windows");
+                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+                        {
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+
+                        //Make the data for Focus Mode
+                        var response = await client.PutAsync("https://api.focusbear.io/user/consent", content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                        {
+                            if (response.Content != null)
+                            {
+                                LogWriter.LogWrite("RecordUserConsent() GOT Success");
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                //JObject resJson = JObject.Parse(responseCode);
+
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("RecordUserConsent() FAILED" + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("RecordUserConsent WebException - " + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RecordUserConsent Exception - " + ex.Message);
+
             }
             return 0;
         }

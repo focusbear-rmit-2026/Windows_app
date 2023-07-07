@@ -141,6 +141,8 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnStats.IsEnabled = false;
             btnStats.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            this.MinWidth = 999;
+            this.MinHeight = 750;
             this.Width = 999;
             this.Height = 750;
 
@@ -153,9 +155,12 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnSettings.IsEnabled = false;
             btnSettings.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+
+            this.MinWidth = 680 * ScaleX;
+            this.MinHeight = 750 * ScaleY;
             this.Width = 680 * ScaleX; 
             this.Height = 750 * ScaleY;
-
+            
             FrameSettings.Visibility = Visibility.Visible;
         }
              
@@ -166,8 +171,14 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnFocus.IsEnabled = false;
             btnFocus.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            
+            this.MinWidth = 775 * ScaleX;
+            this.MinHeight = 750 * ScaleY;
+
             this.Width = 775 * ScaleX; 
-            this.Height = 750 * ScaleY; 
+            this.Height = 750 * ScaleY;
+
+            
 
             FrameFocus.Visibility = Visibility.Visible;
         }
@@ -182,6 +193,8 @@ namespace Focus_Bear.Preferences
             this.Width = 999 /** ScaleX*/; 
             this.Height = 750 /** ScaleY*/;
             //not applying scaling in 150% dpi for edit habits as this ruins the webview
+            this.MinWidth = 999;
+            this.MinHeight = 750;
 
             FrameEditHabits.Visibility = Visibility.Visible;
 

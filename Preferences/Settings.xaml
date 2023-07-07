@@ -14,7 +14,7 @@
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <Grid Background="#fff" Margin="20,10,20,15">
-            <TabControl Background="#fcf8f0" BorderBrush="LightGray">
+            <TabControl x:Name="TabControlSettings" Background="#fcf8f0" BorderBrush="LightGray" >
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabPanel}">
                         <Setter Property="HorizontalAlignment" Value="Center" />
@@ -90,7 +90,7 @@
                 <TabItem Name="BlockedURLTab" Header="xBlocked URLs">
                     <!--<local:AITab x:Name="AITAB" />-->
                 </TabItem>
-                <TabItem Name="PasswordTab" Header="xPassword">
+                <TabItem Name="PasswordTab" Header="xPassword" Selector.Selected="PasswordTab_Selected">
                     <Grid HorizontalAlignment="Center" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="35"/>

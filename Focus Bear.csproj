@@ -824,6 +824,7 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\FocusTips\ai-block.png" />
     <Resource Include="Images\forward.png" />
     <Resource Include="Images\img_browsers.png" />
     <Resource Include="Images\blocked.png" />

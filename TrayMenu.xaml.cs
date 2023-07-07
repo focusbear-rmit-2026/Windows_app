@@ -504,7 +504,7 @@ namespace Focus_Bear
                             int nMinutes = int.Parse(sMinutes);
                             DateTime dTill = DateTime.Now;
 
-                            appSettings.sRunningFocusModeStartTime = dTill.ToString();
+                            appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
                             
                             dTill = dTill.AddHours(nHours);
                             dTill = dTill.AddMinutes(nMinutes);
@@ -547,7 +547,8 @@ namespace Focus_Bear
                         {
 
                             //Check if its the same focusmode that is running, then let's stop it.
-                            if(listItems.First<FocusMode>().id == selectedItem.id)
+                            FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
+                            if (CurrentRunningFocusMode.id == selectedItem.id)
                             {
                                 //Stop the focus mode
                                 //Show WIndow here
@@ -588,14 +589,52 @@ namespace Focus_Bear
                             }
                             else
                             {
-                                //Deselect the Seleted list view item
-                                ListFocusModes.SelectedItem = null;
-
+                                FocusMode NewSelectedFocusMode = ListFocusModes.SelectedItem as FocusMode; 
                                 /*"focusInfo":{
                                 "focusAlreadyRunningText":"A focus mode is already running. Please deactivate the running focus mode to start a new one.",*/
                                 ///MessageBox.Show(, "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
-                                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusInfo"]["focusAlreadyRunningText"].ToString(), "Focus Bear");
+                                ///// startingFocusModeInfo  "buttonStopFocusText": "Stop current focus mode and start this one",
+                                ///
+                                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusInfo"]["focusAlreadyRunningText"].ToString(), "Focus Bear",MessageBoxButton.YesNo, appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString(), appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["buttonStopFocusText"].ToString());
                                 ff.ShowDialog();
+                                if(ff.btnClicked == MessageBoxResult.No)
+                                {
+                                    //Stop the current focus mode and start new
+                                    OnUntill.Content = "";
+                                    CurrentRunningFocusMode.isOn = false;
+                                    Sounds.PlayFocusModeEndSound();
+
+
+                                    //Clear the Gentle block temp arrays
+                                    ////appSettings.TemporaryAllowedAppsGentleBlock.Clear();
+                                    appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                                    ///appSettings.TemporaryAllowedURLsGentleBlock.Clear();
+                                    appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+                                    //Make the global variable false
+                                    appSettings.isFocusModeRunning = false;
+
+                                    ((App)Application.Current).CloseFocusProgressWindow();
+
+                                    //Show and Set on untill value
+                                    OnUntill.Visibility = Visibility.Collapsed;
+                                    //Increase hearder height
+                                    OrangeHeader.Height = 25; //Originally 25
+
+
+                                    //Now open the New selected Focus mode start window
+                                    //Deselect the Seleted list view item
+                                    ListFocusModes.SelectedItem = null;
+
+                                    ListFocusModes.SelectedItem = NewSelectedFocusMode;
+                                }
+                                else
+                                {
+                                    //OK clicked, do nothing
+                                    //Deselect the Seleted list view item
+                                    ListFocusModes.SelectedItem = null;
+                                }
+
                             }
 
                         }

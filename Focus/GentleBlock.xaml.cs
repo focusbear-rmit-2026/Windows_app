@@ -137,12 +137,12 @@ namespace Focus_Bear.Focus
                 sInt = sInt.Replace("<INTENTION>",sIntention);
                 Intention.Text = sInt;
 
-                this.Height = 420;
+                //this.Height = 420;
                 Intention.Visibility = Visibility.Visible;
             }
             else
             {
-                this.Height = 380;
+               // this.Height = 380;
                 Intention.Visibility = Visibility.Collapsed;
             }
             dispatcherTimer.Stop();

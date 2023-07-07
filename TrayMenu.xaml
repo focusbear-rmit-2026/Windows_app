@@ -19,7 +19,7 @@
                             <ContentPresenter />
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="true">
+                            <Trigger Property="IsSelected"  Value="true">
                                 <Setter TargetName="IconBorder" Property="Background">
                                     <Setter.Value>
                                         <SolidColorBrush Color="Black" Opacity="0.15"/>
@@ -102,7 +102,20 @@
             <ListView  MaxHeight="240"    Margin="13,5,16,10" x:Name="ListFocusModes"   VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource ListViewItemStyle}" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" SelectionChanged="ListFocusModes_SelectionChanged" >
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Grid x:Name="ItemHeader"  Height="40"  Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >
+                        
+                        <Grid x:Name="ItemHeader"  Height="40"    Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >
+                            <Grid.Style>
+                                <Style TargetType="{x:Type Grid}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding isOn}" Value="True">
+                                            <Setter Property="Background" Value="Cornsilk" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding isOn}" Value="False">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="25"/>
                                 <ColumnDefinition Width="*"/>
@@ -123,7 +136,20 @@
                                 </Image.Style>
                             </Image>
 
-                            <TextBlock Grid.Column="1" Text="{Binding name, StringFormat=\{0\}}" Foreground="#000"  FontSize="13" FontFamily="Segoe UI Semibold" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="1" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" FontFamily="Segoe UI Semibold" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding isOn}" Value="True">
+                                                <Setter Property="Foreground" Value="#e88800"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding isOn}" Value="False">
+                                                <Setter Property="Foreground" Value="#000"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </Grid>
                     </DataTemplate>
 

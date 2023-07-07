@@ -242,7 +242,7 @@ namespace Focus_Bear.Utils
 
         public int nFocudBearMode = 1; //1 is cuddly bear mode
         ////
-        public bool isOfficeModeEnabled;
+        public bool isOfficeModeEnabled = false;
 
         public ObservableCollection<string> arrAlwaysBlockedURLs = new ObservableCollection<string>();
 
@@ -312,8 +312,21 @@ namespace Focus_Bear.Utils
             isPasswordSet = false;
 
             bSkipMicroBreaksDuringFocus = false;
-        }
-        public async void GetLoginAndTokenValidSettings()
+
+            //Default true on 23 June 2023 #188
+            bMotivationalMessageEnabled = true;
+            bAiCheckUrlEnabled = true;
+            bAiAllowUrlShowAlertEnabled = true;
+
+            bPasswordRequireInChangeSettings = false;
+            bPasswordRequireInSkipMorning = false;
+            bPasswordRequireInSkipEvening = false;
+            bPasswordRequireInAbortShutoff = false;
+            bPasswordRequireInStopPomodoro = false;
+            bPasswordRequireInQuitApp = false;
+
+    }
+    public async void GetLoginAndTokenValidSettings()
         {
             LogWriter.LogWrite("GetLoginAndTokenValidSettings()");
             try
@@ -1209,55 +1222,56 @@ namespace Focus_Bear.Utils
                         JObject LocalSettings = JObject.Parse(sUserLocalDeviceSettings);
                         
                         string sMacOSSettings = LocalSettings.ContainsKey("MacOS") ? LocalSettings["MacOS"].ToString() : "";
+                        if (sMacOSSettings != null && sMacOSSettings.Length > 0)
+                        {
+                            JObject sMacOSSettingsOBJ = JObject.Parse(sMacOSSettings);
 
-                        JObject sMacOSSettingsOBJ = JObject.Parse(sMacOSSettings);
-
-                        if (sMacOSSettingsOBJ.ContainsKey("kArrBlockedUrls"))
-                        { 
-                            JArray jarrALwaysBlockedURLs = sMacOSSettingsOBJ.ContainsKey("kArrBlockedUrls") ? (JArray)sMacOSSettingsOBJ["kArrBlockedUrls"] : null;
-
-                            if (jarrALwaysBlockedURLs != null && jarrALwaysBlockedURLs.Count() > 0)
+                            if (sMacOSSettingsOBJ.ContainsKey("kArrBlockedUrls"))
                             {
-                                arrAlwaysBlockedURLs = jarrALwaysBlockedURLs.ToObject<ObservableCollection<string>>(); ;
+                                JArray jarrALwaysBlockedURLs = sMacOSSettingsOBJ.ContainsKey("kArrBlockedUrls") ? (JArray)sMacOSSettingsOBJ["kArrBlockedUrls"] : null;
+
+                                if (jarrALwaysBlockedURLs != null && jarrALwaysBlockedURLs.Count() > 0)
+                                {
+                                    arrAlwaysBlockedURLs = jarrALwaysBlockedURLs.ToObject<ObservableCollection<string>>(); ;
+                                }
                             }
+
+                            isOfficeModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsOfficeModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsOfficeModeEnabled") : false;
+
+                            sUserPassword = sMacOSSettingsOBJ.ContainsKey("kAppPassword") ? (string)sMacOSSettingsOBJ.GetValue("kAppPassword") : "";
+                            RegistryManager.SetUserPassword(); //save to local
+                            if (sUserPassword.Length > 0)
+                            {
+                                isPasswordSet = true;
+                            }
+                            else
+                            {
+                                isPasswordSet = false;
+                            }
+
+                            bool bCuddlyMode = true;
+                            //Cuddly bear or grizlly bear mode
+                            if (sMacOSSettingsOBJ.ContainsKey("kCuddlyModeEnabled"))
+                            {
+                                bCuddlyMode = (bool)sMacOSSettingsOBJ.GetValue("kCuddlyModeEnabled");
+                            }
+
+                            if (bCuddlyMode)
+                                nFocudBearMode = 1;//cuddly bear mode
+                            else
+                                nFocudBearMode = 2; //whatever
+
+                            bPasswordRequireInChangeSettings = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInChangeSettings") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInChangeSettings") : false;
+                            bPasswordRequireInSkipMorning = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipMorning") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipMorning") : false;
+                            bPasswordRequireInSkipEvening = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipEvening") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipEvening") : false;
+                            bPasswordRequireInAbortShutoff = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInAbortShutoff") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInAbortShutoff") : false;
+                            // bPasswordRequireInStopPomodoro = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInStopPomodoro") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInStopPomodoro") : false;
+                            bPasswordRequireInQuitApp = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInQuitApp") : false;
+
+                            bMotivationalMessageEnabled = sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kMotivationalMessageEnabled") : true; //Default true on 23 June 2023 #188
+                            bAiCheckUrlEnabled = sMacOSSettingsOBJ.ContainsKey("kAiCheckUrlEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiCheckUrlEnabled") : true;
+                            bAiAllowUrlShowAlertEnabled = sMacOSSettingsOBJ.ContainsKey("kAiAllowUrlShowAlertEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiAllowUrlShowAlertEnabled") : true;
                         }
-                       
-                        isOfficeModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsOfficeModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsOfficeModeEnabled") : false;
-
-                        sUserPassword = sMacOSSettingsOBJ.ContainsKey("kAppPassword") ? (string)sMacOSSettingsOBJ.GetValue("kAppPassword") : "";
-                        RegistryManager.SetUserPassword(); //save to local
-                        if (sUserPassword.Length > 0)
-                        {
-                            isPasswordSet = true;
-                        }
-                        else
-                        {
-                            isPasswordSet = false;
-                        }
-
-                        bool bCuddlyMode = true;
-                        //Cuddly bear or grizlly bear mode
-                        if (sMacOSSettingsOBJ.ContainsKey("kCuddlyModeEnabled"))
-                        {
-                            bCuddlyMode = (bool)sMacOSSettingsOBJ.GetValue("kCuddlyModeEnabled");
-                        }
-                       
-                        if (bCuddlyMode)
-                            nFocudBearMode = 1;//cuddly bear mode
-                        else
-                            nFocudBearMode = 2; //whatever
-
-                        bPasswordRequireInChangeSettings = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInChangeSettings") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInChangeSettings") : false;
-                        bPasswordRequireInSkipMorning = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipMorning") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipMorning") : false;
-                        bPasswordRequireInSkipEvening = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipEvening") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipEvening") : false;
-                        bPasswordRequireInAbortShutoff = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInAbortShutoff") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInAbortShutoff") : false;
-                        // bPasswordRequireInStopPomodoro = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInStopPomodoro") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInStopPomodoro") : false;
-                        bPasswordRequireInQuitApp = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInQuitApp") : false;
-
-                        bMotivationalMessageEnabled =  sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kMotivationalMessageEnabled") : true; //Deafult true on 23 June 2023 #188
-                        bAiCheckUrlEnabled = sMacOSSettingsOBJ.ContainsKey("kAiCheckUrlEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiCheckUrlEnabled") : true;
-                        bAiAllowUrlShowAlertEnabled = sMacOSSettingsOBJ.ContainsKey("kAiAllowUrlShowAlertEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiAllowUrlShowAlertEnabled") : true;
-
                     }
                     catch (Exception ex)
                     {
@@ -1746,7 +1760,7 @@ namespace Focus_Bear.Utils
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("GetCurrentAppVersion()" + ex.Message);
+                LogWriter.LogWrite("GetCurrentAppVersion() EX- " + ex.Message);
 
             }
         }

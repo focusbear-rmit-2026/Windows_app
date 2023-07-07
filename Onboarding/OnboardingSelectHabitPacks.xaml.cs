@@ -172,6 +172,7 @@ namespace Focus_Bear.Onboarding
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
+            webView.Dispose();
             _parentWindow.ShowOnboardingAskWorkTimeScreen();
         }
 

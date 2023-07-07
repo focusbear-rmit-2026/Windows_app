@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -416,6 +418,41 @@ namespace Focus_Bear.Preferences
                     Application.Current.Shutdown(0);
                 }
 
+            }
+        }
+  
+        private void PasswordTab_Selected(object sender, RoutedEventArgs e)
+        {
+            if (appSettings.isPasswordSet)
+            {
+                if (!appSettings.bPasswordRequireInChangeSettings)
+                {
+
+                    AskPassword pwdWnd = new AskPassword();
+                    pwdWnd.Owner = _ParentWindow;
+                    _ParentWindow.GridShade.Visibility = Visibility.Visible;
+
+                    bool? bResult = pwdWnd.ShowDialog();
+
+                    _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                    if (bResult.Value)
+                    {
+                        //Password is correct
+                    }
+                    else
+                    {
+                        e.Handled = true;
+                        //We will need to select the General tab here
+                        PasswordTab.IsSelected = false;
+                        TabControlSettings.SelectedItem = GeneralTab;
+
+                        //PasswordTab.IsSelected = false;
+                        // e.Handled = true;
+
+                    }
+
+                }
             }
         }
     }

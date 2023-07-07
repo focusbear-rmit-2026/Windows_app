@@ -159,32 +159,41 @@ namespace Focus_Bear.Quit
             {
                 case 0:
                     appSettings.AppDeactivatedTillDate = DateTime.Now.AddMinutes(5);
+                    LogWriter.LogWrite("QuitWindow - btnGiveMeABreak_ for 5 minutes");
                     break;
                 case 1:
                     appSettings.AppDeactivatedTillDate = DateTime.Now.AddMinutes(15);
+                    LogWriter.LogWrite("QuitWindow - btnGiveMeABreak_ for 15 minutes");
                     break;
                 case 2:
                     appSettings.AppDeactivatedTillDate = DateTime.Now.AddMinutes(30);
+                    LogWriter.LogWrite("QuitWindow - btnGiveMeABreak_ for 30 minutes");
                     break;
                 case 3:
                     appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(1);
+                    LogWriter.LogWrite("QuitWindow - btnGiveMeABreak_ for 1 hours");
                     break;
                 case 4:
                     appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(2);
+                    LogWriter.LogWrite("QuitWindow - btnGiveMeABreak_ for 2 hours");
                     break;
                 case 5:
                     appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(4);
+                    LogWriter.LogWrite("QuitWindow - btnGiveMeABreak_ for 4 hours");
                     break;
                 case 6:
                     appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(12);
+                    LogWriter.LogWrite("QuitWindow - btnGiveMeABreak_ for 12 hours");
                     break;
                 case 7:
                     appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(24);
+                    LogWriter.LogWrite("QuitWindow - btnGiveMeABreak_ for 24 hours");
                     break;
 
             }
 
-            
+            LogWriter.LogWrite("Quit - btnGiveMeABreak_Click - app deactivated till: )" + appSettings.AppDeactivatedTillDate);
+
             RegistryManager.SetAppDeactivatedTillDate();
 
             appSettings.CapturePostHog("turn-it-off-for-x-duration");

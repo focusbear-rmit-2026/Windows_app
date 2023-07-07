@@ -67,7 +67,8 @@ namespace Focus_Bear.Habits
         {
             InitializeComponent();
 
-          ///  _hookID = SetHook(_proc);
+            LogWriter.LogWrite("HabitWindow()");
+            ///  _hookID = SetHook(_proc);
 
 #if DEBUG
             this.WindowState = WindowState.Normal;
@@ -95,7 +96,7 @@ namespace Focus_Bear.Habits
                 /// 
 
                 //AppFrameHabitScreens.Navigate(new StartBreakActivity(this));
-
+                LogWriter.LogWrite("AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(this));");
                 AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(this));
 
             }
@@ -146,6 +147,7 @@ namespace Focus_Bear.Habits
                 }
                 else
                 {
+                    LogWriter.LogWrite("Show HabitsWelcomeList Page");
                     PageWelcomeList = new HabitsWelcomeList(this);
                     AppFrameHabitScreens.Navigate(PageWelcomeList); //Normal process
                 }
@@ -164,6 +166,7 @@ namespace Focus_Bear.Habits
         }
         public void ShowActivityStartScreen(bool bStartingAfterPostponed = false)
         {
+            LogWriter.LogWrite("ShowActivityStartScreen()");
             //Dispose the web view if left from old screen
             //if (nScreenHabitActivityFinished != null)
             //{
@@ -329,10 +332,21 @@ namespace Focus_Bear.Habits
                         
                     }
 
-                    if(nScreenHabitActivityFinished.bWebViewInitialized)
-                        nScreenHabitActivityFinished.LoadGraphData();
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                    {
+                        if (nScreenHabitActivityFinished.bWebViewInitialized && nScreenHabitActivityFinished.bWebView2Initialized)
+                            nScreenHabitActivityFinished.LoadGraphData();
+                        else
+                            nScreenHabitActivityFinished.bCallLoadGraphDataAfterWebViewInitialized = true;
+                    }
                     else
-                        nScreenHabitActivityFinished.bCallLoadGraphDataAfterWebViewInitialized = true;
+                    {
+                        if (nScreenHabitActivityFinished.bWebViewInitialized)
+                            nScreenHabitActivityFinished.LoadGraphData();
+                        else
+                            nScreenHabitActivityFinished.bCallLoadGraphDataAfterWebViewInitialized = true;
+                    }
+                    
                 }
 
                    

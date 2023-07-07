@@ -555,12 +555,27 @@ namespace Focus_Bear.Login
             TxtPassword.Password = "";
         }
 
-        private void GeneratePassword_Checked(object sender, RoutedEventArgs e)
+        private async void GeneratePassword_Checked(object sender, RoutedEventArgs e)
         {
             GridGeneratePassRelated.Visibility = Visibility.Visible;
             GridPasswordRules.Visibility = Visibility.Collapsed;
             WeGeneratedPassword.Visibility = Visibility.Visible;
             TxtPassword.Password = GenerateSecurePassword();
+            WeGeneratedPassword.Background = System.Windows.Media.Brushes.Yellow;
+            for (int i = 1; i < 8; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    WeGeneratedPassword.Background = System.Windows.Media.Brushes.Yellow;
+                    await Task.Delay(500);
+                }
+                else
+                {
+                    WeGeneratedPassword.Background = System.Windows.Media.Brushes.Transparent;
+                    await Task.Delay(500);
+                }
+            }
+            //WeGeneratedPassword.Background = System.Windows.Media.Brushes.Transparent;
         }
 
         private void SavedPassword_Checked(object sender, RoutedEventArgs e)
