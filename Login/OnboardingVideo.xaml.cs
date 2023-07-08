@@ -75,10 +75,6 @@ namespace Focus_Bear.Login
             {
                 try
                 {
-
-
-                    //this.webView.NavigationStarting += NavigationStarting;
-                    //this.webView.NavigationCompleted += NavigationCompleted;
                     webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
                     webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
                     webView.CoreWebView2.Settings.IsScriptEnabled = true;
@@ -86,8 +82,6 @@ namespace Focus_Bear.Login
 
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
-
-                    // webView.WebMessageReceived += webView_WebMessageReceived;
 
                     try
                     {

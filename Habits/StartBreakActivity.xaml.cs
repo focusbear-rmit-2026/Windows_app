@@ -32,13 +32,8 @@ namespace Focus_Bear.Habits
        
             InitializeComponent();
             _parentWindow = parentWindow;
-            /*
-            "activityInfo":{
-
-                "startBreakActivityTitleText":"It’s time for a break. Do <TIME> of <ACTIVITY> to earn more screentime.",
-            */
-
-            String activityName = "";
+   
+            string activityName = "";
             int seconds = 0;
             breakActivity currentActivity = new breakActivity();
 
@@ -118,57 +113,6 @@ namespace Focus_Bear.Habits
                 sButtonTitle = sButtonTitle.Replace("<NAME>", activityName);
                 btnStartNextActivityTXT.Text = sButtonTitle;
             }
-
-            /// addLog(text: "start-break-activity")//complete break activity//
-
-
-
-
-
-            //if (appSettings.isMandatoryActivityGoing)
-            //{
-            //    breakActivity currentActivity = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.currentActivityIndex];
-
-
-            //     if (!currentActivity.isRandomChoice)
-            //    {
-            //        ///timerViewcontrollerObj?.startTimerActivity(durationInSeconds: currentActivity.durationSeconds, name: currentActivity.name!, url: currentActivity.urlsArray.randomElement(), logQuantityQuestion: currentActivity.logQuantityQuestion, currentActivity: currentActivity, currentChoice: nil, logQuantity: currentActivity.logQuantity, logQuantityType: currentActivity.logQuantityType)
-            //    }
-            //    else
-            //    {
-            //        //random choice
-            //        if let randomChoice = thirdVcObj?.currentActivityChoice
-            //                {//currentActivity.choices.randomElement(){
-            //            timerViewcontrollerObj?.startTimerActivity(durationInSeconds: currentActivity.durationSeconds, name: randomChoice.name, url: randomChoice.urlsArray.randomElement(), logQuantityQuestion: randomChoice.logQuantityQuestion, currentActivity: currentActivity, currentChoice: randomChoice, logQuantity: randomChoice.logQuantity, logQuantityType: randomChoice.logQuantityType)
-            //        }else if let randomChoice = currentActivity.choices.randomElement(){
-            //            timerViewcontrollerObj?.startTimerActivity(durationInSeconds: currentActivity.durationSeconds, name: randomChoice.name, url: randomChoice.urlsArray.randomElement(), logQuantityQuestion: randomChoice.logQuantityQuestion, currentActivity: currentActivity, currentChoice: randomChoice, logQuantity: randomChoice.logQuantity, logQuantityType: randomChoice.logQuantityType)
-            //     }
-            //    }
-
-
-            //}
-            //else
-            //{
-            //    breakActivity currentActivity = appSettings.arrActivitiesExcludeInEveryBreak[appSettings.currentActivityIndex];
-            //   if (!currentActivity.isRandomChoice){
-            //        timerViewcontrollerObj?.startTimerActivity(durationInSeconds: currentActivity.durationSeconds, name: currentActivity.name!, url: currentActivity.urlsArray.randomElement(), logQuantityQuestion: currentActivity.logQuantityQuestion, currentActivity: currentActivity, currentChoice: nil, logQuantity: currentActivity.logQuantity, logQuantityType: currentActivity.logQuantityType)
-            //     }
-            //    else
-            //    {//random choice
-            //        if let randomChoice = thirdVcObj?.currentActivityChoice
-            //         {//currentActivity.choices.randomElement(){
-            //            timerViewcontrollerObj?.startTimerActivity(durationInSeconds: currentActivity.durationSeconds, name: randomChoice.name, url: randomChoice.urlsArray.randomElement(), logQuantityQuestion: randomChoice.logQuantityQuestion, currentActivity: currentActivity, currentChoice: randomChoice, logQuantity: randomChoice.logQuantity, logQuantityType: randomChoice.logQuantityType)
-            //        }
-            //        else if let randomChoice = currentActivity.choices.randomElement()
-            //         {
-            //            timerViewcontrollerObj?.startTimerActivity(durationInSeconds: currentActivity.durationSeconds, name: randomChoice.name, url: randomChoice.urlsArray.randomElement(), logQuantityQuestion: randomChoice.logQuantityQuestion, currentActivity: currentActivity, currentChoice: randomChoice, logQuantity: randomChoice.logQuantity, logQuantityType: randomChoice.logQuantityType)
-            //        }
-            //    }
-
-            //}
-
-
-
         }
 
         private void btnStartNextActivity_Click(object sender, RoutedEventArgs e)

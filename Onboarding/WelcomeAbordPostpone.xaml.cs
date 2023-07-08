@@ -40,16 +40,7 @@ namespace Focus_Bear.Onboarding
            
             this.Owner = parentWin;
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-           // parentWin.RepositionWindow();
             parentWin.GridShade.Visibility = Visibility.Visible;
-            /*
-               "onboardingPostponeVcInfo": {
-                "title": "If you have something urgent, you can postpone the Onboarding process for few Minutes.",
-                "selectMinutesText": "Select minutes to postpone:",
-                "buttonPostponeText": "Postpone Onboarding"
-            },
-             */
-
             Heading.Text = appSettings.ConfigFileStrings["onboardingPostponeVcInfo"]["title"].ToString();
             PostponeMinsText.Text = appSettings.ConfigFileStrings["onboardingPostponeVcInfo"]["selectMinutesText"].ToString();
             btnPostponeText.Text = appSettings.ConfigFileStrings["onboardingPostponeVcInfo"]["buttonPostponeText"].ToString();
@@ -73,17 +64,7 @@ namespace Focus_Bear.Onboarding
         private void btnPostponeOnboarding_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnPostponeOnboarding_Click");
-            /*
-             *  <ComboBoxItem Content="5"></ComboBoxItem>
-                <ComboBoxItem Content="10"></ComboBoxItem>
-                <ComboBoxItem Content="15"></ComboBoxItem>
-                <ComboBoxItem Content="20"></ComboBoxItem>
-                <ComboBoxItem Content="25"></ComboBoxItem>
-                <ComboBoxItem Content="30"></ComboBoxItem>
-                <ComboBoxItem Content="45"></ComboBoxItem>
-                <ComboBoxItem Content="60"></ComboBoxItem>
-                <ComboBoxItem Content="90"></ComboBoxItem>
-             */
+          
             try
             {
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
@@ -95,7 +76,6 @@ namespace Focus_Bear.Onboarding
             catch (Exception ex)
             {
                 LogWriter.LogWrite("btnPostponeOnboarding_Click - " + ex.Message);
-               // Debug.WriteLine(ex.Message);
             }
 
         }

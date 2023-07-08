@@ -47,18 +47,10 @@ namespace Focus_Bear.Onboarding
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
 
             btnSkipThisHabitTXT.Text = appSettings.ConfigFileStrings["welcomeInfo"]["buttonSkipText"].ToString();
-            /// var Title = appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["name"];
-            Heading.Text = appSettings.OnboardingActivityName; ///Title.ToString();
+          
+            Heading.Text = appSettings.OnboardingActivityName; 
 
-            ////int nDurationSeconds = (int) appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["duration_seconds"];
             nTimer = appSettings.OnboardingActivityDurationSeconds;
-
-            /**JArray array = (JArray)appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["video_urls"];
-            int n = array.Count;
-            Random rnd = new Random();
-            int nRandom = rnd.Next(0, n-1);
-            string videoUrl = array[nRandom].ToString();**/
-           
         }
 
         private async void SetWebView()
@@ -87,9 +79,6 @@ namespace Focus_Bear.Onboarding
                 try
                 {
 
-
-                    //this.webView.NavigationStarting += NavigationStarting;
-                    //this.webView.NavigationCompleted += NavigationCompleted;
                     webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
                     webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
                     webView.CoreWebView2.Settings.IsScriptEnabled = true;
@@ -98,11 +87,7 @@ namespace Focus_Bear.Onboarding
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
-                    // webView.WebMessageReceived += webView_WebMessageReceived;
-
                     string videoUrl = appSettings.OnboardingVideoUrl;
-                    //string videoUrl = "https://www.youtube.com/watch?v=HhMXYsk_Pvo";
-                    //string videoUrl = "https://youtu.be/lExuhKRS8vo";
                     if (videoUrl.Contains("watch?v="))
                     {
                         videoUrl = videoUrl.Replace("watch?v=", "embed/");
@@ -161,7 +146,6 @@ namespace Focus_Bear.Onboarding
             if (nTimer < 25) //Hide the top image after 5 seconds
             {
                 TopIcon.Visibility = Visibility.Collapsed;
-                //btnPausePlay.Margin = new Thickness(0, 10, 0, 40);
             }
             string msg = "00:" + val.ToString("D2");
             TxtTimer.Text = msg;
@@ -181,7 +165,6 @@ namespace Focus_Bear.Onboarding
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite(ex.Message);
-                    //Debug.WriteLine(ex.Message);
                 }
             }
         }
@@ -205,7 +188,6 @@ namespace Focus_Bear.Onboarding
 
                 SkipThisHabitText.Visibility = Visibility.Collapsed;//Hide the skip button
             }
-          //  _parentWindow.Close();
         }
 
         private void btnSkipThisHabit_Click(object sender, RoutedEventArgs e)
@@ -224,7 +206,6 @@ namespace Focus_Bear.Onboarding
             catch (Exception ex)
             {
                 LogWriter.LogWrite("OnboardingMindfulBreathing btnSkipThisHabit_Click ex" + ex.Message);
-                //Debug.WriteLine(ex.Message);
             }
         }
     }

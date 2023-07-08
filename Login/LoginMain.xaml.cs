@@ -23,8 +23,6 @@ namespace Focus_Bear.Login
         public LoginMain()
         {
             InitializeComponent();
-
-            // AppFrameLogin.Navigate(new LoginSignUp());
             ShowLoginHomeWindow();
         }
         public void ShowLoginHomeWindow()

@@ -39,17 +39,8 @@ namespace Focus_Bear.Preferences
             _ParentWindow = pp;
             SetWebView();
 
-            //    "settings":{
-            //        "title":"Enter settings JSON below:",
-            //"buttonSaveText":"Save",
-            //"visitText":"Visit <SETTINGURL> to generate settings",
-            //"settingUrl":"https://settings.focusbear.io",
-
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
-   
-            //LoadURL();
-
         }
 
         private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
@@ -59,21 +50,13 @@ namespace Focus_Bear.Preferences
                 LogWriter.LogWrite("webView_WebMessageReceived() - settings got from SG" );
                 //Set environment in settings page
                 appSettings.sRawUserSettings = e.WebMessageAsJson;
-                
-                //string ss = e.WebMessageAsJson.ToString();
+               
                 //We will need to put the settings.
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var xResponse = await client.PutUserSettings();
                 
                 if(xResponse == 1) //valid settings
                 {
-                    /*
-                     *  "settings":{
-                     *          "settingIsValidText":"Your settings have been validated and will be applied now."
-                     *                  "settingIsNotValidText":"Sorry it seems like your settings aren’t valid. Please generate settings at https://settings.focusbear.io",
-                     *                  
-                     */
-                   /// MessageBox.Show(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear", MessageBoxButton.OK);
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear");
                     ff.Owner = _ParentWindow;
                     ff.ShowDialog();
@@ -89,8 +72,6 @@ namespace Focus_Bear.Preferences
                         appSettings.bRestartAppNeeded = true;
 
                         Application.Current.Shutdown(0);
-                        
-                      
                     }
                     catch (Exception ex)
                     {
@@ -101,7 +82,6 @@ namespace Focus_Bear.Preferences
                 else
                 {
                     LogWriter.LogWrite("Settings cannot be validated from API.");
-                    ///MessageBox.Show(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear", MessageBoxButton.OK);
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear");
                     ff.Owner = _ParentWindow;
                     ff.ShowDialog();
@@ -117,9 +97,7 @@ namespace Focus_Bear.Preferences
         {
             string sSettingsURL = appSettings.ConfigFileStrings["settings"]["settingUrl"].ToString();
             sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString();
-            //webView.Source = new System.Uri("http://jaininfotech.com/temp/test.html");
             webView.Source = new System.Uri(sSettingsURL);
-
         }
  
         public async void LoadSettings()
@@ -127,41 +105,15 @@ namespace Focus_Bear.Preferences
             try
             {
                 LogWriter.LogWrite("LoadSettings()"  );
-                //Set environment in settings page
-               /**
-                try
-                {
-                    //string functiontocall = string.Format("focusbearEnv('win');");
-                    string functiontocall = "const waitForAppLoaded = setInterval(() => {if (window.focusbearEnv) { focusbearEnv('win'); clearInterval(waitForAppLoaded); } }, 100);";
-                    //string functiontocall = "const waitForAppLoaded = setInterval(() => { let result = window?.focusbearEnv('win'); if (result === \"ok\") { clearInterval(waitForAppLoaded);} }, 100, waitForAppLoaded);";
-
-                    var ss = webView.ExecuteScriptAsync(functiontocall);
-                    LogWriter.LogWrite("Load focusbearEnv Done res: " + ss);
-                    await Task.Delay(270);
-                }
-                catch (Exception ex)
-                {
-                    LogWriter.LogWrite("Load focusbearEnv EX: " + ex);
-                }
-                **/
-
-                //Now await will keep waiting till the eecution return OK, no need to check it as we will still call load settings.
 
                 try
                 {
                     //Load Settings in the webview
-                    //if (appSettings.sRawUserSettings.Length > 0)
                     if (appSettings.userAccount.accessToken.Length > 0)
                     {
                         LogWriter.LogWrite("attempt to LoadSettings()");
-                        //Old way
-                        ///string Settings = string.Format("{{ \"metadata\":{{\"access_token\":\"{0}\"}},\"settings\":{1}}}", appSettings.userAccount.accessToken, appSettings.sRawUserSettings);
-                        
-                        //New format 03 July 2023
+                       
                         string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\"}}", appSettings.userAccount.accessToken);
-                        //string settingsFunc = string.Format("loadSettingsData({0});", Settings);
-                        
-                        //await Task.Delay(270);
                         
                         string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                         var ss1 =  webView.ExecuteScriptAsync(settingsFunc);
@@ -173,13 +125,12 @@ namespace Focus_Bear.Preferences
                     LogWriter.LogWrite("attempt to LoadSettings()  EX: " + ex);
                 }
 
-            if (appSettings.arrFocusModes.Count > 0)
+                if (appSettings.arrFocusModes.Count > 0)
                 {
                     string arrAllFocusModesArray = $"{{\"focusNames\":[";
 
                     foreach (FocusMode FF in appSettings.arrFocusModes)
                     {
-                        
                         string addFocusJsonString = $"{{\"id\":\"{FF.id}\"," +
                             $"\"name\":\"{FF.name}\"}},";
                         arrAllFocusModesArray = arrAllFocusModesArray + addFocusJsonString;
@@ -187,7 +138,6 @@ namespace Focus_Bear.Preferences
 
                     //Remove last comma -  we have 100% added above
                     arrAllFocusModesArray = arrAllFocusModesArray.Remove(arrAllFocusModesArray.Length - 1, 1);
-
                     arrAllFocusModesArray = arrAllFocusModesArray + "]}";
 
                     LogWriter.LogWrite("Attempt to Load arrAllFocusModesArray " );
@@ -195,11 +145,8 @@ namespace Focus_Bear.Preferences
                     try
                     {
                         string settingsFunc = string.Format("LoadFocusNames({0});", arrAllFocusModesArray);
-                        ///
-                        ///string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.LoadFocusNames) {{ LoadFocusNames({0}); clearInterval(waitForAppLoaded); }} }}, 100);", arrAllFocusModesArray);
-
-                        var ss2 =  webView.ExecuteScriptAsync(settingsFunc);
-                        LogWriter.LogWrite("Load arrAllFocusModesArray Done res:" + ss2.ToString());
+                        var sScriptResponse =  webView.ExecuteScriptAsync(settingsFunc);
+                        LogWriter.LogWrite("Load arrAllFocusModesArray Done res:" + sScriptResponse.ToString());
                     }
                     catch (Exception ex)
                     {
@@ -229,8 +176,6 @@ namespace Focus_Bear.Preferences
                 {
                     await webView.EnsureCoreWebView2Async(task);
                 }
-
-               
             }
             catch (Exception ex)
             {
@@ -251,10 +196,6 @@ namespace Focus_Bear.Preferences
             {
                 try
                 {
-
-               
-                    //this.webView.NavigationStarting += NavigationStarting;
-                    //this.webView.NavigationCompleted += NavigationCompleted;
                     webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
                     webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
                     webView.CoreWebView2.Settings.IsScriptEnabled = true;
@@ -266,8 +207,6 @@ namespace Focus_Bear.Preferences
                     webView.WebMessageReceived += webView_WebMessageReceived;
 
                     LoadURL();
-
-                    //this.webView.CoreWebView2.WebMessageReceived += webView_WebMessageReceived;
                 }
                 catch (Exception ex)
                 {
@@ -279,7 +218,5 @@ namespace Focus_Bear.Preferences
         {
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
         }
-
-
     }
 }

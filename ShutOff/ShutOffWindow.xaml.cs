@@ -53,24 +53,7 @@ namespace Focus_Bear.ShutOff
             image.UriSource = new Uri(imagePath);
             image.EndInit();
             ImageBehavior.SetAnimatedSource(Icon, image);
-
-            /*
-             *  "shutOffTimeInfo":{
-            "title":"Time to wind down",
-            "subTitle":"You told me you wanted to stay off your computer from <SHUTOFFTIME> to <STARTTIME>. Enjoy your evening and sleep well. Look forward to helping you with your morning routine tomorrow.",
-            "buttonAbortText":"Get access now",
-            "shutOffAbortInfo":{
-                "title":"Emergency?",
-                "subTitle":"Are you sure you want to do this? Using your computer late at night could mess up your sleep. Please take 30 seconds to reflect on whether this is really an emergency or whether it can wait.",
-                "shareFeedbackText":"Feel free to write an explanation here:",
-                "buttonUnlockText":"Unlock"
-            },
-            "shutOffAbortDoneInfo":{
-                "subTitle":"Sorry to hear that something bad has happened and you absolutely need to use your computer late at night. We’re unlocking your machine now. Your morning routine will still activate at <STARTTIME>. Hope you’re able to catch up on sleep during the day.",
-                "unlockingText":"Unlocking in"
-                }
-            }
-             * */
+ 
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["title"].ToString();
@@ -121,8 +104,7 @@ namespace Focus_Bear.ShutOff
                                 }
                                 else
                                 {
-                                    //Hide();
-                                    return;
+                                       return;
                                 }
 
                             }
@@ -274,7 +256,6 @@ namespace Focus_Bear.ShutOff
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ShutOff window dispatcherTimer_Unlock" + ex.Message);
-                //Debug.WriteLine(ex.Message);
             }
 
         }
@@ -308,8 +289,7 @@ namespace Focus_Bear.ShutOff
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("hutOff window dispatcherTimer_Tick" + ex.Message);
-                Debug.WriteLine(ex.Message);
+                LogWriter.LogWrite("shutOff window dispatcherTimer_Tick" + ex.Message);
             }
         }
 

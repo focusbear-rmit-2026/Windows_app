@@ -34,17 +34,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
             _parentWindow = parentWindow;
 
             LogWriter.LogWrite("OnboardingSetupFocusApps screen");
-
-            /* "preloadFocusModeAppsVcInfo": {
-            "buttonDoneText": "Done",
-            "titleForApps": "What apps do you normally use while you're doing <WORK_TYPE>?",
-            "descriptionApps": "Don't worry you can still use other apps if you need to but these are the apps that are most likely to be productive for you while you're doing <WORK_TYPE>. You can change these settings later on.",
-            "subTitleForApps": "Add the apps you plan to use:",
-            "titleForUrls": "How about websites?",
-            "descriptionUrls": "Don't worry you can still use other websites if you need to but these are the sites that are most likely to be productive for you while you're doing <WORK_TYPE>. You can change these settings later on.",
-            "subTitleForUrls": "Add the websites you plan to use:"
-             },*/
-
+ 
             string ss = appSettings.ConfigFileStrings["preloadFocusModeAppsVcInfo"]["titleForApps"].ToString();
             ss = ss.Replace("<WORK_TYPE>", appSettings.FocusModeNameToCreateWhileOnBoarding.name);
             WhatAppsHeading.Text = ss;
@@ -97,9 +87,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
         private void ShowAddAppManuallyWindow()
         {
             LogWriter.LogWrite("ShowAddAppManuallyWindow()");
-
-
-           // _parentWindow.RepositionWindow();
+ 
             _parentWindow.GridShade.Visibility = Visibility.Visible;
             AddAppsManually aa = new AddAppsManually(_parentWindow);
             aa.Topmost = true;
@@ -130,9 +118,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
                     //add to focus mode urls list
 
                     //First check if it is already added
-                   // var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
 
-                   // if (selectedFocusMode != null)
                     {
                         //Seperate the text with ,
                         string[] data = sApps.Split(',');

@@ -27,19 +27,7 @@ namespace Focus_Bear.Upgrade
         public UpgradeNow()
         {
             InitializeComponent();
-
-            /* "upgradeNowVcInfo": {
-            "pointFirstText": "Personalized habit routines",
-            "pointSecondText": "Productivity-boosting breaks",
-            "pointThirdText": "Customizable focus modes",
-            "pointFourthText": "Automatic goal tracking",
-            "buttonUpgradeNowText": "Upgrade Now",
-            "moneyBackText": "30 days money back guarantee",
-            "syncInfoText": "After you pay, click the Sync Payment Status button below",
-            "buttonRestoreText": "Sync Payment Status",
-            "subscriptionExpiredText":"Your subscription has expired"
-            },*/
-
+ 
             try
             {
                 this.WindowStartupLocation = WindowStartupLocation.CenterScreen;

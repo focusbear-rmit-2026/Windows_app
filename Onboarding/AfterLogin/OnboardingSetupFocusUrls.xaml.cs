@@ -34,16 +34,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
             LogWriter.LogWrite("OnboardingSetupFocusUrls screen");
 
             _parentWindow = parentWindow;
-
-            /* "preloadFocusModeAppsVcInfo": {
-            "buttonDoneText": "Done",
-            "titleForApps": "What apps do you normally use while you're doing <WORK_TYPE>?",
-            "descriptionApps": "Don't worry you can still use other apps if you need to but these are the apps that are most likely to be productive for you while you're doing <WORK_TYPE>. You can change these settings later on.",
-            "subTitleForApps": "Add the apps you plan to use:",
-            "titleForUrls": "How about websites?",
-            "descriptionUrls": "Don't worry you can still use other websites if you need to but these are the sites that are most likely to be productive for you while you're doing <WORK_TYPE>. You can change these settings later on.",
-            "subTitleForUrls": "Add the websites you plan to use:"
-             },*/
+ 
 
             string ss = appSettings.ConfigFileStrings["preloadFocusModeAppsVcInfo"]["titleForUrls"].ToString();
             ss = ss.Replace("<WORK_TYPE>", appSettings.FocusModeNameToCreateWhileOnBoarding.name);
@@ -104,10 +95,8 @@ namespace Focus_Bear.Onboarding.AfterLogin
                     }
                     else
                     {
-                        //"urlAlreadyExistsText":"<APPNAME> already exists in the list.",
                         string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
                         sErr = sErr.Replace("<APPNAME>", url);
-                        //// MessageBox.Show(sErr, "");
                         FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
                         ff.Owner = _parentWindow;
                         ff.ShowDialog();

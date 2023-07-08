@@ -146,7 +146,6 @@ namespace Focus_Bear.BrainDump
                     TimeRemaining.Text = TimeRemaining.Text = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString() + " 00:00";
                     dispatcherTimer.Stop();
                     ShowBrainDumpWindowAndStartTimer();// Reset Everything
-                   // Hide();
                 }
             }
             catch (Exception ex)

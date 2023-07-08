@@ -51,20 +51,12 @@ namespace Focus_Bear.Onboarding
                     Heading.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["titleSelectHabitPack"].ToString();
                 else
                     Heading.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["titleSelectBreaks"].ToString();
-                //SelectHabits.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["titleSelectHabitPack"].ToString();
-                //"titleSelectBreaks": "Choose your break activities to get started",
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("OnboardingSelectHabitPacks()" + ex.Message);
-                if (!appSettings.bGoalHealthyHabits)
-                    Heading.Text = "Choose your break activities to get started"; //for time being
             }
 
-            //ComboBoxPack
-            //       HabitPackDesc
-            //        MorningDuration
-            //        EveningDuration
             //Check is we got some response from keywords api
             if (appSettings.sRawHabitPacks != null || (appSettings.sRawHabitPacks.Length != 0))
             {
@@ -86,8 +78,6 @@ namespace Focus_Bear.Onboarding
                     LogWriter.LogWrite("ReadAndParseSettingsJson() EX - " + ex.Message);
                 }
             }
- 
-
         }
 
         private async void SetWebView()
@@ -115,19 +105,12 @@ namespace Focus_Bear.Onboarding
             {
                 try
                 {
-
-
-                    //this.webView.NavigationStarting += NavigationStarting;
-                    //this.webView.NavigationCompleted += NavigationCompleted;
                     webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
                     webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
                     webView.CoreWebView2.Settings.IsScriptEnabled = true;
                     webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
-
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
-
-                    // webView.WebMessageReceived += webView_WebMessageReceived;
 
                     if (appSettings.sRawHabitPacks != null || (appSettings.sRawHabitPacks.Length != 0))
                     {
@@ -144,13 +127,8 @@ namespace Focus_Bear.Onboarding
                                     string sURL = string.Format("https://dashboard.focusbear.io/habit-packs/share/{0}?embedded=true", appSettings.sHabitPackIdToInstall);
 
                                     appSettings.sMorningRoutineDuration = PackSettings.ContainsKey("morning_routine_duration_seconds") ? PackSettings["morning_routine_duration_seconds"].ToString() : "";
-                                    //MorningDuration.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["morningRoutineText"].ToString() + appSettings.SecondsToText(int.Parse(sMorningRoutineDuration)); 
-
                                     appSettings.sEveningRoutineDuration = PackSettings.ContainsKey("morning_routine_duration_seconds") ? PackSettings["morning_routine_duration_seconds"].ToString() : "";
-                                    //EveningDuration.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["eveningRoutineText"].ToString() + appSettings.SecondsToText(int.Parse(sEveningRoutineDuration)); 
-
                                     webView.Source = new Uri(sURL, System.UriKind.Absolute);
-
                                 }
                             }
                         }
@@ -159,9 +137,6 @@ namespace Focus_Bear.Onboarding
                             LogWriter.LogWrite("OnboardingSelectHabitPacks CoreWebView2InitializationCompleted() EX - " + ex.Message);
                         }
                     }
-
-
-
                 }
                 catch (Exception ex)
                 {
@@ -193,13 +168,8 @@ namespace Focus_Bear.Onboarding
                             string sURL = string.Format("https://dashboard.focusbear.io/habit-packs/share/{0}?embedded=true", appSettings.sHabitPackIdToInstall);
 
                             appSettings.sMorningRoutineDuration = PackSettings.ContainsKey("morning_routine_duration_seconds") ? PackSettings["morning_routine_duration_seconds"].ToString() : "";
-                            //MorningDuration.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["morningRoutineText"].ToString() + appSettings.SecondsToText(int.Parse(sMorningRoutineDuration)); 
-
                             appSettings.sEveningRoutineDuration = PackSettings.ContainsKey("morning_routine_duration_seconds") ? PackSettings["morning_routine_duration_seconds"].ToString() : "";
-                            //EveningDuration.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["eveningRoutineText"].ToString() + appSettings.SecondsToText(int.Parse(sEveningRoutineDuration)); 
-
                             webView.Source = new Uri(sURL, System.UriKind.Absolute);
-
                         }
                     }
                 }

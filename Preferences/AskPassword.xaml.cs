@@ -42,7 +42,6 @@ namespace Focus_Bear.Preferences
  
             if(TxtPassword.Password.Length == 0)
             {
-                /*enterPasswordViewInfo "blankPasswordErrorTitle":"Password cannot be blank.",*/
                 FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["enterPasswordViewInfo"]["blankPasswordErrorTitle"].ToString(), "Focus Bear");
                 ff.Owner = this;
                 ff.ShowDialog();

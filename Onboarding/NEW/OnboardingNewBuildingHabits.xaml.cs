@@ -40,19 +40,6 @@ namespace Focus_Bear.Onboarding.NEW
             InitializeComponent();
             _parentWindow = parentWindow;
 
-            /*
-              "askBuildHabitsVcInfo": {
-        "titleBlockedSuccessfully": "Awesome! We look forward to helping you block distractions.",
-        "titleBlockedFailed": "We'll be in touch shortly to get that fixed.\n\nIn the meantime, we can show you the habit features.",
-        "subTitle": "Next Up: Building habits to support focus",
-        "description": "One other thing that we find really helps is building habits to support focus. For example, even a small amount of aerobic exercise + meditation in the morning has been shown to boost concentration during the day.\nWould you like to try out the habit features?",
-        "buttonNoText": "No Thanks",
-        "buttonYesText": "Yeah!",
-        "alertConfirmText": "Are you sure? You can start with really tiny habits like 2 minutes of meditation in the morning.\nFocus Bear was built by a neurodiverse team (a few of us have ADHD) and we find the habit features make a huge difference to how the rest of the day goes.",
-        "buttonOkShowHabitText": "OK fine - show me the habit feature",
-        "buttonCancelHabitText": "No I'm not interested right now"
-    },
-          */
             try
             {
                 if (appSettings.bBlockingWorkedWhileOnboarding)
@@ -90,7 +77,6 @@ namespace Focus_Bear.Onboarding.NEW
             _parentWindow.GridShade.Visibility = Visibility.Collapsed;
             if (ff.btnClicked == MessageBoxResult.Yes)
             {
-               // bShutdownApp = false;
                 RegistryManager.SetWelcomeAboardingDoneStatus();
 
                 ((App)(Application.Current)).ShowOnBoradingFlow();

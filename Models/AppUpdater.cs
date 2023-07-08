@@ -1,19 +1,4 @@
-﻿/*
- * Copyright (c) 2018-2019 Wise Tech Labs Private Limited, All Rights Reserved.
- *
- * File: AppUpdater.cs
- * Project: SMART System Repair
- * User: Gaurav
- *
- * This document is the property of Wise Tech Labs Private Limited
- * It is considered confidential and proprietary.
- *
- * This document may not be reproduced or transmitted in any form, 
- * in whole or in part, without the express written permission of 
- * Wise Tech Labs Private Limited
- *
- */
-
+﻿
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
@@ -81,9 +66,8 @@ namespace Focus_Bear.Models
                 string versionInsideINIFile = objIniParser.ReadValue(section, "program_version");
 
                 _DownloadUpdateFileName = "FocusBearSetup.exe";
-               // _DownloadSize = Convert.ToInt32(objIniParser.ReadValue(section, "program_size"));
+
                 _DownloadUpdateURL = objIniParser.ReadValue(section, "program_url");
-                //ForceUpdate = Convert.ToBoolean(Convert.ToInt16(objIniParser.ReadValue(section, "force_update")));
 
                 Version updateVersion = null;
                 Version.TryParse(versionInsideINIFile, out updateVersion);
@@ -115,12 +99,6 @@ namespace Focus_Bear.Models
             var res = await http.Download(_DownloadUpdateURL, _UpdateFolderPath + "\\" + _DownloadUpdateFileName, true);
             if (!res)
                 return false;
-
-            //if (!ForceUpdate)
-            //{
-            //    http.WebClientDownloadProgressHandler -= Http_DownloadProgressChanged;
-            //    http.AsyncCompletedEventArgsHandler -= Http_AsyncCompletedEventArgsHandler;
-            //}
 
             LogWriter.LogWrite("Update Downloaded successfully"); //todo win text
             return true;

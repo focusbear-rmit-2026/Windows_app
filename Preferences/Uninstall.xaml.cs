@@ -40,28 +40,18 @@ namespace Focus_Bear.Preferences
 
         private void btnUninstall_Click(object sender, RoutedEventArgs e)
         {
-            //FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["common"]["uninstallConfirmText"].ToString(), "Focus Bear", MessageBoxButton.YesNo);
-            //ff.Owner = _ParentWindow;
-            //ff.ShowDialog();
-            //if (ff.btnClicked == MessageBoxResult.No)
-            //{
-            //    return;
-            //}
-
             _ParentWindow.RepositionWindow();
             _ParentWindow.GridShade.Visibility = Visibility.Visible;
             UninstallFeedback aa = new UninstallFeedback(_ParentWindow);
             aa.Topmost = true;
             bool? DialogResult = aa.ShowDialog();
-            //string sUninstallReason = aa.sUninstallReason;
-            //string sUninstallDesc = aa.sUninstallDesc;
             _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
             if(DialogResult.Value == true)
             {
                 string appPath = System.Reflection.Assembly.GetEntryAssembly().Location;
                 appPath = appPath.Replace("Focus Bear.exe", "unins000.exe");
                 
-                LogWriter.LogWrite("RemoveLoggedInStatus and fire Uninstaller - " + appPath);
+                LogWriter.LogWrite("fire Uninstaller - " + appPath);
                  
                 Application.Current.Shutdown(0);
 

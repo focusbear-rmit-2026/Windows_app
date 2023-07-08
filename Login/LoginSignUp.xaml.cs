@@ -35,8 +35,6 @@ namespace Focus_Bear.Login
         private LoginMain _parentWindow;
         AppSettings appSettings = AppSettings.GetInstance;
         bool bEyeOnPasswordBox = false;
-        bool bEyeOnConfirmPasswordBox = false;
-
         public LoginSignUp()
         {
         }
@@ -46,25 +44,7 @@ namespace Focus_Bear.Login
        
             InitializeComponent();
             _parentWindow = parentWindow;
-            /*
-          * "customLoginVcInfo": {
-            "titleSignUp": "Sign Up",
- 
-            "titleEmailAddress": "Email Address",
-            "titlePassword": "Password",
-            "subTitleCreateAccount": "Create an account",
-           "buttonCreateAccountText": "Create an account",
-           "titleConfirmPassword": "Confirm your password",
-
-                    "titlePasswordRules": "Password rules:",
-            "buttonForgotPasswordText": "Forgot Password",
-            "passwordRuleFirstText": "At least 8 characters in length",
-            "passwordRuleSecondText": "Contain at least 3 of the following 4 types of characters:",
-            "passwordRuleThirdText": "lower case letters (a-z)",
-            "passwordRuleFourthText": "upper case letters (A-Z)",
-            "passwordRuleFifthText": "numbers (i.e. 0-9)",
-            "passwordRuleSixthText": "special characters (e.g. !@#$%^&*)"
-          */
+          
             try
             {
                 GeneratePassword.IsChecked = true;
@@ -101,8 +81,6 @@ namespace Focus_Bear.Login
             }
             catch (Exception ex)
             {
-                EyePassword.ToolTip = "Show Password"; //for time being
-                WeGeneratedPassword.Text = "We generated a password for you";
                 LogWriter.LogWrite("LoginSignUp Texts Exception - " + ex.Message);
             }
 
@@ -124,9 +102,7 @@ namespace Focus_Bear.Login
                         string password = TxtPassword.Password.ToString();
                         if (password.Length > 0)
                         {
-                            //check confirm password
-                            //string confirmPassword = TxtConfirmPassword.Password.ToString();
-                            //if (confirmPassword.Length > 0 && confirmPassword == password)
+                            //check confirm password - confirm password removed
                             {
                                 EnablControls(false);
                                 Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
@@ -165,7 +141,7 @@ namespace Focus_Bear.Login
                                                                 //Login Success
                                                                 appSettings.CapturePostHog("login-homemade");
                                                                 appSettings.GetLoginAndTokenValidSettings();
-                                                                ///((App)(Application.Current)).ProceedAfterLogin();
+                                                                
                                                                 _parentWindow.bDoNotShutDown = true;
                                                                 _parentWindow.Close();
 
@@ -178,7 +154,7 @@ namespace Focus_Bear.Login
                                                                 LogWriter.LogWrite("SignUp Success, Login ERROR !! + " + authenticator.sErrorMessage);
                                                                 Mouse.OverrideCursor = null;
                                                                 EnablControls(true);
-                                                                ///MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                                
                                                                 FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, "Focus Bear");
                                                                 ff.Owner = _parentWindow;
                                                                 ff.ShowDialog();
@@ -217,7 +193,7 @@ namespace Focus_Bear.Login
 
                                                     Mouse.OverrideCursor = null;
                                                     EnablControls(true);
-                                                    //MessageBox.Show(policy, msg, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                    
                                                     FBMessageBox ff = new FBMessageBox(policy, "Focus Bear");
                                                     ff.Owner = _parentWindow;
                                                     ff.ShowDialog();
@@ -227,7 +203,7 @@ namespace Focus_Bear.Login
                                                     Mouse.OverrideCursor = null;
                                                     EnablControls(true);
                                                     LogWriter.LogWrite(ex.Message);
-                                                    //MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
+                                                    
                                                     FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, "Focus Bear");
                                                     ff.Owner = _parentWindow;
                                                     ff.ShowDialog();
@@ -244,21 +220,9 @@ namespace Focus_Bear.Login
                                 });
 
                             }
-                      
-                            ///else
-                            ///{
-                                 //appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCreateAccountText"].ToString();
-                                // "passwordNotMatchAlertSubTitle":"Confirm Password does not match with the main password. Please re enter.",
-                                ///MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["confirmPasswordNotMatchText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
-                            ///    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["confirmPasswordNotMatchText"].ToString(), "Focus Bear");
-                            ///    ff.ShowDialog();
-                           /// }
-
                         }
                         else
                         {
-                            //  "passwordBlankAlertTitle":"Password cannot be blank.",
-                            //MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
                             FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear");
                             ff.Owner = _parentWindow;
                             ff.ShowDialog();
@@ -266,8 +230,6 @@ namespace Focus_Bear.Login
                     }
                     else
                     {
-                        // "emailInvalidText": "Please enter a valid Email.",
-                        //MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
                         FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear");
                         ff.Owner = _parentWindow;
                         ff.ShowDialog();
@@ -275,8 +237,6 @@ namespace Focus_Bear.Login
                 }
                 else
                 {
-                    // "titleEmailIsBlank": "Email cannot be blank.",
-                    //MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear");
                     ff.Owner = _parentWindow;
                     ff.ShowDialog();
@@ -289,8 +249,6 @@ namespace Focus_Bear.Login
             }
             finally
             {
-                //Mouse.OverrideCursor = null;
-               // EnablControls(true);
             }
         }
 
@@ -324,25 +282,19 @@ namespace Focus_Bear.Login
             if(IsPasswordValid())
             {
                 //check confirm password
-                //// string confirmPassword = TxtConfirmPassword.Password.ToString();
-                //// if (confirmPassword.Length > 0 && confirmPassword == TxtPassword.Password)
-                ///
                 if (GeneratePassword.IsChecked.Value )
                 {
                     if(SavedPassword.IsChecked.Value)
                         btnCreatAccount.IsEnabled = true;
-                ////    ImgConfirmPasswordValid.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                        btnCreatAccount.IsEnabled = true;
-                ////    ImgConfirmPasswordValid.Visibility = Visibility.Collapsed;
+                    btnCreatAccount.IsEnabled = true;
                 }
             }
             else
             {
                 btnCreatAccount.IsEnabled = false;
-               //// ImgConfirmPasswordValid.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -354,36 +306,11 @@ namespace Focus_Bear.Login
 
         private void TxtConfirmPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            //TxtConfirmPasswordVisible.Text = TxtConfirmPassword.Password;
-
-            //TxtConfirmPassword.GetType().GetMethod("Select", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(TxtConfirmPassword, new object[] { TxtConfirmPassword.Password.Length, TxtConfirmPassword.Password.Length });
-            //TxtConfirmPassword.Focus();
-
-            //if (IsPasswordValid())
-            //{
-            //    //check confirm password
-            //    string confirmPassword = TxtConfirmPassword.Password.ToString();
-            //    if (confirmPassword.Length > 0 && confirmPassword == TxtPassword.Password)
-            //    {
-            //        btnCreatAccount.IsEnabled = true;
-            //        ImgConfirmPasswordValid.Visibility = Visibility.Visible;
-            //    }
-            //    else
-            //    {
-            //        btnCreatAccount.IsEnabled = false;
-            //        ImgConfirmPasswordValid.Visibility = Visibility.Collapsed;
-            //    }
-            //}
-            //else
-            //{
-            //    btnCreatAccount.IsEnabled = false;
-            //    ImgConfirmPasswordValid.Visibility = Visibility.Collapsed;
-            //}
+             
         }
         private void TxtConfirmPasswordVisible_TextChanged(object sender, TextChangedEventArgs e)
         {
-            //TxtConfirmPassword.Password = TxtConfirmPasswordVisible.Text;
-            //TxtConfirmPasswordVisible.Focus();
+
         }
 
         bool IsPasswordValid()
@@ -519,32 +446,7 @@ namespace Focus_Bear.Login
         }
 
         private void EyeConfirmPassword_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            //bEyeOnConfirmPasswordBox = !bEyeOnConfirmPasswordBox;
-            //if (bEyeOnConfirmPasswordBox)
-            //{
-            //    string imagePath = ("pack://application:,,,/Focus Bear;component/images/eye-orange.png");
-            //    var image = new BitmapImage();
-            //    image.BeginInit();
-            //    image.UriSource = new Uri(imagePath);
-            //    image.EndInit();
-            //    EyeConfirmPassword.Source = image;
-
-            //    TxtConfirmPasswordVisible.Visibility = Visibility.Visible;
-            //    TxtConfirmPassword.Visibility = Visibility.Collapsed;
-            //}
-            //else
-            //{
-            //    string imagePath = ("pack://application:,,,/Focus Bear;component/images/eye-gray.png");
-            //    var image = new BitmapImage();
-            //    image.BeginInit();
-            //    image.UriSource = new Uri(imagePath);
-            //    image.EndInit();
-            //    EyeConfirmPassword.Source = image;
-
-            //    TxtConfirmPasswordVisible.Visibility = Visibility.Collapsed;
-            //    TxtConfirmPassword.Visibility = Visibility.Visible;
-            //}
+        { 
         }
 
         private void OwnPassword_Checked(object sender, RoutedEventArgs e)
@@ -575,7 +477,6 @@ namespace Focus_Bear.Login
                     await Task.Delay(500);
                 }
             }
-            //WeGeneratedPassword.Background = System.Windows.Media.Brushes.Transparent;
         }
 
         private void SavedPassword_Checked(object sender, RoutedEventArgs e)

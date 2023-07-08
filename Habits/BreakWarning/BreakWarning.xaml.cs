@@ -54,15 +54,6 @@ namespace Focus_Bear.Habits
         public BreakWarning()
         {
             InitializeComponent();
-            /*
-             *    "breakWarningVcInfo": {
-                "title": "Your Break starts in",
-                "buttonPostponeText": "Postpone for 5 minutes",
-                "postponeConfirmText": "You postponed the last break - are you sure you can't make time for The break now?",
-                "buttonTakeBreakText": "Argh ok I'll take a break!"
-            },
-             * */
-
             bSecondTime15SecTimerRunning = false;
 
             nTimer = 30;
@@ -113,7 +104,6 @@ namespace Focus_Bear.Habits
                     if (bSecondTime15SecTimerRunning)
                     {
                         dispatcherTimer.Stop();
-                        //DialogResult = true;
                         ((App)(Application.Current)).StartBreakActivityTimer(true, 5);
                         Close();
                     }
@@ -121,7 +111,6 @@ namespace Focus_Bear.Habits
                     {
                         TxtTimer.Text = "00:00";
                         dispatcherTimer.Stop();
-                        // DialogResult = false;
                         ((App)(Application.Current)).ShowBreakActivities();
                         Close();
                     }
@@ -145,7 +134,6 @@ namespace Focus_Bear.Habits
                     {
                         dispatcherTimer.Stop();
                         //User clicked means he wants to do the habits
-                        // DialogResult = false;
                         ((App)(Application.Current)).ShowBreakActivities();
                         Close();
                         return;
@@ -195,12 +183,10 @@ namespace Focus_Bear.Habits
                 else
                 {
                     //Set the break timer fro five minutes from now
-                    ///DialogResult = true;
                     dispatcherTimer.Stop();
 
                     //Now we do not need to show 15 second timer...so easy fix is do not incrase this count
-                    ////appSettings.nCountBreaksPostponedTimes++; //Increase the counter after first time
-
+                    
                     ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);
 
                     Close();

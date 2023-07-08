@@ -34,17 +34,6 @@ namespace Focus_Bear.Preferences
             this.Owner = _ParentWindow;
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-            /*common
-             * "uninstallingText": "Uninstalling..",
-                "askUninstallReasonText": "Can you share why you're uninstalling?",
-                "buttonSelectReasonText": "Select a reason",
-                "brokenAppReasonText": "The app is broken",
-                "habitsHardReasonText": "My habits are too hard - I can't handle them",
-                     "askUninstallReasonText2": "Damn sorry, it seems like we let you down. We're in the early stages of this product and really want to get feedback to make it better. Could you tell us why you're uninstalling?",
-                "minimumCharacterText": "(Minimum 10 characters)",
-                otherReasonText
-                */
-
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["common"]["uninstallingText"].ToString();
@@ -89,19 +78,16 @@ namespace Focus_Bear.Preferences
         private async void btnUninstall_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnUninstall_Click");
-            //    "uninstallConfirmText":"Are you sure you want to giveup all your habits and uninstall Focus Bear?",
-            //"yesText":"Yes",
-            ////"noText":"No",
-            ///
+  
             sUninstallReason = ComboBoxReason.SelectedItem.ToString();
             sUninstallDesc = TxtFeedback.Text;
             string sMetadata = string.Format("\"emailAddress\":\"{0}\",\"uninstallReason\":\"{1}\",\"uninstallDescription\":\"{2}\",\"usageStartDate\":\"{3}\"", appSettings.sUser_email, sUninstallReason, sUninstallDesc, appSettings.FirstAppInstallDT.ToString("o"));
             appSettings.CapturePostHog("uninstall", sMetadata);
 
 
-            if (ComboBoxReason.SelectedIndex == 1) //app broken, we will need to post the logs if the user wants
+            if (ComboBoxReason.SelectedItem.ToString() == (appSettings.ConfigFileStrings["common"]["brokenAppReasonText"].ToString())) //app broken, we will need to post the logs if the user wants
             {
-                FBMessageBox messageBox = new FBMessageBox("Do you want to upload the logs to our server for us to review what was broken?", "", MessageBoxButton.YesNo); //TODO wintexts
+                FBMessageBox messageBox = new FBMessageBox(appSettings.ConfigFileStrings["common"]["alertUploadLogText"].ToString(), "", MessageBoxButton.YesNo);  
                 messageBox.Owner = this;
                 messageBox.ShowDialog();
                 if (messageBox.btnClicked == MessageBoxResult.Yes)
@@ -118,7 +104,6 @@ namespace Focus_Bear.Preferences
                 }
             }
 
-            // "All the app related processes will stop and the app will close itself and run the Focus Bear Uninstaller.",//todo win text
             FBMessageBox ff1 = new FBMessageBox("All the app related processes will stop and the app will close itself and run the Focus Bear Uninstaller.", "Focus Bear"); //todo wintexts
             ff1.Owner = this;
             ff1.ShowDialog();

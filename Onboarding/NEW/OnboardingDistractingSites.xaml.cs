@@ -59,8 +59,7 @@ namespace Focus_Bear.Onboarding.NEW
             appSettings.arrDistractingURLs.Add(new DistractingURL("youtube.com", true));
             //TxtURL
             ListBLockedURLs.ItemsSource = appSettings.arrDistractingURLs;
-
-
+            
             //initially disable the button
             btnAddUrl.IsEnabled = false;
         }
@@ -101,7 +100,6 @@ namespace Focus_Bear.Onboarding.NEW
                     appSettings.arrAlwaysBlockedURLs.Add(appSettings.arrDistractingURLs[i].sURL);
             }
             
-           // LocalSettingsManager.PutLocalSettings();
             _parentWindow.ShowPrivacyScreen();
         }
     }

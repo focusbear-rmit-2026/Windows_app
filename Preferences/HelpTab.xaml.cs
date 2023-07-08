@@ -60,10 +60,7 @@ namespace Focus_Bear.Preferences
         {
             try
             {
-                /*        "buttonPanelExportLogsText":"Export Logs",
-                "panelExportLogsText":"Export logs to share with Focus Bear Support Team",
-                "exportSuccessText":"Your logs are available to share in the FocusBearLogs.zip file in the <URL> directory",*/
-
+               
                 var folderBrowserDialog1 = new FolderBrowserDialog();
                 folderBrowserDialog1.Description = appSettings.ConfigFileStrings["preferencesInfo"]["panelExportLogsText"].ToString();
 
@@ -123,7 +120,6 @@ namespace Focus_Bear.Preferences
                 Mouse.OverrideCursor = null;
                 LogWriter.LogWrite("Chat CoreWebView2NavigationCompleted() Success, Load Access token");
                 string Settings = string.Format("{{\"access_token\":\"{0}\"}}", appSettings.userAccount.accessToken);
-                //string settingsFunc = string.Format("loadAccessTokenForChat({0});", Settings);
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForChat) {{ loadAccessTokenForChat({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                 var ss = webView.ExecuteScriptAsync(settingsFunc);
 
@@ -138,8 +134,7 @@ namespace Focus_Bear.Preferences
                 {
 
                     LogWriter.LogWrite("Chat CoreWebView2InitializationCompleted() Success, Load URL");
-                    //this.webView.NavigationStarting += NavigationStarting;
-                    //this.webView.NavigationCompleted += NavigationCompleted;
+                   
                     webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
                     webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
                     webView.CoreWebView2.Settings.IsScriptEnabled = true;
@@ -148,11 +143,8 @@ namespace Focus_Bear.Preferences
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
-                    // webView.WebMessageReceived += webView_WebMessageReceived;
-
                     webView.Source = new System.Uri("https://dashboard.focusbear.io/webview/chat");
 
-                    //this.webView.CoreWebView2.WebMessageReceived += webView_WebMessageReceived;
                 }
                 catch (Exception ex)
                 {

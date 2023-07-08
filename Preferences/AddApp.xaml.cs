@@ -68,10 +68,6 @@ namespace Focus_Bear.Preferences
             FilteredList = appSettings.InstalledApps;
             ListInstalledApps.ItemsSource = FilteredList;
 
-            /* "focusPreferencesInfo":{
-             * "buttonAddText":"Add",
-             */
-
             try
             {
                 btnAddTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddText"].ToString(); //"Add";
@@ -117,7 +113,6 @@ namespace Focus_Bear.Preferences
                     FBMessageBox ff = new FBMessageBox("No items selected to Add.", "Focus Bear");
                     ff.Owner = this;
                     ff.ShowDialog();
-                   /// MessageBox.Show("No items selected to Add.", "Focus Bear"); //todo win text
                 }
             }
             catch (Exception ex)

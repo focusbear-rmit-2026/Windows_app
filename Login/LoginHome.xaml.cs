@@ -31,14 +31,7 @@ namespace Focus_Bear.Login
         {
             _parentWindow = parentWindow;
             InitializeComponent();
-            /*
-                 "askLogInVcInfo": {
-                "title": "Win your habits.\nAmp up your productivity.",
-                "messageText": "Sign In with a Focus Bear account to manage your time without thinking about it. Having an account helps you Set your computer use hours, create a custom morning and night routine, and customize your focus modes for different activities.",
-                "buttonSignInText": "Sign In",
-                "buttonSignUpText": "Sign Up"
-    },
-             */
+
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["title"].ToString();

@@ -34,16 +34,7 @@ namespace Focus_Bear.Focus
 
             this.Owner = _ParentWindow;
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-
-
-            /*  "focusInfo":{
-             *  "discourageDefaultFocusInfo":{
-            "title":"Are you sure? It's pretty easy to get distracted without using a more restrictive focus mode",
-            "buttonCancelText":"Bah I guess you're right - CANCEL!",
-            "buttonShutUpText":"Shutup I know what I'm doing",
-            "titleGoodLuck":"Ok good luck! (You'll need it 😅)"
-        },
-             */
+ 
             Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["discourageDefaultFocusInfo"]["title"].ToString(); ;
             btnCancelTXT.Text = appSettings.ConfigFileStrings["focusInfo"]["discourageDefaultFocusInfo"]["buttonCancelText"].ToString(); ;
             btnShutupTXT.Text = appSettings.ConfigFileStrings["focusInfo"]["discourageDefaultFocusInfo"]["buttonShutUpText"].ToString(); ;
@@ -94,7 +85,6 @@ namespace Focus_Bear.Focus
             catch (Exception ex)
             {
                 LogWriter.LogWrite("DiscourageDefault dispatcherTimer_Unlock - " + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
         }
 

@@ -43,17 +43,7 @@ namespace Focus_Bear.Preferences
             InitializeComponent();
 
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
-
-            /* "common":{
-             * \"tabSettingsText":"Settings",
-             *  "tabFocusText":"Focus",
-                 "tabEditHabitsText":"Edit Habits",
-                 "tabPasswordText":"Password",
-                 "tabBlockedURLsText":"Blocked URLs",
-                 "tabUninstallText":"Uninstall",
-                   "tabAccountsText": "Account",
-             * */
-
+ 
             this.Topmost = true;
 
             try
@@ -62,10 +52,6 @@ namespace Focus_Bear.Preferences
                 btnSettingsTXT.Text = appSettings.ConfigFileStrings["common"]["tabSettingsText"].ToString();
                 btnFocusTXT.Text = appSettings.ConfigFileStrings["common"]["tabFocusText"].ToString();
                 btnEditHabitsTXT.Text = appSettings.ConfigFileStrings["common"]["tabEditHabitsText"].ToString();
-                ///btnPasswordTXT.Text = appSettings.ConfigFileStrings["common"]["tabPasswordText"].ToString();
-                ///btnBlockedURLsTXT.Text = appSettings.ConfigFileStrings["common"]["tabBlockedURLsText"].ToString();
-                ///btnAccountTXT.Text = appSettings.ConfigFileStrings["common"]["tabAccountsText"].ToString();
-               /// btnUninstallTXT.Text = appSettings.ConfigFileStrings["common"]["tabUninstallText"].ToString();
                 btnHelpTXT.Text = appSettings.ConfigFileStrings["common"]["tabHelpText"].ToString();
             }
             catch (Exception ex)
@@ -85,18 +71,14 @@ namespace Focus_Bear.Preferences
 
             PageAccountsTab = new AccountTab();
             FrameAccountTab.Navigate(PageAccountsTab);
-
-            ///FrameUninstallTab.Navigate(new Uninstall(this));
-
+ 
             FrameHelpTab.Navigate(new HelpTab(this));
 
             PageStats = new Stats();
             FrameStats.Navigate(PageStats);
 
             EnableAll();
-            //btnSettings.IsEnabled = false;
-            //btnSettings.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-
+           
             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnStats);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
@@ -108,20 +90,12 @@ namespace Focus_Bear.Preferences
             btnSettings.IsEnabled = true;
             btnFocus.IsEnabled = true;
             btnEditHabits.IsEnabled = true;
-           /// btnPassword.IsEnabled = true;
-           /// btnBlockedURLs.IsEnabled = true;
-           /// btnAccount.IsEnabled = true;
-           /// btnUninstall.IsEnabled = true;
             btnHelp.IsEnabled = true;
 
             btnStats.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnSettings.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnFocus.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnEditHabits.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-            ///btnPassword.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-           /// btnBlockedURLs.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-           /// btnAccount.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-           /// btnUninstall.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnHelp.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
 
             FrameStats.Visibility = Visibility.Collapsed;
@@ -200,18 +174,6 @@ namespace Focus_Bear.Preferences
 
             appSettings.CapturePostHog("edit-habits");
 
-           // await Task.Delay(1300);  // a couple of seconds sleep 
-
-           // PageEditHabits.LoadSettings();
-
-            //new Thread(new ThreadStart(new Action(async () =>
-            //{
-            //    await Task.Delay(6300);  // a couple of seconds sleep 
-            //    CommandManager.InvalidateRequerySuggested();
-            //    PageEditHabits.LoadSettings();
-            //    CommandManager.InvalidateRequerySuggested();
-            //}))).Start();
-
         }
 
         private void btnPassword_Click(object sender, RoutedEventArgs e)
@@ -219,9 +181,7 @@ namespace Focus_Bear.Preferences
             LogWriter.LogWrite("Preferences tab - btnPassword_Click");
 
             EnableAll();
-           /// btnPassword.IsEnabled = false;
-           /// btnPassword.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
- 
+         
         }
 
         private void btnBlockedURLs_Click(object sender, RoutedEventArgs e)
@@ -229,9 +189,7 @@ namespace Focus_Bear.Preferences
             LogWriter.LogWrite("Preferences tab - btnBlockedURLs_Click");
 
             EnableAll();
-           /// btnBlockedURLs.IsEnabled = false;
-            ///btnBlockedURLs.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-            
+               
             this.Width = 680 * ScaleX;
             this.Height = 750 * ScaleY;
 
@@ -244,8 +202,6 @@ namespace Focus_Bear.Preferences
             LogWriter.LogWrite("Preferences tab - btnAccount_Click");
 
             EnableAll();
-            ///btnAccount.IsEnabled = false;
-           /// btnAccount.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
             this.Width = 680 * ScaleX;
             this.Height = 600 * ScaleY;
 
@@ -258,8 +214,7 @@ namespace Focus_Bear.Preferences
             LogWriter.LogWrite("Preferences tab - btnUninstall_Click");
 
             EnableAll();
-            ///btnUninstall.IsEnabled = false;
-            ///btnUninstall.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+           
             this.Width = 680 * ScaleX;
             this.Height = 600 * ScaleY;
 

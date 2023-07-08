@@ -43,7 +43,7 @@ namespace Focus_Bear.Onboarding
             this.WindowState = WindowState.Normal;
             this.WindowStyle = WindowStyle.ToolWindow;
 #endif
-            // "stayFocusedText":"Now let's set up an account for you",
+
             Heading.Text = "";
 
             AppFrameOnboarding.Visibility = Visibility.Visible;
@@ -63,11 +63,6 @@ namespace Focus_Bear.Onboarding
                 invokeProv.Invoke();
             }
         }
-
-        //public void ShowOnboardingDistractingSitesScreen()
-        //{
-        //    AppFrameOnboarding.Navigate(new OnboardingDistractingSites(this));
-        //} 
 
         public void ShowOnboardingSelectHabitPacksScreen()
         {
@@ -157,10 +152,6 @@ namespace Focus_Bear.Onboarding
 
         public void HideFrameAndClose()
         {
-            // "stayFocusedText":"Now let's set up an account for you",
-            //Heading.Text = appSettings.ConfigFileStrings["common"]["letsCreatAccountText"].ToString();
-            //AppFrameOnboarding.Visibility = Visibility.Collapsed;
-            //await Task.Delay(3000);
             ((App)(Application.Current)).ShowLoginWindow();
 
             appSettings.RemoveSecondaryWindows();

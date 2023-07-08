@@ -35,13 +35,6 @@ namespace Focus_Bear.Onboarding
             InitializeComponent();
             _parentWindow = parentWindow;
 
-            /* "askAppWorkVcInfo": {
-            "title": "Welcome to Focus Bear",
-            "questionText": "What are your goals?",
-            "checkBoxFirstText": "Help me develop healthy habits in the morning (e.g. meditate before starting work) and evening (e.g. have dinner with loved ones)",
-            "checkBoxSecondText": "Help me stay focused during the work day",
-            "buttonContinueText": "Continue"
-        },*/
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["title"].ToString();
@@ -142,15 +135,7 @@ namespace Focus_Bear.Onboarding
         {
             try
             {
-                /*
-                 * if checkBoxFirst.state == .on && checkBoxSecond.state == .on{
-                allApiObject.capturePosthog(event: "activate-all-features", metadata: [:])
-                }else if checkBoxFirst.state == .on{
-                    allApiObject.capturePosthog(event: "activate-habits-only", metadata: [:])
-                }else if checkBoxSecond.state == .on{
-                    allApiObject.capturePosthog(event: "activate-productivity-only", metadata: [:])
-                }
-                 */
+                
                 if (HealthyHabits.IsChecked.Value && StayFocused.IsChecked.Value)
                 {
                     appSettings.bGoalHealthyHabits = true;
@@ -168,9 +153,6 @@ namespace Focus_Bear.Onboarding
                     appSettings.CapturePostHog("activate-productivity-only");
                 }
 
-                /*if !textFieldAnythingElse.stringValue.isEmpty{
-               allApiObject.capturePosthog(event: "anything-else-goals-feedback", metadata: ["feedback":textFieldAnythingElse.stringValue])
-               }*/
                 if (AnythingElseVALUE.Text.Length > 0)
                 {
                     string sData = string.Format("\"feedback\":\"{0}\"", AnythingElseVALUE.Text);

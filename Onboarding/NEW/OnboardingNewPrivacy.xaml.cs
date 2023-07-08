@@ -32,16 +32,6 @@ namespace Focus_Bear.Onboarding.NEW
             InitializeComponent();
             _parentWindow = parentWindow;
 
-            /*
-            "onboardingPrivacyTipVcInfo": {
-                "title": "Privacy and Security",
-                "subTitle": "We take your privacy and security very seriously and will never share your data ever.",
-                "descriptionText": "🙈 We do not log which websites or apps you use.\n\n🔄 We do sync your habit data to our server but this is only to support cross device distraction blocking.\n\n🔒 Your data is encrypted and we don't let anyone else see it.",
-                "moreDetailText": "For more details, refer to our privacy policy or feel free to email team@focusbear.io.",
-                "buttonViewPrivacyText": "Click here to view Privacy Policy",
-                "buttonContinueText": "Continue"
-            },
-          */
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["onboardingPrivacyTipVcInfo"]["title"].ToString();

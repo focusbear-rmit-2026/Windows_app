@@ -61,7 +61,6 @@ namespace Focus_Bear.Preferences
                 Mouse.OverrideCursor = null;
 
                 string Settings = string.Format("{{\"access_token\":\"{0}\",\"type\":\"win\",\"lang\":\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.sLangCode);
-                //string settingsFunc = string.Format("loadAccessTokenForStats({0});", Settings);
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForStats) {{ loadAccessTokenForStats({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
 
                 var ss = webView.ExecuteScriptAsync(settingsFunc);
@@ -76,8 +75,7 @@ namespace Focus_Bear.Preferences
                 {
 
                     LogWriter.LogWrite("stats CoreWebView2InitializationCompleted() Success");
-                    //this.webView.NavigationStarting += NavigationStarting;
-                    //this.webView.NavigationCompleted += NavigationCompleted;
+                   
                     webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
                     webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
                     webView.CoreWebView2.Settings.IsScriptEnabled = true;
@@ -86,11 +84,8 @@ namespace Focus_Bear.Preferences
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
-                    // webView.WebMessageReceived += webView_WebMessageReceived;
-
                     webView.Source = new System.Uri("https://dashboard.focusbear.io/webview/stats");
-                    
-                    //this.webView.CoreWebView2.WebMessageReceived += webView_WebMessageReceived;
+                   
                 }
                 catch (Exception ex)
                 {

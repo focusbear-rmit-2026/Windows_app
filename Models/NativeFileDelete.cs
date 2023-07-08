@@ -1,19 +1,4 @@
-﻿/*
- * Copyright (c) 2018-2019 Wise Tech Labs Private Limited, All Rights Reserved.
- *
- * File: NativeFileDelete.cs
- * Project: SMART System Repair
- * User: Gaurav
- *
- * This document is the property of Wise Tech Labs Private Limited
- * It is considered confidential and proprietary.
- *
- * This document may not be reproduced or transmitted in any form, 
- * in whole or in part, without the express written permission of 
- * Wise Tech Labs Private Limited
- *
- */
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +28,6 @@ namespace Focus_Bear.Models
             [MarshalAs(UnmanagedType.LPWStr)]
             public string pTo;
             public ushort fFlags;
-            //public bool fAnyOperationsAborted;
             // the bool size is 1 byte. in the platform SDK BOOL is just an int
             public Int32 fAnyOperationsAborted;
             public IntPtr hNameMappings;

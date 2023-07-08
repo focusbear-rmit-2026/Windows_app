@@ -34,7 +34,7 @@ namespace Focus_Bear.Habits
 
             public HabitList()
             {
-                //// NavItems = new ObservableCollection<StartupAppModel>();
+                 
             }
             public event PropertyChangedEventHandler PropertyChanged;
             private void OnChanged(string propertyName)
@@ -57,13 +57,7 @@ namespace Focus_Bear.Habits
             InitializeComponent();
 
             _parentWindow = parentWindow;
-            /*
-            "activityInfo":{
-                "startMorningHabitTitleText":"Good Morning! Here are the habits to kick off an awesome day.",
-                 "buttonBeginText": "Begin",
-                "startEveningHabitTitleText":"Good Evening! Let’s go through your wind down routine.",
-
-            */
+ 
             if(appSettings.bHasUserEditedSettings)
             {
                 btnCustomizeHabits.IsEnabled = false;
@@ -76,8 +70,6 @@ namespace Focus_Bear.Habits
 
                 webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
                 webView.NavigationCompleted += CoreWebView2NavigationCompleted;
-
-
             }
 
 
@@ -177,11 +169,7 @@ namespace Focus_Bear.Habits
             if (e.IsSuccess)
             {
                 try
-                {
-
-
-                    //this.webView.NavigationStarting += NavigationStarting;
-                    //this.webView.NavigationCompleted += NavigationCompleted;
+                { 
                     webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
                     webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
                     webView.CoreWebView2.Settings.IsScriptEnabled = true;
@@ -229,12 +217,6 @@ namespace Focus_Bear.Habits
         {
             try
             {
-
-                //Set environment in settings page
-                // string functiontocall = string.Format("focusbearEnv('win');");
-                //string ss = await webView.ExecuteScriptAsync(functiontocall);
-                //Now await will keep waiting till the eecution return OK, no need to check it as we will still call load settings.
-
                 //Load Settings in the webview
                 try
                 {
@@ -254,13 +236,6 @@ namespace Focus_Bear.Habits
                 {
                     LogWriter.LogWrite("attempt to LoadSettings()  EX: " + ex);
                 }
-
-                //if (appSettings.sRawUserSettings.Length > 0)
-                //{
-                //    string Settings = string.Format("{{ \"metadata\":{{\"access_token\":\"{0}\"}},\"settings\":{1}}}", appSettings.userAccount.accessToken, appSettings.sRawUserSettings);
-                //    string settingsFunc = string.Format("loadSettingsData({0});", Settings);
-                //    string ss1 = await webView.ExecuteScriptAsync(settingsFunc);
-                //}
 
                 if (appSettings.arrFocusModes.Count > 0)
                 {
@@ -308,20 +283,12 @@ namespace Focus_Bear.Habits
                 //Set environment in settings page
                 appSettings.sRawUserSettings = e.WebMessageAsJson;
 
-                //string ss = e.WebMessageAsJson.ToString();
                 //We will need to put the settings.
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var xResponse = await client.PutUserSettings();
 
                 if (xResponse == 1) //valid settings
                 {
-                    /*
-                     *  "settings":{
-                     *          "settingIsValidText":"Your settings have been validated and will be applied now."
-                     *                  "settingIsNotValidText":"Sorry it seems like your settings aren’t valid. Please generate settings at https://settings.focusbear.io",
-                     *                  
-                     */
-                    /// MessageBox.Show(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear", MessageBoxButton.OK);
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear");
                     ff.Owner = this._parentWindow;
                     ff.ShowDialog();
@@ -337,8 +304,6 @@ namespace Focus_Bear.Habits
                         appSettings.bRestartAppNeeded = true;
 
                         Application.Current.Shutdown(0);
-
-
                     }
                     catch (Exception ex)
                     {
@@ -349,7 +314,7 @@ namespace Focus_Bear.Habits
                 else
                 {
                     LogWriter.LogWrite("Settings cannot be validated from API.");
-                    ///MessageBox.Show(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear", MessageBoxButton.OK);
+                    
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear");
                     ff.Owner = this._parentWindow;
                     ff.ShowDialog();

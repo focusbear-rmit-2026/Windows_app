@@ -40,16 +40,6 @@ namespace Focus_Bear.Onboarding.NEW
             InitializeComponent();
             _parentWindow = parentWindow;
 
-            /*
-                  "askAccountVcInfo": {
-        "title": "Setting up a Focus Bear Account",
-        "descriptionText": "How about setting up an account so you can sync your block preferences across your devices?",
-        "tipText": "Setting up an account doesn't cost anything - you still get a 31 day free trial- but it is necessary to enable the more advanced features.",
-        "buttonNotRightNowText": "Not right now",
-        "buttonSignUpText": "Sure - let me sign up",
-        "alertText": "If you feel like setting up an account, just click on the Focus Bear menu icon."
-    },
-          */
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["askAccountVcInfo"]["title"].ToString();

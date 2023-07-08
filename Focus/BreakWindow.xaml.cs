@@ -36,7 +36,6 @@ namespace Focus_Bear.Focus
 
             try
             {
-                /*     common "focusBreakNotificationTitle":"Your break ends in",*/
                 Description.Text = appSettings.ConfigFileStrings["common"]["focusBreakNotificationTitle"].ToString();
                 btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
             }
@@ -50,7 +49,7 @@ namespace Focus_Bear.Focus
         public void ShowBreakWindowAndStartTimer(int nSeconds, string sTitle = "")
         {
             nTimer = nSeconds;
-            if (nTimer == 86400) //Means its an activity with no timer
+            if (nTimer == appSettings.nTimerValForNonTimerActivities) //Means its an activity with no timer
             {
                 TxtTimer.Visibility = Visibility.Collapsed;
                 
@@ -129,7 +128,6 @@ namespace Focus_Bear.Focus
             catch (Exception ex)
             {
                 LogWriter.LogWrite("Break Window = " + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
 
         }
@@ -143,7 +141,7 @@ namespace Focus_Bear.Focus
         private void btnIAmDone_Click(object sender, RoutedEventArgs e)
         {
             HideBreakWindowAndStopTimer();
-            if (((App)(Application.Current)).wndHabits != null /*&& !(((App)(Application.Current)).wndHabits.IsVisible)*/)
+            if (((App)(Application.Current)).wndHabits != null )
             {
                 //show the habit window
                 ((App)(Application.Current)).wndHabits.Show();

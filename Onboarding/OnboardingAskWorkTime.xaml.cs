@@ -35,20 +35,9 @@ namespace Focus_Bear.Onboarding
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionText"].ToString();
-               // Description.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionText"].ToString();
                 StartupTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionStartWorkTimeText"].ToString();
                 ShutdownTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionFinishWorkTimeText"].ToString();
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
-                // string ss = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["descriptionStartupTime"].ToString();
-                // ss = ss.Replace("<STARTTIME>", "05:15 AM");
-                // ss = ss.Replace("<SHUTOFFTIME>", "08:30 PM");
-                //// StartupTimeDesc.Text = ss;
-
-                // string ss1 = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["descriptionShutDownTime"].ToString();
-                // ss1 = ss1.Replace("<SHUTOFFTIME>", "08:30 PM");
-                //  ShutdownTimeDesc.Text = ss1;
-
-                //explanationText
             }
             catch (Exception ex)
             {
@@ -57,12 +46,10 @@ namespace Focus_Bear.Onboarding
 
             StartupTimePicker.NUDHTextBox.Text = "08";
             StartupTimePicker.NUDMTextBox.Text = "30";
-            //StartupTimePicker.NUDSTextBox.Text = "0";
             StartupTimePicker.NUDAMPTextBox.Text = "AM";
 
             ShutdownTimePicker.NUDHTextBox.Text = "06";
             ShutdownTimePicker.NUDMTextBox.Text = "30";
-            //ShutdownTimePicker.NUDSTextBox.Text = "0";
             ShutdownTimePicker.NUDAMPTextBox.Text = "PM";
         }
 
@@ -98,12 +85,6 @@ namespace Focus_Bear.Onboarding
         {
             try
             {
-                /*"explanationText": "Your schedule looks like:\n\n
-                 * 🐥* <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n
-                 * 💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n
-                 * 💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n
-                 * 🥱 <END_WORK_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n
-                 * 😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)"*/
                 string sStartupHours = StartupTimePicker.NUDHTextBox.Text;
                 string sStartupMinutes = StartupTimePicker.NUDMTextBox.Text;
                 string sStartupAMPM = StartupTimePicker.NUDAMPTextBox.Text; ;

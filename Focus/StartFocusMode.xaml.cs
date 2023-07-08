@@ -42,21 +42,7 @@ namespace Focus_Bear.Focus
             LogWriter.LogWrite("StartFocusMode() func");
 
             InitializeComponent();
-            /*
-              "focusInfo":{
-        "focusAlreadyRunningText":"A focus mode is already running. Please deactivate the running focus mode to start a new one.",
-        "startingFocusModeInfo":{
-            "buttonStartFocusText":"Start Focus",
-            "howMuchTimeText":"How much time do you want to focus for?",
-            "hoursText":"hours",
-            "minutesText":"minutes",
-            "title":"Starting Focus type - <FOCUSTYPE>",
-            "questionText":"What do you plan to achieve during this focus block?",
-            "onlyAllowSelectedAppText":"You'll only be able to use <APP>",
-            "onlyAllowSelectedAppAndUrlText":"You'll only be able to use \"<URL>\" in <APP>",
-            "explanationText":"Setting an intention for the focus block helps prime your brain to accomplish that task. To edit the intention after starting the focus mode, click Brain Dump in the menu bar."
-        },
-        */
+             
             try 
             { 
                 bIsDefaultFocusMode = bIsDefault;
@@ -121,15 +107,12 @@ namespace Focus_Bear.Focus
             catch (Exception ex)
             {
                 LogWriter.LogWrite("StartFocusMode - btnStartFocus_Click" + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
    
         }
 
         private void HandleStartFocusEnableDisable()
         {
-             
-
             string Hourstext = Hours.Text; 
             string Minutestext = Minutes.Text;
         
@@ -149,13 +132,10 @@ namespace Focus_Bear.Focus
             e.Handled = !regex.IsMatch((sender as TextBox).Text.Insert((sender as TextBox).SelectionStart, e.Text));
             if (e.Handled)
             {
-                // btnOK.IsEnabled = false;
             }
             else
             {
                 HandleStartFocusEnableDisable();
-                //btnStartFocus.IsEnabled = true; // all set enable the ok button 
-                
             }
         }
 
@@ -188,12 +168,10 @@ namespace Focus_Bear.Focus
                 text = text.Trim();
                 if (text.Length > 0)
                 {
-                    //btnStartFocus.IsEnabled = true;
                     HandleStartFocusEnableDisable();
                 }
                 else
                 {
-                    //btnStartFocus.IsEnabled = false;
                     HandleStartFocusEnableDisable();
                 }
             }
@@ -206,12 +184,9 @@ namespace Focus_Bear.Focus
             e.Handled = !regex.IsMatch((sender as TextBox).Text.Insert((sender as TextBox).SelectionStart, e.Text));
             if (e.Handled)
             {
-                // btnOK.IsEnabled = false;
             }
             else
             {
-                // btnStartFocus.IsEnabled = true; // all set enable the ok button
-               // HandleStartFocusEnableDisable();
             }
         }
 
@@ -233,12 +208,10 @@ namespace Focus_Bear.Focus
                 text = text.Trim();
                 if (text.Length > 0)
                 {
-                    //btnStartFocus.IsEnabled = true;
                     HandleStartFocusEnableDisable();
                 }
                 else
                 {
-                    //btnStartFocus.IsEnabled = false;
                     HandleStartFocusEnableDisable();
                 }
             }
@@ -259,22 +232,7 @@ namespace Focus_Bear.Focus
 
             if (bIsDefaultFocusMode)
             {
-               // await Task.Delay(50);
-               /** Removed Discourage focus on 28 Jan 2023
-                GridShade.Visibility = Visibility.Visible;
-                DiscourageDefault aa = new DiscourageDefault(this);
-                aa.Topmost = true;
-                bool? DialogResult = aa.ShowDialog();
-                if (DialogResult.Value == true) //Shutup Clicked
-                {
-                    //Let the Start the Focus Mode
-                }
-                else//Cancel Clicked // CLose itself too
-                {
-                    Close();
-                }
-                GridShade.Visibility = Visibility.Collapsed;
-                **/
+                //Nothing to do
             }
             else if (bIsisLockedFocusMode)
             {

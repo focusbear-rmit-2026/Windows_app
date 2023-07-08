@@ -71,26 +71,6 @@ namespace Focus_Bear
         {
 
             ListFocusModes.ItemsSource = appSettings.arrFocusModes;
-
-            /*"menuInfo":{
-             *  "menuItemReactivateTitle":"Reactivate",
-
-             "menuItemPreferencesTitle":"Preferences",
-             "menuItemFocusTitle":"Focus",
-              "menuItemHardcorePomodoroModeTitle":"Super Pomodoro Mode",
-        "menuItemStartPomodoroTitle":"Start Pomodoro Mode",
-        "menuItemStopHardcorePomodoroTitle":"Stop Super Pomodoro Mode",
-         "menuItemEnableOfficeModeTitle":"Office Mode Enabled",
-        "menuItemDisableOfficeModeTitle": "WFH Mode Enabled",
-        "menuItemQuitTitle":"Quit",
-         "menuItemUpgradeNowTitle":"Upgrade Now",
-        "subscriptionExpiredText":"Your subscription has expired",
-
-            *  "common":{
-            *          "daysRemainingText":"Trial version - <DAYS> of 31 trial days remaining",
-            *           "trialExpiredText":"Your trial has expired!",
-        * */
-
             try
             {
                 Reactivate.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemReactivateTitle"].ToString();
@@ -135,8 +115,6 @@ namespace Focus_Bear
                     TrialInfo.Text = sTrial.Replace("<DAYS>", appSettings.nTrialDays.ToString()); ;
                 }
 
-               
-
                 if (appSettings.IsAppDeactivated())
                 {
                     btnReactivate.Visibility = Visibility.Visible;
@@ -171,10 +149,7 @@ namespace Focus_Bear
 
                 if (RegistryManager.GetFocusModeSetupDone())
                 {
-                   // if (appSettings.arrFocusModes.Count > 3)
-                    {
-                        btnSetupFocusMode.Visibility = Visibility.Collapsed;
-                    }
+                    btnSetupFocusMode.Visibility = Visibility.Collapsed;
                 }
               
             }
@@ -187,20 +162,9 @@ namespace Focus_Bear
 
 
         private void OfficeModeButton_Click(object sender, RoutedEventArgs e)
-        {
-            //MessageBox.Show("Work In Progress!", "WIP", MessageBoxButton.OK, MessageBoxImage.Error);
-            //return;
-
-            /*        "menuInfo":{    "noOfficeFriendlyActivityAlertText":"You don't have any office friendly break activities. Do you want me to add one for you to stand up and stretch for 20 seconds?",
-             "noOfficeFriendlyActivityButtonFirstText":"Yeah sounds good",
-             "noOfficeFriendlyActivityButtonSecondText":"No I'm a machine! I don't need breaks",
-             
-              "officeModeEnabledSuccessfullyText":"Ok! I'll just prompt you to do activities that won't weird other people out (doing handstand pushups in the office might raise a few eyebrows).",
-            */
-
+        {            
             if (btnOfficeMode.IsChecked.Value) //means officemode enabled
             {
-               
                 //if office friendly activity added then show alert
                 var listItems = appSettings.arrAllbreakActivities.Where(i => i.isOfficeFriendly == true);
                 if (listItems.Count() == 0)
@@ -211,23 +175,20 @@ namespace Focus_Bear
                     if(ff.btnClicked == MessageBoxResult.Yes)
                     {
                         appSettings.isOfficeModeEnabled = true;
+                   
                         //create an office friendly activity
-
                         string ActivityID = System.Guid.NewGuid().ToString();
                         string SequenceID = System.Guid.NewGuid().ToString();
                         if (appSettings.arrAllbreakActivities.Count() > 0)
                         {
                             SequenceID = appSettings.arrAllbreakActivities[0].activity_sequence_id;
                         }
-
-                        // arrAllbreakActivities.append(breakActivity(id:id,name: "Stand up and stretch", durationSeconds: 20, IncludeInEveryBreak: false, urlsArray: [], logQuantity:false, isRandomChoice: false, choices: [], logQuantityQuestion: "", openSpecificApps: false, allowUrls: [], allowApps: [], isOfficeFriendly: true, allowedFocusMode: "", logQuantityType: "",activity_sequence_id:activity_sequence_id))
                         //add to our array
                         appSettings.arrAllbreakActivities.Add(new breakActivity(ActivityID, "Stand up and stretch", 20, new List<string>(), false, "", false, new List<string>(), new List<string>(), "", SequenceID, false, false, new List<activityChoice>(), true, "", new List<QuantityQuestion>(), "", true));
 
                         //add to the json
                         String jsonString = appSettings.sRawUserSettings;
-                        ////
-                        ///
+
                         JObject UserSettings = JObject.Parse(appSettings.sRawUserSettings);
 
                         if (UserSettings.ContainsKey("break_activities"))
@@ -255,8 +216,6 @@ namespace Focus_Bear
                             FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["officeModeEnabledSuccessfullyText"].ToString());
                             ff1.ShowDialog();
                         }
-                            ///
-                           
                     }
                     else
                     {
@@ -267,7 +226,6 @@ namespace Focus_Bear
                 else
                 {
                     //Office friendly activity is there
-                    // "officeModeEnabledSuccessfullyText":"Ok! I'll just prompt you to do activities that won't weird other people out (doing handstand pushups in the office might raise a few eyebrows).",
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["officeModeEnabledSuccessfullyText"].ToString());
                     ff.ShowDialog();
                     appSettings.isOfficeModeEnabled = true;
@@ -287,9 +245,8 @@ namespace Focus_Bear
                 lblOfficeMode.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemDisableOfficeModeTitle"].ToString();
             }
 
-            //SAve thelocal settings and upload to server
+            //Save thelocal settings and upload to server
             LocalSettingsManager.PutLocalSettings();
-            // Close();
         }
 
         private void btnQuit_Click(object sender, RoutedEventArgs e)
@@ -298,8 +255,6 @@ namespace Focus_Bear
 
             try
             {
-                // DisposeTrayIcon();
-
                 //Chck if the Focus mode is running, then we should terminate it
                 //Call api top finish focus mode
                 if (appSettings.isFocusModeRunning)
@@ -311,14 +266,6 @@ namespace Focus_Bear
                     var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
                 }
 
-
-                // isClosed = true;
-                //mainWin.ShouldShutDown = true; // App should show BeforeClosing Nag
-                //Application.Current.Shutdown(0);
-                ///Close();
-                // mainWin.ShouldShutDown = true;
-                // mainWin.BringToTopAndClose();
-                //Application.Current.Shutdown(0);
                 QuitWindow aa = new QuitWindow();
                 aa.ShowDialog();
             }
@@ -347,8 +294,6 @@ namespace Focus_Bear
                 appSettings.bRestartAppNeeded = true;
 
                 Application.Current.Shutdown(0);
-
-                //Process.Start(currentAppPath, "/restartbyself");
             }
             catch (Exception ex)
             {
@@ -375,8 +320,6 @@ namespace Focus_Bear
                 ((App)(Application.Current)).ShowExpiredNag();
                 return;
             }
-
-            //MessageBox.Show("Work In Progress!", "WIP", MessageBoxButton.OK, MessageBoxImage.Error);
             Hide();
 
             appSettings.CapturePostHog("open-preferences");
@@ -485,8 +428,6 @@ namespace Focus_Bear
                             if (selectedItem.isLockedFocus)
                             {
                                 selectedItem.isAllowedListApproach = true;
-                                ////selectedItem.isAllowedAllUrls = false;
-
                                 selectedItem.isAllowedAllApps = false;
                                 selectedItem.arrAllowedAppsWin.Clear();//Remove old
                                 selectedItem.arrAllowedAppsWin.Add(new AppDetails(appSettings.sLastActiveAppName, appSettings.sLastActiveAppName) ); //Add new
@@ -508,8 +449,6 @@ namespace Focus_Bear
                             
                             dTill = dTill.AddHours(nHours);
                             dTill = dTill.AddMinutes(nMinutes);
-                            /* "menuInfo":{
-                               "untilTimeText":"On Until <TIME>",*/
                             string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
                             sTill = sTill.Replace("<TIME>", dTill.ToString());
                             OnUntill.Content = sTill;
@@ -568,9 +507,7 @@ namespace Focus_Bear
 
 
                                 //Clear the Gentle block temp arrays
-                                ////appSettings.TemporaryAllowedAppsGentleBlock.Clear();
                                 appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                                ///appSettings.TemporaryAllowedURLsGentleBlock.Clear();
                                 appSettings.TemporarryBlockedURLsGentleBlock.Clear();
 
                                 //Make the global variable false
@@ -590,11 +527,6 @@ namespace Focus_Bear
                             else
                             {
                                 FocusMode NewSelectedFocusMode = ListFocusModes.SelectedItem as FocusMode; 
-                                /*"focusInfo":{
-                                "focusAlreadyRunningText":"A focus mode is already running. Please deactivate the running focus mode to start a new one.",*/
-                                ///MessageBox.Show(, "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
-                                ///// startingFocusModeInfo  "buttonStopFocusText": "Stop current focus mode and start this one",
-                                ///
                                 FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusInfo"]["focusAlreadyRunningText"].ToString(), "Focus Bear",MessageBoxButton.YesNo, appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString(), appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["buttonStopFocusText"].ToString());
                                 ff.ShowDialog();
                                 if(ff.btnClicked == MessageBoxResult.No)
@@ -604,11 +536,8 @@ namespace Focus_Bear
                                     CurrentRunningFocusMode.isOn = false;
                                     Sounds.PlayFocusModeEndSound();
 
-
                                     //Clear the Gentle block temp arrays
-                                    ////appSettings.TemporaryAllowedAppsGentleBlock.Clear();
                                     appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                                    ///appSettings.TemporaryAllowedURLsGentleBlock.Clear();
                                     appSettings.TemporarryBlockedURLsGentleBlock.Clear();
 
                                     //Make the global variable false
@@ -620,7 +549,6 @@ namespace Focus_Bear
                                     OnUntill.Visibility = Visibility.Collapsed;
                                     //Increase hearder height
                                     OrangeHeader.Height = 25; //Originally 25
-
 
                                     //Now open the New selected Focus mode start window
                                     //Deselect the Seleted list view item
@@ -641,7 +569,6 @@ namespace Focus_Bear
                         catch (Exception ex)
                         {
                             LogWriter.LogWrite("ListFocusModes_SelectionChanged = " + ex.Message);
-                            //System.Diagnostics.Debug.WriteLine(ex.Message);
                         }
 
                     }
@@ -650,7 +577,6 @@ namespace Focus_Bear
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ListFocusModes_SelectionChanged = " + ex.Message);
-                //System.Diagnostics.Debug.WriteLine(ex.Message);
             }
 
         }
@@ -659,7 +585,6 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("StartFocusModeTimer() invoked");
 
-            
             //Remove the previous event handler so that new can be set
             try
             {
@@ -676,7 +601,6 @@ namespace Focus_Bear
             catch (Exception ex)
             {
                 LogWriter.LogWrite("StartFocusModeTimer 1" + ex.Message);
-                //Debug.WriteLine(ex.Message);
             }
 
             try
@@ -695,7 +619,6 @@ namespace Focus_Bear
             catch (Exception ex)
             {
                 LogWriter.LogWrite("StartFocusModeTimer 2 - " + ex.Message);
-                //Debug.WriteLine(ex.Message);
             }
 
         }
@@ -728,11 +651,8 @@ namespace Focus_Bear
                         ((App)Application.Current).CloseFocusProgressWindow();
 
                         //Clear the Gentle block temp arrays
-                        ////appSettings.TemporaryAllowedAppsGentleBlock.Clear();
                         appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                        ////appSettings.TemporaryAllowedURLsGentleBlock.Clear();
                         appSettings.TemporarryBlockedURLsGentleBlock.Clear();
-
 
                         //Show and Set on untill value
                         OnUntill.Visibility = Visibility.Collapsed;
@@ -749,14 +669,12 @@ namespace Focus_Bear
                     catch (Exception ex)
                     {
                         LogWriter.LogWrite("dispatcherTimer_Focus" + ex.Message);
-                        //Debug.WriteLine(ex.Message);
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("dispatcherTimer_Focus" + ex.Message);
-               // Debug.WriteLine(ex.Message);
             }
         }
 

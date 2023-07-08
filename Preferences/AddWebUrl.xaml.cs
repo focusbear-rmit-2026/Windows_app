@@ -68,23 +68,7 @@ namespace Focus_Bear.Preferences
         }
         private void SetTexts()
         {
-            /*
-            * focusPreferencesInfo
-            * "titleAddWebUrl":"Add Web Url",
-       "titleEditWebUrl":"Edit Web Url",
-
-                   "allowUrlInstructionFirstText":"To allow a certain website: domain.com",
-       "allowUrlInstructionSecondText":"To allow all subdomains of a website: *.domain.com",
-       "allowUrlInstructionThirdText":"To allow any web pages that contain text in the URL or page title: reactnative or React Native",
-
-                    "blockUrlInstructionFirstText":"To block a certain website: domain.com",
-        "blockUrlInstructionSecondText":"To block all subdomains of a website: *.domain.com",
-
-
-                  "buttonCancelText":"Cancel",
-       "buttonAddText":"Add",
-           "buttonSaveText":"Save",
-            */
+            
             if (_bEditURLMode)
             {
                 Title = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleEditWebUrl"].ToString();

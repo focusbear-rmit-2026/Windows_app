@@ -32,14 +32,6 @@ namespace Focus_Bear.Onboarding.NEW
             InitializeComponent();
             _parentWindow = parentWindow;
 
-            /*
-               "titleWhichBrowser": "Oops! Which browser did you try?",
-        "tryBrowsersBlockText": "Did you use Safari, Google Chrome, Sidekick, Brave Browser or Microsoft Edge?\nWe can only block if you use those browsers.",
-        "buttonStillNotBlockedText": "Still not working",
-        "buttonNowBlockedText": "I just tried those browsers and it worked!",
-        "emailUsText": "Sorry about that 😓 Any chance you could email us (team@focusbear.io) and we'll try and fix it for you?"
-    
-                  */
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["tryBlockUrlVcInfo"]["titleWhichBrowser"].ToString();

@@ -1,19 +1,4 @@
-﻿/*
- * Copyright (c) 2018-2019 Wise Tech Labs Private Limited, All Rights Reserved.
- *
- * File: AppsEngine.cs
- * Project: SMART System Repair
- * User: Gaurav
- *
- * This document is the property of Wise Tech Labs Private Limited
- * It is considered confidential and proprietary.
- *
- * This document may not be reproduced or transmitted in any form, 
- * in whole or in part, without the express written permission of 
- * Wise Tech Labs Private Limited
- *
- */
-
+﻿
 using Focus_Bear.Utils;
 using Microsoft.Win32;
 using System;
@@ -78,18 +63,13 @@ namespace Focus_Bear.Models
 
 
         AppSettings appSettings = AppSettings.GetInstance;
-        /// CancellationToken _CancelToken = CancellationToken.None;
-        /// private ManualResetEventSlim _ResetEvent = null;
-
+       
         public AppsEngine(/*CancellationToken token, ManualResetEventSlim resetEventSlim*/)
         {
-            //_CancelToken = token;
-            //_ResetEvent = resetEventSlim;
         }
 
         public async void GetData()
         {
-            // string ss = GetShortcutTargetFile("C:\\Users\\Gaurav\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Firefox Private Browsing.lnk");
             List<AppDetails> StartMenuApps = new List<AppDetails>();
 
             StartMenuApps =  GetStartMenuItems();
@@ -117,7 +97,6 @@ namespace Focus_Bear.Models
         }
         private Task DetectIF_ChromeInstalled()
         {
-            //Debug.WriteLine("Detecting Chrome");
             return Task.Run(() =>
             {
                 try
@@ -183,11 +162,7 @@ namespace Focus_Bear.Models
 
             List<AppDetails> StartMenuApps = new List<AppDetails>();
             //GEt from start menu first
-            ////////////
-
-            //string startMenuCommon = Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu); // /* % ProgramData %\Microsoft\Windows\Start Menu\Programs
-            //startMenuCommon = startMenuCommon + "\\Programs";
-
+   
             try
             {
 
@@ -207,7 +182,7 @@ namespace Focus_Bear.Models
                         {
                             continue;
                         }
-                        // app.ExeNames.Add(Path.GetFileName(sFileName));
+
                         //get the app and check if its an exe
                         string sApp = GetShortcutTargetFile(sFileName);
                         if (sApp.Length > 0 && (".exe" == sApp.Substring(sApp.Length - 4)))
@@ -250,18 +225,14 @@ namespace Focus_Bear.Models
                     if (Environment.Is64BitOperatingSystem)
                     {
                         ReadSubKeys(ref apps, RegistryHive.CurrentUser, root, true);
-                    
-                       /// _CancelToken.ThrowIfCancellationRequested();
 
                         ReadSubKeys(ref apps, RegistryHive.LocalMachine, root, true);
                     }
 
-                   /// _CancelToken.ThrowIfCancellationRequested();
-
                     //Obtaining 32-bit Processes
                     LogWriter.LogWrite("AppDetails - fetch 32 bit apps");
                     ReadSubKeys(ref apps, RegistryHive.CurrentUser, root, false);
-                   /// _CancelToken.ThrowIfCancellationRequested();
+
                     ReadSubKeys(ref apps, RegistryHive.LocalMachine, root, false);
 
                     return apps;
@@ -294,22 +265,13 @@ namespace Focus_Bear.Models
                 {
                     try
                     {
-                       /// _ResetEvent.Wait(_CancelToken);
-                       /// _CancelToken.ThrowIfCancellationRequested();
-
+                     
                         using (RegistryKey childSubKey = keySoftware.OpenSubKey(subKey))
                         {
                             var valDisplayName = FilterKeyData(childSubKey, "DisplayName");
                             var valInstallLocation = FilterKeyData(childSubKey, "InstallLocation");
                             var valDisplayIcon = FilterKeyData(childSubKey, "DisplayIcon");
-                            //if (valDisplayName.Contains("Admin"))
-                            //{
-                            //    ;
-                            //}
-                            //if (valDisplayName.Contains("VS Script Debugging Common"))
-                            //{
-                            //    ;
-                            //}
+          
                             if (!string.IsNullOrEmpty(valDisplayIcon))
                             {
                                 //In case path contains ',' then only obtain path before ','
@@ -319,16 +281,8 @@ namespace Focus_Bear.Models
                                 }
                             }
 
-                            var IsMsApp = false;
-
-                         
                             if (!string.IsNullOrEmpty(valDisplayName) && !valDisplayName.Contains("Focus Bear") )
                             {
-                                //if (valDisplayName.Contains("Chrome") || valDisplayName.Contains("Firefox"))
-                                //{
-                                //    LogWriter.LogWrite("AppDetails");
-                                //}
-
                                 var IsSystemComponent = CheckIfComponent(childSubKey, "SystemComponent");
                                 var IsWindowsComponent = CheckIfComponent(childSubKey, "WindowsComponent");
                                 
@@ -342,8 +296,6 @@ namespace Focus_Bear.Models
 
                                         if (ifAlreadyExist == null)
                                         {
-                                            // IsMsApp = CheckIfMicrosoftApplication(publisher, uninstallPath);
-
                                             var app = new AppDetails();
                                             app.AppName = valDisplayName.Trim();
 
@@ -363,53 +315,6 @@ namespace Focus_Bear.Models
                                             }
                                             apps.Add(app);
 
-                                            //string[] files;
-                                            //files = Directory.GetFiles(valInstallLocation, /*process +*/ "*.exe", SearchOption.AllDirectories);
-                                            //if (files.Length > 0)
-                                            //{
-                                            //    foreach (string sFileName in files)
-                                            //    {
-
-                                            //        try
-                                            //        {// Get the file version for the notepad.
-                                            //            FileVersionInfo myFileVersionInfo =
-                                            //            FileVersionInfo.GetVersionInfo(sFileName);
-
-                                            //            // Print the product name.
-                                            //            Console.WriteLine(myFileVersionInfo.ProductName);
-
-                                            //            Console.WriteLine(myFileVersionInfo.FileDescription);
-
-                                            //            //Add the EXE in AppName
-                                            //            //Add the Product Name / Descripton in AppProductName
-                                            //            if (myFileVersionInfo.ProductName.Length > 0)
-                                            //            {
-                                            //                var app = new AppDetails();
-                                            //                app.AppName = Path.GetFileName(sFileName);
-
-                                            //                //if (valDisplayIcon != null)
-                                            //                app.DisplayIcon = sFileName; //Let the full path be in the Display Icon to be extracted
-
-                                            //                //app.AppInstallLocation = valInstallLocation;
-                                            //                app.AppProductName = myFileVersionInfo.ProductName + " | " + myFileVersionInfo.FileDescription;
-
-                                            //                var ifExists = apps.FirstOrDefault(a => a.AppName.ToLower() == app.AppName.ToLower());
-
-                                            //                if (ifExists == null)
-                                            //                {
-                                            //                    apps.Add(app);
-                                            //                }
-
-                                            //            }
-                                            //        }
-                                            //        catch (Exception ex)
-                                            //        {
-                                            //            LogWriter.LogWrite("FileVersionInfo EX-" + ex.Message);
-                                            //            continue;
-                                            //        }
-                                            //    }
-
-                                            //}
                                         }
                                     }
                                     

@@ -40,13 +40,7 @@ namespace Focus_Bear.Habits
             InitializeComponent();
 
             _parentWindow = parentWindow;
-            /*
-             "activityInfo":{
-             "visualizeDescriptionText": "Before you begin your routine, take 30 seconds to engage in \"extrapersonal focus\": try your best to keep your eyes fixed on the target. Research from Balcetis and colleagues in 2020 indicates that concentrating on a visual point will sharpen your focus and increase the likelihood of completing your routine.",
-            "titleGetFocused": "Get Focused"
-                "startActivityButtonText":"Start <TIME> <NAME>",
-                        "buttonSkipHabitText":"Skip this habit for today",
-             */
+ 
            //Get the First activity name and duration to set on the Button
            if(appSettings.bMotivationalMessageEnabled)
            {
@@ -108,7 +102,6 @@ namespace Focus_Bear.Habits
             catch (Exception ex)
             {
                 LogWriter.LogWrite("HabitExtraPersonal - " + ex.Message);
-                //Debug.WriteLine(ex.Message);
             }
 
             //Start timer only when we are not showing the webview
@@ -154,7 +147,6 @@ namespace Focus_Bear.Habits
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite("extra personal dispatcherTimer_Tick - " + ex.Message);
-                    //Debug.WriteLine(ex.Message);
                 }
             }
         }
@@ -208,7 +200,6 @@ namespace Focus_Bear.Habits
                         }
                         else
                         {
-                            //Hide();
                             return;
                         }
 
@@ -240,7 +231,6 @@ namespace Focus_Bear.Habits
                         }
                         else
                         {
-                            //Hide();
                             return;
                         }
                     }
@@ -285,10 +275,6 @@ namespace Focus_Bear.Habits
             {
                 try
                 {
-
-
-                    //this.webView.NavigationStarting += NavigationStarting;
-                    //this.webView.NavigationCompleted += NavigationCompleted;
                     webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
                     webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
                     webView.CoreWebView2.Settings.IsScriptEnabled = true;
@@ -317,7 +303,7 @@ namespace Focus_Bear.Habits
             {
                 string Settings = string.Format("{{\"access_token\":\"{0}\"}}", appSettings.userAccount.accessToken);
                 string settingsFunc = string.Format("loadAccessTokenForInspirationPage({0});", Settings);
-                var ss = webView.ExecuteScriptAsync(settingsFunc);
+                var sReturn = webView.ExecuteScriptAsync(settingsFunc);
             }
         }
     }

@@ -39,20 +39,6 @@ namespace Focus_Bear.Preferences
             InitializeComponent();
             _ParentWindow = pp;
 
-            /*  "preferencesInfo":{
-             *  "titleAppMode":"Focus bear mode:",
-             "checkBoxCuddlyBearText":"Cuddly Bear mode",
-            "descriptionCuddlyBearText":"Cuddly Bear mode: kind and gentle - gives you the benefit of the doubt when you open a non-allowed URL. Lets you temporarily allow blocked URLs during a focus mode.",
-            "checkBoxGrizzlyBearText":"Grizzly Bear mode",
-            "descriptionGrizzlyBearText":"Grizzly Bear mode: super strict - immediately block URLs that aren't allowed and don't let yourself allow them until the focus mode is over.",
-             "versionText": "Version:",
-              "buttonExportLogsText":"Click here to export logs to share with Support Team.",
-        */
-
-            /* "menuInfo":{
-              "menuItemExportStatisticsTitle":"Export Statistics",
-              "menuItemCheckForUpdatesTitle":"Check for updates",
-              */
             try
             {
 
@@ -68,8 +54,8 @@ namespace Focus_Bear.Preferences
                 btnExportStatisticsTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemExportStatisticsTitle"].ToString();
                 btnCheckForUpdatesTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemCheckForUpdatesTitle"].ToString();
 
-                CuddlyMode.IsChecked = (appSettings.nFocudBearMode == 1) ? true : false;//1 is cuddly bear mode
-                GrizzlyMode.IsChecked = (appSettings.nFocudBearMode == 2) ? true : false;//2 is grizzly bear mode
+                CuddlyMode.IsChecked = (appSettings.nFocusBearMode == 1) ? true : false;//1 is cuddly bear mode
+                GrizzlyMode.IsChecked = (appSettings.nFocusBearMode == 2) ? true : false;//2 is grizzly bear mode
 
                 GeneralTab.Header = appSettings.ConfigFileStrings["common"]["tabGeneralText"].ToString();
                 PasswordTab.Header = appSettings.ConfigFileStrings["common"]["tabPasswordText"].ToString();
@@ -95,11 +81,6 @@ namespace Focus_Bear.Preferences
                 CheckQuittingApp.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonQuitAppText"].ToString();
 
                 SelectLanguage.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleSelectLanguage"].ToString();
-
-                /*  "languageInfo": {
-                "languageEnglish":"English",
-                    "languageSpanish":"Spanish"
-                },*/
 
                 Language.Items.Add(appSettings.ConfigFileStrings["languageInfo"]["languageEnglish"].ToString());
                 Language.Items.Add(appSettings.ConfigFileStrings["languageInfo"]["languageSpanish"].ToString());
@@ -188,9 +169,6 @@ namespace Focus_Bear.Preferences
         {
             try
             {
-                /*        "menuInfo":{
-                         "menuItemExportStatisticsTitle":"Export Statistics",*/
-
                 var folderBrowserDialog1 = new FolderBrowserDialog();
                 folderBrowserDialog1.Description = appSettings.ConfigFileStrings["menuInfo"]["menuItemExportStatisticsTitle"].ToString();
 
@@ -229,16 +207,14 @@ namespace Focus_Bear.Preferences
 
         }
 
-       
-
         private void GrizzlyMode_Checked(object sender, RoutedEventArgs e)
         {
-            appSettings.nFocudBearMode = 0;//0 is Grizzly bear mode
+            appSettings.nFocusBearMode = 0;//0 is Grizzly bear mode
         }
 
         private void CuddlyMode_Checked(object sender, RoutedEventArgs e)
         {
-            appSettings.nFocudBearMode = 1;//1 is cuddly bear mode
+            appSettings.nFocusBearMode = 1;//1 is cuddly bear mode
         }
 
         private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
@@ -253,19 +229,6 @@ namespace Focus_Bear.Preferences
 
         private void btnSetPassword_Click(object sender, RoutedEventArgs e)
         {
-            /*passwordPreferencesInfo
-             *  "passwordBlankAlertTitle":"Password cannot be blank.",
-                "passwordBlankAlertSubTitle":"Please enter a valid password.",
-               
-            "confirmPasswordBlankAlertTitle":"Confirm Password cannot be blank.",
-                "confirmPasswordBlankAlertSubTitle":"Please enter a valid \"Confirm password\".",
-               
-            "passwordSetAlertTitle":"Password successfully set.",
-                "passwordChagedAlertTitle":"Password successfully changed.",
-              
-            "passwordNotMatchAlertTitle":"Passwords do not match.",
-                "passwordNotMatchAlertSubTitle":"Confirm Password does not match with the main password. Please re enter.",
-             */
             if (TxtPassword.Password.Length == 0)
             {
                 FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordBlankAlertSubTitle"].ToString(), appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordBlankAlertTitle"].ToString());
@@ -309,8 +272,6 @@ namespace Focus_Bear.Preferences
 
         private void btnDisablePassword_Click(object sender, RoutedEventArgs e)
         {
-            /* passwordPreferencesInfo       "passwordDisableAskText":"Are you sure you want to disable your password?",
-            "passwordDisableDoneText":"Your password has been disabled.",*/
             FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordDisableAskText"].ToString(), MessageBoxButton.YesNo);
             ff.Owner = _ParentWindow;
             ff.ShowDialog();
@@ -446,12 +407,7 @@ namespace Focus_Bear.Preferences
                         //We will need to select the General tab here
                         PasswordTab.IsSelected = false;
                         TabControlSettings.SelectedItem = GeneralTab;
-
-                        //PasswordTab.IsSelected = false;
-                        // e.Handled = true;
-
                     }
-
                 }
             }
         }

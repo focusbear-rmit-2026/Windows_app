@@ -1,19 +1,4 @@
-﻿/*
- * Copyright (c) 2018-2019 Wise Tech Labs Private Limited, All Rights Reserved.
- *
- * File: WinSecurity.cs
- * Project: SMART System Repair
- * User: Gaurav
- *
- * This document is the property of Wise Tech Labs Private Limited
- * It is considered confidential and proprietary.
- *
- * This document may not be reproduced or transmitted in any form, 
- * in whole or in part, without the express written permission of 
- * Wise Tech Labs Private Limited
- *
- */
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -41,7 +26,6 @@ namespace Focus_Bear.Models
             startInfo.WorkingDirectory = Environment.CurrentDirectory;
             startInfo.FileName = Application.ExecutablePath;
             startInfo.Verb = "runas";
-            //startInfo.Arguments = "/opensettings";
 
             if (AddToStartup)
             {
@@ -52,7 +36,6 @@ namespace Focus_Bear.Models
                 startInfo.Arguments = "/startupNo";
             }
 
-            //System.Windows.Application.Current.Shutdown(0);
             Process p = null;
             try
             {

@@ -211,11 +211,6 @@ namespace Focus_Bear.API
                     Email = sUsername,
                 });
 
-                //Proceed after login
-                //appSettings.userAccount.accessToken = authenticationResponse.AccessToken;
-                //appSettings.userAccount.refreshToken = authenticationResponse.RefreshToken;
-
-                //appSettings.SaveTokens();
                 sChangePasswordMessage = authenticationResponse;
                 return true;
 
@@ -234,13 +229,6 @@ namespace Focus_Bear.API
 
         public async Task<bool> SendMagicLink(String sUsername)
         {
-            /*var client = new RestClient("https://{yourDomain}/passwordless/start");
-                var request = new RestRequest(Method.POST);
-                request.AddHeader("content-type", "application/json");
-                request.AddParameter("application/json", "{ \"client_id\": \"{yourClientId}\", \"connection\": \"email\", \"email\": \"USER_EMAIL\", \"send\": \"link\"}", ParameterType.RequestBody);
-                IRestResponse response = client.Execute(request);
-                */
-
             try
             {
                 //https://github.com/auth0/auth0.net/blob/master/src/Auth0.AuthenticationApi/AuthenticationApiClient.cs

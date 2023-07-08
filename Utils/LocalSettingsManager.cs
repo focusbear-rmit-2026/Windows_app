@@ -106,11 +106,11 @@ namespace Focus_Bear.Utils
                             {
                                 sMacOSSettingsOBJ.Remove("kCuddlyModeEnabled"); //Remove blocked URL
                                                                                   //Add new upadted blocked URLs
-                                sMacOSSettingsOBJ.Add("kCuddlyModeEnabled", (appSettings.nFocudBearMode == 1) ? true : false);
+                                sMacOSSettingsOBJ.Add("kCuddlyModeEnabled", (appSettings.nFocusBearMode == 1) ? true : false);
                             }
                             else
                             {
-                                sMacOSSettingsOBJ.Add("kCuddlyModeEnabled", (appSettings.nFocudBearMode == 1) ? true : false);
+                                sMacOSSettingsOBJ.Add("kCuddlyModeEnabled", (appSettings.nFocusBearMode == 1) ? true : false);
                             }
 
 

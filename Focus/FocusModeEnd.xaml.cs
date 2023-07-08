@@ -27,42 +27,16 @@ namespace Focus_Bear.Focus
     public partial class FocusModeEnd : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
-        //[DllImport("user32.dll")]
-        //private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
-        //[DllImport("user32.dll")]
-        //private static extern bool EnableMenuItem(IntPtr hMenu, uint uIDEnableItem, uint uEnable);
-
-        //private const uint MF_BYCOMMAND = 0x00000000;
-        //private const uint MF_GRAYED = 0x00000001;
-        //private const uint SC_CLOSE = 0xF060;
-        //private const int WM_SHOWWINDOW = 0x00000018;
-
-        //protected override void OnSourceInitialized(EventArgs e)
-        //{
-        //    base.OnSourceInitialized(e);
-        //    var hWnd = new WindowInteropHelper(this);
-        //    var sysMenu = GetSystemMenu(hWnd.Handle, false);
-        //    EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
-        //}
+ 
         public FocusModeEnd()
         {
             InitializeComponent();
             LogWriter.LogWrite("FocusModeEnd()");
             appSettings.bStartingAnotherFocusMode = false;
-            /*  "focusInfo":{ "focusCompletedInfo":{
-            "title":"You did it!",
-            "subTitle":"You have successfully completed the focus block - <FOCUSTYPE>",
-            "questionFirstText":"What did you achieve during this time?",
-            "questionSecondText":"Any distractions?",
-            "titleIntention":"Your intention was",
-            "buttonTakeBreakText":"Take a 5 minute break"*/
-
+           
             this.Topmost = true;
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-
-           
-        }
+         }
 
         private void btnTakeBreak_Click(object sender, RoutedEventArgs e)
         {
@@ -72,12 +46,7 @@ namespace Focus_Bear.Focus
         private async void Take5MinsBreak()
         {
             LogWriter.LogWrite("Take5MinsBreak() Clicked");
-            /*
-               Log type,Timestamp,Activity,Duration in seconds,Quantity Question,Quantity Logged,Start Time,Work achieved,Distractions encountered,Abort reason,Feedback
-               focus mode abort,2022-11-29 16:57:32,focus block - Meetings,9,,,2022-11-29 16:57:22,,,I have an emergency,
-               focus mode abort,2022-11-29 16:57:49,focus block - Meetings,9,,,2022-11-29 16:57:39,,,Focus mode is not working properly.,
-               focus block,2022-11-29 17:01:21,Meetings,60,,,2022-11-29 16:59:49,,,,
-               */
+   
             DateTime now = DateTime.Now;
             TimeSpan difference = now.Subtract(DateTime.Parse(appSettings.sRunningFocusModeStartTime)); // could also write `now - otherTime`
             var durationSeconds = difference.TotalSeconds;
@@ -101,7 +70,7 @@ namespace Focus_Bear.Focus
                 ((App)(Application.Current)).ShowBrainDumpWindow();
 
                 //Ask the user for adding temp apps / urls
-                if (appSettings.TemporaryAllowedAppsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsTabTitles.Count != 0)
+            if (appSettings.TemporaryAllowedAppsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsTabTitles.Count != 0)
             {
                 if(appSettings.TemporaryAllowedURLsTabTitles.Count > 0)
                 {
@@ -119,8 +88,6 @@ namespace Focus_Bear.Focus
                             //Parse the JSON string
                             try
                             {
-                                //JObject UserSettings = JObject.Parse(appSettings.sRawKeywords);
-                                // JArray array = (JArray)appSettings.sRawKeywords;
                                 List<string> array = new List<string>();
                                 array = JsonConvert.DeserializeObject<List<string>>(appSettings.sRawKeywords);
                                 if (array.Count > 0)
@@ -136,8 +103,6 @@ namespace Focus_Bear.Focus
                                 LogWriter.LogWrite("Parsing appSettings.sRawKeywords  EX - " + ex.Message);
                             }
                         }
-                            ///
-
                     }
                 }
 
@@ -178,11 +143,7 @@ namespace Focus_Bear.Focus
                         {
                             LogWriter.LogWrite("btnAddDeleteAllowedURLs_Click EX = " + ex.Message);
                         }
-
-
                     }
-
-                    
                 }
             }
              
