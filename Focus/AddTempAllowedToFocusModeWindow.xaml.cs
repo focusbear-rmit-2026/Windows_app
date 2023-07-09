@@ -28,11 +28,6 @@ namespace Focus_Bear.Focus
             LogWriter.LogWrite("AddTempAllowedToFocusModeWindow() shown ");
             InitializeComponent();
 
-            /* "addFocusTempUrlsOrAppsVcInfo": {
-                "title":"Do you want to permanently allow these Apps or URLs that you used during this session?",
-                "buttonAllowText":"Allow"
-            },*/
-
             try
             {
                 
@@ -65,11 +60,7 @@ namespace Focus_Bear.Focus
                 URLSTitle.Visibility = Visibility.Collapsed;
                 ListURLs.Visibility = Visibility.Collapsed;
             }
-            //if(appSettings.TemporaryAllowedKeywords.Count == 0)
-            //{
-            //    KeywordsTitle.Visibility = Visibility.Collapsed;
-            //    ListKeywords.Visibility = Visibility.Collapsed;
-            //}
+         
             // Manually alter window height and width
             this.SizeToContent = SizeToContent.Manual;
 

@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Models;
+﻿using Focus_Bear.API;
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
@@ -32,17 +33,6 @@ namespace Focus_Bear.Preferences
             InitializeComponent();
             this.Owner = _ParentWindow;
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-
-            /*common
-             * "uninstallingText": "Uninstalling..",
-                "askUninstallReasonText": "Can you share why you're uninstalling?",
-                "buttonSelectReasonText": "Select a reason",
-                "brokenAppReasonText": "The app is broken",
-                "habitsHardReasonText": "My habits are too hard - I can't handle them",
-                     "askUninstallReasonText2": "Damn sorry, it seems like we let you down. We're in the early stages of this product and really want to get feedback to make it better. Could you tell us why you're uninstalling?",
-                "minimumCharacterText": "(Minimum 10 characters)",
-                otherReasonText
-                */
 
             try
             {
@@ -85,31 +75,42 @@ namespace Focus_Bear.Preferences
             Close();
         }
 
-        private void btnUninstall_Click(object sender, RoutedEventArgs e)
+        private async void btnUninstall_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnUninstall_Click");
-            //    "uninstallConfirmText":"Are you sure you want to giveup all your habits and uninstall Focus Bear?",
-            //"yesText":"Yes",
-            ////"noText":"No",
-            ///
+  
             sUninstallReason = ComboBoxReason.SelectedItem.ToString();
             sUninstallDesc = TxtFeedback.Text;
-            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["common"]["uninstallConfirmText"].ToString(), "Focus Bear", MessageBoxButton.YesNo);
-            ff.Owner = this;
-            ff.ShowDialog();
-            if (ff.btnClicked == MessageBoxResult.Yes)
-            {
-                string sMetadata = string.Format("\"emailAddress\":\"{0}\",\"uninstallReason\":\"{1}\",\"uninstallDescription\":\"{2}\",\"usageStartDate\":\"{3}\"", appSettings.sUser_email, sUninstallReason, sUninstallDesc, appSettings.FirstAppInstallDT.ToString("o"));
-                appSettings.CapturePostHog("uninstall", sMetadata);
+            string sMetadata = string.Format("\"emailAddress\":\"{0}\",\"uninstallReason\":\"{1}\",\"uninstallDescription\":\"{2}\",\"usageStartDate\":\"{3}\"", appSettings.sUser_email, sUninstallReason, sUninstallDesc, appSettings.FirstAppInstallDT.ToString("o"));
+            appSettings.CapturePostHog("uninstall", sMetadata);
 
-                // "All the app related processes will stop and the app will close itself and run the Focus Bear Uninstaller.",//todo win text
-                ///MessageBox.Show(, "Focus Bear");
-                FBMessageBox ff1 = new FBMessageBox("All the app related processes will stop and the app will close itself and run the Focus Bear Uninstaller.", "Focus Bear");
-                //allProcessesWillStop
-                ff1.ShowDialog();
-                DialogResult = true;
-                Close();
+
+            if (ComboBoxReason.SelectedItem.ToString() == (appSettings.ConfigFileStrings["common"]["brokenAppReasonText"].ToString())) //app broken, we will need to post the logs if the user wants
+            {
+                FBMessageBox messageBox = new FBMessageBox(appSettings.ConfigFileStrings["common"]["alertUploadLogText"].ToString(), "", MessageBoxButton.YesNo);  
+                messageBox.Owner = this;
+                messageBox.ShowDialog();
+                if (messageBox.btnClicked == MessageBoxResult.Yes)
+                {
+                    //Disable entire window controls
+                    btnUninstall.IsEnabled = false;
+                    btnCancel.IsEnabled = false;
+                    ComboBoxReason.IsEnabled = false;
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    var sResponse = await client.PostAppLogs(sUninstallDesc);
+                    Mouse.OverrideCursor = null;
+                }
             }
+
+            FBMessageBox ff1 = new FBMessageBox("All the app related processes will stop and the app will close itself and run the Focus Bear Uninstaller.", "Focus Bear"); //todo wintexts
+            ff1.Owner = this;
+            ff1.ShowDialog();
+            DialogResult = true;
+            Close();
+            
+ 
         }
         private void TxtFeedback_TextChanged(object sender, TextChangedEventArgs e)
         {

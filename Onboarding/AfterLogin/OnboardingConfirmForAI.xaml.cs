@@ -41,15 +41,6 @@ namespace Focus_Bear.Onboarding.AfterLogin
 
             try
             {
-                /*
-                  "aiPermissionVcInfo":{
-                    "title": "Do you want to use AI to decide if websites should be allowed?",
-                    "descriptionText": "We'll use Open AI to decide if the site is valid based on your current focus mode, intention, the URL, the website title and the first 100 characters of the content. This is anonymous - no identifying details are shared.",
-                    "buttonCancelText": "No thanks",
-                    "titleAlertText": "Alright. You can change this setting later under Preferences - Settings - AI"
-                },
-                }, 
-                */
                 Heading.Text = appSettings.ConfigFileStrings["aiPermissionVcInfo"]["title"].ToString();
                 Description.Text = appSettings.ConfigFileStrings["aiPermissionVcInfo"]["descriptionText"].ToString();
 

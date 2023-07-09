@@ -45,16 +45,14 @@ namespace Focus_Bear.Preferences
             UninstallFeedback aa = new UninstallFeedback(_ParentWindow);
             aa.Topmost = true;
             bool? DialogResult = aa.ShowDialog();
-            //string sUninstallReason = aa.sUninstallReason;
-            //string sUninstallDesc = aa.sUninstallDesc;
             _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
             if(DialogResult.Value == true)
             {
                 string appPath = System.Reflection.Assembly.GetEntryAssembly().Location;
                 appPath = appPath.Replace("Focus Bear.exe", "unins000.exe");
                 
-                LogWriter.LogWrite("RemoveLoggedInStatus and fire Uninstaller");
-                RegistryManager.RemoveLoggedInStatus();
+                LogWriter.LogWrite("fire Uninstaller - " + appPath);
+                 
                 Application.Current.Shutdown(0);
 
                 if (File.Exists(appPath))

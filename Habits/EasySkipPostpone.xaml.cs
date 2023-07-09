@@ -53,13 +53,6 @@ namespace Focus_Bear.Habits
             this.Left = (desktopWorkingArea.Right - this.Width);
             this.Top = (desktopWorkingArea.Top + 25);
             this.Topmost = true;
-            /* "easyPostponeVcInfo": {
-                "title": "Ok I get it - now's not a good time. I'll try again in 5 minutes. You can postpone for longer if you need to.",
-                "titleSelectMinutes": "Select minutes to postpone:",
-                "buttonPostponeText": "Postpone",
-                "buttonDeactivateText": "Deactivate Focus Bear for 4 hours",
-                "infoText": "If you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab."
-            },*/
 
             try
             {
@@ -84,7 +77,7 @@ namespace Focus_Bear.Habits
             try
             {
                 appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(4);
-
+                LogWriter.LogWrite("EasyPostpone app deactivated till: )" + appSettings.AppDeactivatedTillDate );
                 RegistryManager.SetAppDeactivatedTillDate();
 
                 //////////////////////////////////////////////////////////
@@ -102,12 +95,6 @@ namespace Focus_Bear.Habits
 
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
-                    //Todays habits marked
-                    // int x1 = int.Parse(sResponse1.ToString());
-                    //if (x1 == 1)
-                    // {
-                    ////Start Default
-                    //}
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
@@ -141,12 +128,6 @@ namespace Focus_Bear.Habits
 
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
-                       //Todays habits marked
-                    //int x1 = int.Parse(sResponse1.ToString());
-                    //if (x1 == 1)
-                    //{
-                    ////Start Default
-                    // }
                 }
 
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE; //We will set this a none and rest will be taken care of
@@ -170,10 +151,12 @@ namespace Focus_Bear.Habits
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
                 int nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
 
+                LogWriter.LogWrite("nMinutesToPostpone - " + nMinutesToPostpone.ToString());
+
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) // FOr Breaks we will simply cancel the current routine.
                 {
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
-                    LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+                    LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
                     //simply set the timer for thenext break activity.
                     ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);

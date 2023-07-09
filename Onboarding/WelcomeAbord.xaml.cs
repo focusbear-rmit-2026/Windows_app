@@ -53,16 +53,7 @@ namespace Focus_Bear.Onboarding
         {
            InitializeComponent();
             nPostponeTime = 0;
-            /*
-              "welcomeOnboardingVcInfo": {
-                "subTitle": "Welcome aboard!",
-                "descriptionFirstText": "Looking forward to helping you form healthy habits and get more deep work done. The onboarding process takes 5 minutes and requires 100% attention from you.",
-                "descriptionSecondText": "You won't be able to use other apps during the onboarding. Do you have time now or shall we do it a bit later?",
-                "buttonLaterText":"A bit later please",
-                "buttonLetsDoItText": "Let's do it",
-                "allRightsReservedText": "© 2022 Focus Bear All Rights Reserved."
-            },
-            */
+        
             Welcome.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["subTitle"].ToString();
 
             Descriptiopn1.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["descriptionFirstText"].ToString(); //"Looking forward to helping you form healthy habits and get more deep work done. The onboarding process takes 5 minutes and requires 100% attention from you.";            
@@ -148,22 +139,5 @@ namespace Focus_Bear.Onboarding
                 Application.Current.Shutdown(0);
         }
 
-        //public void RepositionWindow()
-        //{
-        //    try
-        //    {
-
-        //        Rect workArea = System.Windows.SystemParameters.WorkArea;
-        //        if (Left < workArea.Left || Top < workArea.Top || (Left + Width) > workArea.Right || (Top + Height) > workArea.Bottom)
-        //        {
-        //            this.Left = (workArea.Width - this.Width) / 2 + workArea.Left;
-        //            this.Top = (workArea.Height - this.Height) / 2 + workArea.Top;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine(ex.Message);
-        //    }
-        //}
     }
 }

@@ -28,8 +28,6 @@ namespace Focus_Bear.Habits
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
-
-           // this.Closed += MainWindow_Closed;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -44,11 +42,6 @@ namespace Focus_Bear.Habits
 
         private void FullScreenParent_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            //if(IsVisible)
-            //{
-            //    if( ((App)(Application.Current)).wndHabits.IsVisible &&
-            //        ((App)(Application.Current)).wndFocusSummary.IsVisible)
-            //}
         }
     }
 }

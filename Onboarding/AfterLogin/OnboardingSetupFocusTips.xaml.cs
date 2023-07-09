@@ -38,8 +38,6 @@ namespace Focus_Bear.Onboarding.AfterLogin
             {
                 HeadingAllSetup.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["title"].ToString();
 
-                /* focusTipsVcInfo =  "tip1title": "Tip 1:",
-                          "tip1Text":"You can try it out now by clicking the Play icon next to your new focus mode in the list that appears on clicking the top menu icon.",,*/
                 TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1title"].ToString();
                 TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1TextWIN"].ToString();
 
@@ -50,21 +48,8 @@ namespace Focus_Bear.Onboarding.AfterLogin
                 image.EndInit();
                 TipImage.Source = image;
 
-                //    "buttonBackText":"Back",
-                //"buttonNextText":"Next",
                 btnNextTXT.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["buttonNextText"].ToString();
                 btnBackTXT.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["buttonBackText"].ToString();
-
-                /* "howHeardVcInfo": {
-                     "title": "How did you hear about Focus Bear?",
-                     "buttonContinueText":"Continue",
-                     "optionFirstText":"Friend recommended it",
-                     "optionSecondText":"Google",
-                     "optionThirdText":"Ad on Reddit or Twitter",
-                     "optionFourthText":"Somewhere else"
-                 optionRemarkableText": "Remarkable"    
-                 */
-              
             }
             catch (Exception ex)
             {
@@ -82,26 +67,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
 
                 switch (nStep)
                 {
-                    //case 0:
-                    //    Dot0.IsEnabled = true;
-                    //    Dot1.IsEnabled = false;
-
-                    //    btnBack.IsEnabled = false;
-                    //    btnBack.Visibility = Visibility.Collapsed;
-
-                    //    /* focusTipsVcInfo =  " "tip0title": "Create a Focus Mode",
-                    //    "tip0Text": "To help you get more done, let's set up a Focus Mode. A Focus Mode is a set of apps and websites that are productive. When you start a Focus Block, non-productive apps/sites are blocked to help you avoid going down rabbitholes." */
-                    //    TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip0title"].ToString();
-                    //    TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip0Text"].ToString();
-
-                    //    string imagePath0 = ("pack://application:,,,/Focus Bear;component/images/fb_big.png");
-                    //    var image0 = new BitmapImage();
-                    //    image0.BeginInit();
-                    //    image0.UriSource = new Uri(imagePath0);
-                    //    image0.EndInit();
-                    //    TipImage.Source = image0;
-
-                    //    break;
+                    
                     case 0:
                         Dot0.IsEnabled = true;
                         Dot1.IsEnabled = false;
@@ -109,8 +75,6 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         btnBack.IsEnabled = false;
                         btnBack.Visibility = Visibility.Collapsed;
 
-                        /* focusTipsVcInfo =  "tip1title": "Tip 1:",
-                         "tip1Text":"You can try it out now by clicking the Play icon next to your new focus mode in the list that appears on clicking the top menu icon.",,*/
                         TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1title"].ToString();
                         TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1TextWIN"].ToString();
 
@@ -125,9 +89,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
                     case 1:
                         Dot1.IsEnabled = true;
                         Dot2.IsEnabled = false;
-
-                        /* focusTipsVcInfo = "tip2Newtitle": "Tip 2: Teach Focus Bear what is productive",
-                            "tip2NewText":"As you use this Focus Mode, Focus Bear will ask you whether each website/app is productive.",*/
+    
                         TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2Newtitle"].ToString(); 
                         TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2NewText"].ToString(); 
 
@@ -143,8 +105,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         Dot2.IsEnabled = true;
                         Dot3.IsEnabled = false;
 
-                        /* tip3Newtitle":"Tip 3: Permanently allow apps/websites",
-        "tip3NewText":"At the end of the focus block, you can permanently allow those apps/websites (or choose not to).", */
+                       
                         TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3Newtitle"].ToString();
                         TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3NewText"].ToString();
 
@@ -176,27 +137,11 @@ namespace Focus_Bear.Onboarding.AfterLogin
 
                 switch (nStep)
                 {
-                    //case 1:
-                    //    Dot0.IsEnabled = false;
-                    //    Dot1.IsEnabled = true;
-                    //    /* focusTipsVcInfo =  "tip1title": "Tip 1:",
-                    //    "tip1Text":"You can try it out now by clicking the Play icon next to your new focus mode in the list that appears on clicking the top menu icon.",,*/
-                    //    TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1title"].ToString();
-                    //    TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip1TextWIN"].ToString();
-
-                    //    string imagePath0 = ("pack://application:,,,/Focus Bear;component/images/focustips/focusTip_1.png");
-                    //    var image0 = new BitmapImage();
-                    //    image0.BeginInit();
-                    //    image0.UriSource = new Uri(imagePath0);
-                    //    image0.EndInit();
-                    //    TipImage.Source = image0;
-
-                    //    break;
+                   
                     case 1:
                         Dot0.IsEnabled = false;
                         Dot1.IsEnabled = true;
-                        /* focusTipsVcInfo = "tip2Newtitle": "Tip 2: Teach Focus Bear what is productive",
-                            "tip2NewText":"As you use this Focus Mode, Focus Bear will ask you whether each website/app is productive.",*/
+                       
                         TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2Newtitle"].ToString();
                         TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip2NewText"].ToString();
 
@@ -212,8 +157,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         Dot1.IsEnabled = false;
                         Dot2.IsEnabled = true;
 
-                        /* "tip3Newtitle":"Tip 3: Permanently allow apps/websites",
-        "tip3NewText":"At the end of the focus block, you can permanently allow those apps/websites (or choose not to).", */
+                       
                         TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3Newtitle"].ToString();
                         TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip3NewText"].ToString();
 
@@ -233,9 +177,6 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         Dot3.IsEnabled = true;
                         btnNextTXT.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["buttonGotItText"].ToString();
 
-
-                        /*   "tip4Newtitle":"Tip 4: Use keywords",
-                        "tip4NewText":"You can even add keywords, e.g. \"React Native\" and any website with that keyword will be allowed.",  */
                         TipTitle.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip4Newtitle"].ToString(); 
                         TipDescription.Text = appSettings.ConfigFileStrings["focusTipsVcInfo"]["tip4NewText"].ToString(); 
                       
@@ -245,12 +186,10 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         image3.UriSource = new Uri(imagePath3);
                         image3.EndInit();
                         TipImage.Source = image3;
-                        //TipImage.Height = 140;
+                        
                         break;
                     case 4:
-                        //GridFocusTips.Visibility = Visibility.Collapsed;
-                        ///GridHowDidYouHearAboutFocusBear.Visibility = Visibility.Visible;
-                        _parentWindow.Close();
+                       _parentWindow.Close();
                         break;
                 }
             }

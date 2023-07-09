@@ -34,12 +34,7 @@ namespace Focus_Bear.Preferences
         {
             InitializeComponent();
             _ParentWindow = pp;
-            /*
-            "blockedUrlsViewInfo":{
-                "title":"Always Blocked URLs",
-                "invalidDomainText":"Adding * will block all urls. Please use another combination.",
-                "subTitleText":"\"Block these URLs even if you're not in a focus block. You might want to put social media or news sites that you would rather not use at any time. You can always set up an evening routine activity where you explicitly allow access to Facebook so that you can still stay connected - just not during your morning routine/work day.\""
-            },*/
+           
             Heading.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
             Description.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["subTitleText"].ToString();
 
@@ -90,10 +85,9 @@ namespace Focus_Bear.Preferences
                     }
                     else
                     {
-                        //"urlAlreadyExistsText":"<APPNAME> already exists in the list.",
                         string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
                         sErr = sErr.Replace("<APPNAME>", url);
-                        ///MessageBox.Show(sErr, "");
+                       
                         FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
                         ff.Owner = _ParentWindow;
                         ff.ShowDialog();
@@ -177,10 +171,9 @@ namespace Focus_Bear.Preferences
                         }
                         else
                         {
-                            //"urlAlreadyExistsText":"<APPNAME> already exists in the list.",
                             string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
                             sErr = sErr.Replace("<APPNAME>", url);
-                            // MessageBox.Show(sErr, "");
+                            
                             FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
                             ff.Owner = _ParentWindow;
                             ff.ShowDialog();

@@ -53,35 +53,23 @@ namespace Focus_Bear.ShutOff
             image.UriSource = new Uri(imagePath);
             image.EndInit();
             ImageBehavior.SetAnimatedSource(Icon, image);
+ 
+            try
+            {
+                Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["title"].ToString();
+                string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["subTitle"].ToString();
+                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", appSettings.sDayShutOffTime);
+                sSubTitle = sSubTitle.Replace("<STARTTIME>", appSettings.sDayStartTime);
+                Description.Text = sSubTitle;
+                btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonAbortText"].ToString();
 
-            /*
-             *  "shutOffTimeInfo":{
-            "title":"Time to wind down",
-            "subTitle":"You told me you wanted to stay off your computer from <SHUTOFFTIME> to <STARTTIME>. Enjoy your evening and sleep well. Look forward to helping you with your morning routine tomorrow.",
-            "buttonAbortText":"Get access now",
-            "shutOffAbortInfo":{
-                "title":"Emergency?",
-                "subTitle":"Are you sure you want to do this? Using your computer late at night could mess up your sleep. Please take 30 seconds to reflect on whether this is really an emergency or whether it can wait.",
-                "shareFeedbackText":"Feel free to write an explanation here:",
-                "buttonUnlockText":"Unlock"
-            },
-            "shutOffAbortDoneInfo":{
-                "subTitle":"Sorry to hear that something bad has happened and you absolutely need to use your computer late at night. We’re unlocking your machine now. Your morning routine will still activate at <STARTTIME>. Hope you’re able to catch up on sleep during the day.",
-                "unlockingText":"Unlocking in"
-                }
+                Txtunlocking.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortDoneInfo"]["unlockingText"].ToString();
+                TxtExplain.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortInfo"]["shareFeedbackText"].ToString();
             }
-             * */
-
-            Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["title"].ToString();
-            string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["subTitle"].ToString();
-            sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>",appSettings.sDayShutOffTime);
-            sSubTitle = sSubTitle.Replace("<STARTTIME>", appSettings.sDayStartTime);
-            Description.Text = sSubTitle;
-            btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonAbortText"].ToString();
-
-            Txtunlocking.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortDoneInfo"]["unlockingText"].ToString();
-            TxtExplain.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortInfo"]["shareFeedbackText"].ToString();
-
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShutOffWindow() ex - " + ex.Message);
+            }
             Txtunlocking.Visibility = Visibility.Collapsed;
             TxtTimer.Visibility = Visibility.Collapsed;
             TxtExplain.Visibility = Visibility.Collapsed;
@@ -116,8 +104,7 @@ namespace Focus_Bear.ShutOff
                                 }
                                 else
                                 {
-                                    //Hide();
-                                    return;
+                                       return;
                                 }
 
                             }
@@ -142,10 +129,17 @@ namespace Focus_Bear.ShutOff
         }
         private void StartTimer()
         {
-            Icon.Visibility = Visibility.Collapsed;
-            Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortInfo"]["title"].ToString();//emergency
-            Description.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortInfo"]["subTitle"].ToString(); ;
-            btnActionText.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
+            try
+            { 
+                Icon.Visibility = Visibility.Collapsed;
+                Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortInfo"]["title"].ToString();//emergency
+                Description.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortInfo"]["subTitle"].ToString(); ;
+                btnActionText.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StartTimer() text ex - " + ex.Message);
+            }
 
             TxtTimer.Visibility = Visibility.Visible;
             TxtExplain.Visibility = Visibility.Visible;
@@ -165,12 +159,19 @@ namespace Focus_Bear.ShutOff
             dispatcherTimer.Stop();
             nTimer = 30;
 
-            Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["title"].ToString();
-            string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["subTitle"].ToString();
-            sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", appSettings.sDayShutOffTime);
-            sSubTitle = sSubTitle.Replace("<STARTTIME>", appSettings.sDayStartTime);
-            Description.Text = sSubTitle;
-            btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonAbortText"].ToString();
+            try
+            {
+                Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["title"].ToString();
+                string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["subTitle"].ToString();
+                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", appSettings.sDayShutOffTime);
+                sSubTitle = sSubTitle.Replace("<STARTTIME>", appSettings.sDayStartTime);
+                Description.Text = sSubTitle;
+                btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonAbortText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShutOffWindow() ex - " + ex.Message);
+            }
 
             Txtunlocking.Visibility = Visibility.Collapsed;
             TxtTimer.Visibility = Visibility.Collapsed;
@@ -184,9 +185,16 @@ namespace Focus_Bear.ShutOff
             TxtExplaination.Visibility = Visibility.Collapsed;
             btnAction.Visibility = Visibility.Collapsed;
 
-            string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortDoneInfo"]["subTitle"].ToString();
-            sSubTitle = sSubTitle.Replace("<STARTTIME>", appSettings.sDayStartTime);
-            Description.Text = sSubTitle;
+            try
+            {
+                string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortDoneInfo"]["subTitle"].ToString();
+                sSubTitle = sSubTitle.Replace("<STARTTIME>", appSettings.sDayStartTime);
+                Description.Text = sSubTitle;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("Unlock() ex - " + ex.Message);
+            }
 
             nTimer = 5;
             TxtTimer.Text = appSettings.SecondsToTimerText(nTimer);
@@ -248,7 +256,6 @@ namespace Focus_Bear.ShutOff
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ShutOff window dispatcherTimer_Unlock" + ex.Message);
-                //Debug.WriteLine(ex.Message);
             }
 
         }
@@ -282,8 +289,7 @@ namespace Focus_Bear.ShutOff
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("hutOff window dispatcherTimer_Tick" + ex.Message);
-                Debug.WriteLine(ex.Message);
+                LogWriter.LogWrite("shutOff window dispatcherTimer_Tick" + ex.Message);
             }
         }
 

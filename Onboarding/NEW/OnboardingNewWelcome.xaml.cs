@@ -32,16 +32,6 @@ namespace Focus_Bear.Onboarding.NEW
             InitializeComponent();
             _parentWindow = parentWindow;
 
-            /*
-            "welcomeOnboardingVcInfo": {
-              "subTitle": "Welcome aboard!",
-              "descriptionFirstText": "Looking forward to helping you form healthy habits and get more deep work done. The onboarding process takes 5 minutes and requires 100% attention from you.",
-              "descriptionSecondText": "You won't be able to use other apps during the onboarding. Do you have time now or shall we do it a bit later?",
-              "buttonLaterText":"A bit later please",
-              "buttonLetsDoItText": "Let's do it",
-              "allRightsReservedText": "© 2022 Focus Bear All Rights Reserved."
-          },
-          */
             try
             {
                 Welcome.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["subTitle"].ToString();
@@ -49,8 +39,7 @@ namespace Focus_Bear.Onboarding.NEW
                 Descriptiopn1.Text = appSettings.ConfigFileStrings["welcomeVcInfo"]["descriptionFirstText"].ToString(); //Focus Bear helps you avoid distractions and build healthy habits.
                 Descriptiopn2.Text = appSettings.ConfigFileStrings["welcomeVcInfo"]["descriptionSecondText"].ToString(); //Let's start out by blocking distractions.
                 btnHaveAccountText.Text = appSettings.ConfigFileStrings["welcomeVcInfo"]["buttonAlreadyHaveAccountText"].ToString(); //Let's start out by blocking distractions.
-
-                //btnABitLaterPleaseText.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonLaterText"].ToString(); //A bit later please",
+    
                 buttonLetsDoItText.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonLetsDoItText"].ToString();// "Let's do it",
                 Copyright.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["allRightsReservedText"].ToString();// "© 2022 Focus Bear, All Rights Reserved."
             }

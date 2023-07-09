@@ -42,6 +42,7 @@ namespace Focus_Bear.Habits
         private const uint SC_CLOSE = 0xF060;
         private const int WM_SHOWWINDOW = 0x00000018;
 
+        int nMinutesToPostpone = 5;
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -53,15 +54,6 @@ namespace Focus_Bear.Habits
         public BreakWarning()
         {
             InitializeComponent();
-            /*
-             *    "breakWarningVcInfo": {
-                "title": "Your Break starts in",
-                "buttonPostponeText": "Postpone for 5 minutes",
-                "postponeConfirmText": "You postponed the last break - are you sure you can't make time for The break now?",
-                "buttonTakeBreakText": "Argh ok I'll take a break!"
-            },
-             * */
-
             bSecondTime15SecTimerRunning = false;
 
             nTimer = 30;
@@ -81,6 +73,8 @@ namespace Focus_Bear.Habits
             {
                 btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString();
                 Description.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["titleWIN"].ToString();
+                PostponeMinsText.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["titleSelectMinutes"].ToString();
+
             }
             catch (Exception ex)
             {
@@ -92,7 +86,7 @@ namespace Focus_Bear.Habits
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer--;
+            int val = nTimer-=5;
 #else
             int val = nTimer--;
 #endif
@@ -110,7 +104,6 @@ namespace Focus_Bear.Habits
                     if (bSecondTime15SecTimerRunning)
                     {
                         dispatcherTimer.Stop();
-                        //DialogResult = true;
                         ((App)(Application.Current)).StartBreakActivityTimer(true, 5);
                         Close();
                     }
@@ -118,7 +111,6 @@ namespace Focus_Bear.Habits
                     {
                         TxtTimer.Text = "00:00";
                         dispatcherTimer.Stop();
-                        // DialogResult = false;
                         ((App)(Application.Current)).ShowBreakActivities();
                         Close();
                     }
@@ -142,7 +134,6 @@ namespace Focus_Bear.Habits
                     {
                         dispatcherTimer.Stop();
                         //User clicked means he wants to do the habits
-                        // DialogResult = false;
                         ((App)(Application.Current)).ShowBreakActivities();
                         Close();
                         return;
@@ -192,13 +183,11 @@ namespace Focus_Bear.Habits
                 else
                 {
                     //Set the break timer fro five minutes from now
-                    ///DialogResult = true;
                     dispatcherTimer.Stop();
 
                     //Now we do not need to show 15 second timer...so easy fix is do not incrase this count
-                    ////appSettings.nCountBreaksPostponedTimes++; //Increase the counter after first time
-
-                    ((App)(Application.Current)).StartBreakActivityTimer(true, 5);
+                    
+                    ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);
 
                     Close();
                 }
@@ -208,6 +197,22 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("BreakWarning = " + ex.Message);
             }
 
+        }
+
+        private void ComboBoxMinutes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
+                nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
+
+                btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString().Replace("5", nMinutesToPostpone.ToString());
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ComboBoxMinutes_SelectionChanged parse= " + ex.Message);
+            }
         }
     }
 }

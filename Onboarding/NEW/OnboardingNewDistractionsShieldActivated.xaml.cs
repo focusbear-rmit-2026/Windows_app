@@ -32,14 +32,6 @@ namespace Focus_Bear.Onboarding.NEW
             InitializeComponent();
             _parentWindow = parentWindow;
 
-            /*
-              "tryBlockUrlVcInfo": {
-                "titleShieldActivated": "Distraction Shield activated!",
-                "descriptionTryBlockText": "Try it out - please attempt to access <BLOCKED_URL> through your web browser. It should block the site.",
-                "buttonItBlockedText": "It blocked it!",
-                "buttonDidNotBlockedText": "It didn't block it 😒",
-    
-                  */
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["tryBlockUrlVcInfo"]["titleShieldActivated"].ToString();

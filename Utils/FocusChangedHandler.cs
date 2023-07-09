@@ -874,7 +874,7 @@ namespace FocusBear.Utils
                                 }
                                 if (!bAllowedAppFound)
                                 {
-                                    if (appSettings.nFocudBearMode == 1)//Cuddly bearMode
+                                    if (appSettings.nFocusBearMode == 1)//Cuddly bearMode
                                     {
                                         var allowedApps = appSettings.TemporaryAllowedAppsGentleBlock.Where(i => i.sURL.ToLower() == process.ProcessName.ToLower());
                                         if (allowedApps.Count() != 0)
@@ -1002,7 +1002,7 @@ namespace FocusBear.Utils
             {
                 return;
             }
-            if (appSettings.nFocudBearMode == 1)
+            if (appSettings.nFocusBearMode == 1)
             {
                 if (sURL.Contains("focus_bear_temporarily_allow=true"))
                 {
@@ -1513,10 +1513,9 @@ namespace FocusBear.Utils
             {
                 LogWriter.LogWrite("suppressURLForFirefox - Block URL - " + val);
 
-
                 if (type == "focus")
                 {
-                    if (appSettings.nFocudBearMode == 1)//Cuddly bearMode
+                    if (appSettings.nFocusBearMode == 1)//Cuddly bearMode
                     {
                         string sURLForFocusMode = "";
                         try
@@ -1605,7 +1604,7 @@ namespace FocusBear.Utils
                     {
                         //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
                         string sURL = string.Format(sActivityBlockedWebUrl, val, appSettings.sHabitTypeForUseFocusModeIDInActivity);
-                        if (appSettings.nFocudBearMode == 1)//cuddly mode
+                        if (appSettings.nFocusBearMode == 1)//cuddly mode
                             sURL = sURL + "&cuddly_bear_mode=true";
                         appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = sURL;
 
@@ -1617,7 +1616,7 @@ namespace FocusBear.Utils
                         string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, val, sEndTime, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention);
                         // "https://focus-bear.github.io/assets/focus-blocked/?old_url={0)&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
                         
-                        if(appSettings.nFocudBearMode == 1)//cuddly mode
+                        if(appSettings.nFocusBearMode == 1)//cuddly mode
                             sFcousBlockedUrl = sFcousBlockedUrl + "&cuddly_bear_mode=true";
 
                         appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = sFcousBlockedUrl;
@@ -1655,7 +1654,7 @@ namespace FocusBear.Utils
 
                 if (type == "focus")
                 {
-                    if (appSettings.nFocudBearMode == 1)//Cuddly bearMode
+                    if (appSettings.nFocusBearMode == 1)//Cuddly bearMode
                     {
                         string sURLForFocusMode = "";
                         try
@@ -1720,7 +1719,7 @@ namespace FocusBear.Utils
                     {
                         //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
                         string sURL = string.Format(sActivityBlockedWebUrl, val.CurrentValue, appSettings.sHabitTypeForUseFocusModeIDInActivity);
-                        if (appSettings.nFocudBearMode == 1)//cuddly mode
+                        if (appSettings.nFocusBearMode == 1)//cuddly mode
                             sURL = sURL + "&cuddly_bear_mode=true";
 
                         val.SetValue(sURL);
@@ -1729,7 +1728,7 @@ namespace FocusBear.Utils
                     {
                         string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, val.CurrentValue, sEndTime, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention);
                         // "https://focus-bear.github.io/assets/focus-blocked/?old_url={0)&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
-                        if (appSettings.nFocudBearMode == 1)//cuddly mode
+                        if (appSettings.nFocusBearMode == 1)//cuddly mode
                             sFcousBlockedUrl = sFcousBlockedUrl + "&cuddly_bear_mode=true";
                         val.SetValue(sFcousBlockedUrl);
                     }

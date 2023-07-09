@@ -70,15 +70,6 @@ namespace Focus_Bear.Focus
 
         public void ShowGentleBlockWindowAndStartTimer(IntPtr hWnd, string sFocusModeTitle, string sAppName, string sURL = "", string sIntention = "", string sTabTitle = "")
         {
-            /*
-             * "popUpBlockConfirmVcInfo": {
-                "title": "Do you need to use <URL> when you're focusing on <FOCUSTYPE>?",
-                "buttonAllowText": "Yes - just this time",
-                "buttonBlockText": "No - I was getting distracted",
-                "buttonEditSettingsText": "Edit Settings",
-                "intentionText": "Your intention was \"<INTENTION>\""
-            },
-             */
             sFocusModeName = sFocusModeTitle;
             sActiveAppName = sAppName; 
             sFullURLForBlockedPage = sURL;
@@ -93,7 +84,7 @@ namespace Focus_Bear.Focus
                 try
                 {
                     Uri myUri = new Uri(sURL);
-                    string host = myUri.Host; //fails if ther eis no http://
+                    string host = myUri.Host; //fails if there is no http://
                     sActiveURL = host;
                     Debug.WriteLine(sActiveURL);
                 }
@@ -109,17 +100,12 @@ namespace Focus_Bear.Focus
                 }
 
                 if(appSettings.bAiCheckUrlEnabled)
-                    sHeading = sHeading + "\n\n" + appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkingUrlText"].ToString();//"Checking if this URL is safe to use for your current focus mode. Will take about 4-5 seconds to check. If safe, it will automatically be allowed.";
+                    sHeading = sHeading + "\n\n" + appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkingUrlText"].ToString();
             }
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
             btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
-            ///btnEditSettingsText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonEditSettingsText"].ToString();
-
-           
-            //if(appSettings.sChatGPTReasonForCurrentURL.Length > 0) //add reason from chat gpt
-            //    sHeading = sHeading + "\n" + appSettings.sChatGPTReasonForCurrentURL;
-
+         
             if (sAppName.Length > 0)
             {
                 sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
@@ -136,13 +122,10 @@ namespace Focus_Bear.Focus
                 string sInt = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["intentionText"].ToString();
                 sInt = sInt.Replace("<INTENTION>",sIntention);
                 Intention.Text = sInt;
-
-                this.Height = 420;
                 Intention.Visibility = Visibility.Visible;
             }
             else
             {
-                this.Height = 380;
                 Intention.Visibility = Visibility.Collapsed;
             }
             dispatcherTimer.Stop();
@@ -172,13 +155,7 @@ namespace Focus_Bear.Focus
              if (sURL.Length > 0 && appSettings.bAiCheckUrlEnabled) //check settings from AI tab
                 CheckWithChatGPT();
         }
-        //public void HideBreakWindowAndStopTimer()
-        //{
-        //    dispatcherTimer.Stop();
-        //    Hide();
-        //    TxtTimer.Text = "00:00";
-        //}
-
+         
         private async void CheckWithChatGPT()
         {
             //Here first we need to call the chat GPT API and decide per that to show the Gentle block window or not
@@ -232,12 +209,7 @@ namespace Focus_Bear.Focus
                             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnJustThisTime);
                             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                             invokeProv.Invoke();
-
-                            /*  "titleUrlSafeText": "Safe site according to AI (probability <PERCENTAGE>%)",
-                                "reasonText": "Reason: <REASON>",
-                                "buttonBadDecisionText": "Bad decision",
-                                "checkboxDonotShowText": "Don't show this anymore"*/
-
+                
                             if (appSettings.bAiAllowUrlShowAlertEnabled)
                             {
                                 string heading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["titleUrlSafeText"].ToString();
@@ -259,7 +231,7 @@ namespace Focus_Bear.Focus
                         
                         return;//allow the url
                     }
-                    else //if (x == 2) //Need to ASk USER if 2 or 0
+                    else // Need to ASk USER if 2 or 0
                     {
                         await Dispatcher.BeginInvoke((Action)(() =>
                         {
@@ -280,10 +252,6 @@ namespace Focus_Bear.Focus
                     LogWriter.LogWrite("attemp to ChatGPTIsURLSafe EX -" + ex.Message);
                 }
             });
-
-           
-            ///
-
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
@@ -367,12 +335,5 @@ namespace Focus_Bear.Focus
             Hide();
         }
 
-        //private void btnEditSettings_Click(object sender, RoutedEventArgs e)
-        //{
-        //    ((App)(Application.Current)).ShowPreferencesWindow();
-        //    ((App)(Application.Current)).wndPreferences.ShowFocusMode(sFocusModeName);
-        //    dispatcherTimer.Stop();
-        //    Hide();
-        //}
     }
 }

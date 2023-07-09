@@ -40,10 +40,8 @@ namespace Focus_Bear.Habits
         public HabitExtraPersonal PageHabitExtraPersonal;
 
         int nTimer = 15;
-        string TxtTimer = "";
-
+       
         DispatcherTimer dispatcherTimerSkippingIn = new DispatcherTimer(DispatcherPriority.Normal);
-
 
         protected override async void OnContentRendered(EventArgs e)
         {
@@ -67,7 +65,7 @@ namespace Focus_Bear.Habits
         {
             InitializeComponent();
 
-          ///  _hookID = SetHook(_proc);
+            LogWriter.LogWrite("HabitWindow()");
 
 #if DEBUG
             this.WindowState = WindowState.Normal;
@@ -75,7 +73,8 @@ namespace Focus_Bear.Habits
 #endif
             Heading.Text = "";
             btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
-            //Show the Please SPare Me Button
+
+            //Show the Please Spare Me Button
             btnPleaseSpareMe.Visibility = Visibility.Visible;
 
             AppFrameHabitScreens.Visibility = Visibility.Visible;
@@ -91,11 +90,7 @@ namespace Focus_Bear.Habits
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
                 //We need to hide the Please SPare Me Button
-                /// btnPleaseSpareMe.Visibility = Visibility.Collapsed; - not hiding as we need postpone in breaks too...
-                /// 
-
-                //AppFrameHabitScreens.Navigate(new StartBreakActivity(this));
-
+                LogWriter.LogWrite("AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(this));");
                 AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(this));
 
             }
@@ -146,6 +141,7 @@ namespace Focus_Bear.Habits
                 }
                 else
                 {
+                    LogWriter.LogWrite("Show HabitsWelcomeList Page");
                     PageWelcomeList = new HabitsWelcomeList(this);
                     AppFrameHabitScreens.Navigate(PageWelcomeList); //Normal process
                 }
@@ -164,15 +160,9 @@ namespace Focus_Bear.Habits
         }
         public void ShowActivityStartScreen(bool bStartingAfterPostponed = false)
         {
-            //Dispose the web view if left from old screen
-            //if (nScreenHabitActivityFinished != null)
-            //{
-            //    nScreenHabitActivityFinished.webView.Dispose();
-            //    nScreenHabitActivityFinished.webView1.Dispose();
-            //    nScreenHabitActivityFinished = null;//setting to null so that new webview is created
-            //}
+            LogWriter.LogWrite("ShowActivityStartScreen()");
 
-            appSettings.dLastActivityPerformedStartTime = DateTime.Now; //SEt the activity Start Time
+            appSettings.dLastActivityPerformedStartTime = DateTime.Now; //Set the activity Start Time
 
             PageHabitActivityOnGoing = new HabitActivityOnGoing(this, bStartingAfterPostponed);
 
@@ -196,25 +186,16 @@ namespace Focus_Bear.Habits
 
                 PageHabitActivityOnGoing = null;
 
-                //if (nScreenHabitActivityFinished == null)
-                //{
-                //    nScreenHabitActivityFinished = new HabitActivityFinished(this);
-                //}
                 //we now have several questions. Initially the graph will be loaded for the first question.
                 nScreenHabitActivityFinished.nQuestionIndexToShowGraphs = 0;
 
                 AppFrameHabitScreens.Navigate(nScreenHabitActivityFinished);
 
+
                 nScreenHabitActivityFinished.LoadData(appSettings.bSkipCurrentActivity);
 
                 if(appSettings.bShowActivitiesFromMid)//Justload the graph data in this case
                 {
-                    //System.Threading.Tasks.Task.Factory.StartNew(() =>
-                    //{
-                    //    Thread.Sleep(900);
-                    //    Dispatcher.BeginInvoke((Action)(() => nScreenHabitActivityFinished.LoadGraphData()));
-                    //});
-                    //Moved to oninitializationcomplete of webview
                     return;
                 }
 
@@ -328,18 +309,28 @@ namespace Focus_Bear.Habits
                         
                     }
 
-                    if(nScreenHabitActivityFinished.bWebViewInitialized)
-                        nScreenHabitActivityFinished.LoadGraphData();
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                    {
+                        if (nScreenHabitActivityFinished.bWebViewInitialized && nScreenHabitActivityFinished.bWebView2Initialized)
+                            nScreenHabitActivityFinished.LoadGraphData();
+                        else
+                            nScreenHabitActivityFinished.bCallLoadGraphDataAfterWebViewInitialized = true;
+                    }
                     else
-                        nScreenHabitActivityFinished.bCallLoadGraphDataAfterWebViewInitialized = true;
+                    {
+                        if (nScreenHabitActivityFinished.bWebViewInitialized)
+                            nScreenHabitActivityFinished.LoadGraphData();
+                        else
+                            nScreenHabitActivityFinished.bCallLoadGraphDataAfterWebViewInitialized = true;
+                    }
+                    
                 }
 
                    
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("ShowACtivityFinishedScreen() Exception - " + ex.Message);
-                Debug.WriteLine(ex.Message);
+                LogWriter.LogWrite("ShowActivityFinishedScreen() Exception - " + ex.Message);
             }
         }
 
@@ -372,7 +363,6 @@ namespace Focus_Bear.Habits
             else if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
                 LogWriter.LogWrite("LAST MORNING_HABITS Activity Finished");
-                // "stayFocusedText":"OK - Stay focused throughout the day!",
                 Heading.Text = appSettings.ConfigFileStrings["common"]["stayFocusedText"].ToString();
                 AppFrameHabitScreens.Visibility = Visibility.Collapsed;
 
@@ -435,7 +425,6 @@ namespace Focus_Bear.Habits
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite("HideFrameAndClose()" + ex.Message); 
-                    Debug.WriteLine(ex.Message);
                 }
             }
 
@@ -450,10 +439,6 @@ namespace Focus_Bear.Habits
                 Close();
             }
 #endif
-            //if (e.Key == Key.System && e.SystemKey == Key.F4)
-            //{
-            //    e.Handled = true;
-            //}
         }
 
         //GridLogQuantityNag Event Handlers
@@ -461,16 +446,6 @@ namespace Focus_Bear.Habits
         {
 
             LogWriter.LogWrite("ShowLogWindow()");
-            /*
-             *   "logQuantityInfo": {
-            "title": "Log Quantity of activity",
-            "buttonCancelText": "Cancel",
-            "buttonOkText": "OK",
-            "enterValidValueText": "Please enter a valid value.",
-            "quantityIsEmptyText": "Log quantity can not be empty."
-              "logQuantityQuestionText":"How many <activity> did you do?"
-              */
-
             bool bLogQuantity = false;
 
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
@@ -511,17 +486,11 @@ namespace Focus_Bear.Habits
                     }
                 }
             }
-
-
-            ///btnOK.IsEnabled = false; //Initially
-
+ 
             nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
 
             GridShade.Visibility = Visibility.Visible;
             GridLogQuantityNag.Visibility = Visibility.Visible;
-
-            ///Quantity.Text = ""; //Refresh for new input
-            ///Quantity.Focus();
 
             string sLogQuantityQuestion = "";
             if (bLogQuantity)
@@ -608,7 +577,6 @@ namespace Focus_Bear.Habits
                 }
             }
             HeadingLogQuantity.Text = appSettings.ConfigFileStrings["logQuantityInfo"]["title"].ToString(); 
-           //// HeadingLogQuantityQuestion.Text = sLogQuantityQuestion;
             btnCancelText.Text = appSettings.ConfigFileStrings["logQuantityInfo"]["buttonCancelText"].ToString();
             btnOKText.Text = appSettings.ConfigFileStrings["logQuantityInfo"]["buttonOkText"].ToString();
 
@@ -616,60 +584,6 @@ namespace Focus_Bear.Habits
             nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
             nScreenHabitActivityFinished.BreakGraph2.Visibility = Visibility.Collapsed;
 
-            /*
-             * writing to csv
-             * //before your loop
-                var csv = new StringBuilder();
-
-            //in your loop
-                var first = reader[0].ToString();
-                var second = image.ToString();
-                //Suggestion made by KyleMit
-                var newLine = string.Format("{0},{1}", first, second);
-                csv.AppendLine(newLine);  
-
-            //after your loop
-                File.WriteAllText(filePath, csv.ToString());
-
-            File.AppendAllText(filePath, csv.ToString());
-
-            if you want to keep previous versions of csv in the same file
-
-            test
-            var newLine = $"{first},{second}"
-
-            
-
-            I would highly recommend you to go the more tedious route. Especially if your file size is large.
-
-            using(var w = new StreamWriter(path))
-            {
-                for( /* your loop * /)
-                {
-                            var first = yourFnToGetFirst();
-                            var second = yourFnToGetSecond();
-                            var line = string.Format("{0},{1}", first, second);
-                            w.WriteLine(line);
-                            w.Flush();
-                        }
-                    }
-                    don't forget to close the writer with w.Close(); w.Flush() is not needed.
-
-            var file = @"C:\myOutput.csv";
-
-            using (var stream = File.CreateText(file))
-            {
-                for (int i = 0; i < reader.Count(); i++)
-                {
-                    string first = reader[i].ToString();
-                    string second = image.ToString();
-                    string csvRow = string.Format("{0},{1}", first, second);
-
-                    stream.WriteLine(csvRow);
-                }
-            }
-
-             * */
         }
         public void HideLogWindow()
         {
@@ -677,8 +591,6 @@ namespace Focus_Bear.Habits
 
             GridShade.Visibility = Visibility.Collapsed;
             GridLogQuantityNag.Visibility = Visibility.Collapsed;
-
-         
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
@@ -686,20 +598,10 @@ namespace Focus_Bear.Habits
             LogWriter.LogWrite("btnCancel_Click()");
             try
             {
-                ///Quantity.Text = "";
                 string sLogType = "";
                 string sStartTime = appSettings.dLastActivityPerformedStartTime.ToString("yyyy-MM-dd HH:mm:ss");
 
                 {
-                    /*
-                       *"logQuantityInfo": {
-                       "title": "Log Quantity of activity",
-                       "buttonCancelText": "Cancel",
-                       "buttonOkText": "OK",
-                       "enterValidValueText": "Please enter a valid value.",
-                       "quantityIsEmptyText": "Log quantity can not be empty."
-                       "logQuantityQuestionText":"How many <activity> did you do?"
-                   */
                     FocusBearAPIClient client = new FocusBearAPIClient();
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
@@ -759,8 +661,7 @@ namespace Focus_Bear.Habits
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
+                LogWriter.LogWrite("Log Quantitiy btnCancel_Click ex - " + ex.Message);
             }
         }
 
@@ -771,10 +672,8 @@ namespace Focus_Bear.Habits
             {
                 string sLogType = "";
                 string sStartTime = appSettings.dLastActivityPerformedStartTime.ToString("yyyy-MM-dd HH:mm:ss");
-
- 
                 {
-                    ///double dQuantityLogged = double.Parse(sQuantity);
+
                     FocusBearAPIClient client = new FocusBearAPIClient();
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
@@ -822,7 +721,6 @@ namespace Focus_Bear.Habits
 
                     }
                 }
-  
                  
                 HideLogWindow();
 
@@ -834,7 +732,7 @@ namespace Focus_Bear.Habits
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("btnOK_Click - " + ex.Message);
+                LogWriter.LogWrite("btnOK_Click ex- " + ex.Message);
             }
         }
 
@@ -844,11 +742,9 @@ namespace Focus_Bear.Habits
             e.Handled = !regex.IsMatch((sender as TextBox).Text.Insert((sender as TextBox).SelectionStart, e.Text));
             if (e.Handled)
             {
-               // btnOK.IsEnabled = false;
             }
             else
             {
-                ///btnOK.IsEnabled = true; // all set enable the ok button
             }
         }
 
@@ -859,25 +755,13 @@ namespace Focus_Bear.Habits
             {
                 e.Handled = true;
             }
-          
-
         }
 
         private void Quantity_PreviewKeyUp(object sender, KeyEventArgs e)
         {
            if ((e.Key == Key.Delete) || (e.Key == Key.Back))
            {
-                //string text = Quantity.Text;
-                //text = text.Trim();
-                //if (text.Length > 0)
-                //{
-                //    btnOK.IsEnabled = true;
-                //}
-                //else
-                //{
-                //    btnOK.IsEnabled = false;
-                //}
-            }
+           }
         }
 
         public void SimulatePleaseSpareMeClick()
@@ -933,6 +817,13 @@ namespace Focus_Bear.Habits
                                 PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
                         }
 
+                        if(PageHabitActivityOnGoing != null)
+                        {
+                            if (PageHabitActivityOnGoing.webView.IsVisible)
+                            {
+                                PageHabitActivityOnGoing.webView.Visibility = Visibility.Collapsed;
+                            }
+                        }
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = this;
                         GridShade.Visibility = Visibility.Visible;
@@ -960,14 +851,19 @@ namespace Focus_Bear.Habits
                             if (appSettings.bMotivationalMessageEnabled)
                                 PageHabitExtraPersonal.webView.Visibility = Visibility.Visible;
                         }
-
+                        if (PageHabitActivityOnGoing != null)
+                        {
+                            if (!PageHabitActivityOnGoing.webView.IsVisible)
+                            {
+                                PageHabitActivityOnGoing.webView.Visibility = Visibility.Visible;
+                            }
+                        }
                         if (bResult.Value)
                         {
                             //Password is correct
                         }
                         else
                         {
-                            //Hide();
                             return;
                         }
 
@@ -1038,7 +934,6 @@ namespace Focus_Bear.Habits
                         }
                         else
                         {
-                            //Hide();
                             return;
                         }
                     }
@@ -1046,19 +941,12 @@ namespace Focus_Bear.Habits
 
             }
 
-            // if (appSettings.nCurrentActivityType != CurrentActivityType.BREAK_ACTIVITY) //Only for Morning and Evening Habits. FOr Breaks we will simply cancel the current routine.
+            if (PageHabitActivityOnGoing != null)
             {
-                if (PageHabitActivityOnGoing != null)
-                {
-                    PageHabitActivityOnGoing.HandleTimerForPostpone(true); //Stop the timer
-                }
-
-                Hide();
+                PageHabitActivityOnGoing.HandleTimerForPostpone(true); //Stop the timer
             }
-            //else
-            //{
-            //    Close();//For Breaks we will simply cancel the current break activities and start afresh.
-            //}
+
+            Hide();
 
             appSettings.RemoveSecondaryWindows();
             
@@ -1077,17 +965,22 @@ namespace Focus_Bear.Habits
         private void Window_Closed(object sender, EventArgs e)
         {
             appSettings.RemoveSecondaryWindows();
-            ////UnhookWindowsHookEx(_hookID);
         }
 
         public void ShowWhySkipHabitsWindow()
         {
             LogWriter.LogWrite("ShowWhySkipHabitsWindow()");
-            /* "whySkipHabitVcInfo": {
-                "title": "Why do you want to skip?",
-                "buttonAlreadyDidItText": "I already did it",
-                "buttonCanNotDoItText": "Can't do it today"
-            },*/
+
+            if (PageHabitExtraPersonal != null)
+            {
+                if (appSettings.bMotivationalMessageEnabled)
+                    PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
+            }
+            if (nScreenHabitActivityFinished != null)
+            {
+                if (nScreenHabitActivityFinished.webView.IsVisible)
+                    nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
+            }
 
             appSettings.bSkipCurrentActivity = false; //initiating, will be true after showing the nag for why do you want to skip
             appSettings.bSkipCurrentActivityCantDoItToday = false;
@@ -1106,21 +999,40 @@ namespace Focus_Bear.Habits
 
             GridShade.Visibility = Visibility.Collapsed;
             GridWhyDoYouWantToSkip.Visibility = Visibility.Collapsed;
+
+            if (PageHabitExtraPersonal != null)
+            {
+                if (appSettings.bMotivationalMessageEnabled)
+                    PageHabitExtraPersonal.webView.Visibility = Visibility.Visible;
+            }
+            if (nScreenHabitActivityFinished != null)
+            {
+                if (!nScreenHabitActivityFinished.webView.IsVisible)
+                    nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
+            }
+
         }
         public void ShowSkippingHabitInWindow()
         {
             LogWriter.LogWrite("ShowSkippingHabitInWindow()");
-            /*    "skipHabitVcInfo": {
-                "title": "Skipping habit in",
-                "buttonDoHabitsText": "I changed my mind - I'll do my habits"
-            },*/
-
             HeadingSkippingIn.Text = appSettings.ConfigFileStrings["skipHabitVcInfo"]["title"].ToString();
             HeadingSkippingInTimer.Text = "00:15";
             btnChangedMyMindTXT.Text = appSettings.ConfigFileStrings["skipHabitVcInfo"]["buttonDoHabitsText"].ToString(); ;
 
             GridShade.Visibility = Visibility.Visible;
             GridSkippingHabitIn.Visibility = Visibility.Visible;
+
+            if (PageHabitExtraPersonal != null)
+            {
+                if (appSettings.bMotivationalMessageEnabled)
+                    PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
+            }
+
+            if (nScreenHabitActivityFinished != null)
+            {
+                if (nScreenHabitActivityFinished.webView.IsVisible)
+                    nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
+            }
 
             nTimer = 15;
             dispatcherTimerSkippingIn.Start();
@@ -1140,6 +1052,11 @@ namespace Focus_Bear.Habits
                     if (!nScreenHabitActivityFinished.webView.IsVisible)
                         nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
                 }
+                if (PageHabitExtraPersonal != null)
+                {
+                    if (appSettings.bMotivationalMessageEnabled)
+                        PageHabitExtraPersonal.webView.Visibility = Visibility.Visible;
+                }
             }
             catch (Exception ex)
             {
@@ -1152,14 +1069,11 @@ namespace Focus_Bear.Habits
             //if not skip and move to next activity
             HideWhySkipHabitsWindow();
             appSettings.bSkipCurrentActivity = true;
-            //appSettings.indexSkippedActivities.Add(new SKIPPED_ACTIVITY(false, true));
+
             if(!appSettings.bSkipWhileActivityOngoing) //Increase the index only if the activity was skipped other than when it was ongoing.
                 appSettings.nHabitIndex++; //Increment the index to do the next habit
 
             ShowACtivityFinishedScreen(true);
-
-            //We will need to show the webview that we had hidden when showing this box
-           // nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
         }
 
         private void btnCantDoItToday_Click(object sender, RoutedEventArgs e)
@@ -1213,7 +1127,5 @@ namespace Focus_Bear.Habits
             }
 
         }
-
-       
     }
 }

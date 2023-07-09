@@ -87,10 +87,12 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
-                <RadioButton x:Name="GeneratePassword" Content="xGenerate Password" Style="{StaticResource SegmentRadioButtonStyle}"  Checked="GeneratePassword_Checked"/>
-                <RadioButton x:Name="OwnPassword" Content="xUse own password" Style="{StaticResource SegmentRadioButtonStyle}" Checked="OwnPassword_Checked"/>
+                <RadioButton x:Name="GeneratePassword" Content="xGenerate Password" Style="{StaticResource SegmentRadioButtonStyle}"  Checked="GeneratePassword_Checked" Cursor="Hand"/>
+                <RadioButton x:Name="OwnPassword" Content="xUse own password" Style="{StaticResource SegmentRadioButtonStyle}" Checked="OwnPassword_Checked" Cursor="Hand"/>
                  </StackPanel>
-            <TextBlock Width="300"  Name="lblPassword" Margin="60,20,40,10" TextWrapping="Wrap" Text="xPassword" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock Width="300"  Name="WeGeneratedPassword" Margin="60,10,40,0" Padding="0,3,0,3" TextWrapping="Wrap" Text="xWe generated a password for you" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock Width="300"  Name="lblPassword" Margin="60,10,40,10" TextWrapping="Wrap" Text="xPassword" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+            
             <Grid>
                 <PasswordBox Width="300" TabIndex="2" x:Name="TxtPassword" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15"  PasswordChanged="TxtPassword_PasswordChanged"   >
                     <PasswordBox.Effect>

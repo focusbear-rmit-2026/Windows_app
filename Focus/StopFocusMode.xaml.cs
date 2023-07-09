@@ -31,18 +31,7 @@ namespace Focus_Bear.Focus
         public StopFocusMode()
         {
             InitializeComponent();
-
-            /*
-             *   "focusInfo":{
-             *     "abortingFocusModeInfo":{
-            "title":"Deactivating Focus Block - <FOCUSTYPE>",
-            "questionText":"Can you share why you're deactivating?",
-            "reasonsFirstText":"I achieved what I wanted to too early.",
-            "reasonsSecondText":"I have an emergency",
-            "reasonsThirdText":"Focus mode is not working properly.",
-            "buttonCancelText":"Cancel",
-            "buttonAbortFocusText":"Deactivate Focus Block"
-        },*/
+ 
             try
             {
                 this.Topmost = true;
@@ -52,14 +41,33 @@ namespace Focus_Bear.Focus
                 Heading.Text = sHeading.Replace("<FOCUSTYPE>", appSettings.sRunningFocusModeName); 
                 WhyDeactivating.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["questionText"].ToString();
 
-                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString());
-                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsSecondText"].ToString());
-                ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsThirdText"].ToString());
+                //Force user to actively make a choice from dropdown : 26 June 2023
+                //Adding an empty item on 0 index
+                ComboBoxReason.Items.Add("");
 
-                //Select a random element
+                //We still need random items in the combox box everytime
                 Random rnd = new Random();
-                int nRandom = rnd.Next(0, 2);
-                ComboBoxReason.SelectedIndex = nRandom;
+                int nRandom = rnd.Next(1, 3);
+                if(nRandom == 1)
+                {
+                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString());
+                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsSecondText"].ToString());
+                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsThirdText"].ToString());
+                }
+                else if(nRandom == 2)
+                {
+                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsThirdText"].ToString());
+                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString());
+                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsSecondText"].ToString());
+                }
+                else
+                {
+                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsSecondText"].ToString());
+                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsThirdText"].ToString());
+                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString());
+                }
+
+                ComboBoxReason.SelectedIndex = 0;
 
                 btnCancelText.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["buttonCancelText"].ToString();
                 btnStopFocusText.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["buttonAbortFocusText"].ToString();
@@ -93,7 +101,6 @@ namespace Focus_Bear.Focus
             try
             {
                 string sOption = ComboBoxReason.SelectedValue.ToString();
-                //"reasonsFirstText":"I achieved what I wanted to too early.",
                 if (sOption == appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString())
                 {
                     //Show the Focusmode end dialog
@@ -102,11 +109,7 @@ namespace Focus_Bear.Focus
                 else
                 {
                     LogWriter.LogWrite("Focuse mode Aborted()");
-                    /*
-                    Log type,Timestamp,Activity,Duration in seconds,Quantity Question,Quantity Logged,Start Time,Work achieved,Distractions encountered,Abort reason,Feedback
-                    focus mode abort,2022-11-29 16:57:32,focus block - Meetings,9,,,2022-11-29 16:57:22,,,I have an emergency,
-                    focus mode abort,2022-11-29 16:57:49,focus block - Meetings,9,,,2022-11-29 16:57:39,,,Focus mode is not working properly.,
-                    */
+
                     DateTime now = DateTime.Now;
                     TimeSpan difference = now.Subtract(DateTime.Parse(appSettings.sRunningFocusModeStartTime)); // could also write `now - otherTime`
                     var durationSeconds = difference.TotalSeconds;
@@ -146,7 +149,8 @@ namespace Focus_Bear.Focus
 
                     Timer.Text = "";
 
-                    btnStopFocus.IsEnabled = true;
+                    if (ComboBoxReason.SelectedIndex != 0)
+                        btnStopFocus.IsEnabled = true;
 
                     LogWriter.LogWrite("Enable the the Deactivate Focus Mode button");
                 }
@@ -158,6 +162,14 @@ namespace Focus_Bear.Focus
             {
                 LogWriter.LogWrite("dispatcherTimer_Deactivate" + ex.Message);
             }
+        }
+
+        private void ComboBoxReason_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboBoxReason.SelectedIndex != 0 && nTimer <= 0)
+                btnStopFocus.IsEnabled = true;
+            else
+                btnStopFocus.IsEnabled = false;
         }
     }
 }

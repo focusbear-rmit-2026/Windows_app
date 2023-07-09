@@ -63,22 +63,13 @@ namespace Focus_Bear.Focus
 
             try
             {
-                //"menuInfo":{
-                //menuItemFocusTitle":"Focus"
-                //     "untilTimeText":"ends at <TIME>",
-
-                //"brainDumpVcInfo": { //    "titleTimeRemainingText": "Time remaining:",
-                //Time remaining: 19m 21s (On Until 10:26 PM)
-
                 try
                 {
                     DateTime now = DateTime.Now;
                     TimeSpan difference = DateTime.Parse(appSettings.sRunningFocusModeEndTime).Subtract(now); // could also write `now - otherTime`
                     var durationSeconds = difference.TotalSeconds;
-                    string ss = sRemaining + appSettings.SecondsToTextHMS(Convert.ToInt32(durationSeconds));
+                    string ss = sRemaining + " " + appSettings.SecondsToTextHMS(Convert.ToInt32(durationSeconds));
 
-                    /* "menuInfo":{
-                       "untilTimeText":"On Until <TIME>",*/
                     string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
                     sTill = sTill.Replace("<TIME>", DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToString("HH:mm tt"));
                     OnUntill.Text = ss + " (" + sTill + ")";

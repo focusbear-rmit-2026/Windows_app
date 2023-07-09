@@ -1,19 +1,4 @@
-﻿/*
- * Copyright (c) 2018-2019 Wise Tech Labs Private Limited, All Rights Reserved.
- *
- * File: AppTaskScheduler.cs
- * Project: SMART System Repair
- * User: Gaurav
- *
- * This document is the property of Wise Tech Labs Private Limited
- * It is considered confidential and proprietary.
- *
- * This document may not be reproduced or transmitted in any form, 
- * in whole or in part, without the express written permission of 
- * Wise Tech Labs Private Limited
- *
- */
-
+﻿ 
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +37,7 @@ namespace Focus_Bear.Models
                 IAction action = actions.Create(actionType);
                 IExecAction execAction = action as IExecAction;
                 string AppInstallationDir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\Focus Bear\\Focus Bear.exe";
-                execAction.Path = AppInstallationDir;//Path.Combine(AppInstallationDir, AppInfo.SusCareWidgetProcess);
+                execAction.Path = AppInstallationDir; 
                 ITaskFolder rootFolder = taskService.GetFolder(@"\");
 
                 rootFolder.RegisterTaskDefinition(appName, taskDef, 6, null, null, _TASK_LOGON_TYPE.TASK_LOGON_NONE, null);
@@ -114,17 +99,14 @@ namespace Focus_Bear.Models
             catch (FileNotFoundException exception)
             {
                 LogWriter.LogWrite(exception.Message);
-                Debug.WriteLine(exception.Message);
             }
             catch (UnauthorizedAccessException ex)
             {
                 LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
             }
             return false;
         }
@@ -161,13 +143,7 @@ namespace Focus_Bear.Models
             return false;
         }
 
-        /// <summary>
-        /// 0 = Unable to remove,
-        /// 1 = Removed,
-        /// 2 = Access denied
-        /// </summary>
-        /// <param name="TaskToDelete"></param>
-        /// <returns></returns>
+        
         internal int DeleteTaskStartup(string TaskToDelete)
         {
             ITaskService taskService = new TaskScheduler.TaskScheduler();
@@ -301,11 +277,9 @@ namespace Focus_Bear.Models
                 ITimeTrigger trigger = (ITimeTrigger)taskDef.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_TIME);
                 trigger.Id = TriggerName;
                 trigger.StartBoundary = startTime.ToString("yyyy-MM-ddTHH:mm:ss");
-                //trigger.Repetition.Interval = "PT1H";
+
                 trigger.Repetition.StopAtDurationEnd = true;
-                //trigger.EndBoundary = endTime.ToString("yyyy-MM-ddTHH:mm:ss"); ; //yyyy-MM-ddTHH:mm:ss
-
-
+      
                 IActionCollection actions = taskDef.Actions;
                 _TASK_ACTION_TYPE actionType = _TASK_ACTION_TYPE.TASK_ACTION_EXEC;
 
@@ -363,13 +337,11 @@ namespace Focus_Bear.Models
             catch (UnauthorizedAccessException ex)
             {
                 LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
                 return false;
             }
             return true;
@@ -407,13 +379,11 @@ namespace Focus_Bear.Models
             catch (UnauthorizedAccessException ex)
             {
                 LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
                 return false;
             }
             return true;

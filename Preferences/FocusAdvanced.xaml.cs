@@ -36,14 +36,6 @@ namespace Focus_Bear.Preferences
 
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-            /*
-             *  "focusPreferencesAdvancedInfo":{
-             *   "titleBlockedUrls":"Blocked URLs",
-             *   "toolTipAdd":"Add",
-                "toolTipRemove":"Remove",
-                "instructionText":"The URLs here will be blocked during this focus mode. Useful if you want to allow some websites but block others. For example, you could have *.google.com as an allowed URL but block tv.google.com",
-             * */
-
             Heading.Text = appSettings.ConfigFileStrings["focusPreferencesAdvancedInfo"]["titleBlockedUrls"].ToString();
             Description.Text = appSettings.ConfigFileStrings["focusPreferencesAdvancedInfo"]["instructionText"].ToString();
 
@@ -93,7 +85,6 @@ namespace Focus_Bear.Preferences
                     //add to focus mode urls list
 
                     //First check if it is already added
-                    // var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
 
                     if (selectedFocusMode != null)
                     {
@@ -106,11 +97,8 @@ namespace Focus_Bear.Preferences
                         }
                         else
                         {
-                            //"urlAlreadyExistsText":"<APPNAME> already exists in the list.",
                             string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
                             sErr = sErr.Replace("<APPNAME>", url);
-                            ///MessageBox.Show(sErr, "");
-                            ///
                             FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
                             ff.Owner = this;
                             ff.ShowDialog();
@@ -183,7 +171,7 @@ namespace Focus_Bear.Preferences
                         //add to focus mode urls list
 
                         //First check if it is already added
-                           if (selectedFocusMode != null)
+                        if (selectedFocusMode != null)
                         {
                             //check the appropriate radio boxes for URLs
                             
@@ -203,10 +191,9 @@ namespace Focus_Bear.Preferences
                                 }
                                 else
                                 {
-                                    //"urlAlreadyExistsText":"<APPNAME> already exists in the list.",
                                     string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
                                     sErr = sErr.Replace("<APPNAME>", url);
-                                    //MessageBox.Show(sErr, "");
+
                                     FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
                                     ff.Owner = this;
                                     ff.ShowDialog();

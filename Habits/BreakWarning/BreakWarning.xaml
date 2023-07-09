@@ -11,17 +11,34 @@
             <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="50" />
-            <RowDefinition Height="Auto" MinHeight="45" />
-            <RowDefinition Height="Auto" MinHeight="30" />
+            <RowDefinition Height="Auto" MinHeight="35" />
+            <RowDefinition Height="Auto" MinHeight="35" />
+            <RowDefinition Height="Auto" MinHeight="25" />
+            <RowDefinition Height="Auto" MinHeight="40" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xYour break starts in:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
         <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="00:30" Foreground="#000" Padding="0" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Center" />
         <ProgressBar Grid.Row="2" x:Name="Progress" Value="30"  Maximum="30" Height="10" Width="200" IsIndeterminate = "False"  Foreground="DodgerBlue"/>
-        
-        <Button Grid.Row="3"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAction_Click" >
+        <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" MaxWidth="220" Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+            <ComboBox Name="ComboBoxMinutes" Width="50" Height="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0" SelectionChanged="ComboBoxMinutes_SelectionChanged">
+                <ComboBoxItem Content="5"></ComboBoxItem>
+                <ComboBoxItem Content="10"></ComboBoxItem>
+                <ComboBoxItem Content="15"></ComboBoxItem>
+                <ComboBoxItem Content="20"></ComboBoxItem>
+                <ComboBoxItem Content="25"></ComboBoxItem>
+                <ComboBoxItem Content="30"></ComboBoxItem>
+                <ComboBoxItem Content="45"></ComboBoxItem>
+                <ComboBoxItem Content="60"></ComboBoxItem>
+                <ComboBoxItem Content="90"></ComboBoxItem>
+            </ComboBox>
+
+
+        </StackPanel>
+        <Button Grid.Row="4"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAction_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnActionTXT" Text="xPostpone for 5 Minutes"/>

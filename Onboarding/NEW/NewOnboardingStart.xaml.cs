@@ -49,16 +49,6 @@ namespace Focus_Bear.Onboarding.New
         public NewOnboardingStart()
         {
             InitializeComponent();
-
-            //if(appSettings.arrAlwaysBlockedURLs.Count > 0)
-            //{
-            //    ShowTypeOfWorkScreen();
-            //}
-            //else
-            //{
-            //    FrameSteps.Navigate(new OnboardingDistractingSites(this));
-            //}
-           // ShowFocusTipsScreen();
             FrameSteps.Navigate(new OnboardingNewWelcome(this));
         }
 
@@ -68,17 +58,16 @@ namespace Focus_Bear.Onboarding.New
         } 
         public void ShowFocusModeAppsSetup()
         {
-            //FrameSteps.Navigate(new OnboardingSetupFocusApps(this));
+          
         }
         public void ShowSetupFocusURLsScreen()
         {
-            //FrameSteps.Navigate(new OnboardingSetupFocusUrls(this));
+            
         }
         public void ShowFocusTipsScreen()
         {
-            //FrameSteps.Navigate(new OnboardingSetupFocusTips(this)); //also includes how did you hear about focus bear screen
+            //also includes how did you hear about focus bear screen
             //In new onboarding we are only using the screen that asks where did you heard from FB and a video desc screen
-
         }
         public void ShowLoginScreen()
         {
@@ -107,7 +96,6 @@ namespace Focus_Bear.Onboarding.New
         }
         public void ShowSetupFocusBearAccount()
         {
-            //pageBuildHabits = new OnboardingNewBuildingHabits(this);
             FrameSteps.Navigate(new OnboardingSetupFocusBearAccount(this) );
         }
 

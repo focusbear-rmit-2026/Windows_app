@@ -36,16 +36,7 @@ namespace Focus_Bear.Login
         {
             InitializeComponent();
             _parentWindow = parentWindow;
-            /*
-             * "customLoginVcInfo": {
-                "titleSignIn": "Sign In",
-                     "subTitleWelcomeback": "Welcome back",
-                "titleEmailAddress": "Email Address",
-                "titlePassword": "Password",
-                 "buttonCreateAccountText": "Create an account",
-                         "buttonSignInText": "Sign In",
-             */
-
+          
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleSignIn"].ToString();
@@ -60,9 +51,6 @@ namespace Focus_Bear.Login
             {
                 LogWriter.LogWrite("LoginSignIn ex = " + ex.Message);
             }
-
-            // PleaseWait.Text = "Please Wait"; //TOdO Win text
-
             Loaded += (sender, e) => TxtEmailAddress.Focus();
         }
 
@@ -103,8 +91,8 @@ namespace Focus_Bear.Login
                                         {
                                             //Login Success
                                             appSettings.CapturePostHog("login-homemade");
+                                            appSettings.GetLoginAndTokenValidSettings();
 
-                                            ((App)(Application.Current)).ProceedAfterLogin();
                                             _parentWindow.bDoNotShutDown = true;
                                             _parentWindow.Close();
                                         }));
@@ -116,7 +104,6 @@ namespace Focus_Bear.Login
                                             FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, authenticator.sErrorMessage);
                                             ff.Owner = _parentWindow;
                                             ff.ShowDialog();
-                                            //MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
                                         }));
                                     }
                                 }
@@ -128,8 +115,6 @@ namespace Focus_Bear.Login
                         }
                         else
                         {
-                            //MessageBox.Show("xpassword empty", "xSignin Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            // MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
                             FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear");
                             ff.Owner = _parentWindow;
                             ff.ShowDialog();
@@ -137,19 +122,13 @@ namespace Focus_Bear.Login
                     }
                     else
                     {
-                        // MessageBox.Show("xInvalid email", "xSignin Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        // "emailInvalidText": "Please enter a valid Email.",
-                        //MessageBox.Show(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear", MessageBoxButton.OK, MessageBoxImage.Error);
                         FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear");
                         ff.Owner = _parentWindow;
                         ff.ShowDialog();
-
                     }
                 }
                 else
                 {
-                    // MessageBox.Show("xEmail empty", "xSignin Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    // "titleEmailIsBlank": "Email cannot be blank.",
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear");
                     ff.Owner = _parentWindow;
                     ff.ShowDialog();
@@ -219,7 +198,6 @@ namespace Focus_Bear.Login
                                     FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, authenticator.sErrorMessage);
                                     ff.Owner = _parentWindow;
                                     ff.ShowDialog();
-                                    //MessageBox.Show(authenticator.sErrorMessage, authenticator.sErrorMessage, MessageBoxButton.OK, MessageBoxImage.Error);
                                 }));
                             }
                         }
@@ -231,8 +209,6 @@ namespace Focus_Bear.Login
                 }
                 else
                 {
-                    // MessageBox.Show("xEmail empty", "xSignin Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    // "titleEmailIsBlank": "Email cannot be blank.",
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear");
                     ff.Owner = _parentWindow;
                     ff.ShowDialog();

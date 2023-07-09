@@ -42,8 +42,6 @@ namespace Focus_Bear.Onboarding
 
                 Heading.Text = appSettings.ConfigFileStrings["welcomeInfo"]["welcomeMessageHeading"].ToString();
 
-                /* "welcomeMessageOnlyBreakIntro": "Throughout the day, I'll remind you to take regular breaks to keep your mind sharp and your body flexible. Here's an example of a break activity: 30 seconds of deep breathing."
-                */
                 Suggest.Text = appSettings.ConfigFileStrings["welcomeInfo"]["takingBreaksText"].ToString();
 
                 Description.Text = appSettings.ConfigFileStrings["welcomeInfo"]["welcomeMessageIntro"].ToString();
@@ -68,8 +66,6 @@ namespace Focus_Bear.Onboarding
                 LogWriter.LogWrite("OnboardingWelcome texts ex - " + ex.Message);
             }
 
-            //ComboBoxActivityType.SelectedIndex = 0;
-
         }
         private void btnStartMindfulBreathing_Click(object sender, RoutedEventArgs e)
         {
@@ -85,72 +81,19 @@ namespace Focus_Bear.Onboarding
 
         private void TxtSomethingElse_TextChanged(object sender, TextChangedEventArgs e)
         {
-            //if (TxtSomethingElse.Text.Length > 0)
-            //{
-            //    btnStartMindfulBreathing.IsEnabled = true;
-
-            //    int nDurationSeconds = 0;
-            //    JArray arrActivities = (JArray)appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"];
-            //    int i = 0;
-            //    foreach (JObject item in arrActivities)
-            //    {
-            //        if (i == ComboBoxActivityType.SelectedIndex)
-            //        {
-            //            if (item.ContainsKey("duration_seconds"))
-            //            {
-            //                nDurationSeconds = (int)item.GetValue("duration_seconds");
-            //            }
-
-            //            if (item.ContainsKey("video_urls"))
-            //            {
-            //                JArray array = (JArray)item.GetValue("video_urls");
-            //                int n = array.Count;
-            //                Random rnd = new Random();
-            //                int nRandom = rnd.Next(0, n - 1);
-            //                appSettings.OnboardingVideoUrl = array[nRandom].ToString();
-            //            }
-            //            break;
-            //        }
-            //        i++;
-            //    }
-
-            //    //    "startActivityButtonText":"Start <TIME> <NAME>",
-            //    string Title = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-
-            //    appSettings.OnboardingActivityName = TxtSomethingElse.Text;
-            //    appSettings.OnboardingActivityDurationSeconds = nDurationSeconds;
-
-            //    Title = Title.Replace("<NAME>", TxtSomethingElse.Text);
-            //    Title = Title.Replace("<TIME>", appSettings.SecondsToText(nDurationSeconds));
-
-            //    btnStartMindfulBreathingTXT.Text = Title;
-            //}
-            //else
-            //{
-            //    btnStartMindfulBreathing.IsEnabled = false;
-            //}
+           
         }
-        //Yahan se dekhana hai
+    
         private void ComboBoxActivityType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             btnStartMindfulBreathing.IsEnabled = false;
 
             string sName = "";
             int nDurationSeconds = 0;
-            //if (ComboBoxActivityType.SelectedIndex == ComboBoxActivityType.Items.Count - 1) //Own adventure Selected
-            //{
-            //    TxtSomethingElse.Visibility = Visibility.Visible;
-            //    TxtSomethingElse.Focus();
-
-            //    ActivityName.Visibility = Visibility.Visible;
-            //}
-            //else
+            
             {
-                ///TxtSomethingElse.Text = "";
-                ///TxtSomethingElse.Visibility = Visibility.Collapsed;
-
+            
                 ActivityName.Visibility = Visibility.Collapsed;
-
 
                 sName = ComboBoxActivityType.SelectedItem.ToString();
                 btnStartMindfulBreathing.IsEnabled = true;
@@ -181,7 +124,6 @@ namespace Focus_Bear.Onboarding
                 i++;
             }
 
-            //    "startActivityButtonText":"Start <TIME> <NAME>",
             string Title = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
 
             appSettings.OnboardingActivityName = sName;

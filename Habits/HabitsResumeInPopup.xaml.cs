@@ -32,7 +32,6 @@ namespace Focus_Bear.Habits
         {
             InitializeComponent();
 
-            /*     common         "postponeEndsText": "Habit resumes in",*/
             Description.Text = appSettings.ConfigFileStrings["common"]["postponeEndsText"].ToString();
             btnPostponeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
             ShowInTaskbar = false;  
@@ -64,7 +63,6 @@ namespace Focus_Bear.Habits
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ShowHabitsResumeInPopupAndStartTimer - " + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
 
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);

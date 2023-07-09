@@ -38,8 +38,9 @@ namespace Focus_Bear.BrainDump
                 DumpDown.Text = appSettings.ConfigFileStrings["brainDumpVcInfo"]["writeThingsHereText"].ToString();
 
                 TimeRemaining.Text = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString();
-                TxtIntention.Text = "";
+                TxtIntention.Text = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString();
 
+                btnSaveTXT.Text = appSettings.ConfigFileStrings["settings"]["buttonSaveText"].ToString();
 
                 if (RegistryManager.GetBrainDump())
                 {
@@ -98,7 +99,7 @@ namespace Focus_Bear.BrainDump
                     }
                     catch (Exception ex)
                     {
-                        LogWriter.LogWrite("ShowBreakWindowAndStartTimer - " + ex.Message);
+                        LogWriter.LogWrite("ShowBrainDumpWindowAndStartTimer() ex - " + ex.Message);
                     }
 
                     dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -145,7 +146,6 @@ namespace Focus_Bear.BrainDump
                     TimeRemaining.Text = TimeRemaining.Text = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString() + " 00:00";
                     dispatcherTimer.Stop();
                     ShowBrainDumpWindowAndStartTimer();// Reset Everything
-                   // Hide();
                 }
             }
             catch (Exception ex)
@@ -167,6 +167,11 @@ namespace Focus_Bear.BrainDump
             }
 
             Hide();
+        }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

@@ -30,7 +30,7 @@
 
         <TextBlock  Grid.Row="3" Name="WhyDeactivating" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxCan you share why you are deactivating?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <ComboBox Name="ComboBoxReason"  Grid.Row="4" Width="360" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0"  SelectedIndex="0" FontSize="15" >
+        <ComboBox Name="ComboBoxReason"  Grid.Row="4" Width="360" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxReason_SelectionChanged" >
         </ComboBox>
 
         <StackPanel  Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center">

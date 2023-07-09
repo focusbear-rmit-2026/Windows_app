@@ -114,7 +114,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
             //Per new onboarding we now need to show the video desciption screen
             GridHowDidYouHearAboutFocusBear.Visibility = Visibility.Collapsed;
             GridVideoDesc.Visibility = Visibility.Visible;
-            // _parentWindow.Close();
+
         }
 
         private void TxtSomewhereElse_TextChanged(object sender, TextChangedEventArgs e)

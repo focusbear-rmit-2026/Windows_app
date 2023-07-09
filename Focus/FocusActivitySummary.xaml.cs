@@ -160,27 +160,7 @@ namespace Focus_Bear.Focus
                 ListQuantity.ItemsSource = ActivityQuantityItems;
                 ListAverage.ItemsSource = ActivityAverageItems;
                 ListDuration.ItemsSource = ActivityDurationItems;
-
-                /*"focusInfo":{
-                 *  "focusSummaryInfo":{
-                "title":"You completed <COUNT> focus blocks today.",
-                "buttonContinueText":"Start Evening Routine",
-                "focusTableColumnFirstText":"Focus type",
-                "focusTableColumnSecondText":"Start Time",
-                "focusTableColumnThirdText":"Duration",
-                "focusTableColumnFourthText":"Work Achieved",
-                "focusTableColumnFifthText":"Distractions encountered",
-                "activityTableColumnFirstText":"Activity",
-                "activityTableColumnSecondText":"Total Quantity",
-                "activityTableColumnThirdText":"Average",
-                "activityTableColumnSixthText":"Total Duration",
-                "titleActivitySummaryText":"Activity Summary:",
-                "titleFocusSummaryText":"Focus Summary:",
-                "totalFocusTimeText":"Total focus time: <TIME>",
-                "buttonNeedMoreTimeText":"I need to work for one more minute",
-                "buttonStillNeedMoreTimeText":"I still need to work more"
-                 },
-                 */
+ 
                 string sHeading = appSettings.ConfigFileStrings["focusInfo"]["focusSummaryInfo"]["title"].ToString();
                 Heading.Text = sHeading.Replace("<COUNT>", nCountFocusBlocks.ToString());
 

@@ -36,72 +36,27 @@ namespace Focus_Bear.Onboarding
             InitializeComponent();
 
             string sActivityName = appSettings.OnboardingActivityName;///appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["name"].ToString();
-            string Title = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
+            string Title = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
             if (appSettings.bOnboardingActivitySkipped)
             {
-                Title = appSettings.ConfigFileStrings["activityInfo"]["lastActivitySkippedText"].ToString();
+                Title = appSettings.ConfigFileStrings["activityInfo"]["activitySkippedText"].ToString();
             }
             else
             {
-                Title = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
+                Title = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
             }
             
             Title = Title.Replace("<ACTIVITY>", sActivityName);
             Heading.Text = Title.ToString();
-
            
-            //       "letsCreatAccountText":"Now let's set up an account for you",
             TypeOfWork.Text = appSettings.ConfigFileStrings["common"]["letsCreatAccountText"].ToString();
  
             btnContinueTxt.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["buttonContinueText"].ToString();
-            //int nDurationSeconds = (int)appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["duration_seconds"];
-            //nTimer = nDurationSeconds;
-
-            //JArray array = (JArray)appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["video_urls"];
-            //int n = array.Count;
-            //Random rnd = new Random();
-            //int nRandom = rnd.Next(0, n - 1);
-            //string videoUrl = array[nRandom].ToString();
             btnContinue.IsEnabled = true;
 
         }
 
-        //private void ComboBoxWorkType_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    btnContinue.IsEnabled = false;
-
-        //    if (ComboBoxWorkType.SelectedIndex == 4) //Something Else Selected
-        //    {
-        //        TxtSomethingElse.Visibility = Visibility.Visible;
-        //        TxtSomethingElse.Focus();
-        //    }
-        //    else
-        //    {
-        //        TxtSomethingElse.Text = "";
-        //        TxtSomethingElse.Visibility = Visibility.Collapsed;
-        //        if(ComboBoxWorkType.SelectedIndex != 0)
-        //        {
-        //            btnContinue.IsEnabled = true;
-        //        }
-        //        else
-        //        {
-        //            btnContinue.IsEnabled = false;
-        //        }
-        //    }
-        //}
-
-        //private void TxtSomethingElse_TextChanged(object sender, TextChangedEventArgs e)
-        //{
-        //    if(TxtSomethingElse.Text.Length > 0)
-        //    {
-        //        btnContinue.IsEnabled = true;
-        //    }
-        //    else
-        //    {
-        //        btnContinue.IsEnabled = false;
-        //    }
-        //}
-
+      
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
             try

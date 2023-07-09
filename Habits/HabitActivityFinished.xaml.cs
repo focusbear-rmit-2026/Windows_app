@@ -44,6 +44,7 @@ namespace Focus_Bear.Habits
         private bool bBreakActivitiesFinished;
 
         public bool bWebViewInitialized = false;
+        public bool bWebView2Initialized = false;
         public bool bCallLoadGraphDataAfterWebViewInitialized = false;
         public HabitActivityFinished()
         {
@@ -55,11 +56,10 @@ namespace Focus_Bear.Habits
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView1.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted1;
 
-
             _parentWindow = parentWindow;
             bBreakActivitiesFinished = false;
             bExcludedActivityIndex = -1;
-           /// SetWebView();
+        
         }
        
         public async Task SetWebView()
@@ -106,9 +106,6 @@ namespace Focus_Bear.Habits
             {
                 try
                 {
-
-                       //this.webView.NavigationStarting += NavigationStarting;
-                    //this.webView.NavigationCompleted += NavigationCompleted;
                     webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
                     webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
                     webView.CoreWebView2.Settings.IsScriptEnabled = true;
@@ -122,10 +119,24 @@ namespace Focus_Bear.Habits
 
                     bWebViewInitialized = true;
 
-                    if (appSettings.bShowActivitiesFromMid || bCallLoadGraphDataAfterWebViewInitialized)//Justload the graph data in this case
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                     {
-                        LoadGraphData();
+                        if(bWebView2Initialized) //Only if webview 2 is also initialized in case of break activities
+                        {
+                            if (appSettings.bShowActivitiesFromMid || bCallLoadGraphDataAfterWebViewInitialized)//Justload the graph data in this case
+                            {
+                                LoadGraphData();
+                            }
+                        }
                     }
+                    else
+                    {
+                        if (appSettings.bShowActivitiesFromMid || bCallLoadGraphDataAfterWebViewInitialized)//Justload the graph data in this case
+                        {
+                            LoadGraphData();
+                        }
+                    }
+                   
 
                 }
                 catch (Exception ex)
@@ -141,9 +152,6 @@ namespace Focus_Bear.Habits
             {
                 try
                 {
-
-                    //this.webView.NavigationStarting += NavigationStarting;
-                    //this.webView.NavigationCompleted += NavigationCompleted;
                     webView1.CoreWebView2.Settings.AreHostObjectsAllowed = true;
                     webView1.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
                     webView1.CoreWebView2.Settings.IsScriptEnabled = true;
@@ -155,31 +163,37 @@ namespace Focus_Bear.Habits
                     string curDir = Directory.GetCurrentDirectory() + "\\Graph";
                     webView1.CoreWebView2.SetVirtualHostNameToFolderMapping("focusbear", curDir, CoreWebView2HostResourceAccessKind.Allow);
 
+                    bWebView2Initialized = true;
+
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                    {
+                        if (bWebViewInitialized) //Only if webview 1 is also initialized in case of break activities
+                        {
+                            if (appSettings.bShowActivitiesFromMid || bCallLoadGraphDataAfterWebViewInitialized)//Justload the graph data in this case
+                            {
+                                LoadGraphData();
+                            }
+                        }
+                    }
+
                 }
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite("Activity Finished CoreWebView2InitializationCompleted1()" + ex.Message);
-                    Debug.WriteLine(ex.Message);
                 }
             }
         }
 
+        public void SwapTempChoiceData()
+        {
+            appSettings.currentActivityChoice = appSettings.currentActivityChoiceTemp;
+        }
         public void LoadData(bool bSkipCurrentActivity = false)
         {
             LogWriter.LogWrite("ActivityFinished LoadData()");
-            /*
-            *   "activityInfo":{
-             "activityFinishedText":"<ACTIVITY> finished!✅",
-             "lastActivityFinishedText":"<ACTIVITY> finished!✅ You’ve earned your screen time. 💪",
-            "startActivityButtonText":"Start <TIME> <NAME>",
-
-               "common":{
-              "unlockMachineButtonText":"Unlock the machine",
-                  "wrapupButtonText":"Let's wrap up for the day",
-            */
+            
             try
             {
-                // webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysPath), System.UriKind.Absolute);
                 bBreakActivitiesFinished = false;
 
                 btnSkipThisHabitTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonSkipHabitText"].ToString();
@@ -187,7 +201,6 @@ namespace Focus_Bear.Habits
                 string sHeading = "";
 
                 //Set button text with next activity start info
-                //"startActivityButtonText":"Start <TIME> <NAME>",
                 string sButtonTitle = "";
 
                 int totalSecondsAllHabits = 0;
@@ -253,7 +266,6 @@ namespace Focus_Bear.Habits
                         _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
 
                         //Progress text
-
                         string sProgressLast = appSettings.ConfigFileStrings["activityInfo"]["habitsCompleteText"].ToString();
                         sProgressLast = sProgressLast.Replace("<duration>", sTotal);
                         sTextCompletedDuration.Text = sProgressLast;
@@ -273,16 +285,20 @@ namespace Focus_Bear.Habits
                         {
                             sHeading = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
                         }
-                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].name);
-                        sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].durationSeconds));
+                        
+                        if(appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].useTimer)
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].name);
+                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].durationSeconds));
 
+                        }
+                        else
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].name);
+                        }
                         //Progress text
-                        /*
-                           * "activityInfo":{
-                          "habitsProgressText":"You have completed <duration> of habits - <totalduration> to go. You can do it!",
-                          "habitsCompleteText":"You have completed <duration> of habits.",
-                          */
                         string sProgress = appSettings.ConfigFileStrings["activityInfo"]["habitsProgressText"].ToString();
                         sProgress = sProgress.Replace("<duration>", sCompleted);
                         sProgress = sProgress.Replace("<totalduration>", sRemaining);
@@ -291,10 +307,6 @@ namespace Focus_Bear.Habits
 
                         Sounds.PlayHabitFinishedSound();
                     }
-
-                    //Reset the cnt do it today variable here
-                    //appSettings.bSkipCurrentActivityCantDoItToday = false;
-
                     sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name);
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
@@ -376,16 +388,19 @@ namespace Focus_Bear.Habits
                             sHeading = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
                         }
 
-                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].name);
-                        sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].durationSeconds));
+                        if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].useTimer)
+                        {
 
-                        //Progress text
-                        /*
-                           * "activityInfo":{
-                          "habitsProgressText":"You have completed <duration> of habits - <totalduration> to go. You can do it!",
-                          "habitsCompleteText":"You have completed <duration> of habits.",
-                          */
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].name);
+                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].durationSeconds));
+                        }
+                        else
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].name);
+                        }
+
                         string sProgress = appSettings.ConfigFileStrings["activityInfo"]["habitsProgressText"].ToString();
                         sProgress = sProgress.Replace("<duration>", sCompleted);
                         sProgress = sProgress.Replace("<totalduration>", sRemaining);
@@ -394,9 +409,6 @@ namespace Focus_Bear.Habits
 
                         Sounds.PlayHabitFinishedSound();
                     }
-
-                    //Reset the cnt do it today variable here
-                    //appSettings.bSkipCurrentActivityCantDoItToday = false;
 
                     sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name);
 
@@ -427,7 +439,7 @@ namespace Focus_Bear.Habits
                                     sHeading = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
                                     sButtonTitle = appSettings.ConfigFileStrings["common"]["unlockMachineButtonText"].ToString();
 
-                                    //We need to hide the Please SPare Me Button
+                                    //We need to hide the Please Spare Me Button
                                     _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
 
                                     var currentActivity = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex];
@@ -474,10 +486,10 @@ namespace Focus_Bear.Habits
                                         //random choice
                                         Random rnd1 = new Random();
                                         int nRandom1 = rnd1.Next(0, currentExcludeActivity.choices.Count() - 1);
-                                        appSettings.currentActivityChoice = currentExcludeActivity.choices[nRandom1]; //currentActivityChoice is the choice that we need to perform as the first activity.
+                                        appSettings.currentActivityChoiceTemp = currentExcludeActivity.choices[nRandom1]; //currentActivityChoice is the choice that we need to perform as the first activity.
 
                                         sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoice.name);
+                                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoiceTemp.name);
                                         sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(currentExcludeActivity.durationSeconds));
                                     }
                                 }
@@ -498,14 +510,24 @@ namespace Focus_Bear.Habits
                                     sHeading = sHeading.Replace("<ACTIVITY>", randomChoice.name);
                                 }
 
-                                //GEt next activity and the button text
+                                //Get next activity and the button text
                                 var currentActivity = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex + 1]; //Get the next activity to do
 
                                 if (!currentActivity.isRandomChoice)
                                 {
-                                    sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                                    sButtonTitle = sButtonTitle.Replace("<NAME>", currentActivity.name);
-                                    sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(currentActivity.durationSeconds));
+                                    if(currentActivity.useTimer)
+                                    {
+                                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                                        sButtonTitle = sButtonTitle.Replace("<NAME>", currentActivity.name);
+                                        sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(currentActivity.durationSeconds));
+                                    }
+                                    else
+                                    {
+                                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                                        sButtonTitle = sButtonTitle.Replace("<NAME>", currentActivity.name);
+
+                                    }
+                                   
                                 }
                                 else
                                 {
@@ -513,24 +535,33 @@ namespace Focus_Bear.Habits
                                     //random choice
                                     Random rnd = new Random();
                                     int nRandom = rnd.Next(0, currentActivity.choices.Count() - 1);
-                                    appSettings.currentActivityChoice = currentActivity.choices[nRandom]; //currentActivityChoice is the choice that we need to perform as the first activity.
+                                    appSettings.currentActivityChoiceTemp = currentActivity.choices[nRandom]; //currentActivityChoice is the choice that we need to perform as the first activity.
 
-                                    sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                                    sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoice.name);
-                                    sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(currentActivity.durationSeconds));
+                                    if (currentActivity.useTimer)
+                                    {
+                                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoiceTemp.name);
+                                        sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(currentActivity.durationSeconds));
+                                    }
+                                    else
+                                    {
+                                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoiceTemp.name);
+
+                                    }
                                 }
                             }
                         }
                         else
                         {
                             bBreakActivitiesFinished = true;
-                            appSettings.nCountBreaksPostponedTimes = 0; //Resettings the postpone breaks counter as break activities have been finished.
+                            appSettings.nCountBreaksPostponedTimes = 0; //Resetting the postpone breaks counter as break activities have been finished.
 
 
                             sHeading = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
                             sButtonTitle = appSettings.ConfigFileStrings["common"]["unlockMachineButtonText"].ToString();
 
-                            //We need to hide the Please SPare Me Button
+                            //We need to hide the Please Spare Me Button
                             _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
 
                             var currentActivity = appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex];
@@ -555,7 +586,7 @@ namespace Focus_Bear.Habits
                         sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex].name);
                         bLastActivity = true;
                         bBreakActivitiesFinished = true;
-                        appSettings.nCountBreaksPostponedTimes = 0; //Resettings the postpone breaks counter as break activities have been finished.
+                        appSettings.nCountBreaksPostponedTimes = 0; //Resetting the postpone breaks counter as break activities have been finished.
 
                     }
 
@@ -625,18 +656,6 @@ namespace Focus_Bear.Habits
             string sCurrentLogType = "";
             bool bAverage = false; //Default SUM
 
-            /*
-             *  "common":{
-                "graphQuantityText":"Quantity",
-                "graphMinutesText":"Minutes",
-                "graphDateText":"Date",
-                "graphTimeText":"Time"
-             * */
-
-            //Clean old data
-            ///webView.Source = new System.Uri("about:blank");
-            ///webView1.Source = new System.Uri("about:blank");
-
             try
             {
                 //double check graph files exists
@@ -661,7 +680,6 @@ namespace Focus_Bear.Habits
             string sLabelTime = appSettings.ConfigFileStrings["common"]["graphTimeText"].ToString();
 
             string curDir = Directory.GetCurrentDirectory();
-            //Uri Url = new Uri(String.Format("file:///{0}/graph/GraphDays.html", curDir));
 
             webView.Visibility = Visibility.Visible;
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
@@ -671,13 +689,11 @@ namespace Focus_Bear.Habits
                 sCurrentLogType = "morning routine";
                 if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantity)
                 {
-                   //mj// webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysPath), System.UriKind.Absolute);
                     webView.Source = new Uri(String.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
                 }
                 else
                 {
                     //Prepare Duration data
-                    //mj//webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysDurationPath), System.UriKind.Absolute);
                     webView.Source = new Uri(string.Format("file:///{0}/graph/GraphDaysDuration.html", curDir), System.UriKind.Absolute);
                 }
                 sCurrentActivityName = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name;
@@ -691,13 +707,11 @@ namespace Focus_Bear.Habits
 
                 if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantity)
                 {
-                    //mj//webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysPath), System.UriKind.Absolute);
                     webView.Source = new Uri(String.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
                 }
                 else
                 {
                     //Prepare Duration data
-                    //mj//webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysDurationPath), System.UriKind.Absolute);
                     webView.Source = new Uri(string.Format("file:///{0}/graph/GraphDaysDuration.html", curDir), System.UriKind.Absolute);
                 }
                 sCurrentActivityName = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name;
@@ -739,17 +753,13 @@ namespace Focus_Bear.Habits
 
                 if (bLogQuantity)
                 {
-                    //mj//webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphTimePath), System.UriKind.Absolute);
                     webView.Source = new Uri(String.Format("file:///{0}/graph/GraphTime.html", curDir), System.UriKind.Absolute);
-                    //mj//webView1.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysPath), System.UriKind.Absolute);
                     webView1.Source = new Uri(String.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
                 }
                 else
                 {
                     //Prepare Duration data
-                    //mj//webView.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphTimesDurationPath), System.UriKind.Absolute);
                     webView.Source = new Uri(String.Format("file:///{0}/graph/GraphTimeDuration.html", curDir), System.UriKind.Absolute);
-                    //mj//webView1.Source = new Uri(string.Format("file:///{0}", appSettings.sGraphDaysDurationPath), System.UriKind.Absolute);
                     webView1.Source = new Uri(String.Format("file:///{0}/graph/GraphDaysDuration.html", curDir), System.UriKind.Absolute);
 
                 }
@@ -784,11 +794,7 @@ namespace Focus_Bear.Habits
                 if (appSettings.sOneMonthActivityDataForGraph != null && appSettings.sOneMonthActivityDataForGraph.Length > 0)
                 {
                     LogWriter.LogWrite("sOneMonthActivityDataForGraph from API Found!");
-                    /*
-                     * {"activity_id":"9a794979-3cf9-44c6-9be7-d69955168635","days_number":30,"timezone":"UTC","log_summary_type":"SUM","stat_type":"duration","items":[{"date":"2022-11-16T00:00:00.000Z","summary":"18"}]}
-                     * 
-                     */
-                    
+       
                     JObject sLastActivityData = JObject.Parse(appSettings.sOneMonthActivityDataForGraph);
                     if (sLastActivityData.ContainsKey("log_quantity_answers_stats"))
                     {
@@ -799,7 +805,6 @@ namespace Focus_Bear.Habits
                             if (nQuestionIndexToShowGraphs > log_quantity_answer_stats_arrayItems.Count() - 1)
                             {
                                 nQuestionIndexToShowGraphs = log_quantity_answer_stats_arrayItems.Count() - 1; //Handling for multiple clicks
-                               // return;
                             }
                             if (nQuestionIndexToShowGraphs == log_quantity_answer_stats_arrayItems.Count()-1)
                             {
@@ -872,9 +877,6 @@ namespace Focus_Bear.Habits
 
                 }
 
-                //Get data from CSV
-               // var ss = appSettings.ReadCSV().ToList<LogEntry>();
-
                 LogEntry lastOne;
                 //We need to add Todays Current Activity Done data. Logically that should be the last entry of the CSV for sure. So we can read from there and add it.
                 if (appSettings.bShowActivitiesFromMid)
@@ -884,11 +886,6 @@ namespace Focus_Bear.Habits
                 }
                 else
                 {
-                    /** if(ss.Count > 0)
-                     {
-                         lastOne = ss[ss.Count - 1];
-                         ListAPIData.Add(lastOne);
-                     }**/
                     //Now we cannot get the current activity stats from the CSV so we need to get them from the array itself.
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                     {
@@ -995,10 +992,7 @@ namespace Focus_Bear.Habits
                         }
                         
                     }
-
-                        ///
                 }
-                ///
 
 
                 if (ListAPIData.Count > 0) //Means we got something from the API
@@ -1126,9 +1120,6 @@ namespace Focus_Bear.Habits
                     }
                 }
 
-                // nMax = nMax + 100;
-
-                // nMax = nMax.Round(100) ;
                 //WE need to keep the graph stats close to the actual data..so set the max values
                 if (nMax < 50)
                 {
@@ -1154,10 +1145,9 @@ namespace Focus_Bear.Habits
                 dataarrayDaysGraph = dataarrayDaysGraph.Remove(dataarrayDaysGraph.Length - 1, 1) + "]";
 
                 //Make the time array
-                ///
                 Func<LogEntry, bool> GetCurrentActivityStatsTime = x => (x.sActivityName == sCurrentActivityName && x.sLogType == sCurrentLogType );
                 var timedata = ss.Where(GetCurrentActivityStatsTime); //Todays Data
-                                                                      //bool bFound = false;
+
                 int nMaxTimeGraph = 0;
                 ///
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -1329,13 +1319,7 @@ namespace Focus_Bear.Habits
                     {
                         nMaxTimeGraph = nMaxTimeGraph + 200;
                     }
-                    ///
-
-                    //nMaxTimeGraph = nMaxTimeGraph + 50;
                 }
-                ///
-
-               
 
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
@@ -1364,7 +1348,6 @@ namespace Focus_Bear.Habits
                 //Lets see if we need to show the Duration Data or the Log Quantity data
                 if (bLogQuantity)
                 {
-                    //Manish jain yahan se chalu karo
                     //formulate the data
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                     {
@@ -1409,6 +1392,8 @@ namespace Focus_Bear.Habits
                     }
                 }
 
+                //Once we are done with the activitychoice with all data we need to load graph, we will load thenext temp one
+                SwapTempChoiceData();
 
                 string functiontocall = string.Format("getData({0});", json);
 
@@ -1443,7 +1428,7 @@ namespace Focus_Bear.Habits
                 
                 if (bBreakActivitiesFinished)
                 {
-                    if(appSettings.sBrainDump.Length > 0) //Onmly show if there is text.
+                    if(appSettings.sBrainDump.Length > 0) //Only show if there is text.
                         ((App)(Application.Current)).ShowBrainDumpWindow();
                     
                     _parentWindow.HideFrameAndClose();
@@ -1525,7 +1510,6 @@ namespace Focus_Bear.Habits
                         }
                         else
                         {
-                            //Hide();
                             return;
                         }
 
@@ -1557,7 +1541,6 @@ namespace Focus_Bear.Habits
                         }
                         else
                         {
-                            //Hide();
                             return;
                         }
                     }
