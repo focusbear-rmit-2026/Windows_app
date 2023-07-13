@@ -1465,6 +1465,36 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static void SetOfficeModeMessageStatus()
+        {
+            try
+            {
+                bool status = true;
+                byte[] regData = new byte[1] { Convert.ToByte(status) };
+                Write("OFFICEMODEMSG_SHOWN", regData);
+
+                regData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetLoggedInStatus - " + ex.Message);
+            }
+        }
+
+        internal static bool GetOfficeModeMessageStatus()
+        {
+            byte[] regData = (byte[])Read("OFFICEMODEMSG_SHOWN");
+
+            if (regData == null)
+                return false;
+
+            bool res = Convert.ToBoolean(regData[0]);
+
+            regData = null;
+            return res;
+        }
+
+
         internal static bool GetUserPassword()
         {
             try

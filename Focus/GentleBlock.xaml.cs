@@ -81,6 +81,8 @@ namespace Focus_Bear.Focus
 
             if (sURL.Length > 0)
             {
+                btnSaveForRelax.Visibility = Visibility.Visible;
+
                 try
                 {
                     Uri myUri = new Uri(sURL);
@@ -102,10 +104,15 @@ namespace Focus_Bear.Focus
                 if(appSettings.bAiCheckUrlEnabled)
                     sHeading = sHeading + "\n\n" + appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkingUrlText"].ToString();
             }
+            else
+            {
+                btnSaveForRelax.Visibility = Visibility.Collapsed;
+            }
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
             btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
-         
+            btnSaveForRelaxText.Text = "Block and save for Relax mode";// appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonSaveForRelaxText"].ToString(); //todo win texts
+
             if (sAppName.Length > 0)
             {
                 sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
@@ -320,7 +327,7 @@ namespace Focus_Bear.Focus
             Hide();
         }
 
-        private void btnGettingDistracted_Click(object sender, RoutedEventArgs e)
+        private void BlockSiteWork()
         {
             if (sActiveAppName.Length > 0)
             {
@@ -335,5 +342,17 @@ namespace Focus_Bear.Focus
             Hide();
         }
 
+        private void btnGettingDistracted_Click(object sender, RoutedEventArgs e)
+        {
+            BlockSiteWork();
+        }
+
+        private void btnSaveForRelax_Click(object sender, RoutedEventArgs e)
+        {
+            BlockSiteWork();
+
+            FocusBearAPIClient client = new FocusBearAPIClient();
+            var sResponse = client.PostSavedWebsite(sFullURLForBlockedPage); 
+        }
     }
 }

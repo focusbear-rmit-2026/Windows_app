@@ -393,6 +393,9 @@
     <Compile Include="Quit\QuitWindow.xaml.cs">
       <DependentUpon>QuitWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Relax\RelaxModeWindow.xaml.cs">
+      <DependentUpon>RelaxModeWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ShutOff\ShutOffWindow.xaml.cs">
       <DependentUpon>ShutOffWindow.xaml</DependentUpon>
     </Compile>
@@ -714,6 +717,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Quit\QuitWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Relax\RelaxModeWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

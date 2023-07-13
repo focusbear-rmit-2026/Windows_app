@@ -94,14 +94,14 @@
             <Grid Grid.Column="1" Background="#fcf8f0" Margin="10,0,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="27"/>
+                    <RowDefinition Height="27"/>
                     <RowDefinition Height="142"/>
                     <RowDefinition Height="1"/>
                     <RowDefinition Height="35"/>
-                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="27"/>
 
-                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="27"/>
                     <RowDefinition Height="1"/>
                     <RowDefinition Height="142"/>
                     <RowDefinition Height="35"/>
@@ -167,7 +167,7 @@
                <!--<ComboBox  Grid.Row="8" Name="ComboBoxHowDoYouWant"  Width="250" Height="23" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0"  SelectedIndex="0" FontSize="13" SelectionChanged="ComboBoxHowDoYouWant_SelectionChanged">
                 </ComboBox>-->
 
-                <Grid Grid.Row="9" Background="#fff" Margin="20,5,20,8">
+                <Grid Grid.Row="9" x:Name="SelectedURLsListBG" Background="#fff" Margin="20,5,20,8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="1"/>
@@ -185,7 +185,7 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Grid Grid.Row="1" Background="LightGray" ></Grid>
+                    <Grid Grid.Row="1"  x:Name="SelectedURLsListBGSeperator" Background="LightGray" ></Grid>
                     <StackPanel Grid.Row="2" Orientation="Horizontal">
                         <Button   x:Name="btnAddAllowedURLs"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAddAllowedURLs_Click">
 

@@ -132,7 +132,7 @@ namespace Focus_Bear.BrainDump
             try
             {
 
-                TimeRemaining.Text = TimeRemaining.Text = TimeRemaining.Text = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString() + " " + appSettings.SecondsToTimerText(nTimer);
+                TimeRemaining.Text = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString() + " " + appSettings.SecondsToTimerText(nTimer);
 
                 CommandManager.InvalidateRequerySuggested();
 

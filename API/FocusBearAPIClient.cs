@@ -70,7 +70,7 @@ namespace Focus_Bear.API
 
                     HttpClient client = new HttpClient();
 
-                    DateTime finish_time = DateTime.UtcNow;
+                    DateTime finish_time = start_time;
 
                     bool bTrue = true;
                     string metadata = $"{{}}"; ;
@@ -543,6 +543,7 @@ namespace Focus_Bear.API
                    $"\"isDefault\":{JsonConvert.SerializeObject(FF.isDefault)}," +
                    $"\"isMeetings\":{JsonConvert.SerializeObject(FF.isMeetings)}," +
                    $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
+                   $"\"isRelaxFocus\":{JsonConvert.SerializeObject(FF.isRelaxFocus)}," +
                    $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
                    $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
 
@@ -1273,7 +1274,11 @@ namespace Focus_Bear.API
                             {
                                 var responseCode = await response.Content.ReadAsStringAsync();
                                 JObject resJson = JObject.Parse(responseCode);
-
+                                if (appSettings.IsFirstInstall)
+                                {
+                                    appSettings.sRawUserSettings = responseCode.ToString();
+                                    RegistryManager.SaveUserSettings();
+                                }
                                 LogWriter.LogWrite(" PutUserSettings () GOT Success");
                                 return 1;
                             }
@@ -2402,6 +2407,7 @@ namespace Focus_Bear.API
 
                     string properties = $"{{\"distinct_id\":\"{sID}\"," +
                          $"\"USERNAME\":\"{appSettings.sUser_name}\"," +
+                         $"\"APPVERSION\":\"{appSettings.AppVersion.ToString()}\","+
                          $"\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)}}}";
 
 
@@ -2888,6 +2894,275 @@ namespace Focus_Bear.API
             }
             return 0;
         }
+
+        internal async Task<int> GetSavedWebsite() //OK
+        {
+            LogWriter.LogWrite("GetSavedWebsite()");
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        //Renew the token and check again
+                        LogWriter.LogWrite("Attempting RenewToken before API call");
+                        var authenticator = new Authentication();
+                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                        if (x)
+                        {
+                            //token renewed
+                            LogWriter.LogWrite("RenewToken DONE before API call");
+                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                            {
+                                return 0;
+                            }
+                            //All Good, Proceed Normally
+                        }
+                        else
+                        {
+                            //token renewed failed
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = new HttpClient();
+
+                    client.DefaultRequestHeaders.Add("platform", "Windows");
+                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+                    {
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+                    }
+                    else
+                    {
+                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
+                        return 0;
+                    }
+
+                    string apiPath = "https://api.focusbear.io/saved-website";
+
+                    var response = await client.GetAsync(apiPath);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+
+                            appSettings.sSavedURLSForRelaxActivity = responseCode.ToString();
+
+                            LogWriter.LogWrite("GetSavedWebsite() GOT Success");
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        //GetSavedWebsite Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            JObject resJson = JObject.Parse(responseCode);
+                            string sErrorMessage = resJson["message"].ToString();
+                            LogWriter.LogWrite("GetSavedWebsite() FAILED - " + sErrorMessage);
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetSavedWebsite WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedWebsite Exception - " + ex.Message);
+            }
+            return 0;
+        }
+        internal async Task<int> DeleteSavedSite(string sWebsiteId) // ok
+        {
+            LogWriter.LogWrite("DeleteSavedSite() API");
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        //Renew the token and check again
+                        LogWriter.LogWrite("Attempting RenewToken before API call");
+                        var authenticator = new Authentication();
+                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                        if (x)
+                        {
+                            //token renewed
+                            LogWriter.LogWrite("RenewToken DONE before API call");
+                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                            {
+                                return 0;
+                            }
+                            //All Good, Proceed Normally
+                        }
+                        else
+                        {
+                            //token renewed failed
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Add("platform", "Windows");
+                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+                    {
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+
+                    string apiPath = "https://api.focusbear.io/saved-website?website_id=" + sWebsiteId;
+
+                    var response = await client.DeleteAsync(apiPath);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        var responseCode = await response.Content.ReadAsStringAsync();
+                        LogWriter.LogWrite("DeleteSavedSite() GOT Success");
+                        return 1;
+                    }
+                    else
+                    {
+                        //Get Device ID Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                           // JObject resJson = JObject.Parse(responseCode);
+                           // string sErrorMessage = resJson["message"].ToString();
+                            LogWriter.LogWrite("DeleteSavedSite() FAILED");
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("DeleteSavedSite WebException" + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("DeleteSavedSite Exception" + ex.Message);
+
+            }
+            return 0;
+        }
+
+        internal async Task<int> PostSavedWebsite(string sUrl, string sTitle = "", string sMetadata = "")
+        {
+            LogWriter.LogWrite("PostSavedWebsite() = " + sUrl);
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        //Renew the token and check again
+                        LogWriter.LogWrite("Attempting Renew Token before API call");
+                        var authenticator = new Authentication();
+                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                        if (x)
+                        {
+                            //token renewed
+                            LogWriter.LogWrite("RenewToken DONE before API call");
+                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                            {
+                                return 0;
+                            }
+                            //All Good, Proceed Normally
+                        }
+                        else
+                        {
+                            //token renewed failed
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = new HttpClient();
+
+                    string addItemJsonString = $"[{{\"url\":\"{sUrl}\"," +
+                        $"\"title\":\"{sTitle}\"," +
+                        $"\"metadata\":\"{sMetadata}\"}}]"; //accepts an array
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        client.DefaultRequestHeaders.Add("platform", "Windows");
+                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+                        {
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+
+                        string apiPath = "https://api.focusbear.io/saved-website";
+                        var response = await client.PostAsync(apiPath, content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                        {
+                            LogWriter.LogWrite("PostSavedWebsite() SUCCESS");
+
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //PostSavedWebsite Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("PostSavedWebsite() FAILED - " + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("PostSavedWebsite WebException" + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("PostSavedWebsite Exception" + ex.Message);
+            }
+            return 0;
+        }
+
     }
 
 }

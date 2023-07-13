@@ -6,6 +6,7 @@ using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -43,6 +44,8 @@ namespace Focus_Bear.Habits
        
         DispatcherTimer dispatcherTimerSkippingIn = new DispatcherTimer(DispatcherPriority.Normal);
 
+        DispatcherTimer dispatcherTimerShowDateTime = new DispatcherTimer(DispatcherPriority.Normal);
+
         protected override async void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
@@ -71,6 +74,13 @@ namespace Focus_Bear.Habits
             this.WindowState = WindowState.Normal;
             this.WindowStyle = WindowStyle.ToolWindow;
 #endif
+            Time.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
+
+            dispatcherTimerShowDateTime.Tick += new EventHandler(dispatcherTimerShowDateTime_Tick);
+            dispatcherTimerShowDateTime.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimerShowDateTime.Start();
+
+
             Heading.Text = "";
             btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
 
@@ -155,6 +165,8 @@ namespace Focus_Bear.Habits
         }
         public void ShowExtraPersonalFocus()
         {
+            LogWriter.LogWrite("ShowExtraPersonalFocus()");
+
             PageHabitExtraPersonal = new HabitExtraPersonal(this);
             AppFrameHabitScreens.Navigate(PageHabitExtraPersonal);
         }
@@ -1094,6 +1106,13 @@ namespace Focus_Bear.Habits
             appSettings.bSkipWhileActivityOngoing = false;
             HideSkippingHabitInWindow();
             dispatcherTimerSkippingIn.Stop(); //Stop the timer as user had cancelled skipping
+        }
+
+        
+        private void dispatcherTimerShowDateTime_Tick(object sender, EventArgs e)
+        {
+            Time.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void dispatcherTimerSkippingIn_Tick(object sender, EventArgs e)

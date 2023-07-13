@@ -67,10 +67,20 @@ namespace Focus_Bear.Habits
                     //Simple take the first element
                     if (appSettings.arrAllMorningHabits.Count > 0)
                     {
-                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                        if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].useTimer)
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[0].name);
+                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllMorningHabits[0].durationSeconds));
 
-                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[0].name);
-                        sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllMorningHabits[0].durationSeconds));
+                        }
+                        else
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[0].name);
+                        }
+
+
                         btnStartACtivityTXT.Text = sButtonTitle;
                     }
                 }
@@ -81,10 +91,18 @@ namespace Focus_Bear.Habits
                     //Simple take the first element
                     if (appSettings.arrAllEveningHabits.Count > 0)
                     {
-                        sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                        if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].useTimer)
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[0].name);
+                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllEveningHabits[0].durationSeconds));
 
-                        sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[0].name);
-                        sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllEveningHabits[0].durationSeconds));
+                        }
+                        else
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[0].name);
+                        }
                         btnStartACtivityTXT.Text = sButtonTitle;
                     }
 

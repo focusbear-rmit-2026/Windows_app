@@ -86,10 +86,14 @@
                 </Button.Content>
 
             </Button>
-            <StackPanel   Height="50" Orientation="Horizontal">
+            <!--<StackPanel   Height="50" Orientation="Horizontal">
                 <Label   x:Name="lblOfficeMode"  Margin="14,7" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" >xWFH Mode Enabledsdsdsd</Label>
                 <ToggleButton x:Name="btnOfficeMode"  Style="{DynamicResource MacStyleToggleSwitch}"    Height="20" Width="52" Margin="15,0,0,0" HorizontalAlignment="Right"  Click="OfficeModeButton_Click"  Cursor="Hand" Focusable="False"/>
 
+            </StackPanel>-->
+            <StackPanel    Orientation="Horizontal" HorizontalAlignment="Center"  Margin="0,10,0,10" >
+                <RadioButton x:Name="OfficeMode" Content="xOffice Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Checked="OfficeMode_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="WFHMode" Content="xWFH Mode" Style="{StaticResource SegmentRadioButtonStyle}"  Checked="WFHMode_Checked" Cursor="Hand"  />
             </StackPanel>
         </StackPanel>
 

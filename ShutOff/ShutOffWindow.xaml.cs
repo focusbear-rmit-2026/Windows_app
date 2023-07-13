@@ -5,6 +5,7 @@ using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,6 +37,8 @@ namespace Focus_Bear.ShutOff
 
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         DispatcherTimer dispatcherTimerUnlock = new DispatcherTimer(DispatcherPriority.Normal);
+        DispatcherTimer dispatcherTimerShowDateTime = new DispatcherTimer(DispatcherPriority.Normal);
+
         int nTimer = 30;
 
         public ShutOffWindow()
@@ -46,6 +49,11 @@ namespace Focus_Bear.ShutOff
             this.WindowState = WindowState.Normal;
             this.WindowStyle = WindowStyle.ToolWindow;
 #endif
+            Time.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
+
+            dispatcherTimerShowDateTime.Tick += new EventHandler(dispatcherTimerShowDateTime_Tick);
+            dispatcherTimerShowDateTime.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimerShowDateTime.Start();
 
             string imagePath = ("pack://application:,,,/Focus Bear;component/images/gifs/Yawn_small.gif" );
             var image = new BitmapImage();
@@ -291,6 +299,13 @@ namespace Focus_Bear.ShutOff
             {
                 LogWriter.LogWrite("shutOff window dispatcherTimer_Tick" + ex.Message);
             }
+        }
+
+
+        private void dispatcherTimerShowDateTime_Tick(object sender, EventArgs e)
+        {
+            Time.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void Window_Closed(object sender, EventArgs e)

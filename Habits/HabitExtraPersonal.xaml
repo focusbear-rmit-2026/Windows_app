@@ -36,7 +36,7 @@
             <Button IsDefault="True"  x:Name="btnStartACtivity"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="40"  MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnStartACtivity_Click" Visibility="Visible">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal" >
-                        <TextBlock x:Name="btnStartACtivityTXT" Text="xxStart 5 minutes Yoga sdsdsd sdsdsd sdsds sdsdsd " Padding="20,0,20,0"/>
+                        <TextBlock x:Name="btnStartACtivityTXT" Text="xxStart 5 minutes Yoga" Padding="20,0,20,0"/>
                 </StackPanel>
             </Button.Content>
         </Button>

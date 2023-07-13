@@ -209,7 +209,8 @@ namespace Focus_Bear.Utils
         public List<QuantityQuestion> logQuantityQuestions;
         public string completion_requirements;
         public bool useTimer;
-        public habit(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer)
+        public bool show_saved_distracting_websites; //This means this is the relax activity, so nothing should be blocked
+        public habit(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites)
         {
             this.id = id;
             this.name = name;
@@ -225,6 +226,7 @@ namespace Focus_Bear.Utils
             this.logQuantityQuestions = logQuantityQuestions;
             this.completion_requirements = completion_requirements;
             this.useTimer = useTimer;
+            this.show_saved_distracting_websites = show_saved_distracting_websites;
         }
     }
 
@@ -393,6 +395,7 @@ namespace Focus_Bear.Utils
         public bool isDefault;
         public bool isMeetings { get; set; }
         public bool isLockedFocus;
+        public bool isRelaxFocus;
 
         public bool isShowAbleInList
         {
@@ -421,7 +424,7 @@ namespace Focus_Bear.Utils
         {
 
         }
-        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, string sToolTip = "")
+        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, string sToolTip = "")
         {
             this.id = id;
             this.name = name;
@@ -432,11 +435,10 @@ namespace Focus_Bear.Utils
             this.isOn = isOn;
             this.isAllowedAllApps = isAllowedAllApps;
             this.isAllowedListApproach = isAllowedListApproach;
-            ////this.isAllowedAllUrls = isAllowedAllUrls;
-            ////this.isBlockedAllUrls = isBlockedAllUrls;
             this.isDefault = isDefault;
             this.isMeetings = isMeetings;
             this.isLockedFocus = isLockedFocus;
+            this.isRelaxFocus = isRelaxFocus;
             this.sToolTip = sToolTip;
         }
 
@@ -537,5 +539,44 @@ namespace Focus_Bear.Utils
             this.logged_value = logged_value;
         }
     }
+
+    public class RelaxURL
+    {
+        private bool isItemChecked;
+
+        public string sID { get; set; }
+        public string sURL { get; set; }
+        public bool IsItemChecked
+        {
+            get { return isItemChecked; }
+            set
+            {
+                isItemChecked = value;
+                OnChanged("IsItemChecked");
+            }
+        }
+
+        public RelaxURL()
+        {
+
+        }
+        public RelaxURL(string sID, string sURL, bool bChecked)
+        {
+            this.sID = sID;
+            this.sURL = sURL;
+            this.IsItemChecked = bChecked;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+    }
+
 }
- 
+

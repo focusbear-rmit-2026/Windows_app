@@ -88,6 +88,7 @@ namespace Focus_Bear.Utils
         public bool bHasUserEditedSettings = false;
         public DateTime InitialStartupTimeValue { get; set; }
         public DateTime InitialShutoffTimeValue { get; set; }
+        public DateTime InitialSleepTimeValue { get; set; }
 
         public FocusMode FocusModeNameToCreateWhileOnBoarding;
         public string OnboardingActivityName = "";
@@ -271,6 +272,9 @@ namespace Focus_Bear.Utils
         public bool bStringsLoaded;
 
         public int nTimerValForNonTimerActivities = 86400; //Timer val for non - timer activities
+
+        //Relax activities related
+        public string sSavedURLSForRelaxActivity; //To get the urls from API
 
         public CUIAutomation automation;
         public IUIAutomationFocusChangedEventHandler handler;
@@ -750,8 +754,8 @@ namespace Focus_Bear.Utils
                             {
                                 useTimer = false;
                             }
-                            
-                            arrAllMorningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer));
+                            bool show_saved_distracting_websites = item.ContainsKey("show_saved_distracting_websites") ? (bool)item.GetValue("show_saved_distracting_websites") : false;
+                            arrAllMorningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites));
                         }
                     }
                     if (arrayEveningActivities.Count() > 0)
@@ -833,8 +837,8 @@ namespace Focus_Bear.Utils
                             {
                                 useTimer = false;
                             }
-
-                            arrAllEveningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer));
+                            bool show_saved_distracting_websites = item.ContainsKey("show_saved_distracting_websites") ? (bool)item.GetValue("show_saved_distracting_websites") : false;
+                            arrAllEveningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites));
                         }
                     }
                     if (arrayBreakActivities.Count() > 0)
@@ -1058,6 +1062,7 @@ namespace Focus_Bear.Utils
                                     bool isDefault = false;
                                     bool isMeetings = false;
                                     bool isLockedFocus = false;
+                                    bool isRelaxFocus = false;
 
                                     if (item.ContainsKey("allowed_urls"))
                                     {
@@ -1095,9 +1100,10 @@ namespace Focus_Bear.Utils
                                         isDefault = metadata.ContainsKey("isDefault") ? Convert.ToBoolean(metadata.GetValue("isDefault")) : false;
                                         isMeetings = metadata.ContainsKey("isMeetings") ? Convert.ToBoolean(metadata.GetValue("isMeetings")) : false;
                                         isLockedFocus = metadata.ContainsKey("isLockedFocus") ? Convert.ToBoolean(metadata.GetValue("isLockedFocus")) : false;
+                                        isRelaxFocus = metadata.ContainsKey("isRelaxFocus") ? Convert.ToBoolean(metadata.GetValue("isRelaxFocus")) : false;
                                     }
 
-                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : "")));
+                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : "")));
                                 }
 
                                 catch (Exception ex)
@@ -1268,7 +1274,7 @@ namespace Focus_Bear.Utils
                         //add to focus modes  array and Upload to api
                         //#A3FFA1 is the default color
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["defaultFocusText"].ToString(); //"Complete anarchy! Block nothing 😬"
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, true, false, false));
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, true, false, false, false));
 
                     }
                     //Check Meetings Focus Mode
@@ -1293,7 +1299,7 @@ namespace Focus_Bear.Utils
                         arrAllowedAppsWin.Add(new AppDetails("Google Chrome", "chrome.exe"));
 
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusText"].ToString(); //"meetingsFocusText":"Meetings",
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, true, false));
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, true, false, false));
 
                     }
                     //Check Locked Focus Mode
@@ -1305,9 +1311,21 @@ namespace Focus_Bear.Utils
                         //add to focus modes  array and Upload to api
                         //#A3FFA1 is the default color
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["lockedFocusText"].ToString();//        "lockedFocusText":"Locked Focus on current activity",
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, false, true, false, false, true));
-
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, false, true, false, false, true, false));
                     }
+
+                    //Check Relax Focus Mode
+                    var listItemsR = arrFocusModes.Where(l => l.isRelaxFocus == true);
+                    if (listItemsR.Count() == 0)
+                    {
+                        LogWriter.LogWrite("isRelaxFocus focus mode not found, create new");
+                        //Call the API to upload the newly created focus mode
+                        //add to focus modes  array and Upload to api
+                        //#A3FFA1 is the default color
+                        string sName = "Relax - block nothing"; // todo win texts ConfigFileStrings["focusPreferencesInfo"]["relaxFocusText"].ToString();
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, false, false, false, false, true));
+                    }
+
                 }
 
             }

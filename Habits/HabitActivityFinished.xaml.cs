@@ -1418,6 +1418,8 @@ namespace Focus_Bear.Habits
         }
         private void btnStartNextActivity_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("Activity Finished Screen: btnStartNextActivity_Click");
+
             if (appSettings.bShowActivitiesFromMid)
             {
                 appSettings.bShowActivitiesFromMid = false; //This is the last point we need it so we should reset it to be able to post completed API further.

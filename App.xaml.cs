@@ -38,6 +38,7 @@ using WinForms = System.Windows.Forms;
 using Sentry;
 using Focus_Bear.Onboarding.New;
 using Microsoft.Win32;
+using Focus_Bear.Relax;
 
 namespace Focus_Bear
 {
@@ -268,6 +269,8 @@ namespace Focus_Bear
         public FocusProgress wndFocusProgress = null;
 
         public HabitsResumeInPopup wndHabitsResumeInPopup = null;
+
+        public RelaxModeWindow wndRelaxMode = null;
 
         bool bAppExtracted = false;
 
@@ -1027,6 +1030,15 @@ namespace Focus_Bear
                         UserSettings.Remove("shutdown_time");
                         UserSettings.Add("shutdown_time", appSettings.InitialShutoffTimeValue.ToString("HH:mm"));
                     }
+                    if (UserSettings.ContainsKey("sleep_time"))
+                    {
+                        UserSettings.Remove("sleep_time");
+                        UserSettings.Add("sleep_time", appSettings.InitialSleepTimeValue.ToString("HH:mm"));
+                    }
+                    else
+                    {
+                        UserSettings.Add("sleep_time", appSettings.InitialSleepTimeValue.ToString("HH:mm"));
+                    }
                     if (UserSettings.ContainsKey("break_after_minutes"))
                     {
                         UserSettings.Remove("break_after_minutes");
@@ -1120,7 +1132,8 @@ namespace Focus_Bear
 
 
 #if DEBUG
-//Write any routines or functionality to test in DEBUG mode here
+            //Write any routines or functionality to test in DEBUG mode here
+             
 #endif
 
             if (appSettings.IsFirstInstall)
@@ -2029,6 +2042,17 @@ namespace Focus_Bear
 
         }
 
+        public void ShowRelaxActivityWindow(int nTime)
+        {
+            if (wndRelaxMode == null)
+            {
+                wndRelaxMode = new RelaxModeWindow(nTime);
+            }
+            wndRelaxMode.Show();
+            wndRelaxMode.BringIntoView();
+            //wndRelaxMode.ShowBrainDumpWindowAndStartTimer();
+        }
+
         public void ShowBreakWindowForAllowedAppsActivity(int nDuration, string sTitle)
         {
             if (wndTakeABreak == null)
@@ -2448,6 +2472,14 @@ namespace Focus_Bear
         public void ShowBlankWindowOnOtherScreens()
         {
             LogWriter.LogWrite("ShowBlankWindowOnOtherScreens()");
+            //WE will place a small check here
+            //if its not any activity time, this should not execute
+            if(appSettings.nCurrentActivityType == CurrentActivityType.NONE)
+            {
+                LogWriter.LogWrite("return from ShowBlankWindowOnOtherScreens() as appSettings.nCurrentActivityType == CurrentActivityType.NONE");
+                return;
+            }
+
             /*screen class see line 120, Screen.AllScreens uses the field Screen.screens for cache. In my solution, I use the reflection api to change the Screen class. I clear Screens.screens before calling Screen.AllScreens.*/
             typeof(WinForms.Screen).GetField("screens", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).SetValue(null, null);
 
