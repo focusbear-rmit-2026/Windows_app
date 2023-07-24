@@ -89,7 +89,9 @@ namespace Focus_Bear.ShutOff
 
         private void btnAction_Click(object sender, RoutedEventArgs e)
         {
-            switch(nState)
+            LogWriter.LogWrite("ShutOff screen btnAction_Click()");
+
+            switch (nState)
             {
                 case CurrentShutOffState.GET_ACCESS:
                     {
@@ -254,7 +256,7 @@ namespace Focus_Bear.ShutOff
                     }
                     
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Now this needs to be set to none.
-                    LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+                    LogWriter.LogWrite("Remove shutoff screen appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
                     RegistryManager.SetShutOffAbortedTillDate(); 
 

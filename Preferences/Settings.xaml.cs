@@ -79,6 +79,7 @@ namespace Focus_Bear.Preferences
                 CheckPostponingEveningRoutine.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonSkipEveningHabitText"].ToString();
                 CheckUsingComputerLateNight.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonAbortingShutoffText"].ToString();
                 CheckQuittingApp.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonQuitAppText"].ToString();
+                CheckUseRelaxMode.Content = "Allow using relax focus mode"; //appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonUseRelaxModeText"].ToString(); //todo win texts
 
                 SelectLanguage.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleSelectLanguage"].ToString();
 
@@ -139,12 +140,14 @@ namespace Focus_Bear.Preferences
                 CheckPostponingEveningRoutine.IsEnabled = true;
                 CheckUsingComputerLateNight.IsEnabled = true;
                 CheckQuittingApp.IsEnabled = true;
+                CheckUseRelaxMode.IsEnabled = true;
 
                 CheckChangingSettings.IsChecked = appSettings.bPasswordRequireInChangeSettings;
                 CheckPostponingMorningRoutine.IsChecked = appSettings.bPasswordRequireInSkipMorning;
                 CheckPostponingEveningRoutine.IsChecked = appSettings.bPasswordRequireInSkipEvening;
                 CheckUsingComputerLateNight.IsChecked = appSettings.bPasswordRequireInAbortShutoff;
                 CheckQuittingApp.IsChecked = appSettings.bPasswordRequireInQuitApp;
+                CheckUseRelaxMode.IsChecked = appSettings.bPasswordRequireToUseRelaxFocusMode;
             }
             else
             {
@@ -162,6 +165,7 @@ namespace Focus_Bear.Preferences
                 CheckPostponingEveningRoutine.IsEnabled = false;
                 CheckUsingComputerLateNight.IsEnabled = false;
                 CheckQuittingApp.IsEnabled = false;
+                CheckUseRelaxMode.IsEnabled = false;
             }
 
         }
@@ -410,6 +414,16 @@ namespace Focus_Bear.Preferences
                     }
                 }
             }
+        }
+
+        private void CheckUseRelaxMode_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireToUseRelaxFocusMode = true;
+        }
+
+        private void CheckUseRelaxMode_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireToUseRelaxFocusMode = false;
         }
     }
 }

@@ -24,6 +24,7 @@ using Focus_Bear.Quit;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Focus_Bear.Onboarding.AfterLogin;
+using Focus_Bear.Preferences;
 
 namespace Focus_Bear
 {
@@ -143,7 +144,7 @@ namespace Focus_Bear
                 WFHMode.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipWfhMode"].ToString();
 
                
-                if (appSettings.bHabitsPostponedState)
+                if (appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
                 {
                     btnResumeHabits.Visibility = Visibility.Visible;
                 }
@@ -316,6 +317,25 @@ namespace Focus_Bear
                             ((App)(Application.Current)).wndTakeABreak.HideBreakWindowAndStopTimer();
                         }
 
+                        if(selectedItem.isRelaxFocus && appSettings.bPasswordRequireToUseRelaxFocusMode)
+                        {
+                            AskPassword pwdWnd = new AskPassword();
+                            pwdWnd.Owner = this;
+                            bool? bRes  = pwdWnd.ShowDialog();
+
+                            if (bRes.Value)
+                            {
+                                //Password is correct
+                            }
+                            else
+                            {
+                                //Deselect the Seleted list view item
+                                ListFocusModes.SelectedItem = null;
+                                isFocusModeWindowOpen = false;
+                                return;
+                            }
+
+                        }
                         //show the start focus window
                         StartFocusMode wndFocus = new StartFocusMode(selectedItem.name, selectedItem.isDefault, selectedItem.isLockedFocus);
                         wndFocus.WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -604,7 +624,14 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("btnResumeHabits_Click" );
             Hide();
-            ((App)(Application.Current)).ResumeAfterPostponeFinished();
+            if (appSettings.bFocusSummaryPostponedState)
+            {
+                ((App)(Application.Current)).wndFocusSummary.ResumeFocusSummary();
+            }
+            else
+            {
+                ((App)(Application.Current)).ResumeAfterPostponeFinished();
+            }
         }
 
         private void btnBrainDump_Click(object sender, RoutedEventArgs e)

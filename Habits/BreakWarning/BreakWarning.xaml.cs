@@ -75,6 +75,8 @@ namespace Focus_Bear.Habits
                 Description.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["titleWIN"].ToString();
                 PostponeMinsText.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["titleSelectMinutes"].ToString();
 
+                FadeInBreakWindow ww = new FadeInBreakWindow();
+                ww.Show();
             }
             catch (Exception ex)
             {
@@ -86,7 +88,7 @@ namespace Focus_Bear.Habits
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer-=5;
+            int val = nTimer-=1;
 #else
             int val = nTimer--;
 #endif

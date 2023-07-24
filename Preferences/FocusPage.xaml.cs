@@ -623,8 +623,6 @@ namespace Focus_Bear.Preferences
 
                         BlockEverything.Visibility = Visibility.Collapsed;
                         AllowEverything.Visibility = Visibility.Collapsed;
-
-
                     }
                     else
                     {

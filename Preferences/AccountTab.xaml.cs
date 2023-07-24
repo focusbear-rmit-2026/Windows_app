@@ -71,7 +71,7 @@ namespace Focus_Bear.Preferences
         private void btnLogout_Click(object sender, RoutedEventArgs e)
         {
             FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["accountVcInfo"]["logoutAlertText"].ToString(), "Focus Bear", MessageBoxButton.YesNo);
-             
+            ff.Owner = ((App)(Application.Current)).wndPreferences;
             ff.ShowDialog();
             if(ff.btnClicked == MessageBoxResult.Yes)
             {

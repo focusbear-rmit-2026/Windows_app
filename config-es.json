@@ -516,7 +516,8 @@
         "titleBlockedApps": "¿Qué aplicaciones quieres bloquear?",
         "titleBlockedUrls": "A continuación se muestra la lista de URLs siempre bloqueadas:",
         "checkBoxDoNotDisturbText": "Bloquear notificaciones mientras te concentras",
-        "buttonDeleteUrlText": "Borrar URL"
+        "buttonDeleteUrlText": "Borrar URL",
+        "relaxFocusText": "Relax - block nothing[NEEDSTRANSLATION]"
     },
     "focusPreferencesAdvancedInfo": {
         "runScriptBeforeText": "Ejecuta el script de Apple antes de iniciar el modo de enfoque.",
@@ -674,7 +675,8 @@
         "buttonSkipMorningHabitText": "Posponer/omitir rutina de mañana",
         "buttonChangeSettingsText": "Editar Ajustes",
         "buttonSkipEveningHabitAfterCutOffText": "Posponer/saltar la rutina nocturna después de la hora límite",
-        "buttonSavedPasswordText": "He guardado la contraseña en un lugar seguro"
+        "buttonSavedPasswordText": "He guardado la contraseña en un lugar seguro",
+        "buttonUseRelaxFocusModeText": "Allow using relax focus mode[NEEDSTRANSLATION]"
     },
     "blockedUrlsViewInfo": {
         "title": "URL siempre bloqueadas",
@@ -924,7 +926,8 @@
         "reasonText": "Motivo: <REASON>",
         "buttonBadDecisionText": "Mala decisión",
         "checkboxDonotShowText": "No volver a mostrar esto",
-        "progressInfoText": "Estás enseñando a Focus Bear qué sitios y aplicaciones son productivos para ti. Al principio cuesta un poco, pero en unos días habrás enseñado a Focus Bear qué aplicaciones y sitios web son productivos."
+        "progressInfoText": "Estás enseñando a Focus Bear qué sitios y aplicaciones son productivos para ti. Al principio cuesta un poco, pero en unos días habrás enseñado a Focus Bear qué aplicaciones y sitios web son productivos.",
+        "buttonBlockAndAddToRelaxModeText": "Block and save for Relax mode[NEEDSTRANSLATION]"
     },
     "easyPostponeVcInfo": {
         "title": "Entendido – ahora no es un buen momento. Voy a esperar 5 minutos. Puedes posponer por más tiempo si asi lo necesitas.",
@@ -1073,7 +1076,9 @@
         "prepareToStartWorkTimeText": "💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepárate para comenzar a trabajar (intérvalo de transición)",
         "workTimeText": "💪 <START_WORK_TIME> - <END_WORK_TIME> - Trabajo",
         "eveningRoutineTimeText": "🥱 <END_WORK_TIME> - <EVENING_ROUTINE_END_TIME> - Rutina Nocturna",
-        "lockComputerTimeText": "😴 <EVENING_ROUTINE_END_TIME> - Fin de Rutina Nocturna - computadora bloqueada ( puedes desbloquearla si lo necesitas)"
+        "lockComputerTimeText": "😴 <EVENING_ROUTINE_END_TIME> - Fin de Rutina Nocturna - computadora bloqueada ( puedes desbloquearla si lo necesitas)",
+        "questionSleepTimeText": "What time do you want to go to sleep?[NEEDSTRANSLATION]",
+        "sleepTimeAlertText": "Sleep time cannot be less than finish work time.[NEEDSTRANSLATION]"
     },
     "welcomeVcInfo": {
         "descriptionFirstText": "Focus Bear te ayuda a evitar distracciones y desarrollar hábitos saludables.",
@@ -1224,6 +1229,11 @@
                 "description": "Configura los modos de enfoque para trabajar en profundidad bloqueando distracciones. Puedes eliminar los bloqueos si tienes una emergencia.",
             }
         ]
+    },
+    "relaxModeVcInfo":{
+        "title": "Sites you saved for relax mode:[NEEDSTRANSLATION]",
+        "toolTipRemoveUrls": "Remove Selected URLs[NEEDSTRANSLATION]",
+        "buttonActivityDoneText": "I'm done relaxing. Start winding down![NEEDSTRANSLATION]"
     },
     "WindowsSpecific": {
         "welcomeVideoUrl": "https://www.youtube.com/watch?v=xTUIGfmi3xg",

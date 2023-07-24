@@ -32,7 +32,7 @@ namespace Focus_Bear.Relax
         int nTimer = 300;  
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
-        bool bForceClose = false;
+        public bool bForceClose = false;
         public RelaxModeWindow()
         {
         }
@@ -48,7 +48,7 @@ namespace Focus_Bear.Relax
             {
                 Heading.Text = "Sites you saved for relax mode:";
                 btnDeleteURLs.ToolTip = "Remove Selected URLs";
-                btnMovetoNextTXT.Text = "I'm done! Move to next activity"; //todo Win texts
+                btnMovetoNextTXT.Text = "I'm done relaxing. Start winding down!"; //todo Win texts
                 TimeRemaining.Text = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString() + " " + appSettings.SecondsToTimerText(nTimer);
             }
             catch (Exception ex)

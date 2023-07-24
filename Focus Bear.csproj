@@ -215,6 +215,9 @@
     <Compile Include="Habits\BreakWarning\BreakWarning.xaml.cs">
       <DependentUpon>BreakWarning.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Habits\BreakWarning\FadeInBreakWindow.xaml.cs">
+      <DependentUpon>FadeInBreakWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Habits\HabitsResumeInPopup.xaml.cs">
       <DependentUpon>HabitsResumeInPopup.xaml</DependentUpon>
     </Compile>
@@ -485,6 +488,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Habits\BreakWarning\BreakWarning.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\BreakWarning\FadeInBreakWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

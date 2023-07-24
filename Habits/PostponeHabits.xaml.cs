@@ -65,7 +65,7 @@ namespace Focus_Bear.Habits
             {
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
                 int nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
-                _parentWindow.PostponeOnboarding(nMinutesToPostpone);
+                _parentWindow.PostponeFocusSummary(nMinutesToPostpone);
                 Close();
             }
             catch (Exception ex)

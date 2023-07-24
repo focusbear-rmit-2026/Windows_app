@@ -117,6 +117,7 @@ namespace Focus_Bear.Habits
                     {
                         //Increment the habit index to show the correct activity ongoing which was postponed
                         appSettings.nHabitIndex++;
+                        LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
                     }
                     string sActivityID = (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) ? appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id : ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) ? appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id : "");
                     if(sPostponedActivityId == sActivityID)
@@ -976,7 +977,9 @@ namespace Focus_Bear.Habits
         }
         private void Window_Closed(object sender, EventArgs e)
         {
-            appSettings.RemoveSecondaryWindows();
+            //If its shutoff window already shown then do not remove secondary monitor windows
+            if(appSettings.nCurrentActivityType != CurrentActivityType.SHUT_OFF)
+                appSettings.RemoveSecondaryWindows();
         }
 
         public void ShowWhySkipHabitsWindow()
@@ -996,6 +999,8 @@ namespace Focus_Bear.Habits
 
             appSettings.bSkipCurrentActivity = false; //initiating, will be true after showing the nag for why do you want to skip
             appSettings.bSkipCurrentActivityCantDoItToday = false;
+
+            LogWriter.LogWrite("appSettings.bSkipCurrentActivityCantDoItToday = false;");
 
             HeadingWhySkip.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["title"].ToString();
             btnAlreadyDidItTXT.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["buttonAlreadyDidItText"].ToString(); 
@@ -1079,17 +1084,23 @@ namespace Focus_Bear.Habits
         {
             //Proceed to show log window if its a log activity
             //if not skip and move to next activity
+            LogWriter.LogWrite("btnAlreadyDidIt_Click()");
+
             HideWhySkipHabitsWindow();
             appSettings.bSkipCurrentActivity = true;
 
-            if(!appSettings.bSkipWhileActivityOngoing) //Increase the index only if the activity was skipped other than when it was ongoing.
+            if (!appSettings.bSkipWhileActivityOngoing) //Increase the index only if the activity was skipped other than when it was ongoing.
+            {
                 appSettings.nHabitIndex++; //Increment the index to do the next habit
+                LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
+            }
 
             ShowACtivityFinishedScreen(true);
         }
 
         private void btnCantDoItToday_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("btnCantDoItToday_Click()");
             //Hide why skip and show the skipping-in window
             HideWhySkipHabitsWindow();
 
@@ -1135,8 +1146,14 @@ namespace Focus_Bear.Habits
 
                     HideSkippingHabitInWindow();
                     appSettings.bSkipCurrentActivityCantDoItToday = true;
+
+                    LogWriter.LogWrite("appSettings.bSkipCurrentActivityCantDoItToday = true;");
+
                     if (!appSettings.bSkipWhileActivityOngoing) //Increase the index only if the activity was skipped other than when it was ongoing.
+                    {
                         appSettings.nHabitIndex++; //Increment the index to do the next habit
+                        LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
+                    }
                     ShowACtivityFinishedScreen(true);
                 }
             }

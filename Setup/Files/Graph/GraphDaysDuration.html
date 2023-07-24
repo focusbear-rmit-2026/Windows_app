@@ -1,0 +1,128 @@
+<html>
+   <head> 
+     <title>Focus Bear</title>
+      
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script> 
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.0/Chart.bundle.min.js"></script> 
+      <script type="text/javascript">
+   
+
+      </script>
+      <style>
+      body{
+          overflow: hidden;
+      }
+      </style>
+   </head> 
+   <body style="overflow:'hidden'">
+
+	 <div id="chart-wrapper" style="margin: 20px">
+           <canvas id="focusBearChart" style="width: 95%"></canvas>
+         </div>
+
+      <script>
+          function newDate(days) {
+                         return moment().add(days, 'd');
+                       }
+                          
+          function getData(jsonData)
+          {
+           
+             function formatSecsAsMins(d) {
+             
+                d = Number(d);
+                var h = Math.floor(d / 3600);
+                var m = Math.floor(d % 3600 / 60);
+                var s = Math.floor(d % 3600 % 60);
+
+                var hDisplay = h > 0 ? h   : "00";
+                var mDisplay = m > 0 ? m : "00";
+                var sDisplay = s > 0 ? s   : "00";
+                return hDisplay.toString().padStart(2, '0') + ":" + mDisplay.toString().padStart(2, '0') + ":" + sDisplay.toString().padStart(2, '0');
+             
+              }
+                                   
+
+              var json = { "label":"Pushups Over Time" , "labelX":"Date", "labelY":"Number of Pushups", "data": [10,15,20,10,30,40,50,30, 66, 22 , 31 , 42 , 43 , 21 , 19 , 33 , 42 , 66 , 21 , 15 , 24 , 41 , 36 , 51 , 18 , 89 , 40 , 213, 149 , 128 ,10,15,20,10,30,40,50,30, 66, 22 , 31 , 42 , 43 , 21 , 19 , 33 , 42 , 66 , 21 , 15 , 24 , 41 , 36 , 51 , 18 , 89 , 40 , 213, 149 , 128,  36 , 51 , 18 , 89 , 40 , 213, 149 , 128, 43 , 21 , 19 , 33 , 42 , 66 , 21 , , 18 , 89 , 40 , 213, 149 , 128 , ], "max":0}
+
+                  json = jsonData;
+                   var nmax= json.max;
+              var config = {
+                type: 'line',
+                data: {
+                  labels: [newDate(-30), newDate(-29),newDate(-28), newDate(-27), newDate(-26), newDate(-25),newDate(-24), newDate(-23), newDate(-22), newDate(-21),newDate(-20), newDate(-19), newDate(-18), newDate(-17),newDate(-16), newDate(-15), newDate(-14), newDate(-13),newDate(-12), newDate(-11), newDate(-10), newDate(-9),newDate(-8), newDate(-7), newDate(-6), newDate(-5), newDate(-4), newDate(-3), newDate(-2), newDate(-1), newDate(), newDate(+1)],
+                  datasets: [{
+                    label: json.label,
+                    fill: false,
+                    lineTension: 0,
+                    backgroundColor: "rgba(0,0,255,1.0)",
+                    borderColor: "rgba(0,0,255,0.1)",
+                    
+                    data:  json.data,
+
+                  }]
+                },
+                options: {
+                  scales: {
+                    xAxes: [{
+                      type: 'time',
+                      time: {
+                        displayFormats: {
+                           'millisecond': 'MMM DD',
+                          'second': 'MMM DD',
+                          'minute': 'MMM DD',
+                          'hour': 'MMM DD',
+                          'day': 'MMM DD',
+                          'week': 'MMM DD',
+                          'month': 'MMM DD',
+                          'quarter': 'MMM DD',
+                          'year': 'MMM DD',
+                        }, 
+                      },
+                       scaleLabel: {
+                              display: true,
+                              labelString: json.labelX,
+                          },
+                    }],
+                      yAxes: [
+                          {
+                              scaleLabel: {
+                                  display: true,
+                                  labelString: json.labelY,
+                              },
+                              ticks:{
+                              userCallback: function(v) { return formatSecsAsMins(v) },
+                              
+                              min: 0,
+                              max: nmax
+                              }
+                          },
+                          ],
+                  },
+                  
+                  tooltips: {
+                      enabled: true,
+                      mode: 'single',
+                      callbacks: {
+                          label: function(tooltipItems, data) {
+                              return "Duration: " + formatSecsAsMins(tooltipItems.yLabel)  ;
+                          }
+                      }
+                  },
+                  
+                  
+                }
+              };
+
+         
+
+              var ctx = document.getElementById("focusBearChart").getContext("2d");
+              new Chart(ctx, config);
+          }
+          function getData1()
+          {
+            
+          }
+          </script>
+   </body>
+</html>

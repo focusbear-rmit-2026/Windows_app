@@ -180,7 +180,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="27"/>
                                     <RowDefinition Height="15"/>
-                                    <RowDefinition Height="125"/>
+                                    <RowDefinition Height="155"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0"   Name="WhenRequire" Margin="20,0,0,0"  TextWrapping="Wrap"    Text="xWhen do you want to require a password?"  Foreground="Black" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
                                 <StackPanel  Grid.Row="1"  Orientation="Vertical" Width="340" Margin="20,0,0,0" Grid.RowSpan="2" HorizontalAlignment="Left">
@@ -189,6 +189,7 @@
                                     <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingEveningRoutine" FontSize="14" Checked="CheckPostponingEveningRoutine_Checked"  Unchecked="CheckPostponingEveningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping evening routine</CheckBox>
                                     <CheckBox  Margin="0,0,0,10" x:Name="CheckUsingComputerLateNight" FontSize="14" Checked="CheckUsingComputerLateNight_Checked"  Unchecked="CheckUsingComputerLateNight_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xUsing your computer late at night</CheckBox>
                                     <CheckBox  Margin="0,0,0,10" x:Name="CheckQuittingApp" FontSize="14" Checked="CheckQuittingApp_Checked" Unchecked="CheckQuittingApp_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xQuitting app</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckUseRelaxMode" FontSize="14" Checked="CheckUseRelaxMode_Checked" Unchecked="CheckUseRelaxMode_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xAllow using relax focus mode</CheckBox>
                                 </StackPanel>
                             </Grid>
                         </Grid>

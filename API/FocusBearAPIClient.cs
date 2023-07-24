@@ -24,7 +24,7 @@ namespace Focus_Bear.API
         AppSettings appSettings = AppSettings.GetInstance;
 
         public static string PostDevice { get { return "https://api.focusbear.io/device"; } }
-        public static string UserSettings { get { return "https://api.focusbear.io/user-settings"; } }
+        public string UserSettings { get { return "https://api.focusbear.io/user-settings"; } set { } }
 
         public static string CompletedActivity { get { return "https://api.focusbear.io/completed-activity"; } }
         public static string SkipActivity { get { return "https://api.focusbear.io/completed-activity/skip"; } }
@@ -125,6 +125,7 @@ namespace Focus_Bear.API
                     {
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
 
@@ -224,6 +225,7 @@ namespace Focus_Bear.API
                     {
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
 
@@ -330,6 +332,7 @@ namespace Focus_Bear.API
                         //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
@@ -441,6 +444,7 @@ namespace Focus_Bear.API
                         //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
                      
@@ -557,6 +561,7 @@ namespace Focus_Bear.API
                         //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(addFocusJsonString, Encoding.UTF8, "application/json");
 
@@ -647,6 +652,7 @@ namespace Focus_Bear.API
                     HttpClient client = new HttpClient();
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -758,6 +764,7 @@ namespace Focus_Bear.API
                     {
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(arrAllFocusModesArray, Encoding.UTF8, "application/json");
 
@@ -861,6 +868,7 @@ namespace Focus_Bear.API
                         //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(addFocusJsonString, Encoding.UTF8, "application/json");
 
@@ -962,6 +970,7 @@ namespace Focus_Bear.API
                         //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(addFocusJsonString, Encoding.UTF8, "application/json");
 
@@ -1059,6 +1068,7 @@ namespace Focus_Bear.API
                     {
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(addFocusJsonString, Encoding.UTF8, "application/json");
 
@@ -1149,6 +1159,7 @@ namespace Focus_Bear.API
                      
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -1215,7 +1226,7 @@ namespace Focus_Bear.API
             return 0;
         }
 
-        internal async Task<int> PutUserSettings() //OK
+        internal async Task<int> PutUserSettings(bool is_onboarding = false) //OK
         {
             LogWriter.LogWrite("PutUserSettings()");
             try
@@ -1255,6 +1266,7 @@ namespace Focus_Bear.API
                         //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
@@ -1266,6 +1278,9 @@ namespace Focus_Bear.API
                         {
                             return 0;
                         }
+
+                        if(is_onboarding)
+                            UserSettings += "?is_onboarding=true";
 
                         var response = await client.PutAsync(UserSettings, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
@@ -1352,6 +1367,7 @@ namespace Focus_Bear.API
                     
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -1441,6 +1457,7 @@ namespace Focus_Bear.API
 
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -1532,6 +1549,7 @@ namespace Focus_Bear.API
         
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -1628,6 +1646,7 @@ namespace Focus_Bear.API
                         //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
 
@@ -1731,6 +1750,7 @@ namespace Focus_Bear.API
 
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -1781,7 +1801,7 @@ namespace Focus_Bear.API
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("GetActivityStats WebException + " + ex.Message);
+                LogWriter.LogWrite("GetActivityStats Exception + " + ex.Message);
  
             }
             return 0;
@@ -1830,13 +1850,17 @@ namespace Focus_Bear.API
                     DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00).ToUniversalTime();
                     Console.WriteLine("{0}", myStartTime.ToString());
 
-
+                    if(myShutOffTime < myStartTime)
+                    {
+                        myShutOffTime = myShutOffTime.AddHours(24);
+                    }
                     string apiPath = string.Format("https://api.focusbear.io/completed-activity/{0}?from_time={1}&to_time={2}", (activityChoiceId.Length > 0 ? activityChoiceId : activityId) , myStartTime.ToString("o"), myShutOffTime.ToString("o"));
 
                     LogWriter.LogWrite("GetActivityCurrentDayStats() URL - " + apiPath);
 
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -1957,11 +1981,9 @@ namespace Focus_Bear.API
                     {
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
 
                         if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                         {
@@ -2062,6 +2084,7 @@ namespace Focus_Bear.API
                     //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -2220,6 +2243,7 @@ namespace Focus_Bear.API
 
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -2421,6 +2445,7 @@ namespace Focus_Bear.API
                     {
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(sJsonString, Encoding.UTF8, "application/json");
 
@@ -2520,6 +2545,7 @@ namespace Focus_Bear.API
                     {
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
 
@@ -2659,6 +2685,8 @@ namespace Focus_Bear.API
 
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
+
                         client.DefaultRequestHeaders.Add("feedback_message", HttpUtility.UrlEncode(sFeedbackMessage) );
                         
                         if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
@@ -2743,6 +2771,7 @@ namespace Focus_Bear.API
 
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -2839,6 +2868,7 @@ namespace Focus_Bear.API
                     {
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
 
@@ -2929,6 +2959,7 @@ namespace Focus_Bear.API
 
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -3018,6 +3049,7 @@ namespace Focus_Bear.API
                     HttpClient client = new HttpClient();
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -3106,6 +3138,7 @@ namespace Focus_Bear.API
                     {
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
 

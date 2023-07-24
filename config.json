@@ -516,7 +516,8 @@
         "titleBlockedApps": "Which apps do you want to block?",
         "titleBlockedUrls": "Below is the list of Always Blocked URLs:",
         "checkBoxDoNotDisturbText": "Block Notifications while focusing",
-        "buttonDeleteUrlText": "Delete URL"
+        "buttonDeleteUrlText": "Delete URL",
+        "relaxFocusText": "Relax - block nothing"
     },
     "focusPreferencesAdvancedInfo": {
         "runScriptBeforeText": "Run apple script before starting focus mode.",
@@ -674,7 +675,8 @@
         "buttonSkipMorningHabitText": "Postponing/skipping morning routine",
         "buttonChangeSettingsText": "Changing settings",
         "buttonSkipEveningHabitAfterCutOffText": "Postponing/skipping evening routine after cutoff time",
-        "buttonSavedPasswordText": "I've saved the password somewhere safe"
+        "buttonSavedPasswordText": "I've saved the password somewhere safe",
+        "buttonUseRelaxFocusModeText": "Allow using relax focus mode"
     },
     "blockedUrlsViewInfo": {
         "title": "Always Blocked URLs",
@@ -923,7 +925,8 @@
         "reasonText": "Reason: <REASON>",
         "buttonBadDecisionText": "Bad decision",
         "checkboxDonotShowText": "Don't show this anymore",
-        "progressInfoText": "You're teaching Focus Bear what sites and apps are productive for you. It takes a bit of effort at first but within a few days, you'll have taught Focus Bear what apps and websites are productive."
+        "progressInfoText": "You're teaching Focus Bear what sites and apps are productive for you. It takes a bit of effort at first but within a few days, you'll have taught Focus Bear what apps and websites are productive.",
+        "buttonBlockAndAddToRelaxModeText": "Block and save for Relax mode"
     },
     "easyPostponeVcInfo": {
         "title": "Ok I get it - now's not a good time. I'll try again in 5 minutes. You can postpone for longer if you need to.",
@@ -1072,7 +1075,9 @@
         "prepareToStartWorkTimeText": "💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)",
         "workTimeText": "💪 <START_WORK_TIME> - <END_WORK_TIME> - Work",
         "eveningRoutineTimeText": "🥱 <END_WORK_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.",
-        "lockComputerTimeText": "😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)"
+        "lockComputerTimeText": "😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)",
+        "questionSleepTimeText": "What time do you want to go to sleep?",
+        "sleepTimeAlertText": "Sleep time cannot be less than finish work time."
     },
     "welcomeVcInfo": {
         "descriptionFirstText": "Focus Bear helps you avoid distractions and build healthy habits.",
@@ -1223,6 +1228,11 @@
                 "description": "Setup focus modes to et into deep work with distraction blocking. You can remove blocks if you have an emergency.",
             }
         ]
+    },
+    "relaxModeVcInfo":{
+        "title": "Sites you saved for relax mode:",
+        "toolTipRemoveUrls": "Remove Selected URLs",
+        "buttonActivityDoneText": "I'm done relaxing. Start winding down!"
     },
     "WindowsSpecific": {
         "welcomeVideoUrl": "https://www.youtube.com/watch?v=xTUIGfmi3xg",

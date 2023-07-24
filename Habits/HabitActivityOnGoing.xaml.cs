@@ -601,6 +601,15 @@ namespace Focus_Bear.Habits
             }
         }
 
+        public void StopTimerOfRunningActivity()
+        {
+            if (bTimerRunning)
+            {
+                dispatcherTimer.Stop();
+                Global.EnableSystemSleep();
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
         public void HandleTimerForPostpone(bool bStop)
         {
             if (bStop)

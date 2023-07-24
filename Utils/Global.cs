@@ -210,7 +210,9 @@ namespace Focus_Bear.Utils
         public string completion_requirements;
         public bool useTimer;
         public bool show_saved_distracting_websites; //This means this is the relax activity, so nothing should be blocked
-        public habit(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites)
+        public bool bHighPriorityActivity;
+        public List<string> DaysOfWeek;
+        public habit(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites, bool bHighPriorityActivity, List<string> DaysOfWeek)
         {
             this.id = id;
             this.name = name;
@@ -227,6 +229,8 @@ namespace Focus_Bear.Utils
             this.completion_requirements = completion_requirements;
             this.useTimer = useTimer;
             this.show_saved_distracting_websites = show_saved_distracting_websites;
+            this.bHighPriorityActivity = bHighPriorityActivity;
+            this.DaysOfWeek = DaysOfWeek;
         }
     }
 

@@ -1133,7 +1133,7 @@ namespace Focus_Bear
 
 #if DEBUG
             //Write any routines or functionality to test in DEBUG mode here
-             
+
 #endif
 
             if (appSettings.IsFirstInstall)
@@ -1278,12 +1278,75 @@ namespace Focus_Bear
                 }
                 if (appSettings.IsShutOffTime())
                 {
-                    if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF || appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF)
                     {
-                        LogWriter.LogWrite("SHUT_OFF or EVENING_HABITS - Return from timer");
+                        LogWriter.LogWrite("SHUT_OFF STATE - Return from timer");
                         return;
                     }
+                    else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    {
+                        LogWriter.LogWrite("EVENING_HABITS STATE - Return from timer");
 
+                       
+                        if(appSettings.DidCutOffTimePassed())
+                        {
+                            //Check if the current habit index is of High Priority or not, show only if not
+                            if (appSettings.nHabitIndex != -1) //habit index is -1 if focus summary is visible
+                            {
+                                if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].bHighPriorityActivity)
+                                {
+                                    
+                                    //since a high priority activity is running, we need to skip it and show the finish screen 
+                                    //and allow starting next high priority activity or show unlock button
+                                    if (wndHabits != null)
+                                    {
+                                        if (wndHabits.PageHabitActivityOnGoing != null)
+                                        {
+                                            if (wndHabits.PageHabitActivityOnGoing.bTimerRunning)
+                                            {
+                                                wndHabits.PageHabitActivityOnGoing.StopTimerOfRunningActivity(); //Stop the timer
+                                                                                                                 //we need to call the Activity Skipped API here to skip the current activity
+
+                                                //it may be relax activity window visible
+                                                if(wndRelaxMode != null && wndRelaxMode.IsVisible)
+                                                {
+                                                    wndRelaxMode.bForceClose = true;
+                                                    wndRelaxMode.Close();
+                                                    wndHabits.WindowState = WindowState.Maximized;
+                                                }
+                                                //If the above is null, finish screen may be visible, as ShowACtivityFinishedScreen() make is null
+                                                LogWriter.LogWrite("wndHabits.Hide()");
+                                                wndHabits.Hide();
+                                                appSettings.RemoveSecondaryWindows();
+
+                                                LogWriter.LogWrite("EVENING_HABITS STATE - now > myCutoffTime - Show Alert");
+                                                FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["common"]["cutOffTimePassedText"].ToString());
+                                                msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                                                msg.ShowDialog();
+
+                                                wndHabits.Show();
+                                                appSettings.bSkipCurrentActivityCantDoItToday = true;
+                                                LogWriter.LogWrite("appSettings.bSkipCurrentActivityCantDoItToday = true; - After cutoff time");
+                                                wndHabits.ShowACtivityFinishedScreen(true);
+                                            }
+                                            else
+                                            {
+                                                //It may be the activity finish screen already
+                                                //Or activity may be in postponed state
+                                                //Once the user clicks ok, we need to show the High Priority activities only.
+                                            }
+                                        }
+
+                                   
+                                    }
+
+                                   
+                                }
+                            }
+                        }
+
+                        return;
+                    }
                     //Check if shutoff time is aborted, if not show the shutoff screen
                     if (RegistryManager.GetShutOffAbortedTillDate())
                     {
@@ -1416,6 +1479,93 @@ namespace Focus_Bear
                 wndEasyPostpone = null;
             }
 
+            //Here we will filter the array to just have the current days activity
+            //It might be possible that the app is contineously running since many days 
+            //SO we always need to first fetch from the GLobal array and then filer it per days
+            appSettings.arrAllMorningHabits.Clear();
+            DayOfWeek Today = DateTime.Now.DayOfWeek;
+            for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
+            {
+                for (int m = 0; m < appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek.Count(); m++)
+                {   
+                    if (appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek[m].ToLower() == "all")
+                    {
+                        appSettings.arrAllMorningHabits.Add(appSettings.arrGLOBALAllMorningHabits[i]);
+                        break;
+                    }
+                    else 
+                    {
+                        bool bfound = false;
+                        string day = appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek[m].ToLower();
+                        switch(Today)
+                        {
+                            case DayOfWeek.Sunday:
+                                {
+                                    if (day.ToLower() == "sun")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Monday:
+                                {
+                                    if (day.ToLower() == "mon")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Tuesday:
+                                {
+                                    if (day.ToLower() == "tue")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Wednesday:
+                                {
+                                    if (day.ToLower() == "wed")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Thursday:
+                                {
+                                    if (day.ToLower() == "thu")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Friday:
+                                {
+                                    if (day.ToLower() == "fri")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Saturday:
+                                {
+                                    if (day.ToLower() == "sat")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+
+                        }
+                        if(bfound)
+                        {
+                            appSettings.arrAllMorningHabits.Add(appSettings.arrGLOBALAllMorningHabits[i]);
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (appSettings.arrAllMorningHabits.Count == 0)
             {
                 LogWriter.LogWrite("ShowMorningRoutine() arrAllMorningHabits.Count == 0 StartBreakActivityTimer and return");
@@ -1444,12 +1594,12 @@ namespace Focus_Bear
             LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;");
 
             appSettings.nHabitIndex = 0;
-
+            LogWriter.LogWrite("nHabitIndex = 0");
             //Here first we will check if we have some pending sequence or if some activities from morning routine are done.
             //If some are done, we will continue from there..
             //if morning routine for today is completed, we will start break activities timer
             //if there is some pending sequnce from any previous days, we will force complete it.
-            
+
             FocusBearAPIClient client = new FocusBearAPIClient();
             var sResponse = await client.GetLastActivityInfo();
             int xResponse = int.Parse(sResponse.ToString());
@@ -1565,6 +1715,7 @@ namespace Focus_Bear
                                                                     appSettings.nHabitIndex = i - 1 ; //We will assign the habit index from the previous activity and show the finish screen for that activity
                                                                     //Now we do not need to start normal but need to show the finish screen of this
                                                                     appSettings.bShowActivitiesFromMid = true;
+                                                                    LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
 
                                                                     for (int m = 0; m < appSettings.arraySkipped.Count; m++)
                                                                     {
@@ -1722,6 +1873,93 @@ namespace Focus_Bear
                 return;
             }
 
+            //Here we will filter the array to just have the current days activity
+            //It might be possible that the app is contineously running since many days 
+            //SO we always need to first fetch from the GLobal array and then filer it per days
+            appSettings.arrAllEveningHabits.Clear();
+            DayOfWeek Today = DateTime.Now.DayOfWeek;
+            for (int i = 0; i < appSettings.arrGLOBALAllEveningHabits.Count; i++)
+            {
+                for (int m = 0; m < appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek.Count(); m++)
+                {
+                    if (appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek[m].ToLower() == "all")
+                    {
+                        appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
+                        break;
+                    }
+                    else
+                    {
+                        bool bfound = false;
+                        string day = appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek[m].ToLower();
+                        switch (Today)
+                        {
+                            case DayOfWeek.Sunday:
+                                {
+                                    if (day.ToLower() == "sun")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Monday:
+                                {
+                                    if (day.ToLower() == "mon")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Tuesday:
+                                {
+                                    if (day.ToLower() == "tue")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Wednesday:
+                                {
+                                    if (day.ToLower() == "wed")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Thursday:
+                                {
+                                    if (day.ToLower() == "thu")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Friday:
+                                {
+                                    if (day.ToLower() == "fri")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+                            case DayOfWeek.Saturday:
+                                {
+                                    if (day.ToLower() == "sat")
+                                    {
+                                        bfound = true;
+                                    }
+                                    break;
+                                }
+
+                        }
+                        if (bfound)
+                        {
+                            appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (appSettings.arrAllEveningHabits.Count == 0)
             {
                 LogWriter.LogWrite("ShowEveningRoutine() - appSettings.arrAllEveningHabits.Count == 0 ShowShutOffScreen and return");
@@ -1732,7 +1970,7 @@ namespace Focus_Bear
 
             //Set initial Habit Index to 0;
             appSettings.nHabitIndex = 0;
-
+            LogWriter.LogWrite("nHabitIndex = 0");
             //Here first we will check if we have some pending sequence or if some activities from morning routine are done.
             //If some are done, we will continue from there..
             //if morning routine for today is completed, we will start break activities timer
@@ -1867,6 +2105,7 @@ namespace Focus_Bear
                                                                     appSettings.nHabitIndex = i - 1; //We will assign the habit index from the previous actiity and show the finish screen for that activity
                                                                     //Now we do not need to start normal but need to show the finish screen of this
                                                                     appSettings.bShowActivitiesFromMid = true;
+                                                                    LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
 
                                                                     for (int m = 0; m < appSettings.arraySkipped.Count; m++)
                                                                     {

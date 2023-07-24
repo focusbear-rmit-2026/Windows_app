@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Focus Bear"
-#define MyAppVersion "1.0.60.0"
+#define MyAppVersion "1.0.81.0"
 #define MyAppPublisher "Focus Bear Pty Ltd"
 #define MyAppURL "https://www.focusbear.io"
 #define MyAppExeName "Focus Bear.exe"
@@ -155,3 +155,14 @@ begin
 
   end;
 end;
+
+
+function InitializeUninstall(): Boolean;
+  var ErrorCode: Integer;
+begin
+    ShellExec('open','taskkill.exe','/f /im "focus bear.exe"','',SW_HIDE,ewNoWait,ErrorCode)
+    
+    Result := true;
+
+end;
+

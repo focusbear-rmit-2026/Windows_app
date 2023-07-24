@@ -177,6 +177,8 @@ namespace Focus_Bear.Habits
                 webView.Dispose();
 
             appSettings.nHabitIndex = 0;
+            LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex);
+
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
                 appSettings.CapturePostHog("start-morning-routine");
@@ -257,7 +259,8 @@ namespace Focus_Bear.Habits
             }
 
             appSettings.nHabitIndex = -1; //Starting with minus 1 as we will increment this on why skip nags screen
-            
+            LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex);
+
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
                 appSettings.CapturePostHog("start-morning-routine");
@@ -320,7 +323,7 @@ namespace Focus_Bear.Habits
             if (e.IsSuccess)
             {
                 string Settings = string.Format("{{\"access_token\":\"{0}\"}}", appSettings.userAccount.accessToken);
-                string settingsFunc = string.Format("loadAccessTokenForInspirationPage({0});", Settings);
+                string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForInspirationPage) {{ loadAccessTokenForInspirationPage({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                 var sReturn = webView.ExecuteScriptAsync(settingsFunc);
             }
         }
