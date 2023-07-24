@@ -654,6 +654,7 @@ namespace Focus_Bear.API
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
                     client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
+
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
                         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
@@ -2687,6 +2688,7 @@ namespace Focus_Bear.API
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
                         client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
+
                         client.DefaultRequestHeaders.Add("feedback_message", HttpUtility.UrlEncode(sFeedbackMessage) );
                         
                         if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
@@ -2772,6 +2774,7 @@ namespace Focus_Bear.API
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
                     client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
+
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -2870,6 +2873,7 @@ namespace Focus_Bear.API
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
                         client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
+
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
 
                         if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
@@ -2920,7 +2924,6 @@ namespace Focus_Bear.API
             catch (Exception ex)
             {
                 LogWriter.LogWrite("RecordUserConsent Exception - " + ex.Message);
-
             }
             return 0;
         }
@@ -3196,6 +3199,9 @@ namespace Focus_Bear.API
             return 0;
         }
 
+            }
+            return 0;
+        }
     }
 
 }

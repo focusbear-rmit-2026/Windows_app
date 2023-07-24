@@ -169,7 +169,7 @@ namespace Focus_Bear
 
         private void OfficeModeButton_Click(object sender, RoutedEventArgs e)
         {            
-           
+
         }
 
         private void btnQuit_Click(object sender, RoutedEventArgs e)

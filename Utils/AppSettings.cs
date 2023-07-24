@@ -335,7 +335,6 @@ namespace Focus_Bear.Utils
             bPasswordRequireInStopPomodoro = false;
             bPasswordRequireInQuitApp = false;
             bPasswordRequireToUseRelaxFocusMode = false;
-
     }
     public async void GetLoginAndTokenValidSettings()
         {
@@ -863,6 +862,7 @@ namespace Focus_Bear.Utils
                             {
                                 useTimer = false;
                             }
+
                             bool show_saved_distracting_websites = item.ContainsKey("show_saved_distracting_websites") ? (bool)item.GetValue("show_saved_distracting_websites") : false;
                             bool bHighPriorityActivity = item.ContainsKey("priority") ? (("HIGH" == item.GetValue("priority").ToString()) ? true : false ): false;
 
@@ -1255,6 +1255,7 @@ namespace Focus_Bear.Utils
                             bPasswordRequireInAbortShutoff = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInAbortShutoff") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInAbortShutoff") : false;
                             // bPasswordRequireInStopPomodoro = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInStopPomodoro") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInStopPomodoro") : false;
                             bPasswordRequireInQuitApp = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInQuitApp") : false;
+
                             bPasswordRequireToUseRelaxFocusMode = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireToUseRelaxFocusMode") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireToUseRelaxFocusMode") : false;
 
                             bMotivationalMessageEnabled = sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kMotivationalMessageEnabled") : true; //Default true on 23 June 2023 #188
@@ -1364,7 +1365,18 @@ namespace Focus_Bear.Utils
                         string sName = "Relax - block nothing"; // todo win texts ConfigFileStrings["focusPreferencesInfo"]["relaxFocusText"].ToString();
                         AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, false, false, false, false, true));
                     }
+                    //Check Locked Focus Mode
+                    var listItemsL = arrFocusModes.Where(l => l.isLockedFocus == true);
+                    if (listItemsL.Count() == 0)
+                    {
+                        LogWriter.LogWrite("isLockedFocus focus mode not found, create new");
+                        //Call the API to upload the newly created focus mode
+                        //add to focus modes  array and Upload to api
+                        //#A3FFA1 is the default color
+                        string sName = ConfigFileStrings["focusPreferencesInfo"]["lockedFocusText"].ToString();//        "lockedFocusText":"Locked Focus on current activity",
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, false, true, false, false, true));
 
+                    }
                 }
 
             }

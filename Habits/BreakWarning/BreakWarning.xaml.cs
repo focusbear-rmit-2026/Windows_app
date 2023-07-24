@@ -77,6 +77,7 @@ namespace Focus_Bear.Habits
 
                 FadeInBreakWindow ww = new FadeInBreakWindow();
                 ww.Show();
+
             }
             catch (Exception ex)
             {

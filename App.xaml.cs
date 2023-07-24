@@ -1133,7 +1133,6 @@ namespace Focus_Bear
 
 #if DEBUG
             //Write any routines or functionality to test in DEBUG mode here
-
 #endif
 
             if (appSettings.IsFirstInstall)

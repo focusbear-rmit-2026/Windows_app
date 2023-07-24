@@ -437,6 +437,7 @@ namespace Focus_Bear.Habits
                             sHeading = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
                         }
 
+
                         sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name);
 
                         if (appSettings.arrAllEveningHabits[newHabitIndex].useTimer)
@@ -599,7 +600,6 @@ namespace Focus_Bear.Habits
                                     {
                                         sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
                                         sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoiceTemp.name);
-
                                     }
                                 }
                             }
