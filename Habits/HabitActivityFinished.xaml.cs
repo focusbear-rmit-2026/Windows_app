@@ -114,9 +114,6 @@ namespace Focus_Bear.Habits
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
-                    string curDir = Directory.GetCurrentDirectory() + "\\Graph";
-                    webView.CoreWebView2.SetVirtualHostNameToFolderMapping("focusbear", curDir, CoreWebView2HostResourceAccessKind.Allow);
-
                     bWebViewInitialized = true;
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -141,7 +138,7 @@ namespace Focus_Bear.Habits
                 }
                 catch (Exception ex)
                 {
-                    LogWriter.LogWrite("Activity Finished CoreWebView2InitializationCompleted()" + ex.Message);
+                    LogWriter.LogWrite("Activity Finished CoreWebView2InitializationCompleted() ex - " + ex.Message);
                 }
             }
         }
@@ -160,9 +157,6 @@ namespace Focus_Bear.Habits
                     webView1.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView1.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
-                    string curDir = Directory.GetCurrentDirectory() + "\\Graph";
-                    webView1.CoreWebView2.SetVirtualHostNameToFolderMapping("focusbear", curDir, CoreWebView2HostResourceAccessKind.Allow);
-
                     bWebView2Initialized = true;
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -179,7 +173,7 @@ namespace Focus_Bear.Habits
                 }
                 catch (Exception ex)
                 {
-                    LogWriter.LogWrite("Activity Finished CoreWebView2InitializationCompleted1()" + ex.Message);
+                    LogWriter.LogWrite("Activity Finished CoreWebView2InitializationCompleted1() ex - " + ex.Message);
                 }
             }
         }
@@ -437,7 +431,6 @@ namespace Focus_Bear.Habits
                             sHeading = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
                         }
 
-
                         sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name);
 
                         if (appSettings.arrAllEveningHabits[newHabitIndex].useTimer)
@@ -600,6 +593,7 @@ namespace Focus_Bear.Habits
                                     {
                                         sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
                                         sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.currentActivityChoiceTemp.name);
+
                                     }
                                 }
                             }
@@ -665,14 +659,14 @@ namespace Focus_Bear.Habits
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("ActivityFinished LoadData() - " + ex.Message);
+                LogWriter.LogWrite("ActivityFinished LoadData() EX - " + ex.Message);
             }
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer -= 10;
+            int val = nTimer -= 2;
 #else
             int val = nTimer--;
 #endif

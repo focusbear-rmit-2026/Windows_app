@@ -267,28 +267,47 @@ namespace Focus_Bear.Habits
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                     {
+                        int duration_Logged = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds;
+                        if (!appSettings.arrAllMorningHabits[appSettings.nHabitIndex].useTimer)
+                        {
+                            DateTime now = DateTime.Now;
+                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
+                            var durationSeconds = difference.TotalSeconds;
+                            duration_Logged = Convert.ToInt32(durationSeconds);
+                        }
+
                         sLogType = "morning routine";
-                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds.ToString(), appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestion, "", sStartTime);
+                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name, duration_Logged.ToString(), appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestion, "", sStartTime);
                         if (appSettings.bSkipCurrentActivityCantDoItToday)
                         {
                             var xResponse = client.PostActivitySkipped(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].activity_sequence_id);
                         }
                         else
                         {
-                            var xResponse = client.PostActivityCompleted(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds, "", null, appSettings.bSkipCurrentActivity);
+
+                            var xResponse = client.PostActivityCompleted(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, duration_Logged, "", null, appSettings.bSkipCurrentActivity);
                         }
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                     {
+                        int duration_Logged = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds;
+                        if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].useTimer)
+                        {
+                            DateTime now = DateTime.Now;
+                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
+                            var durationSeconds = difference.TotalSeconds;
+                            duration_Logged = Convert.ToInt32(durationSeconds);
+                        }
+
                         sLogType = "evening routine";
-                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds.ToString(), appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantityQuestion, "", sStartTime);
+                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name, duration_Logged.ToString(), appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantityQuestion, "", sStartTime);
                         if (appSettings.bSkipCurrentActivityCantDoItToday)
                         {
                             var xResponse = client.PostActivitySkipped(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].activity_sequence_id);
                         }
                         else
                         {
-                            var xResponse = client.PostActivityCompleted(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds, "", null, appSettings.bSkipCurrentActivity);
+                            var xResponse = client.PostActivityCompleted(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, duration_Logged, "", null, appSettings.bSkipCurrentActivity);
                         }
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -304,10 +323,19 @@ namespace Focus_Bear.Habits
                             currentActivity = appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex];
                         }
 
+                        int duration_Logged = currentActivity.durationSeconds;
+                        if (!currentActivity.useTimer)
+                        {
+                            DateTime now = DateTime.Now;
+                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
+                            var durationSeconds = difference.TotalSeconds;
+                            duration_Logged = Convert.ToInt32(durationSeconds);
+                        }
+
                         if (!currentActivity.isRandomChoice)
                         {
-                            appSettings.AddEntryInCSV(sLogType, currentActivity.name, currentActivity.durationSeconds.ToString(), currentActivity.logQuantityQuestion, "", sStartTime);
-                            var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, currentActivity.durationSeconds, "", null);
+                            appSettings.AddEntryInCSV(sLogType, currentActivity.name, duration_Logged.ToString(), currentActivity.logQuantityQuestion, "", sStartTime);
+                            var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, duration_Logged, "", null);
                         }
                         else
                         {
@@ -315,8 +343,8 @@ namespace Focus_Bear.Habits
                             var randomChoice = appSettings.currentActivityChoice;
                             if (randomChoice.id != null)
                             {
-                                appSettings.AddEntryInCSV(sLogType, randomChoice.name, currentActivity.durationSeconds.ToString(), randomChoice.logQuantityQuestion, "", sStartTime);
-                                var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, currentActivity.durationSeconds, randomChoice.id, null);
+                                appSettings.AddEntryInCSV(sLogType, randomChoice.name, duration_Logged.ToString(), randomChoice.logQuantityQuestion, "", sStartTime);
+                                var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, duration_Logged, randomChoice.id, null);
                             }
                         }
                         
@@ -619,16 +647,35 @@ namespace Focus_Bear.Habits
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                     {
+                        int duration_Logged = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds;
+                        if (!appSettings.arrAllMorningHabits[appSettings.nHabitIndex].useTimer)
+                        {
+                            DateTime now = DateTime.Now;
+                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
+                            var durationSeconds = difference.TotalSeconds;
+                            duration_Logged = Convert.ToInt32(durationSeconds);
+                        }
+
                         sLogType = "morning routine";
-                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds.ToString(), appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestion, "", sStartTime);
-                        var xResponse = client.PostActivityCompleted(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds, "", null, appSettings.bSkipCurrentActivity);
+                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name, duration_Logged.ToString(), appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestion, "", sStartTime);
+                        var xResponse = client.PostActivityCompleted(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, duration_Logged, "", null, appSettings.bSkipCurrentActivity);
 
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                     {
+                        int duration_Logged = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds;
+                        if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].useTimer)
+                        {
+                            DateTime now = DateTime.Now;
+                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
+                            var durationSeconds = difference.TotalSeconds;
+                            duration_Logged = Convert.ToInt32(durationSeconds);
+                        }
+
+
                         sLogType = "evening routine";
-                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds.ToString(), appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantityQuestion, "", sStartTime);
-                        var xResponse = client.PostActivityCompleted(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds, "", null, appSettings.bSkipCurrentActivity);
+                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name, duration_Logged.ToString(), appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantityQuestion, "", sStartTime);
+                        var xResponse = client.PostActivityCompleted(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, duration_Logged, "", null, appSettings.bSkipCurrentActivity);
 
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -644,10 +691,19 @@ namespace Focus_Bear.Habits
                             currentActivity = appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex];
                         }
 
+                        int duration_Logged = currentActivity.durationSeconds;
+                        if (!currentActivity.useTimer)
+                        {
+                            DateTime now = DateTime.Now;
+                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
+                            var durationSeconds = difference.TotalSeconds;
+                            duration_Logged = Convert.ToInt32(durationSeconds);
+                        }
+
                         if (!currentActivity.isRandomChoice)
                         {
-                            appSettings.AddEntryInCSV(sLogType, currentActivity.name, currentActivity.durationSeconds.ToString(), currentActivity.logQuantityQuestion, "", sStartTime);
-                            var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, currentActivity.durationSeconds, "");
+                            appSettings.AddEntryInCSV(sLogType, currentActivity.name, duration_Logged.ToString(), currentActivity.logQuantityQuestion, "", sStartTime);
+                            var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, duration_Logged, "");
 
                         }
                         else
@@ -656,8 +712,8 @@ namespace Focus_Bear.Habits
                             var randomChoice = appSettings.currentActivityChoice;
                             if (randomChoice.id != null)
                             {
-                                appSettings.AddEntryInCSV(sLogType, randomChoice.name, currentActivity.durationSeconds.ToString(), randomChoice.logQuantityQuestion, "", sStartTime);
-                                var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, currentActivity.durationSeconds, randomChoice.id);
+                                appSettings.AddEntryInCSV(sLogType, randomChoice.name, duration_Logged.ToString(), randomChoice.logQuantityQuestion, "", sStartTime);
+                                var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, duration_Logged, randomChoice.id);
 
                             }
                         }
@@ -691,16 +747,32 @@ namespace Focus_Bear.Habits
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                     {
-                         
+                        int duration_Logged = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds;
+                        if (!appSettings.arrAllMorningHabits[appSettings.nHabitIndex].useTimer)
+                        {
+                            DateTime now = DateTime.Now;
+                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
+                            var durationSeconds = difference.TotalSeconds;
+                            duration_Logged = Convert.ToInt32(durationSeconds);
+                        }
+
                         sLogType = "morning routine";
-                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds.ToString(), appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestion, /*dQuantityLogged.ToString()*/"", sStartTime);
-                        var xResponse = client.PostActivityCompleted(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds, "", /*dQuantityLogged*/appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestions,  appSettings.bSkipCurrentActivity);
+                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name, duration_Logged.ToString(), appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestion, /*dQuantityLogged.ToString()*/"", sStartTime);
+                        var xResponse = client.PostActivityCompleted(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, duration_Logged, "", /*dQuantityLogged*/appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestions,  appSettings.bSkipCurrentActivity);
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                     {
+                        int duration_Logged = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds;
+                        if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].useTimer)
+                        {
+                            DateTime now = DateTime.Now;
+                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
+                            var durationSeconds = difference.TotalSeconds;
+                            duration_Logged = Convert.ToInt32(durationSeconds);
+                        }
                         sLogType = "evening routine";
-                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds.ToString(), appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantityQuestion,/* dQuantityLogged.ToString()*/"", sStartTime);
-                        var xResponse = client.PostActivityCompleted(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds, "", /*dQuantityLogged*/appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantityQuestions, appSettings.bSkipCurrentActivity);
+                        appSettings.AddEntryInCSV(sLogType, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name, duration_Logged.ToString(), appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantityQuestion,/* dQuantityLogged.ToString()*/"", sStartTime);
+                        var xResponse = client.PostActivityCompleted(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, duration_Logged, "", /*dQuantityLogged*/appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantityQuestions, appSettings.bSkipCurrentActivity);
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                     {
@@ -716,10 +788,19 @@ namespace Focus_Bear.Habits
                             currentActivity = appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex];
                         }
 
+                        int duration_Logged = currentActivity.durationSeconds;
+                        if (!currentActivity.useTimer)
+                        {
+                            DateTime now = DateTime.Now;
+                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
+                            var durationSeconds = difference.TotalSeconds;
+                            duration_Logged = Convert.ToInt32(durationSeconds);
+                        }
+
                         if (!currentActivity.isRandomChoice)
                         {
-                            appSettings.AddEntryInCSV(sLogType, currentActivity.name, currentActivity.durationSeconds.ToString(), currentActivity.logQuantityQuestion, /*dQuantityLogged.ToString()*/"", sStartTime);
-                            var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, currentActivity.durationSeconds, "", /*dQuantityLogged*/ currentActivity.logQuantityQuestions);
+                            appSettings.AddEntryInCSV(sLogType, currentActivity.name, duration_Logged.ToString(), currentActivity.logQuantityQuestion, /*dQuantityLogged.ToString()*/"", sStartTime);
+                            var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, duration_Logged, "", /*dQuantityLogged*/ currentActivity.logQuantityQuestions);
                         }
                         else
                         {
@@ -727,8 +808,8 @@ namespace Focus_Bear.Habits
                             var randomChoice = appSettings.currentActivityChoice;
                             if (randomChoice.id != null)
                             {
-                                appSettings.AddEntryInCSV(sLogType, randomChoice.name, currentActivity.durationSeconds.ToString(), randomChoice.logQuantityQuestion,/* dQuantityLogged.ToString()*/"", sStartTime);
-                                var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, currentActivity.durationSeconds, randomChoice.id, /*dQuantityLogged*/ randomChoice.logQuantityQuestions);
+                                appSettings.AddEntryInCSV(sLogType, randomChoice.name, duration_Logged.ToString(), randomChoice.logQuantityQuestion,/* dQuantityLogged.ToString()*/"", sStartTime);
+                                var xResponse = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, duration_Logged, randomChoice.id, /*dQuantityLogged*/ randomChoice.logQuantityQuestions);
                             }
                         }
 

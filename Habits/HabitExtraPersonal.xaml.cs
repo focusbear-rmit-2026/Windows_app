@@ -323,9 +323,7 @@ namespace Focus_Bear.Habits
             if (e.IsSuccess)
             {
                 string Settings = string.Format("{{\"access_token\":\"{0}\"}}", appSettings.userAccount.accessToken);
-
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForInspirationPage) {{ loadAccessTokenForInspirationPage({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
-
                 var sReturn = webView.ExecuteScriptAsync(settingsFunc);
             }
         }

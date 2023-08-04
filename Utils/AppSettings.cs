@@ -173,7 +173,7 @@ namespace Focus_Bear.Utils
         public List<SKIPPED_ACTIVITY> indexSkippedActivities = new List<SKIPPED_ACTIVITY>();
         public bool bSkipWhileActivityOngoing = false;
 
-        public List <BlankWindow> SecondaryWindows = new List<BlankWindow>();
+        public List<BlankWindow> SecondaryWindows = new List<BlankWindow>();
 
         //Breaks Related
         public string[] activityAllowedFocusApps;
@@ -182,7 +182,7 @@ namespace Focus_Bear.Utils
         public bool isMandatoryActivityGoing;
         public int breakAfterMinutes;
         public int nCountBreaksPostponedTimes;
-        
+
         public List<breakActivity> arrAllbreakActivities = new List<breakActivity>();
         public List<breakActivity> arrActivitiesIncludeInEveryBreak = new List<breakActivity>();
         public List<breakActivity> arrActivitiesExcludeInEveryBreak = new List<breakActivity>();
@@ -202,7 +202,7 @@ namespace Focus_Bear.Utils
         public ObservableCollection<FocusMode> arrFocusModes = new ObservableCollection<FocusMode>();
 
         public IAccessible FirefoxLastAccWindow = null;
-        public object objChild = null; 
+        public object objChild = null;
         public string sLastActiveURLInFirefox = "";
 
         public bool bShowOnBoardingVideo = false;
@@ -271,6 +271,8 @@ namespace Focus_Bear.Utils
         public string sConfigFilePath;
         public string sLogQuantityCSVPath;
 
+        public string sOfflineDataCSVPath;
+
         public string sGraphDaysPath;
         public string sGraphDaysDurationPath;
         public string sGraphTimePath;
@@ -279,6 +281,8 @@ namespace Focus_Bear.Utils
         public bool bStringsLoaded;
 
         public int nTimerValForNonTimerActivities = 86400; //Timer val for non - timer activities
+
+        public bool bHasEditedBlockedURLs = false;
 
         //Relax activities related
         public string sSavedURLSForRelaxActivity; //To get the urls from API
@@ -302,6 +306,8 @@ namespace Focus_Bear.Utils
 
             sConfigFilePath = AppDataDirPath + "\\config.json";
             sLogQuantityCSVPath = AppDataDirPath + "\\FocusBearStats.CSV";
+
+            sOfflineDataCSVPath = AppDataDirPath + "\\FocusBearOfflineData.CSV";
 
             sGraphDaysPath = AppDataDirPath + "\\GraphDays.html";
             sGraphDaysDurationPath = AppDataDirPath + "\\GraphDaysDuration.html";
@@ -335,8 +341,9 @@ namespace Focus_Bear.Utils
             bPasswordRequireInStopPomodoro = false;
             bPasswordRequireInQuitApp = false;
             bPasswordRequireToUseRelaxFocusMode = false;
-    }
-    public async void GetLoginAndTokenValidSettings()
+
+        }
+        public async void GetLoginAndTokenValidSettings()
         {
             LogWriter.LogWrite("GetLoginAndTokenValidSettings()");
             try
@@ -388,7 +395,7 @@ namespace Focus_Bear.Utils
             {
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var xResponse = await client.GetSubscriptionInfo();
- 
+
                 if (sSubscriptionInfo.Length > 0)
                 {
                     LogWriter.LogWrite("subscriptionStatus - " + sSubscriptionInfo);
@@ -397,7 +404,7 @@ namespace Focus_Bear.Utils
                     bool hasActiveSubscription = (bool)subscriptionStatusParsed["hasActiveSubscription"];
                     if (hasActiveSubscription)
                     {
-                        
+
                         LogWriter.LogWrite("hasActiveSubscription");
                         isExpired = false;
 
@@ -544,7 +551,7 @@ namespace Focus_Bear.Utils
         }
         public void CopyGraphsToLocal()
         {
-            
+
             LogWriter.LogWrite("CopyGraphsToLocal");
             try
             {
@@ -605,7 +612,7 @@ namespace Focus_Bear.Utils
                 {
                     sConfigFileURL = "https://focus-bear.github.io/assets/config/config-es.json";
                 }
-                
+
                 Global.DeleteFile(sConfigFilePath, false);
 
                 HttpCommunication http = new HttpCommunication();
@@ -638,7 +645,7 @@ namespace Focus_Bear.Utils
                 {
                     LogWriter.LogWrite("DownloadBlockHTMLFile Success!");
 
-                    if(File.Exists(AppSettings.FocusBlockPagePath))
+                    if (File.Exists(AppSettings.FocusBlockPagePath))
                         Global.DeleteFile(AppSettings.FocusBlockPagePath, false);
 
                     File.Move(AppSettings.FocusBlockPagePath + "1", AppSettings.FocusBlockPagePath); //move to original name
@@ -658,15 +665,15 @@ namespace Focus_Bear.Utils
         {
             LogWriter.LogWrite("ReadAndParseSettingsJson()");
 
-            if(arrGLOBALAllMorningHabits != null)
+            if (arrGLOBALAllMorningHabits != null)
                 arrGLOBALAllMorningHabits.Clear();
-            if (arrGLOBALAllEveningHabits != null) 
+            if (arrGLOBALAllEveningHabits != null)
                 arrGLOBALAllEveningHabits.Clear();
 
             arrAllMorningHabits.Clear();
             arrAllEveningHabits.Clear();
             arrAllbreakActivities.Clear();
-            
+
             //Check is settings are there
             if (sRawUserSettings == null || sRawUserSettings.Length == 0)
             {
@@ -728,7 +735,7 @@ namespace Focus_Bear.Utils
                                         string logQuantityType = ques.ContainsKey("log_summary_type") ? ques.GetValue("log_summary_type").ToString() : "";
                                         string min_value_description = ques.ContainsKey("min_value_description") ? ques.GetValue("min_value_description").ToString() : "";
                                         string max_value_description = ques.ContainsKey("max_value_description") ? ques.GetValue("max_value_description").ToString() : "";
-                                       
+
                                         logQuantityQuestions.Add(new QuantityQuestion(qid, minValue, maxValue, question, logQuantityType, 0, min_value_description, max_value_description));
                                     }
                                 }
@@ -832,7 +839,7 @@ namespace Focus_Bear.Utils
                             {
                                 logQuantity = false;
                             }
-                           
+
                             List<string> allowedUrls = new List<string>(); ;
                             if (item.ContainsKey("allowed_urls"))
                             {
@@ -862,9 +869,8 @@ namespace Focus_Bear.Utils
                             {
                                 useTimer = false;
                             }
-
                             bool show_saved_distracting_websites = item.ContainsKey("show_saved_distracting_websites") ? (bool)item.GetValue("show_saved_distracting_websites") : false;
-                            bool bHighPriorityActivity = item.ContainsKey("priority") ? (("HIGH" == item.GetValue("priority").ToString()) ? true : false ): false;
+                            bool bHighPriorityActivity = item.ContainsKey("priority") ? (("HIGH" == item.GetValue("priority").ToString()) ? true : false) : false;
 
                             List<string> arrDaysOfWeek = new List<string>(); ;
                             if (item.ContainsKey("days_of_week"))
@@ -898,7 +904,7 @@ namespace Focus_Bear.Utils
                                 arrVideoUrlsArray = arrayurlsArray.ToObject<List<string>>();
                             }
 
-                            
+
                             List<string> allowedUrls = new List<string>(); ;
                             if (item.ContainsKey("allowed_urls"))
                             {
@@ -958,7 +964,7 @@ namespace Focus_Bear.Utils
                                     string logQuantityQuestionchoice = choiceitem.ContainsKey("log_quantity_question") ? choiceitem.GetValue("log_quantity_question").ToString() : "";
                                     string logQuantityTypechoice = choiceitem.ContainsKey("log_summary_type") ? choiceitem.GetValue("log_summary_type").ToString() : "";
 
-                                    List<QuantityQuestion> logQuantityQuestionsCh = new List<QuantityQuestion>(); 
+                                    List<QuantityQuestion> logQuantityQuestionsCh = new List<QuantityQuestion>();
                                     if (item.ContainsKey("log_quantity_questions"))
                                     {
                                         JArray quesArray = (JArray)choiceitem.GetValue("log_quantity_questions");
@@ -994,7 +1000,7 @@ namespace Focus_Bear.Utils
                                         useTimerCH = false;
                                     }
 
-                                    choicesToAdd.Add(new activityChoice(idchoice, namechoice, arrVideoUrlsArraychoice, logQuantityQuestionchoice, logQuantitychoice, logQuantityTypechoice,logQuantityQuestionsCh, completion_requirementsCH, useTimerCH));
+                                    choicesToAdd.Add(new activityChoice(idchoice, namechoice, arrVideoUrlsArraychoice, logQuantityQuestionchoice, logQuantitychoice, logQuantityTypechoice, logQuantityQuestionsCh, completion_requirementsCH, useTimerCH));
 
                                 }
                             }
@@ -1057,7 +1063,7 @@ namespace Focus_Bear.Utils
                 {
                     LogWriter.LogWrite("sUserDetailsInfo == null - Read previously saved in registry");
                     //Read previously saved in registry
-                    RegistryManager.GetSavedUserSettings();
+                    RegistryManager.GetSavedUserDetailsInfo();
                 }
                 if (sUserDetailsInfo.Length > 0)
                 {
@@ -1165,14 +1171,14 @@ namespace Focus_Bear.Utils
                                 arrFocusModes.Add(TempFocus);
 
                             //We need to decide if the Focus mode had been setup
-                            if(!RegistryManager.GetFocusModeSetupDone())
+                            if (!RegistryManager.GetFocusModeSetupDone())
                             {
-                                if(arrFocusModes.Count > 4)
+                                if (arrFocusModes.Count > 4)
                                 {
                                     RegistryManager.SetFocusModeSetupDone(true);
                                 }
                             }
-                          
+
                         }
 
                     }
@@ -1208,7 +1214,7 @@ namespace Focus_Bear.Utils
                     try
                     {
                         JObject LocalSettings = JObject.Parse(sUserLocalDeviceSettings);
-                        
+
                         string sMacOSSettings = LocalSettings.ContainsKey("MacOS") ? LocalSettings["MacOS"].ToString() : "";
                         if (sMacOSSettings != null && sMacOSSettings.Length > 0)
                         {
@@ -1255,7 +1261,6 @@ namespace Focus_Bear.Utils
                             bPasswordRequireInAbortShutoff = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInAbortShutoff") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInAbortShutoff") : false;
                             // bPasswordRequireInStopPomodoro = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInStopPomodoro") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInStopPomodoro") : false;
                             bPasswordRequireInQuitApp = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInQuitApp") : false;
-
                             bPasswordRequireToUseRelaxFocusMode = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireToUseRelaxFocusMode") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireToUseRelaxFocusMode") : false;
 
                             bMotivationalMessageEnabled = sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kMotivationalMessageEnabled") : true; //Default true on 23 June 2023 #188
@@ -1274,7 +1279,7 @@ namespace Focus_Bear.Utils
                 LogWriter.LogWrite("ReadAndParseUserLocalDeviceSettingsJson() 2 ex - " + ex.Message);
             }
         }
-    
+
         public void AddFocusModeToArrayAndUploadtoAPI(FocusMode ff)
         {
             LogWriter.LogWrite("AddFocusModeToArrayAndUploadtoAPI()");
@@ -1365,18 +1370,7 @@ namespace Focus_Bear.Utils
                         string sName = "Relax - block nothing"; // todo win texts ConfigFileStrings["focusPreferencesInfo"]["relaxFocusText"].ToString();
                         AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, false, false, false, false, true));
                     }
-                    //Check Locked Focus Mode
-                    var listItemsL = arrFocusModes.Where(l => l.isLockedFocus == true);
-                    if (listItemsL.Count() == 0)
-                    {
-                        LogWriter.LogWrite("isLockedFocus focus mode not found, create new");
-                        //Call the API to upload the newly created focus mode
-                        //add to focus modes  array and Upload to api
-                        //#A3FFA1 is the default color
-                        string sName = ConfigFileStrings["focusPreferencesInfo"]["lockedFocusText"].ToString();//        "lockedFocusText":"Locked Focus on current activity",
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, false, true, false, false, true));
 
-                    }
                 }
 
             }
@@ -1452,7 +1446,7 @@ namespace Focus_Bear.Utils
                     nHabitIndex = 0;
                     LogWriter.LogWrite("nHabitIndex = " + nHabitIndex.ToString());
 
-                    LogWriter.LogWrite(" isMandatoryActivityGoing = true; and Habit Index = 0" );
+                    LogWriter.LogWrite(" isMandatoryActivityGoing = true; and Habit Index = 0");
                 }
                 else
                 {
@@ -1551,6 +1545,51 @@ namespace Focus_Bear.Utils
                 LogWriter.LogWrite("ReadCSV()" + ex.Message);
             }
             return Enumerable.Empty<LogEntry>();
+        }
+
+        public void WriteDefaultOffilineCSVFile()
+        {
+            LogWriter.LogWrite("WriteDefaultOffilineCSVFile()");
+
+            try
+            {
+                if (File.Exists(sOfflineDataCSVPath))
+                {
+                    return;
+                }
+                using (var w = new StreamWriter(sOfflineDataCSVPath))
+                {
+                    var sHeaders = "activity_id,duration_logged,activity_sequence_id,start_time,finish_time,skipped_did_complete,choice_id,quantity_logged,skipped_did_not_complete,note_logged";
+                    w.WriteLine(sHeaders);
+                    w.Flush();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("WriteDefaultOffilineCSVFile ex- " + ex.Message);
+            }
+        }
+
+        //log a new entry to the offline data csv
+
+        public void AddEntryInOfflineActivitiesCSV(string activity_id, string duration_logged, string activity_sequence_id, string start_time, string finish_time, string skipped_did_complete, string choice_id, string quantity_logged, string skipped_did_not_complete, string note_logged )
+        {
+            LogWriter.LogWrite("AddEntryInOfflineActivitiesCSV()");
+
+            try
+            {
+                using (System.IO.StreamWriter csvWriter = System.IO.File.AppendText(sOfflineDataCSVPath))
+                {
+                    string csv = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", activity_id, duration_logged, activity_sequence_id, start_time, finish_time, skipped_did_complete, choice_id, quantity_logged, skipped_did_not_complete, note_logged);
+                    csvWriter.WriteLine(csv);
+                    csvWriter.Flush();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AddEntryInOfflineActivitiesCSV ex - " + ex.Message);
+            }
+
         }
 
         public bool IsShutOffTime()
@@ -1841,16 +1880,31 @@ namespace Focus_Bear.Utils
 
         public bool DidCutOffTimePassed()
         {
-            DateTime now = DateTime.Now;
-            //check if cutoff time have elapsed
-            TimeSpan tsCutoffTime = TimeSpan.Parse(sDayCutOffTime);
-            DateTime myCutoffTime = new DateTime(now.Year, now.Month, now.Day, tsCutoffTime.Hours, tsCutoffTime.Minutes, 00);
-            Console.WriteLine("{0}", myCutoffTime.ToString());
+            try
+            {
+                if (sDayCutOffTime != null && sDayCutOffTime.Length > 0)
+                {
+                    DateTime now = DateTime.Now;
+                    //check if cutoff time have elapsed
+                    TimeSpan tsCutoffTime = TimeSpan.Parse(sDayCutOffTime);
+                    DateTime myCutoffTime = new DateTime(now.Year, now.Month, now.Day, tsCutoffTime.Hours, tsCutoffTime.Minutes, 00);
+                    Console.WriteLine("{0}", myCutoffTime.ToString());
 
-            if (now > myCutoffTime)
-                return true;
-            else
+                    if (now > myCutoffTime)
+                        return true;
+                    else
+                        return false;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("DidCutOffTimePassed() ex - " + ex.Message);
                 return false;
+            }
         }
     }
 }

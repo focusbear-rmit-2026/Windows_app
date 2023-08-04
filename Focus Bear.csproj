@@ -405,6 +405,9 @@
     <Compile Include="SplashWindow.xaml.cs">
       <DependentUpon>SplashWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tour\FocusBearMenuTour.xaml.cs">
+      <DependentUpon>FocusBearMenuTour.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TrayMenu.xaml.cs">
       <DependentUpon>TrayMenu.xaml</DependentUpon>
     </Compile>
@@ -434,6 +437,7 @@
     </Compile>
     <Compile Include="Utils\LocalSettingsManager.cs" />
     <Compile Include="Utils\LogWriter.cs" />
+    <Compile Include="Utils\OfflineActivities.cs" />
     <Compile Include="Utils\ProcessBrowserURLs.cs" />
     <Compile Include="Utils\Sounds.cs" />
     <Compile Include="Utils\TrayBalloon.xaml.cs">
@@ -739,6 +743,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Tour\FocusBearMenuTour.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="TrayMenu.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -838,6 +846,7 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\fbmenu.png" />
     <Resource Include="Images\FocusTips\ai-block.png" />
     <Resource Include="Images\forward.png" />
     <Resource Include="Images\img_browsers.png" />

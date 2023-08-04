@@ -347,6 +347,36 @@ namespace Focus_Bear.Utils
         }
     }
 
+    public struct OfflineEntry
+    {
+        public string activity_id;
+        public string duration_logged;
+        public string activity_sequence_id;
+        public string start_time;
+        public string finish_time;
+        public string skipped_did_complete;
+        public string choice_id;
+        public string quantity_logged;
+        public string skipped_did_not_complete;
+        public string note_logged;
+
+        
+
+        public OfflineEntry(string activity_id, string duration_logged, string activity_sequence_id, string start_time, string finish_time, string skipped_did_complete, string choice_id, string quantity_logged, string skipped_did_not_complete, string note_logged)
+        {
+            this.activity_id = activity_id;
+            this.duration_logged = duration_logged;
+            this.activity_sequence_id = activity_sequence_id;
+            this.start_time = start_time;
+            this.finish_time = finish_time;
+            this.skipped_did_complete = skipped_did_complete;
+            this.choice_id = choice_id;
+            this.quantity_logged = quantity_logged;
+            this.skipped_did_not_complete = skipped_did_not_complete;
+            this.note_logged = note_logged;
+        }
+    }
+
     public class FocusMode : INotifyPropertyChanged
     {
         public string id;

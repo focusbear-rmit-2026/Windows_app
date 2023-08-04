@@ -34,7 +34,7 @@
         <TextBlock  Grid.Row="2" Visibility="Collapsed" Name="Descriptiopn" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxSign In with a Focus Bear account to manage your time without thinking about it. Having an account helps you Set your computer use hours, create a custom morning and night routine, and customize your focus modes for different activities." Foreground="#272727" FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
        
         <StackPanel  Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center">
-            <Button  Grid.ColumnSpan="2" x:Name="btnSignUp"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="306" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,17" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSignUp_Click">
+            <Button  Grid.ColumnSpan="2" x:Name="btnSignUp"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="306" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,17" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSignUp_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnSignUpText" Margin="8" Text="xSign Up"/>

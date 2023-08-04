@@ -170,6 +170,33 @@ namespace Focus_Bear.API
                         return 0;
                     }
                 }
+                else
+                {
+                    DateTime finish_time = start_time;
+                    if (is_skipped) //if activity is skipped just add one second to finish time
+                    {
+                        finish_time = finish_time.AddSeconds(1);
+                    }
+                    else
+                    {
+                        finish_time = finish_time.AddSeconds(duration_logged);
+                    }
+
+                    string LogQuantityAnswers = "";
+                    if (logQuantityQuestions != null)
+                    {
+                        LogQuantityAnswers = $"[";
+                        foreach (QuantityQuestion question in logQuantityQuestions)
+                        {
+                            LogQuantityAnswers += $"{{\"question_id\":\"{question.id}\";" +
+                            $"\"logged_value\":{question.quantity}}};";
+                        }
+                        LogQuantityAnswers = LogQuantityAnswers.Remove(LogQuantityAnswers.Length - 1, 1);
+                        LogQuantityAnswers = LogQuantityAnswers + "]";
+                    }
+
+                    appSettings.AddEntryInOfflineActivitiesCSV(activity_id, duration_logged.ToString(), activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), (is_skipped ? "true" : ""), choice_id, LogQuantityAnswers, "", "");
+                }
             }
             catch (WebException ex)
             {
@@ -269,6 +296,13 @@ namespace Focus_Bear.API
                     {
                         return 0;
                     }
+                }
+                else
+                {
+                    DateTime start_time = DateTime.UtcNow;
+                    DateTime finish_time = start_time.AddSeconds(1);
+
+                    appSettings.AddEntryInOfflineActivitiesCSV(activity_id, "", activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), "true", "", "", "", "");
                 }
             }
             catch (WebException ex)
@@ -654,7 +688,6 @@ namespace Focus_Bear.API
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
                     client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
-
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
                         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
@@ -746,7 +779,10 @@ namespace Focus_Bear.API
                         $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}," +
                         $"\"isDefault\":{JsonConvert.SerializeObject(FF.isDefault)}," +
                         $"\"isMeetings\":{JsonConvert.SerializeObject(FF.isMeetings)}," +
-                        $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}}}";
+                        $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
+                        $"\"isRelaxFocus\":{JsonConvert.SerializeObject(FF.isRelaxFocus)}," +
+                        $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
+                        $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
 
                         string addFocusJsonString = $"{{\"id\":\"{FF.id}\"," +
                             $"\"name\":\"{FF.name}\"," +
@@ -1481,7 +1517,7 @@ namespace Focus_Bear.API
 
                             LogWriter.LogWrite("GetUserDetailsInfo() GOT Success");
 
-                            //RegistryManager.SaveUserSettings();
+                            RegistryManager.SaveUserDetailsInfo();
                             return 1;
                         }
                     }
@@ -2688,7 +2724,6 @@ namespace Focus_Bear.API
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
                         client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
-
                         client.DefaultRequestHeaders.Add("feedback_message", HttpUtility.UrlEncode(sFeedbackMessage) );
                         
                         if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
@@ -2774,7 +2809,6 @@ namespace Focus_Bear.API
                     client.DefaultRequestHeaders.Add("platform", "Windows");
                     client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
                     client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
 
                     if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
                     {
@@ -2873,7 +2907,6 @@ namespace Focus_Bear.API
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
                         client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
 
-
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
 
                         if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
@@ -2924,6 +2957,7 @@ namespace Focus_Bear.API
             catch (Exception ex)
             {
                 LogWriter.LogWrite("RecordUserConsent Exception - " + ex.Message);
+
             }
             return 0;
         }
@@ -3199,9 +3233,97 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        internal async Task<int> SyncOfflineData(string addItemJsonString)
+        {
+            LogWriter.LogWrite("SyncOfflineData()");
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        //Renew the token and check again
+                        LogWriter.LogWrite("Attempting Renew Token before API call");
+                        var authenticator = new Authentication();
+                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                        if (x)
+                        {
+                            //token renewed
+                            LogWriter.LogWrite("RenewToken DONE before API call");
+                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                            {
+                                return 0;
+                            }
+                            //All Good, Proceed Normally
+                        }
+                        else
+                        {
+                            //token renewed failed
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = new HttpClient();
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        client.DefaultRequestHeaders.Add("platform", "Windows");
+                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
+
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+                        {
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+
+                        var response = await client.PostAsync("https://api.focusbear.io/completed-activity/sync", content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                        {
+                            LogWriter.LogWrite("SyncOfflineData() SUCCESS");
+
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("SyncOfflineData WebException" + ex.Message);
+
+                Debug.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SyncOfflineData Exception" + ex.Message);
+
             }
             return 0;
         }
+
     }
 
 }

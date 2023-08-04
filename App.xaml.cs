@@ -39,6 +39,7 @@ using Sentry;
 using Focus_Bear.Onboarding.New;
 using Microsoft.Win32;
 using Focus_Bear.Relax;
+using Focus_Bear.Tour;
 
 namespace Focus_Bear
 {
@@ -817,7 +818,7 @@ namespace Focus_Bear
             LogWriter.LogWrite("ShowOnBoradingVideo");
 
             OnboardingVideo windOnBoardingVid = new OnboardingVideo();
-            // MainWindow = windLogin;
+  
             windOnBoardingVid.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             windOnBoardingVid.Topmost = true;
             windOnBoardingVid.ShowDialog();
@@ -892,6 +893,10 @@ namespace Focus_Bear
                 if (appSettings.bShowOnBoardingVideo) //If user had agreed to see the video
                     ShowOnBoradingVideo();//Show Onboarding Video
 
+                LogWriter.LogWrite("Show FocusBearMenuTour");
+                //Whether the user had opted to see the video or not, this tour will come here.
+                FocusBearMenuTour wndFocusBearMenuTour = new FocusBearMenuTour();
+                wndFocusBearMenuTour.ShowDialog();
             }
 
             //Check if we have a Devie ID Set, Otherwise generate one and set it
@@ -979,6 +984,9 @@ namespace Focus_Bear
 
                 //Write the Default CSV file with headers
                 appSettings.WriteDefaultCSVFile();
+
+                //Write the Offline data CSV file with headers
+                appSettings.WriteDefaultOffilineCSVFile();
 
                 CommandManager.InvalidateRequerySuggested();
             }))).Start();
@@ -1094,7 +1102,7 @@ namespace Focus_Bear
 
                 if (!RegistryManager.GetFocusModeSetupDone())
                 {
-                    if (appSettings.arrFocusModes.Count <= 3)
+                    if (appSettings.arrFocusModes.Count <= 4)
                     {
                         //Get focus mode templates
 
@@ -1253,6 +1261,8 @@ namespace Focus_Bear
             try
             {
                 CommandManager.InvalidateRequerySuggested();
+
+                OfflineActivities.ProcessOfflineData();
 
                 //Show notification just before Evening habits / Shutoff screen
                 TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
@@ -1477,6 +1487,20 @@ namespace Focus_Bear
                 wndEasyPostpone.Close();
                 wndEasyPostpone = null;
             }
+
+            //In any case if there is a habit window left from system sleep and then wakeup, and if nCurrentActivityType is NONE 
+            //we must check the existing window and close it as we are going to create a new one further.
+            if (appSettings.nCurrentActivityType == CurrentActivityType.NONE)
+            {
+                if (wndHabits != null)
+                {
+                    wndHabits.Close();
+                    wndHabits = null;
+                }
+            }
+
+            appSettings.bShowActivitiesFromMid = false;
+            LogWriter.LogWrite("appSettings.bShowActivitiesFromMid = false;");
 
             //Here we will filter the array to just have the current days activity
             //It might be possible that the app is contineously running since many days 
@@ -1844,13 +1868,30 @@ namespace Focus_Bear
             {
                 if (wndHabits != null)
                 {
+                    LogWriter.LogWrite("wndHabits.Close();");
                     wndHabits.Close();
                     wndHabits = null;
                 }
             }
 
+            //In any case if there is a habit window left from system sleep and then wakeup, and if nCurrentActivityType is NONE 
+            //we must check the existing window and close it as we are going to create a new one further.
+            //Deon's logs helped
+            if (appSettings.nCurrentActivityType == CurrentActivityType.NONE)
+            {
+                if (wndHabits != null)
+                {
+                    wndHabits.Close();
+                    wndHabits = null;
+                }
+            }
+
+
             appSettings.nCurrentActivityType = CurrentActivityType.EVENING_HABITS; //We use this for Focus Summary as well, when FOcus summary ends we change this to none
             LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.EVENING_HABITS;");
+
+            appSettings.bShowActivitiesFromMid = false;
+            LogWriter.LogWrite("appSettings.bShowActivitiesFromMid = false;");
             //Check if we have already show the Focus Summary,  
             if (RegistryManager.GetFocusSummaryShownTillDate())
             {

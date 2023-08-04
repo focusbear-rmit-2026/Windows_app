@@ -1568,7 +1568,47 @@ namespace Focus_Bear.Models
                 return false;
             }
         }
+        internal static void SaveUserDetailsInfo()
+        {
+            LogWriter.LogWrite("RM SaveUserDetailsInfo()");
+            try
+            {
+                Encoding unicode = Encoding.Unicode;
+                // Convert unicode string into a byte array.  
+                byte[] sUserDetailsData = unicode.GetBytes(appSettings.sUserDetailsInfo);
+                Write("userdetails", sUserDetailsData);
 
+                sUserDetailsData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveUserDetailsInfo - " + ex.Message);
+            }
+        }
+
+        internal static bool GetSavedUserDetailsInfo()
+        {
+            LogWriter.LogWrite("RM GetSavedUserDetailsInfo()");
+
+            try
+            {
+                byte[] sUserDetailsData = (byte[])Read("userdetails");
+
+                if (sUserDetailsData == null)
+                    return false;
+
+                appSettings.sUserDetailsInfo = Encoding.Unicode.GetString(sUserDetailsData);
+
+                sUserDetailsData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedUserDetailsInfo - " + ex.Message);
+                return false;
+            }
+        }
         internal static void SaveLocalDeviceSettings()
         {
             LogWriter.LogWrite("RM SaveLocalDeviceSettings()");
@@ -1701,6 +1741,39 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static bool GetHasEditedBlockedURLs()
+        {
+            try
+            {
+                var regData = ReadStr("HASEDITEDBLOCKEDURLS");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.bHasEditedBlockedURLs = true;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetHasEditedBlockedURLs ex - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetHasEditedBlockedURLs()
+        {
+            LogWriter.LogWrite("SetHasEditedBlockedURLs()");
+
+            try
+            {
+                Write("HASEDITEDBLOCKEDURLS", "1");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetHasEditedBlockedURLs ex - " + ex.Message);
+            }
+        }
 
     }
 

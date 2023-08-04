@@ -82,6 +82,7 @@ namespace Focus_Bear.Preferences
                     {
                         appSettings.arrAlwaysBlockedURLs.Add(url);
                         appSettings.CapturePostHog("add-always-blocked-url");
+                        appSettings.bHasEditedBlockedURLs = true;
                     }
                     else
                     {
@@ -110,6 +111,7 @@ namespace Focus_Bear.Preferences
                 {
                     appSettings.arrAlwaysBlockedURLs.Remove(selectedItem);
                     appSettings.CapturePostHog("remove-always-blocked-url");
+                    appSettings.bHasEditedBlockedURLs = true;
                 }
             }
             catch (Exception ex)
@@ -165,6 +167,7 @@ namespace Focus_Bear.Preferences
                                 if (appSettings.arrAlwaysBlockedURLs[m] == selectedItem)//Item to edit
                                 {
                                     appSettings.arrAlwaysBlockedURLs[m] = url;
+                                    appSettings.bHasEditedBlockedURLs = true;
                                     break;
                                 }
                             }

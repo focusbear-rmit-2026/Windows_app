@@ -95,7 +95,7 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
             <StackPanel  Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button  x:Name="btnTakeBreak"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Height="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnTakeBreak_Click">
+            <Button  x:Name="btnTakeBreak"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnTakeBreak_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnTakeBreakText" Margin="8" Text="xTake a 5 minutes break"/>
