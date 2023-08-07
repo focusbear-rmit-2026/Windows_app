@@ -139,6 +139,28 @@ namespace Focus_Bear.Utils
                                 sMacOSSettingsOBJ.Add("kIsPasswordRequireInQuitApp", appSettings.bPasswordRequireInQuitApp);
                             }
 
+                            if (sMacOSSettingsOBJ.ContainsKey("kUserdefaultsPasswordRequireInUseRelaxFocusMode"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kUserdefaultsPasswordRequireInUseRelaxFocusMode"); //Remove  
+                                                                                         //Add new  
+                                sMacOSSettingsOBJ.Add("kUserdefaultsPasswordRequireInUseRelaxFocusMode", appSettings.bPasswordRequireToUseRelaxFocusMode);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kUserdefaultsPasswordRequireInUseRelaxFocusMode", appSettings.bPasswordRequireToUseRelaxFocusMode);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipEveningAfterCutOff"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsPasswordRequireInSkipEveningAfterCutOff"); //Remove  
+                                                                                         //Add new  
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInSkipEveningAfterCutOff", appSettings.bPasswordRequireToSkipEveningAfterCutOff);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInSkipEveningAfterCutOff", appSettings.bPasswordRequireToSkipEveningAfterCutOff);
+                            }
+
                             //AI Tab settings
                             if (sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled"))
                             {

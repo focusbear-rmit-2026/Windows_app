@@ -29,6 +29,8 @@ namespace Focus_Bear.Focus
 
         int nTimer = 300; //Five minutes
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+        
+        public bool bShowingForNonTimeActivities = false;
 
         public BreakWindow()
         {
@@ -151,6 +153,7 @@ namespace Focus_Bear.Focus
                 invokeProv.Invoke();
 
             }
+            bShowingForNonTimeActivities = false;
             Close(); //Best to close here and open new when we have the activity with completion requirement.
         }
     }

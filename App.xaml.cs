@@ -277,13 +277,17 @@ namespace Focus_Bear
 
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
+            SentrySdk.ConfigureScope(scope => {
+                scope.User = new Sentry.User() { Id = appSettings.userAccount.userID };
+            });
+
             SentrySdk.CaptureException(e.Exception);
 
             // If you want to avoid the application from crashing:
             e.Handled = true;
         }
         public App()
-        {
+        {  
             SentrySdk.Init(o =>
             {
                 // Tells which project in Sentry to send events to:
@@ -512,7 +516,7 @@ namespace Focus_Bear
                 }
                 if (((App)(Application.Current)).wndTakeABreak != null && !(((App)(Application.Current)).wndTakeABreak.IsVisible))
                 {
-                    if(((App)(Application.Current)).wndTakeABreak.DoNotUseTimerRelated.IsVisible)
+                    if(((App)(Application.Current)).wndTakeABreak.bShowingForNonTimeActivities)
                     {
                         ((App)(Application.Current)).wndTakeABreak.Show();
                     }
@@ -1458,373 +1462,410 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("ShowMorningRoutine() If still shutoff screen is shown, remove it.");
 
-                if (wndShutOff != null)
+                try
                 {
-                    wndShutOff.Close();
-                    wndShutOff = null;
+                    if (wndShutOff != null)
+                    {
+                        wndShutOff.Close();
+                        wndShutOff = null;
+                    }
                 }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF wndShutOffex - " + ex.Message);
+                }
+               
             }
 
             //If still evening habits screen is shown, remove it.
             if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
             {
                 LogWriter.LogWrite("ShowMorningRoutine() If still EVENING_HABITS screen or focus summary is shown, remove it.");
-                if (wndHabits != null)
-                {
-                    wndHabits.Close();
-                    wndHabits = null;
+                try 
+                { 
+                    if (wndHabits != null)
+                    {
+                        wndHabits.Close();
+                        wndHabits = null;
+                    }
+                    if (wndFocusSummary != null)
+                    {
+                        wndFocusSummary.Close();
+                        wndFocusSummary = null;
+                    }
                 }
-                if (wndFocusSummary != null)
+                catch (Exception ex)
                 {
-                    wndFocusSummary.Close();
-                    wndFocusSummary = null;
+                    LogWriter.LogWrite("appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS wndHabits  / wndFocusSummary ex- " + ex.Message);
                 }
 
             }
 
-            if (wndEasyPostpone != null)
-            {
-                wndEasyPostpone.Close();
-                wndEasyPostpone = null;
-            }
-
-            //In any case if there is a habit window left from system sleep and then wakeup, and if nCurrentActivityType is NONE 
-            //we must check the existing window and close it as we are going to create a new one further.
-            if (appSettings.nCurrentActivityType == CurrentActivityType.NONE)
-            {
-                if (wndHabits != null)
+            try 
+            { 
+                if (wndEasyPostpone != null)
                 {
-                    wndHabits.Close();
-                    wndHabits = null;
+                    wndEasyPostpone.Close();
+                    wndEasyPostpone = null;
                 }
+
+                //In any case if there is a habit window left from system sleep and then wakeup, and if nCurrentActivityType is NONE 
+                //we must check the existing window and close it as we are going to create a new one further.
+                if (appSettings.nCurrentActivityType == CurrentActivityType.NONE)
+                {
+                    if (wndHabits != null)
+                    {
+                        wndHabits.Close();
+                        wndHabits = null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite(" wndEasyPostpone.Close();  /  wndHabits.Close(); ex- " + ex.Message);
             }
 
             appSettings.bShowActivitiesFromMid = false;
             LogWriter.LogWrite("appSettings.bShowActivitiesFromMid = false;");
 
-            //Here we will filter the array to just have the current days activity
-            //It might be possible that the app is contineously running since many days 
-            //SO we always need to first fetch from the GLobal array and then filer it per days
-            appSettings.arrAllMorningHabits.Clear();
-            DayOfWeek Today = DateTime.Now.DayOfWeek;
-            for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
+            try
             {
-                for (int m = 0; m < appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek.Count(); m++)
-                {   
-                    if (appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek[m].ToLower() == "all")
+                //Here we will filter the array to just have the current days activity
+                //It might be possible that the app is contineously running since many days 
+                //SO we always need to first fetch from the GLobal array and then filer it per days
+                appSettings.arrAllMorningHabits.Clear();
+                DayOfWeek Today = DateTime.Now.DayOfWeek;
+                for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
+                {
+                    for (int m = 0; m < appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek.Count(); m++)
                     {
-                        appSettings.arrAllMorningHabits.Add(appSettings.arrGLOBALAllMorningHabits[i]);
-                        break;
-                    }
-                    else 
-                    {
-                        bool bfound = false;
-                        string day = appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek[m].ToLower();
-                        switch(Today)
-                        {
-                            case DayOfWeek.Sunday:
-                                {
-                                    if (day.ToLower() == "sun")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Monday:
-                                {
-                                    if (day.ToLower() == "mon")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Tuesday:
-                                {
-                                    if (day.ToLower() == "tue")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Wednesday:
-                                {
-                                    if (day.ToLower() == "wed")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Thursday:
-                                {
-                                    if (day.ToLower() == "thu")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Friday:
-                                {
-                                    if (day.ToLower() == "fri")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Saturday:
-                                {
-                                    if (day.ToLower() == "sat")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-
-                        }
-                        if(bfound)
+                        if (appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek[m].ToLower() == "all")
                         {
                             appSettings.arrAllMorningHabits.Add(appSettings.arrGLOBALAllMorningHabits[i]);
                             break;
                         }
+                        else
+                        {
+                            bool bfound = false;
+                            string day = appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek[m].ToLower();
+                            switch (Today)
+                            {
+                                case DayOfWeek.Sunday:
+                                    {
+                                        if (day.ToLower() == "sun")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Monday:
+                                    {
+                                        if (day.ToLower() == "mon")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Tuesday:
+                                    {
+                                        if (day.ToLower() == "tue")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Wednesday:
+                                    {
+                                        if (day.ToLower() == "wed")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Thursday:
+                                    {
+                                        if (day.ToLower() == "thu")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Friday:
+                                    {
+                                        if (day.ToLower() == "fri")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Saturday:
+                                    {
+                                        if (day.ToLower() == "sat")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+
+                            }
+                            if (bfound)
+                            {
+                                appSettings.arrAllMorningHabits.Add(appSettings.arrGLOBALAllMorningHabits[i]);
+                                break;
+                            }
+                        }
                     }
                 }
             }
-
-            if (appSettings.arrAllMorningHabits.Count == 0)
+            catch (Exception ex)
             {
-                LogWriter.LogWrite("ShowMorningRoutine() arrAllMorningHabits.Count == 0 StartBreakActivityTimer and return");
-
-                //WE will set the morning habits shown date for today
-                appSettings.MorningHabitsShownDate = DateTime.Now;
-                RegistryManager.SetMorningHabitsShownDate();
-
-                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
-                LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
-
-                //Start the break Activities Timer
-                StartBreakActivityTimer();
-
-                return;
+                LogWriter.LogWrite("extracting DayOfWeek ex- " + ex.Message);
             }
 
-            if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
+            try
             {
-                ((App)(Application.Current)).wndTakeABreak.HideBreakWindowAndStopTimer();
-            }
 
-            LogWriter.LogWrite("ShowMorningRoutine() - show morning habits screen now");
-
-            appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;
-            LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;");
-
-            appSettings.nHabitIndex = 0;
-            LogWriter.LogWrite("nHabitIndex = 0");
-            //Here first we will check if we have some pending sequence or if some activities from morning routine are done.
-            //If some are done, we will continue from there..
-            //if morning routine for today is completed, we will start break activities timer
-            //if there is some pending sequnce from any previous days, we will force complete it.
-
-            FocusBearAPIClient client = new FocusBearAPIClient();
-            var sResponse = await client.GetLastActivityInfo();
-            int xResponse = int.Parse(sResponse.ToString());
-            if (xResponse == 1)
-            {
-                LogWriter.LogWrite("GetLastActivityInfo Success");
-
-                if (appSettings.sLastActivityDoneInfo != null || appSettings.sLastActivityDoneInfo.Length > 0)
+                if (appSettings.arrAllMorningHabits.Count == 0)
                 {
-                    //Parse the JSON string
-                    try
+                    LogWriter.LogWrite("ShowMorningRoutine() arrAllMorningHabits.Count == 0 StartBreakActivityTimer and return");
+
+                    //WE will set the morning habits shown date for today
+                    appSettings.MorningHabitsShownDate = DateTime.Now;
+                    RegistryManager.SetMorningHabitsShownDate();
+
+                    appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                    LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+
+                    //Start the break Activities Timer
+                    StartBreakActivityTimer();
+
+                    return;
+                }
+
+                if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
+                {
+                    ((App)(Application.Current)).wndTakeABreak.HideBreakWindowAndStopTimer();
+                }
+
+                LogWriter.LogWrite("ShowMorningRoutine() - show morning habits screen now");
+
+                appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;
+                LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;");
+
+                appSettings.nHabitIndex = 0;
+                LogWriter.LogWrite("nHabitIndex = 0");
+                //Here first we will check if we have some pending sequence or if some activities from morning routine are done.
+                //If some are done, we will continue from there..
+                //if morning routine for today is completed, we will start break activities timer
+                //if there is some pending sequnce from any previous days, we will force complete it.
+
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var sResponse = await client.GetLastActivityInfo();
+                int xResponse = int.Parse(sResponse.ToString());
+                if (xResponse == 1)
+                {
+                    LogWriter.LogWrite("GetLastActivityInfo Success");
+
+                    if (appSettings.sLastActivityDoneInfo != null || appSettings.sLastActivityDoneInfo.Length > 0)
                     {
-                        JObject sLastActivityDone = JObject.Parse(appSettings.sLastActivityDoneInfo);
-
-                        //first Detect if the user has changed their habits and pull the new habits from the backend
-                        if (sLastActivityDone.ContainsKey("last_time_user_settings_modified"))
+                        //Parse the JSON string
+                        try
                         {
-                            string s_edited_settings_date = sLastActivityDone["last_time_user_settings_modified"].ToString();
-                            ValidateSettingsChange(s_edited_settings_date);
-                          
-                        }
+                            JObject sLastActivityDone = JObject.Parse(appSettings.sLastActivityDoneInfo);
 
-                        DateTime now = DateTime.Now;
-                        TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
-                        DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00).ToUniversalTime();
-                        Console.WriteLine("{0}", myStartTime.ToString());
-
-
-                        if (sLastActivityDone.ContainsKey("last_completed_sequence"))
-                        {
-                            string last_completed_sequence = sLastActivityDone["last_completed_sequence"].ToString();
-                            if (last_completed_sequence.Length > 0)
+                            //first Detect if the user has changed their habits and pull the new habits from the backend
+                            if (sLastActivityDone.ContainsKey("last_time_user_settings_modified"))
                             {
-                                string lastCompletedSequenceId = sLastActivityDone["last_completed_sequence"]["id"].ToString();
-                                if (lastCompletedSequenceId.Length > 0)
+                                string s_edited_settings_date = sLastActivityDone["last_time_user_settings_modified"].ToString();
+                                ValidateSettingsChange(s_edited_settings_date);
+
+                            }
+
+                            DateTime now = DateTime.Now;
+                            TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                            DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00).ToUniversalTime();
+                            Console.WriteLine("{0}", myStartTime.ToString());
+
+
+                            if (sLastActivityDone.ContainsKey("last_completed_sequence"))
+                            {
+                                string last_completed_sequence = sLastActivityDone["last_completed_sequence"].ToString();
+                                if (last_completed_sequence.Length > 0)
                                 {
-                                    var sequenceID = appSettings.arrAllMorningHabits[0].activity_sequence_id;
-                                    if (lastCompletedSequenceId == sequenceID)
+                                    string lastCompletedSequenceId = sLastActivityDone["last_completed_sequence"]["id"].ToString();
+                                    if (lastCompletedSequenceId.Length > 0)
                                     {
-                                        string lastCompletedSequenceStartedAt = sLastActivityDone["last_completed_sequence_started_at"].ToString();
-                                        if (lastCompletedSequenceStartedAt.Length > 0)
+                                        var sequenceID = appSettings.arrAllMorningHabits[0].activity_sequence_id;
+                                        if (lastCompletedSequenceId == sequenceID)
                                         {
-
-                                            DateTime lastCompletedSequenceStartedAtDate = DateTime.Parse(lastCompletedSequenceStartedAt);
-                                            if (lastCompletedSequenceStartedAtDate > myStartTime)
+                                            string lastCompletedSequenceStartedAt = sLastActivityDone["last_completed_sequence_started_at"].ToString();
+                                            if (lastCompletedSequenceStartedAt.Length > 0)
                                             {
-                                                //Today's Morning activity is done
-                                                LogWriter.LogWrite("Morning habits already shown for today - return");
-                                                appSettings.MorningHabitsShownDate = DateTime.Now;
-                                                RegistryManager.SetMorningHabitsShownDate();
 
-                                                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
-                                                LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+                                                DateTime lastCompletedSequenceStartedAtDate = DateTime.Parse(lastCompletedSequenceStartedAt);
+                                                if (lastCompletedSequenceStartedAtDate > myStartTime)
+                                                {
+                                                    //Today's Morning activity is done
+                                                    LogWriter.LogWrite("Morning habits already shown for today - return");
+                                                    appSettings.MorningHabitsShownDate = DateTime.Now;
+                                                    RegistryManager.SetMorningHabitsShownDate();
 
-                                                //Start the break Activities Timer
-                                                StartBreakActivityTimer();
+                                                    appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                                                    LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
-                                                return;
+                                                    //Start the break Activities Timer
+                                                    StartBreakActivityTimer();
+
+                                                    return;
+                                                }
+
                                             }
-
                                         }
                                     }
                                 }
                             }
-                        }
 
-                       
-                        //
-                        if (sLastActivityDone.ContainsKey("current_activity_assigned_at"))
-                        {
-                            string current_activity_assigned_at = sLastActivityDone["current_activity_assigned_at"].ToString();
-                            if (current_activity_assigned_at.Length > 0)
+
+                            //
+                            if (sLastActivityDone.ContainsKey("current_activity_assigned_at"))
                             {
-                                if (sLastActivityDone.ContainsKey("current_activity_sequence"))
+                                string current_activity_assigned_at = sLastActivityDone["current_activity_assigned_at"].ToString();
+                                if (current_activity_assigned_at.Length > 0)
                                 {
-                                    string currentActivitySequence = sLastActivityDone["current_activity_sequence"].ToString();
-
-                                    if (currentActivitySequence.Length > 0)
+                                    if (sLastActivityDone.ContainsKey("current_activity_sequence"))
                                     {
-                                        if (sLastActivityDone.ContainsKey("current_activity"))
+                                        string currentActivitySequence = sLastActivityDone["current_activity_sequence"].ToString();
+
+                                        if (currentActivitySequence.Length > 0)
                                         {
-                                            string currentActivity = sLastActivityDone["current_activity"].ToString();
-                                            if (currentActivity.Length > 0)
+                                            if (sLastActivityDone.ContainsKey("current_activity"))
                                             {
-                                                string sequenceId = sLastActivityDone["current_activity_sequence"]["id"].ToString();
-                                                string activityId = sLastActivityDone["current_activity"]["id"].ToString();
-
-                                                string habitSequenceID = appSettings.arrAllMorningHabits[0].activity_sequence_id;
-                                                if (habitSequenceID.Length > 0)
+                                                string currentActivity = sLastActivityDone["current_activity"].ToString();
+                                                if (currentActivity.Length > 0)
                                                 {
-                                                    DateTime activityAssignedDate = DateTime.Parse(current_activity_assigned_at);
-                                                    if (activityAssignedDate > myStartTime)
+                                                    string sequenceId = sLastActivityDone["current_activity_sequence"]["id"].ToString();
+                                                    string activityId = sLastActivityDone["current_activity"]["id"].ToString();
+
+                                                    string habitSequenceID = appSettings.arrAllMorningHabits[0].activity_sequence_id;
+                                                    if (habitSequenceID.Length > 0)
                                                     {
-                                                        //Morning routine started but did not finished
-                                                        if (habitSequenceID == sequenceId)
+                                                        DateTime activityAssignedDate = DateTime.Parse(current_activity_assigned_at);
+                                                        if (activityAssignedDate > myStartTime)
                                                         {
-                                                            LogWriter.LogWrite("Morning Habit sequnce is pending. Start from current pending habit");
-
-                                                            appSettings.arraySkipped.Clear();//Clear while initializing
-
-                                                            if (sLastActivityDone.ContainsKey("current_sequence_skipped_activities"))
+                                                            //Morning routine started but did not finished
+                                                            if (habitSequenceID == sequenceId)
                                                             {
-                                                                //string skippedActivities = sLastActivityDone["current_sequence_skipped_activities"].ToString();
-                                                                string sArraySkipped = sLastActivityDone["current_sequence_skipped_activities"].ToString();
-                                                                if (sArraySkipped.Length > 0)
-                                                                    appSettings.arraySkipped = (JArray)sLastActivityDone["current_sequence_skipped_activities"];
-                                                            }
+                                                                LogWriter.LogWrite("Morning Habit sequnce is pending. Start from current pending habit");
 
-                                                            for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
-                                                            {
-                                                                if (appSettings.arrAllMorningHabits[i].id == activityId) //current activity to be done
+                                                                appSettings.arraySkipped.Clear();//Clear while initializing
+
+                                                                if (sLastActivityDone.ContainsKey("current_sequence_skipped_activities"))
                                                                 {
-                                                                    appSettings.nHabitIndex = i - 1 ; //We will assign the habit index from the previous activity and show the finish screen for that activity
-                                                                    //Now we do not need to start normal but need to show the finish screen of this
-                                                                    appSettings.bShowActivitiesFromMid = true;
-                                                                    LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
-
-                                                                    for (int m = 0; m < appSettings.arraySkipped.Count; m++)
-                                                                    {
-                                                                        //Check if the last activity was in the array skipped list
-                                                                        if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllMorningHabits[i-1].id)
-                                                                        {
-                                                                            appSettings.bShowActivitiesFromMidLastSkipped = true;
-                                                                            break;
-                                                                        }
-                                                                    }
-                                                                   
-                                                                    break;
+                                                                    //string skippedActivities = sLastActivityDone["current_sequence_skipped_activities"].ToString();
+                                                                    string sArraySkipped = sLastActivityDone["current_sequence_skipped_activities"].ToString();
+                                                                    if (sArraySkipped.Length > 0)
+                                                                        appSettings.arraySkipped = (JArray)sLastActivityDone["current_sequence_skipped_activities"];
                                                                 }
+
+                                                                for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
+                                                                {
+                                                                    if (appSettings.arrAllMorningHabits[i].id == activityId) //current activity to be done
+                                                                    {
+                                                                        appSettings.nHabitIndex = i - 1; //We will assign the habit index from the previous activity and show the finish screen for that activity
+                                                                                                         //Now we do not need to start normal but need to show the finish screen of this
+                                                                        appSettings.bShowActivitiesFromMid = true;
+                                                                        LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
+
+                                                                        for (int m = 0; m < appSettings.arraySkipped.Count; m++)
+                                                                        {
+                                                                            //Check if the last activity was in the array skipped list
+                                                                            if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllMorningHabits[i - 1].id)
+                                                                            {
+                                                                                appSettings.bShowActivitiesFromMidLastSkipped = true;
+                                                                                break;
+                                                                            }
+                                                                        }
+
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                //it means current activity is not morning habit and morning habit done for today
+                                                                LogWriter.LogWrite("Current Activity is not morning habit and it means morning habit done for today");
+                                                                appSettings.MorningHabitsShownDate = DateTime.Now;
+                                                                RegistryManager.SetMorningHabitsShownDate();
+
+                                                                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                                                                LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+
+                                                                return;
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            //it means current activity is not morning habit and morning habit done for today
-                                                            LogWriter.LogWrite("Current Activity is not morning habit and it means morning habit done for today");
-                                                            appSettings.MorningHabitsShownDate = DateTime.Now;
-                                                            RegistryManager.SetMorningHabitsShownDate();
+                                                            LogWriter.LogWrite("Pending routine is not from current day clean all running sequence");
+                                                            var sResponse1 = await client.ForceCompleteCurrentSequence(sequenceId);
 
-                                                            appSettings.nCurrentActivityType = CurrentActivityType.NONE;
-                                                            LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
-
-                                                            return;
                                                         }
+
                                                     }
                                                     else
                                                     {
-                                                        LogWriter.LogWrite("Pending routine is not from current day clean all running sequence");
-                                                        var sResponse1 = await client.ForceCompleteCurrentSequence(sequenceId);
-                                                        
+                                                        LogWriter.LogWrite("Start new Morning routine sequence:- current sequence Id or current activity Id not found");
                                                     }
-
-                                                }
-                                                else
-                                                {
-                                                    LogWriter.LogWrite("Start new Morning routine sequence:- current sequence Id or current activity Id not found");
                                                 }
                                             }
-                                        }
-                                        else
-                                        {
-                                            LogWriter.LogWrite("start new Morning routine sequence:- current_activity not found as dictionary");
-                                            string sequenceId = sLastActivityDone["current_activity_sequence"]["id"].ToString();
-                                            if (sequenceId.Length > 0)
+                                            else
                                             {
-                                                LogWriter.LogWrite("Pending routine is not for use, clean all pending sequence");
-                                                var sResponse1 = await client.ForceCompleteCurrentSequence(sequenceId);
-                                               
-                                            }
+                                                LogWriter.LogWrite("start new Morning routine sequence:- current_activity not found as dictionary");
+                                                string sequenceId = sLastActivityDone["current_activity_sequence"]["id"].ToString();
+                                                if (sequenceId.Length > 0)
+                                                {
+                                                    LogWriter.LogWrite("Pending routine is not for use, clean all pending sequence");
+                                                    var sResponse1 = await client.ForceCompleteCurrentSequence(sequenceId);
 
+                                                }
+
+                                            }
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    LogWriter.LogWrite("Start new Morning routine sequence:- current_activity_sequence not found as dictionary"); 
-                                    //Start Default
+                                    else
+                                    {
+                                        LogWriter.LogWrite("Start new Morning routine sequence:- current_activity_sequence not found as dictionary");
+                                        //Start Default
+                                    }
                                 }
                             }
-                        }
-                        else
-                        {
-                            LogWriter.LogWrite("Start new Morning routine sequence :- current_activity_assigned_at not found");
-                            //Start Default
-                        }
+                            else
+                            {
+                                LogWriter.LogWrite("Start new Morning routine sequence :- current_activity_assigned_at not found");
+                                //Start Default
+                            }
 
-                        // 
+                            // 
+                        }
+                        catch (Exception ex)
+                        {
+                            LogWriter.LogWrite("GetLastActivityInfo JSON PARSING FAILED" + ex.Message);
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        LogWriter.LogWrite("GetLastActivityInfo JSON PARSING FAILED" + ex.Message);
+
                     }
+
                 }
                 else
                 {
-
+                    LogWriter.LogWrite("GetLastActivityInfo Failed");
+                    //We could not get last activity info so we will start the routine for sure
                 }
-
             }
-            else
+            catch (Exception ex)
             {
-                LogWriter.LogWrite("GetLastActivityInfo Failed");
-                //We could not get last activity info so we will start the routine for sure
+                LogWriter.LogWrite("Props block ex- " + ex.Message);
             }
 
             try
@@ -2338,6 +2379,7 @@ namespace Focus_Bear
             {
                 wndTakeABreak = new BreakWindow();
             }
+            wndTakeABreak.bShowingForNonTimeActivities = true;
             wndTakeABreak.Show();
             wndTakeABreak.BringIntoView();
             wndTakeABreak.ShowBreakWindowAndStartTimer(nDuration, sTitle);

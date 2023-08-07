@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Preferences"
         mc:Ignorable="d"
-        Title="UninstallFeedback" Height="350" Width="520" WindowStyle="None">
+        Title="UninstallFeedback" Height="350" Width="520" WindowStyle="None" ResizeMode="NoResize">
     <Grid>
         <Grid Background="#fcf8f0" >
             <Grid.RowDefinitions>

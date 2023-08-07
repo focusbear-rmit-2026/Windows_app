@@ -48,7 +48,7 @@ namespace Focus_Bear.Utils
                                 {
                                     var firstFiftyItems = sOfflineData.Take(nBatchCount).ToList();
 
-                                    string addItemJsonString = "[";
+                                    string addItemJsonString = "{\"completed_activities\":[";
 
                                     //Now we need to create chunks of 50, Push to the API, wait for it, and then push next 50 and so on
                                     foreach (OfflineEntry Entry in firstFiftyItems)
@@ -97,7 +97,7 @@ namespace Focus_Bear.Utils
                                     //Remove last comma -  we have 100% added above
                                     addItemJsonString = addItemJsonString.Remove(addItemJsonString.Length - 1, 1);
 
-                                    addItemJsonString = addItemJsonString + "]";
+                                    addItemJsonString = addItemJsonString + "]}";
 
                                     FocusBearAPIClient client = new FocusBearAPIClient();
                                     var xResponse = await client.SyncOfflineData(addItemJsonString);
@@ -133,7 +133,7 @@ namespace Focus_Bear.Utils
         }
         private static IEnumerable<OfflineEntry> ReadOfflineDataCSV()
         {
-            LogWriter.LogWrite("ReadOfflineDataCSV()");
+            //LogWriter.LogWrite("ReadOfflineDataCSV()");
             AppSettings appSettings = AppSettings.GetInstance;
             try
             {

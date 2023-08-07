@@ -6,11 +6,11 @@
         xmlns:local="clr-namespace:Focus_Bear.Upgrade"
         xmlns:Models="clr-namespace:Focus_Bear.Models"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="633" Width="531" ResizeMode="NoResize">
+        Title="Focus Bear" Height="645" Width="531" ResizeMode="NoResize">
     <Grid Background="#eee" >
         <Grid.RowDefinitions>
             <RowDefinition Height="*"   />
-            <RowDefinition Height="117" />
+            <RowDefinition Height="129" />
         </Grid.RowDefinitions>
         <Grid>
             <Grid.Background >
@@ -81,9 +81,10 @@
                 <RowDefinition Height="40"   />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="20" />
+                <RowDefinition Height="25" />
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0"  Name="AfterPay" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxAfter you pay, click the Sync Payment Status button below" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Row="0"  Name="AfterPay" Margin="0,0,0,5" TextWrapping="Wrap" Text="xxAfter you pay, click the Sync Payment Status button below" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
             <Button Grid.Row="1"   x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="18" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnSyncPayment_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
@@ -91,9 +92,14 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Image Grid.Row="2" x:Name="ImgUpdateAppProgress"   Models:ImageBehavior.AnimatedSource="../Images/progress.gif" HorizontalAlignment="Center" Margin="7,-1,0,0" VerticalAlignment="Bottom" Visibility="Collapsed"/>
-      
-            
+            <Image Grid.Row="2" x:Name="ImgUpdateAppProgress"   Models:ImageBehavior.AnimatedSource="../Images/progress.gif" HorizontalAlignment="Center" Margin="7,-1,0,0" VerticalAlignment="Center" Visibility="Collapsed"/>
+
+            <TextBlock x:Name="UninstallText" Grid.Row="3" Margin="0,2,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="13" Height="22" Cursor="Hand">
+             <Hyperlink x:Name="btnUninstall"  Foreground="#000" Click="btnUninstall_Click"   TextDecorations="Underline" ><Run x:Name="btnUninstallTXT" Text="xUninstall"/></Hyperlink>
+            </TextBlock>
+
         </Grid>
+        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
+
     </Grid>
 </Window>

@@ -1,12 +1,23 @@
 <html>
 <head>
     <title>Focus Bear</title>
-
+<!-- import CDN  -->
+    <script
+      src="https://js.sentry-cdn.com/e10a0e8886bd4bb89d44cfa909a71ac9.min.js"
+      integrity="sha384-5Zu44WQLIjQtAmHoeW6zq6diH9kymV7kGUaYAV1PK5LPCSGURU7y840OHlpaU8NQ"
+      crossorigin="anonymous"
+    ></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.0/Chart.bundle.min.js"></script>
+     <!-- Initializing  -->
     <script type="text/javascript">
-
-
+      Sentry.onLoad(function () {
+        Sentry.init({
+          dsn: 'https://dcc03848802c478ea8cae6ee3dd7306c@o1187124.ingest.sentry.io/6408241',
+          integrations: [new Sentry.BrowserTracing()],
+          tracesSampleRate: 0.2,
+        });
+      });
     </script>
     <style>
         body {
@@ -21,6 +32,7 @@
     </div>
 
     <script>
+	 try {
         function newDate(days) {
             return moment().add(days, 'd');
         }
@@ -94,6 +106,9 @@
         function getData1() {
 
         }
+		} catch (error) {
+        Sentry.captureException(error);
+      }
     </script>
 </body>
 </html>

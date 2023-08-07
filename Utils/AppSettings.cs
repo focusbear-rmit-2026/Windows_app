@@ -261,6 +261,7 @@ namespace Focus_Bear.Utils
         public bool bPasswordRequireInStopPomodoro { get; set; }
         public bool bPasswordRequireInQuitApp { get; set; }
         public bool bPasswordRequireToUseRelaxFocusMode { get; set; }
+        public bool bPasswordRequireToSkipEveningAfterCutOff { get; set; }
 
         //AI Tab
         public bool bMotivationalMessageEnabled { get; set; }
@@ -341,6 +342,7 @@ namespace Focus_Bear.Utils
             bPasswordRequireInStopPomodoro = false;
             bPasswordRequireInQuitApp = false;
             bPasswordRequireToUseRelaxFocusMode = false;
+            bPasswordRequireToSkipEveningAfterCutOff = false;
 
         }
         public async void GetLoginAndTokenValidSettings()
@@ -1262,6 +1264,7 @@ namespace Focus_Bear.Utils
                             // bPasswordRequireInStopPomodoro = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInStopPomodoro") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInStopPomodoro") : false;
                             bPasswordRequireInQuitApp = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInQuitApp") : false;
                             bPasswordRequireToUseRelaxFocusMode = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireToUseRelaxFocusMode") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireToUseRelaxFocusMode") : false;
+                            bPasswordRequireToSkipEveningAfterCutOff = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipEveningAfterCutOff") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipEveningAfterCutOff") : false;
 
                             bMotivationalMessageEnabled = sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kMotivationalMessageEnabled") : true; //Default true on 23 June 2023 #188
                             bAiCheckUrlEnabled = sMacOSSettingsOBJ.ContainsKey("kAiCheckUrlEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiCheckUrlEnabled") : true;

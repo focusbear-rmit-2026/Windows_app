@@ -227,7 +227,7 @@ namespace Focus_Bear.Habits
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
-                    if (appSettings.bPasswordRequireInSkipEvening)
+                    if (appSettings.bPasswordRequireInSkipEvening || (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff))
                     {
                         if (appSettings.bMotivationalMessageEnabled)
                             webView.Visibility = Visibility.Collapsed;

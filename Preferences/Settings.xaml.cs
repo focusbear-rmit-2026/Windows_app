@@ -79,7 +79,8 @@ namespace Focus_Bear.Preferences
                 CheckPostponingEveningRoutine.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonSkipEveningHabitText"].ToString();
                 CheckUsingComputerLateNight.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonAbortingShutoffText"].ToString();
                 CheckQuittingApp.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonQuitAppText"].ToString();
-                CheckUseRelaxMode.Content = "Allow using relax focus mode"; //appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonUseRelaxModeText"].ToString(); //todo win texts
+                CheckUseRelaxMode.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonUseRelaxFocusModeText"].ToString();
+                CheckSkipEveningAfterCutOff.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonSkipEveningHabitAfterCutOffText"].ToString();
 
                 SelectLanguage.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleSelectLanguage"].ToString();
 
@@ -141,6 +142,7 @@ namespace Focus_Bear.Preferences
                 CheckUsingComputerLateNight.IsEnabled = true;
                 CheckQuittingApp.IsEnabled = true;
                 CheckUseRelaxMode.IsEnabled = true;
+                CheckSkipEveningAfterCutOff.IsEnabled = true;
 
                 CheckChangingSettings.IsChecked = appSettings.bPasswordRequireInChangeSettings;
                 CheckPostponingMorningRoutine.IsChecked = appSettings.bPasswordRequireInSkipMorning;
@@ -148,6 +150,7 @@ namespace Focus_Bear.Preferences
                 CheckUsingComputerLateNight.IsChecked = appSettings.bPasswordRequireInAbortShutoff;
                 CheckQuittingApp.IsChecked = appSettings.bPasswordRequireInQuitApp;
                 CheckUseRelaxMode.IsChecked = appSettings.bPasswordRequireToUseRelaxFocusMode;
+                CheckSkipEveningAfterCutOff.IsChecked = appSettings.bPasswordRequireToSkipEveningAfterCutOff;
             }
             else
             {
@@ -166,6 +169,7 @@ namespace Focus_Bear.Preferences
                 CheckUsingComputerLateNight.IsEnabled = false;
                 CheckQuittingApp.IsEnabled = false;
                 CheckUseRelaxMode.IsEnabled = false;
+                CheckSkipEveningAfterCutOff.IsEnabled = false;
             }
 
         }
@@ -424,6 +428,16 @@ namespace Focus_Bear.Preferences
         private void CheckUseRelaxMode_Unchecked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireToUseRelaxFocusMode = false;
+        }
+
+        private void CheckSkipEveningAfterCutOff_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireToSkipEveningAfterCutOff = true;
+        }
+
+        private void CheckSkipEveningAfterCutOff_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireToSkipEveningAfterCutOff = false;
         }
     }
 }

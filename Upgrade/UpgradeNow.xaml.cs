@@ -1,8 +1,10 @@
 ﻿using Focus_Bear.API;
+using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,6 +51,7 @@ namespace Focus_Bear.Upgrade
                 TxtUserId.Text = appSettings.sUser_id;
                 btnCopyUserId.ToolTip = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopyId"].ToString();
 
+                btnUninstallTXT.Text = appSettings.ConfigFileStrings["common"]["buttonUninstallText"].ToString();
             }
             catch (Exception ex)
             {
@@ -58,6 +61,11 @@ namespace Focus_Bear.Upgrade
             if (appSettings.isExpired)
             {
                 Subscription.Visibility = Visibility.Visible;
+                UninstallText.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                UninstallText.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -173,6 +181,29 @@ namespace Focus_Bear.Upgrade
             }
 
             btnCopyUserId.ToolTip = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopyId"].ToString();
+        }
+
+        private void btnUninstall_Click(object sender, RoutedEventArgs e)
+        {
+            GridShade.Visibility = Visibility.Visible;
+            UninstallFeedback aa = new UninstallFeedback(this);
+            aa.Topmost = true;
+            bool? DialogResult = aa.ShowDialog();
+            GridShade.Visibility = Visibility.Collapsed;
+            if (DialogResult.Value == true)
+            {
+                string appPath = System.Reflection.Assembly.GetEntryAssembly().Location;
+                appPath = appPath.Replace("Focus Bear.exe", "unins000.exe");
+
+                LogWriter.LogWrite("fire Uninstaller - " + appPath);
+
+                Application.Current.Shutdown(0);
+
+                if (File.Exists(appPath))
+                {
+                    Process.Start(appPath);
+                }
+            }
         }
     }
 }

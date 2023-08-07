@@ -672,7 +672,7 @@ namespace Focus_Bear.Habits
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
-                    if (appSettings.bPasswordRequireInSkipEvening)
+                    if (appSettings.bPasswordRequireInSkipEvening || (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff))
                     {
                         //It might be possible that a webview is visible, we will need to hide that
 

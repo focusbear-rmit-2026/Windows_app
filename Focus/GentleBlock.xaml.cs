@@ -111,7 +111,7 @@ namespace Focus_Bear.Focus
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
             btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
-            btnSaveForRelaxText.Text = "Block and save for Relax mode";// appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonSaveForRelaxText"].ToString(); //todo win texts
+            btnSaveForRelaxText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockAndAddToRelaxModeText"].ToString();
 
             if (sAppName.Length > 0)
             {
