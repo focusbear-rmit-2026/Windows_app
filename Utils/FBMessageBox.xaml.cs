@@ -28,6 +28,15 @@ namespace Focus_Bear.Utils
         public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false)
         {
             InitializeComponent();
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
 
             this.Topmost = true;
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;

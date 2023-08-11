@@ -18,6 +18,7 @@ using Focus_Bear.Habits;
 using Focus_Bear.Focus;
 using System.Windows.Threading;
 using System.Threading;
+using System.Drawing;
 
 namespace Focus_Bear.Utils          
 {
@@ -284,6 +285,10 @@ namespace Focus_Bear.Utils
         public int nTimerValForNonTimerActivities = 86400; //Timer val for non - timer activities
 
         public bool bHasEditedBlockedURLs = false;
+
+        //Fonts related
+        public string[] arrFontFamily = { "Segoe UI", "Arial", "Comic Sans MS", "Verdana", "Tahoma", "Trebuchet MS", "Century Gothic", "Poppins", "IntelOne Mono", "OpenDyslexic3 Regular"};
+        public string sSelectedAppFont = "Segoe UI";
 
         //Relax activities related
         public string sSavedURLSForRelaxActivity; //To get the urls from API
@@ -1911,3 +1916,5 @@ namespace Focus_Bear.Utils
         }
     }
 }
+
+

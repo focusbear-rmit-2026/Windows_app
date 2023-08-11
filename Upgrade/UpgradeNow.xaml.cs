@@ -29,7 +29,23 @@ namespace Focus_Bear.Upgrade
         public UpgradeNow()
         {
             InitializeComponent();
- 
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                //this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), "./fonts/#Poppins");
+                //this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), "./fonts/#IntelOne Mono");
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                {
+                    this.Height = 702;
+                    GridMain.RowDefinitions[1].Height = new GridLength(160);
+                }
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+    
             try
             {
                 this.WindowStartupLocation = WindowStartupLocation.CenterScreen;

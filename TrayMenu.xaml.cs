@@ -43,6 +43,16 @@ namespace Focus_Bear
         public TrayMenu()
         {
             InitializeComponent();
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
             InitializeSettings();
             SetTrayMenuPosition();
             ShowInTaskbar = false;
@@ -157,7 +167,14 @@ namespace Focus_Bear
                 {
                     btnSetupFocusMode.Visibility = Visibility.Collapsed;
                 }
-              
+                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                {
+                    if(!appSettings.isFocusModeRunning)
+                        OrangeHeader.Height = 30;  
+                    else
+                        OrangeHeader.Height = 70;
+                }
+
             }
             catch (Exception ex)
             {
@@ -263,6 +280,7 @@ namespace Focus_Bear
 
             //todo Win text
             FBMessageBox ff = new FBMessageBox("With Pomodoro mode, you automatically cycle between focus sessions and breaks (e.g. 25 minutes on, 5 minutes off)", "We haven't built Pomodoro mode yet on Windows. How badly do you want this feature?", MessageBoxButton.YesNoCancel, "I need this!", "I probably wouldn't use it", "I might use it"  );
+            ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             ff.ShowDialog();
             if(ff.btnClicked == MessageBoxResult.Yes) // "I need this!"
             {
@@ -383,6 +401,11 @@ namespace Focus_Bear
                             //Increase hearder height
                             OrangeHeader.Height = 45; //Originally 25
 
+                            if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                            {
+                                OrangeHeader.Height = 70;
+                            }
+
                             int nHours = int.Parse(sHours);
                             int nMinutes = int.Parse(sMinutes);
                             DateTime dTill = DateTime.Now;
@@ -461,6 +484,10 @@ namespace Focus_Bear
                                 OnUntill.Visibility = Visibility.Collapsed;
                                 //Increase hearder height
                                 OrangeHeader.Height = 25; //Originally 25
+                                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                                {
+                                    OrangeHeader.Height = 30; //Originally 25
+                                }
 
                                 //Deselect the Seleted list view item
                                 ListFocusModes.SelectedItem = null;
@@ -491,6 +518,10 @@ namespace Focus_Bear
                                     OnUntill.Visibility = Visibility.Collapsed;
                                     //Increase hearder height
                                     OrangeHeader.Height = 25; //Originally 25
+                                    if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                                    {
+                                        OrangeHeader.Height = 30; //Originally 25
+                                    }
 
                                     //Now open the New selected Focus mode start window
                                     //Deselect the Seleted list view item
@@ -600,7 +631,10 @@ namespace Focus_Bear
                         OnUntill.Visibility = Visibility.Collapsed;
                         //Increase hearder height
                         OrangeHeader.Height = 25; //Originally 25
-
+                        if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                        {
+                            OrangeHeader.Height = 30; //Originally 25
+                        }
                         //Reposition 
                         SetTrayMenuPosition();
 

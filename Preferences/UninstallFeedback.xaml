@@ -43,14 +43,14 @@
             </TextBox>
             <TextBlock  Grid.Row="4" Name="Minimum" Margin="20,0,20,0"   Text="x(Minimum 10 characters)..."  Foreground="#000" FontSize="12" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-            <Button  Grid.Row="5" x:Name="btnCancel" TabIndex="3"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click" >
+            <Button  Grid.Row="5" x:Name="btnCancel" TabIndex="3"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnCancelTXT" Text="xCancel"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  Grid.Row="5" x:Name="btnUninstall"  TabIndex="4" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnUninstall_Click" >
+            <Button  Grid.Row="5" x:Name="btnUninstall"  TabIndex="4" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnUninstall_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnUninstallTXT" Text="xUninstall"/>

@@ -63,6 +63,17 @@ namespace Focus_Bear.Focus
         public GentleBlock()
         {
             InitializeComponent();
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+
             ShowInTaskbar = false;
             Topmost = true;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -76,7 +87,11 @@ namespace Focus_Bear.Focus
             sActiveURL = sURL;
             sCurrentTabTitle = sTabTitle;
             HWND = hWnd;
-
+            if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.Height = 600;
+                MainGrid.RowDefinitions[1].Height = new GridLength(180);
+            }
             string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
 
             if (sURL.Length > 0)

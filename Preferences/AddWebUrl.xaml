@@ -5,28 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Preferences"
         mc:Ignorable="d"
-        Title="AddWebUrl" Height="210" Width="450" ResizeMode="NoResize" >
+        Title="AddWebUrl" Height="220" Width="450" ResizeMode="NoResize" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="45"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="1"/>
-            <RowDefinition Height="35"/>
-            </Grid.RowDefinitions>
-        <TextBox Grid.Row="0" TabIndex="0" x:Name="TxtURL" Margin="20,5,20,10" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Height="25" TextChanged="TxtURL_TextChanged">
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="3"/>
+        </Grid.RowDefinitions>
+        <TextBox Grid.Row="0" TabIndex="0" x:Name="TxtURL" Margin="20,5,20,10" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="25" TextChanged="TxtURL_TextChanged">
             
         </TextBox>
 
         <TextBlock  Grid.Row="1" Name="Instructions" Margin="20,0,20,0" TextWrapping="Wrap"  Text="xto allow urls...."   FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
         <Grid Grid.Row="2" Background="LightGray" ></Grid>
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="3" Margin="0,5,0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="btnCancel" Grid.Column="0" Height="23" Width="100" Margin="20,0,0,0" HorizontalAlignment="Left" Click="btnCancel_Click">xCancel</Button>
-            <Button x:Name="btnAdd"  Grid.Column="1" IsDefault="True" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right" Click="btnAdd_Click">xAdd</Button>
+            <Button x:Name="btnCancel" Grid.Column="0" MinHeight="23" Width="100" Margin="20,2,0,0" HorizontalAlignment="Left" Click="btnCancel_Click">xCancel</Button>
+            <Button x:Name="btnAdd"  Grid.Column="1" IsDefault="True" MinHeight="23" Width="100" Margin="0,2,20,0" HorizontalAlignment="Right" Click="btnAdd_Click">xAdd</Button>
 
         </Grid>
  

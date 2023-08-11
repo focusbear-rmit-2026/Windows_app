@@ -37,6 +37,17 @@ namespace Focus_Bear.Preferences
         public Settings(PreferencesWindow pp)
         {
             InitializeComponent();
+            
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+
             _ParentWindow = pp;
 
             try
@@ -95,6 +106,18 @@ namespace Focus_Bear.Preferences
                 {
                     Language.SelectedIndex = 1;
                 }
+
+
+                //Fonts related
+                SelectFont.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleFont"].ToString();
+                foreach(string sFont in appSettings.arrFontFamily)
+                {
+                    Fonts.Items.Add(sFont);
+                }
+                
+                Fonts.SelectionChanged -= Fonts_SelectionChanged;
+                Fonts.SelectedItem = appSettings.sSelectedAppFont;
+                Fonts.SelectionChanged += Fonts_SelectionChanged;
 
                 //creating manually as we need to pass the paterent window object
                 Uninstall control = new Uninstall(_ParentWindow);
@@ -438,6 +461,18 @@ namespace Focus_Bear.Preferences
         private void CheckSkipEveningAfterCutOff_Unchecked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireToSkipEveningAfterCutOff = false;
+        }
+
+        private void Fonts_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            appSettings.sSelectedAppFont = Fonts.SelectedItem.ToString();
+            RegistryManager.SetApplicationFont();
+            FBMessageBox msgBox = new FBMessageBox(appSettings.ConfigFileStrings["preferencesInfo"]["alertChangeLanguageInfoText"].ToString());
+            msgBox.Owner = _ParentWindow;
+            msgBox.ShowDialog();
+            appSettings.bRestartAppNeeded = true;
+            Application.Current.Shutdown(0);
+
         }
     }
 }

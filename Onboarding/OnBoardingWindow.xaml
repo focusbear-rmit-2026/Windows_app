@@ -15,7 +15,7 @@
         </Grid.Background>
         <TextBlock  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xNow let's set up an account for you." Foreground="#e88800" FontSize="40" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Frame x:Name="AppFrameOnboarding" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed" />
-        <Button   x:Name="btnPleaseSpareMe" IsDefault="False"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  MinWidth="180" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPleaseSpareMe_Click"  >
+        <Button   x:Name="btnPleaseSpareMe" IsDefault="False"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  MinWidth="180" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnPleaseSpareMe_Click"  >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal" Margin="5,2,0,0" VerticalAlignment="Center">
                     <Image Source="../Images/spare.png" Width="25" Height="25" HorizontalAlignment="Left"></Image>

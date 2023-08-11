@@ -47,7 +47,7 @@
                 <TextBlock Name="Schedule" Margin="0,50,0,0" TextWrapping="Wrap" Text="xYour schedule looks like:\n\n🐥 MORNING_ROUTINE_START_TIME - MORNING_ROUTINE_END_TIME - Morning routine\n\n💼 MORNING_ROUTINE_END_TIME - START_WORK_TIME - Prepare to start work (buffer time)\n\n💪 START_WORK_TIME - END_WORK_TIME - Work\n\n🥱 END_WORK_TIME - EVENING_ROUTINE_END_TIME - Do evening routine.\n\n😴 EVENING_ROUTINE_END_TIME - Finish evening routine - computer locked (you can unlock it if you need it)" Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
         </StackPanel>
         </Viewbox>
-        <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click">
+        <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnContinueTXT" Text="xContinue"/>

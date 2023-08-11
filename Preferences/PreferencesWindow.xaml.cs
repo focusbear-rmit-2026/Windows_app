@@ -42,6 +42,16 @@ namespace Focus_Bear.Preferences
         {
             InitializeComponent();
 
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
  
             this.Topmost = true;
@@ -134,7 +144,14 @@ namespace Focus_Bear.Preferences
             this.MinHeight = 750 * ScaleY;
             this.Width = 680 * ScaleX; 
             this.Height = 750 * ScaleY;
-            
+
+            if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.Width = 735 * ScaleX;
+                this.MinWidth = 735 * ScaleX;
+            }
+
+
             FrameSettings.Visibility = Visibility.Visible;
         }
              
@@ -152,6 +169,11 @@ namespace Focus_Bear.Preferences
             this.Width = 775 * ScaleX; 
             this.Height = 750 * ScaleY;
 
+            if(appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.Width = 835 * ScaleX;
+                this.MinWidth = 835 * ScaleX;
+            }
             
 
             FrameFocus.Visibility = Visibility.Visible;

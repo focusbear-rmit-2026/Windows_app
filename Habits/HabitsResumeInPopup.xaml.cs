@@ -32,6 +32,20 @@ namespace Focus_Bear.Habits
         {
             InitializeComponent();
 
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                {
+                    this.Height = 140;
+                }
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+
             Description.Text = appSettings.ConfigFileStrings["common"]["postponeEndsText"].ToString();
             btnPostponeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
             ShowInTaskbar = false;  

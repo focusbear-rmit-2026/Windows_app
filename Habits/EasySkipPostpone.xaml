@@ -9,19 +9,19 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="10"/>
-            <RowDefinition Height="70"/>
+            <RowDefinition Height="85"/>
             <RowDefinition Height="65"/>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="58"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="auto"/>
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <TextBlock  Grid.Row="1" Name="Heading" Margin="25,0,25,0" TextWrapping="Wrap" Text="xxOk I get it - now's not a good time. I'll try again in 5 minutes. You can postpone for longer if you need to." Foreground="#000" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
+        <TextBlock  Grid.Row="1" Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap" Text="xxOk I get it - now's not a good time. I'll try again in 5 minutes. You can postpone for longer if you need to." Foreground="#000" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
         <StackPanel  Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <ComboBox Name="ComboBoxMinutes" Width="50" Height="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">
+            <ComboBox Name="ComboBoxMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">
                 <ComboBoxItem Content="5"></ComboBoxItem>
                 <ComboBoxItem Content="10"></ComboBoxItem>
                 <ComboBoxItem Content="15"></ComboBoxItem>
@@ -37,14 +37,14 @@
         </StackPanel>
 
         <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button   x:Name="btnCancel"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Width="180" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click">
+            <Button   x:Name="btnCancel"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Width="180" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnCancelText" Margin="8" Text="xCancel"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button   x:Name="btnPostpone"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="180" Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPostpone_Click">
+            <Button   x:Name="btnPostpone"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="180" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnPostpone_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnPostponeText" Margin="8" Text="xPostpone"/>
@@ -54,7 +54,7 @@
 
            
         </StackPanel>
-        <TextBlock x:Name="DeactivateText" Grid.Row="4" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="22" Cursor="Hand">
+        <TextBlock x:Name="DeactivateText" Grid.Row="4" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
              <Hyperlink x:Name="btnDeactivate"  Foreground="#000" Click="btnDeactivate_Click"   TextDecorations="Underline" ><Run x:Name="btnDeactivateTXT" Text="xDeactivate Focus Bear for 4 hours"/></Hyperlink>
         </TextBlock>
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center"   Height="50" Visibility="Collapsed">

@@ -842,6 +842,8 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("ProceedAfterLogin");
 
+            RegistryManager.GetApplicationFont();
+
             if (!RegistryManager.GetOnboardingVideoShownStatus())
             {
                 //We also need to get the user settings to chck if the user was an old other device user and do nto show the distracting site screen

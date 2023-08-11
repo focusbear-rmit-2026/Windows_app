@@ -3267,6 +3267,8 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
+                        LogWriter.LogWrite(addItemJsonString);
+
                         client.DefaultRequestHeaders.Add("platform", "Windows");
                         client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
                         client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
@@ -3295,6 +3297,7 @@ namespace Focus_Bear.API
                         }
                         else
                         {
+                            LogWriter.LogWrite("SyncOfflineData() FAILED");
                             //Get Device ID Failed
                             if (response.Content != null)
                             {
@@ -3313,13 +3316,10 @@ namespace Focus_Bear.API
             catch (WebException ex)
             {
                 LogWriter.LogWrite("SyncOfflineData WebException" + ex.Message);
-
-                Debug.WriteLine(ex.Message);
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("SyncOfflineData Exception" + ex.Message);
-
             }
             return 0;
         }

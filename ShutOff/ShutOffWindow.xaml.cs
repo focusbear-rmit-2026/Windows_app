@@ -45,6 +45,17 @@ namespace Focus_Bear.ShutOff
         {
             InitializeComponent();
 
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+
 #if DEBUG
             this.WindowState = WindowState.Normal;
             this.WindowStyle = WindowStyle.ToolWindow;
@@ -64,10 +75,22 @@ namespace Focus_Bear.ShutOff
  
             try
             {
+                TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+
+                DateTime now = DateTime.Now;
+
+                DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+                Console.WriteLine("{0}", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+
+                DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
+                Console.WriteLine("{0}", myShutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+
+
                 Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["title"].ToString();
                 string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["subTitle"].ToString();
-                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", appSettings.sDayShutOffTime);
-                sSubTitle = sSubTitle.Replace("<STARTTIME>", appSettings.sDayStartTime);
+                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", myShutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+                sSubTitle = sSubTitle.Replace("<STARTTIME>", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
                 Description.Text = sSubTitle;
                 btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonAbortText"].ToString();
 
@@ -171,10 +194,22 @@ namespace Focus_Bear.ShutOff
 
             try
             {
+                TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+
+                DateTime now = DateTime.Now;
+
+                DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+                Console.WriteLine("{0}", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+
+                DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
+                Console.WriteLine("{0}", myShutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+
+
                 Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["title"].ToString();
                 string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["subTitle"].ToString();
-                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", appSettings.sDayShutOffTime);
-                sSubTitle = sSubTitle.Replace("<STARTTIME>", appSettings.sDayStartTime);
+                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", myShutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+                sSubTitle = sSubTitle.Replace("<STARTTIME>", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
                 Description.Text = sSubTitle;
                 btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonAbortText"].ToString();
             }

@@ -57,7 +57,7 @@
             </TextBox.FocusVisualStyle>
         </TextBox>
 
-        <Button  Grid.Row="2" x:Name="btnSave"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="24" Width="100" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSave_Click" >
+        <Button  Grid.Row="2" x:Name="btnSave"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="24" Width="100" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnSave_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnSaveTXT" Text="xSave"/>

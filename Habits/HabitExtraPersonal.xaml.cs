@@ -39,6 +39,15 @@ namespace Focus_Bear.Habits
         {
             InitializeComponent();
 
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
             _parentWindow = parentWindow;
  
            //Get the First activity name and duration to set on the Button
@@ -322,7 +331,7 @@ namespace Focus_Bear.Habits
         {
             if (e.IsSuccess)
             {
-                string Settings = string.Format("{{\"access_token\":\"{0}\"}}", appSettings.userAccount.accessToken);
+                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.sSelectedAppFont);
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForInspirationPage) {{ loadAccessTokenForInspirationPage({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                 var sReturn = webView.ExecuteScriptAsync(settingsFunc);
             }

@@ -44,7 +44,7 @@
                 </ListView>
                 <Grid Grid.Row="1" Background="LightGray" ></Grid>
                 <StackPanel Grid.Row="2" Orientation="Horizontal">
-                    <Button   x:Name="btnAddApp"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800" Height="20" Width="20" HorizontalContentAlignment="Center" Padding="0" Margin="5,2,0,1" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAddApp_Click"  >
+                    <Button   x:Name="btnAddApp"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800" Height="20" Width="20" HorizontalContentAlignment="Center" Padding="0" Margin="5,2,0,1" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddApp_Click"  >
 
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
@@ -52,7 +52,7 @@
                             </StackPanel>
                         </Button.Content>
                     </Button>
-                    <Button   x:Name="btnDeleteApp"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="20" Width="20" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="5,2,0,1" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnDeleteApp_Click" >
+                    <Button   x:Name="btnDeleteApp"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="20" Width="20" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="5,2,0,1" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnDeleteApp_Click" >
 
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
@@ -65,7 +65,7 @@
         </Border>
 
         <TextBlock Grid.Row="3"  Name="DontWorry" Margin="20,20,20,0"  TextWrapping="Wrap" Text="xDon't worry you can still use other apps if you need to but these are the apps that are most likely to be productive for you while you're doing WORK_TYPE. You can change these settings later on." Foreground="#000" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
-        <Button Grid.Row="4"  x:Name="btnContinue" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="300" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,50,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click" >
+        <Button Grid.Row="4"  x:Name="btnContinue" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="300" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,50,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnContinueTXT" Text="xContinue"/>

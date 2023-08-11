@@ -30,20 +30,20 @@
             <StackPanel  Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
                 <TextBlock  Margin="0,0,0,0" Name="TurnOffMinsText" TextWrapping="Wrap" Text="xChoose how long to turn it off for:" Foreground="#000" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-                <ComboBox Name="ComboBoxMinutes" Width="125" Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" SelectionChanged="ComboBoxMinutes_SelectionChanged" FontSize="16" >
+                <ComboBox Name="ComboBoxMinutes" Width="125" MinHeight="30" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" SelectionChanged="ComboBoxMinutes_SelectionChanged" FontSize="16" >
                      
                 </ComboBox>
 
 
             </StackPanel>
-            <Button Grid.Row="2" IsDefault="True" x:Name="btnGiveMeABreak"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnGiveMeABreak_Click"  >
+            <Button Grid.Row="2" IsDefault="True" x:Name="btnGiveMeABreak"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnGiveMeABreak_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnGiveMeABreakTXT" Text="xGive me a break for 4hrs"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button Grid.Row="3" IsDefault="True" x:Name="btnTurnOfCompletely"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnTurnOfCompletely_Click"  >
+            <Button Grid.Row="3" IsDefault="True" x:Name="btnTurnOfCompletely"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold"  Click="btnTurnOfCompletely_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnTurnOfCompletelyTXT" Text="xTurn it off completely - I'll turn it back on when I'm ready"/>
@@ -55,7 +55,7 @@
 
         <Grid Grid.Row="1"  x:Name="GridSureToQuit" Visibility="Collapsed">
             <Grid.RowDefinitions>
-                <RowDefinition Height="70" />
+                <RowDefinition Height="80" />
                 <RowDefinition Height="90"  />
                 <RowDefinition Height="Auto" MinHeight="110" />
                 <RowDefinition Height="40" />
@@ -67,7 +67,7 @@
             <TextBlock   Grid.Row="2"  Name="WhileYouWait" Margin="50,0,50,0" TextWrapping="Wrap" Text="xWhile you wait, reflect on why you're doing this. If it was because your morning routine was too ambitious, perhaps scale it back to only be a few minutes long so that it's easier to do it than not do it. If you're deactivating because the app is broken, really sorry!!" Foreground="#000" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             <TextBlock   Grid.Row="3"  Name="PleaseEmail" Margin="50,0,50,0" TextWrapping="Wrap" Text="xPlease email" Foreground="#000" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <Button Grid.Row="4" IsDefault="True" x:Name="btnLetMeDoMyHabits"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnLetMeDoMyHabits_Click"  >
+            <Button Grid.Row="4" IsDefault="True" x:Name="btnLetMeDoMyHabits"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnLetMeDoMyHabits_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnLetMeDoMyHabitsTXT" Text="xI didn't mean it. Let me do my habits!"/>
@@ -85,7 +85,7 @@
 
             </Grid.RowDefinitions>
             <TextBlock   Grid.Row="0"  Name="ShareWhyQuit" Margin="50,0,50,0" TextWrapping="Wrap" Text="xCan you share why you're quitting?" Foreground="#000" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <ComboBox  Grid.Row="1" Name="ComboBoxReason" Width="350" Height="30" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,0,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxReason_SelectionChanged">
+            <ComboBox  Grid.Row="1" Name="ComboBoxReason" Width="350" MinHeight="30" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,0,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxReason_SelectionChanged">
             </ComboBox>
             <TextBlock   Grid.Row="2"  Name="ReasonTitle" Margin="0,0,0,0" TextWrapping="Wrap" Text="xCan you tell us why you want to stop getting habit + break notifications?﹡" Foreground="#000" FontSize="19" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
             
@@ -111,7 +111,7 @@
             </TextBox>
            
 
-            <Button Grid.Row="4" IsDefault="True" x:Name="btnQuit"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnQuit_Click" >
+            <Button Grid.Row="4" IsDefault="True" x:Name="btnQuit"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold"  Click="btnQuit_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnQuitTXT" Text="xQuit"/>

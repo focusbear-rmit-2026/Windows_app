@@ -47,7 +47,7 @@
             <Button x:Name="Dot2" Width="13" Height="13"  Margin="0,0,5,0" Style="{StaticResource BtnStyleEllipseSmall}" IsEnabled="False" />
             <Button x:Name="Dot3" Width="13" Height="13"  Margin="0,0,5,0" Style="{StaticResource BtnStyleEllipseSmall}" IsEnabled="False" />
         </StackPanel>
-        <Button Grid.Row="2" x:Name="btnBack"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="30" Width="133" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="15" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnBack_Click" Visibility="Collapsed">
+        <Button Grid.Row="2" x:Name="btnBack"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="30" Width="133" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnBack_Click" Visibility="Collapsed">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnBackTXT" Text="xBack"/>
@@ -55,7 +55,7 @@
             </Button.Content>
         </Button>
 
-        <Button Grid.Row="2" x:Name="btnNext"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="30" Width="133" HorizontalAlignment="Right" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="15" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnNext_Click" >
+        <Button Grid.Row="2" x:Name="btnNext"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="30" Width="133" HorizontalAlignment="Right" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnNext_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnNextTXT" Text="xNext"/>

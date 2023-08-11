@@ -32,6 +32,16 @@ namespace Focus_Bear.Onboarding.AfterLogin
             InitializeComponent();
 
             LogWriter.LogWrite("OnboardingSetupFocusTips screen");
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
             _parentWindow = parentWindow;
 
             try

@@ -26,10 +26,27 @@ namespace Focus_Bear.Preferences
         {
             InitializeComponent();
 
-            Heading.Text = appSettings.ConfigFileStrings["enterPasswordViewInfo"]["title"].ToString();
-            btnOKTXT.Text = appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString();
-            btnCancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
-            TxtPassword.Focus();
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+            try
+            {
+                Heading.Text = appSettings.ConfigFileStrings["enterPasswordViewInfo"]["title"].ToString();
+                btnOKTXT.Text = appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString();
+                btnCancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
+                TxtPassword.Focus();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AskPassword() ex + " + ex.Message);
+            }
+
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)

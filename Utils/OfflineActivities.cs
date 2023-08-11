@@ -44,6 +44,8 @@ namespace Focus_Bear.Utils
 
                             if (sOfflineData.Count > 0)
                             {
+                                LogWriter.LogWrite("ProcessOfflineData() - Offline Data Found to be processed");
+
                                 while (sOfflineData.Count > 0)
                                 {
                                     var firstFiftyItems = sOfflineData.Take(nBatchCount).ToList();

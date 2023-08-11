@@ -61,7 +61,7 @@
 
         </Border>
 
-        <Button Grid.Row="4"  x:Name="btnPausePlay"   Style="{StaticResource BtnStylePlay}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="40" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPausePlay_Click" >
+        <Button Grid.Row="4"  x:Name="btnPausePlay"   Style="{StaticResource BtnStylePlay}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="40" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnPausePlay_Click" >
             <Button.Effect>
                 <DropShadowEffect ShadowDepth="3"
                           Direction="320"

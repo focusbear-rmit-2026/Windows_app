@@ -36,6 +36,20 @@ namespace Focus_Bear.Focus
         {
             InitializeComponent();
 
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                {
+                    this.Height = 141;
+                }
+            }
+            else
+            {
+                this.Height = 121;
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
             try
             {
                 Description.Text = appSettings.ConfigFileStrings["common"]["focusBreakNotificationTitle"].ToString();

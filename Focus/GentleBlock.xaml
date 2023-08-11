@@ -5,40 +5,40 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="500" Width="360" ResizeMode="NoResize">
-    <Grid>
+        Title="Focus Bear" MinHeight="500" Height="auto" Width="360" ResizeMode="NoResize">
+    <Grid x:Name="MainGrid">
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center" />
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="90" />
-            <RowDefinition Height="110" />
+            <RowDefinition Height="160" />
             <RowDefinition Height="90" />
             <RowDefinition Height="40" />
             <RowDefinition Height="180" />
         </Grid.RowDefinitions>
 
         <Image Name="TopIcon" Grid.Column="0"  Margin="0,0,0,10" Height="64" Width="64" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1" Name="Heading" MinHeight="50" Margin="10,0,10,0" TextWrapping="Wrap" Text="xDo you need to use URL when you're focusing on FOCUSTYPE ?:" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+        <TextBlock  Grid.Row="1" Name="Heading"  Margin="10,0,10,0" TextWrapping="Wrap" Text="xDo you need to use URL when you're focusing on FOCUSTYPE ?:" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
         <TextBlock  Grid.Row="2" Name="Intention" Margin="10,10,10,10" TextWrapping="Wrap" Text="xYour intention was:" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
 
         <TextBlock Grid.Row="3" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="00:15" Foreground="#000" Padding="0" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center"  VerticalAlignment="Center" />
         <StackPanel Grid.Row="4" Orientation="Vertical" Margin="0,0,0,50">
-            <Button  x:Name="btnJustThisTime"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnJustThisTime_Click">
+            <Button  x:Name="btnJustThisTime"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnJustThisTime_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnJustThisTimeText" Margin="1" Text="xYes, Just this time"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button   x:Name="btnGettingDistracted"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnGettingDistracted_Click">
+            <Button   x:Name="btnGettingDistracted"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnGettingDistracted_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnGettingDistractedText" Margin="1" Text="xNo - I was getting distracted"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button   x:Name="btnSaveForRelax"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSaveForRelax_Click">
+            <Button   x:Name="btnSaveForRelax"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSaveForRelax_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnSaveForRelaxText" Margin="1" Text="xBlock and save for Relax mode"/>

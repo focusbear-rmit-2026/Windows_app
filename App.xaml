@@ -4,8 +4,8 @@
              xmlns:local="clr-namespace:Focus_Bear"
              Startup="Application_Startup" Exit="Application_Exit">
     <Application.Resources>
-        
-        
+
+    
         <!--Preferences top tab Button-->
         <Style x:Key="BtnStylePreferences" TargetType="{x:Type Button}">
             <Setter Property="Template">

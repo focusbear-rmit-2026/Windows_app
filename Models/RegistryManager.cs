@@ -1775,6 +1775,40 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static bool GetApplicationFont()
+        {
+
+            try
+            {
+                var regData = ReadStr("APPFONT");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.sSelectedAppFont = regData.ToString();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetApplicationFont() - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetApplicationFont()
+        {
+            try
+            {
+                Write("APPFONT", appSettings.sSelectedAppFont);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetApplicationFont - " + ex.Message);
+            }
+        }
+
+
     }
 
 

@@ -38,30 +38,18 @@ namespace Focus_Bear.Preferences
         public FocusPage(PreferencesWindow pp)
         {
             InitializeComponent();
-            _ParentWindow = pp;
-            /*
-               "focusPreferencesInfo":{
-        "titleFocusType":"Focus Type:",
-        "titleAllowedAllApps":"Allow all apps",
-        "titleAllowedSelectedApps":"Allow selected apps",
-        "titleAllowedAllUrls":"Allow all urls",
-        "titleAllowedSelectedUrls":"Allow selected urls (works with Safari and Chrome only)",
-        "noFocusAddedText":"Please add a Focus Type in left panel.",
-        "deleteFocusTypeMessageText":"Are you sure you want to delete the selected Focus type?",
-        "yesText":"Yes",
-        "noText":"No",
 
-                    "titleBlockedAllUrls":"Block all urls",
-        "titleBlockedSelectedUrls":"Block selected urls (works with Safari and Chrome only)",
-        "titleAllowUrlListApproch":"Block everything except safe sites that I choose",
-        "titleBlockUrlListApproch":"Allow everything except certain distracting sites",
-        "allowUrlsQuestionText":"How do you want to allow URLs?",
-        "blockUrlsQuestionText":"How do you want to block URLs?"
-            "duplicateText":"Duplicate",
-            "buttonDeleteFocusTypeText":"Delete",,
-                   "buttonAdvancedText":"Advanced",
-                         "buttonAddFocusTypeText":"Add Focus Mode",
-        */
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+            _ParentWindow = pp;
+            
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleFocusType"].ToString();
@@ -84,7 +72,7 @@ namespace Focus_Bear.Preferences
 
             ListFocusModes.ItemsSource = appSettings.arrFocusModes;
 
-            ListFocusModes.SelectedIndex = 0;// ListFocusModes.FirstOrDefault(); ;
+            ListFocusModes.SelectedIndex = 0;
         }
 
         private void btnDeleteFocusMode_Click(object sender, RoutedEventArgs e)

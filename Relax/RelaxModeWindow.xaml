@@ -32,7 +32,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Button Grid.Row="2"  x:Name="btnDeleteURLs"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Padding="0" Margin="17,0,0,2" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnDeleteURLs_Click" >
+        <Button Grid.Row="2"  x:Name="btnDeleteURLs"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Padding="0" Margin="17,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnDeleteURLs_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <Image Name="btnDeleteURLsIMG" Height="18"  Width="18" Source="../Images/minus.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
@@ -41,7 +41,7 @@
         </Button>
         <Grid Grid.Row="3" Background="LightGray" ></Grid>
         <TextBlock Grid.Row="4"  Name="TimeRemaining" Margin="0,0,0,0"   TextWrapping="Wrap" Text="xxTime Remaining: 22.22" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Center"/>
-        <Button  Grid.Row="5" x:Name="btnMovetoNext"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" MinWidth="100" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10"  FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnMovetoNext_Click" >
+        <Button  Grid.Row="5" x:Name="btnMovetoNext"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" MinWidth="100" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10"  FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnMovetoNext_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnMovetoNextTXT" Text="xI'm done! Move to next activity" Margin="10,0"/>

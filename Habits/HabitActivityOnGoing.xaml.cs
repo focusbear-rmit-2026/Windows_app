@@ -12,6 +12,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -52,6 +54,16 @@ namespace Focus_Bear.Habits
         public HabitActivityOnGoing(HabitWindow parentWindow, bool bStartingAfterPostponed) : this()
         {
             InitializeComponent();
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
 
             SetWebView();
 
@@ -741,8 +753,14 @@ namespace Focus_Bear.Habits
                 }
 
             }
-
             nTimer = 0;
+            //WE need to check if the timer is not running, we will play it
+            if (!bTimerRunning) //Pause mode
+            {
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnPausePlay);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
         }
         public void SetTimerToZeroToFinish()
         {
