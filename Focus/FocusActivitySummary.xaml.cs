@@ -76,6 +76,15 @@ namespace Focus_Bear.Focus
 
             LogWriter.LogWrite("FocusActivitySummary() window Initating");
 
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
             try
             {
                 this.Topmost = true;
@@ -261,6 +270,7 @@ namespace Focus_Bear.Focus
                 bNeedMoreTime = true;
                 ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
                 Show();
+                appSettings.bFocusSummaryPostponedState = false;
             }
             catch (Exception ex)
             {
@@ -269,7 +279,7 @@ namespace Focus_Bear.Focus
 
         }
 
-        public void PostponeOnboarding(int nMinutesToPostpone)
+        public void PostponeFocusSummary(int nMinutesToPostpone)
         {
             //Hide this window, Set a timer for x nMinutesToPostpone and Hide the window and reappear again
  
@@ -278,6 +288,8 @@ namespace Focus_Bear.Focus
 #else
              dispatcherTimer.Interval = new TimeSpan(0, nMinutesToPostpone, 0);
 #endif
+            appSettings.bFocusSummaryPostponedState = true;
+
             dispatcherTimer.Start();
 
             Hide();
@@ -286,6 +298,13 @@ namespace Focus_Bear.Focus
             CommandManager.InvalidateRequerySuggested();
         }
 
+        public void ResumeFocusSummary()
+        {
+            dispatcherTimer.Stop(); //Tick Once Only
+            ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
+            Show();
+            appSettings.bFocusSummaryPostponedState = false;
+        }
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
 

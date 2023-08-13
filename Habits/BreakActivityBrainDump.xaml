@@ -44,7 +44,7 @@
                 </Style>
             </TextBox.FocusVisualStyle>
         </TextBox>
-        <Button Grid.Row="4" IsDefault="True" x:Name="btnStartBreak"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" VerticalAlignment="Top" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStartBreak_Click" >
+        <Button Grid.Row="4" IsDefault="True" x:Name="btnStartBreak"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" VerticalAlignment="Top" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStartBreak_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                     <TextBlock x:Name="btnStartBreakTXT" Text="xstart Break"/>

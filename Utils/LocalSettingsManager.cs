@@ -15,65 +15,14 @@ namespace Focus_Bear.Utils
         static AppSettings appSettings = AppSettings.GetInstance;
         public static void PutLocalSettings()
         {
-            //Right now we are just changing the ALways blocked URLs
-            //so Let's get the settings that we saved, and update blocked URLS
+            if(!RegistryManager.GetHasEditedBlockedURLs())
+            {
+                if (appSettings.bHasEditedBlockedURLs)
+                    RegistryManager.SetHasEditedBlockedURLs();
+            }
+           
             string sJson = appSettings.sUserLocalDeviceSettings;
-            /*{
-
-            "MacOS":{
-              "kIsEasySkipEnabled":false,
-               "kIsMeetingDetectionEnabled":false,
-               "kHardcorePomodoroEnabled":false,
-                "kIsOfficeModeEnabled":true,
-                "kIsReducedMotion":false,
-                "kPomodoroDurationMinutes":25,
-                "kHardcorePomodoroArrDays":[
-
-              ],
-
-              "kIsPasswordRequireInSkipMorning":true,
-                "kBreakDurationMinutes":5,
-              "kPomodoroModeEnabled":true,
-              "kIsPasswordRequireInChangeSettings":true,
-              "kIsPasswordRequireInStopPomodoro":true,
-            "kIsPasswordRequireInAbortShutoff":true,
-             "kHardcorePomodoroFocusedCount":0,
-              "kIsPasswordRequireInSkipEvening":true,
-              "kIsPromptToRememberHabit":true,
-              "kArrBlockedUrls":[
-                 "facebook.com",
-                 "twitter.com",
-                 "instagram.com",
-                 "tiktok.com",
-                 "bbc.com",
-                 "cnn.com"
-              ],
-              "kHardcorePomodoroFocusedName":"Diseño gráfico Trabajo",
-              "kHideAllWindowInScreenShots":false,
-              "kCuddlyModeEnabled":true,
-              "kIsPasswordRequireInQuitApp":true,
-              "kHardcorePomodoroSkipMicroBreaks":false
-
-             let kIsPasswordRequireInChangeSettings = "kIsPasswordRequireInChangeSettings"
-        let kIsPasswordRequireInSkipMorning = "kIsPasswordRequireInSkipMorning"
-        let kIsPasswordRequireInSkipEvening = "kIsPasswordRequireInSkipEvening"
-        let kIsPasswordRequireInAbortShutoff = "kIsPasswordRequireInAbortShutoff"
-        let kIsPasswordRequireInStopPomodoro = "kIsPasswordRequireInStopPomodoro"
-        let kIsPasswordRequireInQuitApp = "kIsPasswordRequireInQuitApp"
-           },
-
-           "Windows":{
-           },
-
-           "Android":{
-            },
-
-           "iOS":{
-           },
-           "Web":{
-              "hasEditedSettings":false
-           }
-        }            */
+            
 
             if (appSettings.sUserLocalDeviceSettings.Length > 0 && appSettings.sUserLocalDeviceSettings != null)
             {
@@ -190,6 +139,28 @@ namespace Focus_Bear.Utils
                                 sMacOSSettingsOBJ.Add("kIsPasswordRequireInQuitApp", appSettings.bPasswordRequireInQuitApp);
                             }
 
+                            if (sMacOSSettingsOBJ.ContainsKey("kUserdefaultsPasswordRequireInUseRelaxFocusMode"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kUserdefaultsPasswordRequireInUseRelaxFocusMode"); //Remove  
+                                                                                         //Add new  
+                                sMacOSSettingsOBJ.Add("kUserdefaultsPasswordRequireInUseRelaxFocusMode", appSettings.bPasswordRequireToUseRelaxFocusMode);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kUserdefaultsPasswordRequireInUseRelaxFocusMode", appSettings.bPasswordRequireToUseRelaxFocusMode);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipEveningAfterCutOff"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsPasswordRequireInSkipEveningAfterCutOff"); //Remove  
+                                                                                         //Add new  
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInSkipEveningAfterCutOff", appSettings.bPasswordRequireToSkipEveningAfterCutOff);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInSkipEveningAfterCutOff", appSettings.bPasswordRequireToSkipEveningAfterCutOff);
+                            }
+
                             //AI Tab settings
                             if (sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled"))
                             {
@@ -224,6 +195,17 @@ namespace Focus_Bear.Utils
                                 sMacOSSettingsOBJ.Add("kAiAllowUrlShowAlertEnabled", appSettings.bAiAllowUrlShowAlertEnabled);
                             }
 
+                            if (sMacOSSettingsOBJ.ContainsKey("has_edited_blocked_urls"))
+                            {
+                                sMacOSSettingsOBJ.Remove("has_edited_blocked_urls"); //Remove  
+                                                                                         //Add new  
+                                sMacOSSettingsOBJ.Add("has_edited_blocked_urls", appSettings.bHasEditedBlockedURLs);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("has_edited_blocked_urls", appSettings.bHasEditedBlockedURLs);
+                            }
+                            
 
                             //Now remove macOS from local and add updated one
                             LocalSettings.Remove("MacOS");

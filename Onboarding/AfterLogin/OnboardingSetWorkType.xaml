@@ -22,9 +22,9 @@
         <StackPanel  Grid.Row="0"  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock    Name="TypeOfWork" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWhat type of work do you mainly do?." Foreground="#272727" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
             <TextBlock    Name="Customize" Margin="0,15,0,0" TextWrapping="Wrap" Text="xWe'll customise your focus mode depending on type of work you do." Foreground="#272727" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-            <ComboBox Name="ComboBoxWorkType"  Grid.Row="2" Width="200" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,30,0,0"   FontSize="15"   SelectionChanged="ComboBoxWorkType_SelectionChanged">
+            <ComboBox Name="ComboBoxWorkType"  Grid.Row="2" Width="200" MinHeight="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,30,0,0"   FontSize="15"   SelectionChanged="ComboBoxWorkType_SelectionChanged">
             </ComboBox>
-            <TextBox    Height="30" x:Name="TxtSomethingElse" MaxLength="250" Margin="0,30,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" Width="341" Visibility="Collapsed" TextChanged="TxtSomethingElse_TextChanged">
+            <TextBox    MinHeight="30" x:Name="TxtSomethingElse" MaxLength="250" Margin="0,30,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" Width="341" Visibility="Collapsed" TextChanged="TxtSomethingElse_TextChanged">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -46,7 +46,7 @@
             <Label Name="MaxChars" HorizontalAlignment="Center" Visibility="Collapsed">xMax 25 Characters</Label>
         </StackPanel>
         <TextBlock Grid.Row="1"   Name="SetupFocusMode" Margin="20,0,20,0" TextWrapping="Wrap" Text="xGot it. Let's set up a Focus Mode to help you be super productive while you're doing WORK_TYPE." Foreground="#272727" FontSize="18" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
-        <Button Grid.Row="2"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="300" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,30,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click" >
+        <Button Grid.Row="2"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="300" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,30,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnContinueTXT" Text="xContinue"/>

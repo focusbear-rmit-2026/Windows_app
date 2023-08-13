@@ -113,7 +113,7 @@ namespace Focus_Bear.Preferences
                     {
                         LogWriter.LogWrite("attempt to LoadSettings()");
                        
-                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\"}}", appSettings.userAccount.accessToken);
+                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.sSelectedAppFont);
                         
                         string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                         var ss1 =  webView.ExecuteScriptAsync(settingsFunc);

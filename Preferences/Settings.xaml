@@ -71,16 +71,18 @@
                             <Grid Grid.Column="0" Margin="0,50,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="27"/>
+                                    <RowDefinition MinHeight="27"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0"   Name="SelectLanguage" Margin="0,2,15,0"  TextWrapping="Wrap"    Text="xxSelect Language:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
+                                <TextBlock Grid.Row="0"   Name="SelectFont" Margin="0,2,15,0"  TextWrapping="Wrap"    Text="xApplication Font:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
+                                <TextBlock Grid.Row="1"   Name="SelectLanguage" Margin="0,20,15,0"  TextWrapping="Wrap"    Text="xxSelect Language:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
                             </Grid>
                             <Grid Grid.Column="1" Margin="0,50,20,0">
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="27"/>
+                                    <RowDefinition MinHeight="27"/>
+                                    <RowDefinition MinHeight="27"/>
                                 </Grid.RowDefinitions>
-
-                                <ComboBox Name="Language" Width="200" HorizontalAlignment="Left" Margin="20,0,0,0" SelectionChanged="Language_SelectionChanged"></ComboBox>
-                               
+                                <ComboBox  Grid.Row="0"  Name="Fonts" Width="200" HorizontalAlignment="Left" Margin="20,0,0,0" SelectionChanged="Fonts_SelectionChanged"></ComboBox>
+                                <ComboBox  Grid.Row="1" Name="Language" Width="200" HorizontalAlignment="Left" Margin="20,20,0,0" SelectionChanged="Language_SelectionChanged"></ComboBox>
                             </Grid>
 
                         </Grid>
@@ -107,7 +109,7 @@
                         <TextBlock Grid.Row="1"   Name="PasswordDesc" Margin="20,0,20,0"  TextWrapping="Wrap"      Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"  >
                             If you're struggling to stick to your habits, get a housemate/partner to set a password. You won't be able to skip habits without the password.
                         </TextBlock>
-                        <TextBlock  Grid.Row="2"  Width="300"  Name="lblPassword" Margin="0,20,0,0" TextWrapping="NoWrap" Text="xNew Password:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock  Grid.Row="2"  Width="300"  Name="lblPassword" Margin="0,15,0,0" TextWrapping="NoWrap" Text="xNew Password:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
                         <Grid  Grid.Row="3" Width="300" VerticalAlignment="Center">
 
                             <PasswordBox Width="230" TabIndex="2" x:Name="TxtPassword" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="14"  PasswordChanged="TxtPassword_PasswordChanged"    >
@@ -127,7 +129,7 @@
 
                         </Grid>
 
-                        <TextBlock  Grid.Row="4"  Width="300"  Name="lblConfirmPassword" Margin="0,20,0,0" TextWrapping="Wrap" Text="xConfirm Password:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock  Grid.Row="4"  Width="300"  Name="lblConfirmPassword" Margin="0,15,0,0" TextWrapping="Wrap" Text="xConfirm Password:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
                         <Grid  Grid.Row="5" Width="300" VerticalAlignment="Center">
                             <PasswordBox Width="230" TabIndex="3" x:Name="TxtConfirmPassword" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"   BorderThickness="1" FontSize="14"  PasswordChanged="TxtConfirmPassword_PasswordChanged"  >
                                 <PasswordBox.Effect>
@@ -151,7 +153,7 @@
 
                         </Grid>
 
-                        <Button  Grid.Row="6" x:Name="btnSetPassword"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="27" Width="180" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="14" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSetPassword_Click" >
+                        <Button  Grid.Row="6" x:Name="btnSetPassword"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   MinHeight="27" Width="180" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSetPassword_Click" >
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
                                     <TextBlock x:Name="btnSetPasswordTXT" Text="xSet Password"/>
@@ -159,13 +161,13 @@
                             </Button.Content>
                         </Button>
 
-                        <TextBlock Grid.Row="7" x:Name="DisablePassword" Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" Height="22" Cursor="Hand">
+                        <TextBlock Grid.Row="7" x:Name="DisablePassword" Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" MinHeight="22" Cursor="Hand">
                              <Hyperlink x:Name="btnDisablePassword"  Foreground="#000" Click="btnDisablePassword_Click"   TextDecorations="Underline" ><Run x:Name="btnDisablePasswordTXT" Text="xDisable Password"/></Hyperlink>
                         </TextBlock>
 
-                        <Grid Grid.Row="8" Margin="0,10,0,0" >
+                        <Grid Grid.Row="8" Margin="0,5,0,0" >
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="235"/>
+                                <ColumnDefinition Width="185"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Grid Grid.Column="0" Margin="0,0,0,0">
@@ -179,16 +181,18 @@
                             <Grid Grid.Column="1" Margin="0,0,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="27"/>
-                                    <RowDefinition Height="15"/>
-                                    <RowDefinition Height="125"/>
+                                    <RowDefinition Height="1"/>
+                                    <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0"   Name="WhenRequire" Margin="20,0,0,0"  TextWrapping="Wrap"    Text="xWhen do you want to require a password?"  Foreground="Black" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
-                                <StackPanel  Grid.Row="1"  Orientation="Vertical" Width="340" Margin="20,0,0,0" Grid.RowSpan="2" HorizontalAlignment="Left">
+                                <StackPanel  Grid.Row="2"  Orientation="Vertical"   Margin="20,0,0,0" Grid.RowSpan="2" HorizontalAlignment="Left">
                                     <CheckBox Margin="0,10,0,10" x:Name="CheckChangingSettings" FontSize="14" Checked="CheckChangingSettings_Checked" Unchecked="CheckChangingSettings_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xChanging Settings</CheckBox>
                                     <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingMorningRoutine" FontSize="14" Checked="CheckPostponingMorningRoutine_Checked"  Unchecked="CheckPostponingMorningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping morning routine</CheckBox>
                                     <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingEveningRoutine" FontSize="14" Checked="CheckPostponingEveningRoutine_Checked"  Unchecked="CheckPostponingEveningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping evening routine</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckSkipEveningAfterCutOff" FontSize="14" Checked="CheckSkipEveningAfterCutOff_Checked" Unchecked="CheckSkipEveningAfterCutOff_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/Skipping evening routine after cutoff time</CheckBox>
                                     <CheckBox  Margin="0,0,0,10" x:Name="CheckUsingComputerLateNight" FontSize="14" Checked="CheckUsingComputerLateNight_Checked"  Unchecked="CheckUsingComputerLateNight_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xUsing your computer late at night</CheckBox>
                                     <CheckBox  Margin="0,0,0,10" x:Name="CheckQuittingApp" FontSize="14" Checked="CheckQuittingApp_Checked" Unchecked="CheckQuittingApp_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xQuitting app</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckUseRelaxMode" FontSize="14" Checked="CheckUseRelaxMode_Checked" Unchecked="CheckUseRelaxMode_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xAllow using relax focus mode</CheckBox>
                                 </StackPanel>
                             </Grid>
                         </Grid>
@@ -211,14 +215,14 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal"  >
-            <Button  x:Name="btnExportStatistics"   Margin="20,0,0,0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnExportStatistics_Click" >
+            <Button  x:Name="btnExportStatistics"   Margin="20,0,0,0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnExportStatistics_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnExportStatisticsTXT" Text="xExport Statistics"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  x:Name="btnCheckForUpdates" Margin="15,0,0,0"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCheckForUpdates_Click" >
+            <Button  x:Name="btnCheckForUpdates" Margin="15,0,0,0"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCheckForUpdates_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnCheckForUpdatesTXT" Text="xCheck for Updates"/>

@@ -72,7 +72,7 @@
                 </PasswordBox.FocusVisualStyle>
             </PasswordBox>
 
-            <Button TabIndex="2"  x:Name="btnSignIn"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,47,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnSignIn_Click" IsDefault="True" >
+            <Button TabIndex="2"  x:Name="btnSignIn"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,47,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnSignIn_Click" IsDefault="True" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnSignInText"  Text="xSign In"/>
@@ -84,7 +84,7 @@
                 <Hyperlink x:Name="btnForgetPassword"  Foreground="#000" Click="btnForgetPassword_Click"   TextDecorations="Underline" ><Run x:Name="ForgetPasswordTXT" Text="xForgot Password"/></Hyperlink>
             </TextBlock>
             
-            <Button TabIndex="3"  x:Name="btnCreatAccount"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCreatAccount_Click" >
+            <Button TabIndex="3"  x:Name="btnCreatAccount"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreatAccount_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnCreateAccountText" Text="xCreate an account"/>

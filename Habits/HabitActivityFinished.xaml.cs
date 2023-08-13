@@ -53,6 +53,17 @@ namespace Focus_Bear.Habits
         public HabitActivityFinished(HabitWindow parentWindow) : this()
         {
             InitializeComponent();
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView1.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted1;
 
@@ -114,9 +125,6 @@ namespace Focus_Bear.Habits
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
-                    string curDir = Directory.GetCurrentDirectory() + "\\Graph";
-                    webView.CoreWebView2.SetVirtualHostNameToFolderMapping("focusbear", curDir, CoreWebView2HostResourceAccessKind.Allow);
-
                     bWebViewInitialized = true;
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -141,7 +149,7 @@ namespace Focus_Bear.Habits
                 }
                 catch (Exception ex)
                 {
-                    LogWriter.LogWrite("Activity Finished CoreWebView2InitializationCompleted()" + ex.Message);
+                    LogWriter.LogWrite("Activity Finished CoreWebView2InitializationCompleted() ex - " + ex.Message);
                 }
             }
         }
@@ -160,9 +168,6 @@ namespace Focus_Bear.Habits
                     webView1.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView1.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
-                    string curDir = Directory.GetCurrentDirectory() + "\\Graph";
-                    webView1.CoreWebView2.SetVirtualHostNameToFolderMapping("focusbear", curDir, CoreWebView2HostResourceAccessKind.Allow);
-
                     bWebView2Initialized = true;
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -179,7 +184,7 @@ namespace Focus_Bear.Habits
                 }
                 catch (Exception ex)
                 {
-                    LogWriter.LogWrite("Activity Finished CoreWebView2InitializationCompleted1()" + ex.Message);
+                    LogWriter.LogWrite("Activity Finished CoreWebView2InitializationCompleted1() ex - " + ex.Message);
                 }
             }
         }
@@ -191,7 +196,26 @@ namespace Focus_Bear.Habits
         public void LoadData(bool bSkipCurrentActivity = false)
         {
             LogWriter.LogWrite("ActivityFinished LoadData()");
-            
+
+            //Placing an special check here
+            //in any case if the habit index exceeds the array count, we will close the habit window and make state none. Rest will be handled.
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+            {
+                if(appSettings.nHabitIndex > appSettings.arrAllMorningHabits.Count())
+                {
+                    LogWriter.LogWrite("ActivityFinished LoadData() appSettings.nHabitIndex > appSettings.arrAllMorningHabits.Count() MAKE NONE");
+                    _parentWindow.HideFrameAndClose();
+                }
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            {
+                if (appSettings.nHabitIndex > appSettings.arrAllEveningHabits.Count())
+                {
+                    LogWriter.LogWrite("ActivityFinished LoadData() appSettings.nHabitIndex > appSettings.arrAllEveningHabits.Count() MAKE NONE");
+                    _parentWindow.HideFrameAndClose();
+                }
+            }
+
             try
             {
                 bBreakActivitiesFinished = false;
@@ -337,8 +361,33 @@ namespace Focus_Bear.Habits
                     sTotal = appSettings.SecondsToText(totalSecondsAllHabits);
                     sCompleted = appSettings.SecondsToText(habitCompletedSeconds);
                     sRemaining = appSettings.SecondsToText(totalSecondsAllHabits - habitCompletedSeconds);
+                    ///
+                    bool isSequenceFinished = false;
+                    int newHabitIndex = appSettings.nHabitIndex + 1;
 
-                    if (appSettings.arrAllEveningHabits.Count == (appSettings.nHabitIndex + 1)) //Last Activity
+                    if (appSettings.nHabitIndex < appSettings.arrAllEveningHabits.Count - 1)
+                    {
+                        if (appSettings.DidCutOffTimePassed())
+                        {
+                            while (!appSettings.arrAllEveningHabits[newHabitIndex].bHighPriorityActivity)
+                            {
+                                newHabitIndex = newHabitIndex + 1;
+
+                                if (newHabitIndex > appSettings.arrAllEveningHabits.Count - 1)
+                                {
+                                    isSequenceFinished = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        isSequenceFinished = true;
+                    }
+                    
+                    ///
+                    if (isSequenceFinished) //Last Activity
                     {
                         bLastActivity = true;
                         appSettings.CapturePostHog("complete-evening-routine");
@@ -353,6 +402,9 @@ namespace Focus_Bear.Habits
                             sHeading = appSettings.ConfigFileStrings["activityInfo"]["lastActivityFinishedText"].ToString();
                         }
 
+
+                        sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name);
+
                         sButtonTitle = appSettings.ConfigFileStrings["common"]["wrapupButtonText"].ToString();
 
                         //Hide the skip this habit button on last activity
@@ -362,6 +414,9 @@ namespace Focus_Bear.Habits
                         string sProgressLast = appSettings.ConfigFileStrings["activityInfo"]["habitsCompleteText"].ToString();
                         sProgressLast = sProgressLast.Replace("<duration>", sTotal);
                         sTextCompletedDuration.Text = sProgressLast;
+
+                        appSettings.nHabitIndex = newHabitIndex - 1; //assign the new habit index to our main habit index less 1 as it will be increased on action button click
+                        LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
 
                         //If its the last activity of evening habits,. we need a 30 seconds timer to wrap up automatically
                         sTextTimerWrapUp.Text = "00:30";
@@ -376,8 +431,7 @@ namespace Focus_Bear.Habits
                     else
                     {
                         appSettings.CapturePostHog("complete-evening-routine-activity");
-
-
+                        
                         if (appSettings.bSkipCurrentActivityCantDoItToday || appSettings.bShowActivitiesFromMidLastSkipped)
                         {
                             appSettings.bShowActivitiesFromMidLastSkipped = false;
@@ -388,17 +442,19 @@ namespace Focus_Bear.Habits
                             sHeading = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
                         }
 
-                        if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].useTimer)
+                        sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name);
+
+                        if (appSettings.arrAllEveningHabits[newHabitIndex].useTimer)
                         {
 
                             sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].name);
-                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].durationSeconds));
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[newHabitIndex].name);
+                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllEveningHabits[newHabitIndex].durationSeconds));
                         }
                         else
                         {
                             sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
-                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex + 1].name);
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[newHabitIndex].name);
                         }
 
                         string sProgress = appSettings.ConfigFileStrings["activityInfo"]["habitsProgressText"].ToString();
@@ -407,10 +463,11 @@ namespace Focus_Bear.Habits
 
                         sTextCompletedDuration.Text = sProgress;
 
+                        appSettings.nHabitIndex = newHabitIndex - 1; //assign the new habit index to our main habit index less 1 as it will be increased on action button click
+                        LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
+
                         Sounds.PlayHabitFinishedSound();
                     }
-
-                    sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name);
 
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -613,14 +670,14 @@ namespace Focus_Bear.Habits
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("ActivityFinished LoadData() - " + ex.Message);
+                LogWriter.LogWrite("ActivityFinished LoadData() EX - " + ex.Message);
             }
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer -= 10;
+            int val = nTimer -= 2;
 #else
             int val = nTimer--;
 #endif
@@ -1333,6 +1390,17 @@ namespace Focus_Bear.Habits
                     DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
                     Console.WriteLine("{0}", myShutOffTime.ToString());
 
+                    //Precaution checking the start time shutof time if after 12:00
+                    TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                    DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+                    Console.WriteLine("{0}", myStartTime.ToString());
+
+                    if(myShutOffTime < myStartTime)
+                    {
+                        myShutOffTime = myShutOffTime.AddHours(23);
+                        myShutOffTime = myShutOffTime.AddMinutes(59);
+                    }
+                    
                     TimeValues = TimeValues + "\"" + myShutOffTime.ToString("yyyy-MM-dd HH:mm:ss") + "\",";
                 }
 
@@ -1418,6 +1486,11 @@ namespace Focus_Bear.Habits
         }
         private void btnStartNextActivity_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("Activity Finished Screen: btnStartNextActivity_Click");
+
+            appSettings.bSkipCurrentActivityCantDoItToday = false;//should reset it here for next activity
+            LogWriter.LogWrite("appSettings.bSkipCurrentActivityCantDoItToday = false;");
+
             if (appSettings.bShowActivitiesFromMid)
             {
                 appSettings.bShowActivitiesFromMid = false; //This is the last point we need it so we should reset it to be able to post completed API further.
@@ -1438,10 +1511,14 @@ namespace Focus_Bear.Habits
                 {
                     appSettings.isMandatoryActivityGoing = false;
                     appSettings.nHabitIndex = bExcludedActivityIndex;
+                    LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex);
+
                 }
                 else
                 {
                     appSettings.nHabitIndex++; //Increment the index to do the next habit
+                    LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex);
+
                 }
                 _parentWindow.ShowActivityStartScreen();
             }
@@ -1454,6 +1531,7 @@ namespace Focus_Bear.Habits
                 else
                 {
                     appSettings.nHabitIndex++; //Increment the index to do the next habit
+                    LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
                     _parentWindow.ShowActivityStartScreen();
                 }
             }
@@ -1466,6 +1544,7 @@ namespace Focus_Bear.Habits
                 else
                 {
                     appSettings.nHabitIndex++; //Increment the index to do the next habit
+                    LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
                     _parentWindow.ShowActivityStartScreen();
                 }
             }
@@ -1517,7 +1596,7 @@ namespace Focus_Bear.Habits
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
-                    if (appSettings.bPasswordRequireInSkipEvening)
+                    if (appSettings.bPasswordRequireInSkipEvening || (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff) )
                     {
                         //It might be possible that a webview is visible, we will need to hide that
                        

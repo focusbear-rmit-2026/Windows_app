@@ -1465,6 +1465,36 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static void SetOfficeModeMessageStatus()
+        {
+            try
+            {
+                bool status = true;
+                byte[] regData = new byte[1] { Convert.ToByte(status) };
+                Write("OFFICEMODEMSG_SHOWN", regData);
+
+                regData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetLoggedInStatus - " + ex.Message);
+            }
+        }
+
+        internal static bool GetOfficeModeMessageStatus()
+        {
+            byte[] regData = (byte[])Read("OFFICEMODEMSG_SHOWN");
+
+            if (regData == null)
+                return false;
+
+            bool res = Convert.ToBoolean(regData[0]);
+
+            regData = null;
+            return res;
+        }
+
+
         internal static bool GetUserPassword()
         {
             try
@@ -1538,7 +1568,47 @@ namespace Focus_Bear.Models
                 return false;
             }
         }
+        internal static void SaveUserDetailsInfo()
+        {
+            LogWriter.LogWrite("RM SaveUserDetailsInfo()");
+            try
+            {
+                Encoding unicode = Encoding.Unicode;
+                // Convert unicode string into a byte array.  
+                byte[] sUserDetailsData = unicode.GetBytes(appSettings.sUserDetailsInfo);
+                Write("userdetails", sUserDetailsData);
 
+                sUserDetailsData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveUserDetailsInfo - " + ex.Message);
+            }
+        }
+
+        internal static bool GetSavedUserDetailsInfo()
+        {
+            LogWriter.LogWrite("RM GetSavedUserDetailsInfo()");
+
+            try
+            {
+                byte[] sUserDetailsData = (byte[])Read("userdetails");
+
+                if (sUserDetailsData == null)
+                    return false;
+
+                appSettings.sUserDetailsInfo = Encoding.Unicode.GetString(sUserDetailsData);
+
+                sUserDetailsData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedUserDetailsInfo - " + ex.Message);
+                return false;
+            }
+        }
         internal static void SaveLocalDeviceSettings()
         {
             LogWriter.LogWrite("RM SaveLocalDeviceSettings()");
@@ -1668,6 +1738,73 @@ namespace Focus_Bear.Models
             {
                 LogWriter.LogWrite("GetBrainDump - " + ex.Message);
                 return false;
+            }
+        }
+
+        internal static bool GetHasEditedBlockedURLs()
+        {
+            try
+            {
+                var regData = ReadStr("HASEDITEDBLOCKEDURLS");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.bHasEditedBlockedURLs = true;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetHasEditedBlockedURLs ex - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetHasEditedBlockedURLs()
+        {
+            LogWriter.LogWrite("SetHasEditedBlockedURLs()");
+
+            try
+            {
+                Write("HASEDITEDBLOCKEDURLS", "1");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetHasEditedBlockedURLs ex - " + ex.Message);
+            }
+        }
+
+        internal static bool GetApplicationFont()
+        {
+
+            try
+            {
+                var regData = ReadStr("APPFONT");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.sSelectedAppFont = regData.ToString();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetApplicationFont() - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetApplicationFont()
+        {
+            try
+            {
+                Write("APPFONT", appSettings.sSelectedAppFont);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetApplicationFont - " + ex.Message);
             }
         }
 

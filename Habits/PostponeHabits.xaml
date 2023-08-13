@@ -19,7 +19,7 @@
         <StackPanel  Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <ComboBox Name="ComboBoxMinutes" Width="50" Height="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">
+            <ComboBox Name="ComboBoxMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">
                 <ComboBoxItem Content="5"></ComboBoxItem>
                 <ComboBoxItem Content="10"></ComboBoxItem>
                 <ComboBoxItem Content="15"></ComboBoxItem>
@@ -35,7 +35,7 @@
         </StackPanel>
 
         <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Grid.Row="3" Grid.ColumnSpan="2" x:Name="btnPostpone"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnPostpone_Click">
+            <Button Grid.Row="3" Grid.ColumnSpan="2" x:Name="btnPostpone"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnPostpone_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnPostponeText" Margin="8" Text="xPostpone Habit"/>
@@ -43,7 +43,7 @@
                 </Button.Content>
             </Button>
 
-            <Button Grid.Row="3" Grid.ColumnSpan="2" x:Name="btnCompletelySkip"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCompletelySkip_Click" Visibility="Collapsed">
+            <Button Grid.Row="3" Grid.ColumnSpan="2" x:Name="btnCompletelySkip"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnCompletelySkip_Click" Visibility="Collapsed">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnCompletelySkipText" Margin="8" Text="xCompletely Skip"/>

@@ -63,6 +63,17 @@ namespace Focus_Bear.Focus
         public GentleBlock()
         {
             InitializeComponent();
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+
             ShowInTaskbar = false;
             Topmost = true;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -76,11 +87,17 @@ namespace Focus_Bear.Focus
             sActiveURL = sURL;
             sCurrentTabTitle = sTabTitle;
             HWND = hWnd;
-
+            if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.Height = 600;
+                MainGrid.RowDefinitions[1].Height = new GridLength(180);
+            }
             string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
 
             if (sURL.Length > 0)
             {
+                btnSaveForRelax.Visibility = Visibility.Visible;
+
                 try
                 {
                     Uri myUri = new Uri(sURL);
@@ -102,10 +119,15 @@ namespace Focus_Bear.Focus
                 if(appSettings.bAiCheckUrlEnabled)
                     sHeading = sHeading + "\n\n" + appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkingUrlText"].ToString();
             }
+            else
+            {
+                btnSaveForRelax.Visibility = Visibility.Collapsed;
+            }
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
             btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
-         
+            btnSaveForRelaxText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockAndAddToRelaxModeText"].ToString();
+
             if (sAppName.Length > 0)
             {
                 sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
@@ -320,7 +342,7 @@ namespace Focus_Bear.Focus
             Hide();
         }
 
-        private void btnGettingDistracted_Click(object sender, RoutedEventArgs e)
+        private void BlockSiteWork()
         {
             if (sActiveAppName.Length > 0)
             {
@@ -335,5 +357,17 @@ namespace Focus_Bear.Focus
             Hide();
         }
 
+        private void btnGettingDistracted_Click(object sender, RoutedEventArgs e)
+        {
+            BlockSiteWork();
+        }
+
+        private void btnSaveForRelax_Click(object sender, RoutedEventArgs e)
+        {
+            BlockSiteWork();
+
+            FocusBearAPIClient client = new FocusBearAPIClient();
+            var sResponse = client.PostSavedWebsite(sFullURLForBlockedPage); 
+        }
     }
 }

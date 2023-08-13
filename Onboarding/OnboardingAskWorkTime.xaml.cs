@@ -38,6 +38,7 @@ namespace Focus_Bear.Onboarding
                 StartupTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionStartWorkTimeText"].ToString();
                 ShutdownTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionFinishWorkTimeText"].ToString();
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
+                SleepTime.Text = "What time do you want to go to sleep?"; //todo win texts
             }
             catch (Exception ex)
             {
@@ -51,6 +52,11 @@ namespace Focus_Bear.Onboarding
             ShutdownTimePicker.NUDHTextBox.Text = "06";
             ShutdownTimePicker.NUDMTextBox.Text = "30";
             ShutdownTimePicker.NUDAMPTextBox.Text = "PM";
+
+            SleepTimePicker.NUDHTextBox.Text = "09";
+            SleepTimePicker.NUDMTextBox.Text = "30";
+            SleepTimePicker.NUDAMPTextBox.Text = "PM";
+
         }
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
@@ -63,12 +69,26 @@ namespace Focus_Bear.Onboarding
             string sShutdownMinutes = ShutdownTimePicker.NUDMTextBox.Text;
             string sShutdownAMPM = ShutdownTimePicker.NUDAMPTextBox.Text; ;
 
+            string sSleepTimeHours = SleepTimePicker.NUDHTextBox.Text;
+            string sSleepTimeMinutes = SleepTimePicker.NUDMTextBox.Text;
+            string sSleepTimeAMPM = SleepTimePicker.NUDAMPTextBox.Text; 
+
             appSettings.InitialStartupTimeValue = Convert.ToDateTime(sStartupHours + ":" + sStartupMinutes + " " + sStartupAMPM);
             Console.WriteLine(appSettings.InitialStartupTimeValue.ToString("HH:mm"));
 
             appSettings.InitialShutoffTimeValue = Convert.ToDateTime(sShutdownHours + ":" + sShutdownMinutes + " " + sShutdownAMPM);
             Console.WriteLine(appSettings.InitialShutoffTimeValue.ToString("HH:mm"));
 
+            appSettings.InitialSleepTimeValue = Convert.ToDateTime(sSleepTimeHours + ":" + sSleepTimeMinutes + " " + sSleepTimeAMPM);
+            Console.WriteLine(appSettings.InitialSleepTimeValue.ToString("HH:mm"));
+
+            if(appSettings.InitialSleepTimeValue < appSettings.InitialShutoffTimeValue)
+            {
+                FBMessageBox ff = new FBMessageBox("Sleep time cannot be less than finish work time.", "Focus Bear"); //Todo win texts
+                ff.Owner = this._parentWindow;
+                ff.ShowDialog();
+                return;
+            }
             _parentWindow.ShowOnboardingBreakRemindersScreen();
         }
 
@@ -78,6 +98,10 @@ namespace Focus_Bear.Onboarding
         }
 
         private void ShutdownTimePicker_ValueChanged(object sender, bool e)
+        {
+            UpdateTexts();
+        }
+        private void SleepTimePicker_ValueChanged(object sender, bool e)
         {
             UpdateTexts();
         }
@@ -93,14 +117,28 @@ namespace Focus_Bear.Onboarding
                 string sShutdownMinutes = ShutdownTimePicker.NUDMTextBox.Text;
                 string sShutdownAMPM = ShutdownTimePicker.NUDAMPTextBox.Text; ;
 
+                string sSleepTimeHours = SleepTimePicker.NUDHTextBox.Text;
+                string sSleepTimeMinutes = SleepTimePicker.NUDMTextBox.Text;
+                string sSleepTimeAMPM = SleepTimePicker.NUDAMPTextBox.Text;
+
                 appSettings.InitialStartupTimeValue = Convert.ToDateTime(sStartupHours + ":" + sStartupMinutes + " " + sStartupAMPM);
                 Console.WriteLine(appSettings.InitialStartupTimeValue.ToString("hh:mm tt"));
 
                 appSettings.InitialShutoffTimeValue = Convert.ToDateTime(sShutdownHours + ":" + sShutdownMinutes + " " + sShutdownAMPM);
                 Console.WriteLine(appSettings.InitialShutoffTimeValue.ToString("hh:mm tt"));
 
+                appSettings.InitialSleepTimeValue = Convert.ToDateTime(sSleepTimeHours + ":" + sSleepTimeMinutes + " " + sSleepTimeAMPM);
+                Console.WriteLine(appSettings.InitialShutoffTimeValue.ToString("HH:mm"));
+
+                TimeSpan difference =  appSettings.InitialSleepTimeValue.Subtract(appSettings.InitialShutoffTimeValue);  
+                int nMinutesBetweenFinishWorkAndSleepTime = (int) (difference.TotalSeconds / 60);
+
+                int nActualMinutesToRelax = nMinutesBetweenFinishWorkAndSleepTime - (int.Parse(appSettings.sEveningRoutineDuration) / 60) - 30; //we need to reduce the actual evening time duration //30 is the buffer before sleep time
 
                 string ss = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["explanationText"].ToString();
+
+                ss = "Your schedule looks like:\n\n🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Relax - block nothing\n\n<RELAX_END_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)"; //Todo win texts
+
                 int nStartDiff = -1 * (((15*60) + int.Parse(appSettings.sMorningRoutineDuration))/60) ;
                 ss = ss.Replace("<MORNING_ROUTINE_START_TIME>", appSettings.InitialStartupTimeValue.AddMinutes(nStartDiff).ToString("hh:mm tt"));
                 ss = ss.Replace("<MORNING_ROUTINE_END_TIME>", appSettings.InitialStartupTimeValue.AddMinutes(-15).ToString("hh:mm tt"));
@@ -108,7 +146,9 @@ namespace Focus_Bear.Onboarding
                 ss = ss.Replace("<START_WORK_TIME>", appSettings.InitialStartupTimeValue.ToString("hh:mm tt"));
                 ss = ss.Replace("<END_WORK_TIME>", appSettings.InitialShutoffTimeValue.ToString("hh:mm tt"));
 
-                ss = ss.Replace("<EVENING_ROUTINE_END_TIME>", appSettings.InitialShutoffTimeValue.AddMinutes(int.Parse(appSettings.sEveningRoutineDuration) / 60).ToString("hh:mm tt"));
+                ss = ss.Replace("<RELAX_END_TIME>", appSettings.InitialShutoffTimeValue.AddMinutes(nActualMinutesToRelax).ToString("hh:mm tt"));
+
+                ss = ss.Replace("<EVENING_ROUTINE_END_TIME>", appSettings.InitialShutoffTimeValue.AddMinutes(nActualMinutesToRelax).AddMinutes(int.Parse(appSettings.sEveningRoutineDuration) / 60).ToString("hh:mm tt"));
 
                 Schedule.Text = ss;
             }
@@ -117,5 +157,6 @@ namespace Focus_Bear.Onboarding
                 LogWriter.LogWrite("StartupTimePicker_ValueChanged() ex - " + ex.Message);
             }
         }
+
     }
 }

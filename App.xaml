@@ -4,8 +4,8 @@
              xmlns:local="clr-namespace:Focus_Bear"
              Startup="Application_Startup" Exit="Application_Exit">
     <Application.Resources>
-        
-        
+
+    
         <!--Preferences top tab Button-->
         <Style x:Key="BtnStylePreferences" TargetType="{x:Type Button}">
             <Setter Property="Template">
@@ -769,5 +769,40 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="SegmentRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="#E0E0E0" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="BorderBrush" Value="#808080" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Margin" Value="0,0,-1,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            CornerRadius="5,5,5,5"
+                                Padding="9"
+                                Width="145">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#007Aff" />
+                                <Setter Property="BorderBrush" Value="#007Aff" />
+                                <Setter Property="Foreground" Value="#fff" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#007Aff" />
+                                <Setter Property="Foreground" Value="#fff" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
     </Application.Resources>
 </Application>

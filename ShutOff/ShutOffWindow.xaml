@@ -11,8 +11,10 @@
         Title="ShutOffWindow" d:DesignHeight="1080" d:DesignWidth="1920" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" >
 
     <local1:DpiDecorator>
+        
         <Grid>
-        <Grid.Background>
+            
+            <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
@@ -25,7 +27,9 @@
             <RowDefinition Height="*" />
 
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock Grid.Row="0"  Name="Time" Margin="0,18,40,0" TextWrapping="Wrap" Text="x10:10 AM" Foreground="#000" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Right"/>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
             <Image  Name="Icon"  Height="120"  Width="120" Models:ImageBehavior.AnimatedSource="../Images/gifs/Yawn_small.gif" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
             <TextBlock    Name="Heading" Margin="50,0,0,0" TextWrapping="Wrap" Text="xtime to wind down" Foreground="#e88800" FontSize="33" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         </StackPanel>
@@ -55,7 +59,7 @@
             </TextBox.FocusVisualStyle>
         </TextBox>
         
-        <Button Grid.Row="6"  Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAction_Click" >
+        <Button Grid.Row="6"  Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnActionText" Text="xGet Access Now"/>

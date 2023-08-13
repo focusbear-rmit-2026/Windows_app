@@ -60,7 +60,7 @@ namespace Focus_Bear.Preferences
                 LogWriter.LogWrite("stats CoreWebView2NavigationCompleted() Success, Load Access token");
                 Mouse.OverrideCursor = null;
 
-                string Settings = string.Format("{{\"access_token\":\"{0}\",\"type\":\"win\",\"lang\":\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.sLangCode);
+                string Settings = string.Format("{{\"access_token\":\"{0}\",\"type\":\"win\",\"lang\":\"{1}\",\"font\":\"{2}\",}}", appSettings.userAccount.accessToken, appSettings.sLangCode,appSettings.sSelectedAppFont);
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForStats) {{ loadAccessTokenForStats({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
 
                 var ss = webView.ExecuteScriptAsync(settingsFunc);

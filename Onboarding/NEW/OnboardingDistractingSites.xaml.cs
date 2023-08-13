@@ -87,7 +87,7 @@ namespace Focus_Bear.Onboarding.NEW
                 ListBLockedURLs.ScrollIntoView(ListBLockedURLs.Items[ListBLockedURLs.Items.Count - 1]); //scroll to last
                 TxtURL.Text = "";
                 TxtURL.Focus();
-
+                appSettings.bHasEditedBlockedURLs = true;
             }
         }
 
@@ -98,6 +98,8 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 if(appSettings.arrDistractingURLs[i].IsItemChecked)
                     appSettings.arrAlwaysBlockedURLs.Add(appSettings.arrDistractingURLs[i].sURL);
+                else
+                    appSettings.bHasEditedBlockedURLs = true;
             }
             
             _parentWindow.ShowPrivacyScreen();

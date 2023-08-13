@@ -35,6 +35,16 @@ namespace Focus_Bear.Onboarding.AfterLogin
         public OnboardingSetWorkType(OnboardingSetupAndTipsWindow parentWindow)
         {
             InitializeComponent();
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
             _parentWindow = parentWindow;
 
             LogWriter.LogWrite("OnboardingSetWorkType screen");
@@ -209,7 +219,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
                     }
                 }
  
-                appSettings.FocusModeNameToCreateWhileOnBoarding = new FocusMode(System.Guid.NewGuid().ToString(), sFocusName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, false, false);
+                appSettings.FocusModeNameToCreateWhileOnBoarding = new FocusMode(System.Guid.NewGuid().ToString(), sFocusName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, false, false, false);
                 appSettings.AddFocusModeToArrayAndUploadtoAPI(appSettings.FocusModeNameToCreateWhileOnBoarding);
 
                 RegistryManager.SetFocusModeSetupDone(true);

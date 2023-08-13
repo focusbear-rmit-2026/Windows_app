@@ -29,8 +29,16 @@ namespace Focus_Bear.Preferences
         bool _isBlockedURLsMode = false;
         public AddWebUrl()
         {
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
         }
-        public AddWebUrl(OnboardingSetupAndTipsWindow _ParentWindow)
+        public AddWebUrl(OnboardingSetupAndTipsWindow _ParentWindow) :this()
         {
             InitializeComponent();
 
@@ -40,7 +48,7 @@ namespace Focus_Bear.Preferences
             SetTexts();
 
         }
-        public AddWebUrl(PreferencesWindow _ParentWindow, string sURLToEdit = "", bool bEditURLMode = false, bool isBlockedURLsMode = false)
+        public AddWebUrl(PreferencesWindow _ParentWindow, string sURLToEdit = "", bool bEditURLMode = false, bool isBlockedURLsMode = false) : this()
         {
             InitializeComponent();
 
@@ -53,7 +61,7 @@ namespace Focus_Bear.Preferences
             SetTexts();
            
         }
-        public AddWebUrl(FocusAdvanced _ParentWindow, string sURLToEdit = "", bool bEditURLMode = false, bool isBlockedURLsMode = false)
+        public AddWebUrl(FocusAdvanced _ParentWindow, string sURLToEdit = "", bool bEditURLMode = false, bool isBlockedURLsMode = false) : this()
         {
             InitializeComponent();
 

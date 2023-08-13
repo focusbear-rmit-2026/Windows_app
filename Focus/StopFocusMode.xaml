@@ -17,7 +17,8 @@
             <RowDefinition Height="Auto" MinHeight="40" />
             <RowDefinition Height="Auto" MinHeight="60" />
             <RowDefinition Height="Auto" MinHeight="10" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="60" />
+            <RowDefinition Height="30" />
 
         </Grid.RowDefinitions>
 
@@ -30,21 +31,21 @@
 
         <TextBlock  Grid.Row="3" Name="WhyDeactivating" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxCan you share why you are deactivating?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <ComboBox Name="ComboBoxReason"  Grid.Row="4" Width="360" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxReason_SelectionChanged" >
+        <ComboBox Name="ComboBoxReason"  Grid.Row="4" Width="360" MinHeight="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxReason_SelectionChanged" >
         </ComboBox>
 
-        <StackPanel  Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button  x:Name="btnCancel"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="130" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,20" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCancel_Click">
+        <StackPanel  Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+            <Button  x:Name="btnCancel"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="130" MinHeight="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,10,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnCancelText" Margin="8" Text="xCancel"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  x:Name="btnStopFocus"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,20" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStopFocus_Click">
+            <Button  x:Name="btnStopFocus"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   MinHeight="43" HorizontalContentAlignment="Center" Padding="0" Margin="15,10,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStopFocus_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock Name="btnStopFocusText" Margin="8" Text="xDeactivate Focus Block"/>
+                    <TextBlock Name="btnStopFocusText" Margin="15,0,15,0" Text="xDeactivate Focus Block"/>
                 </StackPanel>
             </Button.Content>
         </Button>

@@ -43,6 +43,8 @@ namespace Focus_Bear.Habits
         private const int WM_SHOWWINDOW = 0x00000018;
 
         int nMinutesToPostpone = 5;
+
+        FadeInBreakWindow wndFadeInBreakWindow;
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -75,6 +77,8 @@ namespace Focus_Bear.Habits
                 Description.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["titleWIN"].ToString();
                 PostponeMinsText.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["titleSelectMinutes"].ToString();
 
+                wndFadeInBreakWindow = new FadeInBreakWindow();
+                wndFadeInBreakWindow.Show();
             }
             catch (Exception ex)
             {
@@ -86,7 +90,7 @@ namespace Focus_Bear.Habits
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer-=5;
+            int val = nTimer-=1;
 #else
             int val = nTimer--;
 #endif
@@ -105,6 +109,8 @@ namespace Focus_Bear.Habits
                     {
                         dispatcherTimer.Stop();
                         ((App)(Application.Current)).StartBreakActivityTimer(true, 5);
+                        
+                        wndFadeInBreakWindow.Close();
                         Close();
                     }
                     else
@@ -112,6 +118,8 @@ namespace Focus_Bear.Habits
                         TxtTimer.Text = "00:00";
                         dispatcherTimer.Stop();
                         ((App)(Application.Current)).ShowBreakActivities();
+
+                        wndFadeInBreakWindow.Close();
                         Close();
                     }
                   
@@ -135,6 +143,8 @@ namespace Focus_Bear.Habits
                         dispatcherTimer.Stop();
                         //User clicked means he wants to do the habits
                         ((App)(Application.Current)).ShowBreakActivities();
+
+                        wndFadeInBreakWindow.Close();
                         Close();
                         return;
                     }
@@ -189,6 +199,7 @@ namespace Focus_Bear.Habits
                     
                     ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);
 
+                    wndFadeInBreakWindow.Close();
                     Close();
                 }
             }

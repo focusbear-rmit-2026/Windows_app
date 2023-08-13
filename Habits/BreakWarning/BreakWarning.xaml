@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="220" Width="375" ResizeMode="NoResize" >
+        Title="Focus Bear" Height="220" Width="375" ResizeMode="NoResize">
     <Grid x:Name="Grid1">
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
@@ -38,7 +38,7 @@
 
 
         </StackPanel>
-        <Button Grid.Row="4"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnAction_Click" >
+        <Button Grid.Row="4"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnActionTXT" Text="xPostpone for 5 Minutes"/>

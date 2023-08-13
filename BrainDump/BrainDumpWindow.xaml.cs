@@ -31,6 +31,17 @@ namespace Focus_Bear.BrainDump
         public BrainDumpWindow()
         {
             InitializeComponent();
+            
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+
             try
             {
                 Title = appSettings.ConfigFileStrings["brainDumpVcInfo"]["title"].ToString();
@@ -132,7 +143,7 @@ namespace Focus_Bear.BrainDump
             try
             {
 
-                TimeRemaining.Text = TimeRemaining.Text = TimeRemaining.Text = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString() + " " + appSettings.SecondsToTimerText(nTimer);
+                TimeRemaining.Text = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString() + " " + appSettings.SecondsToTimerText(nTimer);
 
                 CommandManager.InvalidateRequerySuggested();
 

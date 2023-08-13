@@ -1,0 +1,107 @@
+<html>
+   <head> 
+      <title>Focus Bear</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1"> 
+	  <!-- import CDN  -->
+    <script
+      src="https://js.sentry-cdn.com/e10a0e8886bd4bb89d44cfa909a71ac9.min.js"
+      integrity="sha384-5Zu44WQLIjQtAmHoeW6zq6diH9kymV7kGUaYAV1PK5LPCSGURU7y840OHlpaU8NQ"
+      crossorigin="anonymous"
+    ></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script> 
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.0/Chart.bundle.min.js"></script> 
+	   <!-- Initializing  -->
+    <script type="text/javascript">
+      Sentry.onLoad(function () {
+        Sentry.init({
+          dsn: 'https://dcc03848802c478ea8cae6ee3dd7306c@o1187124.ingest.sentry.io/6408241',
+          integrations: [new Sentry.BrowserTracing()],
+          tracesSampleRate: 0.2,
+        });
+      });
+    </script>
+      <style>
+          body{
+              overflow: hidden;
+          }
+          </style>
+   </head> 
+   <body > 
+
+	 <div id="chart-wrapper" style="margin: 20px">
+        <canvas id="focusBearChart" style="width: 95%"></canvas>
+      </div>
+
+      <script type="text/javascript">
+      try {     
+      function newDate(days) {
+        return moment().add(days, 'd');
+      }
+
+        function getData(jsonData)
+        {
+             
+            var json1 = { "label":"Pushups Over Time" , "labelX":"Time", "labelY":"Number of Pushups", "TimeValues":["2016-10-20 08:23:00", "2016-10-20 09:27:00","2016-10-20 17:28:00"], "data": [,15,20,10,30,40,50,30, 66, 2  ]}
+            
+            var json = { "label":"Pushups Over Time" , "labelX":"Time", "labelY":"Number of Pushups", "TimeValues":["2016-10-20 08:23:00", "2016-10-20 09:27:00","2016-10-20 17:28:00"], "data": [10,15,20,10,30,40,50,30, 66, 2  ], "max":0}
+        json = jsonData;
+        var nmax= json.max;
+             //var startTime = new Date(json.TimeValues[0]);
+            // var shutTime = new Date(json.TimeValues[json.TimeValues.length - 1]);
+ 
+            var config = {
+              type: 'line',
+              data: {
+                 labels: json.TimeValues,
+                datasets: [{
+                  label: json.label,
+                  fill: false,
+                  lineTension: 0,
+                  backgroundColor: "rgba(0,0,255,1.0)",
+                  borderColor: "rgba(0,0,255,0.1)",
+                  
+                  data:  json.data,
+                           min:0,
+                }]
+              },
+              options: {
+                scales: {
+                  xAxes: [{
+                    type: 'time',
+                    time: {
+                       displayFormats: { 'hour': 'H:mm' }
+                              
+                    },
+                     scaleLabel: {
+                            display: true,
+                            labelString: json.labelX,
+                        }
+                  }],
+                    yAxes: [
+                        {
+                            scaleLabel: {
+                                display: true,
+                                labelString: json.labelY,
+                            },
+                            
+                            ticks:{
+                            min: 0,
+                            max: nmax
+                            }
+                        },
+                        ],
+                },
+              }
+            };
+          
+        var ctx = document.getElementById("focusBearChart").getContext("2d");
+            new Chart(ctx, config);
+        }
+
+      } catch (error) {
+        Sentry.captureException(error);
+      }
+
+            </script>
+   </body>
+</html>

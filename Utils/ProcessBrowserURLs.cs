@@ -41,17 +41,24 @@ namespace Focus_Bear.Utils
             "view-source:",
             "about:blank",
             "focus-bear.github.io",
-            "focus-block.html","brave://",};
+            "focus-block.html","brave://","localhost",};
 
-       // public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "msedgewebview2.exe", "explorer.exe", "focus bear.exe", "focusbear.exe", "devenv.exe", "taskmgr.exe" };
-        //public static readonly int SW_MINIMIZE = 6;
-
+       
         public static void ProcessCurrentURL(IntPtr hwnd)
         {
             AppSettings appSettings = AppSettings.GetInstance;
             if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
             {
-               /// ProcessAllowedAppAndURLsInActivity(element);
+                
+                //If its evening routine and the relax activity is on, no need to check anhything or block anything
+                if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                {
+                    if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].show_saved_distracting_websites)
+                    {
+                        return;
+                    }
+                }
+                
                 ProcessAlloweURLsInActivity(hwnd);
             }
 
@@ -90,7 +97,7 @@ namespace Focus_Bear.Utils
 
                 foreach (string url in appSettings.arrAlwaysBlockedURLs)
                 {
-                    ////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                    
                     {
 
                         var sUrlToCheck = appSettings.sLastActiveURLInFirefox.Replace("http://", "");
@@ -112,7 +119,6 @@ namespace Focus_Bear.Utils
                         }
                         else
                         {
-                            // if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
                             allowedURL = "*" + allowedURL + "*";
                             if (MatchWildcardString(sUrlToCheck, allowedURL))
                             {
@@ -207,29 +213,28 @@ namespace Focus_Bear.Utils
             if (listItems.Count() != 0)
             {
                 FocusMode focusType = listItems.First();
-                if (focusType != null /*&& !focusType.isAllowedAllApps*/)
+                
+                if(focusType.isRelaxFocus)
+                {
+                    //if its relax focus mode, we will not block anything, so return from here
+                    return;
+                }
+
+                if (focusType != null )
                 {
                     if (focusType.isAllowedListApproach)//Block everything except safe sites I choose
                     {
                         LogWriter.LogWrite("isAllowedListApproach - Block everything except safe sites I choose - " + focusType.name);
 
-                        ////if (focusType.isAllowedAllUrls) //All urls are allowed, nothng to block
-                        ////{
-                        ////    LogWriter.LogWrite("isAllowedListApproach - isAllowedAllUrls, return");
-                        ////    return;
-                        ////}
-                        ////else //Selected URLs are allowed
                         {
                             LogWriter.LogWrite("isAllowedListApproach - Selected URLs are allowed");
                             //We will first check if the url is in the blocked urls list of the focusmode, then we will not check allowed
                             bAllowedURLFound = true; //allowed unless we find it in the blocked urls array
 
-                            // LogWriter.LogWrite("focusType.arrBlockedUrls COUNT is:" + focusType.arrBlockedUrls.Count().ToString());
-
-                            //check if the current URL is in the list of Blocked urls, then block else allow
+                               //check if the current URL is in the list of Blocked urls, then block else allow
                             foreach (string url in focusType.arrBlockedUrls)
                             {
-                                ////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                                
                                 {
                                     var sUrlToCheck = sURL.Replace("http://", "");
                                     sUrlToCheck = sUrlToCheck.Replace("https://", "");
@@ -250,7 +255,6 @@ namespace Focus_Bear.Utils
                                     else
                                     {
 
-                                        // if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
                                         allowedURL = "*" + allowedURL + "*";
                                         if (MatchWildcardString(sUrlToCheck, allowedURL))
                                         {
@@ -290,17 +294,10 @@ namespace Focus_Bear.Utils
                             {
                                 bAllowedURLFound = false;
 
-                                //LogWriter.LogWrite("focusType.arrAllowedUrls COUNT is:" + focusType.arrAllowedUrls.Count().ToString());
-
                                 //check if the current URL is in the list of allowed urls, then allow else block
                                 foreach (string url in focusType.arrAllowedUrls)
                                 {
-                                    /// LogWriter.LogWrite("focusType.arrAllowedUrl ITEM = " + url);
-
-                                    //// if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
                                     {
-                                        /// LogWriter.LogWrite("focusType.arrAllowedUrl ITEM Uri.IsWellFormedUriString OK");
-
                                         var sUrlToCheck = sURL.Replace("http://", "");
                                         sUrlToCheck = sUrlToCheck.Replace("https://", "");
                                         sUrlToCheck = sUrlToCheck.Replace("www.", "");
@@ -320,7 +317,6 @@ namespace Focus_Bear.Utils
                                         }
                                         else
                                         {
-                                            //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
                                             allowedURL = "*" + allowedURL + "*";
                                             if (MatchWildcardString(sUrlToCheck, allowedURL))
                                             {
@@ -383,17 +379,6 @@ namespace Focus_Bear.Utils
                     {
                         LogWriter.LogWrite("isBlockedListApproach - Allow everything except districting sites");
 
-                        ////if (focusType.isBlockedAllUrls) //All urls are BLOCKED
-                        ////{
-                        ////    LogWriter.LogWrite("isBlockedListApproach - isBlockedAllUrls");
-                        ////    bAllowedURLFound = false;
-
-                        ////    LogWriter.LogWrite("processCurrentFocusElement  isBlockedListApproach isBlockedAllUrls - Attempt to Suppress URL");
-                        ////    suppressURL(val, "focus");
-                        ////    return;
-
-                        ////}
-                        ////else //selected URLS are blocked
                         {
                             LogWriter.LogWrite("isBlockedListApproach - selected URLS are blocked");
 
@@ -402,7 +387,6 @@ namespace Focus_Bear.Utils
                             //check if the current URL is in the list of Blocked urls, then block else allow
                             foreach (string url in focusType.arrBlockedUrls)
                             {
-                                ////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
                                 {
                                     var sUrlToCheck = sURL.Replace("http://", "");
                                     sUrlToCheck = sUrlToCheck.Replace("https://", "");
@@ -422,7 +406,6 @@ namespace Focus_Bear.Utils
                                     }
                                     else
                                     {
-                                        // if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
                                         allowedURL = "*" + allowedURL + "*";
                                         if (MatchWildcardString(sUrlToCheck, allowedURL))
                                         {
@@ -492,7 +475,6 @@ namespace Focus_Bear.Utils
                     return;
                 }
 
-                //if (val != null && !string.IsNullOrEmpty(val.CurrentValue) && (!val.CurrentValue.ToString().Contains("focus-block.html")))
                 {
                     if (sURL.Contains("file://"))
                     {
@@ -515,7 +497,6 @@ namespace Focus_Bear.Utils
                         sHabitType = "morning-habit";
                         foreach (string url in appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedUrls)
                         {
-                            /////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
                             {
                                 var sUrlToCheck = sURL.Replace("http://", "");
                                 sUrlToCheck = sUrlToCheck.Replace("https://", "");
@@ -537,7 +518,6 @@ namespace Focus_Bear.Utils
                                 }
                                 else
                                 {
-                                    //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
                                     allowedURL = "*" + allowedURL + "*";
                                     if (MatchWildcardString(sUrlToCheck, allowedURL))
                                     {
@@ -580,7 +560,7 @@ namespace Focus_Bear.Utils
 
                         foreach (string url in appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedUrls)
                         {
-                            //////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
+                            
                             {
                                 var sUrlToCheck = sURL.Replace("http://", "");
                                 sUrlToCheck = sUrlToCheck.Replace("https://", "");
@@ -601,7 +581,6 @@ namespace Focus_Bear.Utils
                                 }
                                 else
                                 {
-                                    //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
                                     allowedURL = "*" + allowedURL + "*";
                                     if (MatchWildcardString(sUrlToCheck, allowedURL))
                                     {
@@ -648,7 +627,6 @@ namespace Focus_Bear.Utils
                         {
                             foreach (string url in appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex].allowedUrls)
                             {
-                                ///// if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
                                 {
                                     var sUrlToCheck = sURL.Replace("http://", "");
                                     sUrlToCheck = sUrlToCheck.Replace("https://", "");
@@ -670,7 +648,6 @@ namespace Focus_Bear.Utils
                                     }
                                     else
                                     {
-                                        //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
                                         allowedURL = "*" + allowedURL + "*";
                                         if (MatchWildcardString(sUrlToCheck, allowedURL))
                                         {
@@ -712,7 +689,6 @@ namespace Focus_Bear.Utils
                         {
                             foreach (string url in appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex].allowedUrls)
                             {
-                                ////// if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
                                 {
                                     var sUrlToCheck = sURL.Replace("http://", "");
                                     sUrlToCheck = sUrlToCheck.Replace("https://", "");
@@ -733,7 +709,6 @@ namespace Focus_Bear.Utils
                                     }
                                     else
                                     {
-                                        //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
                                         allowedURL = "*" + allowedURL + "*";
                                         if (MatchWildcardString(sUrlToCheck, allowedURL))
                                         {
@@ -776,7 +751,7 @@ namespace Focus_Bear.Utils
                     if (!bAllowedURLFound)
                     {
                         LogWriter.LogWrite(sURL + " BLOCKED URL found in activity - BLOCK");
-                        //  string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={0}"; //evening-habit, morning-habit, break-activity
+                        // "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={0}"; //evening-habit, morning-habit, break-activity
                         suppressURLForFirefox(hWnd, sURL, sHabitType);
                     }
                 }

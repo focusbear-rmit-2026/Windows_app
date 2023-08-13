@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="StartFocusMode" Height="585" Width="720"  ResizeMode="NoResize" Loaded="Window_Loaded">
+        Title="StartFocusMode" Height="600" Width="720"  ResizeMode="NoResize" Loaded="Window_Loaded">
     <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
@@ -29,7 +29,7 @@
         <StackPanel Grid.Row="2"  Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
             <TextBlock  Name="HowMuchTime" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxHow much time do you want to focus for?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <TextBox    TabIndex="0" x:Name="Hours"  Height="25"  Width="35" Margin="0"  TextWrapping="NoWrap" MaxLength="2"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Hours_PreviewTextInput" PreviewKeyDown="Hours_PreviewKeyDown" PreviewKeyUp="Hours_PreviewKeyUp" TextChanged="Hours_TextChanged">
+            <TextBox    TabIndex="0" x:Name="Hours"  MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap" MaxLength="2"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Hours_PreviewTextInput" PreviewKeyDown="Hours_PreviewKeyDown" PreviewKeyUp="Hours_PreviewKeyUp" TextChanged="Hours_TextChanged">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -49,7 +49,7 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
             <TextBlock  Name="HoursTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxhours" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBox    TabIndex="1" x:Name="Minutes"  Height="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="Minutes_TextChanged">
+            <TextBox    TabIndex="1" x:Name="Minutes"  MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="Minutes_TextChanged">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -96,7 +96,7 @@
 
         <TextBlock  Grid.Row="5" Name="Descriptiopn" Width="500" Margin="5,-5,0,0" TextWrapping="Wrap" Text="xxSetting an intention for the focus block helps prime your brain to accomplish that task. To edit the intention after starting the focus mode, click Brain Dump in the menu bar." Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
         <CheckBox  Grid.Row="6" x:Name="SkipMicroBreaks" FontSize="15" Checked="SkipMicroBreaks_Checked" Unchecked="SkipMicroBreaks_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0">xxSkip microbreaks during work blocks?</CheckBox>
-        <Button  Grid.Row="7" x:Name="btnStartFocus"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Width="300" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,20" FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStartFocus_Click">
+        <Button  Grid.Row="7" x:Name="btnStartFocus"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" MinHeight="43" MaxHeight="55" HorizontalContentAlignment="Center" Padding="0" Margin="7,20" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartFocus_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock Name="btnStartFocusText" Margin="8" Text="xStart Focus"/>

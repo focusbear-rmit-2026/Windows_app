@@ -12,6 +12,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -32,10 +34,10 @@ namespace Focus_Bear.Habits
         private HabitWindow _parentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
-        
+
         int nTimer = 30;
         int nTickCount;
-        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal );
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         public bool bTimerRunning;
         bool isVideoPresent;
 
@@ -53,6 +55,16 @@ namespace Focus_Bear.Habits
         {
             InitializeComponent();
 
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+
             SetWebView();
 
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
@@ -66,7 +78,7 @@ namespace Focus_Bear.Habits
 
             try
             {
-                if(bStartingAfterPostponed)
+                if (bStartingAfterPostponed)
                 {
                     LogWriter.LogWrite("Starting After Postponed in mid- Get the set timer value");
                     //Get the set timer value
@@ -93,7 +105,7 @@ namespace Focus_Bear.Habits
                 int nAllowedApps = 0;
                 int nAllowedURLs = 0;
 
-               
+                bool show_saved_distracting_websites = false;
 
                 videoUrlsBreaks.Clear();
 
@@ -103,12 +115,14 @@ namespace Focus_Bear.Habits
                 {
                     sActivityIdToGetDataFromAPI = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id;
 
+                    show_saved_distracting_websites = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].show_saved_distracting_websites;
+
                     Heading.Text = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name; //Activity Name
                     appSettings.sCurrentRunningActivity = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name; //Activity Name
                     appSettings.sHabitTypeForUseFocusModeIDInActivity = "morning-habit";//evening-habit, morning-habit, break-activity
 
                     if (!bStartingAfterPostponed)
-                        nTimer = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds;  
+                        nTimer = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds;
 
                     if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].useTimer)
                     {
@@ -120,7 +134,7 @@ namespace Focus_Bear.Habits
                         nTimer = appSettings.nTimerValForNonTimerActivities;
                         SectionNonTimer.Visibility = Visibility.Visible;
                         SectionTimer.Visibility = Visibility.Collapsed;
-                        string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();  
+                        string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();
                         sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].completion_requirements);
                         CompleteAfter.Text = sCompleteTxt;
                         btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
@@ -130,18 +144,20 @@ namespace Focus_Bear.Habits
                     nAllowedURLs = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedUrls.Count;
                     nVideoUrlsCount = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].videoUrls.Count;
                     appSettings.sUseFocusModeIDInActivity = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedFocusMode;
-                    
+
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
                     sActivityIdToGetDataFromAPI = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id;
 
+                    show_saved_distracting_websites = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].show_saved_distracting_websites;
+
                     Heading.Text = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name; //Activity Name
                     appSettings.sCurrentRunningActivity = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name; //Activity Name
                     appSettings.sHabitTypeForUseFocusModeIDInActivity = "evening-habit";//evening-habit, morning-habit, break-activity
-                   
+
                     if (!bStartingAfterPostponed)
-                        nTimer = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds;  
+                        nTimer = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds;
 
                     if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].useTimer)
                     {
@@ -153,7 +169,7 @@ namespace Focus_Bear.Habits
                         nTimer = appSettings.nTimerValForNonTimerActivities;
                         SectionNonTimer.Visibility = Visibility.Visible;
                         SectionTimer.Visibility = Visibility.Collapsed;
-                        string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();  
+                        string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();
                         sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].completion_requirements);
                         CompleteAfter.Text = sCompleteTxt;
                         btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
@@ -166,7 +182,7 @@ namespace Focus_Bear.Habits
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
-                  
+
                     if (appSettings.isMandatoryActivityGoing)
                     {
                         currentActivity = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex];
@@ -180,12 +196,12 @@ namespace Focus_Bear.Habits
 
                     if (!currentActivity.isRandomChoice)
                     {
-                        Heading.Text = currentActivity.name;  
-                        appSettings.sCurrentRunningActivity = currentActivity.name;  
+                        Heading.Text = currentActivity.name;
+                        appSettings.sCurrentRunningActivity = currentActivity.name;
                         appSettings.sHabitTypeForUseFocusModeIDInActivity = "break-activity";//evening-habit, morning-habit, break-activity
 
 
-                        nTimer = currentActivity.durationSeconds;  
+                        nTimer = currentActivity.durationSeconds;
                         nAllowedApps = currentActivity.allowedApps.Count;
                         nAllowedURLs = currentActivity.allowedUrls.Count;
                         nVideoUrlsCount = currentActivity.videoUrls.Count;
@@ -202,7 +218,7 @@ namespace Focus_Bear.Habits
                             nTimer = appSettings.nTimerValForNonTimerActivities;
                             SectionNonTimer.Visibility = Visibility.Visible;
                             SectionTimer.Visibility = Visibility.Collapsed;
-                            string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();  
+                            string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();
                             sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", currentActivity.completion_requirements);
                             CompleteAfter.Text = sCompleteTxt;
                             btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
@@ -217,14 +233,14 @@ namespace Focus_Bear.Habits
                         {
                             sActivityChoiceIdToGetDataFromAPI = randomChoice.id;
 
-                            Heading.Text = randomChoice.name;  
-                            appSettings.sCurrentRunningActivity = currentActivity.name;  
+                            Heading.Text = randomChoice.name;
+                            appSettings.sCurrentRunningActivity = currentActivity.name;
                             appSettings.sHabitTypeForUseFocusModeIDInActivity = "break-activity";//evening-habit, morning-habit, break-activity
 
                             nVideoUrlsCount = randomChoice.videoUrls.Count;
                             videoUrlsBreaks = randomChoice.videoUrls;
 
-                            nTimer = currentActivity.durationSeconds;  
+                            nTimer = currentActivity.durationSeconds;
                             nAllowedApps = currentActivity.allowedApps.Count;
                             nAllowedURLs = currentActivity.allowedUrls.Count;
                             appSettings.sUseFocusModeIDInActivity = currentActivity.allowedFocusMode;
@@ -239,7 +255,7 @@ namespace Focus_Bear.Habits
                                 nTimer = appSettings.nTimerValForNonTimerActivities;
                                 SectionNonTimer.Visibility = Visibility.Visible;
                                 SectionTimer.Visibility = Visibility.Collapsed;
-                                string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString(); 
+                                string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();
                                 sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", currentActivity.completion_requirements);
                                 CompleteAfter.Text = sCompleteTxt;
                                 btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
@@ -252,8 +268,16 @@ namespace Focus_Bear.Habits
 
                 TxtTimer.Text = appSettings.SecondsToTimerText(nTimer);
 
+                if (show_saved_distracting_websites)
+                {
+                    _parentWindow.WindowState = WindowState.Minimized;
+                    _parentWindow.ShowInTaskbar = false;
+                    //here we also need to remove the secondary screen windows.
+                    appSettings.RemoveSecondaryWindows();
 
-                if (nAllowedApps > 0 || nAllowedURLs > 0 || appSettings.sUseFocusModeIDInActivity.Length > 0)
+                    ((App)(Application.Current)).ShowRelaxActivityWindow(nTimer);
+                }
+                else if (nAllowedApps > 0 || nAllowedURLs > 0 || appSettings.sUseFocusModeIDInActivity.Length > 0)
                 {
                     appSettings.bHabitwithAllowedAppsRunning = true;
                     _parentWindow.WindowState = WindowState.Minimized;
@@ -270,7 +294,7 @@ namespace Focus_Bear.Habits
                     //If its a non timer (86400) activity, pass the completre after text, else pass the heading text (activity name)
                     ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (nTimer == appSettings.nTimerValForNonTimerActivities) ? CompleteAfter.Text : Heading.Text);
                 }
- 
+
             }
             catch (Exception ex)
             {
@@ -287,14 +311,14 @@ namespace Focus_Bear.Habits
 
             //moving to navigation completed
             //Start only if video is not present
-            if(!isVideoPresent)
+            if (!isVideoPresent)
             {
                 dispatcherTimer.Start();
                 CommandManager.InvalidateRequerySuggested();
             }
 
             Global.DisableSystemSleep();
-            
+
             try
             {
                 //Also get the activity data from server as soon as we start the timer as these will be used to show graph on finish screen
@@ -335,7 +359,7 @@ namespace Focus_Bear.Habits
                             }
                         }
                     }
-                  
+
 
                 }
             }
@@ -467,7 +491,7 @@ namespace Focus_Bear.Habits
             if (nTickCount > 5) //Hide the top image after 5 seconds
             {
                 TopIcon.Visibility = Visibility.Collapsed;
-                if(isVideoPresent)
+                if (isVideoPresent)
                     btnPausePlay.Margin = new Thickness(0, 10, 0, 40);
             }
 
@@ -498,7 +522,7 @@ namespace Focus_Bear.Habits
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                     {
-            
+
                         if (appSettings.isMandatoryActivityGoing)
                         {
                             nAllowedApps = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex].allowedApps.Count;
@@ -534,8 +558,8 @@ namespace Focus_Bear.Habits
 
                         CommandManager.InvalidateRequerySuggested();
                     }
-             
-                   
+
+
                     CommandManager.InvalidateRequerySuggested();
                     dispatcherTimer.Stop();
                     CommandManager.InvalidateRequerySuggested();
@@ -582,13 +606,22 @@ namespace Focus_Bear.Habits
 
                 dispatcherTimer.Start();
                 CommandManager.InvalidateRequerySuggested();
-                
+
                 Global.DisableSystemSleep();
 
                 appSettings.CapturePostHog("resume-activity");
             }
         }
 
+        public void StopTimerOfRunningActivity()
+        {
+            if (bTimerRunning)
+            {
+                dispatcherTimer.Stop();
+                Global.EnableSystemSleep();
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
         public void HandleTimerForPostpone(bool bStop)
         {
             if (bStop)
@@ -627,7 +660,7 @@ namespace Focus_Bear.Habits
                     {
                         //It might be possible that a webview is visible, we will need to hide that
                         webView.Visibility = Visibility.Collapsed;
-                       
+
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = _parentWindow;
                         _parentWindow.GridShade.Visibility = Visibility.Visible;
@@ -636,7 +669,7 @@ namespace Focus_Bear.Habits
 
                         _parentWindow.GridShade.Visibility = Visibility.Collapsed;
                         webView.Visibility = Visibility.Visible;
-                      
+
 
                         if (bResult.Value)
                         {
@@ -651,12 +684,12 @@ namespace Focus_Bear.Habits
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
-                    if (appSettings.bPasswordRequireInSkipEvening)
+                    if (appSettings.bPasswordRequireInSkipEvening || (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff))
                     {
                         //It might be possible that a webview is visible, we will need to hide that
 
                         webView.Visibility = Visibility.Collapsed;
-                       
+
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = _parentWindow;
                         _parentWindow.GridShade.Visibility = Visibility.Visible;
@@ -665,7 +698,7 @@ namespace Focus_Bear.Habits
 
                         _parentWindow.GridShade.Visibility = Visibility.Collapsed;
                         webView.Visibility = Visibility.Visible;
-                       
+
 
                         if (bResult.Value)
                         {
@@ -693,7 +726,7 @@ namespace Focus_Bear.Habits
             //WE now need to set the duration seconds to actual for the grpahs and logging
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
-                habit tempHabit =  appSettings.arrAllMorningHabits[appSettings.nHabitIndex] ;
+                habit tempHabit = appSettings.arrAllMorningHabits[appSettings.nHabitIndex];
                 tempHabit.durationSeconds = appSettings.nTimerValForNonTimerActivities - nTimer;
                 appSettings.arrAllMorningHabits[appSettings.nHabitIndex] = tempHabit;
             }
@@ -718,9 +751,19 @@ namespace Focus_Bear.Habits
                     tempHabit.durationSeconds = appSettings.nTimerValForNonTimerActivities - nTimer;
                     appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex] = tempHabit;
                 }
- 
-            }
 
+            }
+            nTimer = 0;
+            //WE need to check if the timer is not running, we will play it
+            if (!bTimerRunning) //Pause mode
+            {
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnPausePlay);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
+        }
+        public void SetTimerToZeroToFinish()
+        {
             nTimer = 0;
         }
     }

@@ -29,10 +29,26 @@ namespace Focus_Bear.Focus
 
         int nTimer = 300; //Five minutes
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+        
+        public bool bShowingForNonTimeActivities = false;
 
         public BreakWindow()
         {
             InitializeComponent();
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                {
+                    this.Height = 141;
+                }
+            }
+            else
+            {
+                this.Height = 121;
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
 
             try
             {
@@ -151,6 +167,7 @@ namespace Focus_Bear.Focus
                 invokeProv.Invoke();
 
             }
+            bShowingForNonTimeActivities = false;
             Close(); //Best to close here and open new when we have the activity with completion requirement.
         }
     }

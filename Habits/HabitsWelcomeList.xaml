@@ -40,7 +40,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="{Binding SNumber, StringFormat=\{0\}}" Foreground="#000"  FontSize="23"   FontFamily="Segoe UI Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="0" Text="{Binding SNumber, StringFormat=\{0\}}" Foreground="#000"  FontSize="23"   FontWeight="Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
                         <TextBlock Grid.Column="1" Text="{Binding ActivityName, StringFormat=\{0\}}" FontSize="23" Foreground="#000" VerticalAlignment="Center" Margin="0,0,15,0" HorizontalAlignment="Left" >
                              
                         </TextBlock>
@@ -49,14 +49,14 @@
             </ListView.ItemTemplate>
  
         </ListView>
-        <Button Grid.Row="3" x:Name="btnCustomizeHabits"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnCustomizeHabits_Click">
+            <Button Grid.Row="3" x:Name="btnCustomizeHabits"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCustomizeHabits_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnCustomizeHabitsTXT" Text="xCustomize my habits first"/>
                 </StackPanel>
             </Button.Content>
         </Button>
-        <Button Grid.Row="4" IsDefault="True"  x:Name="btnBegin"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnBegin_Click" >
+            <Button Grid.Row="4" IsDefault="True"  x:Name="btnBegin"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnBegin_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnBeginTXT" Text="xBegin"/>

@@ -30,6 +30,16 @@ namespace Focus_Bear.Habits
         {
             InitializeComponent();
 
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+
             this.Topmost = true;
             this.ShowInTaskbar = false;
 
@@ -65,7 +75,7 @@ namespace Focus_Bear.Habits
             {
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
                 int nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
-                _parentWindow.PostponeOnboarding(nMinutesToPostpone);
+                _parentWindow.PostponeFocusSummary(nMinutesToPostpone);
                 Close();
             }
             catch (Exception ex)

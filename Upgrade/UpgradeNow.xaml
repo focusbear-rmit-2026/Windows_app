@@ -6,11 +6,12 @@
         xmlns:local="clr-namespace:Focus_Bear.Upgrade"
         xmlns:Models="clr-namespace:Focus_Bear.Models"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="633" Width="531" ResizeMode="NoResize">
-    <Grid Background="#eee" >
+        Title="Focus Bear" Height="645" Width="531" ResizeMode="NoResize">
+
+    <Grid Background="#eee" x:Name="GridMain" >
         <Grid.RowDefinitions>
             <RowDefinition Height="*"   />
-            <RowDefinition Height="117" />
+            <RowDefinition Height="129" />
         </Grid.RowDefinitions>
         <Grid>
             <Grid.Background >
@@ -19,14 +20,14 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="150" />
                 <RowDefinition Height="30" />
-                
+
                 <RowDefinition  Height="20" />
-                
+
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
-                
+
                 <RowDefinition Height="33" />
                 <RowDefinition Height="60" />
                 <RowDefinition Height="30" />
@@ -34,7 +35,7 @@
             </Grid.RowDefinitions>
 
             <Image Grid.Row="0" Height="140"  Width="140" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-            <TextBlock  Grid.Row="1" Margin="0,0,0,0" TextWrapping="Wrap" Text="Focus Bear" Foreground="#000" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="1" Margin="0,0,0,0" TextWrapping="Wrap" Text="Focus Bear" Foreground="#000" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Center" />
 
             <StackPanel Grid.Row="3" Orientation="Horizontal" >
                 <Image Grid.Row="0" Height="22"  Width="22"   Margin="150,0,0,0" Source="../Images/checkmark.png" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -55,19 +56,19 @@
 
             <TextBlock  Grid.Row="7" Visibility="Collapsed" TextWrapping="NoWrap" Name="Subscription"  Foreground="Red" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center">xYour Subscription has expired!</TextBlock>
 
-            <Button Grid.Row="8" Grid.ColumnSpan="2" x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="18" Cursor="Hand" FontFamily="Segoe UI Semibold" VerticalAlignment="Bottom" Click="btnUpgradeNow_Click">
+            <Button Grid.Row="8" Grid.ColumnSpan="2" x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="18" Cursor="Hand"  VerticalAlignment="Bottom" Click="btnUpgradeNow_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnUpgradeNowTXT" Margin="8" Text="xUpgrade Now"/>
+                        <TextBlock Name="btnUpgradeNowTXT" Padding="10,0,10,0" Text="xUpgrade Now"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
             <TextBlock Grid.Row="9"  Name="MoneyBack" Margin="0,0,0,0" TextWrapping="NoWrap" Text="xx30 Days Money Back.." Foreground="#272727" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
             <StackPanel Grid.Row="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                
+
                 <TextBlock   Name="YourUserId" Margin="0,0,10,0" TextWrapping="Wrap" Text="xYour user Id:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-                <TextBox TabIndex="0" x:Name="TxtUserId" IsReadOnly="True" Margin="0" Width="270" Height="22" TextWrapping="NoWrap" Background="#FFF" BorderBrush="#999" Foreground="#000" Padding="1,2,1,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1"  >
-                   
+                <TextBox TabIndex="0" x:Name="TxtUserId" IsReadOnly="True" Margin="0" Width="270" MinHeight="22" TextWrapping="NoWrap" Background="#FFF" BorderBrush="#999" Foreground="#000" Padding="1,2,1,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" VerticalContentAlignment="Center" >
+
                 </TextBox>
                 <Button  x:Name="btnCopyUserId"  IsEnabled="True"   Margin="10,0,0,0" Width="22" Height="22" HorizontalContentAlignment="Center" Padding="0"  FontSize="15" Cursor="Hand"   VerticalAlignment="Center" BorderBrush="#eee" Background="#eee" Click="btnCopyUserId_Click" ToolTip="xClose">
                     <Button.Content>
@@ -76,24 +77,30 @@
                 </Button>
             </StackPanel>
         </Grid>
-        <Grid Grid.Row="1"  Background="White">
+        <Grid Grid.Row="1" Background="White"   VerticalAlignment="Center">
             <Grid.RowDefinitions>
-                <RowDefinition Height="40"   />
-                <RowDefinition Height="*" />
+                <RowDefinition MinHeight="40" Height="auto"/>
+                <RowDefinition Height="auto" />
                 <RowDefinition Height="20" />
+                <RowDefinition Height="25" />
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0"  Name="AfterPay" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxAfter you pay, click the Sync Payment Status button below" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <Button Grid.Row="1"   x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="18" Cursor="Hand" FontFamily="Segoe UI Semibold"  Click="btnSyncPayment_Click">
+            <TextBlock Grid.Row="0"  Name="AfterPay" Margin="20,0,20,5" TextWrapping="Wrap" Text="xxAfter you pay, click the Sync Payment Status button below" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Grid.ColumnSpan="3"/>
+            <Button Grid.Row="1"   x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,2,20,0" FontSize="18" Cursor="Hand"    Click="btnSyncPayment_Click" Grid.Column="2">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnSyncPaymentTXT" Margin="8" Text="xSync Payment Status"/>
+                        <TextBlock Name="btnSyncPaymentTXT" Padding="10,0,10,0" Text="xSync Payment Status"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Image Grid.Row="2" x:Name="ImgUpdateAppProgress"   Models:ImageBehavior.AnimatedSource="../Images/progress.gif" HorizontalAlignment="Center" Margin="7,-1,0,0" VerticalAlignment="Bottom" Visibility="Collapsed"/>
-      
-            
+            <Image Grid.Row="2" x:Name="ImgUpdateAppProgress"   Models:ImageBehavior.AnimatedSource="../Images/progress.gif" HorizontalAlignment="Center" Margin="0,2,0,2" VerticalAlignment="Center" Visibility="Collapsed" Grid.Column="2"/>
+
+            <TextBlock x:Name="UninstallText" Grid.Row="3" Margin="20,2,20,2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="13" Height="22" Cursor="Hand" Grid.Column="2">
+             <Hyperlink x:Name="btnUninstall"  Foreground="#000" Click="btnUninstall_Click"   TextDecorations="Underline" ><Run x:Name="btnUninstallTXT" Text="xUninstall"/></Hyperlink>
+            </TextBlock>
+
         </Grid>
+        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
+
     </Grid>
 </Window>

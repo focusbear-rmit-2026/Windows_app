@@ -209,7 +209,10 @@ namespace Focus_Bear.Utils
         public List<QuantityQuestion> logQuantityQuestions;
         public string completion_requirements;
         public bool useTimer;
-        public habit(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer)
+        public bool show_saved_distracting_websites; //This means this is the relax activity, so nothing should be blocked
+        public bool bHighPriorityActivity;
+        public List<string> DaysOfWeek;
+        public habit(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites, bool bHighPriorityActivity, List<string> DaysOfWeek)
         {
             this.id = id;
             this.name = name;
@@ -225,6 +228,9 @@ namespace Focus_Bear.Utils
             this.logQuantityQuestions = logQuantityQuestions;
             this.completion_requirements = completion_requirements;
             this.useTimer = useTimer;
+            this.show_saved_distracting_websites = show_saved_distracting_websites;
+            this.bHighPriorityActivity = bHighPriorityActivity;
+            this.DaysOfWeek = DaysOfWeek;
         }
     }
 
@@ -341,6 +347,36 @@ namespace Focus_Bear.Utils
         }
     }
 
+    public struct OfflineEntry
+    {
+        public string activity_id;
+        public string duration_logged;
+        public string activity_sequence_id;
+        public string start_time;
+        public string finish_time;
+        public string skipped_did_complete;
+        public string choice_id;
+        public string quantity_logged;
+        public string skipped_did_not_complete;
+        public string note_logged;
+
+        
+
+        public OfflineEntry(string activity_id, string duration_logged, string activity_sequence_id, string start_time, string finish_time, string skipped_did_complete, string choice_id, string quantity_logged, string skipped_did_not_complete, string note_logged)
+        {
+            this.activity_id = activity_id;
+            this.duration_logged = duration_logged;
+            this.activity_sequence_id = activity_sequence_id;
+            this.start_time = start_time;
+            this.finish_time = finish_time;
+            this.skipped_did_complete = skipped_did_complete;
+            this.choice_id = choice_id;
+            this.quantity_logged = quantity_logged;
+            this.skipped_did_not_complete = skipped_did_not_complete;
+            this.note_logged = note_logged;
+        }
+    }
+
     public class FocusMode : INotifyPropertyChanged
     {
         public string id;
@@ -393,6 +429,7 @@ namespace Focus_Bear.Utils
         public bool isDefault;
         public bool isMeetings { get; set; }
         public bool isLockedFocus;
+        public bool isRelaxFocus;
 
         public bool isShowAbleInList
         {
@@ -421,7 +458,7 @@ namespace Focus_Bear.Utils
         {
 
         }
-        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, string sToolTip = "")
+        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, string sToolTip = "")
         {
             this.id = id;
             this.name = name;
@@ -432,11 +469,10 @@ namespace Focus_Bear.Utils
             this.isOn = isOn;
             this.isAllowedAllApps = isAllowedAllApps;
             this.isAllowedListApproach = isAllowedListApproach;
-            ////this.isAllowedAllUrls = isAllowedAllUrls;
-            ////this.isBlockedAllUrls = isBlockedAllUrls;
             this.isDefault = isDefault;
             this.isMeetings = isMeetings;
             this.isLockedFocus = isLockedFocus;
+            this.isRelaxFocus = isRelaxFocus;
             this.sToolTip = sToolTip;
         }
 
@@ -537,5 +573,44 @@ namespace Focus_Bear.Utils
             this.logged_value = logged_value;
         }
     }
+
+    public class RelaxURL
+    {
+        private bool isItemChecked;
+
+        public string sID { get; set; }
+        public string sURL { get; set; }
+        public bool IsItemChecked
+        {
+            get { return isItemChecked; }
+            set
+            {
+                isItemChecked = value;
+                OnChanged("IsItemChecked");
+            }
+        }
+
+        public RelaxURL()
+        {
+
+        }
+        public RelaxURL(string sID, string sURL, bool bChecked)
+        {
+            this.sID = sID;
+            this.sURL = sURL;
+            this.IsItemChecked = bChecked;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+    }
+
 }
- 
+

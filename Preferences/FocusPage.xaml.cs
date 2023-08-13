@@ -38,30 +38,18 @@ namespace Focus_Bear.Preferences
         public FocusPage(PreferencesWindow pp)
         {
             InitializeComponent();
-            _ParentWindow = pp;
-            /*
-               "focusPreferencesInfo":{
-        "titleFocusType":"Focus Type:",
-        "titleAllowedAllApps":"Allow all apps",
-        "titleAllowedSelectedApps":"Allow selected apps",
-        "titleAllowedAllUrls":"Allow all urls",
-        "titleAllowedSelectedUrls":"Allow selected urls (works with Safari and Chrome only)",
-        "noFocusAddedText":"Please add a Focus Type in left panel.",
-        "deleteFocusTypeMessageText":"Are you sure you want to delete the selected Focus type?",
-        "yesText":"Yes",
-        "noText":"No",
 
-                    "titleBlockedAllUrls":"Block all urls",
-        "titleBlockedSelectedUrls":"Block selected urls (works with Safari and Chrome only)",
-        "titleAllowUrlListApproch":"Block everything except safe sites that I choose",
-        "titleBlockUrlListApproch":"Allow everything except certain distracting sites",
-        "allowUrlsQuestionText":"How do you want to allow URLs?",
-        "blockUrlsQuestionText":"How do you want to block URLs?"
-            "duplicateText":"Duplicate",
-            "buttonDeleteFocusTypeText":"Delete",,
-                   "buttonAdvancedText":"Advanced",
-                         "buttonAddFocusTypeText":"Add Focus Mode",
-        */
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
+            _ParentWindow = pp;
+            
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleFocusType"].ToString();
@@ -84,7 +72,7 @@ namespace Focus_Bear.Preferences
 
             ListFocusModes.ItemsSource = appSettings.arrFocusModes;
 
-            ListFocusModes.SelectedIndex = 0;// ListFocusModes.FirstOrDefault(); ;
+            ListFocusModes.SelectedIndex = 0;
         }
 
         private void btnDeleteFocusMode_Click(object sender, RoutedEventArgs e)
@@ -94,7 +82,7 @@ namespace Focus_Bear.Preferences
                 var selectedItem = ListFocusModes.SelectedItem as FocusMode;
                 if (selectedItem != null)
                 {
-                    if (selectedItem.isDefault || selectedItem.isMeetings || selectedItem.isLockedFocus)
+                    if (selectedItem.isDefault || selectedItem.isMeetings || selectedItem.isLockedFocus || selectedItem.isRelaxFocus)
                     {
  
                         FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteSubTitle"].ToString(), "Focus Bear");
@@ -163,7 +151,7 @@ namespace Focus_Bear.Preferences
                 }
                 appSettings.CapturePostHog("duplicate-focus-mode");
                 //add to focus modes  array and Upload to api
-                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), newName, selectedFocusMode.arrAllowedUrls, selectedFocusMode.arrBlockedUrls, selectedFocusMode.arrAllowedAppsWin, selectedFocusMode.color, false, selectedFocusMode.isAllowedAllApps, selectedFocusMode.isAllowedListApproach, false, false, false));
+                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), newName, selectedFocusMode.arrAllowedUrls, selectedFocusMode.arrBlockedUrls, selectedFocusMode.arrAllowedAppsWin, selectedFocusMode.color, false, selectedFocusMode.isAllowedAllApps, selectedFocusMode.isAllowedListApproach, false, false, false, false));
             }
         }
         void AddFocusModeToArrayAndUploadtoAPI(FocusMode ff)
@@ -244,6 +232,9 @@ namespace Focus_Bear.Preferences
                     ListURLs.Visibility = Visibility.Visible;
                     btnAddAllowedURLs.Visibility = Visibility.Visible;
                     btnAddDeleteAllowedURLs.Visibility = Visibility.Visible;
+
+                    SelectedURLsListBG.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fff");
+                    SelectedURLsListBGSeperator.Background = new SolidColorBrush(Colors.LightGray);
                 }
 
                 selectedFocusMode.isAllowedListApproach = true;
@@ -263,13 +254,28 @@ namespace Focus_Bear.Preferences
             {
              
                 {
-                    ListURLs.IsEnabled = true;
-                    btnAddAllowedURLs.IsEnabled = true;
-                    btnAddDeleteAllowedURLs.IsEnabled = true;
+                   
+                    if (!selectedFocusMode.isRelaxFocus)
+                    {
+                        ListURLs.IsEnabled = true;
+                        btnAddAllowedURLs.IsEnabled = true;
+                        btnAddDeleteAllowedURLs.IsEnabled = true;
 
-                    ListURLs.Visibility = Visibility.Visible;
-                    btnAddAllowedURLs.Visibility = Visibility.Visible;
-                    btnAddDeleteAllowedURLs.Visibility = Visibility.Visible;
+                        ListURLs.Visibility = Visibility.Visible;
+                        btnAddAllowedURLs.Visibility = Visibility.Visible;
+                        btnAddDeleteAllowedURLs.Visibility = Visibility.Visible;
+
+                        SelectedURLsListBG.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fff");
+                        SelectedURLsListBGSeperator.Background = new SolidColorBrush(Colors.LightGray);
+
+                    }
+                    else
+                    {
+                        HowDoYouWant.Text = "All websited are allowed";//todo win texts // appSettings.ConfigFileStrings["focusPreferencesInfo"]["blockUrlsQuestionText"].ToString();
+
+                        SelectedURLsListBG.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fcf8f0");
+                        SelectedURLsListBGSeperator.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fcf8f0");
+                    }
                 }
 
                 selectedFocusMode.isAllowedListApproach = false;
@@ -576,7 +582,7 @@ namespace Focus_Bear.Preferences
                 //Call the API to upload the newly cread focus mode
                 //add to focus modes  array and Upload to api
                 //#A3FFA1 is the default color
-                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sFocusName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true,   false, false, false));
+                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sFocusName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true,   false, false, false, false));
             }
 
         }
@@ -591,7 +597,7 @@ namespace Focus_Bear.Preferences
                 {
                     
                     TxtFocusName.Text = selectedItem.name;
-                    if(selectedItem.isDefault || selectedItem.isMeetings || selectedItem.isLockedFocus)
+                    if(selectedItem.isDefault || selectedItem.isMeetings || selectedItem.isLockedFocus || selectedItem.isRelaxFocus)
                     {
                         TxtFocusName.IsEnabled = false;
                     }
@@ -599,7 +605,20 @@ namespace Focus_Bear.Preferences
                     {
                         TxtFocusName.IsEnabled = true;
                     }
+                    if(selectedItem.isRelaxFocus)
+                    {
+                        AllowSelectedApps.Visibility = Visibility.Collapsed;
 
+                        BlockEverything.Visibility = Visibility.Collapsed;
+                        AllowEverything.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        AllowSelectedApps.Visibility = Visibility.Visible;
+                        
+                        BlockEverything.Visibility = Visibility.Visible;
+                        AllowEverything.Visibility = Visibility.Visible;
+                    }
                     //check the appropriate radio boxes for apps
                     if (selectedItem.isAllowedAllApps)
                     {
@@ -623,7 +642,18 @@ namespace Focus_Bear.Preferences
                         ListURLs.ItemsSource = selectedItem.arrBlockedUrls;
                     }
 
-                    
+                    if (selectedItem.isRelaxFocus)
+                    {
+                        ListURLs.IsEnabled = false;
+                        btnAddAllowedURLs.IsEnabled = false;
+                        btnAddDeleteAllowedURLs.IsEnabled = false;
+
+                        ListURLs.Visibility = Visibility.Collapsed;
+                        btnAddAllowedURLs.Visibility = Visibility.Collapsed;
+                        btnAddDeleteAllowedURLs.Visibility = Visibility.Collapsed;
+                        
+                    }
+                    else
                     {
                         ListURLs.IsEnabled = true;
                         btnAddAllowedURLs.IsEnabled = true;

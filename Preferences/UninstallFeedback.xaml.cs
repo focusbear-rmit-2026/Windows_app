@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
+using Focus_Bear.Upgrade;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
@@ -31,9 +32,34 @@ namespace Focus_Bear.Preferences
         public UninstallFeedback(PreferencesWindow _ParentWindow)
         {
             InitializeComponent();
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
             this.Owner = _ParentWindow;
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
+            SetTexts();
+        }
+
+        public UninstallFeedback(UpgradeNow _ParentWindow)
+        {
+            InitializeComponent();
+            this.Owner = _ParentWindow;
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+            SetTexts();
+        }
+
+
+        private void SetTexts()
+        {
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["common"]["uninstallingText"].ToString();
@@ -42,7 +68,7 @@ namespace Focus_Bear.Preferences
                 ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["common"]["brokenAppReasonText"].ToString());
                 ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["common"]["habitsHardReasonText"].ToString());
                 ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["common"]["otherReasonText"].ToString());
-                
+
                 Minimum.Text = appSettings.ConfigFileStrings["common"]["minimumCharacterText"].ToString();
                 btnCancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
                 btnUninstallTXT.Text = appSettings.ConfigFileStrings["common"]["tabUninstallText"].ToString();
@@ -56,7 +82,6 @@ namespace Focus_Bear.Preferences
             ComboBoxReason.Focus();
             ComboBoxReason.IsDropDownOpen = true;
         }
-
         private void ComboBoxReason_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (TxtFeedback.Text.Length > 10 && ComboBoxReason.SelectedIndex != 0)

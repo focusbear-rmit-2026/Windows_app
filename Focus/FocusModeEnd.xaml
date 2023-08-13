@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="730" Width="954" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged" Closing="Window_Closing" Loaded="Window_Loaded">
+        Title="Focus Bear" Height="740" Width="954" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged" Closing="Window_Closing" Loaded="Window_Loaded">
     <local1:DpiDecorator>
         <Grid>
             <Grid.Background>
@@ -14,13 +14,14 @@
             </Grid.Background>
             <Grid.RowDefinitions>
                 <RowDefinition Height="80" />
-                <RowDefinition Height="60" />
+                <RowDefinition Height="75" />
                 <RowDefinition Height="50" />
                 <RowDefinition Height="100" />
                 <RowDefinition Height="50" />
                 <RowDefinition Height="100" />
                 <RowDefinition Height="50" />
                 <RowDefinition Height="100" />
+                <RowDefinition Height="75" />
                 <RowDefinition Height="*" />
 
             </Grid.RowDefinitions>
@@ -94,15 +95,15 @@
                     </Style>
                 </TextBox.FocusVisualStyle>
             </TextBox>
-            <StackPanel  Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button  x:Name="btnTakeBreak"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Foreground="#e88800" Height="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnTakeBreak_Click">
+            <StackPanel  Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+            <Button  x:Name="btnTakeBreak"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnTakeBreak_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnTakeBreakText" Margin="8" Text="xTake a 5 minutes break"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-                <Button   x:Name="btnStartAnotherFocusMode" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnStartAnotherFocusMode_Click">
+                <Button   x:Name="btnStartAnotherFocusMode" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartAnotherFocusMode_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnStartAnotherFocusModeText" Margin="8" Text="xStart another Focus Mode"/>

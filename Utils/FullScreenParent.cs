@@ -205,7 +205,7 @@ namespace Focus_Bear.Habits
                 return IntPtr.Zero;
 
             LogWriter.LogWrite("WM_DEVICE_CHANGE TRIGGERED");
-
+            LogWriter.LogWrite("wParam = " + wParam.ToString());
             switch ((int)wParam)
             {
                 case DeviceNotification.DbtDeviceRemoveComplete:

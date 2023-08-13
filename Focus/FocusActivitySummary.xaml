@@ -61,7 +61,7 @@
                         <RowDefinition Height="23"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" Width="1008"  Height="23" VerticalAlignment="Center">
+                    <Grid Grid.Row="0" Width="1008"  Height="30" VerticalAlignment="Center">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="160" />
                             <ColumnDefinition Width="160"/>
@@ -81,7 +81,7 @@
                                 <Setter Property="Background" Value="White" />
                             </Style>
                         </Grid.Resources>
-                        <Border Grid.Column="0">
+                        <Border Grid.Column="0" >
                             <TextBlock x:Name="FocusType" >xFocus Type</TextBlock>
                         </Border>
                         <Border Grid.Column="1">
@@ -163,7 +163,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="25"/>
                             </Grid.RowDefinitions>
-                            <Grid Grid.Row="0" Width="1008"  Height="25" VerticalAlignment="Center">
+                            <Grid Grid.Row="0" Width="1008"  Height="30" VerticalAlignment="Center">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="150" />
                                     <ColumnDefinition Width="*"/>
@@ -238,7 +238,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="25"/>
                             </Grid.RowDefinitions>
-                            <Grid Grid.Row="0" Width="1008"  Height="25" VerticalAlignment="Center">
+                            <Grid Grid.Row="0" Width="1008"  Height="30" VerticalAlignment="Center">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="150" />
                                     <ColumnDefinition Width="*"/>
@@ -313,7 +313,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="25"/>
                             </Grid.RowDefinitions>
-                            <Grid Grid.Row="0" Width="1008"  Height="25" VerticalAlignment="Center">
+                            <Grid Grid.Row="0" Width="1008"  Height="30" VerticalAlignment="Center">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="150" />
                                     <ColumnDefinition Width="*"/>
@@ -372,14 +372,14 @@
 
         
             <StackPanel Grid.Row="4" Orientation="Horizontal"   HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button  IsDefault="True" x:Name="btnNeedOneMinute"    Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" Padding="0" Margin="0,0,30,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnNeedOneMinute_Click" >
+            <Button  IsDefault="True" x:Name="btnNeedOneMinute"    Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" Padding="0" Margin="0,0,30,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNeedOneMinute_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnNeedOneMinuteTXT" Text="xI need One More Minute"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  IsDefault="True" x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="200"  HorizontalAlignment="Center"   Padding="0" Margin="30,0,0,0" FontSize="17" Cursor="Hand" FontFamily="Segoe UI Semibold" Click="btnContinue_Click" >
+            <Button  IsDefault="True" x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="200"  HorizontalAlignment="Center"   Padding="0" Margin="30,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnContinueTXT" Text="xContinue"/>
