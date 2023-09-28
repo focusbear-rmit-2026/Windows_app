@@ -47,7 +47,7 @@ namespace Focus_Bear.Focus
            
             this.Topmost = true;
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-         }
+        }
 
         private void btnTakeBreak_Click(object sender, RoutedEventArgs e)
         {
@@ -56,8 +56,12 @@ namespace Focus_Bear.Focus
 
         private async void Take5MinsBreak()
         {
-            LogWriter.LogWrite("Take5MinsBreak() Clicked");
-   
+            if (appSettings.bStartingAnotherFocusMode)
+                LogWriter.LogWrite("Take5MinsBreak() called from bStartingAnotherFocusMode");
+            else
+                LogWriter.LogWrite("Take5MinsBreak() Clicked");
+
+
             DateTime now = DateTime.Now;
             TimeSpan difference = now.Subtract(DateTime.Parse(appSettings.sRunningFocusModeStartTime)); // could also write `now - otherTime`
             var durationSeconds = difference.TotalSeconds;
@@ -70,6 +74,9 @@ namespace Focus_Bear.Focus
             //Call api top finish focus mode
             FocusBearAPIClient client = new FocusBearAPIClient();
             var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
+
+            if (appSettings.bStartingAnotherFocusMode)
+                return;
 
             Hide();
 
@@ -178,12 +185,31 @@ namespace Focus_Bear.Focus
                     btnTakeBreakText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonTakeBreakText"].ToString();
 
                     TxtIntention.Text = appSettings.sRunningFocusModeIntention; //Place the text
+                                                                                //
+                    try
+                    {
+                        if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
+                        {
+                            string arrTaskNames = "";
+                            JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawTasks);
+
+                            for (int i = 0; i < array.Count(); i++)
+                            {
+                                JObject TodoItem = JObject.Parse(array[i].ToString());
+                                string sName = TodoItem.ContainsKey("title") ? TodoItem["title"].ToString() : "";
+                                arrTaskNames += sName;
+                                arrTaskNames += "\n";
+                            }
+                            TxtIntention.Text = arrTaskNames;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("btnSelectTasks_Click() sRawTasks Exception - " + ex.Message);
+                    }
+                    //
 
                     btnStartAnotherFocusModeText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonStartFocusText"].ToString();
-
-                    //Empty the boxes
-                    TxtAchieve.Text = "";
-                    TxtDistractions.Text = "";
 
                     //Empty the boxes
                     TxtAchieve.Text = "";
@@ -233,6 +259,8 @@ namespace Focus_Bear.Focus
         {
             appSettings.bStartingAnotherFocusMode = true;
 
+            Take5MinsBreak();//needed to execute the finish focus mode api
+
             Hide();
 
             var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
@@ -241,6 +269,14 @@ namespace Focus_Bear.Focus
                 ((App)(Application.Current)).wndTrayMenu.ListFocusModes.SelectedItem = listItems.First();
             }
            
+        }
+
+        public void ShowTasksEndWindow()
+        {
+            GridShade.Visibility = Visibility.Visible;
+            SelectTasks wndSelectTasks = new SelectTasks(this);
+            wndSelectTasks.ShowDialog();
+            GridShade.Visibility = Visibility.Collapsed;
         }
     }
 }

@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -56,10 +58,23 @@ namespace Focus_Bear.ShutOff
             }
 
 
-#if DEBUG
-            this.WindowState = WindowState.Normal;
-            this.WindowStyle = WindowStyle.ToolWindow;
-#endif
+            if (!appSettings.bPlayActivitiesInFullScreenMode)
+            {
+                this.WindowState = WindowState.Normal;
+                this.WindowStyle = WindowStyle.ToolWindow;
+                this.Width = 1300;
+                this.Height = 750;
+
+                Time.Visibility = Visibility.Collapsed;
+                MainGrid.RowDefinitions[0].MinHeight = 5;
+            }
+
+            //Set the minimum so that in non full screen mode we do not go below this.
+            this.MinWidth = 1300;
+            this.MinHeight = 750;
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
+
             Time.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
 
             dispatcherTimerShowDateTime.Tick += new EventHandler(dispatcherTimerShowDateTime_Tick);
@@ -105,6 +120,12 @@ namespace Focus_Bear.ShutOff
             TxtTimer.Visibility = Visibility.Collapsed;
             TxtExplain.Visibility = Visibility.Collapsed;
             TxtExplaination.Visibility = Visibility.Collapsed;
+
+            if (!appSettings.bPlayActivitiesInFullScreenMode) //To get the access button little upward
+            {
+                MainGrid.RowDefinitions[4].MinHeight = 1;
+                MainGrid.RowDefinitions[5].MinHeight = 1;
+            }
 
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
@@ -178,6 +199,12 @@ namespace Focus_Bear.ShutOff
             TxtExplain.Visibility = Visibility.Visible;
             TxtExplaination.Visibility = Visibility.Visible;
 
+            if (!appSettings.bPlayActivitiesInFullScreenMode)
+            {
+                MainGrid.RowDefinitions[4].MinHeight = 100;
+                MainGrid.RowDefinitions[5].MinHeight = 100;
+            }
+
             TxtTimer.Text = appSettings.SecondsToTimerText(nTimer);
 
             dispatcherTimer.Start();
@@ -222,6 +249,12 @@ namespace Focus_Bear.ShutOff
             TxtTimer.Visibility = Visibility.Collapsed;
             TxtExplain.Visibility = Visibility.Collapsed;
             TxtExplaination.Visibility = Visibility.Collapsed;
+
+            if (!appSettings.bPlayActivitiesInFullScreenMode)
+            {
+                MainGrid.RowDefinitions[4].MinHeight = 1;
+                MainGrid.RowDefinitions[5].MinHeight = 1;
+            }
         }
         private void Unlock()
         {
@@ -229,6 +262,12 @@ namespace Focus_Bear.ShutOff
             TxtExplain.Visibility = Visibility.Collapsed;
             TxtExplaination.Visibility = Visibility.Collapsed;
             btnAction.Visibility = Visibility.Collapsed;
+
+            if (!appSettings.bPlayActivitiesInFullScreenMode)
+            {
+                MainGrid.RowDefinitions[4].MinHeight = 1;
+                MainGrid.RowDefinitions[5].MinHeight = 1;
+            }
 
             try
             {
@@ -348,6 +387,24 @@ namespace Focus_Bear.ShutOff
         private void Window_Closed(object sender, EventArgs e)
         {
             appSettings.RemoveSecondaryWindows();
+        }
+
+        private void FullScreenParent_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            bool wasCodeClosed = new StackTrace().GetFrames().FirstOrDefault(x => x.GetMethod() == typeof(Window).GetMethod("Close")) != null;
+            if (wasCodeClosed)
+            {
+                // Closed with this.Close()
+            }
+            else
+            {
+                e.Cancel = true;
+                // Closed some other way - like close button clicked.
+                // first Please spare me button to postpone
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnAction);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
         }
     }
 }

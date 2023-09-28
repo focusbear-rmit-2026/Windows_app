@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.BrainDump"
         mc:Ignorable="d"
-        Title="BrainDumpWindow" Height="457" Width="315" ResizeMode="NoResize" Closing="Window_Closing">
+        Title="Focus Bear" Height="457" Width="315" ResizeMode="NoResize" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>

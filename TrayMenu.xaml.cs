@@ -278,8 +278,10 @@ namespace Focus_Bear
                 return;
             }
 
-            //todo Win text
-            FBMessageBox ff = new FBMessageBox("With Pomodoro mode, you automatically cycle between focus sessions and breaks (e.g. 25 minutes on, 5 minutes off)", "We haven't built Pomodoro mode yet on Windows. How badly do you want this feature?", MessageBoxButton.YesNoCancel, "I need this!", "I probably wouldn't use it", "I might use it"  );
+            string sMessage = appSettings.ConfigFileStrings["WindowsSpecific"]["withPomodoroMode"].ToString(); //"With Pomodoro mode, you automatically cycle between focus sessions and breaks (e.g. 25 minutes on, 5 minutes off)";
+            string sHeading = appSettings.ConfigFileStrings["WindowsSpecific"]["weHaventBuiltPomodoro"].ToString(); //"We haven't built Pomodoro mode yet on Windows. How badly do you want this feature?"
+                
+            FBMessageBox ff = new FBMessageBox(sMessage, sHeading, MessageBoxButton.YesNoCancel, appSettings.ConfigFileStrings["WindowsSpecific"]["iNeedThis"].ToString(), appSettings.ConfigFileStrings["WindowsSpecific"]["iWontUseIT"].ToString(), appSettings.ConfigFileStrings["WindowsSpecific"]["iMightUseIt"].ToString());
             ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             ff.ShowDialog();
             if(ff.btnClicked == MessageBoxResult.Yes) // "I need this!"
@@ -332,7 +334,8 @@ namespace Focus_Bear
                         //Check here if the Breaks window is visible, we will hide it.
                         if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
                         {
-                            ((App)(Application.Current)).wndTakeABreak.HideBreakWindowAndStopTimer();
+                            ((App)(Application.Current)).wndTakeABreak.Close();
+                            ((App)(Application.Current)).wndTakeABreak = null;
                         }
 
                         if(selectedItem.isRelaxFocus && appSettings.bPasswordRequireToUseRelaxFocusMode)
@@ -358,6 +361,8 @@ namespace Focus_Bear
                         StartFocusMode wndFocus = new StartFocusMode(selectedItem.name, selectedItem.isDefault, selectedItem.isLockedFocus);
                         wndFocus.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                         wndFocus.Topmost = true;
+
+                        appSettings.sRawTasks = ""; //reset this as there may be something selected from old focus mode 
 
                         bool? bResult = wndFocus.ShowDialog();
 

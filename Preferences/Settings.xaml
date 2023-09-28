@@ -24,46 +24,11 @@
                     <Grid>
                         <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="30"/>
                         <RowDefinition Height="Auto"/>
                         
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="235"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid Grid.Column="0" Margin="0,50,0,0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="27"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="27"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0"   Name="FocusBearMode" Margin="0,2,15,0"  TextWrapping="Wrap"    Text="Focus Bear mode:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
-                        </Grid>
-                        <Grid Grid.Column="1" Margin="0,50,20,0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="27"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="27"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <RadioButton Grid.Row="0" VerticalAlignment="Center"  Name="CuddlyMode" Margin="0,0,0,0" Padding="5,-4,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="CuddlyMode_Checked">
-                                xCuddly Bear mode
-                            </RadioButton>
-                            <TextBlock Grid.Row="1"   Name="CuddlyModeDesc" Margin="20,0,0,20"  TextWrapping="Wrap"    Text="xCuddly Bear mode: kind and gentle - gives you the benefit of the doubt when you open a non-allowed URL. Lets you temporarily allow blocked URLs during a focus mode."  Foreground="Black" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
-
-                            <RadioButton Grid.Row="2" VerticalAlignment="Center"  Name="GrizzlyMode" Margin="0,0,0,0" Padding="5,-3,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="GrizzlyMode_Checked">
-                                xGrizzly Bear mode
-                            </RadioButton>
-                            <TextBlock Grid.Row="3"    Name="GrizzlyModeDesc" Margin="20,0,0,20" TextWrapping="Wrap"   Text="xGrizzly Bear mode: super strict - immediately block URLs that aren't allowed and don't let yourself allow them until the focus mode is over."  Foreground="Black" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
-
-                        </Grid>
-
-                        </Grid>
-
-                        <Grid Grid.Row="1" >
+                        <Grid Grid.Row="0" >
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="235"/>
                                 <ColumnDefinition Width="*"/>
@@ -71,12 +36,53 @@
                             <Grid Grid.Column="0" Margin="0,50,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="27"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="27"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0"   Name="FocusBearMode" Margin="0,2,15,0"  TextWrapping="Wrap"    Text="Focus Bear mode:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
+                            </Grid>
+                            <Grid Grid.Column="1" Margin="0,50,20,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="27"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="27"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <RadioButton Grid.Row="0" VerticalAlignment="Center"  Name="CuddlyMode" Margin="0,0,0,0" Padding="5,-4,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="CuddlyMode_Checked">
+                                    xCuddly Bear mode
+                                </RadioButton>
+                                <TextBlock Grid.Row="1"   Name="CuddlyModeDesc" Margin="20,0,0,20"  TextWrapping="Wrap"    Text="xCuddly Bear mode: kind and gentle - gives you the benefit of the doubt when you open a non-allowed URL. Lets you temporarily allow blocked URLs during a focus mode."  Foreground="Black" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+
+                                <RadioButton Grid.Row="2" VerticalAlignment="Center"  Name="GrizzlyMode" Margin="0,0,0,0" Padding="5,-3,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="GrizzlyMode_Checked">
+                                    xGrizzly Bear mode
+                                </RadioButton>
+                                <TextBlock Grid.Row="3"    Name="GrizzlyModeDesc" Margin="20,0,0,20" TextWrapping="Wrap"   Text="xGrizzly Bear mode: super strict - immediately block URLs that aren't allowed and don't let yourself allow them until the focus mode is over."  Foreground="Black" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+
+                            </Grid>
+
+                        </Grid>
+                        <Grid Grid.Row="1" >
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Name="FullScreen" Margin="0,0,0,0"  Width="215" TextWrapping="Wrap"   Text="xFull Screen View:"  Foreground="Black" FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
+                                <CheckBox Name="FullScreenCheckbox" Margin="40,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" Checked="FullScreenCheckbox_Checked" Unchecked="FullScreenCheckbox_Unchecked" Cursor="Hand" Padding="5,-2,0,0">xPlay activities in full screen mode</CheckBox>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Grid.Row="2" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="235"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" Margin="0,40,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="27"/>
                                     <RowDefinition MinHeight="27"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0"   Name="SelectFont" Margin="0,2,15,0"  TextWrapping="Wrap"    Text="xApplication Font:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
                                 <TextBlock Grid.Row="1"   Name="SelectLanguage" Margin="0,20,15,0"  TextWrapping="Wrap"    Text="xxSelect Language:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
                             </Grid>
-                            <Grid Grid.Column="1" Margin="0,50,20,0">
+                            <Grid Grid.Column="1" Margin="0,40,20,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition MinHeight="27"/>
                                     <RowDefinition MinHeight="27"/>
@@ -86,7 +92,7 @@
                             </Grid>
 
                         </Grid>
-                        
+
                     </Grid>
                 </TabItem>
                 <TabItem Name="BlockedURLTab" Header="xBlocked URLs">

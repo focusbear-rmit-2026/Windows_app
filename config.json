@@ -162,7 +162,8 @@
         "alertUploadLogText": "Do you want to upload the logs to our server for us to review what was broken?",
         "uploadingText": "Uploading...",
         "reminderUninstallText": "Quick reminder: you need to drag the Focus Bear from the Applications folder to Trash to fully uninstall the app.",
-        "alertOnboardingVideoText": "You'll be able to use the Focus Bear menu as soon as you have finished watching the onboarding video."
+        "alertOnboardingVideoText": "You'll be able to use the Focus Bear menu as soon as you have finished watching the onboarding video.",
+        "tabBlockedAppsText": "Blocked Apps"
     },
     "abortInfo": {
         "abortingTitle": "Cancelling..",
@@ -382,7 +383,10 @@
         "menuItemSetFocusModesTitle": "Set up Focus Modes",
         "toolTipLockedFocus": "Use this if you want to focus on using one app/reading one article. We'll detect the current app + site you have open and block everything else.",
         "menuItemOpenChecklistTitle": "Open checklist",
-        "menuItemMeetingDetectionBreaksOnTitle": "Meeting active - breaks on"
+        "menuItemMeetingDetectionBreaksOnTitle": "Meeting active - breaks on",
+        "menuItemPauseFocusModeTitle": "Pause this focus mode",
+        "menuItemStopFocusModeTitle": "Stop this focus mode",
+        "menuItemResumeFocusModeTitle": "Resume this focus mode"
     },
     "preferencesInfo": {
         "titlePomodoro": "Pomodoro Mode:",
@@ -428,7 +432,7 @@
         "radioButtonHardSkipText": "Make it hard to skip - otherwise I'll end up skipping habits + breaks most of the time",
         "buttonExportLogsText": "Click here to export logs to share with Support Team.",
         "buttonPanelExportLogsText": "Export Logs",
-        "panelExportLogsText": "Export logs to share with Focus Bear Support Team",
+        "panelExportLogsText": "Export logs to share with Focus Bear Support Team. We'll save the logs to the folder you choose.",
         "exportSuccessText": "Your logs are available to share in the FocusBearLogs.zip file in the <URL> directory",
         "titleMeetingDetection": "Meeting detection",
         "descriptionMeetingDetectionText": "Enable meeting detection to automatically suggest starting \"Meetings\" focus mode when Focus Bear detects you are in a call.",
@@ -457,7 +461,10 @@
         "checkBoxShowBreaksInCallText": "Show breaks while in call",
         "titleReloadAppAfterForceQuit": "Reload:",
         "checkBoxReloadAppAfterForceQuitText": "Reload after Force Quit",
-        "titleFont": "Application Font:"
+        "titleFont": "Application Font:",
+        "titlePomodoroShortcut": "Shortcut to start pomodoro:",
+        "recordShorcutText": "Record Shortcut",
+        "alertShortcutErrorText": "Please use a different key combination."
     },
     "focusPreferencesInfo": {
         "titleFocusType": "Use Focus Modes to stay focused on a certain type of work. Start a focus mode from the Focus Bear menu.",
@@ -517,7 +524,9 @@
         "titleBlockedUrls": "Below is the list of Always Blocked URLs:",
         "checkBoxDoNotDisturbText": "Block Notifications while focusing",
         "buttonDeleteUrlText": "Delete URL",
-        "relaxFocusText": "Relax - block nothing"
+        "relaxFocusText": "Relax - block nothing",
+        "titleTags": "Reporting Tags:",
+        "tagsInfoText": "Add tags to be able to prepare time logs for specific focus blocks. Examples of tags would be: billable, jones, client, Project 1."
     },
     "focusPreferencesAdvancedInfo": {
         "runScriptBeforeText": "Run apple script before starting focus mode.",
@@ -553,7 +562,10 @@
             "tipMaximumMinutesText": "Tip: research indicates that 90 minutes is the maximum limit for focused work (ultradian rhythms). After that, your attention will naturally decline and you'll need to take a break.",
             "buttonShowTimerInMenuText": "Show timer in menu bar when running a Focus Block",
             "buttonSettingsText": "Settings",
-            "buttonSaveIntentionText": "Save intention as template"
+            "buttonSaveIntentionText": "Save intention as template",
+            "buttonWriteIntentionText": "Write a freeform intention instead",
+            "buttonChooseTaskText": "Choose task to work on",
+            "selectedTasksText": "Selected Tasks:"
         },
         "abortingFocusModeInfo": {
             "title": "Deactivating Focus Block - <FOCUSTYPE>",
@@ -572,7 +584,27 @@
             "titleIntention": "Your intention was",
             "buttonTakeBreakText": "Take a 5 minute break",
             "buttonStartFocusText": "Start another focus block",
-            "alertFullScreenBreakText": "Do you want to take a full screen break?"
+            "alertFullScreenBreakText": "Do you want to take a full screen break?",
+            "titleTags": "Reporting Tags",
+            "tourMessagesInfo": [
+                {
+                    "title": "Intention",
+                    "description": "Reminder of what you planned to do in this focus block.",
+                },
+                {
+                    "title": "Achivements",
+                    "description": "Write a summary of what you achieved - this goes in the Focus Summary section in your stats. You can export it as a CSV - handy if you need to share timesheets or just want to analyse your own productivity.",
+                },
+                {
+                    "title": "Reporting Tags",
+                    "description": "Add reporting tags to help analyse your time logs. For example, you could add a \"billable\" tag if you're a freelancer or add tags for certain clients.",
+                },
+                {
+                    "title": "Distractions",
+                    "description": "Did you face any distractions? Write a summary here to help see patterns (this doesn't get shared with anyone else).",
+                }
+            ],
+            "titleTourBox": "Focus Complete Block"
         },
         "focusSummaryInfo": {
             "title": "You completed <COUNT> focus blocks today.",
@@ -623,7 +655,7 @@
         "alertWarningPaswwordSetText": "To make super pomodoro mode more effective, we recommend setting a password in Preferences (ask someone else to do it for you) otherwise you'll still be able to cancel the focus modes before the time is up.",
         "completedPomodoroCountText": "You have completed <COMPLETED_POMODORO> of <TOTAL_POMODORO> pomodoros. <REMAINING_POMODORO> more to go.",
         "buttonSkipMicrobreaksText": "Skip microbreaks during work blocks",
-        "timerText": "Time spend unfocused: <TIME>"
+        "timerText": "Time spent unfocused: <TIME>"
     },
     "logQuantityInfo": {
         "title": "Log Quantity of activity",
@@ -679,9 +711,10 @@
         "buttonUseRelaxFocusModeText": "Allow using relax focus mode"
     },
     "blockedUrlsViewInfo": {
-        "title": "Always Blocked URLs",
+        "title": "Super Distracting Sites",
         "invalidDomainText": "Adding * will block all urls. Please use another combination.",
-        "subTitleText": "\"Block these URLs even if you're not in a focus block. You might want to put social media or news sites that you would rather not use at any time. You can always set up an evening routine activity where you explicitly allow access to Facebook so that you can still stay connected - just not during your morning routine/work day.\""
+        "subTitleText": "Which sites do you waste time on? Focus Bear will help you be more intentional about how you use these sites. They will be blocked during focus sessions. The rest of the time, Focus Bear will ask you why you want to use the site.",
+        "checkBoxText": "Immediately block super distracting sites"
     },
     "rememberNextHabitViewInfo": {
         "randomPhraseRightChoice1": "Right on!",
@@ -760,14 +793,20 @@
         "titleWorkNoteFirst": "Things I'll do in my next break:",
         "titleWorkNoteSecond": "Things you wanted to do in your break:",
         "titleNotFocusSession": "You're currently not in a focus block",
-        "writeThingsHereText": "Dump down ideas you have so you don't forget - anything you write here will remain forever unless you delete it"
+        "writeThingsHereText": "Dump down ideas you have so you don't forget - anything you write here will remain forever unless you delete it",
+        "titleTimeSpentText": "Time spent:"
     },
     "askLogInVcInfo": {
         "title": "Save your habits to your account.",
         "messageText": "Sign In with a Focus Bear account to manage your time without thinking about it. Having an account helps you set your computer use hours, create a custom morning and night routine, and customize your focus modes for different activities.",
         "buttonSignInText": "Sign In",
         "buttonSignUpText": "Sign Up",
-        "descriptionText": "Nearly done! Let's grab a few details to save your habits."
+        "descriptionText": "Nearly done! Let's grab a few details to save your habits.",
+        "buttonSignInEmailText": "Sign In with Email",
+        "buttonSignInGoogleText": "Sign In with Google",
+        "buttonSignInAppleText": "Sign In with Apple",
+        "loginComingSoonTitle": "Coming Soon - for now register again with a password to link your existing account.",
+        "loginComingSoonDescription": "We don't have support for single sign on yet on desktop. If you've already registered for an account via Google/Apple on mobile, you'll need to register again with an email and password and it will link to the existing account you have."
     },
     "upgradeNowVcInfo": {
         "pointFirstText": "Personalized habit routines",
@@ -897,7 +936,11 @@
         "chooseOptionsText": "Choose one of the following options:",
         "infoBuildHabitsText": "Focus Bear can help you with morning and evening routines. The app will guide you through habits like mindfulness, journalling, exercise, planning your day or anything you care about.",
         "infoStayFocusedText": "Focus Bear can help block distracting websites and apps while you're working to help you get more done.",
-        "habitPackInfoText": "A habit pack is a collection of habits to do in the morning, the evening and during breaks"
+        "habitPackInfoText": "A habit pack is a collection of habits to do in the morning, the evening and during breaks",
+        "checkBoxMeditateConsistentlyText": "Meditate consistently",
+        "checkBoxSleepBetterText": "Sleep better",
+        "checkBoxExerciseMoreText": "Exercise more",
+        "checkBoxImproveBalanceText": "Improve work life balance"
     },
     "toolBoxVcInfo": {
         "title": "The toolbox makes it easy to open the apps and websites that you've allowed in the <FOCUS_NAME> focus mode. You can access it from the Menu under Tools.",
@@ -1070,6 +1113,7 @@
         "questionStartWorkTimeText": "What time do you start work?",
         "questionFinishWorkTimeText": "What time do you finish work?",
         "explanationText": "Your schedule looks like:\n\n🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n🥱 <END_WORK_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)",
+        "explanationTextWIN": "Your schedule looks like:\n\n🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Relax - block nothing\n\n<RELAX_END_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)",
         "titleTimeText": "Your schedule looks like:",
         "morningRoutineTimeText": "🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine",
         "prepareToStartWorkTimeText": "💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)",
@@ -1077,7 +1121,8 @@
         "eveningRoutineTimeText": "🥱 <END_WORK_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.",
         "lockComputerTimeText": "😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)",
         "questionSleepTimeText": "What time do you want to go to sleep?",
-        "sleepTimeAlertText": "Sleep time cannot be less than finish work time."
+        "sleepTimeAlertText": "Sleep time cannot be less than finish work time.",
+        "relaxTimeText": "🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Relax - block nothing"
     },
     "welcomeVcInfo": {
         "descriptionFirstText": "Focus Bear helps you avoid distractions and build healthy habits.",
@@ -1110,7 +1155,10 @@
         "tryBrowsersBlockTextWIN": "Did you use Google Chrome, Firefox, Brave Browser or Microsoft Edge?\nWe can only block if you use those browsers.",
         "buttonStillNotBlockedText": "Still not working",
         "buttonNowBlockedText": "I just tried those browsers and it worked!",
-        "emailUsText": "Sorry about that 😓 Any chance you could email us (team@focusbear.io) and we'll try and fix it for you?"
+        "emailUsText": "Sorry about that 😓 Any chance you could email us (team@focusbear.io) and we'll try and fix it for you?",
+        "descriptionTryIntentionText": "Try opening <BLOCKED_URL>. Focus Bear will help you be more intentional with how you use the site.",
+        "buttonItBlockedNewText": "It made me more intentional",
+        "buttonDidNotBlockedNewText": "It didn't stop me at all"
     },
     "askBuildHabitsVcInfo": {
         "titleBlockedSuccessfully": "Awesome! We look forward to helping you block distractions.",
@@ -1209,6 +1257,7 @@
         "buttonGetStartedText": "Get Started",
         "buttonNextText": "Next >",
         "buttonFinishText": "Finish",
+        "indexText": "<CURRENTINDEX> of <TOTALCOUNT>",
         "tourMessagesInfo": [
             {
                 "title": "Focus Bear",
@@ -1227,12 +1276,63 @@
                 "title": "Setup Focus mode",
                 "description": "Setup focus modes to et into deep work with distraction blocking. You can remove blocks if you have an emergency.",
             }
-        ]
+        ],
+        "titleAlertSetupComplete":"Setup complete!",
+        "subTitleAlertSetupComplete":"To get up and running quickly, have a read of our quick start guide.",
+        "buttonOkText":"Enlighten me"
     },
     "relaxModeVcInfo":{
         "title": "Sites you saved for relax mode:",
         "toolTipRemoveUrls": "Remove Selected URLs",
         "buttonActivityDoneText": "I'm done relaxing. Start winding down!"
+    },
+    "setIntentionBlockedUrlsVcInfo":{
+        "title": "You said <SITE> is super distracting for you. What do you want to achieve during your time here?",
+        "buttonSetIntentionText": "Set Intention",
+        "buttonBlockText": "Block it",
+        "buttonDontShowAgainText": "Don't ask for intentions - block super distracting sites immediately",
+        "selectMinutesText": "Select minutes to use this site?",
+        "buttonDontShowAgainForBlockAppText": "Don't ask for intentions - block super distracting apps immediately",
+        "confirmUseAgainText": "Are you sure? You already spent <MINUTES> minutes"
+    },
+    "intentionBlockedUrlsVcInfo":{
+        "title": "Your intention for <SITE>",
+        "buttonBlockText": "I'm done. Block this site now",
+        "buttonBlockAppText": "I'm done. Block this app now"
+    },
+    "blockedAppsViewInfo": {
+        "title": "Super Distracting Apps",
+        "subTitleText": "Which apps do you waste time on? Focus Bear will help you be more intentional about how you use these apps. They will be blocked during focus sessions. The rest of the time, Focus Bear will ask you why you want to use the app.",
+        "checkBoxText": "Immediately block super distracting apps",
+        "addBrowserAlertText": "Sorry you can't choose browser apps here. Instead put distracting websites in the Super Distracting URLs section."
+    },
+    "settingsNew": {
+        "uiSettingTitle": "UI",
+        "accessibilitySettingTitle": "Accessibility",
+        "aISettingTitle": "AI Features",
+        "pomodoroSettingTitle": "Pomodoro",
+        "strictnessSettingTitle": "Strictness",
+        "advancedSettingTitle": "Advanced",
+        "accountSettingTitle": "Account",
+        "uninstallSettingTitle": "Uninstall",
+        "frictionSettingTitle": "Friction",
+        "passwordSettingTitle": "Password",
+        "focusModeSettingTitle": "Focus Mode",
+        "tabLimiterSettingTitle": "Browser tab limiter",
+        "meetingsSettingTitle": "Meetings",
+        "privacySettingTitle": "Privacy",
+        "breaksSettingTitle": "Micro Breaks"
+    },
+    "impactMeasurementVcInfo": {
+        "title": "Analyse Your Sleep and Mood",
+        "description": "Would you like to track your sleep and mood to see if Focus Bear is making a positive difference to your life? This would help us too by giving us (anonymous) data about the impact of our app.",
+        "subTitleText": "Data we'll collect",
+        "pointFirstText": "Hours of sleep",
+        "pointSecondText": "Your mood and energy level",
+        "pointThirdText": "How productive you felt at the end of the day",
+        "buttonCancelText": "No thanks",
+        "buttonOkText": "OK sure",
+        "packId":"f522e5d0-6e40-4dd4-9010-338529a7223e"
     },
     "WindowsSpecific": {
         "welcomeVideoUrl": "https://www.youtube.com/watch?v=xTUIGfmi3xg",
@@ -1253,6 +1353,7 @@
         "iWontUseIT": "I probably wouldn't use it",
         "iMightUseIt": "I might use it",
         "downloadingUpdate": "Downloading Update",
-        "downloadProgress": "Downloading Update: {0} of {1}"
+        "downloadProgress": "Downloading Update: {0} of {1}",
+        "allWebsitesAllowed": "All websites are allowed",
     }
 }

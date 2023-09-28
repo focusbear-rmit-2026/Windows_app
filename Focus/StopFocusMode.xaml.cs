@@ -117,18 +117,26 @@ namespace Focus_Bear.Focus
                 }
                 else
                 {
-                    LogWriter.LogWrite("Focuse mode Aborted()");
+                    if(appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
+                    {
+                        //Show the Focusmode end dialog
+                        ((App)(Application.Current)).ShowFocusEndWindow();
+                    }
+                    else
+                    {
+                        LogWriter.LogWrite("Focuse mode Aborted()");
 
-                    DateTime now = DateTime.Now;
-                    TimeSpan difference = now.Subtract(DateTime.Parse(appSettings.sRunningFocusModeStartTime)); // could also write `now - otherTime`
-                    var durationSeconds = difference.TotalSeconds;
+                        DateTime now = DateTime.Now;
+                        TimeSpan difference = now.Subtract(DateTime.Parse(appSettings.sRunningFocusModeStartTime)); // could also write `now - otherTime`
+                        var durationSeconds = difference.TotalSeconds;
 
-                    int nSeconds = Convert.ToInt32(durationSeconds);
-                    appSettings.AddEntryInCSV("focus mode abort", "focus block - " + appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, "", "", sOption, "");
+                        int nSeconds = Convert.ToInt32(durationSeconds);
+                        appSettings.AddEntryInCSV("focus mode abort", "focus block - " + appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, "", "", sOption, "");
 
-                    //Call api top finish focus mode
-                    FocusBearAPIClient client = new FocusBearAPIClient();
-                    var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
+                        //Call api top finish focus mode
+                        FocusBearAPIClient client = new FocusBearAPIClient();
+                        var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
+                    }
                 }
 
                 DialogResult = true;

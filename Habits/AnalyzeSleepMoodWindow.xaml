@@ -1,0 +1,47 @@
+﻿<Window x:Class="Focus_Bear.Habits.AnalyzeSleepMoodWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Habits"
+        mc:Ignorable="d"
+        Title="AnalyzeSleepMoodWindow" Height="540" Width="810" WindowStyle="None"  WindowStartupLocation="CenterScreen" ShowInTaskbar="False" >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="90"/>
+            <RowDefinition Height="130"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="140"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,30,0,0" TextWrapping="Wrap" Text="xAnalyse Your Sleep and Mood" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1" Name="Description" Margin="30,0,30,0" TextWrapping="Wrap" Text="xWould you like to track your sleep and mood to see if Focus Bear is making a positive difference to your life? This would help us too by giving us (anonymous) data about the impact of our app." Foreground="#000" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
+        <TextBlock  Grid.Row="2" Name="Data"  Margin="185,0,30,0" TextWrapping="Wrap" Text="xData we'll collect" Foreground="#000" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+        <TextBlock  Grid.Row="3" Name="Data1" Margin="185,0,30,0" TextWrapping="Wrap" Text="xHours of sleep" Foreground="#000" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+        <TextBlock  Grid.Row="4" Name="Data2" Margin="185,0,30,0" TextWrapping="Wrap" Text="xYour mood and energy level" Foreground="#000" FontSize="18"  VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+        <TextBlock  Grid.Row="5" Name="Data3" Margin="185,0,30,0" TextWrapping="Wrap" Text="xHow productive you felt at the end of the day" Foreground="#000" FontSize="18" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+        <StackPanel  Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button  x:Name="btnNoThanks"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,15,0" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnNoThanks_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnNoThanksText" Margin="8" Text="xNo Thanks"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+            <Button x:Name="btnSure"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="15,0,0,0" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnSure_Click"  >
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnSureText" Margin="8" Text="xOk Sure"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>
+
+    
+    

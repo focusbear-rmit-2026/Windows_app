@@ -65,9 +65,9 @@ namespace Focus_Bear.Utils
 
         //App Update
         public static string AppIniFileURL { get { return "https://downloads.focusbear.io/update/windows/update.ini"; } }
-        public static readonly string AppUpdateINIPath = AppDataDirPath + "\\update.ini";
+        public static readonly string AppUpdateINIPath = Path.Combine(AppDataDirPath, "update.ini");
 
-        public static readonly string FocusBlockPagePath = AppDataDirPath + "\\focus-block.html";
+        public static readonly string FocusBlockPagePath = Path.Combine(AppDataDirPath, "focus-block.html");
 
         public bool bRestartAppNeeded = false;
         public string sMacAddress { get; set; }
@@ -100,7 +100,7 @@ namespace Focus_Bear.Utils
         public bool bGoalHealthyHabits { get; set; }
         public bool bGoalStayFocused { get; set; }
         public bool bExitFullScreenClickedWhileOnboarding { get; set; }
-        public DateTime MorningHabitsShownDate { get; set; }
+        public DateTime MorningHabitsShownTillDate { get; set; }
         public DateTime EveningHabitsShownTillDate { get; set; }
 
         public DateTime FocusSummaryShownTillDate { get; set; }
@@ -166,6 +166,8 @@ namespace Focus_Bear.Utils
         public bool bHabitsPostponedState = false; //variable to handle the Resume Habits menu item
         public bool bFocusSummaryPostponedState = false; //variable to handle the Resume Habits menu item in case of focus summary postponed
 
+        public string sRawTasks;
+        public string sRawTasksDone; //used to get a list of tasks done from focus mode end window.
 
         public JArray arraySkipped = new JArray();
         public bool bShowActivitiesFromMidLastSkipped = false;
@@ -175,6 +177,8 @@ namespace Focus_Bear.Utils
         public bool bSkipWhileActivityOngoing = false;
 
         public List<BlankWindow> SecondaryWindows = new List<BlankWindow>();
+
+        public bool bPlayActivitiesInFullScreenMode = false;
 
         //Breaks Related
         public string[] activityAllowedFocusApps;
@@ -275,11 +279,6 @@ namespace Focus_Bear.Utils
 
         public string sOfflineDataCSVPath;
 
-        public string sGraphDaysPath;
-        public string sGraphDaysDurationPath;
-        public string sGraphTimePath;
-        public string sGraphTimesDurationPath;
-
         public bool bStringsLoaded;
 
         public int nTimerValForNonTimerActivities = 86400; //Timer val for non - timer activities
@@ -310,16 +309,11 @@ namespace Focus_Bear.Utils
             LogWriter.LogWrite("nHabitIndex = " + nHabitIndex);
             nCurrentActivityType = CurrentActivityType.NONE;
 
-            sConfigFilePath = AppDataDirPath + "\\config.json";
-            sLogQuantityCSVPath = AppDataDirPath + "\\FocusBearStats.CSV";
+            sConfigFilePath = Path.Combine(AppDataDirPath, "config.json");
+            sLogQuantityCSVPath = Path.Combine(AppDataDirPath, "FocusBearStats.CSV");
 
-            sOfflineDataCSVPath = AppDataDirPath + "\\FocusBearOfflineData.CSV";
-
-            sGraphDaysPath = AppDataDirPath + "\\GraphDays.html";
-            sGraphDaysDurationPath = AppDataDirPath + "\\GraphDaysDuration.html";
-            sGraphTimePath = AppDataDirPath + "\\GraphTime.html";
-            sGraphTimesDurationPath = AppDataDirPath + "\\GraphTimeDuration.html";
-
+            sOfflineDataCSVPath = Path.Combine(AppDataDirPath, "FocusBearOfflineData.CSV");
+                        
             isAnyMandatoryActivityIncluded = false;
             isMandatoryActivityGoing = false;
             breakAfterMinutes = 0;
@@ -370,7 +364,13 @@ namespace Focus_Bear.Utils
                         LogWriter.LogWrite("Token valid, GEt all trial Info");
 
                         //Token valid, GEt all trial Info
-                        await GetAllTrialInfo();
+                        int nLogged = await GetAllTrialInfo();
+                        if(nLogged == 404)
+                        {
+                            ((App)(Application.Current)).ShowLoginWindow();
+                            return;
+                        }
+
                         ((App)(Application.Current)).ProceedAfterGetLoginAndTokenValidSettings();
                     }
                     else
@@ -395,13 +395,18 @@ namespace Focus_Bear.Utils
 
         }
 
-        public async Task GetAllTrialInfo()
+        public async Task <int> GetAllTrialInfo()
         {
             LogWriter.LogWrite("GetAllTrialInfo()");
             try
             {
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var xResponse = await client.GetSubscriptionInfo();
+
+                if(xResponse == 404)
+                {
+                    return 404;
+                }
 
                 if (sSubscriptionInfo.Length > 0)
                 {
@@ -446,12 +451,14 @@ namespace Focus_Bear.Utils
                         //Download Config File and Show Subscription Expired Nag
                         isExpired = true;
                     }
+                    return 1;
                 }
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("GetAllTrialInfo() ex - " + ex.Message);
             }
+            return 0;
         }
         public async void RenewToken()
         {
@@ -534,7 +541,13 @@ namespace Focus_Bear.Utils
                         LogWriter.LogWrite("DownloadAndLoadConfigFile  JObject.Parse(File.ReadAllText(sConfigFilePath)); ex = " + ex.Message);
                         //Use Local File
                         Global.DeleteFile(sConfigFilePath, false);
-                        File.Copy(@"config.json", sConfigFilePath);
+
+                        string sConfigPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+                        sConfigPath = sConfigPath.TrimEnd('\\');
+                        sConfigPath = Path.Combine(sConfigPath, "config.json");
+
+                        File.Copy(sConfigPath, sConfigFilePath);
+
                         ConfigFileStrings = JObject.Parse(File.ReadAllText(sConfigFilePath));
                     }
 
@@ -545,7 +558,12 @@ namespace Focus_Bear.Utils
                     LogWriter.LogWrite("DownloadAndLoadConfigFile Failed - Proceed to read Local File");
                     //Use Local File
                     Global.DeleteFile(sConfigFilePath, false);
-                    File.Copy(@"config.json", sConfigFilePath);
+
+                    string sConfigPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+                    sConfigPath = sConfigPath.TrimEnd('\\');
+                    sConfigPath = Path.Combine(sConfigPath, "config.json");
+
+                    File.Copy(sConfigPath, sConfigFilePath);
                     ConfigFileStrings = JObject.Parse(File.ReadAllText(sConfigFilePath));
                     ((App)(Application.Current)).ProceedAfterDownloadingConfigFile();
                 }
@@ -556,33 +574,6 @@ namespace Focus_Bear.Utils
                 LogWriter.LogWrite("DownloadAndLoadConfigFile() - " + ex.Message);
             }
         }
-        public void CopyGraphsToLocal()
-        {
-
-            LogWriter.LogWrite("CopyGraphsToLocal");
-            try
-            {
-                sGraphDaysPath = AppDataDirPath + "\\GraphDays.html";
-                sGraphDaysDurationPath = AppDataDirPath + "\\GraphDaysDuration.html";
-                sGraphTimePath = AppDataDirPath + "\\GraphTime.html";
-                sGraphTimesDurationPath = AppDataDirPath + "\\GraphTimeDuration.html";
-
-                Global.DeleteFile(sGraphDaysPath, false);
-                Global.DeleteFile(sGraphDaysDurationPath, false);
-                Global.DeleteFile(sGraphTimePath, false);
-                Global.DeleteFile(sGraphTimesDurationPath, false);
-
-                File.Copy(@"Graph/GraphDays.html", sGraphDaysPath);
-                File.Copy(@"Graph/GraphDaysDuration.html", sGraphDaysDurationPath);
-                File.Copy(@"Graph/GraphTime.html", sGraphTimePath);
-                File.Copy(@"Graph/GraphTimeDuration.html", sGraphTimesDurationPath);
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("CopyGraphsToLocal failed ex - " + ex.Message);
-            }
-        }
-
         public void SaveLoggedInUserInfo()
         {
             LogWriter.LogWrite("SaveLoggedInUserInfo()");
@@ -609,6 +600,14 @@ namespace Focus_Bear.Utils
 
             try
             {
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var isInternetOn = await client.IsInternetOn();
+
+                if(isInternetOn == false)
+                {
+                    return false;
+                }
+
                 string sConfigFileURL = "https://focus-bear.github.io/assets/config/config.json";
 
                 if (sLangCode == "en")
@@ -1274,6 +1273,8 @@ namespace Focus_Bear.Utils
                             bMotivationalMessageEnabled = sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kMotivationalMessageEnabled") : true; //Default true on 23 June 2023 #188
                             bAiCheckUrlEnabled = sMacOSSettingsOBJ.ContainsKey("kAiCheckUrlEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiCheckUrlEnabled") : true;
                             bAiAllowUrlShowAlertEnabled = sMacOSSettingsOBJ.ContainsKey("kAiAllowUrlShowAlertEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiAllowUrlShowAlertEnabled") : true;
+
+                            bPlayActivitiesInFullScreenMode = sMacOSSettingsOBJ.ContainsKey("kisFullScreenEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kisFullScreenEnabled") : false; //default false
                         }
                     }
                     catch (Exception ex)
@@ -1290,7 +1291,7 @@ namespace Focus_Bear.Utils
 
         public void AddFocusModeToArrayAndUploadtoAPI(FocusMode ff)
         {
-            LogWriter.LogWrite("AddFocusModeToArrayAndUploadtoAPI()");
+            LogWriter.LogWrite("AddFocusModeToArrayAndUploadtoAPI() - " + ff.name);
             try
             {
                 //add to focus modes  array
@@ -1326,7 +1327,7 @@ namespace Focus_Bear.Utils
                         //Call the API to upload the newly created focus mode
                         //add to focus modes  array and Upload to api
                         //#A3FFA1 is the default color
-                        string sName = ConfigFileStrings["focusPreferencesInfo"]["defaultFocusText"].ToString(); //"Complete anarchy! Block nothing 😬"
+                        string sName = ConfigFileStrings["focusPreferencesInfo"]["defaultFocusText"].ToString(); //Block super distracting sites/apps
                         AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, true, false, false, false));
 
                     }
@@ -1375,7 +1376,7 @@ namespace Focus_Bear.Utils
                         //Call the API to upload the newly created focus mode
                         //add to focus modes  array and Upload to api
                         //#A3FFA1 is the default color
-                        string sName = "Relax - block nothing"; // todo win texts ConfigFileStrings["focusPreferencesInfo"]["relaxFocusText"].ToString();
+                        string sName = ConfigFileStrings["focusPreferencesInfo"]["relaxFocusText"].ToString(); //"Relax - block nothing"
                         AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, false, false, false, false, true));
                     }
 
@@ -1544,6 +1545,7 @@ namespace Focus_Bear.Utils
                 return lines.Select(line =>
                 {
                     string[] data = line.Split(',');
+                    Console.WriteLine(data[1].ToString());
                     // We return a LogEntry with the data in order.
                     return new LogEntry(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10]);
                 });
@@ -1602,7 +1604,6 @@ namespace Focus_Bear.Utils
 
         public bool IsShutOffTime()
         {
-            
             TimeSpan tsStartTime = TimeSpan.Parse(sDayStartTime);
             TimeSpan tsShutOffTime = TimeSpan.Parse(sDayShutOffTime);
 
@@ -1716,7 +1717,7 @@ namespace Focus_Bear.Utils
                 else if (mins > 0)
                     return string.Format("{0} {1}", mins, (mins > 1 ? sMinutes : sMinute));
                 else if (secs >= 0)
-                    return string.Format("{0} {1} ", secs, sSeconds);
+                    return string.Format("{0} {1}", secs, sSeconds);
 
             }
             catch (Exception ex)
@@ -1753,7 +1754,7 @@ namespace Focus_Bear.Utils
                 else if (mins > 0)
                     return string.Format("{0}{1}", mins, (mins > 1 ? sMinutes : sMinute));
                 else if (secs >= 0)
-                    return string.Format("{0}{1} ", secs, sSeconds);
+                    return string.Format("{0}{1}", secs, sSeconds);
 
             }
             catch (Exception ex)
@@ -1837,6 +1838,11 @@ namespace Focus_Bear.Utils
 
         public void CapturePostHog(string sEvent, string sMetadataJSON = "")
         {
+            if ((sUser_email != null && sUser_email.Length > 0) && sUser_email.ToLower().Contains("internaltest"))
+            {
+                return; //Do not log events for internal test users
+            }
+
             FocusBearAPIClient client = new FocusBearAPIClient();
             var xResponse = client.CapturePostHog(sEvent, sMetadataJSON);
 
@@ -1873,7 +1879,7 @@ namespace Focus_Bear.Utils
                 {
                     wndGentleBlock = new GentleBlock();
                 }
-                wndGentleBlock.Show();
+                //wndGentleBlock.Show();
 
                 if (bHabitwithUseFocusModeRunning)//if an activity with use focus mode is running, we need to show the activity name
                 {
@@ -1912,6 +1918,23 @@ namespace Focus_Bear.Utils
             {
                 LogWriter.LogWrite("DidCutOffTimePassed() ex - " + ex.Message);
                 return false;
+            }
+        }
+
+        public string GetFontEquivalentForWeb(string sAppFont)
+        {
+            //public string[] arrFontFamily = {  "IntelOne Mono", "OpenDyslexic3 Regular" };
+            if(sAppFont == "IntelOne Mono")
+            {
+                return "Intel One Mono";
+            }
+            else if (sAppFont == "OpenDyslexic3 Regular")
+            {
+                return "Open Dyslexic";
+            }
+            else
+            {
+                return sAppFont; //rest are same as our array
             }
         }
     }

@@ -200,11 +200,17 @@
     <Compile Include="Focus\GentleBlock.xaml.cs">
       <DependentUpon>GentleBlock.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\SelectTasks.xaml.cs">
+      <DependentUpon>SelectTasks.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\StartFocusMode.xaml.cs">
       <DependentUpon>StartFocusMode.xaml</DependentUpon>
     </Compile>
     <Compile Include="Focus\StopFocusMode.xaml.cs">
       <DependentUpon>StopFocusMode.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\AnalyzeSleepMoodWindow.xaml.cs">
+      <DependentUpon>AnalyzeSleepMoodWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Habits\BlankWindow.xaml.cs">
       <DependentUpon>BlankWindow.xaml</DependentUpon>
@@ -405,6 +411,9 @@
     <Compile Include="SplashWindow.xaml.cs">
       <DependentUpon>SplashWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Survey\SurveyWindow.xaml.cs">
+      <DependentUpon>SurveyWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tour\FocusBearMenuTour.xaml.cs">
       <DependentUpon>FocusBearMenuTour.xaml</DependentUpon>
     </Compile>
@@ -439,6 +448,7 @@
     <Compile Include="Utils\LogWriter.cs" />
     <Compile Include="Utils\OfflineActivities.cs" />
     <Compile Include="Utils\ProcessBrowserURLs.cs" />
+    <Compile Include="Utils\ScreenSaverHandler.cs" />
     <Compile Include="Utils\Sounds.cs" />
     <Compile Include="Utils\TrayBalloon.xaml.cs">
       <DependentUpon>TrayBalloon.xaml</DependentUpon>
@@ -475,11 +485,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Focus\SelectTasks.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Focus\StartFocusMode.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\StopFocusMode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\AnalyzeSleepMoodWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -740,6 +758,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SplashWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Survey\SurveyWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

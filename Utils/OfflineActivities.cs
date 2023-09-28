@@ -45,6 +45,10 @@ namespace Focus_Bear.Utils
                             if (sOfflineData.Count > 0)
                             {
                                 LogWriter.LogWrite("ProcessOfflineData() - Offline Data Found to be processed");
+                                
+                                int nBaseDelayMs = 10000; // Initial delay in milliseconds
+                                Random random = new Random();
+                                int nRetry = 0;
 
                                 while (sOfflineData.Count > 0)
                                 {
@@ -89,6 +93,10 @@ namespace Focus_Bear.Utils
                                         {
                                             string LogQuantityAnswers = Entry.quantity_logged;
                                             LogQuantityAnswers = LogQuantityAnswers.Replace(";", ",");
+                                            if(LogQuantityAnswers.Length < 1)
+                                            {
+                                                LogQuantityAnswers = "[]";
+                                            }
                                             addItemJsonString = addItemJsonString + $"\"log_quantity_answers\":{LogQuantityAnswers}";
                                         }
                                         addItemJsonString = addItemJsonString + "},";
@@ -108,6 +116,16 @@ namespace Focus_Bear.Utils
                                     {
                                         //Delete the entries from the array
                                         sOfflineData.RemoveRange(0, firstFiftyItems.Count);
+                                        nRetry = 0;//reinitialize
+                                    }
+                                    else
+                                    {
+                                        //we need to wait here for some time before trying again
+                                        // Calculate delay with jitter
+                                        int nDelayMs = CalculateBackoffWithJitter(nBaseDelayMs, nRetry, random);
+                                        Console.WriteLine($"Waiting for {nDelayMs} ms before retrying...");
+                                        await Task.Delay(nDelayMs);
+                                        nRetry++;
                                     }
                                 }
                                 //We need to write this to the CSV file
@@ -125,14 +143,33 @@ namespace Focus_Bear.Utils
                             LogWriter.LogWrite("appSettings.ReadCSV().ToList<OfflineEntry>() FAILED" + ex.Message);
                         }
                         bIsProcesssingOfflineData = false;
-                        CommandManager.InvalidateRequerySuggested();
-
                     }))).Start();
 
                 }
             }
          
         }
+
+        static int CalculateBackoffWithJitter(int baseDelayMs, int retry, Random random)
+        {
+            LogWriter.LogWrite("CalculateBackoffWithJitter()");
+
+            try
+            {
+                // Calculate exponential backoff with jitter
+                int maxDelayMs = 120000; // Maximum delay in milliseconds
+                int exponentialDelay = (int)Math.Pow(2, retry) * baseDelayMs;
+                int jitter = random.Next(0, baseDelayMs / 2); // Adding jitter within half of the base delay
+                int delayMs = Math.Min(exponentialDelay + jitter, maxDelayMs);
+                return delayMs;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("CalculateBackoffWithJitter()" + ex.Message);
+                return 1000;
+            }
+        }
+        
         private static IEnumerable<OfflineEntry> ReadOfflineDataCSV()
         {
             //LogWriter.LogWrite("ReadOfflineDataCSV()");

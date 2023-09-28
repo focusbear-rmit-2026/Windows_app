@@ -612,5 +612,31 @@ namespace Focus_Bear.Utils
 
     }
 
+    public struct FocusTask
+    {
+        public string id;
+        public string focus_type;
+        public string title;
+        public string details;
+        public string due_date;
+        public string eisenhower_quadrant;
+        public string status;
+        public string tags;
+        public string duration;
+        
+        public FocusTask(string id, string focus_type, string title, string details, string due_date, string eisenhower_quadrant, string status, string tags, string duration)
+        {
+            this.id = id;
+            this.focus_type = focus_type;
+            this.title = title;
+            this.details = details;
+            this.due_date = due_date;
+            this.eisenhower_quadrant = eisenhower_quadrant;
+            this.status = status;
+            this.tags = tags;
+            this.duration = duration;
+        }
+    }
+
 }
 

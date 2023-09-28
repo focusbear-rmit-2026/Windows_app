@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear"
         mc:Ignorable="d"
-        Title="TrayMenu" Height="auto"  MinWidth="330"  Width="330" MaxWidth="330" WindowStyle="None" Deactivated="Window_Deactivated">
+        Title="Focus Bear" Height="auto"  MinWidth="330"  Width="330" MaxWidth="330" WindowStyle="None" Deactivated="Window_Deactivated">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         

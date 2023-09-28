@@ -205,7 +205,18 @@ namespace Focus_Bear.Utils
                             {
                                 sMacOSSettingsOBJ.Add("has_edited_blocked_urls", appSettings.bHasEditedBlockedURLs);
                             }
-                            
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kisFullScreenEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kisFullScreenEnabled"); //Remove  
+                                                                                         //Add new  
+                                sMacOSSettingsOBJ.Add("kisFullScreenEnabled", appSettings.bPlayActivitiesInFullScreenMode);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kisFullScreenEnabled", appSettings.bPlayActivitiesInFullScreenMode);
+                            }
+
 
                             //Now remove macOS from local and add updated one
                             LocalSettings.Remove("MacOS");

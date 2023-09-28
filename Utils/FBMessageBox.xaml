@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="FBMessageBox" Height="Auto"   Width="250" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStyle="None" Topmost="True" >
+        Title="Focus Bear" Height="Auto"   Width="250" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStyle="None" Topmost="True" >
     <Border  Grid.Row="1"  BorderBrush="LightGray" BorderThickness="1" Background="White">
         <Grid>
             <Grid.RowDefinitions>

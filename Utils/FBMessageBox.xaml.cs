@@ -91,6 +91,14 @@ namespace Focus_Bear.Utils
             {
                 btnCancelTxt.Text = btnCancelText;
             }
+
+            if (btn == MessageBoxButton.OK)
+            {
+                if (btnYesText.Length > 0)
+                {
+                    btnOKTxt.Text = btnYesText;
+                }
+            }
         }
 
         private void btnOK_Click(object sender, RoutedEventArgs e)

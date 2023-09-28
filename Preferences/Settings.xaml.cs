@@ -107,6 +107,9 @@ namespace Focus_Bear.Preferences
                     Language.SelectedIndex = 1;
                 }
 
+                FullScreenCheckbox.Content = appSettings.ConfigFileStrings["preferencesInfo"]["checkBoxFullScreenEnabledText"].ToString();
+                FullScreen.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleFullScreen"].ToString();
+                FullScreenCheckbox.IsChecked = appSettings.bPlayActivitiesInFullScreenMode;
 
                 //Fonts related
                 SelectFont.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleFont"].ToString();
@@ -207,10 +210,10 @@ namespace Focus_Bear.Preferences
                 DialogResult result = folderBrowserDialog1.ShowDialog();
                 if (result == DialogResult.OK)
                 {
-                    string startPath = AppSettings.AppDataDirPath + "\\FocusBearStats.CSV";
+                    string startPath = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FocusBearStats.CSV");
 
                     string folderName = folderBrowserDialog1.SelectedPath;
-                    string statsExportPath = folderName + "\\FocusBearStats.CSV";
+                    string statsExportPath = System.IO.Path.Combine(folderName, "FocusBearStats.CSV");
 
                     if (File.Exists(statsExportPath))
                     {
@@ -473,6 +476,16 @@ namespace Focus_Bear.Preferences
             appSettings.bRestartAppNeeded = true;
             Application.Current.Shutdown(0);
 
+        }
+
+        private void FullScreenCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPlayActivitiesInFullScreenMode = true;
+        }
+
+        private void FullScreenCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPlayActivitiesInFullScreenMode = false;
         }
     }
 }

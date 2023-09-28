@@ -61,22 +61,6 @@ namespace Focus_Bear.Models
 
                 await DownloadFileTaskAsync(URL, Location);
                 return true;
-
-
-                //using (var client = new HttpClientDownloadWithProgress(URL, Location))
-                //{
-                //    client.ProgressChanged += Client_ProgressChanged;
-                //    await client.StartDownload();
-
-                //    if (File.Exists(AppInfo.AppDataDirPath + "\\dl\\tmp00.dat"))
-                //    {
-                //        if(new FileInfo(AppInfo.AppDataDirPath + "\\dl\\tmp00.dat").Length > 0)
-                //        {
-                //            return true;
-                //        }
-                //    }
-                //}
-
             }
             catch (WebException ex)
             {

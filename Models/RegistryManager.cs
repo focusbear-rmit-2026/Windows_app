@@ -1240,7 +1240,7 @@ namespace Focus_Bear.Models
             }
         }
 
-        internal static bool GetMorningHabitsShownDate()
+        internal static bool GetMorningHabitsShownTillDate()
         {
             try
             {
@@ -1249,28 +1249,56 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.MorningHabitsShownDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.MorningHabitsShownTillDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
 
                 return true;
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("GetMorningHabitsShownDate - " + ex.Message);
+                LogWriter.LogWrite("GetMorningHabitsShownTillDate - " + ex.Message);
                 return false;
             }
         }
 
-        internal static void SetMorningHabitsShownDate()
+        internal static void SetMorningHabitsShownTillDate()
         {
-            LogWriter.LogWrite("SetMorningHabitsShownDate()");
+            LogWriter.LogWrite("SetMorningHabitsShownTillDate()");
+
+            appSettings.MorningHabitsShownTillDate = DateTime.Now.AddHours(6); //Default to three hours from now, in case we 
 
             try
             {
-                Write("MORNINGHABITSSHOWNDT", Global.ConvertToUnixTime(appSettings.MorningHabitsShownDate).ToString());
+                DateTime now = DateTime.Now;
+                TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+                Console.WriteLine("{0}", myStartTime.ToString());
+
+                if (now > myStartTime) //Same Day like befoee 12.00 am, so set for next day
+                {
+                    //Get the morning time and prepare a DT for Evening Habits Shown Till Date
+                    myStartTime = myStartTime.AddDays(1);
+                    appSettings.MorningHabitsShownTillDate = myStartTime;
+                    LogWriter.LogWrite(myStartTime.ToString());
+                }
+                else //Set for Next Day like morning routine finished after 12.00 am but yet shutoff time not arrieved
+                {
+                    appSettings.MorningHabitsShownTillDate = myStartTime;//Today's Morning time
+                    LogWriter.LogWrite(myStartTime.ToString());
+                }
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("SetMorningHabitsShownDate - " + ex.Message);
+                LogWriter.LogWrite("SetMorningHabitsShownTillDate - " + ex.Message);
+            }
+
+
+            try
+            {
+                Write("MORNINGHABITSSHOWNDT", Global.ConvertToUnixTime(appSettings.MorningHabitsShownTillDate).ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetMorningHabitsShownTillDate - " + ex.Message);
             }
         }
 
@@ -1424,8 +1452,8 @@ namespace Focus_Bear.Models
 
             try
             {
-                DeleteValue(  "CurrentActivityPostponedID");
-                DeleteValue( "CurrentActivityPostponedTimerVal");
+                DeleteValue("CurrentActivityPostponedID");
+                DeleteValue("CurrentActivityPostponedTimerVal");
             }
             catch (Exception ex)
             {
@@ -1808,6 +1836,63 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static void SetSurveyShownStatus()
+        {
+            try
+            {
+                bool status = true;
+                byte[] regData = new byte[1] { Convert.ToByte(status) };
+                Write("SURVEYSHOWN", regData);
+
+                regData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite(ex.Message);
+            }
+        }
+
+        internal static bool GetSurveyShownStatus()
+        {
+            byte[] regData = (byte[])Read("SURVEYSHOWN");
+
+            if (regData == null)
+                return false;
+
+            bool res = Convert.ToBoolean(regData[0]);
+
+            regData = null;
+            return res;
+        }
+
+        internal static void SetAnalyzeSleepAndMoodStatus()
+        {
+            try
+            {
+                bool status = true;
+                byte[] regData = new byte[1] { Convert.ToByte(status) };
+                Write("ANALYZESLEEPANDMOODASKED", regData);
+
+                regData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite(ex.Message);
+            }
+        }
+
+        internal static bool GetAnalyzeSleepAndMoodStatus()
+        {
+            byte[] regData = (byte[])Read("ANALYZESLEEPANDMOODASKED");
+
+            if (regData == null)
+                return false;
+
+            bool res = Convert.ToBoolean(regData[0]);
+
+            regData = null;
+            return res;
+        }
 
     }
 

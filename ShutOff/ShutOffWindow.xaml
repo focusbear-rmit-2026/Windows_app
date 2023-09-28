@@ -8,11 +8,11 @@
         xmlns:src="clr-namespace:Focus_Bear.Habits"
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="ShutOffWindow" d:DesignHeight="1080" d:DesignWidth="1920" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" >
+        Title="Focus Bear" d:DesignHeight="1080" d:DesignWidth="1920" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" Closing="FullScreenParent_Closing">
 
     <local1:DpiDecorator>
         
-        <Grid>
+        <Grid x:Name="MainGrid">
             
             <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
@@ -33,7 +33,7 @@
             <Image  Name="Icon"  Height="120"  Width="120" Models:ImageBehavior.AnimatedSource="../Images/gifs/Yawn_small.gif" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
             <TextBlock    Name="Heading" Margin="50,0,0,0" TextWrapping="Wrap" Text="xtime to wind down" Foreground="#e88800" FontSize="33" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         </StackPanel>
-        <TextBlock  Grid.Row="2" Name="Description" Width="800" Margin="80,50,80,50" TextWrapping="Wrap" Text="xYou told me you wanted to stay off your computer from SHUTOFFTIME to STARTTIME. Enjoy your evening and sleep well. Look forward to helping you with your morning routine tomorrow." Foreground="#272727" FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+        <TextBlock  Grid.Row="2" Name="Description" Width="800" Margin="20,10,20,10" TextWrapping="Wrap" Text="xYou told me you wanted to stay off your computer from SHUTOFFTIME to STARTTIME. Enjoy your evening and sleep well. Look forward to helping you with your morning routine tomorrow." Foreground="#272727" FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
       
         <TextBlock  Grid.Row="3" Name="Txtunlocking" Width="900" Margin="0,0,0,0" TextWrapping="Wrap" Text="xunlocking in." Foreground="#272727" FontSize="23" FontWeight="Normal" TextAlignment="Center" HorizontalAlignment="Center" />
         <TextBlock  Grid.Row="3" Name="TxtTimer" Width="900"  Margin="0,35,0,0" TextWrapping="Wrap" Text="x00:30" Foreground="#272727" FontSize="23" FontWeight="Bold"  TextAlignment="Center" HorizontalAlignment="Center" />

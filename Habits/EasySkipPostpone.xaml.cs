@@ -97,8 +97,7 @@ namespace Focus_Bear.Habits
                 //If its morning routine, we will need to mark FOrce complete at server and mark at local
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
-                    appSettings.MorningHabitsShownDate = DateTime.Now;
-                    RegistryManager.SetMorningHabitsShownDate();
+                    RegistryManager.SetMorningHabitsShownTillDate();
 
                     appSettings.CapturePostHog("deactivate-routine", "\"routine-type\":\"morning_routine\",\"deactivate_reason\":\"easy postpone\"");
 

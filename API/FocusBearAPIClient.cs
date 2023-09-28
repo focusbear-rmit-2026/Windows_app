@@ -20,7 +20,7 @@ namespace Focus_Bear.API
 {
     class FocusBearAPIClient
     {
-        
+
         AppSettings appSettings = AppSettings.GetInstance;
 
         public static string PostDevice { get { return "https://api.focusbear.io/device"; } }
@@ -31,44 +31,109 @@ namespace Focus_Bear.API
         public static string CurrentActivityProps { get { return "https://api.focusbear.io/user/details/current-activity-props"; } }
 
         public static string GetUserDetails { get { return "https://api.focusbear.io/user/details"; } }
-        
+
         public static string FocusMode { get { return "https://api.focusbear.io/focus-mode"; } }
 
         public static string GetUserLocalDeviceSettings { get { return "https://api.focusbear.io/user-local-device-settings"; } }
 
         public static string SubscriptionInfo { get { return "https://api.focusbear.io/user/subscription"; } }
 
+        internal async Task<int> RenewToken()
+        {
+            //Renew the token and check again
+            LogWriter.LogWrite("Attempting Renew Token before API call");
+            var authenticator = new Authentication();
+            var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+            if (x)
+            {
+                //token renewed
+                LogWriter.LogWrite("RenewToken DONE before API call");
+                if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
+                {
+                    return 0;
+                }
+                //All Good, Proceed Normally
+                return 1;
+            }
+            else
+            {
+                //token renewed failed
+                return 0;
+            }
+        }
+
+        HttpClient GetClientWithHeaders()
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("platform", "Windows");
+            client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
+            client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
+
+            if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
+            }
+
+            return client;
+        }
+
+        internal async Task <bool> IsInternetOn()
+        {
+            if (NetworkInterface.GetIsNetworkAvailable())
+            {
+                try
+                {
+                    HttpClient client = new HttpClient();
+                    client.Timeout = TimeSpan.FromSeconds(2);
+                    var response =  await client.GetAsync("https://api.focusbear.io/api").ConfigureAwait(false);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                catch (HttpRequestException e)
+                {
+                    LogWriter.LogWrite("\nInternet Exception Caught! - " + e.Message);
+                }
+                catch (WebException ex)
+                {
+                    LogWriter.LogWrite("IsInternetOn WebException" + ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("IsInternetOn - Exception" + ex.Message);
+                }
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         internal async Task<int> PostActivityCompleted(string activity_id, string activity_sequence_id, DateTime start_time, int duration_logged, string choice_id, /*Double quantity_logged = -1*/ List<QuantityQuestion> logQuantityQuestions = null, bool is_skipped = false)
         {
             LogWriter.LogWrite("PostActivityCompleted() = " + activity_id);
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting Renew Token before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     DateTime finish_time = start_time;
 
@@ -123,20 +188,7 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         var response = await client.PostAsync(CompletedActivity, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
@@ -153,7 +205,11 @@ namespace Focus_Bear.API
                         }
                         else
                         {
-                            //Get Device ID Failed
+                            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError) //500
+                            {
+                                SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
+                            }
+                            
                             if (response.Content != null)
                             {
                                 var responseCode = await response.Content.ReadAsStringAsync();
@@ -172,30 +228,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    DateTime finish_time = start_time;
-                    if (is_skipped) //if activity is skipped just add one second to finish time
-                    {
-                        finish_time = finish_time.AddSeconds(1);
-                    }
-                    else
-                    {
-                        finish_time = finish_time.AddSeconds(duration_logged);
-                    }
-
-                    string LogQuantityAnswers = "";
-                    if (logQuantityQuestions != null)
-                    {
-                        LogQuantityAnswers = $"[";
-                        foreach (QuantityQuestion question in logQuantityQuestions)
-                        {
-                            LogQuantityAnswers += $"{{\"question_id\":\"{question.id}\";" +
-                            $"\"logged_value\":{question.quantity}}};";
-                        }
-                        LogQuantityAnswers = LogQuantityAnswers.Remove(LogQuantityAnswers.Length - 1, 1);
-                        LogQuantityAnswers = LogQuantityAnswers + "]";
-                    }
-
-                    appSettings.AddEntryInOfflineActivitiesCSV(activity_id, duration_logged.ToString(), activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), (is_skipped ? "true" : ""), choice_id, LogQuantityAnswers, "", "");
+                    SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
                 }
             }
             catch (WebException ex)
@@ -212,37 +245,53 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        internal void SaveEntryInOfflineActivitiesCSV(string activity_id, string activity_sequence_id, string choice_id, DateTime start_time, int duration_logged, List<QuantityQuestion> logQuantityQuestions, bool is_skipped)
+        {
+            DateTime finish_time = start_time;
+            if (is_skipped) //if activity is skipped just add one second to finish time
+            {
+                finish_time = finish_time.AddSeconds(1);
+            }
+            else
+            {
+                finish_time = finish_time.AddSeconds(duration_logged);
+            }
+
+            string LogQuantityAnswers = "";
+            if (logQuantityQuestions != null)
+            {
+                LogQuantityAnswers = $"[";
+                foreach (QuantityQuestion question in logQuantityQuestions)
+                {
+                    LogQuantityAnswers += $"{{\"question_id\":\"{question.id}\";" +
+                    $"\"logged_value\":{question.quantity}}};";
+                }
+                LogQuantityAnswers = LogQuantityAnswers.Remove(LogQuantityAnswers.Length - 1, 1);
+                LogQuantityAnswers = LogQuantityAnswers + "]";
+            }
+
+            appSettings.AddEntryInOfflineActivitiesCSV(activity_id, duration_logged.ToString(), activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), (is_skipped ? "true" : ""), choice_id, LogQuantityAnswers, "", "");
+
+        }
         internal async Task<int> PostActivitySkipped(string activity_id, string activity_sequence_id)
         {
             LogWriter.LogWrite("PostActivitySkipped() = " + activity_id);
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting Renew Token before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     string addItemJsonString = $"{{\"activity_id\":\"{activity_id}\"," +
                         $"\"device_id\":\"{appSettings.sDeviceID}\"," +
@@ -250,20 +299,7 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         var response = await client.PostAsync(SkipActivity, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
@@ -280,6 +316,13 @@ namespace Focus_Bear.API
                         }
                         else
                         {
+                            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError) //500
+                            {
+                                DateTime start_time = DateTime.UtcNow;
+                                DateTime finish_time = start_time.AddSeconds(1);
+
+                                appSettings.AddEntryInOfflineActivitiesCSV(activity_id, "", activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), "true", "", "", "", "");
+                            }
                             //Get Device ID Failed
                             if (response.Content != null)
                             {
@@ -308,13 +351,10 @@ namespace Focus_Bear.API
             catch (WebException ex)
             {
                 LogWriter.LogWrite("PostActivitySkipped WebException" + ex.Message);
-
-                Debug.WriteLine(ex.Message);
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("PostActivitySkipped Exception" + ex.Message);
-                Debug.WriteLine(ex.Message);
             }
             return 0;
         }
@@ -324,32 +364,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("ForceCompleteCurrentSequence() + " + activity_sequence_id);
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     // dummy payload
                     String jsonString = JsonConvert.SerializeObject(
@@ -362,22 +390,8 @@ namespace Focus_Bear.API
 
 
                     if (!string.IsNullOrEmpty(jsonString))
-                    {
-                        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
+                    {   
                         StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         string apiPath = string.Format("https://api.focusbear.io/completed-activity-sequence/{0}/force-complete-current-sequence", activity_sequence_id);
 
@@ -422,12 +436,10 @@ namespace Focus_Bear.API
             catch (WebException ex)
             {
                 LogWriter.LogWrite("ForceCompleteCurrentSequence WebException - " + ex.Message);
- 
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ForceCompleteCurrentSequence Exception - " + ex.Message);
- 
             }
             return 0;
         }
@@ -437,32 +449,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("PostDeviceID()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if(!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
         
                     // dummy payload
                     String jsonString = JsonConvert.SerializeObject(
@@ -475,22 +475,8 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(jsonString))
                     {
-                        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
                      
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
-                       
                         var response = await client.PostAsync(PostDevice, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
                         {
@@ -529,12 +515,10 @@ namespace Focus_Bear.API
             catch (WebException ex)
             {
                 LogWriter.LogWrite("PostDeviceID() WebException - " + ex.Message);
- 
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("PostDeviceID() Exception - " + ex.Message);
- 
             }
             return 0;
         }
@@ -545,32 +529,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("AddFocusMode()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
  
                    //Remove # from color
                    string color = FF.color.Replace("#", "");
@@ -592,21 +564,7 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(addFocusJsonString))
                     {
-                        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addFocusJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         //Make the data for Focus Mode
                         var response = await client.PostAsync(FocusMode, content);
@@ -643,12 +601,10 @@ namespace Focus_Bear.API
             catch (WebException ex)
             {
                 LogWriter.LogWrite("AddFocusMode WebException - " + ex.Message);
- 
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("AddFocusMode Exception - " + ex.Message);
- 
             }
             return 0;
         }
@@ -658,44 +614,21 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("DeleteFocusMode() API");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        return 0;
-                    }
+                    HttpClient client = GetClientWithHeaders();
+                    
                     string path = FocusMode + "?id=" + sFocusModeId;
 
                     var response = await client.DeleteAsync(path);
@@ -738,32 +671,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("UpdateAllFocusModes()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     string arrAllFocusModesArray = $"[";
  
@@ -799,21 +720,8 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(arrAllFocusModesArray))
                     {
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(arrAllFocusModesArray, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
-
+                        
                         //Make the data for Focus Mode
                         var response = await client.PutAsync(FocusMode, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
@@ -865,58 +773,34 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("StartFocusMode() API");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
-
+                    HttpClient client = GetClientWithHeaders();
 
                     DateTime start = DateTime.Parse(appSettings.sRunningFocusModeStartTime).ToUniversalTime();
                     DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
-    
+
+                    string sTasksArray = (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0) ? appSettings.sRawTasks : "[]";
+
                     string addFocusJsonString = $"{{\"intention\":\"{ appSettings.sRunningFocusModeIntention}\"," +
                         $"\"finish_time\":\"{end.ToString("o")}\"," +
-                        $"\"start_time\":\"{start.ToString("o")}\"}}";
+                        $"\"start_time\":\"{start.ToString("o")}\"," +
+                        $"\"to_dos\":{sTasksArray}}}";
                     
                     if (!string.IsNullOrEmpty(addFocusJsonString))
                     {
-                        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addFocusJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         //Make the data for Focus Mode
                         string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/start", sId);
@@ -968,57 +852,34 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("FinishFocusMode()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
  
                     DateTime end = DateTime.UtcNow;
 
+                    string sTasksArray = (appSettings.sRawTasksDone != null && appSettings.sRawTasksDone.Length > 0) ? appSettings.sRawTasksDone : "[]";
+
                     string addFocusJsonString = $"{{\"achievements\":\"{achievements}\"," +
                         $"\"distractions\":\"{distractions}\"," +
-                        $"\"finish_time\":\"{end.ToString("o")}\"}}";
+                        $"\"finish_time\":\"{end.ToString("o")}\"," +
+                        $"\"to_dos\":{sTasksArray}}}";
 
 
                     if (!string.IsNullOrEmpty(addFocusJsonString))
                     {
-                        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addFocusJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         //Make the data for Focus Mode
                         string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/finish", sId);
@@ -1070,32 +931,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("GetKeywords()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     DateTime end = DateTime.UtcNow;
 
@@ -1103,20 +952,7 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(addFocusJsonString))
                     {
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addFocusJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         var response = await client.PostAsync("https://api.focusbear.io/tab-keywords", content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
@@ -1162,57 +998,35 @@ namespace Focus_Bear.API
             return 0;
         }
 
-        internal async Task<int> GetUserSettings() //OK
+        internal async Task<int> GetUserSettings(string sCustomHabitPackID = "") //OK
         {
             LogWriter.LogWrite("GetUserSettings()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
-                     
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
-                        return 0;
-                    }
-
+                    HttpClient client = GetClientWithHeaders();
+                   
                     string responsePath = UserSettings;
 
                     if (appSettings.IsFirstInstall)
                     {
                          responsePath = string.Format("https://api.focusbear.io/habit-packs/default?pack_id={0}", appSettings.sHabitPackIdToInstall);
+                    }
+                    else if(sCustomHabitPackID.Length > 0)
+                    {
+                        responsePath = string.Format("https://api.focusbear.io/habit-packs/default?pack_id={0}", sCustomHabitPackID);
                     }
                     else
                     {
@@ -1247,7 +1061,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
                 }
             }
             catch (WebException ex)
@@ -1268,53 +1082,27 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("PutUserSettings()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     // dummy payload
                     String jsonString = appSettings.sRawUserSettings;
 
                     if (!string.IsNullOrEmpty(jsonString))
                     {
-                        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         if(is_onboarding)
                             UserSettings += "?is_onboarding=true";
@@ -1375,46 +1163,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("GetLastActivityInfo()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
-                    
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
-                        return 0;
-                    }
+                    HttpClient client = GetClientWithHeaders();
 
                     var response = await client.GetAsync(CurrentActivityProps);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
@@ -1446,7 +1208,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
                 }
             }
             catch (WebException ex)
@@ -1465,46 +1227,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("GetUserDetailsInfo()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
-
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
-                        return 0;
-                    }
+                    HttpClient client = GetClientWithHeaders();
 
                     var response = await client.GetAsync(GetUserDetails);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
@@ -1538,7 +1274,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
                 }
             }
             catch (WebException ex)
@@ -1557,47 +1293,21 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("GetUserLocalDeviceSettingsInfo()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
         
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
-                        return 0;
-                    }
-
                     var response = await client.GetAsync(GetUserLocalDeviceSettings);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
                     {
@@ -1630,7 +1340,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
                 }
             }
             catch (WebException ex)
@@ -1649,52 +1359,26 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("PutUserLocalDeviceSettingsInfo()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     string addItemJsonString = SettingsJSON.ToString();
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
-                        //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else    
-                        {
-                            return 0;
-                        }
 
                         var response = await client.PutAsync(GetUserLocalDeviceSettings, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
@@ -1748,32 +1432,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("GetActivityStats()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
                     //UTC+05:30 // UTC%2B5:30
@@ -1784,20 +1456,6 @@ namespace Focus_Bear.API
                     string apiPath = string.Format("https://api.focusbear.io/completed-activity/{0}/stats?days_number=30&timezone={1}", (activityChoiceId.Length > 0 ? activityChoiceId : activityId), time);
 
                     LogWriter.LogWrite("GetActivityStats() URL - " + apiPath);
-
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
-                        return 0;
-                    }
 
                     var response = await client.GetAsync(apiPath);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
@@ -1828,7 +1486,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
                 }
             }
             catch (WebException ex)
@@ -1850,32 +1508,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("GetActivityCurrentDayStats()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
 
@@ -1894,20 +1540,6 @@ namespace Focus_Bear.API
                     string apiPath = string.Format("https://api.focusbear.io/completed-activity/{0}?from_time={1}&to_time={2}", (activityChoiceId.Length > 0 ? activityChoiceId : activityId) , myStartTime.ToString("o"), myShutOffTime.ToString("o"));
 
                     LogWriter.LogWrite("GetActivityCurrentDayStats() URL - " + apiPath);
-
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
-                        return 0;
-                    }
 
                     var response = await client.GetAsync(apiPath);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
@@ -1938,7 +1570,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
                 }
             }
             catch (WebException ex)
@@ -1957,32 +1589,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("getActivityCurrentDayQuestionsStats()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
 
@@ -2016,22 +1636,7 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
-                            return 0;
-                        }
-
 
                         var response = await client.PostAsync(apiPath, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //200
@@ -2063,7 +1668,7 @@ namespace Focus_Bear.API
                     }
                     else
                     {
-                        LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                        LogWriter.LogWrite("Is nInternetOn FALSE");
                     }
                 }
             }
@@ -2082,32 +1687,21 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("GetActivityAllDaySummary()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
+
                     var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
                     //UTC+05:30 // UTC%2B5:30
                     string sign = offset < TimeSpan.Zero ? "-" : "+";
@@ -2117,22 +1711,7 @@ namespace Focus_Bear.API
                     string apiPath = string.Format("https://api.focusbear.io/completed-activity/day-summary?timezone={0}", time);
 
                     LogWriter.LogWrite("GetActivityAllDaySummary() URL - " + apiPath);
-
-                    //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
-                        return 0;
-                    }
-
+                    
                     var response = await client.GetAsync(apiPath);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
                     {
@@ -2163,7 +1742,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
                 }
             }
             catch (WebException ex)
@@ -2185,9 +1764,10 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("GetHabitPacks()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
-                    
                     HttpClient client = new HttpClient();
     
                     client.DefaultRequestHeaders.Add("platform", "Windows");
@@ -2230,7 +1810,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
                 }
             }
             catch (WebException ex)
@@ -2251,46 +1831,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("GetFocusTemplates()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
-
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
-                        return 0;
-                    }
+                    HttpClient client = GetClientWithHeaders();
 
                     string apiPath = string.Format("https://api.focusbear.io/focus-mode-template?featured_for_onboarding=true&language={0}", appSettings.sLangCode);
 
@@ -2326,7 +1880,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
                 }
             }
             catch (WebException ex)
@@ -2346,9 +1900,10 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("CapturePostHog() - " + sEvent);
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
-                  
                     HttpClient client = new HttpClient();
 
                     string sOSVersion = appSettings.sOSVersion;
@@ -2428,32 +1983,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("CaptureEventEndpoint() - " + sEvent);
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     string sOSVersion = appSettings.sOSVersion;
                     bool bUsesWindowsApp = true;
@@ -2476,24 +2019,9 @@ namespace Focus_Bear.API
                         $"\"event_data\":{event_data}," +
                         $"\"user_properties\":{properties}}}";
 
-
-
                     if (!string.IsNullOrEmpty(sJsonString))
                     {
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(sJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         //Make the data for Focus Mode
                         var response = await client.PostAsync("https://api.focusbear.io/events", content);
@@ -2539,32 +2067,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("ChatGPTIsURLSafe() = " + url);
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting Renew Token before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return -1;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
-                            return -1;
+                            return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     string lang = "english";
                     if (language == "es")
@@ -2580,22 +2096,11 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return -1;
-                        }
-
+                        
                         appSettings.sChatGPTPayLoad = addItemJsonString;
+
+                        client.Timeout = TimeSpan.FromSeconds(5); // 5 seconds time out
 
                         var response = await client.PostAsync("https://api.focusbear.io/user/is-url-safe-to-use", content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
@@ -2682,34 +2187,22 @@ namespace Focus_Bear.API
         {
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting Renew Token before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
-                    var filePath = AppSettings.AppDataDirLogsPath + "\\Debug_Logs.txt";
+                    var filePath = Path.Combine(AppSettings.AppDataDirLogsPath, "Debug_Logs.txt");
 
                     using (var multipartFormContent = new MultipartFormDataContent())
                     {
@@ -2720,22 +2213,8 @@ namespace Focus_Bear.API
                         //Add the file
                         multipartFormContent.Add(fileStreamContent, name: "file", fileName: "Debug_Logs.txt");
 
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                        client.DefaultRequestHeaders.Add("feedback_message", HttpUtility.UrlEncode(sFeedbackMessage) );
-                        
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
-
-                        var response = await client.PostAsync("https://api.focusbear.io/app-logs", multipartFormContent);
+                        string sPath = string.Format("https://api.focusbear.io/app-logs?app_platform=Windows&app_version={0}&feedback_message={1}", appSettings.AppVersion.ToString(), HttpUtility.UrlEncode(sFeedbackMessage)); 
+                        var response = await client.PostAsync(sPath, multipartFormContent);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
                         {
                             LogWriter.LogWrite("PostAppLogs() SUCCESS");
@@ -2779,46 +2258,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("GetSubscriptionInfo()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
-
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
-                        return 0;
-                    }
+                    HttpClient client = GetClientWithHeaders();
 
                     var response = await client.GetAsync(SubscriptionInfo);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
@@ -2833,8 +2286,14 @@ namespace Focus_Bear.API
                             return 1;
                         }
                     }
+                    else if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        //User seems to be deleted
+                        return 404;
+                    }
                     else
                     {
+                        
                         //GetLastActivityInfo Failed
                         if (response.Content != null)
                         {
@@ -2850,7 +2309,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
                 }
             }
             catch (WebException ex)
@@ -2869,32 +2328,21 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("RecordUserConsent()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
+
                     bool bConsentStatus = true;
                     string addItemJsonString = $"{{\"consent_type\":\"terms_of_service\"," +
                            $"\"consent_status\":\"{JsonConvert.SerializeObject(bConsentStatus)}\"," +
@@ -2903,20 +2351,7 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         //Make the data for Focus Mode
                         var response = await client.PutAsync("https://api.focusbear.io/user/consent", content);
@@ -2967,47 +2402,21 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("GetSavedWebsite()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
-
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        LogWriter.LogWrite("string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken return 0;");
-                        return 0;
-                    }
-
+                    HttpClient client = GetClientWithHeaders();
+                    
                     string apiPath = "https://api.focusbear.io/saved-website";
 
                     var response = await client.GetAsync(apiPath);
@@ -3040,7 +2449,7 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("NetworkInterface.GetIsNetworkAvailable() FALSE");
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
                 }
             }
             catch (WebException ex)
@@ -3058,45 +2467,21 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("DeleteSavedSite() API");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting RenewToken before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("platform", "Windows");
-                    client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                    client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
-                    if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                    {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-
+                    HttpClient client = GetClientWithHeaders();
+                   
                     string apiPath = "https://api.focusbear.io/saved-website?website_id=" + sWebsiteId;
 
                     var response = await client.DeleteAsync(apiPath);
@@ -3140,32 +2525,20 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("PostSavedWebsite() = " + sUrl);
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting Renew Token before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     string addItemJsonString = $"[{{\"url\":\"{sUrl}\"," +
                         $"\"title\":\"{sTitle}\"," +
@@ -3173,20 +2546,7 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         string apiPath = "https://api.focusbear.io/saved-website";
                         var response = await client.PostAsync(apiPath, content);
@@ -3238,51 +2598,26 @@ namespace Focus_Bear.API
             LogWriter.LogWrite("SyncOfflineData()");
             try
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
                 {
                     if (!appSettings.ValidateTokenValidBeforeAPICall())
                     {
-                        //Renew the token and check again
-                        LogWriter.LogWrite("Attempting Renew Token before API call");
-                        var authenticator = new Authentication();
-                        var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
-                        if (x)
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
                         {
-                            //token renewed
-                            LogWriter.LogWrite("RenewToken DONE before API call");
-                            if (authenticator._isEmptyOrInvalid(appSettings.userAccount.accessToken))
-                            {
-                                return 0;
-                            }
-                            //All Good, Proceed Normally
-                        }
-                        else
-                        {
-                            //token renewed failed
                             return 0;
                         }
                     }
 
-                    HttpClient client = new HttpClient();
+                    HttpClient client = GetClientWithHeaders();
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
                         LogWriter.LogWrite(addItemJsonString);
 
-                        client.DefaultRequestHeaders.Add("platform", "Windows");
-                        client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
-                        client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
-
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
-                        {
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
-                        }
-                        else
-                        {
-                            return 0;
-                        }
 
                         var response = await client.PostAsync("https://api.focusbear.io/completed-activity/sync", content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
@@ -3297,8 +2632,14 @@ namespace Focus_Bear.API
                         }
                         else
                         {
-                            LogWriter.LogWrite("SyncOfflineData() FAILED");
-                            //Get Device ID Failed
+                            LogWriter.LogWrite("SyncOfflineData() FAILED code = " + response.StatusCode.ToString());
+
+                            if (response.StatusCode != System.Net.HttpStatusCode.RequestTimeout && ( response.StatusCode >= System.Net.HttpStatusCode.BadRequest && response.StatusCode <= System.Net.HttpStatusCode.UpgradeRequired )) //400 to 426 except 408
+                            {
+                                //Deon asked that if the request fails with a 400 error, we should not try again
+                                //So we will return 1 here so that the entries are removed from the offline csv file
+                                return 1;
+                            }
                             if (response.Content != null)
                             {
                                 var responseCode = await response.Content.ReadAsStringAsync();

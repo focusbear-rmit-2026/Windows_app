@@ -46,9 +46,9 @@ namespace Focus_Bear.Relax
 
             try
             {
-                Heading.Text = "Sites you saved for relax mode:";
-                btnDeleteURLs.ToolTip = "Remove Selected URLs";
-                btnMovetoNextTXT.Text = "I'm done relaxing. Start winding down!"; //todo Win texts
+                Heading.Text = appSettings.ConfigFileStrings["relaxModeVcInfo"]["title"].ToString(); //"Sites you saved for relax mode:";
+                btnDeleteURLs.ToolTip = appSettings.ConfigFileStrings["relaxModeVcInfo"]["toolTipRemoveUrls"].ToString(); //"Remove Selected URLs";
+                btnMovetoNextTXT.Text = appSettings.ConfigFileStrings["relaxModeVcInfo"]["buttonActivityDoneText"].ToString(); //"I'm done relaxing. Start winding down!"; 
                 TimeRemaining.Text = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString() + " " + appSettings.SecondsToTimerText(nTimer);
             }
             catch (Exception ex)
@@ -147,7 +147,15 @@ namespace Focus_Bear.Relax
             {
                 //show the habit window
                 ((App)(Application.Current)).wndHabits.Show();
-                ((App)(Application.Current)).wndHabits.WindowState = WindowState.Maximized;
+
+                if (appSettings.bPlayActivitiesInFullScreenMode)
+                {
+                    ((App)(Application.Current)).wndHabits.WindowState = WindowState.Maximized;
+                }
+                else
+                {
+                    ((App)(Application.Current)).wndHabits.WindowState = WindowState.Normal;
+                }
                 //set timer to 0
                 ((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.SetTimerToZeroToFinish(); ;
 

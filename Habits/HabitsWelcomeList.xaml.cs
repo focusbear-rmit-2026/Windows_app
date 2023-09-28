@@ -235,7 +235,8 @@ namespace Focus_Bear.Habits
                         LogWriter.LogWrite("attempt to LoadSettings()");
                         
                         //New format 03 July 2023
-                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\"}}", appSettings.userAccount.accessToken);
+                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont));
+
                         string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                         var ss1 = await webView.ExecuteScriptAsync(settingsFunc);
                         LogWriter.LogWrite("attempt to LoadSettings() done res:" + ss1.ToString());
@@ -308,7 +309,7 @@ namespace Focus_Bear.Habits
                     //Restart the app.
                     try
                     {
-                        LogWriter.LogWrite("Restart app now for settings to take Effect!");
+                        LogWriter.LogWrite("Habits edited on Welcome Page - Restart app now for settings to take Effect!");
 
                         appSettings.bRestartAppNeeded = true;
 

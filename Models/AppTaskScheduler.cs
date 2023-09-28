@@ -233,7 +233,7 @@ namespace Focus_Bear.Models
                 execAction.Arguments = args;
 
                 string appName = AppName;
-                string appPath = appPath = System.Reflection.Assembly.GetEntryAssembly().Location;
+                string appPath = System.Reflection.Assembly.GetEntryAssembly().Location;
 
                 execAction.Path = appPath;
                 ITaskFolder rootFolder = taskService.GetFolder(@"\");

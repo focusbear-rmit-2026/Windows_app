@@ -38,7 +38,7 @@ namespace Focus_Bear.Onboarding
                 StartupTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionStartWorkTimeText"].ToString();
                 ShutdownTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionFinishWorkTimeText"].ToString();
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
-                SleepTime.Text = "What time do you want to go to sleep?"; //todo win texts
+                SleepTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionSleepTimeText"].ToString(); //"What time do you want to go to sleep?";
             }
             catch (Exception ex)
             {
@@ -84,7 +84,7 @@ namespace Focus_Bear.Onboarding
 
             if(appSettings.InitialSleepTimeValue < appSettings.InitialShutoffTimeValue)
             {
-                FBMessageBox ff = new FBMessageBox("Sleep time cannot be less than finish work time.", "Focus Bear"); //Todo win texts
+                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["sleepTimeAlertText"].ToString(), "Focus Bear"); //"Sleep time cannot be less than finish work time." 
                 ff.Owner = this._parentWindow;
                 ff.ShowDialog();
                 return;

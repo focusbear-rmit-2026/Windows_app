@@ -268,6 +268,12 @@ namespace Focus_Bear.Preferences
                 this.Height = this.Height * dpiTransform.ScaleY;
                 ScaleX = dpiTransform.ScaleX;
                 ScaleY = dpiTransform.ScaleY;
+                
+                LogWriter.LogWrite("dpiTransform.ScaleX - " + dpiTransform.ScaleX);
+                LogWriter.LogWrite("dpiTransform.ScaleY - " + dpiTransform.ScaleY);
+                LogWriter.LogWrite("matrix.M11 - " + matrix.M11.ToString());
+                LogWriter.LogWrite("matrix.M22 - " + matrix.M22.ToString());
+
                 var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
                 this.Left = (desktopWorkingArea.Width - this.Width) / 2;
                 this.Top = (desktopWorkingArea.Height - this.Height) / 2;

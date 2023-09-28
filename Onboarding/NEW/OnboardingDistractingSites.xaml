@@ -54,6 +54,7 @@
                     </Button.Content>
                 </Button>
             </StackPanel>
+            <TextBlock   Name="CountBlockedSites" Margin="0,15,0,10"  Width="450" TextWrapping="Wrap"  Text="x3 Sites will always be blocked"   FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left"   />
         </StackPanel>
         <StackPanel Grid.Row="2" >
             <Border BorderBrush="#f9e98e" BorderThickness="2" Width="450" Height="45" Margin="0,10,0,0">

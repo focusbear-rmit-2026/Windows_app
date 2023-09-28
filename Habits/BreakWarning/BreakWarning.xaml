@@ -24,7 +24,7 @@
         <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" MaxWidth="220" Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <ComboBox Name="ComboBoxMinutes" Width="50" Height="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0" SelectionChanged="ComboBoxMinutes_SelectionChanged">
+            <ComboBox Name="ComboBoxMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="5" SelectionChanged="ComboBoxMinutes_SelectionChanged">
                 <ComboBoxItem Content="5"></ComboBoxItem>
                 <ComboBoxItem Content="10"></ComboBoxItem>
                 <ComboBoxItem Content="15"></ComboBoxItem>
@@ -38,7 +38,7 @@
 
 
         </StackPanel>
-        <Button Grid.Row="4"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
+        <Button Grid.Row="4"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnActionTXT" Text="xPostpone for 5 Minutes"/>

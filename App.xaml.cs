@@ -40,6 +40,7 @@ using Focus_Bear.Onboarding.New;
 using Microsoft.Win32;
 using Focus_Bear.Relax;
 using Focus_Bear.Tour;
+using Focus_Bear.Survey;
 
 namespace Focus_Bear
 {
@@ -73,7 +74,8 @@ namespace Focus_Bear
         private const uint WINEVENT_OUTOFCONTEXT = 0;
         private const uint EVENT_SYSTEM_FOREGROUND = 3;
         private const uint WINEVENT_SKIPOWNPROCESS = 0x0002 ;
- 
+
+        private bool bScreenSaverStarted = false;
         public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             //Always get the last active app name when the menu is clicked and ignore Focus Bear
@@ -303,7 +305,6 @@ namespace Focus_Bear
                 // Enable Global Mode since this is a client app
                 o.IsGlobalModeEnabled = true;
 
-                //TODO: any other options you need go here
             });
 
             DispatcherUnhandledException += App_DispatcherUnhandledException;
@@ -497,7 +498,15 @@ namespace Focus_Bear
             LogWriter.LogWrite("TrayIcon_MouseClick()");
             try
             {
-                
+
+                if (((App)(Application.Current)).wndTakeABreak != null && !(((App)(Application.Current)).wndTakeABreak.IsVisible))
+                {
+                    if (((App)(Application.Current)).wndTakeABreak.bShowingForNonTimerActivities)
+                    {
+                        ((App)(Application.Current)).wndTakeABreak.Show();
+                    }
+                }
+
                 if (e.Button == System.Windows.Forms.MouseButtons.Left)
                 {
                     double x = WinForms.Control.MousePosition.X;
@@ -513,13 +522,6 @@ namespace Focus_Bear
                     wndTrayMenu.Activate();
                     wndTrayMenu.Focus();
                     wndTrayMenu.SetTrayMenuPosition();
-                }
-                if (((App)(Application.Current)).wndTakeABreak != null && !(((App)(Application.Current)).wndTakeABreak.IsVisible))
-                {
-                    if(((App)(Application.Current)).wndTakeABreak.bShowingForNonTimeActivities)
-                    {
-                        ((App)(Application.Current)).wndTakeABreak.Show();
-                    }
                 }
             }
             catch (Exception ex)
@@ -605,6 +607,16 @@ namespace Focus_Bear
                     LogWriter.LogWrite("SHUT_OFF or EVENING_HABITS - Return from dispatcherTimer_Breaks()");
                     return;
                 }
+                //We should also check if the morning routine has not been show, should return from here - case found from logs of #256
+                if (RegistryManager.GetMorningHabitsShownTillDate())
+                {
+                    if (appSettings.MorningHabitsShownTillDate < DateTime.Now)
+                    {
+                        LogWriter.LogWrite("MorningHabits Not Shown for this Date - Return from dispatcherTimer_Breaks()");
+                        return;
+                    }
+                }
+
 
                 if (appSettings.isFocusModeRunning && appSettings.bSkipMicroBreaksDuringFocus)
                 {
@@ -625,7 +637,8 @@ namespace Focus_Bear
                 //Check here if the Breaks window is visible, we will hide it.
                 if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
                 {
-                    ((App)(Application.Current)).wndTakeABreak.HideBreakWindowAndStopTimer();
+                    ((App)(Application.Current)).wndTakeABreak.Close();
+                    ((App)(Application.Current)).wndTakeABreak = null;
                 }
 
                 LogWriter.LogWrite("Show Break Activities Warning");
@@ -651,7 +664,11 @@ namespace Focus_Bear
                 return;
             }
 
-        
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS )
+            {
+                LogWriter.LogWrite("MORNING_HABITS - Return from ShowBreakActivities()");
+                return;
+            }
 
             appSettings.nCurrentActivityType = CurrentActivityType.BREAK_ACTIVITY;
             LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.BREAK_ACTIVITY;");
@@ -890,8 +907,7 @@ namespace Focus_Bear
                 //Additional safety not to show morning routine
                 //No need to show the Morning Habits
                 //WE will set the morning habits shown date for today
-                appSettings.MorningHabitsShownDate = DateTime.Now;
-                RegistryManager.SetMorningHabitsShownDate();
+                RegistryManager.SetMorningHabitsShownTillDate();
 
 
                 RegistryManager.SetOnboardingVideoShownStatus();
@@ -903,6 +919,22 @@ namespace Focus_Bear
                 //Whether the user had opted to see the video or not, this tour will come here.
                 FocusBearMenuTour wndFocusBearMenuTour = new FocusBearMenuTour();
                 wndFocusBearMenuTour.ShowDialog();
+                /*  "titleAlertSetupComplete":"Setup complete!",
+                    "subTitleAlertSetupComplete":"To get up and running quickly, have a read of our quick start guide.",
+                     "buttonOkText":"Enlighten me"*/ //todo win texts
+                FBMessageBox msg = new FBMessageBox("To get up and running quickly, have a read of our quick start guide.", "Setup complete!",MessageBoxButton.OK, "Enlighten me");
+                msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                msg.ShowDialog();
+
+                try
+                {
+                    Process.Start("https://www.focusbear.io/en/post-install-windows");
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("Post install url failed to load + " + ex.Message);
+                }
+
             }
 
             //Check if we have a Devie ID Set, Otherwise generate one and set it
@@ -985,8 +1017,6 @@ namespace Focus_Bear
             new Thread(new ThreadStart(new Action(async () =>
             {
                 CommandManager.InvalidateRequerySuggested();
-                //Copy all graphs to local
-                appSettings.CopyGraphsToLocal();
 
                 //Write the Default CSV file with headers
                 appSettings.WriteDefaultCSVFile();
@@ -1154,8 +1184,7 @@ namespace Focus_Bear
                 LogWriter.LogWrite("appSettings.IsFirstInstall true");
                 //No need to show the Morning Habits
                 //WE will set the morning habits shown date for today
-                appSettings.MorningHabitsShownDate = DateTime.Now;
-                RegistryManager.SetMorningHabitsShownDate();
+                RegistryManager.SetMorningHabitsShownTillDate();
             }
             
 
@@ -1165,9 +1194,9 @@ namespace Focus_Bear
             //Check if its shut off time, show evening routine
             //If morning time show morning routine
             //if not both show break activties
-            if (RegistryManager.GetMorningHabitsShownDate())
+            if (RegistryManager.GetMorningHabitsShownTillDate())
             {
-                if (appSettings.MorningHabitsShownDate.Date == DateTime.Now.Date)
+                if (DateTime.Now < appSettings.MorningHabitsShownTillDate)
                 {
                     isMorningHabitsAlreadyShown = true;
                     LogWriter.LogWrite("isMorningHabitsAlreadyShown = true");
@@ -1202,6 +1231,21 @@ namespace Focus_Bear
                     {
                         LogWriter.LogWrite("ShutOFFAbortedTillDate = true");
                         //Nothing to do as shutoff is aborted for the day
+
+                        //Start the background timer
+                        try
+                        {
+                            dispatcherTimerBackground.Tick += new EventHandler(dispatcherTimer_Background);
+                            dispatcherTimerBackground.Interval = new TimeSpan(0, 0, 5);
+
+                            dispatcherTimerBackground.Start();
+                            CommandManager.InvalidateRequerySuggested();
+                        }
+                        catch (Exception ex)
+                        {
+                            LogWriter.LogWrite("StartWorkFlow()  ShutOffAbortedTillDate" + ex.Message);
+                        }
+
                         return;
                     }
                 }
@@ -1270,6 +1314,33 @@ namespace Focus_Bear
 
                 OfflineActivities.ProcessOfflineData();
 
+                if(ScreenSaverHandler.IsScreenSaverActive)//If screen saver is enabled
+                {
+                    Console.WriteLine("IsScreenSaverActive");
+                    if (ScreenSaverHandler.IsScreenSaverRunning)
+                    {
+                        Console.WriteLine("IsScreenSaverRunning");
+                        if(!bScreenSaverStarted ) //so that its invoked only once
+                            PauseHabitsOnSystemSleep();
+                        bScreenSaverStarted = true;
+                        //there is nothing to do, so we can return from here
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("FALSE IsScreenSaverRunning");
+                        if(bScreenSaverStarted)
+                        {
+                            bScreenSaverStarted = false;
+                            //Screen saver had stopped
+                            ResumeAfterPostponeFinished();
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("FALSE IsScreenSaverActive");
+                }
                 //Show notification just before Evening habits / Shutoff screen
                 TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
 
@@ -1411,9 +1482,9 @@ namespace Focus_Bear
                         return;
 
 
-                    if (RegistryManager.GetMorningHabitsShownDate())
+                    if (RegistryManager.GetMorningHabitsShownTillDate())
                     {
-                        if (appSettings.MorningHabitsShownDate.Date == DateTime.Now.Date)
+                        if (DateTime.Now < appSettings.MorningHabitsShownTillDate)
                         {
                             isMorningHabitsAlreadyShown = true;
                         }
@@ -1527,6 +1598,10 @@ namespace Focus_Bear
                 LogWriter.LogWrite(" wndEasyPostpone.Close();  /  wndHabits.Close(); ex- " + ex.Message);
             }
 
+            //Let's also reset the Postponed and Fous Summary Postponed states
+            appSettings.bFocusSummaryPostponedState = false;
+            appSettings.bHabitsPostponedState = false;
+
             appSettings.bShowActivitiesFromMid = false;
             LogWriter.LogWrite("appSettings.bShowActivitiesFromMid = false;");
 
@@ -1632,8 +1707,7 @@ namespace Focus_Bear
                     LogWriter.LogWrite("ShowMorningRoutine() arrAllMorningHabits.Count == 0 StartBreakActivityTimer and return");
 
                     //WE will set the morning habits shown date for today
-                    appSettings.MorningHabitsShownDate = DateTime.Now;
-                    RegistryManager.SetMorningHabitsShownDate();
+                    RegistryManager.SetMorningHabitsShownTillDate();
 
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                     LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
@@ -1644,9 +1718,15 @@ namespace Focus_Bear
                     return;
                 }
 
-                if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
+                if (((App)(Application.Current)).wndTakeABreak != null)
                 {
-                    ((App)(Application.Current)).wndTakeABreak.HideBreakWindowAndStopTimer();
+                    ((App)(Application.Current)).wndTakeABreak.bShowingForNonTimerActivities = false;
+
+                    if (((App)(Application.Current)).wndTakeABreak.IsVisible)
+                    {
+                        ((App)(Application.Current)).wndTakeABreak.Close();
+                        ((App)(Application.Current)).wndTakeABreak = null;
+                    }
                 }
 
                 LogWriter.LogWrite("ShowMorningRoutine() - show morning habits screen now");
@@ -1688,6 +1768,11 @@ namespace Focus_Bear
                             DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00).ToUniversalTime();
                             Console.WriteLine("{0}", myStartTime.ToString());
 
+                            if(now.ToUniversalTime() < myStartTime) //Possibly reaching here if time > 00:00
+                            {
+                                myStartTime = myStartTime.AddDays(-1);
+                            }
+
 
                             if (sLastActivityDone.ContainsKey("last_completed_sequence"))
                             {
@@ -1709,8 +1794,7 @@ namespace Focus_Bear
                                                 {
                                                     //Today's Morning activity is done
                                                     LogWriter.LogWrite("Morning habits already shown for today - return");
-                                                    appSettings.MorningHabitsShownDate = DateTime.Now;
-                                                    RegistryManager.SetMorningHabitsShownDate();
+                                                    RegistryManager.SetMorningHabitsShownTillDate();
 
                                                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                                                     LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
@@ -1720,7 +1804,6 @@ namespace Focus_Bear
 
                                                     return;
                                                 }
-
                                             }
                                         }
                                     }
@@ -1796,8 +1879,7 @@ namespace Focus_Bear
                                                             {
                                                                 //it means current activity is not morning habit and morning habit done for today
                                                                 LogWriter.LogWrite("Current Activity is not morning habit and it means morning habit done for today");
-                                                                appSettings.MorningHabitsShownDate = DateTime.Now;
-                                                                RegistryManager.SetMorningHabitsShownDate();
+                                                                RegistryManager.SetMorningHabitsShownTillDate();
 
                                                                 appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                                                                 LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
@@ -1874,6 +1956,12 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("ShowMorningRoutine - Now show the HabitWindow");
 
+                if (wndHabits != null)
+                {
+                    wndHabits.Close();
+                    wndHabits = null;
+                }
+
                 wndHabits = new HabitWindow();
                
                 wndHabits.Topmost = true;
@@ -1899,42 +1987,63 @@ namespace Focus_Bear
                 LogWriter.LogWrite("ShowEveningRoutine() - appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS return");
                 return; //Already showign morning routine
             }
-           
-            if(wndEasyPostpone != null)
+
+            try
             {
-                wndEasyPostpone.Close();
-                wndEasyPostpone = null;
-            }
-            //We need to check if anything is going on and kill that first
-            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
-                appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
-            {
-                if (wndHabits != null)
+
+                if (wndEasyPostpone != null)
                 {
-                    LogWriter.LogWrite("wndHabits.Close();");
-                    wndHabits.Close();
-                    wndHabits = null;
+                    wndEasyPostpone.Close();
+                    wndEasyPostpone = null;
+                }
+                //We need to check if anything is going on and kill that first
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+                    appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                {
+                    if (wndHabits != null)
+                    {
+                       //It might be possible that the break activity is running..
+                        if (wndHabits.PageHabitActivityOnGoing != null)
+                        {
+                            if (wndHabits.PageHabitActivityOnGoing.bTimerRunning)
+                            {
+                                wndHabits.PageHabitActivityOnGoing.StopTimerOfRunningActivity(); //Stop the timer
+                            }
+                        }
+                       
+                        LogWriter.LogWrite("wndHabits.Close();");
+                        wndHabits.Close();
+                        wndHabits = null;
+                    }
+                }
+
+                //In any case if there is a habit window left from system sleep and then wakeup, and if nCurrentActivityType is NONE 
+                //we must check the existing window and close it as we are going to create a new one further.
+                //Deon's logs helped
+                if (appSettings.nCurrentActivityType == CurrentActivityType.NONE)
+                {
+                    if (wndHabits != null)
+                    {
+                        wndHabits.Close();
+                        wndHabits = null;
+                    }
                 }
             }
-
-            //In any case if there is a habit window left from system sleep and then wakeup, and if nCurrentActivityType is NONE 
-            //we must check the existing window and close it as we are going to create a new one further.
-            //Deon's logs helped
-            if (appSettings.nCurrentActivityType == CurrentActivityType.NONE)
+            catch (Exception ex)
             {
-                if (wndHabits != null)
-                {
-                    wndHabits.Close();
-                    wndHabits = null;
-                }
+                LogWriter.LogWrite("ShowEveningRoutine() func - trying to close old windows" + ex.Message);
             }
-
 
             appSettings.nCurrentActivityType = CurrentActivityType.EVENING_HABITS; //We use this for Focus Summary as well, when FOcus summary ends we change this to none
             LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.EVENING_HABITS;");
 
+            //Let's also reset the Postponed and Fous Summary Postponed states
+            appSettings.bFocusSummaryPostponedState = false;
+            appSettings.bHabitsPostponedState = false;
+
             appSettings.bShowActivitiesFromMid = false;
             LogWriter.LogWrite("appSettings.bShowActivitiesFromMid = false;");
+
             //Check if we have already show the Focus Summary,  
             if (RegistryManager.GetFocusSummaryShownTillDate())
             {
@@ -2086,6 +2195,10 @@ namespace Focus_Bear
                         DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutoffTime.Hours, tsShutoffTime.Minutes, 00).ToUniversalTime();
                         Console.WriteLine("{0}", myShutOffTime.ToString());
 
+                        if (now.ToUniversalTime() < myShutOffTime) //Possibly reaching here if current time > 00:00
+                        {
+                            myShutOffTime = myShutOffTime.AddDays(-1);
+                        }
 
                         if (sLastActivityDone.ContainsKey("last_completed_sequence"))
                         {
@@ -2106,7 +2219,6 @@ namespace Focus_Bear
                                             LogWriter.LogWrite("Evening habits already shown for today - return");
 
                                             TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
-                                            //DateTime now = DateTime.Now;
                                             DateTime myShutOffTimeLocal = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
                                             Console.WriteLine("{0}", myShutOffTimeLocal.ToString());
 
@@ -2339,7 +2451,7 @@ namespace Focus_Bear
             wndPreferences.Show();
             wndPreferences.BringIntoView();
 
-        } 
+        }
         public void ShowFocusEndWindow()
         {
             if (wndFocusModeEnd == null)
@@ -2349,42 +2461,70 @@ namespace Focus_Bear
             wndFocusModeEnd.Show();
             wndFocusModeEnd.BringIntoView();
 
+            if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
+            {
+                wndFocusModeEnd.ShowTasksEndWindow();
+            }
         }
         public void ShowBreakWindow()
         {
             LogWriter.LogWrite("ShowBreakWindow ()");
-
-            if (wndTakeABreak == null)
+            try
             {
-                wndTakeABreak = new BreakWindow();
-            }
-            wndTakeABreak.Show();
-            wndTakeABreak.BringIntoView();
-            wndTakeABreak.ShowBreakWindowAndStartTimer(300);
+                if (wndTakeABreak == null)
+                {
+                    wndTakeABreak = new BreakWindow();
+                }
 
-        }
+                wndTakeABreak.Show();
+                wndTakeABreak.BringIntoView();
+                wndTakeABreak.ShowBreakWindowAndStartTimer(300);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShowBreakWindow() ex - " + ex.Message);
+            }
+
+}
 
         public void ShowRelaxActivityWindow(int nTime)
         {
-            if (wndRelaxMode == null)
+            try
             {
-                wndRelaxMode = new RelaxModeWindow(nTime);
+
+                if (wndRelaxMode == null)
+                {
+                    wndRelaxMode = new RelaxModeWindow(nTime);
+                }
+                wndRelaxMode.Show();
+                wndRelaxMode.BringIntoView();
             }
-            wndRelaxMode.Show();
-            wndRelaxMode.BringIntoView();
-            //wndRelaxMode.ShowBrainDumpWindowAndStartTimer();
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShowRelaxActivityWindow() ex - " + ex.Message);
+            }
         }
 
         public void ShowBreakWindowForAllowedAppsActivity(int nDuration, string sTitle)
         {
-            if (wndTakeABreak == null)
+            LogWriter.LogWrite("ShowBreakWindowForAllowedAppsActivity()");
+
+            try
             {
-                wndTakeABreak = new BreakWindow();
+                if (wndTakeABreak == null)
+                {
+                    wndTakeABreak = new BreakWindow();
+                }
+
+                wndTakeABreak.bShowingForNonTimerActivities = true;
+                wndTakeABreak.Show();
+                wndTakeABreak.BringIntoView();
+                wndTakeABreak.ShowBreakWindowAndStartTimer(nDuration, sTitle);
             }
-            wndTakeABreak.bShowingForNonTimeActivities = true;
-            wndTakeABreak.Show();
-            wndTakeABreak.BringIntoView();
-            wndTakeABreak.ShowBreakWindowAndStartTimer(nDuration, sTitle);
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShowBreakWindowForAllowedAppsActivity() ex - " + ex.Message);
+            }
 
         }
 
@@ -2429,7 +2569,7 @@ namespace Focus_Bear
                 {
                     dispatcherTimerPostponeHabits.Tick += new EventHandler(dispatcherTimer_Postpone);
 #if DEBUG
-                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, nMinutesToPostpone, 0);
+                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 0, nMinutesToPostpone);
 #else
                     dispatcherTimerPostponeHabits.Interval = new TimeSpan(0,  nMinutesToPostpone, 0);
 #endif
@@ -2626,11 +2766,8 @@ namespace Focus_Bear
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var xResponse = await client.GetActivityAllDaySummary();
 
-
-                if (wndFocusSummary == null)
-                {
-                    wndFocusSummary = new FocusActivitySummary();
-                }
+                wndFocusSummary = new FocusActivitySummary();
+                
                 ShowBlankWindowOnOtherScreens();
                 wndFocusSummary.ShowDialog();
                 wndFocusSummary.BringIntoView();
@@ -2660,11 +2797,10 @@ namespace Focus_Bear
                         await Dispatcher.BeginInvoke((Action)(() =>
                         {
                             //Waiting if existing dialoge is showing
-                            LogWriter.LogWrite("A new version of Focus Bear is available"); //TODO Win Text
+                            LogWriter.LogWrite("A new version of Focus Bear is available");  
                             {
-                                //todo Win Text
-                                string displayMsg = "A new version of Focus Bear is available. Do you wish to update to the latest version of Focus Bear?";
-                                FBMessageBox ff = new FBMessageBox(displayMsg, "New Update Available", MessageBoxButton.YesNo);
+                                string displayMsg = appSettings.ConfigFileStrings["WindowsSpecific"]["newVersionAvailable"].ToString(); //"A new version of Focus Bear is available. Do you wish to update to the latest version of Focus Bear?";
+                                FBMessageBox ff = new FBMessageBox(displayMsg, appSettings.ConfigFileStrings["WindowsSpecific"]["newUpdateAvailable"].ToString(), MessageBoxButton.YesNo);
                                 ff.ShowDialog();
                                 //if user has cancelled the update process
                                 if (ff.btnClicked == MessageBoxResult.No)
@@ -2686,8 +2822,8 @@ namespace Focus_Bear
                         {
                             await Dispatcher.BeginInvoke((Action)(() =>
                             {
-                                string displayMsg = "You are already running the latest version of Focus Bear."; //TODO Win Text
-                                FBMessageBox ff = new FBMessageBox(displayMsg, "No New Update Available");
+                                string displayMsg = appSettings.ConfigFileStrings["WindowsSpecific"]["alreadyRunningLatestVersion"].ToString();//"You are already running the latest version of Focus Bear.";  
+                                FBMessageBox ff = new FBMessageBox(displayMsg, appSettings.ConfigFileStrings["WindowsSpecific"]["noNewUpdateAvailable"].ToString());
                                 ff.ShowDialog();
                                 
                                 //if user has cancelled the update process
@@ -2794,6 +2930,11 @@ namespace Focus_Bear
 
         public void ShowBlankWindowOnOtherScreens()
         {
+            if(!appSettings.bPlayActivitiesInFullScreenMode)
+            {
+                return;
+            }
+
             LogWriter.LogWrite("ShowBlankWindowOnOtherScreens()");
             //WE will place a small check here
             //if its not any activity time, this should not execute
@@ -2863,12 +3004,32 @@ namespace Focus_Bear
                 FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["common"]["settingsChangedText"].ToString());
                 msg.ShowDialog();
 
-                LogWriter.LogWrite("Restart app now for settings to take Effect!");
+                LogWriter.LogWrite("ValidateSettingsChange - Restart app now for settings to take Effect!");
 
                 appSettings.bRestartAppNeeded = true;
 
                 Application.Current.Shutdown(0);
             }
+        }
+
+        public void ShowSurvey()
+        {
+            if (!RegistryManager.GetSurveyShownStatus())
+            {
+                //we need to check if 7 days have passed the installed date, if yet, need to who the survey window.
+                DateTime now = DateTime.Now;
+                TimeSpan difference = now.Subtract(appSettings.FirstAppInstallDT);
+
+                var nDays = difference.Days;
+
+                if (nDays >= 7)
+                {
+                    SurveyWindow wndSurvey = new SurveyWindow();
+                    wndSurvey.ShowDialog();
+                    RegistryManager.SetSurveyShownStatus();
+                }
+            }
+            
         }
     }
 }

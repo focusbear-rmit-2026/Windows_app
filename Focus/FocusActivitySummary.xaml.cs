@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.Habits;
 using Focus_Bear.Models;
+using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using Newtonsoft.Json.Linq;
 using System;
@@ -30,7 +31,6 @@ namespace Focus_Bear.Focus
 
         AppSettings appSettings = AppSettings.GetInstance;
 
-        int nTimer = 60;
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
         bool bNeedMoreTime = false;
@@ -89,10 +89,21 @@ namespace Focus_Bear.Focus
             {
                 this.Topmost = true;
 
-#if DEBUG
-                this.WindowState = WindowState.Normal;
-                this.WindowStyle = WindowStyle.ToolWindow;
-#endif
+                if (!appSettings.bPlayActivitiesInFullScreenMode)
+                {
+                    this.WindowState = WindowState.Normal;
+                    this.WindowStyle = WindowStyle.ToolWindow;
+                    this.Width = 1300;
+                    this.Height = 750;
+
+                    MainGrid.RowDefinitions[0].Height = new GridLength(100);
+                }
+
+                //Set the minimum so that in non full screen mode we do not go below this.
+                this.MinWidth = 1300;
+                this.MinHeight = 750;
+                this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
 
                 int nCountFocusBlocks = 0;
                 int nTotalFocusTime = 0;
@@ -222,6 +233,25 @@ namespace Focus_Bear.Focus
         }
         private void btnNeedOneMinute_Click(object sender, RoutedEventArgs e)
         {
+            if (appSettings.DidCutOffTimePassed())
+            {
+                AskPassword pwdWnd = new AskPassword();
+                pwdWnd.Owner = this;
+                GridShade.Visibility = Visibility.Visible;
+
+                bool? bResult = pwdWnd.ShowDialog();
+
+                GridShade.Visibility = Visibility.Collapsed;
+
+                if (bResult.Value)
+                {
+                    //Password is correct
+                }
+                else
+                {
+                    return;
+                }
+            }
 
 
             if (bNeedMoreTime)
@@ -244,7 +274,7 @@ namespace Focus_Bear.Focus
 #if DEBUG
                     dispatcherTimer.Interval = new TimeSpan(0, 0, 10); //One minute timer
 #else
-                dispatcherTimer.Interval = new TimeSpan(0, 1, 0); //One minute timer
+                    dispatcherTimer.Interval = new TimeSpan(0, 1, 0); //One minute timer
 #endif
                     dispatcherTimer.Start();
                     Hide(); //hide self window for 1 minute
@@ -274,7 +304,7 @@ namespace Focus_Bear.Focus
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("Need 1 minute timer = " + ex.Message);
+                LogWriter.LogWrite("Need 1 minute timer EX = " + ex.Message);
             }
 
         }
@@ -282,7 +312,8 @@ namespace Focus_Bear.Focus
         public void PostponeFocusSummary(int nMinutesToPostpone)
         {
             //Hide this window, Set a timer for x nMinutesToPostpone and Hide the window and reappear again
- 
+            LogWriter.LogWrite("PostponeFocusSummary()");
+
 #if DEBUG
             dispatcherTimer.Interval = new TimeSpan(0, 0, nMinutesToPostpone);
 #else
@@ -300,7 +331,17 @@ namespace Focus_Bear.Focus
 
         public void ResumeFocusSummary()
         {
+
+            LogWriter.LogWrite("ResumeFocusSummary()");
+
             dispatcherTimer.Stop(); //Tick Once Only
+
+            if (!appSettings.bFocusSummaryPostponedState)
+            {
+                LogWriter.LogWrite("ResumeFocusSummary() - Returning as the bFocusSummaryPostponedState is no longer Valid");
+                return;
+            }
+
             ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
             Show();
             appSettings.bFocusSummaryPostponedState = false;
@@ -348,6 +389,24 @@ namespace Focus_Bear.Focus
         private void Window_Closed(object sender, EventArgs e)
         {
             appSettings.RemoveSecondaryWindows();
+        }
+
+        private void FullScreenParent_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            bool wasCodeClosed = new StackTrace().GetFrames().FirstOrDefault(x => x.GetMethod() == typeof(Window).GetMethod("Close")) != null;
+            if (wasCodeClosed)
+            {
+                // Closed with this.Close()
+            }
+            else
+            {
+                e.Cancel = true;
+                // Closed some other way - like close button clicked.
+                // first Need one more minute button to postpone
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnNeedOneMinute);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
         }
     }
 }

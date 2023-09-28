@@ -45,8 +45,8 @@ namespace Focus_Bear.Preferences
         }
         void LoadTexts()
         {
-            Heading.Text = "Enter apps manually:"; //todo win text
-            Instructions.Text = "If you know the name of the EXEs that you want to allow, you can add them here. You can enter multiple exe names seperated with comma. (Example: chrome.exe, firefox.exe, notepad.exe)";
+            Heading.Text = appSettings.ConfigFileStrings["WindowsSpecific"]["enterAppsManually"].ToString(); // "Enter apps manually:"; 
+            Instructions.Text = appSettings.ConfigFileStrings["WindowsSpecific"]["idYouKnowTheNames"].ToString(); //"If you know the name of the EXEs that you want to allow, you can add them here. You can enter multiple exe names seperated with comma. (Example: chrome.exe, firefox.exe, notepad.exe)";
 
             btnCancel.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonCancelText"].ToString();
             btnAdd.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddText"].ToString();

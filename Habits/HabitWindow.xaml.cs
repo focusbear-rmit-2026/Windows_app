@@ -46,6 +46,8 @@ namespace Focus_Bear.Habits
 
         DispatcherTimer dispatcherTimerShowDateTime = new DispatcherTimer(DispatcherPriority.Normal);
 
+        DispatcherTimer dispatcherTimerAskSleepAndMood = new DispatcherTimer(DispatcherPriority.Normal);
+
         protected override async void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
@@ -79,10 +81,24 @@ namespace Focus_Bear.Habits
             
             LogWriter.LogWrite("HabitWindow()");
 
-#if DEBUG
-            this.WindowState = WindowState.Normal;
-            this.WindowStyle = WindowStyle.ToolWindow;
-#endif
+            if(!appSettings.bPlayActivitiesInFullScreenMode)
+            {
+                this.WindowState = WindowState.Normal;
+                this.WindowStyle = WindowStyle.ToolWindow;
+                this.Width = 1300;
+                this.Height = 750;
+                btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
+            }
+            else
+            {
+                btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
+            }
+
+            //Set the minimum so that in non full screen mode we do not go below this.
+            this.MinWidth = 1300;
+            this.MinHeight = 750;
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
             Time.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
 
             dispatcherTimerShowDateTime.Tick += new EventHandler(dispatcherTimerShowDateTime_Tick);
@@ -91,8 +107,7 @@ namespace Focus_Bear.Habits
 
 
             Heading.Text = "";
-            btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
-
+  
             //Show the Please Spare Me Button
             btnPleaseSpareMe.Visibility = Visibility.Visible;
 
@@ -164,6 +179,8 @@ namespace Focus_Bear.Habits
                     LogWriter.LogWrite("Show HabitsWelcomeList Page");
                     PageWelcomeList = new HabitsWelcomeList(this);
                     AppFrameHabitScreens.Navigate(PageWelcomeList); //Normal process
+
+                    AskToAnalyzeSleepAndMood();
                 }
             }
 
@@ -199,6 +216,20 @@ namespace Focus_Bear.Habits
                 //////////////////////////////////////////////////////////
                 //On activity Finished, do clear the Postponed variables
                 RegistryManager.RemovePostponedHabitData();
+
+                //May be the timer small window is running, close that
+                //Check here if the Breaks window is visible, we will hide it.
+                if (((App)(Application.Current)).wndTakeABreak != null)
+                {
+                    ((App)(Application.Current)).wndTakeABreak.bShowingForNonTimerActivities = false;
+
+                    if (((App)(Application.Current)).wndTakeABreak.IsVisible)
+                    {
+                        ((App)(Application.Current)).wndTakeABreak.Close();
+                        ((App)(Application.Current)).wndTakeABreak = null;
+                    }
+                }
+
                 //////////////////////////////////////////////////////////
                 //Here we need to set the activity ongoing screen as null so that postpone timers can be handled as there we check if the object is not null
                 if (PageHabitActivityOnGoing != null)
@@ -401,6 +432,8 @@ namespace Focus_Bear.Habits
                 PageHabitActivityOnGoing.webView.Dispose();
             }
 
+            bool bMorningHabitsFinished = false;
+
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
                 LogWriter.LogWrite("LAST BREAK_ACTIVITY Finished");
@@ -422,8 +455,7 @@ namespace Focus_Bear.Habits
                 await Task.Delay(3000);
 
                 //WE will set the morning habits shown date for today
-                appSettings.MorningHabitsShownDate = DateTime.Now;
-                RegistryManager.SetMorningHabitsShownDate();
+                RegistryManager.SetMorningHabitsShownTillDate();
 
                 //Set the current activity type to NONE
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE;
@@ -431,6 +463,8 @@ namespace Focus_Bear.Habits
 
                 //Start the break Activities Timer
                 ((App)(Application.Current)).StartBreakActivityTimer();
+
+                bMorningHabitsFinished = true;
             }
             else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
             {
@@ -479,6 +513,11 @@ namespace Focus_Bear.Habits
             }
 
             Close();
+
+            if(bMorningHabitsFinished)
+            {
+                ((App)(Application.Current)).ShowSurvey();
+            }
         }
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -1250,6 +1289,104 @@ namespace Focus_Bear.Habits
             catch (Exception ex)
             {
                 LogWriter.LogWrite("dispatcherTimerSkippingIn_Tick ex = " + ex.Message);
+            }
+
+        }
+
+        private void FullScreenParent_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (!appSettings.bPlayActivitiesInFullScreenMode)
+            {
+                this.WindowState = WindowState.Normal;
+                this.WindowStyle = WindowStyle.ToolWindow;
+                this.Width = 1300;
+                this.Height = 750;
+                btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
+                Time.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
+                Time.Visibility = Visibility.Visible;
+
+                this.WindowState = WindowState.Maximized;
+                this.WindowStyle = WindowStyle.None;
+            }
+
+        }
+
+        private void FullScreenParent_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            bool wasCodeClosed = new StackTrace().GetFrames().FirstOrDefault(x => x.GetMethod() == typeof(Window).GetMethod("Close")) != null;
+            if (wasCodeClosed)
+            {
+                // Closed with this.Close()
+            }
+            else
+            {
+                e.Cancel = true;
+                // Closed some other way - like close button clicked.
+                // first Please spare me button to postpone
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnPleaseSpareMe);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
+        }
+
+        public void HideCloseButton()//need to hide the close button if is the last activity finished screen
+        {
+            if (appSettings.bPlayActivitiesInFullScreenMode)
+            {
+                return;
+            }
+
+            this.WindowStyle = WindowStyle.None;
+        }
+
+        private void AskToAnalyzeSleepAndMood()
+        {
+            if (!RegistryManager.GetAnalyzeSleepAndMoodStatus())
+            {
+                //we need to check if 7 days have passed the installed date, if yet, need to who the survey window.
+                DateTime now = DateTime.Now;
+                TimeSpan difference = now.Subtract(appSettings.FirstAppInstallDT);
+
+                var nDays = difference.Days;
+
+                if (nDays >= 2)
+                {
+                    dispatcherTimerAskSleepAndMood.Tick += new EventHandler(dispatcherTimerAskSleepAndMood_Tick);
+                    dispatcherTimerAskSleepAndMood.Interval = new TimeSpan(0, 0, 1);
+                    dispatcherTimerAskSleepAndMood.Start();
+                }
+            }
+        }
+        private void dispatcherTimerAskSleepAndMood_Tick(object sender, EventArgs e)
+        {
+
+            try
+            {
+                dispatcherTimerAskSleepAndMood.Stop();
+                CommandManager.InvalidateRequerySuggested();
+                GridShade.Visibility = Visibility.Visible;
+                AnalyzeSleepMoodWindow wndAnalyzeSleepMood = new AnalyzeSleepMoodWindow(this);
+                bool? bResult = wndAnalyzeSleepMood.ShowDialog();
+                GridShade.Visibility = Visibility.Collapsed;
+
+                if(bResult.Value == true)
+                {
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["preferencesInfo"]["alertChangeLanguageInfoText"].ToString(), "Focus Bear");
+                    ff.Owner = this;
+                    ff.ShowDialog();
+                    appSettings.bRestartAppNeeded = true;
+                    Application.Current.Shutdown(0);
+                }
+
+                RegistryManager.SetAnalyzeSleepAndMoodStatus();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("dispatcherTimerAskSleepAndMood_Tick ex = " + ex.Message);
             }
 
         }
