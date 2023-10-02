@@ -1750,6 +1750,7 @@ namespace Focus_Bear
 
                     if (appSettings.sLastActivityDoneInfo != null || appSettings.sLastActivityDoneInfo.Length > 0)
                     {
+                        LogWriter.LogWrite("GetLastActivityInfo Value - " + appSettings.sLastActivityDoneInfo);
                         //Parse the JSON string
                         try
                         {
@@ -1843,6 +1844,7 @@ namespace Focus_Bear
                                                                 LogWriter.LogWrite("Morning Habit sequnce is pending. Start from current pending habit");
 
                                                                 appSettings.arraySkipped.Clear();//Clear while initializing
+                                                                appSettings.arrayCompletedActivities.Clear();//Clear while initializing
 
                                                                 if (sLastActivityDone.ContainsKey("current_sequence_skipped_activities"))
                                                                 {
@@ -1852,27 +1854,84 @@ namespace Focus_Bear
                                                                         appSettings.arraySkipped = (JArray)sLastActivityDone["current_sequence_skipped_activities"];
                                                                 }
 
+                                                                //get the completed activities dones on other devices
+                                                                if (sLastActivityDone.ContainsKey("current_sequence_completed_activities"))
+                                                                {
+                                                                    string sArrayCompletedActivities = sLastActivityDone["current_sequence_completed_activities"].ToString();
+                                                                    if (sArrayCompletedActivities.Length > 0)
+                                                                        appSettings.arrayCompletedActivities = (JArray)sLastActivityDone["current_sequence_completed_activities"];
+                                                                }
+
+                                                                //Initialize the time for habits
+                                                                appSettings.nTotalSecondsAllHabits = 0;
+                                                                appSettings.nHabitCompletedSeconds = 0;
+                                                                bool bCurrentActivityFound = false;
                                                                 for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
                                                                 {
+                                                                    
                                                                     if (appSettings.arrAllMorningHabits[i].id == activityId) //current activity to be done
                                                                     {
-                                                                        appSettings.nHabitIndex = i - 1; //We will assign the habit index from the previous activity and show the finish screen for that activity
-                                                                                                         //Now we do not need to start normal but need to show the finish screen of this
-                                                                        appSettings.bShowActivitiesFromMid = true;
-                                                                        LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
+                                                                        bCurrentActivityFound = true;
 
-                                                                        for (int m = 0; m < appSettings.arraySkipped.Count; m++)
+                                                                        if (i != 0)
                                                                         {
-                                                                            //Check if the last activity was in the array skipped list
-                                                                            if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllMorningHabits[i - 1].id)
+                                                                            appSettings.nHabitIndex = i - 1; //We will assign the habit index from the previous actiity and show the finish screen for that activity
+
+                                                                            //Now we do not need to start normal but need to show the finish screen of this
+                                                                            appSettings.bShowActivitiesFromMid = true;
+
+                                                                            for (int m = 0; m < appSettings.arraySkipped.Count; m++)
                                                                             {
-                                                                                appSettings.bShowActivitiesFromMidLastSkipped = true;
+                                                                                //Check if the last activity was in the array skipped list
+                                                                                if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllMorningHabits[i - 1].id)
+                                                                                {
+                                                                                    appSettings.bShowActivitiesFromMidLastSkipped = true;
+                                                                                    break;
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            //Now since we have the support of doing activites in random order in mobile, if a user had done some other activity then the first one, the current activity will be 0th one so we need to show the entier list and not start from mid
+                                                                            //Here we need to set the habit index to 0 and show the welcome list
+                                                                            appSettings.nHabitIndex = 0;
+                                                                        }
+
+                                                                        LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
+                                                                    }
+                                                                    else if (bCurrentActivityFound)
+                                                                    {
+                                                                        //If we have found the current activity, now we need to check further to this activity that if there are activitis done
+                                                                        //if done randomly, we need to calculate the time and then remove them
+                                                                        for (int n = 0; n < appSettings.arrayCompletedActivities.Count; n++)
+                                                                        {
+                                                                            if (appSettings.arrAllMorningHabits[i].id == appSettings.arrayCompletedActivities[n].ToString())
+                                                                            {
+                                                                                appSettings.nTotalSecondsAllHabits += appSettings.arrAllMorningHabits[i].durationSeconds;
+
+                                                                                //If found in completed, we need to check if this is not in the skipped array
+                                                                                bool bIsSkipped = false;
+                                                                                for (int m = 0; m < appSettings.arraySkipped.Count; m++)
+                                                                                {
+                                                                                    if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllMorningHabits[i].id)
+                                                                                    {
+                                                                                        bIsSkipped = true;
+                                                                                        break;
+                                                                                    }
+                                                                                }
+                                                                                if (!bIsSkipped)
+                                                                                {
+                                                                                    appSettings.nHabitCompletedSeconds += appSettings.arrAllMorningHabits[i].durationSeconds;
+                                                                                }
+                                                                                //RE
+                                                                                appSettings.arrAllMorningHabits.RemoveAt(i);
+                                                                                i--;
+
                                                                                 break;
                                                                             }
                                                                         }
-
-                                                                        break;
                                                                     }
+
                                                                 }
                                                             }
                                                             else
@@ -2178,6 +2237,7 @@ namespace Focus_Bear
 
                 if (appSettings.sLastActivityDoneInfo != null || appSettings.sLastActivityDoneInfo.Length > 0)
                 {
+                    LogWriter.LogWrite("GetLastActivityInfo Value - " + appSettings.sLastActivityDoneInfo);
                     //Parse the JSON string
                     try
                     {
@@ -2285,6 +2345,7 @@ namespace Focus_Bear
                                                             LogWriter.LogWrite("Evening Habit sequnce is pending. Start from current pending habit");
 
                                                             appSettings.arraySkipped.Clear();//Clear while initializing
+                                                            appSettings.arrayCompletedActivities.Clear();//Clear while initializing
 
                                                             if (sLastActivityDone.ContainsKey("current_sequence_skipped_activities"))
                                                             {
@@ -2293,27 +2354,83 @@ namespace Focus_Bear
                                                                     appSettings.arraySkipped = (JArray)sLastActivityDone["current_sequence_skipped_activities"];
                                                             }
 
+                                                            //get the completed activities dones on other devices
+                                                            if (sLastActivityDone.ContainsKey("current_sequence_completed_activities"))
+                                                            {
+                                                                string sArrayCompletedActivities = sLastActivityDone["current_sequence_completed_activities"].ToString();
+                                                                if (sArrayCompletedActivities.Length > 0)
+                                                                    appSettings.arrayCompletedActivities = (JArray)sLastActivityDone["current_sequence_completed_activities"];
+                                                            }
+
+                                                            //Initialize the time for habits
+                                                            appSettings.nTotalSecondsAllHabits = 0;
+                                                            appSettings.nHabitCompletedSeconds = 0;
+                                                            bool bCurrentActivityFound = false;
+
                                                             for (int i = 0; i < appSettings.arrAllEveningHabits.Count; i++)
                                                             {
                                                                 if (appSettings.arrAllEveningHabits[i].id == activityId)
                                                                 {
-                                                                    appSettings.nHabitIndex = i - 1; //We will assign the habit index from the previous actiity and show the finish screen for that activity
-                                                                    //Now we do not need to start normal but need to show the finish screen of this
-                                                                    appSettings.bShowActivitiesFromMid = true;
-                                                                    LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
+                                                                    bCurrentActivityFound = true;
 
-                                                                    for (int m = 0; m < appSettings.arraySkipped.Count; m++)
+                                                                    if (i != 0) 
                                                                     {
-                                                                        //Check if the last activity was in the array skipped list
-                                                                        if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllEveningHabits[i-1].id)
+                                                                        appSettings.nHabitIndex = i - 1; //We will assign the habit index from the previous actiity and show the finish screen for that activity
+
+                                                                        //Now we do not need to start normal but need to show the finish screen of this
+                                                                        appSettings.bShowActivitiesFromMid = true;
+
+                                                                        for (int m = 0; m < appSettings.arraySkipped.Count; m++)
                                                                         {
-                                                                            appSettings.bShowActivitiesFromMidLastSkipped = true;
+                                                                            //Check if the last activity was in the array skipped list
+                                                                            if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllEveningHabits[i - 1].id)
+                                                                            {
+                                                                                appSettings.bShowActivitiesFromMidLastSkipped = true;
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        //Now since we have the support of doing activites in random order in mobile, if a user had done some other activity then the first one, the current activity will be 0th one so we need to show the entier list and not start from mid
+                                                                        //Here we need to set the habit index to 0 and show the welcome list
+                                                                        appSettings.nHabitIndex = 0;
+                                                                    }
+
+                                                                    LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
+                                                                } 
+                                                                else if (bCurrentActivityFound)
+                                                                {
+                                                                    //If we have found the current activity, now we need to check further to this activity that if there are activitis done
+                                                                    //if done randomly, we need to calculate the time and then remove them
+                                                                    for (int n = 0; n < appSettings.arrayCompletedActivities.Count; n++)
+                                                                    {
+                                                                        if (appSettings.arrAllEveningHabits[i].id == appSettings.arrayCompletedActivities[n].ToString())
+                                                                        {
+                                                                            appSettings.nTotalSecondsAllHabits += appSettings.arrAllEveningHabits[i].durationSeconds;
+
+                                                                            //If found in completed, we need to check if this is not in the skipped array
+                                                                            bool bIsSkipped = false;
+                                                                            for (int m = 0; m < appSettings.arraySkipped.Count; m++)
+                                                                            {
+                                                                                if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllEveningHabits[i].id)
+                                                                                {
+                                                                                    bIsSkipped = true;
+                                                                                    break;
+                                                                                }
+                                                                            }
+                                                                            if (!bIsSkipped)
+                                                                            {
+                                                                                appSettings.nHabitCompletedSeconds += appSettings.arrAllEveningHabits[i].durationSeconds;
+                                                                            }
+                                                                            //RE
+                                                                            appSettings.arrAllEveningHabits.RemoveAt(i);
+                                                                            i--;
                                                                             break;
                                                                         }
                                                                     }
-
-                                                                    break;
                                                                 }
+
                                                             }
                                                         }
                                                         else

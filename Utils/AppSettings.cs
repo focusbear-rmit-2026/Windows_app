@@ -170,6 +170,10 @@ namespace Focus_Bear.Utils
         public string sRawTasksDone; //used to get a list of tasks done from focus mode end window.
 
         public JArray arraySkipped = new JArray();
+        public JArray arrayCompletedActivities = new JArray();
+        public int nTotalSecondsAllHabits = 0;
+        public int nHabitCompletedSeconds = 0;
+
         public bool bShowActivitiesFromMidLastSkipped = false;
         public bool bSkipCurrentActivity = false;
         public bool bSkipCurrentActivityCantDoItToday = false;

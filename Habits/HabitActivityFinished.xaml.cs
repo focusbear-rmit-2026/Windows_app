@@ -228,8 +228,9 @@ namespace Focus_Bear.Habits
                 //Set button text with next activity start info
                 string sButtonTitle = "";
 
-                int totalSecondsAllHabits = 0;
-                int habitCompletedSeconds = 0;
+                int totalSecondsAllHabits = appSettings.nTotalSecondsAllHabits;
+                int habitCompletedSeconds = appSettings.nHabitCompletedSeconds;
+
                 string sTotal = "";
                 string sCompleted = "";
                 string sRemaining = "";

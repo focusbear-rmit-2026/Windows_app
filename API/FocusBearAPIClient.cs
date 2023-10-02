@@ -84,7 +84,7 @@ namespace Focus_Bear.API
                 try
                 {
                     HttpClient client = new HttpClient();
-                    client.Timeout = TimeSpan.FromSeconds(2);
+                    client.Timeout = TimeSpan.FromSeconds(4);
                     var response =  await client.GetAsync("https://api.focusbear.io/api").ConfigureAwait(false);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
                     {
