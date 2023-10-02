@@ -1107,6 +1107,9 @@ namespace Focus_Bear.API
                         if(is_onboarding)
                             UserSettings += "?is_onboarding=true";
 
+                        if(is_onboarding)
+                            UserSettings += "?is_onboarding=true";
+
                         var response = await client.PutAsync(UserSettings, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
                         {

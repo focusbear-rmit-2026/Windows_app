@@ -425,7 +425,10 @@ namespace Focus_Bear.Habits
                         appSettings.nHabitIndex = newHabitIndex - 1; //assign the new habit index to our main habit index less 1 as it will be increased on action button click
                         LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
                         //If its the last activity of evening habits,. we need a 30 seconds timer to wrap up automatically
                         if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantity)
                         {

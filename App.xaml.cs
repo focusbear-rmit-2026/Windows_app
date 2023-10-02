@@ -40,7 +40,10 @@ using Focus_Bear.Onboarding.New;
 using Microsoft.Win32;
 using Focus_Bear.Relax;
 using Focus_Bear.Tour;
+<<<<<<< HEAD
 using Focus_Bear.Survey;
+=======
+>>>>>>> main
 
 namespace Focus_Bear
 {
@@ -522,6 +525,13 @@ namespace Focus_Bear
                     wndTrayMenu.Activate();
                     wndTrayMenu.Focus();
                     wndTrayMenu.SetTrayMenuPosition();
+                }
+                if (((App)(Application.Current)).wndTakeABreak != null && !(((App)(Application.Current)).wndTakeABreak.IsVisible))
+                {
+                    if(((App)(Application.Current)).wndTakeABreak.bShowingForNonTimeActivities)
+                    {
+                        ((App)(Application.Current)).wndTakeABreak.Show();
+                    }
                 }
             }
             catch (Exception ex)
@@ -1933,6 +1943,41 @@ namespace Focus_Bear
                                                                     }
 
                                                                 }
+
+                                                                for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
+                                                                {
+                                                                    if (appSettings.arrAllMorningHabits[i].id == activityId) //current activity to be done
+                                                                    {
+                                                                        appSettings.nHabitIndex = i - 1; //We will assign the habit index from the previous activity and show the finish screen for that activity
+                                                                                                         //Now we do not need to start normal but need to show the finish screen of this
+                                                                        appSettings.bShowActivitiesFromMid = true;
+                                                                        LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
+
+                                                                        for (int m = 0; m < appSettings.arraySkipped.Count; m++)
+                                                                        {
+                                                                            //Check if the last activity was in the array skipped list
+                                                                            if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllMorningHabits[i - 1].id)
+                                                                            {
+                                                                                appSettings.bShowActivitiesFromMidLastSkipped = true;
+                                                                                break;
+                                                                            }
+                                                                        }
+
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                //it means current activity is not morning habit and morning habit done for today
+                                                                LogWriter.LogWrite("Current Activity is not morning habit and it means morning habit done for today");
+                                                                appSettings.MorningHabitsShownDate = DateTime.Now;
+                                                                RegistryManager.SetMorningHabitsShownDate();
+
+                                                                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                                                                LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+
+                                                                return;
                                                             }
                                                             else
                                                             {
@@ -2092,6 +2137,19 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("ShowEveningRoutine() func - trying to close old windows" + ex.Message);
             }
+
+            //In any case if there is a habit window left from system sleep and then wakeup, and if nCurrentActivityType is NONE 
+            //we must check the existing window and close it as we are going to create a new one further.
+            //Deon's logs helped
+            if (appSettings.nCurrentActivityType == CurrentActivityType.NONE)
+            {
+                if (wndHabits != null)
+                {
+                    wndHabits.Close();
+                    wndHabits = null;
+                }
+            }
+
 
             appSettings.nCurrentActivityType = CurrentActivityType.EVENING_HABITS; //We use this for Focus Summary as well, when FOcus summary ends we change this to none
             LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.EVENING_HABITS;");
@@ -2620,6 +2678,17 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("ShowRelaxActivityWindow() ex - " + ex.Message);
             }
+        }
+
+        public void ShowRelaxActivityWindow(int nTime)
+        {
+            if (wndRelaxMode == null)
+            {
+                wndRelaxMode = new RelaxModeWindow(nTime);
+            }
+            wndRelaxMode.Show();
+            wndRelaxMode.BringIntoView();
+            //wndRelaxMode.ShowBrainDumpWindowAndStartTimer();
         }
 
         public void ShowBreakWindowForAllowedAppsActivity(int nDuration, string sTitle)
