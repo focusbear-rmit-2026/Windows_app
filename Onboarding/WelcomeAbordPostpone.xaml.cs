@@ -64,7 +64,7 @@ namespace Focus_Bear.Onboarding
         private void btnPostponeOnboarding_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnPostponeOnboarding_Click");
-          
+            appSettings.CapturePostHog("postpone-initial-onboarding");
             try
             {
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;

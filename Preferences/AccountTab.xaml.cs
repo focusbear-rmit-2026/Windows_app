@@ -43,6 +43,7 @@ namespace Focus_Bear.Preferences
             LblEmail.Text = appSettings.ConfigFileStrings["accountVcInfo"]["titleEmailIdText"].ToString();
             LblName.Text = appSettings.ConfigFileStrings["accountVcInfo"]["titleNameText"].ToString();
             LblUserId.Text = appSettings.ConfigFileStrings["accountVcInfo"]["titleUserIdText"].ToString();
+            btnCopyUserId.ToolTip = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopyId"].ToString();
 
             LblEmailValue.Text = appSettings.sUser_email;
             LblNameValue.Text = appSettings.sUser_name;
@@ -76,7 +77,11 @@ namespace Focus_Bear.Preferences
             if(ff.btnClicked == MessageBoxResult.Yes)
             {
                 RegistryManager.RemoveLoggedInStatus();
-                
+
+                //Disable the focus bear time tracker status
+                appSettings.bFocusBearTimeTrackerEnabled = false;
+                RegistryManager.SetFocusBearTimeTrackerStatus();
+
                 appSettings.bRestartAppNeeded = true;
 
                 Application.Current.Shutdown(0);
@@ -158,6 +163,31 @@ namespace Focus_Bear.Preferences
             {
                 LogWriter.LogWrite("btnSyncPayment_Click ex + " + ex.Message);
             }
+        }
+
+        private void btnCopyUserId_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(appSettings.sUser_id);
+
+            btnCopyUserId.ToolTip = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopied"].ToString();
+            var toolTip = new ToolTip();
+
+            if (btnCopyUserId.ToolTip != null)
+            {
+                if (btnCopyUserId.ToolTip is ToolTip)
+                {
+                    var castToolTip = (ToolTip)btnCopyUserId.ToolTip;
+                    castToolTip.IsOpen = true;
+                }
+                else
+                {
+                    toolTip.Content = btnCopyUserId.ToolTip;
+                    toolTip.StaysOpen = false;
+                    toolTip.IsOpen = true;
+                }
+            }
+
+            btnCopyUserId.ToolTip = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopyId"].ToString();
         }
     }
 }

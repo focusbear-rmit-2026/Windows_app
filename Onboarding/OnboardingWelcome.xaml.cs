@@ -60,6 +60,8 @@ namespace Focus_Bear.Onboarding
                         ComboBoxActivityType.Items.Add(item.GetValue("name").ToString());
                     }
                 }
+
+                appSettings.CapturePostHog("start-onboarding-activity-shown");
             }
             catch (Exception ex)
             {

@@ -26,13 +26,19 @@
                             </StackPanel>
                         </Button>
 
+                        <Button x:Name="btnBlockedList" Style="{StaticResource BtnStylePreferences}" Click="btnBlockedURLs_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="../images/blocked_list.png" Margin="0,5,0,0" Height="24" Width="24" />
+                                <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnBlockedListTXT">xBlocked List</TextBlock>
+                            </StackPanel>
+                        </Button>
 
                         <Button x:Name="btnFocus" Style="{StaticResource BtnStylePreferences}" Click="btnFocus_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
                         <StackPanel Orientation="Vertical">
                             <Image Source="../images/eye.png" Margin="0,5,0,0" Height="24" Width="24" />
                             <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnFocusTXT">xFocus</TextBlock>
                         </StackPanel>
-                    </Button>
+                        </Button>
 
                         <Button x:Name="btnEditHabits" Style="{StaticResource BtnStylePreferences}" Click="btnEditHabits_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
                         <StackPanel Orientation="Vertical">

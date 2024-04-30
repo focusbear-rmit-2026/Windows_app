@@ -5,17 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="220" Width="375" ResizeMode="NoResize">
+        Title="Focus Bear" Height="350" Width="390" ResizeMode="NoResize">
     <Grid x:Name="Grid1">
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="35" />
-            <RowDefinition Height="Auto" MinHeight="35" />
-            <RowDefinition Height="Auto" MinHeight="25" />
-            <RowDefinition Height="Auto" MinHeight="40" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="35" />
+            <RowDefinition Height="35" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="45" />
+            <RowDefinition Height="90" />
+            <RowDefinition Height="45" />
         </Grid.RowDefinitions>
 
         <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xYour break starts in:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
@@ -38,12 +40,21 @@
 
 
         </StackPanel>
-        <Button Grid.Row="4"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
+        <Button Grid.Row="4"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnActionTXT" Text="xPostpone for 5 Minutes"/>
                 </StackPanel>
             </Button.Content>
         </Button>
+        <TextBlock Grid.Row="5" Margin="0,0,0,0" Name="BreakDescText" TextWrapping="Wrap" Text="xMicro breaks help keep your energy + alertness levels consistent throughout the day and have positive impacts on your posture (no more screen headaches)." MaxWidth="320" Foreground="#000" FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <Button Grid.Row="6"  x:Name="btnStartBreakNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnStartBreakNow_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock x:Name="btnStartBreakNowTXT" Text="xStart micro break now"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+
     </Grid>
 </Window>

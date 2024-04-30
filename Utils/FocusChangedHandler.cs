@@ -49,8 +49,9 @@ namespace FocusBear.Utils
         string sActivityBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
 
 
-        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "csrss", "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui" };
+        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "csrss", "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui", "searchhost" };
         public static readonly int SW_MINIMIZE = 6;
+        public static readonly int SW_FORCEMINIMIZE = 11;
 
         public static readonly List<string> UNBLOCKED_URLS = new List<string> { "about:blank", 
             "chrome://", 
@@ -103,7 +104,7 @@ namespace FocusBear.Utils
             /// if (!string.IsNullOrEmpty(currentPomodoro))
             /// 
 
-          
+
             //if(appSettings.sLastActiveAppName != sAppNameInFocus)
             //{
             //    sAppNameInFocus = appSettings.sLastActiveAppName;
@@ -112,6 +113,11 @@ namespace FocusBear.Utils
             //{
             //    return;
             //}
+
+#if DEBUG
+            ///BrowserTitleGrabber.GetTabTitles(BrowserTitleGrabber.EBrowser.Firefox) ;
+            
+#endif
 
             if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
             {
@@ -199,7 +205,7 @@ namespace FocusBear.Utils
                             if (!bAllowedAppFound)
                             {
                                 LogWriter.LogWrite(process.ProcessName + " Not allowed app found in MORNING_HABITS activity - BLOCK");
-                                ShowWindow(process.MainWindowHandle, SW_MINIMIZE);
+                                ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
                                 appSettings.CapturePostHog("block-distracting-app");
                             }
                         }
@@ -241,7 +247,7 @@ namespace FocusBear.Utils
                             if (!bAllowedAppFound)
                             {
                                 LogWriter.LogWrite(process.ProcessName + " Not allowed app found in EVENING_HABITS activity - BLOCK");
-                                ShowWindow(process.MainWindowHandle, SW_MINIMIZE);
+                                ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
                                 appSettings.CapturePostHog("block-distracting-app");
                             }
                         }
@@ -287,7 +293,7 @@ namespace FocusBear.Utils
                                 if (!bAllowedAppFound)
                                 {
                                     LogWriter.LogWrite(process.ProcessName + " Not allowed app found in BREAK_ACTIVITY activity - BLOCK");
-                                    ShowWindow(process.MainWindowHandle, SW_MINIMIZE);
+                                    ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
                                     appSettings.CapturePostHog("block-distracting-app");
                                 }
                             }
@@ -329,7 +335,7 @@ namespace FocusBear.Utils
                                 if (!bAllowedAppFound)
                                 {
                                     LogWriter.LogWrite(process.ProcessName + " Not allowed app found in BREAK_ACTIVITY activity - BLOCK");
-                                    ShowWindow(process.MainWindowHandle, SW_MINIMIZE);
+                                    ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
                                     appSettings.CapturePostHog("block-distracting-app");
                                 }
                             }
@@ -708,7 +714,7 @@ namespace FocusBear.Utils
                         {
                             if (sApp == process.ProcessName)
                             {
-                                ShowWindow(process.MainWindowHandle, SW_MINIMIZE);
+                                ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
                             }
                         }
 
@@ -900,7 +906,7 @@ namespace FocusBear.Utils
                                 if (!bAllowedAppFound)
                                 {
                                     if (IsWindowVisible(process.MainWindowHandle))
-                                        ShowWindow(process.MainWindowHandle, SW_MINIMIZE);
+                                        ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
 
                                     appSettings.CapturePostHog("block-distracting-app");
 
@@ -1497,6 +1503,19 @@ namespace FocusBear.Utils
                                 }
                             }
                         }
+                        else
+                        {
+                            //In case the set intention window is open, we should hide it
+                            if ("focus bear" == process.ProcessName.ToLower())
+                            {
+                                return;
+                            }
+                            else
+                            {
+                                appSettings.Hide_SetIntentionWindow(); //Hide intention window in case if the app is changed.
+                            }
+                            
+                        }
                     }
                 }
             }
@@ -1779,7 +1798,7 @@ namespace FocusBear.Utils
         //}
     }
 
-    
+
     public static class BrowserTitleGrabber
     {
 
@@ -1835,39 +1854,7 @@ namespace FocusBear.Utils
             var rootElement = AutomationElement.FromHandle(handle);
             if (rootElement == null) return new List<string>();
             var tabControl = rootElement.FindFirst(System.Windows.Automation.TreeScope.Descendants, TabControlCondition);
-            if (tabControl == null)
-                return new List<string>();
-            else
-            {
-                foreach( AutomationElement tab in tabControl.FindAll(System.Windows.Automation.TreeScope.Children, TabItemCondition))
-                {
-                    if(tab.Current.HasKeyboardFocus)
-                    {
-                        ; // return (from AutomationElement tab in tabControl.FindAll(System.Windows.Automation.TreeScope.Children, TabItemCondition) select tab.Current.Name).ToList();
-                    }
-                    try
-                    {
-                        AutomationPattern[] patterns = tab.GetSupportedPatterns();
-
-                        SelectionItemPattern selectionItemPattern = tab.GetCurrentPattern(SelectionItemPattern.Pattern) as SelectionItemPattern;
-                        if (selectionItemPattern.Current.IsSelected)
-                        {
-                            ;
-                        }
-                        else
-                        {
-                            ;// return selectionItemPattern.Current.SelectionContainer;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogWriter.LogWrite("xx EX -" + ex.Message);
-                    }
-
-                }
-               
-                return (from AutomationElement tab in tabControl.FindAll(System.Windows.Automation.TreeScope.Children, TabItemCondition) select tab.Current.Name).ToList();
-            }
+            return tabControl == null ? new List<string>() : (from AutomationElement tab in tabControl.FindAll(System.Windows.Automation.TreeScope.Children, TabItemCondition) select tab.Current.Name).ToList();
         }
 
         public enum EBrowser
@@ -1876,4 +1863,6 @@ namespace FocusBear.Utils
             Firefox
         }
     }
+
+
 }

@@ -57,7 +57,7 @@ namespace Focus_Bear.Survey
         {
             if (e.IsSuccess)
             {
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\"}}", appSettings.userAccount.accessToken);
+                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.sLangCode);
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForSurvey) {{ loadAccessTokenForSurvey({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
                 var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
             }

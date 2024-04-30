@@ -43,11 +43,20 @@ namespace Focus_Bear.Onboarding
 
                 TXTCheckBoxHealthyHabits.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["checkBoxFirstText"].ToString();
                 TXTCheckBoxFocused.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["checkBoxSecondText"].ToString();
-                AnythingElse.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["anythingElseText"].ToString();
+                
 
                 InfoHealthyHabits.ToolTip = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["infoBuildHabitsText"].ToString();
                 InfoStayFocused.ToolTip = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["infoStayFocusedText"].ToString();
 
+                SetGoals.Text = "Set your Goals and Preferences"; //todo win text
+                CareAboutHabits.Text = "How much do you care about building habits?";
+                SelectOne.Text = "Select one that apply";
+                DoNotCare.Content = "Meh - don't really care";
+                NotCommitted.Content = "I probably should do habits but am not that committed";
+                Committed.Content = "Super committed -this is the main reason I want to use Focus Bear";
+
+                appSettings.CapturePostHog("goals-screen-shown");
+                
             }
             catch (Exception ex)
             {
@@ -56,77 +65,82 @@ namespace Focus_Bear.Onboarding
             HealthyHabits.IsChecked = false;
             StayFocused.IsChecked = false;
             btnContinue.IsEnabled = false;
+            CareDesc.Text = "";
 
-            AnythingElse.Visibility = Visibility.Collapsed;
-            AnythingElseVALUE.Visibility = Visibility.Collapsed;
         }
 
         private void HealthyHabits_Checked(object sender, RoutedEventArgs e)
         {
-            if (HealthyHabits.IsChecked.Value || StayFocused.IsChecked.Value)
+            HabitsCare.Visibility = Visibility.Visible;
+            
+            //One of the three must be selected to proceed.
+            if(DoNotCare.IsChecked.Value || NotCommitted.IsChecked.Value || Committed.IsChecked.Value)
             {
                 btnContinue.IsEnabled = true;
-                AnythingElse.Visibility = Visibility.Visible;
-                AnythingElseVALUE.Visibility = Visibility.Visible;
             }
             else
             {
                 btnContinue.IsEnabled = false;
-
-                AnythingElse.Visibility = Visibility.Collapsed;
-                AnythingElseVALUE.Visibility = Visibility.Collapsed;
             }
+
         }
 
         private void StayFocused_Checked(object sender, RoutedEventArgs e)
         {
-            if (HealthyHabits.IsChecked.Value || StayFocused.IsChecked.Value)
+            if (HealthyHabits.IsChecked.Value )
             {
-                btnContinue.IsEnabled = true;
-                AnythingElse.Visibility = Visibility.Visible;
-                AnythingElseVALUE.Visibility = Visibility.Visible;
+                if (DoNotCare.IsChecked.Value || NotCommitted.IsChecked.Value || Committed.IsChecked.Value)
+                {
+                    btnContinue.IsEnabled = true;
+                }
+                else
+                {
+                    btnContinue.IsEnabled = false;
+                }
             }
             else
             {
-                btnContinue.IsEnabled = false;
-
-                AnythingElse.Visibility = Visibility.Collapsed;
-                AnythingElseVALUE.Visibility = Visibility.Collapsed;
+                btnContinue.IsEnabled = true;
             }
         }
 
 
         private void HealthyHabits_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (HealthyHabits.IsChecked.Value || StayFocused.IsChecked.Value)
+            HabitsCare.Visibility = Visibility.Collapsed;
+
+            if (StayFocused.IsChecked.Value)
             {
                 btnContinue.IsEnabled = true;
-                AnythingElse.Visibility = Visibility.Visible;
-                AnythingElseVALUE.Visibility = Visibility.Visible;
             }
             else
             {
                 btnContinue.IsEnabled = false;
-
-                AnythingElse.Visibility = Visibility.Collapsed;
-                AnythingElseVALUE.Visibility = Visibility.Collapsed;
             }
+
+            //refresh selection
+            DoNotCare.IsChecked = false;
+            NotCommitted.IsChecked = false;
+            Committed.IsChecked = false;
+            CareDesc.Text = "";
         }
 
         private void StayFocused_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (HealthyHabits.IsChecked.Value || StayFocused.IsChecked.Value)
+            if (HealthyHabits.IsChecked.Value)
             {
-                btnContinue.IsEnabled = true;
-                AnythingElse.Visibility = Visibility.Visible;
-                AnythingElseVALUE.Visibility = Visibility.Visible;
+                if (DoNotCare.IsChecked.Value || NotCommitted.IsChecked.Value || Committed.IsChecked.Value)
+                {
+                    btnContinue.IsEnabled = true;
+                }
+                else
+                {
+                    btnContinue.IsEnabled = false;
+                }
             }
             else
             {
                 btnContinue.IsEnabled = false;
-
-                AnythingElse.Visibility = Visibility.Collapsed;
-                AnythingElseVALUE.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -135,17 +149,48 @@ namespace Focus_Bear.Onboarding
         {
             try
             {
-                
+                //Initialize with false
+                appSettings.bGoalHealthyHabits = false;
+                appSettings.bGoalStayFocused = false;
+
                 if (HealthyHabits.IsChecked.Value && StayFocused.IsChecked.Value)
                 {
-                    appSettings.bGoalHealthyHabits = true;
-                    appSettings.bGoalStayFocused = true;
-                    appSettings.CapturePostHog("activate-all-features");
+                    if (DoNotCare.IsChecked.Value) //still no habits and just focus
+                    {
+                        appSettings.bGoalStayFocused = true;
+                        appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"do_not_care\"");
+                    }
+                    else if (NotCommitted.IsChecked.Value) //still no habits and just focus
+                    {
+                        appSettings.bGoalStayFocused = true;
+                        appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"not_committed\"");
+                    }
+                    else if (Committed.IsChecked.Value) // ALL habits
+                    {
+                        appSettings.bGoalHealthyHabits = true;
+                        appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"committed\"");
+                        appSettings.CapturePostHog("activate-all-features");
+                    }
                 }
                 else if (HealthyHabits.IsChecked.Value)
                 {
-                    appSettings.bGoalHealthyHabits = true;
-                    appSettings.CapturePostHog("activate-habits-only");
+                    if (DoNotCare.IsChecked.Value) //still no habits and just focus
+                    {
+                        appSettings.bGoalStayFocused = true;
+                        appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"do_not_care\"");
+                    }
+                    else if (NotCommitted.IsChecked.Value) //still no habits and just focus
+                    {
+                        appSettings.bGoalStayFocused = true;
+                        appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"not_committed\"");
+                    }
+                    else if (Committed.IsChecked.Value) // ALL habits
+                    {
+                        appSettings.bGoalHealthyHabits = true;
+                        appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"committed\"");
+                        appSettings.CapturePostHog("activate-habits-only");
+                    }
+
                 }
                 else if (StayFocused.IsChecked.Value)
                 {
@@ -153,29 +198,32 @@ namespace Focus_Bear.Onboarding
                     appSettings.CapturePostHog("activate-productivity-only");
                 }
 
-                if (AnythingElseVALUE.Text.Length > 0)
-                {
-                    string sData = string.Format("\"feedback\":\"{0}\"", AnythingElseVALUE.Text);
-                    appSettings.CapturePostHog("anything-else-goals-feedback", sData);
-                }
-
+                
                 //If the user hadclicked EXIT full screen we will take up the default values in case he had unchecked both
                 if (appSettings.bExitFullScreenClickedWhileOnboarding)
                 {   //taking the default values
-                    appSettings.bGoalHealthyHabits = true;
-                    appSettings.bGoalStayFocused = true;
+                    appSettings.bGoalStayFocused = true; //Jeremy mentioned that we shold default to FOcus Only
                 }
 
-                Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
-                //Here firat we need to call the API to get the packs list
-                FocusBearAPIClient client = new FocusBearAPIClient();
-                var xResponse = await client.GetHabitPacks();
+                //will get habit packs only if the user is doing habits
+                if (appSettings.bGoalHealthyHabits)
+                {
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+                    //Here firat we need to call the API to get the packs list
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    var xResponse = await client.GetHabitPacks();
+                    Mouse.OverrideCursor = null;
 
+                    //Proceed normally to the next screen toa sk for additional goals
+                    _parentWindow.ShowOnboardingAdditionalGoalsScreen();
+                    return;
+                }
+                if (appSettings.bGoalStayFocused)
+                {
+                    _parentWindow.ShowOnboardingSetHabitsLaterInfo();
+                }
+                
                
-                Mouse.OverrideCursor = null;
-        
-                //Proceed normally to the next screen
-                _parentWindow.ShowOnboardingSelectHabitPacksScreen();
             
             }
             catch (Exception ex)
@@ -183,9 +231,24 @@ namespace Focus_Bear.Onboarding
                 LogWriter.LogWrite("btnContinue_Click ex - " + ex.Message);
             }
         }
-
-        private void AnythingElseVALUE_TextChanged(object sender, TextChangedEventArgs e)
+        
+        private void DoNotCare_Checked(object sender, RoutedEventArgs e)
         {
+            CareDesc.Text = "Ok no worries. We'll let you focus on focusing!"; //todo win texts
+            btnContinue.IsEnabled = true;
         }
+        private void NotCommitted_Checked(object sender, RoutedEventArgs e)
+        {
+            CareDesc.Text = "Got it. We won't activate the habit features for now but you can activate them later."; //todo win texts
+            btnContinue.IsEnabled = true;
+        }
+
+        private void Committed_Checked(object sender, RoutedEventArgs e)
+        {
+            CareDesc.Text = "Cool. We'll let you set up your habits right away"; //todo win texts
+            btnContinue.IsEnabled = true;
+        }
+
+  
     }
 }

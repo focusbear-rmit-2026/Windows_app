@@ -52,7 +52,7 @@ namespace Focus_Bear.Focus
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         
         public bool bShowingForNonTimerActivities = false;
-
+        bool bIamDoneTypeActivity = false;
         public BreakWindow()
         {
             InitializeComponent();
@@ -87,9 +87,11 @@ namespace Focus_Bear.Focus
         {
             nTimer = nSeconds;
             TxtTimer.Visibility = Visibility.Visible;
-
+            bIamDoneTypeActivity = false;
             if (nTimer == appSettings.nTimerValForNonTimerActivities) //Means its an activity with no timer
             {
+                bIamDoneTypeActivity = true;
+
                 TxtTimer.Visibility = Visibility.Collapsed;
                 
                 UseTimerRelated.Visibility = Visibility.Collapsed;
@@ -154,6 +156,15 @@ namespace Focus_Bear.Focus
                     TxtTimer.Text = "00:00";
                     dispatcherTimer.Stop();
                     Hide();
+
+                    //if (appSettings.bUseSuperPomodoroMode)
+                    //We will need to start the focus mode again after the focus session and X min break is over
+                    if(!appSettings.bHabitwithAllowedAppsRunning && !bIamDoneTypeActivity) //make sure break window is not shown for habits with allowed apps
+                    {
+                        ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
+                        IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                        invokeProv.Invoke();
+                    }
                 }
             }
             catch (Exception ex)

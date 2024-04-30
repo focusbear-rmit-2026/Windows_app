@@ -43,7 +43,9 @@ namespace Focus_Bear.Onboarding.NEW
 
                 btnViewPrivacyText.Text = appSettings.ConfigFileStrings["onboardingPrivacyTipVcInfo"]["buttonViewPrivacyText"].ToString(); //Let's start out by blocking distractions.
                 buttonLetsDoItText.Text = appSettings.ConfigFileStrings["onboardingPrivacyTipVcInfo"]["buttonContinueText"].ToString();// "Let's do it",
-               
+
+                AcceptPrivacyPolicy.Content = appSettings.ConfigFileStrings["onboardingPrivacyTipVcInfo"]["buttonAcceptPrivacyPolicyText"].ToString();//"I accept the Privacy Policy";  
+                SetContinueButtonState();
             }
             catch (Exception ex)
             {
@@ -51,7 +53,18 @@ namespace Focus_Bear.Onboarding.NEW
             }
 
         }
- 
+
+        void SetContinueButtonState()
+        {
+            if(AcceptPrivacyPolicy.IsChecked.Value)
+            {
+                btnLetsDoIt.IsEnabled = true;
+            }
+            else
+            {
+                btnLetsDoIt.IsEnabled = false;
+            }
+        }
         private void btnLetsDoIt_Click(object sender, RoutedEventArgs e) //continue button
         {
             _parentWindow.ShowDistractionsShieldActivatedScreen();
@@ -68,6 +81,16 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 LogWriter.LogWrite("btnViewPrivacy_Click + " + ex.Message);
             }
+        }
+
+        private void AcceptPrivacyPolicy_Checked(object sender, RoutedEventArgs e)
+        {
+            SetContinueButtonState();
+        }
+
+        private void AcceptPrivacyPolicy_Unchecked(object sender, RoutedEventArgs e)
+        {
+            SetContinueButtonState();
         }
     }
 }

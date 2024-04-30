@@ -170,7 +170,7 @@ namespace Focus_Bear.Habits
                         SectionNonTimer.Visibility = Visibility.Visible;
                         SectionTimer.Visibility = Visibility.Collapsed;
                         string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();
-                        sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].completion_requirements);
+                        sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].completion_requirements);
                         CompleteAfter.Text = sCompleteTxt;
                         btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
                     }
@@ -281,6 +281,7 @@ namespace Focus_Bear.Habits
                 {
                     appSettings.bHabitwithAllowedAppsRunning = true;
                     _parentWindow.WindowState = WindowState.Minimized;
+                    _parentWindow.Hide();
                     _parentWindow.ShowInTaskbar = false;
                     //here we also need to remove the secondary screen windows.
                     appSettings.RemoveSecondaryWindows();
@@ -489,7 +490,7 @@ namespace Focus_Bear.Habits
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer -= 20;
+            int val = nTimer -= 10;
 #else
             int val = nTimer--;
 #endif
@@ -552,8 +553,9 @@ namespace Focus_Bear.Habits
 
                         appSettings.bHabitwithAllowedAppsRunning = false;
                         _parentWindow.WindowState = WindowState.Normal;
+                        _parentWindow.Show();
 
-                        ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
+                       ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
 
                         //May be the timer small window is running, close that
                         //Check here if the Breaks window is visible, we will hide it.

@@ -26,7 +26,7 @@ namespace Focus_Bear.Focus
         AppSettings appSettings = AppSettings.GetInstance;
 
         DispatcherTimer dispatcherTimerDeactivate = new DispatcherTimer(DispatcherPriority.Normal);
-        int nTimer = 5;
+        int nTimer = 0;
 
         public StopFocusMode()
         {
@@ -82,13 +82,8 @@ namespace Focus_Bear.Focus
                 btnStopFocusText.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["buttonAbortFocusText"].ToString();
 
                 btnStopFocus.IsEnabled = false;
-
-                //Start the 5 seconds timer
-                dispatcherTimerDeactivate.Tick += new EventHandler(dispatcherTimer_Deactivate);
-                dispatcherTimerDeactivate.Interval = new TimeSpan(0, 0, 1);
-                Timer.Text = "00:05";
-                dispatcherTimerDeactivate.Start();
-                CommandManager.InvalidateRequerySuggested();
+                //Removed the 5 second timer from build v 108
+                Timer.Text = "";
 
                 LogWriter.LogWrite("Deactivate Focus Mode Window shown");
             }
@@ -109,6 +104,9 @@ namespace Focus_Bear.Focus
         {
             try
             {
+                //If super pomodoro was running and user manually stopped the focus mode, we will reset the variable
+                appSettings.bUseSuperPomodoroMode = false;
+
                 string sOption = ComboBoxReason.SelectedValue.ToString();
                 if (sOption == appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString())
                 {
@@ -183,7 +181,7 @@ namespace Focus_Bear.Focus
 
         private void ComboBoxReason_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ComboBoxReason.SelectedIndex != 0 && nTimer <= 0)
+            if (ComboBoxReason.SelectedIndex != 0 )
                 btnStopFocus.IsEnabled = true;
             else
                 btnStopFocus.IsEnabled = false;

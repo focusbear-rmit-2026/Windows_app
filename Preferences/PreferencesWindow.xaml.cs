@@ -31,10 +31,13 @@ namespace Focus_Bear.Preferences
         private string PreferenceButtonSelectedColor = "#0066EB";
         private string PreferenceButtonNormalColor = "#000";
 
+        public Settings PageSettings;
+
         public EditHabits PageEditHabits;
         FocusPage PageFocusModes;
         AccountTab PageAccountsTab;
         Stats PageStats;
+        AlwaysBlockedURLs PageBlockedList;
 
         double ScaleX = 1;
         double ScaleY = 1;
@@ -63,21 +66,24 @@ namespace Focus_Bear.Preferences
                 btnFocusTXT.Text = appSettings.ConfigFileStrings["common"]["tabFocusText"].ToString();
                 btnEditHabitsTXT.Text = appSettings.ConfigFileStrings["common"]["tabEditHabitsText"].ToString();
                 btnHelpTXT.Text = appSettings.ConfigFileStrings["common"]["tabHelpText"].ToString();
+                btnBlockedListTXT.Text = appSettings.ConfigFileStrings["common"]["tabBlockedListText"].ToString();
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("PreferencesWindow() texts EX=" + ex.Message);
             }
 
-            FrameSettings.Navigate(new Settings(this));
+            PageSettings = new Settings(this);
+            FrameSettings.Navigate(PageSettings);
 
             PageEditHabits = new EditHabits(this);
             FrameEditHabits.Navigate(PageEditHabits);
 
             PageFocusModes = new FocusPage(this);
             FrameFocus.Navigate(PageFocusModes);
-  
-            FrameBlockedURLs.Navigate(new AlwaysBlockedURLs(this));
+
+            PageBlockedList = new AlwaysBlockedURLs(this);
+            FrameBlockedURLs.Navigate(PageBlockedList);
 
             PageAccountsTab = new AccountTab();
             FrameAccountTab.Navigate(PageAccountsTab);
@@ -88,12 +94,27 @@ namespace Focus_Bear.Preferences
             FrameStats.Navigate(PageStats);
 
             EnableAll();
-           
+
+            SetFocusButtonState();
+
             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnStats);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
         }
 
+        public void SetFocusButtonState()
+        {
+            if (appSettings.bIsGeekModeEnabled)
+            {
+                btnFocus.Visibility = Visibility.Visible;
+                btnBlockedList.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                btnFocus.Visibility = Visibility.Collapsed;
+                btnBlockedList.Visibility = Visibility.Visible;
+            }
+        }
         private void EnableAll()
         {
             btnStats.IsEnabled = true;
@@ -101,12 +122,14 @@ namespace Focus_Bear.Preferences
             btnFocus.IsEnabled = true;
             btnEditHabits.IsEnabled = true;
             btnHelp.IsEnabled = true;
+            btnBlockedList.IsEnabled = true;
 
             btnStats.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnSettings.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnFocus.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnEditHabits.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnHelp.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            btnBlockedList.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
 
             FrameStats.Visibility = Visibility.Collapsed;
             FrameSettings.Visibility = Visibility.Collapsed;
@@ -211,12 +234,22 @@ namespace Focus_Bear.Preferences
             LogWriter.LogWrite("Preferences tab - btnBlockedURLs_Click");
 
             EnableAll();
-               
+            btnBlockedList.IsEnabled = false;
+
+            this.MinWidth = 680 * ScaleX;
+            this.MinHeight = 750 * ScaleY;
             this.Width = 680 * ScaleX;
             this.Height = 750 * ScaleY;
 
-            FrameBlockedURLs.Visibility = Visibility.Visible;
+            if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.Width = 735 * ScaleX;
+                this.MinWidth = 735 * ScaleX;
+            }
 
+
+            FrameBlockedURLs.Visibility = Visibility.Visible;
+            PageBlockedList.ImmediatelyBlockDistractingURLs.IsChecked = appSettings.bImmediatelyBlockDistractingSites;
         }
 
         private void btnAccount_Click(object sender, RoutedEventArgs e)
@@ -328,7 +361,7 @@ namespace Focus_Bear.Preferences
 
             }
         }
-        public void ShowFocusMode(string sFocusMode)
+        public void ShowFocusMode(string sFocusMode = "")
         {
             if (btnFocus.IsEnabled) //only if the button is not already active
             {
@@ -337,7 +370,8 @@ namespace Focus_Bear.Preferences
                 invokeProv.Invoke();
             }
             
-            PageFocusModes.SelectFocusMode(sFocusMode);
+            if(sFocusMode.Length > 0)
+                PageFocusModes.SelectFocusMode(sFocusMode);
         }
 
         private async void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)

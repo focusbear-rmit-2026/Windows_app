@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
@@ -58,7 +59,7 @@ namespace Focus_Bear.Focus
         {
             public string name { get; set; }
             public string duration { get; set; } //Will be used as Quantity also
-            public ActivitySummary(string name, string duration )
+            public ActivitySummary(string name, string duration)
             {
                 this.name = name;
                 this.duration = duration;
@@ -128,6 +129,7 @@ namespace Focus_Bear.Focus
                             nTotalFocusTime += durationSeconds;
                             string duration = appSettings.SecondsToText(durationSeconds);
                             string achievements = item.ContainsKey("achievements") ? item.GetValue("achievements").ToString() : "";
+                            achievements = HttpUtility.UrlDecode(achievements);
                             string distractions = item.ContainsKey("distractions") ? item.GetValue("distractions").ToString() : "";
 
                             FocusSummaryItems.Add(new FocusSummary(name, Local.ToString(), duration, achievements, distractions));
@@ -180,7 +182,7 @@ namespace Focus_Bear.Focus
                 ListQuantity.ItemsSource = ActivityQuantityItems;
                 ListAverage.ItemsSource = ActivityAverageItems;
                 ListDuration.ItemsSource = ActivityDurationItems;
- 
+
                 string sHeading = appSettings.ConfigFileStrings["focusInfo"]["focusSummaryInfo"]["title"].ToString();
                 Heading.Text = sHeading.Replace("<COUNT>", nCountFocusBlocks.ToString());
 
@@ -209,6 +211,19 @@ namespace Focus_Bear.Focus
 
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["buttonContinueText"].ToString();
 
+                if (appSettings.bIsGeekModeEnabled)
+                {
+                    GridFocusSummary.Visibility = Visibility.Visible;
+                    GridSummarySimpleMode.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    GridFocusSummary.Visibility = Visibility.Collapsed;
+                    GridSummarySimpleMode.Visibility = Visibility.Visible;
+
+                    SetSimpleModeTexts();
+                    
+                }
             }
             catch (Exception ex)
             {
@@ -216,8 +231,18 @@ namespace Focus_Bear.Focus
             }
 
         }
+        private void SetSimpleModeTexts()
+        {
+            //todo win texts
+            Heading.Text = "Your day summary";//todo win texts
 
-        public void SimulateNeedOneMinute_Click()
+            TotalDistractingSitesBlocked.Text = "Total distracting sites blocked: " + appSettings.nTotalDistractingSitesBlocked; //ok
+            TimeSpentBlockingDistractingSites.Text = "Time spent on super distracting sites: " + appSettings.SecondsToTextHMS(appSettings.nTotalTimeForDistractingSitesToday);  //ok
+            TimeSpentBlockingActivated.Text = "Time spent with blocking activated: " + appSettings.SecondsToTextHMS(appSettings.nTimeSpentBlockingActivated);
+            TimeSpentBlockingDeactivated.Text = "Time spent with blocking deactivated: " + appSettings.SecondsToTextHMS(appSettings.nTimeSpentBlockingDeactivated);
+
+        }
+    public void SimulateNeedOneMinute_Click()
         {
             LogWriter.LogWrite("SimulateNeedOneMinute_Click()");
 
@@ -407,6 +432,12 @@ namespace Focus_Bear.Focus
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
             }
+        }
+
+        private void FullScreenParent_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(!appSettings.bIsGeekModeEnabled)
+                SetSimpleModeTexts();
         }
     }
 }

@@ -19,6 +19,7 @@ using Focus_Bear.Focus;
 using System.Windows.Threading;
 using System.Threading;
 using System.Drawing;
+using Focus_Bear.SetIntention;
 
 namespace Focus_Bear.Utils          
 {
@@ -71,6 +72,7 @@ namespace Focus_Bear.Utils
 
         public bool bRestartAppNeeded = false;
         public string sMacAddress { get; set; }
+        public string sGlobalUUID { get; set; }//Used initially for new users specifically to link later with distinct user ID
         public string sOSVersion { get; set; }
         public Version AppVersion { get; set; }
         public CurrentActivityType nCurrentActivityType { get; set; }
@@ -96,6 +98,8 @@ namespace Focus_Bear.Utils
         public int OnboardingActivityDurationSeconds;
         public string OnboardingVideoUrl = "";
         public bool bOnboardingActivitySkipped = false;
+
+        public string sSelectedOccupationWhileOnboarding = "";
 
         public bool bGoalHealthyHabits { get; set; }
         public bool bGoalStayFocused { get; set; }
@@ -216,6 +220,8 @@ namespace Focus_Bear.Utils
 
         public bool bShowOnBoardingVideo = false;
 
+        public string sAdditionalGoals = "";
+
         public string sLastActiveAppName = "";
         public string sLastActiveURL = "";
 
@@ -239,6 +245,29 @@ namespace Focus_Bear.Utils
 
         public string sRawFocusModeTemplates = "";
 
+        //Super Pomodoro Related
+        public bool isStartPomodoroWindowOpen = false;
+
+        public bool bUseSuperPomodoroMode = false;
+
+        public string sMinutesSuperPomodoro = "";
+        public string sMinutesBreakPomodoro = "";
+        public string SuperPomodoroFocusedName = "";
+        public int NumberOfSuperPomodorosToRun = 2;
+        public int nSuperPomodoroCountCompleted = 0;
+
+        public string PomodoroMinutes = "25";
+        public string PomodoroBreakMinutes = "5";
+
+        //Pomodoro Advanced
+        public string AutomaticSuperPomodoroFocusedName = "";
+        public int AutomaticNumberOfSuperPomodorosToRun = 2;
+        public bool bAutomaticSuperPomodoroSkipMicroBreaks = false;
+        public JArray AutomaticSuperPomodoroSelectedDaysArray = new JArray();
+
+        public bool bEnterPomodoroModeAfterMorningRoutine = true;
+        public bool bAutomaticUseSuperPomodoroModeSetting = false;
+
         //Gentle Block related
         public ObservableCollection<DistractingURL> TemporaryAllowedAppsGentleBlock = new ObservableCollection<DistractingURL>();
         public List<string> TemporarryBlockedAppsGentleBlock = new List<string>();
@@ -259,6 +288,16 @@ namespace Focus_Bear.Utils
         public ObservableCollection<string> arrAlwaysBlockedURLs = new ObservableCollection<string>();
 
         public ObservableCollection<DistractingURL> arrDistractingURLs = new ObservableCollection<DistractingURL>();
+
+        //Set intention for super distrating urls related
+        public bool bImmediatelyBlockDistractingSites { get; set; }
+        SetIntention.SetIntention wndSetIntention = null;
+        public ObservableCollection<DistractingURLAllowedWithIntention> TemporaryAllowedURLsWithSetIntention = new ObservableCollection<DistractingURLAllowedWithIntention>();
+        public List<string> TemporarryBlockedURLsWithSetIntention = new List<string>();
+
+        ShowIntention wndShowIntention = null;
+        public int nTotalTimeForDistractingSitesToday = 0; 
+        public DateTime Date_TotalTimeForDistractingSitesToday = DateTime.Today;
 
         //Password settings related
         public string sUserPassword { get; set; }
@@ -289,8 +328,31 @@ namespace Focus_Bear.Utils
 
         public bool bHasEditedBlockedURLs = false;
 
+        public bool bIsTestUser = false;
+
+        //Meetings detection related
+        public bool bIsUserOnCall = false;
+        public string sLastAppUsingMicrophone = "";
+        public string sLastAppUsingWebCam = "";
+
+        public bool bEnableMeetingsDetection = true;
+        public bool bAutomaticallySuggestStartingMeetingsFocus = false;
+        public bool bBlockSuperDistractingSitesDuringMeetings = false;
+        public bool bShowBreaksWhileInCall = false;
+
+        public bool bIsGeekModeEnabled = true;
+        //Simple mode Focus summary related
+        public int nTotalDistractingSitesBlocked = 0;
+        public int nTimeSpentBlockingDistractingSites = 0;
+        public int nTimeSpentBlockingActivated = 0;
+        public int nTimeSpentBlockingDeactivated = 0;
+
+        public bool bCompleteYourEveningRoutineClicked = false;
+        //FBTT
+        public bool bFocusBearTimeTrackerEnabled = false;
+
         //Fonts related
-        public string[] arrFontFamily = { "Segoe UI", "Arial", "Comic Sans MS", "Verdana", "Tahoma", "Trebuchet MS", "Century Gothic", "Poppins", "IntelOne Mono", "OpenDyslexic3 Regular"};
+        public string[] arrFontFamily = { "Segoe UI", "Arial", "Comic Sans MS", "Verdana", "Tahoma", "Trebuchet MS", "Century Gothic", "Poppins", "IntelOne Mono", "OpenDyslexic3 Regular" };
         public string sSelectedAppFont = "Segoe UI";
 
         //Relax activities related
@@ -307,6 +369,7 @@ namespace Focus_Bear.Utils
             GetCurrentAppVersion();
 
             sMacAddress = Global.GetMacAddress();
+
             sOSVersion = Environment.OSVersion.Version.ToString();
 
             nHabitIndex = -1;
@@ -317,7 +380,7 @@ namespace Focus_Bear.Utils
             sLogQuantityCSVPath = Path.Combine(AppDataDirPath, "FocusBearStats.CSV");
 
             sOfflineDataCSVPath = Path.Combine(AppDataDirPath, "FocusBearOfflineData.CSV");
-                        
+
             isAnyMandatoryActivityIncluded = false;
             isMandatoryActivityGoing = false;
             breakAfterMinutes = 0;
@@ -346,7 +409,35 @@ namespace Focus_Bear.Utils
             bPasswordRequireInQuitApp = false;
             bPasswordRequireToUseRelaxFocusMode = false;
             bPasswordRequireToSkipEveningAfterCutOff = false;
+            bImmediatelyBlockDistractingSites = false;
 
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "is_fb_test_user.txt") ;
+            bIsTestUser = File.Exists(path);
+        }
+
+        public void CheckAndGetFBTTStatus()
+        {
+            bFocusBearTimeTrackerEnabled = RegistryManager.GetFocusBearTimeTrackerStatus();
+        }
+        public void CheckAndGetGlobalUUID()
+        {
+            try
+            {
+                if (RegistryManager.GetGlobalUUID())
+                {
+                    LogWriter.LogWrite("GetGlobalUUID Success");
+                    //We have a device GlobalUUID already, so proceed with next.
+                }
+                else
+                {
+                    sGlobalUUID = System.Guid.NewGuid().ToString();
+                    RegistryManager.SetGlobalUUID();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("CheckAndGetGlobalUUID() ex - " + ex.Message);
+            }
         }
         public async void GetLoginAndTokenValidSettings()
         {
@@ -365,21 +456,27 @@ namespace Focus_Bear.Utils
 
                     if (!authenticator._isEmptyOrInvalid(userAccount.accessToken))
                     {
-                        LogWriter.LogWrite("Token valid, GEt all trial Info");
+                        LogWriter.LogWrite("Token valid, Get all trial Info");
 
                         //Token valid, GEt all trial Info
                         int nLogged = await GetAllTrialInfo();
-                        if(nLogged == 404)
+                        if (nLogged == 404)
                         {
                             ((App)(Application.Current)).ShowLoginWindow();
                             return;
                         }
+                        
+                        CheckAndGetFBTTStatus();
 
                         ((App)(Application.Current)).ProceedAfterGetLoginAndTokenValidSettings();
                     }
                     else
                     {
                         LogWriter.LogWrite("Token INVALID, call RenewToken()");
+
+                        //Disable the focus bear time tracker status
+                        bFocusBearTimeTrackerEnabled = false;
+                        RegistryManager.SetFocusBearTimeTrackerStatus();
 
                         //Renew the Token
                         RenewToken();
@@ -399,7 +496,7 @@ namespace Focus_Bear.Utils
 
         }
 
-        public async Task <int> GetAllTrialInfo()
+        public async Task<int> GetAllTrialInfo()
         {
             LogWriter.LogWrite("GetAllTrialInfo()");
             try
@@ -407,7 +504,7 @@ namespace Focus_Bear.Utils
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var xResponse = await client.GetSubscriptionInfo();
 
-                if(xResponse == 404)
+                if (xResponse == 404)
                 {
                     return 404;
                 }
@@ -548,7 +645,14 @@ namespace Focus_Bear.Utils
 
                         string sConfigPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
                         sConfigPath = sConfigPath.TrimEnd('\\');
-                        sConfigPath = Path.Combine(sConfigPath, "config.json");
+                        if (sLangCode == "en")
+                        {
+                            sConfigPath = Path.Combine(sConfigPath, "config.json");
+                        }
+                        else if (sLangCode == "es")
+                        {
+                            sConfigPath = Path.Combine(sConfigPath, "config-es.json");
+                        }
 
                         File.Copy(sConfigPath, sConfigFilePath);
 
@@ -607,7 +711,7 @@ namespace Focus_Bear.Utils
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var isInternetOn = await client.IsInternetOn();
 
-                if(isInternetOn == false)
+                if (isInternetOn == false)
                 {
                     return false;
                 }
@@ -1148,7 +1252,7 @@ namespace Focus_Bear.Utils
                                         }
 
                                         color = metadata.ContainsKey("color") ? "#" + metadata.GetValue("color").ToString() : "";
-                                        isOn = metadata.ContainsKey("isOn") ? Convert.ToBoolean(metadata.GetValue("isOn")) : false;
+                                        isOn = false; // we will keep it hardcoded false as we are also finishing any focus mode that is running.
                                         isAllowedAllApps = metadata.ContainsKey("isAllowedAllApps") ? Convert.ToBoolean(metadata.GetValue("isAllowedAllApps")) : false;
                                         isAllowedListApproach = metadata.ContainsKey("isAllowedListApproach") ? Convert.ToBoolean(metadata.GetValue("isAllowedListApproach")) : false;
                                         isDefault = metadata.ContainsKey("isDefault") ? Convert.ToBoolean(metadata.GetValue("isDefault")) : false;
@@ -1279,12 +1383,35 @@ namespace Focus_Bear.Utils
                             bAiAllowUrlShowAlertEnabled = sMacOSSettingsOBJ.ContainsKey("kAiAllowUrlShowAlertEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiAllowUrlShowAlertEnabled") : true;
 
                             bPlayActivitiesInFullScreenMode = sMacOSSettingsOBJ.ContainsKey("kisFullScreenEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kisFullScreenEnabled") : false; //default false
+
+                            bEnterPomodoroModeAfterMorningRoutine = sMacOSSettingsOBJ.ContainsKey("kPomodoroModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kPomodoroModeEnabled") : true; //default true
+                            bAutomaticUseSuperPomodoroModeSetting = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroEnabled") : false; //default false
+                            PomodoroMinutes = sMacOSSettingsOBJ.ContainsKey("kPomodoroDurationMinutes") ? (string)sMacOSSettingsOBJ.GetValue("kPomodoroDurationMinutes") : "25";
+                            PomodoroBreakMinutes = sMacOSSettingsOBJ.ContainsKey("kBreakDurationMinutes") ? (string)sMacOSSettingsOBJ.GetValue("kBreakDurationMinutes") : "5";
+
+                            AutomaticSuperPomodoroFocusedName = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedName") ? (string)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroFocusedName") : "";
+                            AutomaticNumberOfSuperPomodorosToRun = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedCount") ? (int)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroFocusedCount") : 2;
+                            bAutomaticSuperPomodoroSkipMicroBreaks = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroSkipMicroBreaks") ? (bool)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroSkipMicroBreaks") : false; //default false
+                            AutomaticSuperPomodoroSelectedDaysArray = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroArrDays") ? (JArray)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroArrDays") : new JArray();
+
+                            bImmediatelyBlockDistractingSites = sMacOSSettingsOBJ.ContainsKey("kImmediatelyBlockDistractingSites") ? (bool)sMacOSSettingsOBJ.GetValue("kImmediatelyBlockDistractingSites") : false;
+
+                            bEnableMeetingsDetection = sMacOSSettingsOBJ.ContainsKey("kIsMeetingDetectionEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsMeetingDetectionEnabled") : true;
+                            bAutomaticallySuggestStartingMeetingsFocus = sMacOSSettingsOBJ.ContainsKey("kShowMeetingDetectionAlert") ? (bool)sMacOSSettingsOBJ.GetValue("kShowMeetingDetectionAlert") : false;
+                            bBlockSuperDistractingSitesDuringMeetings = sMacOSSettingsOBJ.ContainsKey("kIsBlockDistractingSitesDuringMeetingsEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsBlockDistractingSitesDuringMeetingsEnabled") : false;
+                            bShowBreaksWhileInCall = sMacOSSettingsOBJ.ContainsKey("kIsShowBreaksInCallEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsShowBreaksInCallEnabled") : false;
+
+                            bIsGeekModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsGeekModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsGeekModeEnabled") : true;
                         }
                     }
                     catch (Exception ex)
                     {
                         LogWriter.LogWrite("ReadAndParseUserLocalDeviceSettingsJson() 1 ex - " + ex.Message);
                     }
+                }
+                else
+                {
+                    bIsGeekModeEnabled = false;
                 }
             }
             catch (Exception ex)
@@ -1345,7 +1472,23 @@ namespace Focus_Bear.Utils
                         //#A3FFA1 is the default color
                         //public List<string> arrAllowedApps; //wont use this as this is for mac apps
                         ObservableCollection<string> arrAllowedUrls = new ObservableCollection<string>();
-                        arrAllowedUrls.Add("http://meet.google.com");
+                        arrAllowedUrls.Add("meet.google.com");
+                        arrAllowedUrls.Add("meet.zoho.com");
+                        arrAllowedUrls.Add("focusmate.com");
+                        arrAllowedUrls.Add("shimmer.care");
+                        arrAllowedUrls.Add("webex.com");
+                        arrAllowedUrls.Add("gotomeeting.com");
+                        arrAllowedUrls.Add("goto.com/meeting");
+                        arrAllowedUrls.Add("skype.com");
+                        arrAllowedUrls.Add("adobeconnect");
+                        arrAllowedUrls.Add("join.me");
+                        arrAllowedUrls.Add("joinme.com");
+                        arrAllowedUrls.Add("slack.com");
+                        arrAllowedUrls.Add("whereby.com");
+                        arrAllowedUrls.Add("chime.aws");
+                        arrAllowedUrls.Add("aws.amazon.com/chime/");
+                        arrAllowedUrls.Add("dialpad.com");
+
 
                         ObservableCollection<AppDetails> arrAllowedAppsWin = new ObservableCollection<AppDetails>();
                         arrAllowedAppsWin.Add(new AppDetails("Microsoft Teams", "teams.exe"));
@@ -1355,6 +1498,8 @@ namespace Focus_Bear.Utils
                         arrAllowedAppsWin.Add(new AppDetails("Microsoft Edge", "msedge.exe"));
                         arrAllowedAppsWin.Add(new AppDetails("Mozilla Firefox", "firefox.exe"));
                         arrAllowedAppsWin.Add(new AppDetails("Google Chrome", "chrome.exe"));
+                        arrAllowedAppsWin.Add(new AppDetails("Brave Browser", "brave.exe"));
+                        arrAllowedAppsWin.Add(new AppDetails("Slack", "slack.exe"));
 
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusText"].ToString(); //"meetingsFocusText":"Meetings",
                         AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, true, false, false));
@@ -1586,7 +1731,7 @@ namespace Focus_Bear.Utils
 
         //log a new entry to the offline data csv
 
-        public void AddEntryInOfflineActivitiesCSV(string activity_id, string duration_logged, string activity_sequence_id, string start_time, string finish_time, string skipped_did_complete, string choice_id, string quantity_logged, string skipped_did_not_complete, string note_logged )
+        public void AddEntryInOfflineActivitiesCSV(string activity_id, string duration_logged, string activity_sequence_id, string start_time, string finish_time, string skipped_did_complete, string choice_id, string quantity_logged, string skipped_did_not_complete, string note_logged)
         {
             LogWriter.LogWrite("AddEntryInOfflineActivitiesCSV()");
 
@@ -1689,7 +1834,7 @@ namespace Focus_Bear.Utils
             catch (Exception ex)
             {
                 LogWriter.LogWrite("SecondsToTimerText - " + ex.Message);
- 
+
             }
 
             return "";
@@ -1827,7 +1972,7 @@ namespace Focus_Bear.Utils
                                     Debug.WriteLine(ex.Message);
                                 }
                                 return;
-                               
+
                             }
                         }
                     }
@@ -1842,9 +1987,13 @@ namespace Focus_Bear.Utils
 
         public void CapturePostHog(string sEvent, string sMetadataJSON = "")
         {
-            if ((sUser_email != null && sUser_email.Length > 0) && sUser_email.ToLower().Contains("internaltest"))
+            if ((userAccount.email != null && userAccount.email.Length > 0) && userAccount.email.ToLower().Contains("internaltest"))
             {
                 return; //Do not log events for internal test users
+            }
+            else if(bIsTestUser)
+            {
+                return;
             }
 
             FocusBearAPIClient client = new FocusBearAPIClient();
@@ -1887,7 +2036,7 @@ namespace Focus_Bear.Utils
 
                 if (bHabitwithUseFocusModeRunning)//if an activity with use focus mode is running, we need to show the activity name
                 {
-                    wndGentleBlock.ShowGentleBlockWindowAndStartTimer(hWnd,sCurrentRunningActivity, sEXE, sURL, "", sTabTitle);
+                    wndGentleBlock.ShowGentleBlockWindowAndStartTimer(hWnd, sCurrentRunningActivity, sEXE, sURL, "", sTabTitle);
                 }
                 else
                 {
@@ -1928,7 +2077,7 @@ namespace Focus_Bear.Utils
         public string GetFontEquivalentForWeb(string sAppFont)
         {
             //public string[] arrFontFamily = {  "IntelOne Mono", "OpenDyslexic3 Regular" };
-            if(sAppFont == "IntelOne Mono")
+            if (sAppFont == "IntelOne Mono")
             {
                 return "Intel One Mono";
             }
@@ -1940,6 +2089,133 @@ namespace Focus_Bear.Utils
             {
                 return sAppFont; //rest are same as our array
             }
+        }
+
+        public void ShowSetIntentionWindow(IntPtr hWnd, string sEXE, string sURL = "", string sTabTitle = "", bool bShowTimerAndWarning = false)
+        {
+            ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
+            {
+                if (wndSetIntention == null)
+                {
+                    wndSetIntention = new SetIntention.SetIntention();
+                }
+                
+                wndSetIntention.ShowSetIntentionWindow(hWnd, sEXE, sURL, sTabTitle, bShowTimerAndWarning);
+                
+            }));
+        }
+        public void Show_ShowIntentionWindow(IntPtr hWnd, string sURL, string sIntention)
+        {
+            ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
+            {
+                if (wndShowIntention == null)
+                {
+                    wndShowIntention = new ShowIntention();
+                }
+                //wndGentleBlock.Show();
+
+                if (bHabitwithUseFocusModeRunning)//if an activity with use focus mode is running, we need to show the activity name
+                {
+                    wndShowIntention.Show_ShowIntentionWindow(hWnd, sURL, sIntention);
+                }
+                else
+                {
+                    wndShowIntention.Show_ShowIntentionWindow(hWnd, sURL, sIntention);
+                }
+            }));
+        }
+
+        public void Hide_SetIntentionWindow()
+        {
+            ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
+            {
+                if (wndSetIntention != null)
+                {
+                    wndSetIntention.Hide();
+                }
+            }));
+        }
+        public void Hide_ShowIntentionWindow()
+        {
+            //((App)(Application.Current)).Dispatcher.Invoke(() =>
+            //{
+            //    try
+            //    {
+                    if (wndShowIntention != null)
+                    {
+                        wndShowIntention.Hide();
+                    }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        LogWriter.LogWrite("Hide_ShowIntentionWindow EX = " + ex.Message);
+            //    }
+            //});
+           
+        }
+        public void GetTotalTimeForDistractingSitesToday() //we will use thi to also get the nTimeSpentBlockingDeactivated and nTimeSpentBlockingActivated
+        {
+            if(RegistryManager.GetDateFor_TotalTimeForDistractingSites())
+            {
+                if(DateTime.Today.Date == Date_TotalTimeForDistractingSitesToday.Date)
+                {
+                    RegistryManager.GetTotalTimeForDistractingSites();
+
+                    RegistryManager.GetTotalTimeForBlockingActivated();
+                    RegistryManager.GetTotalTimeForBlockingDeactivated();
+                    RegistryManager.GetTotalDistractingSiteBlockedToday();
+                }
+                else
+                {
+                    nTotalTimeForDistractingSitesToday = 0;
+                    nTimeSpentBlockingActivated = 0;
+                    nTimeSpentBlockingDeactivated = 0;
+                    nTotalDistractingSitesBlocked = 0;
+
+
+                    Date_TotalTimeForDistractingSitesToday = DateTime.Now;
+                    RegistryManager.SetDateFor_TotalTimeForDistractingSites();
+                }
+            }
+            else
+            {
+                nTotalTimeForDistractingSitesToday = 0;
+                nTimeSpentBlockingActivated = 0;
+                nTimeSpentBlockingDeactivated = 0;
+                nTotalDistractingSitesBlocked = 0;
+
+                Date_TotalTimeForDistractingSitesToday = DateTime.Now;
+                RegistryManager.SetDateFor_TotalTimeForDistractingSites();
+            }
+        }
+
+        public async void ChangeStartupTimeToCurrentTimeAndSaveSettings()
+        {
+            LogWriter.LogWrite("ChangeStartupTimeToCurrentTimeAndSaveSettings()");
+
+            JObject UserSettings = JObject.Parse(sRawUserSettings);
+            DateTime now = DateTime.Now;
+           
+            Console.WriteLine(now.ToString("HH:mm"));
+
+            if (UserSettings.ContainsKey("startup_time"))
+            {
+                UserSettings.Remove("startup_time");
+                UserSettings.Add("startup_time", now.ToString("HH:mm"));
+            }
+           
+            sDayStartTime = now.ToString("HH:mm");
+           
+            //Also save the udpated settings to Registry
+            sRawUserSettings = UserSettings.ToString();
+            RegistryManager.SaveUserSettings();
+
+            await Task.Run(async () =>
+            {
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                //We will need to put the settings.
+                var y = client.PutUserSettings();
+            });
         }
     }
 }

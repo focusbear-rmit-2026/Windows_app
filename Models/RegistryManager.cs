@@ -925,8 +925,107 @@ namespace Focus_Bear.Models
             }
             return false;
         }
-           
-            
+
+
+        internal static bool GetGlobalUUID()
+        {
+            try
+            {
+                var regData = ReadStrGlobal("GLOBALUUID");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.sGlobalUUID = regData.ToString();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetGlobalUUID - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetGlobalUUID()
+        {
+            try
+            {
+                WriteStrGlobal("GLOBALUUID", appSettings.sGlobalUUID);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetGlobalUUID()" + ex.Message);
+            }
+        }
+        internal static void RemoveGlobalUUID()
+        {
+            try
+            {
+                DeleteValueGlobal("GLOBALUUID");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RemoveGlobalUUID - " + ex.Message);
+            }
+        }
+
+        internal static void SetGlobalUUIDLinked()
+        {
+            try
+            {
+                bool status = true;
+                byte[] regData = new byte[1] { Convert.ToByte(status) };
+                Write("GLOBALUUID_LINKED", regData);
+
+                regData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetGlobalUUIDLinked - " + ex.Message);
+            }
+        }
+        internal static bool GetGlobalUUIDLinked()
+        {
+            byte[] regData = (byte[])Read("GLOBALUUID_LINKED");
+
+            if (regData == null)
+                return false;
+
+            bool res = Convert.ToBoolean(regData[0]);
+
+            regData = null;
+            return res;
+        }
+
+        internal static void SetMacIDLinked()
+        {
+            try
+            {
+                bool status = true;
+                byte[] regData = new byte[1] { Convert.ToByte(status) };
+                Write("MACID_LINKED", regData);
+
+                regData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetMacIDLinked - " + ex.Message);
+            }
+        }
+        internal static bool GetMacIDLinked()
+        {
+            byte[] regData = (byte[])Read("MACID_LINKED");
+
+            if (regData == null)
+                return false;
+
+            bool res = Convert.ToBoolean(regData[0]);
+
+            regData = null;
+            return res;
+        }
+
         internal static bool GetLangCode()
         {
             try
@@ -1893,6 +1992,315 @@ namespace Focus_Bear.Models
             regData = null;
             return res;
         }
+
+        internal static bool IsSuperPomodoroIsRunning()
+        {
+            if(appSettings.bUseSuperPomodoroMode)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal static bool GetDateFor_TotalTimeForDistractingSites()
+        {
+            try
+            {
+                var regData = ReadStr("TOTALTIMEFORDISTRACTINGSITES_DATE");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.Date_TotalTimeForDistractingSitesToday = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetDateFor_TotalTimeForDistractingSites() - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetDateFor_TotalTimeForDistractingSites()
+        {
+            try
+            {
+                Write("TOTALTIMEFORDISTRACTINGSITES_DATE", Global.ConvertToUnixTime(appSettings.Date_TotalTimeForDistractingSitesToday).ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetDateFor_TotalTimeForDistractingSites - " + ex.Message);
+            }
+        }
+
+        internal static bool GetTotalTimeForDistractingSites()
+        {
+            try
+            {
+                var regData = ReadStr("TOTALTIMEFORDISTRACTINGSITES");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.nTotalTimeForDistractingSitesToday = int.Parse(regData.ToString());
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetTotalTimeForDistractingSites() - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetTotalTimeForDistractingSites()
+        {
+            try
+            {
+                Write("TOTALTIMEFORDISTRACTINGSITES",  appSettings.nTotalTimeForDistractingSitesToday.ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetTotalTimeForDistractingSites - " + ex.Message);
+            }
+        }
+
+        internal static bool GetTotalTimeForBlockingDeactivated()
+        {
+            try
+            {
+                var regData = ReadStr("TOTALTIMEFORBLOCKINGDEACTIVATED");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.nTimeSpentBlockingDeactivated = int.Parse(regData.ToString());
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetTotalTimeForBlockingDeactivated() - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetTotalTimeForBlockingDeactivated()
+        {
+            try
+            {
+                Write("TOTALTIMEFORBLOCKINGDEACTIVATED", appSettings.nTimeSpentBlockingDeactivated.ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetTotalTimeForBlockingDeactivated - " + ex.Message);
+            }
+        }
+
+        internal static bool GetTotalTimeForBlockingActivated()
+        {
+            try
+            {
+                var regData = ReadStr("TOTALTIMEFORBLOCKING_ACTIVATED");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.nTimeSpentBlockingActivated = int.Parse(regData.ToString());
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetTotalTimeForBlockingActivated() - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetTotalTimeForBlockingActivated()
+        {
+            try
+            {
+                Write("TOTALTIMEFORBLOCKING_ACTIVATED", appSettings.nTimeSpentBlockingActivated.ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetTotalTimeForBlockingActivated - " + ex.Message);
+            }
+        }
+
+        internal static bool GetTotalDistractingSiteBlockedToday()
+        {
+            try
+            {
+                var regData = ReadStr("TOTALDISTRACTINGSITEBLOCKEDTODAY");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.nTotalDistractingSitesBlocked = int.Parse(regData.ToString());
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetTotalDistractingSiteBlockedToday() - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetTotalDistractingSiteBlockedToday()
+        {
+            try
+            {
+                Write("TOTALDISTRACTINGSITEBLOCKEDTODAY", appSettings.nTotalDistractingSitesBlocked.ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetTotalDistractingSiteBlockedToday - " + ex.Message);
+            }
+        }
+
+        /// //////////////////////////////////////////////////////////////////////////////////////
+        //Focus bear Time Tracker Related
+        public static string GetRegistryGlobalPathFBTT()
+        {
+            return "Software\\Focus Bear Time Tracker";
+        }
+        private static object ReadGlobalFBTT(string value)
+        {
+            try
+            {
+                string root = GetRegistryGlobalPathFBTT();
+                using (RegistryKey rootKey = Registry.CurrentUser.OpenSubKey(root))
+                {
+                    if (rootKey != null)
+                    {
+                        return rootKey.GetValue(value);
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                LogWriter.LogWrite("ReadGlobalFBTT RM - " + ex.Message);
+            }
+            catch (NullReferenceException ex)
+            {
+                LogWriter.LogWrite("ReadGlobalFBTT RM - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ReadGlobalFBTT RM - " + ex.Message);
+            }
+            return null;
+        }
+
+        private static void WriteGlobalFBTT(string value, byte[] data)
+        {
+            try
+            {
+                string root = GetRegistryGlobalPathFBTT();
+                using (RegistryKey rootKey = Registry.CurrentUser.CreateSubKey(root))
+                {
+                    rootKey.SetValue(value, data, RegistryValueKind.Binary);
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                LogWriter.LogWrite("WriteGlobalFBTT RM - " + ex.Message);
+            }
+            catch (NullReferenceException ex)
+            {
+                LogWriter.LogWrite("WriteGlobalFBTT RM - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("WriteGlobalFBTT RM - " + ex.Message);
+            }
+        }
+
+        private static bool DeleteValueGlobalFBTT(string value)
+        {
+            try
+            {
+                string root = GetRegistryGlobalPathFBTT();
+                using (RegistryKey rootKey = Registry.CurrentUser.OpenSubKey(root, true))
+                {
+                    if (rootKey != null)
+                    {
+                        rootKey.DeleteValue(value);
+                        return true;
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                LogWriter.LogWrite("DeleteValueGlobalFBTT RM - " + ex.Message);
+            }
+            catch (NullReferenceException ex)
+            {
+                LogWriter.LogWrite("DeleteValueGlobalFBTT RM - " + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("DeleteValueGlobalFBTT RM - " + ex.Message);
+
+            }
+            return false;
+        }
+        internal static void SetFocusBearTimeTrackerStatus()
+        {
+            try
+            {
+                byte[] regData = new byte[1] { Convert.ToByte(appSettings.bFocusBearTimeTrackerEnabled) };
+                WriteGlobalFBTT("FBTTENABLED", regData);
+
+                regData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetFocusBearTimeTrackerStatus - " + ex.Message);
+            }
+        }
+
+        internal static bool GetFocusBearTimeTrackerStatus()
+        {
+            byte[] regData = (byte[])ReadGlobalFBTT("FBTTENABLED");
+
+            if (regData == null)
+                return false;
+
+            bool res = Convert.ToBoolean(regData[0]);
+
+            regData = null;
+            return res;
+        }
+
+        internal static void RemoveFocusBearTimeTrackerStatus()
+        {
+            try
+            {
+                DeleteValueGlobalFBTT("FBTTENABLED");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("DeleteValueGlobalFBTT - " + ex.Message);
+            }
+        }
+
+        public static void AddToStartup()
+        {
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
+            {
+                key.SetValue("Focus Bear", "\"" + System.Reflection.Assembly.GetEntryAssembly().Location + "\""); ;
+            }
+        }
+
 
     }
 

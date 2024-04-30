@@ -22,10 +22,11 @@ namespace Focus_Bear.Utils
         AppSettings appSettings = AppSettings.GetInstance;
 
         public MessageBoxResult btnClicked = MessageBoxResult.Yes;
+        public bool bSuggestMeetingsFocusModeView = false;
         public FBMessageBox()
         {
         }
-        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false)
+        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false, string sDontShowCheckboxText = "")
         {
             InitializeComponent();
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
@@ -74,8 +75,17 @@ namespace Focus_Bear.Utils
             btnYesTxt.Text = appSettings.ConfigFileStrings["common"]["yesText"].ToString();
             btnNoTxt.Text = appSettings.ConfigFileStrings["common"]["noText"].ToString();
             btnCancelTxt.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
+           
+            if(sDontShowCheckboxText.Length > 0)
+            {
+                DoNotShowAnymore.Content = sDontShowCheckboxText;
+            }
+            else
+            {
+                DoNotShowAnymore.Content = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkboxDonotShowText"].ToString();
+            }
             
-            DoNotShowAnymore.Content = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkboxDonotShowText"].ToString();
+
             if (bShowDontShowCheckbox)
                 DoNotShowAnymore.Visibility = Visibility.Visible;
 
@@ -126,12 +136,18 @@ namespace Focus_Bear.Utils
 
         private void DoNotShowAnymore_Checked(object sender, RoutedEventArgs e)
         {
-            appSettings.bAiAllowUrlShowAlertEnabled = false;
+            if (bSuggestMeetingsFocusModeView)
+                appSettings.bAutomaticallySuggestStartingMeetingsFocus = false;
+            else
+                appSettings.bAiAllowUrlShowAlertEnabled = false;
         }
 
         private void DoNotShowAnymore_Unchecked(object sender, RoutedEventArgs e)
         {
-            appSettings.bAiAllowUrlShowAlertEnabled = true;
+            if (bSuggestMeetingsFocusModeView)
+                appSettings.bAutomaticallySuggestStartingMeetingsFocus = true;
+            else
+                appSettings.bAiAllowUrlShowAlertEnabled = true;
         }
     }
 }

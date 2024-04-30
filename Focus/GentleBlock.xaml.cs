@@ -82,7 +82,7 @@ namespace Focus_Bear.Focus
             ShowInTaskbar = false;
             Topmost = true;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
-        }
+    }
 
         public void ShowGentleBlockWindowAndStartTimer(IntPtr hWnd, string sFocusModeTitle, string sAppName, string sURL = "", string sIntention = "", string sTabTitle = "")
         {

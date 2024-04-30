@@ -90,9 +90,9 @@ namespace Focus_Bear.Login
                                         await Dispatcher.BeginInvoke((Action)(() =>
                                         {
                                             //Login Success
-                                            appSettings.CapturePostHog("login-homemade");
                                             appSettings.GetLoginAndTokenValidSettings();
-
+                                            appSettings.CapturePostHog("login-homemade");
+                                            
                                             _parentWindow.bDoNotShutDown = true;
                                             _parentWindow.Close();
                                         }));
@@ -169,7 +169,7 @@ namespace Focus_Bear.Login
 
             try
             {
-
+                appSettings.CapturePostHog("button-forgot-password-clicked");
                 string emailAddress = TxtEmailAddress.Text;
                 if (emailAddress.Length > 0)
                 {

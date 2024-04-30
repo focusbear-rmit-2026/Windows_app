@@ -15,16 +15,16 @@
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"   />
+            <RowDefinition Height="105"   />
             <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="*"  />
-            <RowDefinition Height="180" />
+            <RowDefinition Height="120" />
 
         </Grid.RowDefinitions>
 
-        <Image Grid.Row="0" Height="105"  Width="105" Margin="0,30,0,0" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWhen do you want to start and finish work?" Foreground="#000" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <Viewbox Grid.Row="2" Stretch="Uniform" Margin="0,30,0,0"  >
+        <Image Grid.Row="0" Height="99"  Width="99" Margin="0,0,0,0" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWhen do you want to start and finish work?" Foreground="#000" FontSize="27" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <Viewbox Grid.Row="2" Stretch="Uniform" Margin="0,20,0,0"  >
             <StackPanel   Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center"  Width="650"   Margin="0,0,0,0">
             <StackPanel Orientation="Horizontal"   Margin="20,0,0,0">
                  
@@ -47,7 +47,7 @@
                 <TextBlock Name="Schedule" Margin="0,50,0,0" TextWrapping="Wrap" Text="xYour schedule looks like:\n\n🐥 MORNING_ROUTINE_START_TIME - MORNING_ROUTINE_END_TIME - Morning routine\n\n💼 MORNING_ROUTINE_END_TIME - START_WORK_TIME - Prepare to start work (buffer time)\n\n💪 START_WORK_TIME - END_WORK_TIME - Work\n\n🥱 END_WORK_TIME - EVENING_ROUTINE_END_TIME - Do evening routine.\n\n😴 EVENING_ROUTINE_END_TIME - Finish evening routine - computer locked (you can unlock it if you need it)" Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
         </StackPanel>
         </Viewbox>
-        <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
+        <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,20,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnContinueTXT" Text="xContinue"/>

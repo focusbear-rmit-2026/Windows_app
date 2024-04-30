@@ -99,7 +99,7 @@ namespace Focus_Bear.Habits
                 {
                     RegistryManager.SetMorningHabitsShownTillDate();
 
-                    appSettings.CapturePostHog("deactivate-routine", "\"routine-type\":\"morning_routine\",\"deactivate_reason\":\"easy postpone\"");
+                    appSettings.CapturePostHog("deactivate-routine", "\"routine-type\":\"morning_routine\",\"deactivate-reason\":\"easy postpone\"");
 
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
@@ -132,7 +132,7 @@ namespace Focus_Bear.Habits
 
                     RegistryManager.SetEveningHabitsShownTillDate();
 
-                    appSettings.CapturePostHog("deactivate-routine", "\"routine-type\":\"evening_routine\",\"deactivate_reason\":\"easy postpone\"");
+                    appSettings.CapturePostHog("deactivate-routine", "\"routine-type\":\"evening_routine\",\"deactivate-reason\":\"easy postpone\"");
 
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);

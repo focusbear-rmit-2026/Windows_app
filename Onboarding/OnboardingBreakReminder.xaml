@@ -15,14 +15,14 @@
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="185" />
+            <RowDefinition Height="Auto" MinHeight="105" />
             <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="*"  />
             <RowDefinition Height="180" />
 
         </Grid.RowDefinitions>
 
-        <Image Grid.Row="0" Height="135"  Width="135" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <Image Grid.Row="0" Height="99"  Width="99" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xBreak reminders" Foreground="#000" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <StackPanel  Grid.Row="2"  Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center"  Width="650"   Margin="0,0,0,0">
 

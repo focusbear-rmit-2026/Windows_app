@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Pomodoro;
+using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,16 @@ namespace Focus_Bear.Focus
         {
             InitializeComponent();
             this.Owner = ParentWindow;
+            InitialSettings();
+        }
+        public SelectTasks(StartPomodoro ParentWindow)
+        {
+            InitializeComponent();
+            this.Owner = ParentWindow;
+            InitialSettings();
+        }
+        private void InitialSettings()
+        {
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             bFocusModeEndWindow = false;
             appSettings.sRawTasks = ""; //Initialize with empty task list
@@ -36,6 +47,7 @@ namespace Focus_Bear.Focus
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
         }
+
 
         public SelectTasks(FocusModeEnd ParentWindow)
         {
@@ -82,7 +94,7 @@ namespace Focus_Bear.Focus
                     TimeSpan difference = end.Subtract(start); // could also write `now - otherTime`
                     double durationMinutes = difference.TotalMinutes;
 
-                    LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2}}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString());
+                    LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{2}\"}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode);
                     LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadTasks) {{ loadTasks({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
                 }
 

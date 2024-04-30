@@ -40,7 +40,7 @@ namespace Focus_Bear.Habits
         public HabitsWelcomeList PageWelcomeList = null;
         public HabitExtraPersonal PageHabitExtraPersonal;
 
-        int nTimer = 15;
+        int nTimer = 5;
        
         DispatcherTimer dispatcherTimerSkippingIn = new DispatcherTimer(DispatcherPriority.Normal);
 
@@ -497,6 +497,8 @@ namespace Focus_Bear.Habits
                   
                     RegistryManager.SetEveningHabitsShownTillDate();
 
+                    //reset the complete evening habits button if it was clicked
+                    appSettings.bCompleteYourEveningRoutineClicked = false;
 
                     //Set the current activity type to NONE
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
@@ -517,6 +519,12 @@ namespace Focus_Bear.Habits
             if(bMorningHabitsFinished)
             {
                 ((App)(Application.Current)).ShowSurvey();
+
+                //WE need to show the pomodoro window
+                if(appSettings.bEnterPomodoroModeAfterMorningRoutine)
+                {
+                    ((App)(Application.Current)).EnterPomodoroModeAfterMorningRoutine();
+                }
             }
         }
 
@@ -925,8 +933,30 @@ namespace Focus_Bear.Habits
         }
         private void btnPleaseSpareMe_Click(object sender, RoutedEventArgs e)
         {
+            //WE may have edit habits screen visible and user may have clicked Backt o my habits
+            //in that case we need to check and return from here
+            //If edits habits is open in welcome list, hide it
+            if (PageWelcomeList != null)
+            {
+                if (PageWelcomeList.WebGrid.IsVisible)
+                {
+                    PageWelcomeList.WebGrid.Visibility = Visibility.Collapsed;
+                    PageWelcomeList.Normal.Visibility = Visibility.Visible;
+
+                    if (!appSettings.bPlayActivitiesInFullScreenMode)
+                    {
+                        btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
+                    }
+                    else
+                    {
+                        btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
+                    }
+
+                    return;
+                }
+            }
             //If a password is set, ask fop a password
-            
+
             if (appSettings.isPasswordSet)
             {
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
@@ -1162,7 +1192,7 @@ namespace Focus_Bear.Habits
         {
             LogWriter.LogWrite("ShowSkippingHabitInWindow()");
             HeadingSkippingIn.Text = appSettings.ConfigFileStrings["skipHabitVcInfo"]["title"].ToString();
-            HeadingSkippingInTimer.Text = "00:15";
+            HeadingSkippingInTimer.Text = "00:05";
             btnChangedMyMindTXT.Text = appSettings.ConfigFileStrings["skipHabitVcInfo"]["buttonDoHabitsText"].ToString(); ;
 
             GridShade.Visibility = Visibility.Visible;
@@ -1180,7 +1210,7 @@ namespace Focus_Bear.Habits
                     nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
             }
 
-            nTimer = 15;
+            nTimer = 5;
             dispatcherTimerSkippingIn.Start();
             CommandManager.InvalidateRequerySuggested();
 

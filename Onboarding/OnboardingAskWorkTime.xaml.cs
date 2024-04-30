@@ -45,22 +45,42 @@ namespace Focus_Bear.Onboarding
                 LogWriter.LogWrite("OnboardingAskWorkTime() ex - " + ex.Message);
             }
 
-            StartupTimePicker.NUDHTextBox.Text = "08";
-            StartupTimePicker.NUDMTextBox.Text = "30";
-            StartupTimePicker.NUDAMPTextBox.Text = "AM";
+            if(appSettings.bGoalHealthyHabits)
+            {
+                StartupTimePicker.NUDHTextBox.Text = "08";
+                StartupTimePicker.NUDMTextBox.Text = "30";
+                StartupTimePicker.NUDAMPTextBox.Text = "AM";
 
-            ShutdownTimePicker.NUDHTextBox.Text = "06";
-            ShutdownTimePicker.NUDMTextBox.Text = "30";
-            ShutdownTimePicker.NUDAMPTextBox.Text = "PM";
+                ShutdownTimePicker.NUDHTextBox.Text = "06";
+                ShutdownTimePicker.NUDMTextBox.Text = "30";
+                ShutdownTimePicker.NUDAMPTextBox.Text = "PM";
 
-            SleepTimePicker.NUDHTextBox.Text = "09";
-            SleepTimePicker.NUDMTextBox.Text = "30";
-            SleepTimePicker.NUDAMPTextBox.Text = "PM";
+                SleepTimePicker.NUDHTextBox.Text = "09";
+                SleepTimePicker.NUDMTextBox.Text = "30";
+                SleepTimePicker.NUDAMPTextBox.Text = "PM";
+            }
+            else
+            {
+                StartupTimePicker.NUDHTextBox.Text = "00";
+                StartupTimePicker.NUDMTextBox.Text = "00";
+                StartupTimePicker.NUDAMPTextBox.Text = "AM";
+
+                ShutdownTimePicker.NUDHTextBox.Text = "11";
+                ShutdownTimePicker.NUDMTextBox.Text = "59";
+                ShutdownTimePicker.NUDAMPTextBox.Text = "PM";
+
+                SleepTimePicker.NUDHTextBox.Text = "11";
+                SleepTimePicker.NUDMTextBox.Text = "59";
+                SleepTimePicker.NUDAMPTextBox.Text = "PM";
+            }
+           
 
         }
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("ask-work-time-continue-clicked");
+
             string sStartupHours = StartupTimePicker.NUDHTextBox.Text;
             string sStartupMinutes = StartupTimePicker.NUDMTextBox.Text;
             string sStartupAMPM = StartupTimePicker.NUDAMPTextBox.Text; ;
@@ -89,7 +109,8 @@ namespace Focus_Bear.Onboarding
                 ff.ShowDialog();
                 return;
             }
-            _parentWindow.ShowOnboardingBreakRemindersScreen();
+            ///_parentWindow.ShowOnboardingBreakRemindersScreen();
+            _parentWindow.ShowOnbordingConfirmMorningRoutine();
         }
 
         private void StartupTimePicker_ValueChanged(object sender, bool e)

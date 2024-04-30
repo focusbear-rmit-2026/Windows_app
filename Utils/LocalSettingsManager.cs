@@ -217,6 +217,165 @@ namespace Focus_Bear.Utils
                                 sMacOSSettingsOBJ.Add("kisFullScreenEnabled", appSettings.bPlayActivitiesInFullScreenMode);
                             }
 
+                            //Pomodoro related settings.
+                            if (sMacOSSettingsOBJ.ContainsKey("kPomodoroModeEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kPomodoroModeEnabled"); //Remove  
+                                                                                  //Add new  
+                                sMacOSSettingsOBJ.Add("kPomodoroModeEnabled", appSettings.bEnterPomodoroModeAfterMorningRoutine);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kPomodoroModeEnabled", appSettings.bEnterPomodoroModeAfterMorningRoutine);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kHardcorePomodoroEnabled"); //Remove  
+                                                                                  //Add new  
+                                sMacOSSettingsOBJ.Add("kHardcorePomodoroEnabled", appSettings.bAutomaticUseSuperPomodoroModeSetting);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kHardcorePomodoroEnabled", appSettings.bAutomaticUseSuperPomodoroModeSetting);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kPomodoroDurationMinutes"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kPomodoroDurationMinutes"); //Remove  
+                                                                                      //Add new  
+                                sMacOSSettingsOBJ.Add("kPomodoroDurationMinutes", appSettings.PomodoroMinutes);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kPomodoroDurationMinutes", appSettings.PomodoroMinutes);
+                            }
+
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kBreakDurationMinutes"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kBreakDurationMinutes"); //Remove  
+                                                                                      //Add new  
+                                sMacOSSettingsOBJ.Add("kBreakDurationMinutes", appSettings.PomodoroBreakMinutes);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kBreakDurationMinutes", appSettings.PomodoroBreakMinutes);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedName"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kHardcorePomodoroFocusedName"); //Remove  
+                                                                                   //Add new  
+                                sMacOSSettingsOBJ.Add("kHardcorePomodoroFocusedName", appSettings.AutomaticSuperPomodoroFocusedName);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kHardcorePomodoroFocusedName", appSettings.AutomaticSuperPomodoroFocusedName);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedCount"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kHardcorePomodoroFocusedCount"); //Remove  
+                                                                                          //Add new  
+                                sMacOSSettingsOBJ.Add("kHardcorePomodoroFocusedCount", appSettings.AutomaticNumberOfSuperPomodorosToRun);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kHardcorePomodoroFocusedCount", appSettings.AutomaticNumberOfSuperPomodorosToRun);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroSkipMicroBreaks"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kHardcorePomodoroSkipMicroBreaks"); //Remove  
+                                                                                           //Add new  
+                                sMacOSSettingsOBJ.Add("kHardcorePomodoroSkipMicroBreaks", appSettings.bAutomaticSuperPomodoroSkipMicroBreaks);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kHardcorePomodoroSkipMicroBreaks", appSettings.bAutomaticSuperPomodoroSkipMicroBreaks);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroArrDays"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kHardcorePomodoroArrDays"); //Remove  
+                                                                                              //Add new  
+                                sMacOSSettingsOBJ.Add("kHardcorePomodoroArrDays", appSettings.AutomaticSuperPomodoroSelectedDaysArray);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kHardcorePomodoroArrDays", appSettings.AutomaticSuperPomodoroSelectedDaysArray);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kImmediatelyBlockDistractingSites"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kImmediatelyBlockDistractingSites"); //Remove  
+                                                                                                        //Add new  
+                                sMacOSSettingsOBJ.Add("kImmediatelyBlockDistractingSites", appSettings.bImmediatelyBlockDistractingSites);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kImmediatelyBlockDistractingSites", appSettings.bImmediatelyBlockDistractingSites);
+                            }
+
+
+                            //Meetings Call detection related
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsMeetingDetectionEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsMeetingDetectionEnabled"); //Remove  
+                                                                                               //Add new  
+                                sMacOSSettingsOBJ.Add("kIsMeetingDetectionEnabled", appSettings.bEnableMeetingsDetection);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsMeetingDetectionEnabled", appSettings.bEnableMeetingsDetection);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kShowMeetingDetectionAlert"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kShowMeetingDetectionAlert"); //Remove  
+                                                                                        //Add new  
+                                sMacOSSettingsOBJ.Add("kShowMeetingDetectionAlert", appSettings.bAutomaticallySuggestStartingMeetingsFocus);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kShowMeetingDetectionAlert", appSettings.bAutomaticallySuggestStartingMeetingsFocus);
+                            }
+
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsBlockDistractingSitesDuringMeetingsEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsBlockDistractingSitesDuringMeetingsEnabled"); //Remove  
+                                                                                        //Add new  
+                                sMacOSSettingsOBJ.Add("kIsBlockDistractingSitesDuringMeetingsEnabled", appSettings.bBlockSuperDistractingSitesDuringMeetings);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsBlockDistractingSitesDuringMeetingsEnabled", appSettings.bBlockSuperDistractingSitesDuringMeetings);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsShowBreaksInCallEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsShowBreaksInCallEnabled"); //Remove  
+                                                                                                           //Add new  
+                                sMacOSSettingsOBJ.Add("kIsShowBreaksInCallEnabled", appSettings.bShowBreaksWhileInCall);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsShowBreaksInCallEnabled", appSettings.bShowBreaksWhileInCall);
+                            }
+
+                            //Simple / geek mode setting
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsGeekModeEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsGeekModeEnabled"); //Remove  
+                                                                                        //Add new  
+                                sMacOSSettingsOBJ.Add("kIsGeekModeEnabled", appSettings.bIsGeekModeEnabled);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsGeekModeEnabled", appSettings.bIsGeekModeEnabled);
+                            }
 
                             //Now remove macOS from local and add updated one
                             LocalSettings.Remove("MacOS");

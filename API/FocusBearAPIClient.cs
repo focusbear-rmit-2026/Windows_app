@@ -68,6 +68,8 @@ namespace Focus_Bear.API
             client.DefaultRequestHeaders.Add("platform", "Windows");
             client.DefaultRequestHeaders.Add("app-version", appSettings.AppVersion.ToString());
             client.DefaultRequestHeaders.Add("x-focus-bear-user-id", appSettings.userAccount.userID);
+            client.DefaultRequestHeaders.Add("device-id", appSettings.sDeviceID);
+            client.DefaultRequestHeaders.Add("device_id", appSettings.sDeviceID);
 
             if (!string.IsNullOrWhiteSpace(appSettings.userAccount.accessToken))
             {
@@ -805,6 +807,8 @@ namespace Focus_Bear.API
                         //Make the data for Focus Mode
                         string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/start", sId);
 
+                        LogWriter.LogWrite("StartFocusMode() JSON: = " + addFocusJsonString);
+
                         var response = await client.PostAsync(apiPath, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
                         {
@@ -871,7 +875,7 @@ namespace Focus_Bear.API
 
                     string sTasksArray = (appSettings.sRawTasksDone != null && appSettings.sRawTasksDone.Length > 0) ? appSettings.sRawTasksDone : "[]";
 
-                    string addFocusJsonString = $"{{\"achievements\":\"{achievements}\"," +
+                    string addFocusJsonString = $"{{\"achievements\":\"{ HttpUtility.UrlEncode(achievements)}\"," +
                         $"\"distractions\":\"{distractions}\"," +
                         $"\"finish_time\":\"{end.ToString("o")}\"," +
                         $"\"to_dos\":{sTasksArray}}}";
@@ -883,6 +887,8 @@ namespace Focus_Bear.API
 
                         //Make the data for Focus Mode
                         string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/finish", sId);
+
+                        LogWriter.LogWrite("FinishFocusMode() JSON: = " + addFocusJsonString);
 
                         var response = await client.PostAsync(apiPath, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
@@ -1020,9 +1026,16 @@ namespace Focus_Bear.API
                    
                     string responsePath = UserSettings;
 
-                    if (appSettings.IsFirstInstall)
+                    if (appSettings.IsFirstInstall )
                     {
-                         responsePath = string.Format("https://api.focusbear.io/habit-packs/default?pack_id={0}", appSettings.sHabitPackIdToInstall);
+                        if (appSettings.sHabitPackIdToInstall != null && appSettings.sHabitPackIdToInstall.Length > 0)
+                        {
+                            responsePath = string.Format("https://api.focusbear.io/habit-packs/default?pack_id={0}", appSettings.sHabitPackIdToInstall);
+                        }
+                        else //Focus Only habit pack
+                        {
+                            responsePath = string.Format("https://api.focusbear.io/habit-packs/default?pack_id=4a5872f5-a8e5-48c2-a2e3-83c3830fce58");
+                        }
                     }
                     else if(sCustomHabitPackID.Length > 0)
                     {
@@ -1103,16 +1116,18 @@ namespace Focus_Bear.API
                     if (!string.IsNullOrEmpty(jsonString))
                     {
                         StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+                        string sApiPath = UserSettings;
+                        sApiPath = sApiPath + "?device_id=" + appSettings.sDeviceID; //used to identify device for Pusher notifications.
 
-                        if(is_onboarding)
-                            UserSettings += "?is_onboarding=true";
+                        if (is_onboarding)
+                            sApiPath += "&is_onboarding=true";
 
-                        if(is_onboarding)
-                            UserSettings += "?is_onboarding=true";
-
-                        var response = await client.PutAsync(UserSettings, content);
+                        var response = await client.PutAsync(sApiPath, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
                         {
+                            //Update date so that we do not get a notification for settings change and app does not restart.
+                            appSettings.dSettingsFetchedTime = DateTime.UtcNow;
+
                             if (response.Content != null)
                             {
                                 var responseCode = await response.Content.ReadAsStringAsync();
@@ -1122,7 +1137,7 @@ namespace Focus_Bear.API
                                     appSettings.sRawUserSettings = responseCode.ToString();
                                     RegistryManager.SaveUserSettings();
                                 }
-                                LogWriter.LogWrite(" PutUserSettings () GOT Success");
+                                LogWriter.LogWrite("PutUserSettings () GOT Success");
                                 return 1;
                             }
                         }
@@ -1897,6 +1912,81 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        internal async Task<int> PostHogIdentify(string sAliasID) // OK
+        {
+            LogWriter.LogWrite("PostHogIdentify() - " + sAliasID);
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    HttpClient client = new HttpClient();
+
+                    string sOSVersion = appSettings.sOSVersion;
+                    bool bUsesWindowsApp = true;
+                    string sID = (appSettings.userAccount.userID != null && appSettings.userAccount.userID.Length > 0) ? appSettings.userAccount.userID : appSettings.sGlobalUUID;
+                    string context = $"{{\"os\":\"windows\"," +
+                                     $"\"osVersion\":\"{sOSVersion}\"," +
+                                     $"\"appVersion\":\"{appSettings.AppVersion.ToString()}\"}}";
+
+                    string properties = $"{{\"distinct_id\":\"{sID}\"," +
+                    $"\"alias\":\"{sAliasID}\"," +
+                    $"\"$set\":{{\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)},\"mode\":\"{(appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode")}\" ,\"isPayingUser\":{JsonConvert.SerializeObject(appSettings.isPurchased)}}}}}"; 
+                  
+                    string sJsonString = $"{{\"api_key\":\"phc_Y6hD2dvO1zylm7CLij5CuNt6S5gTxe7EVXoxZcb2xUm\"," +
+                        $"\"event\":\"$create_alias\"," +
+                        $"\"context\":{context}," +
+                        $"\"properties\":{properties}}}";
+
+
+                    if (!string.IsNullOrEmpty(sJsonString))
+                    {
+                        StringContent content = new StringContent(sJsonString, Encoding.UTF8, "application/json");
+
+                        //Make the data for Focus Mode
+                        var response = await client.PostAsync("https://app.posthog.com/capture/", content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                        {
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("PostHogIdentify() FAILED" + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("PostHogIdentify WebException - " + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("PostHogIdentify Exception - " + ex.Message);
+
+            }
+            return 0;
+        }
 
         internal async Task<int> CapturePostHog(string sEvent, string sMetadata) // OK
         {
@@ -1911,13 +2001,16 @@ namespace Focus_Bear.API
 
                     string sOSVersion = appSettings.sOSVersion;
                     bool bUsesWindowsApp = true;
-                    string sID = (appSettings.sUser_id != null && appSettings.sUser_id.Length > 0) ? appSettings.sUser_id : appSettings.sMacAddress;
+                    string sID = (appSettings.userAccount.userID != null && appSettings.userAccount.userID.Length > 0) ? appSettings.userAccount.userID : appSettings.sGlobalUUID;
                     string context = $"{{\"os\":\"windows\"," +
                                      $"\"osVersion\":\"{sOSVersion}\"," +
                                      $"\"appVersion\":\"{appSettings.AppVersion.ToString()}\"}}";
                  
 
                     string properties = $"{{\"distinct_id\":\"{sID}\"," +
+                    $"\"osVersion\":\"{sOSVersion}\"," +
+                    $"\"$set\":\"{(appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode")}\"," +
+                    $"\"appVersion\":\"{appSettings.AppVersion.ToString()}\"," +
                     $"\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)}";
 
                     if (sMetadata.Length > 0)
@@ -1929,7 +2022,8 @@ namespace Focus_Bear.API
 
                     string sJsonString = $"{{\"api_key\":\"phc_Y6hD2dvO1zylm7CLij5CuNt6S5gTxe7EVXoxZcb2xUm\"," +
                         $"\"event\":\"{sEvent}\"," +
-                        $"\"context\":{context}," + 
+                        $"\"context\":{context}," +
+                        $"\"isPayingUser\":{JsonConvert.SerializeObject(appSettings.isPurchased)}," +
                         $"\"properties\":{properties}}}";
 
 
@@ -2003,7 +2097,7 @@ namespace Focus_Bear.API
 
                     string sOSVersion = appSettings.sOSVersion;
                     bool bUsesWindowsApp = true;
-                    string sID = (appSettings.sUser_id != null && appSettings.sUser_id.Length > 0) ? appSettings.sUser_id : appSettings.sMacAddress;
+                    string sID = (appSettings.userAccount.userID != null && appSettings.userAccount.userID.Length > 0) ? appSettings.userAccount.userID : appSettings.sGlobalUUID;
 
                     string event_data = "{\"data\":{";
                     if (sMetadata.Length > 0)
@@ -2326,7 +2420,7 @@ namespace Focus_Bear.API
             return 0;
         }
 
-        internal async Task<int> RecordUserConsent() // OK
+        internal async Task<int> RecordUserConsent(string sConsentType) // OK
         {
             LogWriter.LogWrite("RecordUserConsent()");
             try
@@ -2346,11 +2440,11 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
+                    //sConsentType can be terms_of_service or privacy_policy
                     bool bConsentStatus = true;
-                    string addItemJsonString = $"{{\"consent_type\":\"terms_of_service\"," +
+                    string addItemJsonString = $"{{\"consent_type\":\"{sConsentType}\"," +
                            $"\"consent_status\":\"{JsonConvert.SerializeObject(bConsentStatus)}\"," +
-                           $"\"metadata\":{{\"policy_version\":\"1.0.0\"}}}}";
-
+                           $"\"metadata\":{{\"policy_version\":\"1.0.0\",\"operating_system\":\"windows\"}}}}";
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
@@ -2664,6 +2758,79 @@ namespace Focus_Bear.API
             catch (Exception ex)
             {
                 LogWriter.LogWrite("SyncOfflineData Exception" + ex.Message);
+            }
+            return 0;
+        }
+
+
+        internal async Task<int> PutAdditionalGoals() // OK
+        {
+            LogWriter.LogWrite("PutAdditionalGoals()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    
+                    string addItemJsonString = $"{{\"goals\":{appSettings.sAdditionalGoals}}}";
+                       
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        var response = await client.PutAsync("https://api.focusbear.io/user/long-term-goals", content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                        {
+                            if (response.Content != null)
+                            {
+                                LogWriter.LogWrite("PutAdditionalGoals() GOT Success");
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                //JObject resJson = JObject.Parse(responseCode);
+
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("PutAdditionalGoals() FAILED - " + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("PutAdditionalGoals WebException - " + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("PutAdditionalGoals Exception - " + ex.Message);
+
             }
             return 0;
         }

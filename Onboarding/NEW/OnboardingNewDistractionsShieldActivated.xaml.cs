@@ -39,8 +39,9 @@ namespace Focus_Bear.Onboarding.NEW
                 if(appSettings.arrAlwaysBlockedURLs.Count > 0)
                     Welcome.Text = appSettings.ConfigFileStrings["tryBlockUrlVcInfo"]["descriptionTryBlockText"].ToString().Replace("<BLOCKED_URL>", appSettings.arrAlwaysBlockedURLs[0]);
                 btnDidntBlockedText.Text = appSettings.ConfigFileStrings["tryBlockUrlVcInfo"]["buttonDidNotBlockedText"].ToString();  
-                btnItBlockedText.Text = appSettings.ConfigFileStrings["tryBlockUrlVcInfo"]["buttonItBlockedText"].ToString(); 
-               
+                btnItBlockedText.Text = appSettings.ConfigFileStrings["tryBlockUrlVcInfo"]["buttonItBlockedText"].ToString();
+
+                appSettings.CapturePostHog("distraction-shield-activated-shown");
             }
             catch (Exception ex)
             {
@@ -51,11 +52,15 @@ namespace Focus_Bear.Onboarding.NEW
    
         private void btnDidntBlocked_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("button-didnt-clicked");
+
             _parentWindow.ShowWhichBrowserScreen();
         }
 
         private void btnItBlocked_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("button-blocked-clicked");
+
             appSettings.bBlockingWorkedWhileOnboarding = true;
             _parentWindow.ShowBuildingHabitsScreen();
         }

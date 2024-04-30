@@ -8,7 +8,7 @@
         xmlns:Models="clr-namespace:Focus_Bear.Models"
         mc:Ignorable="d" 
         d:DesignHeight="1080" d:DesignWidth="1920"
-        Title="Focus Bear" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" Closing="FullScreenParent_Closing">
+        Title="Focus Bear" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" Closing="FullScreenParent_Closing" IsVisibleChanged="FullScreenParent_IsVisibleChanged">
     <src:FullScreenParent.Resources>
         <Style TargetType="ListViewItem">
             <Style.Triggers>
@@ -37,7 +37,21 @@
         <Image Name="TopIcon" Grid.Row="0"  Margin="0,0,0,0" Height="150" Width="150" Models:ImageBehavior.AnimatedSource="../Images/gifs/random/1.gif"   VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xYou have completed 2 Focus blocks today" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <Grid  Grid.Row="2" Width="1008" >
+        <Grid  Grid.Row="2" Width="1008" Name="GridSummarySimpleMode" >
+            <Border  Grid.Row="1"  BorderBrush="LightGray" BorderThickness="1" Background="White">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock  Name="TotalDistractingSitesBlocked" Margin="20,20,0,0" TextWrapping="NoWrap" Text="xTotal distracting sites blocked:" Foreground="#000" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+                    <TextBlock  Name="TimeSpentBlockingDistractingSites" Margin="20,20,0,0" TextWrapping="NoWrap" Text="xTime spent on super distracting sites:" Foreground="#000" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+                    <TextBlock  Name="TimeSpentBlockingActivated" Margin="20,20,0,0" TextWrapping="NoWrap" Text="xTime spent with blocking activated:" Foreground="#000" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+                    <TextBlock  Name="TimeSpentBlockingDeactivated" Margin="20,20,0,0" TextWrapping="NoWrap" Text="xTime spent with blocking deactivated:" Foreground="#000" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+                    
+                    
+                    
+                </StackPanel>
+            </Border>
+        </Grid>
+        
+        <Grid  Grid.Row="2" Width="1008" Name="GridFocusSummary" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
                 <RowDefinition Height="25"  />
@@ -372,7 +386,7 @@
 
         
             <StackPanel Grid.Row="4" Orientation="Horizontal"   HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button  IsDefault="True" x:Name="btnNeedOneMinute"    Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" Padding="0" Margin="0,0,30,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNeedOneMinute_Click" >
+            <Button  IsDefault="True" x:Name="btnNeedOneMinute"    Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" Padding="0" Margin="0,0,30,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNeedOneMinute_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnNeedOneMinuteTXT" Text="xI need One More Minute"/>

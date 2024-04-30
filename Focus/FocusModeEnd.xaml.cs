@@ -42,7 +42,6 @@ namespace Focus_Bear.Focus
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
-
             appSettings.bStartingAnotherFocusMode = false;
            
             this.Topmost = true;
@@ -71,14 +70,34 @@ namespace Focus_Bear.Focus
             string sDistractions = TxtDistractions.Text.Replace(Environment.NewLine, " ");
             appSettings.AddEntryInCSV("focus block", appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, sAchieve, sDistractions, "", "");
 
+            if (appSettings.bUseSuperPomodoroMode)
+            {
+                if (appSettings.nSuperPomodoroCountCompleted >= appSettings.NumberOfSuperPomodorosToRun) //check if all pomodoros have been finished.
+                {
+                    appSettings.bUseSuperPomodoroMode = false;
+                }
+            }
+
             //Call api top finish focus mode
             FocusBearAPIClient client = new FocusBearAPIClient();
-            var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
+            try
+            { 
+                var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("client.FinishFocusMode API EX - " + ex.Message);
+            }
 
             if (appSettings.bStartingAnotherFocusMode)
                 return;
 
             Hide();
+
+            //Since the user is taking a few minutes break, we need to push back the micro breaks
+            //Only if morning habits have been done
+            if(((App)(Application.Current)).isMorningHabitsAlreadyShown)
+                ((App)(Application.Current)).StartBreakActivityTimer();
 
             //Show the Break Window
             ((App)(Application.Current)).ShowBreakWindow();
@@ -173,6 +192,7 @@ namespace Focus_Bear.Focus
 
                 try
                 {
+
                     Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["title"].ToString();
 
                     string sDescription = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["subTitle"].ToString();
@@ -182,7 +202,12 @@ namespace Focus_Bear.Focus
                     Achieve.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["questionFirstText"].ToString();
                     Distractions.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["questionSecondText"].ToString();
 
-                    btnTakeBreakText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonTakeBreakText"].ToString();
+                    string sBreakMinutes = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonTakeBreakText"].ToString();
+                    if(appSettings.sMinutesBreakPomodoro.Length > 0 && appSettings.sMinutesBreakPomodoro != "0")
+                    {
+                        sBreakMinutes = sBreakMinutes.Replace("5", appSettings.sMinutesBreakPomodoro);
+                    }
+                    btnTakeBreakText.Text = sBreakMinutes;
 
                     TxtIntention.Text = appSettings.sRunningFocusModeIntention; //Place the text
                                                                                 //
@@ -211,9 +236,28 @@ namespace Focus_Bear.Focus
 
                     btnStartAnotherFocusModeText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonStartFocusText"].ToString();
 
+                    if (appSettings.bUseSuperPomodoroMode)
+                    {
+                        btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        btnStartAnotherFocusMode.Visibility = Visibility.Visible;
+                    }
                     //Empty the boxes
                     TxtAchieve.Text = "";
                     TxtDistractions.Text = "";
+
+                    if (appSettings.isStartPomodoroWindowOpen)
+                    {
+                        //Let's close the start pomodoro window 
+                        if (((App)(Application.Current)).wndStartPomodoro != null)
+                        {
+                            ((App)(Application.Current)).wndStartPomodoro.Hide();
+                        }
+                        appSettings.isStartPomodoroWindowOpen = false;
+                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -277,6 +321,46 @@ namespace Focus_Bear.Focus
             SelectTasks wndSelectTasks = new SelectTasks(this);
             wndSelectTasks.ShowDialog();
             GridShade.Visibility = Visibility.Collapsed;
+
+            try
+            {
+                if (appSettings.sRawTasksDone != null && appSettings.sRawTasksDone.Length > 0)
+                {
+                    string arrTaskNames = "";
+                    JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawTasksDone);
+
+                    for (int i = 0; i < array.Count(); i++)
+                    {
+                        JObject TodoItem = JObject.Parse(array[i].ToString());
+                        string sName = TodoItem.ContainsKey("title") ? TodoItem["title"].ToString() : "";
+                        arrTaskNames += sName;
+                        string sStatus = TodoItem.ContainsKey("status") ? TodoItem["status"].ToString() : "";
+                        arrTaskNames += " (" + GetStatusText(sStatus) + ")" + "\n";                        
+                    }
+                    TxtAchieve.Text = arrTaskNames;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnSelectTasks_Click() sRawTasks Exception - " + ex.Message);
+            }
+        }
+
+        private string GetStatusText(string sStatusConstant)
+        {
+            if(sStatusConstant == "COMPLETED")
+            {
+                return "Completed"; //Todo win texts
+            }
+            else if(sStatusConstant == "IN_PROGRESS")
+            {
+                return "In Progress";
+            }
+            else if (sStatusConstant == "NOT_STARTED")
+            {
+                return "Not Started";
+            }
+            return "";
         }
     }
 }

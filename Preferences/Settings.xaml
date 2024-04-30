@@ -10,10 +10,17 @@
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="36"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <Grid Background="#fff" Margin="20,10,20,15">
+
+        <StackPanel    Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,0" >
+            <RadioButton x:Name="GeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"  />
+            <RadioButton x:Name="SimpleMode" Content="xSimple Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Cursor="Hand"  />
+        </StackPanel>
+        
+        <Grid Grid.Row="1" Background="#fff" Margin="20,10,20,15">
             <TabControl x:Name="TabControlSettings" Background="#fcf8f0" BorderBrush="LightGray" >
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabPanel}">
@@ -95,6 +102,12 @@
 
                     </Grid>
                 </TabItem>
+                <TabItem Name="PomodoroTab" Header="xPomodoro">
+                    <!--<local:PomodoroTab x:Name="PomodoroTAB" />-->
+                </TabItem>
+                <TabItem Name="AdvancedTab" Header="xAdvanced">
+                     
+                </TabItem>
                 <TabItem Name="BlockedURLTab" Header="xBlocked URLs">
                     <!--<local:AITab x:Name="AITAB" />-->
                 </TabItem>
@@ -108,7 +121,7 @@
                             <RowDefinition Height="35"/>
                             <RowDefinition Height="40"/>
                             <RowDefinition Height="35"/>
-                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="30"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0"   Name="PasswordHeading" Margin="0,0,0,0"  TextWrapping="NoWrap"    Text="xSet Password"  Foreground="#000" FontSize="16" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"  />
@@ -171,7 +184,7 @@
                              <Hyperlink x:Name="btnDisablePassword"  Foreground="#000" Click="btnDisablePassword_Click"   TextDecorations="Underline" ><Run x:Name="btnDisablePasswordTXT" Text="xDisable Password"/></Hyperlink>
                         </TextBlock>
 
-                        <Grid Grid.Row="8" Margin="0,5,0,0" >
+                        <Grid Grid.Row="8" Margin="0,0,0,0" >
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="185"/>
                                 <ColumnDefinition Width="*"/>
@@ -220,7 +233,7 @@
 
         </Grid>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal"  >
+        <StackPanel Grid.Row="2" Orientation="Horizontal"  >
             <Button  x:Name="btnExportStatistics"   Margin="20,0,0,0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnExportStatistics_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">

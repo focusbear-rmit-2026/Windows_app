@@ -58,8 +58,9 @@ namespace Focus_Bear.Onboarding.NEW
 
                 btnNoThanksText.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonNoText"].ToString();  
                 buttonLetsDoItText.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonLetsDoItText"].ToString(); 
-                btnABitLaterPleaseText.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonLaterText"].ToString(); 
-               
+                btnABitLaterPleaseText.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonLaterText"].ToString();
+
+                appSettings.CapturePostHog("onboarding-habit-start-view-shown");
             }
             catch (Exception ex)
             {
@@ -70,6 +71,8 @@ namespace Focus_Bear.Onboarding.NEW
 
         private void btnLetsDoIt_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("button-lets-do-it-clicked");
+
             FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["confirmText"].ToString(), MessageBoxButton.YesNo, appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonConfirmLetsDoItText"].ToString(), appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonNeedMoreTimeText"].ToString());
             ff.Owner = _parentWindow;
             _parentWindow.GridShade.Visibility = Visibility.Visible;
@@ -135,6 +138,8 @@ namespace Focus_Bear.Onboarding.NEW
         {
             try
             {
+                appSettings.CapturePostHog("button-no-thanks-clicked");
+
                 FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["alertConfirmText"].ToString(), MessageBoxButton.YesNo, appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonOkShowHabitText"].ToString(), appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonCancelHabitText"].ToString());
                 ff.Owner = _parentWindow;
                 _parentWindow.GridShade.Visibility = Visibility.Visible;

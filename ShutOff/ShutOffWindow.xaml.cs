@@ -111,6 +111,12 @@ namespace Focus_Bear.ShutOff
 
                 Txtunlocking.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortDoneInfo"]["unlockingText"].ToString();
                 TxtExplain.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortInfo"]["shareFeedbackText"].ToString();
+
+                //up early section
+                btnStartMorningRoutineText.Text =  appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonStartMorningRoutineText"].ToString();
+                btnWorkEmergencyText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonWorkEmergencyText"].ToString(); 
+                UpEarly.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["titleUpEarly"].ToString(); 
+                CompleteEveningRoutine.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonCompleteEveningRoutineText"].ToString();  
             }
             catch (Exception ex)
             {
@@ -195,6 +201,9 @@ namespace Focus_Bear.ShutOff
                 LogWriter.LogWrite("StartTimer() text ex - " + ex.Message);
             }
 
+            //hide the up early section if visible.
+            SectionUpEarly.Visibility = Visibility.Collapsed;
+
             TxtTimer.Visibility = Visibility.Visible;
             TxtExplain.Visibility = Visibility.Visible;
             TxtExplaination.Visibility = Visibility.Visible;
@@ -239,6 +248,12 @@ namespace Focus_Bear.ShutOff
                 sSubTitle = sSubTitle.Replace("<STARTTIME>", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
                 Description.Text = sSubTitle;
                 btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonAbortText"].ToString();
+
+                if (((App)(Application.Current)).CheckIf4HoursBeforeNextMorningRoutine())
+                {
+                    //show the up early section if visible.
+                    ShowUpEarlySection();
+                }
             }
             catch (Exception ex)
             {
@@ -304,37 +319,8 @@ namespace Focus_Bear.ShutOff
                 {
                     CommandManager.InvalidateRequerySuggested();
                     dispatcherTimerUnlock.Stop();
-                    
-                    //Set the appSettings.ShutOFFAbortedTillDate
-                    TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
-                    
-                    DateTime now = DateTime.Now;
-                    DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
-                    Console.WriteLine("{0}", myShutOffTime.ToString());
 
-
-                    TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
-                    DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
-                    Console.WriteLine("{0}", myStartTime.ToString());
-
-                    if (now > myShutOffTime) //Same Day like befoee 12.00 am
-                    {
-                        //Get the morning time and prepare a DT for shutoff aborted till
-                        myStartTime = myStartTime.AddDays(1);
-                        Console.WriteLine("{0}", myStartTime.ToString());
-                        appSettings.ShutOFFAbortedTillDate = myStartTime;
-                    }
-                    else //Next Day like after 12.00 am
-                    {
-                        appSettings.ShutOFFAbortedTillDate = myStartTime;//Today's Morning time
-                    }
-                    
-                    appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Now this needs to be set to none.
-                    LogWriter.LogWrite("Remove shutoff screen appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
-
-                    RegistryManager.SetShutOffAbortedTillDate(); 
-
-                    Close();
+                    AbortShutoff();
                 }
             }
             catch (Exception ex)
@@ -405,6 +391,143 @@ namespace Focus_Bear.ShutOff
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
             }
+        }
+
+        void AbortShutoff()
+        {
+            //Set the appSettings.ShutOFFAbortedTillDate
+            TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+
+            DateTime now = DateTime.Now;
+            DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
+            Console.WriteLine("{0}", myShutOffTime.ToString());
+
+
+            TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+            DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+            Console.WriteLine("{0}", myStartTime.ToString());
+
+            if (now > myShutOffTime) //Same Day like befoee 12.00 am
+            {
+                //Get the morning time and prepare a DT for shutoff aborted till
+                myStartTime = myStartTime.AddDays(1);
+                Console.WriteLine("{0}", myStartTime.ToString());
+                appSettings.ShutOFFAbortedTillDate = myStartTime;
+            }
+            else //Next Day like after 12.00 am
+            {
+                appSettings.ShutOFFAbortedTillDate = myStartTime;//Today's Morning time
+            }
+
+            appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Now this needs to be set to none.
+            LogWriter.LogWrite("Remove shutoff screen appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+
+            RegistryManager.SetShutOffAbortedTillDate();
+
+            Close();
+        }
+        public void ShowUpEarlySection()
+        {
+            if (nState == CurrentShutOffState.GET_ACCESS)
+            {
+                SectionUpEarly.Visibility = Visibility.Visible;
+
+                //We will need to check if evening routine have been done, then we do not need to show the Complete evening routine button
+                //Check if we have already show the evening habits, we need to show the Shut OFf screen
+                if (RegistryManager.GetEveningHabitsShownTillDate())
+                {
+                    if (DateTime.Now > appSettings.EveningHabitsShownTillDate) //Looks like a previous day Evening shown value
+                    {
+                        CompleteEveningRoutine.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        CompleteEveningRoutine.Visibility = Visibility.Collapsed;
+                    }
+                }
+                else
+                {
+                    CompleteEveningRoutine.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private void btnStartMorningRoutine_Click(object sender, RoutedEventArgs e)
+        {
+            //If a password is set, ask fopr a password
+            if (appSettings.isPasswordSet)
+            {
+                if (appSettings.bPasswordRequireInAbortShutoff)
+                {
+                    AskPassword pwdWnd = new AskPassword();
+                    pwdWnd.Owner = this;
+                    GridShade.Visibility = Visibility.Visible;
+
+                    bool? bResult = pwdWnd.ShowDialog();
+
+                    GridShade.Visibility = Visibility.Collapsed;
+
+                    if (bResult.Value)
+                    {
+                        //Password is correct
+                    }
+                    else
+                    {
+                        return;
+                    }
+
+                }
+            }
+
+            appSettings.ChangeStartupTimeToCurrentTimeAndSaveSettings();
+            appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+            LogWriter.LogWrite("btnStartMorningRoutine_Click set appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+            Close();
+        }
+
+        private void btnWorkEmergency_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnWorkEmergency_Click");
+
+            //If a password is set, ask fopr a password
+            if (appSettings.isPasswordSet)
+            {
+                if (appSettings.bPasswordRequireInAbortShutoff)
+                {
+                    AskPassword pwdWnd = new AskPassword();
+                    pwdWnd.Owner = this;
+                    GridShade.Visibility = Visibility.Visible;
+
+                    bool? bResult = pwdWnd.ShowDialog();
+
+                    GridShade.Visibility = Visibility.Collapsed;
+
+                    if (bResult.Value)
+                    {
+                        //Password is correct
+                    }
+                    else
+                    {
+                        return;
+                    }
+
+                }
+            }
+
+            //Launch the pomodoro screen
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
+
+            AbortShutoff();
+        }
+
+        private void btnCompleteEveningRoutine_Click(object sender, RoutedEventArgs e)
+        {
+            appSettings.bCompleteYourEveningRoutineClicked = true;
+            appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+            LogWriter.LogWrite("btnCompleteEveningRoutine_Click set appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+            Close();
         }
     }
 }

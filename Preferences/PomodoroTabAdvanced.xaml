@@ -1,0 +1,110 @@
+﻿<Window x:Class="Focus_Bear.Preferences.PomodoroTabAdvanced"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Preferences"
+        mc:Ignorable="d"
+        Title="PomodoroTabAdvanced" Height="540" Width="549" ResizeMode="NoResize" WindowStyle="None" >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <CheckBox Name="UseSuperPomodoroCheck" Margin="20,30,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14" Checked="UseSuperPomodoroCheck_Checked" Unchecked="UseSuperPomodoroCheck_Unchecked" Cursor="Hand" Padding="5,-2,0,0" >
+            <TextBlock Width="340" TextWrapping="Wrap" Name="UseSuperPomodoroCheckTxt">xUse super pomodoro mode</TextBlock>
+        </CheckBox>
+        <TextBlock Grid.Row="1" Name="LockIn" Margin="41,5,0,0"  TextWrapping="Wrap"    Text="x(Lock in the focus mode for multiple pomodoros)"  Foreground="Gray" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <TextBlock  Name="ChooseFocusMode" Margin="41,0,0,5" TextWrapping="Wrap" Text="xChoose the focus mode" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <ComboBox  Name="ComboBoxFocusModes"   Width="250" Height="27" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="20,0,0,0"  SelectedIndex="0" FontSize="14">
+            </ComboBox>
+        </StackPanel>
+        <StackPanel Grid.Row="3" Orientation="Vertical" Margin="41,0,20,0">
+            <TextBlock  Name="YouWontBeAbleToChange" Margin="0,10,0,0" TextWrapping="Wrap" Text="xYou won't be able to change the focus mode until the time is up" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock  Name="YouWillBeAbleToUseSite" Margin="0,5,0,0" TextWrapping="Wrap" Text="x(you still get to use any app/website during the 5 minute break)" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+        </StackPanel>
+        <StackPanel  Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Left" Margin="41,0,20,0" VerticalAlignment="Bottom">
+            <TextBlock Margin="0,0,0,0" Name="PomodoroCountText" TextWrapping="Wrap" Text="xHow many pomodoros you want to focus for:" Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+            <ComboBox Name="ComboBoxNumberOfPomodoros" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  FontSize="14"  >
+                <ComboBoxItem Content="2"></ComboBoxItem>
+                <ComboBoxItem Content="3"></ComboBoxItem>
+                <ComboBoxItem Content="4"></ComboBoxItem>
+                <ComboBoxItem Content="5"></ComboBoxItem>
+                <ComboBoxItem Content="6"></ComboBoxItem>
+                <ComboBoxItem Content="7"></ComboBoxItem>
+                <ComboBoxItem Content="8"></ComboBoxItem>
+                <ComboBoxItem Content="9"></ComboBoxItem>
+                <ComboBoxItem Content="10"></ComboBoxItem>
+                <ComboBoxItem Content="11"></ComboBoxItem>
+                <ComboBoxItem Content="12"></ComboBoxItem>
+                <ComboBoxItem Content="13"></ComboBoxItem>
+                <ComboBoxItem Content="14"></ComboBoxItem>
+                <ComboBoxItem Content="15"></ComboBoxItem>
+                <ComboBoxItem Content="16"></ComboBoxItem>
+                <ComboBoxItem Content="17"></ComboBoxItem>
+                <ComboBoxItem Content="18"></ComboBoxItem>
+                <ComboBoxItem Content="19"></ComboBoxItem>
+                <ComboBoxItem Content="20"></ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+
+        <TextBlock Grid.Row="5" Name="ScheduleDays" Margin="41,0,20,0" TextWrapping="Wrap" Text="xSchedule specific days you want to run the super pomodoro mode after Morning Routine:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+
+
+        <CheckBox Grid.Row="6" Name="Monday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14" Cursor="Hand" Padding="5,-2,0,0" >
+            xMonday
+        </CheckBox>
+        <CheckBox Grid.Row="6" Name="Tuesday" Margin="271,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+            xTuesday
+        </CheckBox>
+
+        <CheckBox Grid.Row="7" Name="Wednesday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+            xWednesday
+        </CheckBox>
+        <CheckBox Grid.Row="7" Name="Thursday" Margin="271,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+            xThursday
+        </CheckBox>
+
+        <CheckBox Grid.Row="8" Name="Friday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+            xFriday
+        </CheckBox>
+        <CheckBox Grid.Row="8" Name="Saturday" Margin="271,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+            xSaturday
+        </CheckBox>
+
+        <CheckBox Grid.Row="9" Name="Sunday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+            xSunday
+        </CheckBox>
+        <CheckBox Grid.Row="10" Name="SkipMicroBreaks" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+            xSkip microbreaks during work blocks?
+        </CheckBox>
+
+        <Button  Grid.Row="11" x:Name="btnCancel"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="41,0,0,20" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock x:Name="btnCancelTXT" Text="xCancel"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+        <Button  Grid.Row="11" x:Name="btnApply"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" IsDefault="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,30,20" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnApply_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock x:Name="btnApplyTXT" Text="xApply"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+    </Grid>
+</Window>

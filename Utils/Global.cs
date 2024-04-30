@@ -145,15 +145,24 @@ namespace Focus_Bear.Utils
         public static string GetMacAddress()
         {
             string mac = null;
-            using (ManagementObjectSearcher query = new ManagementObjectSearcher(@"select name, macaddress from Win32_NetworkAdapter where netconnectionid != NULL and macaddress != NULL and Manufacturer != 'Microsoft' AND NOT PNPDeviceID LIKE 'ROOT\\%'"))
+            try
             {
-                ManagementObjectCollection queryCollection = query.Get();
-                foreach (ManagementObject mo in queryCollection)
+                using (ManagementObjectSearcher query = new ManagementObjectSearcher(@"select name, macaddress from Win32_NetworkAdapter where netconnectionid != NULL and macaddress != NULL and Manufacturer != 'Microsoft' AND NOT PNPDeviceID LIKE 'ROOT\\%'"))
                 {
-                    mac = mo["MacAddress"].ToString();
-                    break;
+                    ManagementObjectCollection queryCollection = query.Get();
+                    foreach (ManagementObject mo in queryCollection)
+                    {
+                        mac = mo["MacAddress"].ToString();
+                        break;
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                mac = System.Guid.NewGuid().ToString();
+                Debug.WriteLine(ex.Message);
+            }
+            
             return mac;
         }
 
@@ -436,22 +445,47 @@ namespace Focus_Bear.Utils
             get { return !isLockedFocus; }
         }
 
+        private bool _isShowAbleInTrayMenuList = false;
         public bool isShowAbleInTrayMenuList
         {
             get 
             {
-                if (RegistryManager.GetFocusModeSetupDone())
-                    return true;
+                if (RegistryManager.IsSuperPomodoroIsRunning())
+                {
+                    return _isShowAbleInTrayMenuList;
+                }
                 else
                 {
-                    if (isLockedFocus || isMeetings)
-                        return false;
-                    else
+                    if (RegistryManager.GetFocusModeSetupDone())
+                    {
+                        _isShowAbleInTrayMenuList = true;
                         return true;
+                    }
+                    else
+                    {
+                        if (isLockedFocus || isMeetings)
+                        {
+                            _isShowAbleInTrayMenuList = false;
+                            return false;
+                        }
+                        else
+                        {
+                            _isShowAbleInTrayMenuList = true;
+                            return true;
+                        }
+                    }
                 }
-                    
+            }
+            set
+            {
+                if (value != _isShowAbleInTrayMenuList)
+                {
+                    _isShowAbleInTrayMenuList = value;
+                    OnChanged("isShowAbleInTrayMenuList");
+                }
             }
         }
+       
         public string sToolTip { get; set; }
 
         public FocusMode()
@@ -510,6 +544,49 @@ namespace Focus_Bear.Utils
         {
             this.sURL = sURL;
             this.IsItemChecked = bChecked;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+    }
+
+    public class DistractingURLAllowedWithIntention
+    {
+        //private bool isItemChecked;
+
+        public string sURL { get; set; }
+        public string sIntention { get; set; }
+        public DateTime EndTime { get; set; }
+        public string Duration{ get; set; }
+        public bool bIsShowIntentionWindowClosedForThisURL { get; set; }
+        //public bool IsItemChecked
+        //{
+        //    get { return isItemChecked; }
+        //    set
+        //    {
+        //        isItemChecked = value;
+        //        OnChanged("IsItemChecked");
+        //    }
+        //}
+
+        public DistractingURLAllowedWithIntention()
+        {
+
+        }
+        public DistractingURLAllowedWithIntention(string sURL, string sIntention, DateTime EndTime, string Duration, bool bIsShowIntentionWindowClosedForThisURL)
+        {
+            this.sURL = sURL;
+            this.sIntention = sIntention;
+            this.EndTime = EndTime;
+            this.Duration = Duration;
+            this.bIsShowIntentionWindowClosedForThisURL = bIsShowIntentionWindowClosedForThisURL;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
