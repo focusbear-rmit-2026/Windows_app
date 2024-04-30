@@ -53,11 +53,16 @@ namespace Focus_Bear.Onboarding.NEW
 
         private void btnHaveAccount_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("button-already-have-account-clicked");
+            //We need to set the defaults as we will be jumping every onboarding screen off
+            ((App)(Application.Current)).ShowOnBoradingFlow(true);
             _parentWindow.ShowLoginScreen();
         }
 
         private void btnLetsDoIt_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("onboarding-blocked-urls-shown");
+           
             _parentWindow.ShowDistractionsScreen();
         }
     }

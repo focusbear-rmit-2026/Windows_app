@@ -51,6 +51,8 @@ namespace Focus_Bear.Onboarding
             Heading.Text = appSettings.OnboardingActivityName; 
 
             nTimer = appSettings.OnboardingActivityDurationSeconds;
+
+            appSettings.CapturePostHog("ongoing-onboarding-activity-shown");
         }
 
         private async void SetWebView()
@@ -117,6 +119,7 @@ namespace Focus_Bear.Onboarding
 
                     webView.Source = new System.Uri(videoUrl);
 
+                    appSettings.CapturePostHog("play-youtube-video-in-activity");
 
                     dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
                     dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
@@ -161,6 +164,8 @@ namespace Focus_Bear.Onboarding
                 {
                     _parentWindow.ShowMindFullBreathingFinished();
                     dispatcherTimer.Stop();
+
+                    appSettings.CapturePostHog("onboarding-activity-finished");
                 }
                 catch (Exception ex)
                 {
@@ -202,6 +207,7 @@ namespace Focus_Bear.Onboarding
             {
                 _parentWindow.ShowMindFullBreathingFinished();
                 dispatcherTimer.Stop();
+                appSettings.CapturePostHog("onboarding-activity-skipped");
             }
             catch (Exception ex)
             {

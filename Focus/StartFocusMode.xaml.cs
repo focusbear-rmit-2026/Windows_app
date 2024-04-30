@@ -1,4 +1,6 @@
 ﻿using Focus_Bear.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -65,7 +67,7 @@ namespace Focus_Bear.Focus
                 Heading.Text = sHeading;
                 HowMuchTime.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["howMuchTimeText"].ToString();
                 WhatPlan.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["questionText"].ToString();
-                Descriptiopn.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["explanationText"].ToString();
+                Description.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["explanationText"].ToString();
 
                 HoursTitle.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["hoursText"].ToString();
                 MinutesTitle.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["minutesText"].ToString();
@@ -73,6 +75,9 @@ namespace Focus_Bear.Focus
 
                 SkipMicroBreaks.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonSkipMicrobreaksText"].ToString();
 
+                btnSelectTasksTXT.Text = "Choose tasks to work on"; //todo win texts
+                btnWriteFreeFormIntentionTXT.Text = "Write a freeform intention instead";
+                SelectedTasksTitle.Text = "Selected Tasks:";
             }
             catch (Exception ex)
             {
@@ -291,6 +296,54 @@ namespace Focus_Bear.Focus
         private void SkipMicroBreaks_Unchecked(object sender, RoutedEventArgs e)
         {
             appSettings.bSkipMicroBreaksDuringFocus = false;
+        }
+
+        private void btnSelectTasks_Click(object sender, RoutedEventArgs e)
+        {
+            WhatPlan.Visibility = Visibility.Collapsed;
+            TxtIntention.Visibility = Visibility.Collapsed;
+            Description.Visibility = Visibility.Collapsed;
+
+            SelectTasks wndSelectTasks = new SelectTasks(this);
+            wndSelectTasks.ShowDialog();
+
+            try
+            {
+                if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
+                {
+                    FreeFormIntention.Visibility = Visibility.Collapsed;
+                    SelectedTasksTitle.Visibility = Visibility.Visible;
+                    ListTasks.Visibility = Visibility.Visible;
+
+                    List<string> arrTaskNames = new List<string>();
+                    JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawTasks);
+
+                    for (int i = 0; i < array.Count(); i++)
+                    {
+                        JObject TodoItem = JObject.Parse(array[i].ToString());
+                        string sName = TodoItem.ContainsKey("title") ? TodoItem["title"].ToString() : "";
+                        arrTaskNames.Add(sName);
+                    }
+                    ListTasks.ItemsSource = arrTaskNames;
+                }
+                else
+                {
+                    FreeFormIntention.Visibility = Visibility.Visible;
+                    SelectedTasksTitle.Visibility = Visibility.Collapsed;
+                    ListTasks.Visibility = Visibility.Collapsed;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnSelectTasks_Click() sRawTasks Exception - " + ex.Message);
+            }
+        }
+
+        private void btnWriteFreeFormIntention_Click(object sender, RoutedEventArgs e)
+        {
+            WhatPlan.Visibility = Visibility.Visible;
+            TxtIntention.Visibility = Visibility.Visible;
+            Description.Visibility = Visibility.Visible;
         }
     }
 }

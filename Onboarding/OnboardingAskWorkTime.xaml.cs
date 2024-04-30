@@ -38,29 +38,49 @@ namespace Focus_Bear.Onboarding
                 StartupTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionStartWorkTimeText"].ToString();
                 ShutdownTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionFinishWorkTimeText"].ToString();
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
-                SleepTime.Text = "What time do you want to go to sleep?"; //todo win texts
+                SleepTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionSleepTimeText"].ToString(); //"What time do you want to go to sleep?";
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("OnboardingAskWorkTime() ex - " + ex.Message);
             }
 
-            StartupTimePicker.NUDHTextBox.Text = "08";
-            StartupTimePicker.NUDMTextBox.Text = "30";
-            StartupTimePicker.NUDAMPTextBox.Text = "AM";
+            if(appSettings.bGoalHealthyHabits)
+            {
+                StartupTimePicker.NUDHTextBox.Text = "08";
+                StartupTimePicker.NUDMTextBox.Text = "30";
+                StartupTimePicker.NUDAMPTextBox.Text = "AM";
 
-            ShutdownTimePicker.NUDHTextBox.Text = "06";
-            ShutdownTimePicker.NUDMTextBox.Text = "30";
-            ShutdownTimePicker.NUDAMPTextBox.Text = "PM";
+                ShutdownTimePicker.NUDHTextBox.Text = "06";
+                ShutdownTimePicker.NUDMTextBox.Text = "30";
+                ShutdownTimePicker.NUDAMPTextBox.Text = "PM";
 
-            SleepTimePicker.NUDHTextBox.Text = "09";
-            SleepTimePicker.NUDMTextBox.Text = "30";
-            SleepTimePicker.NUDAMPTextBox.Text = "PM";
+                SleepTimePicker.NUDHTextBox.Text = "09";
+                SleepTimePicker.NUDMTextBox.Text = "30";
+                SleepTimePicker.NUDAMPTextBox.Text = "PM";
+            }
+            else
+            {
+                StartupTimePicker.NUDHTextBox.Text = "00";
+                StartupTimePicker.NUDMTextBox.Text = "00";
+                StartupTimePicker.NUDAMPTextBox.Text = "AM";
+
+                ShutdownTimePicker.NUDHTextBox.Text = "11";
+                ShutdownTimePicker.NUDMTextBox.Text = "59";
+                ShutdownTimePicker.NUDAMPTextBox.Text = "PM";
+
+                SleepTimePicker.NUDHTextBox.Text = "11";
+                SleepTimePicker.NUDMTextBox.Text = "59";
+                SleepTimePicker.NUDAMPTextBox.Text = "PM";
+            }
+           
 
         }
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("ask-work-time-continue-clicked");
+
             string sStartupHours = StartupTimePicker.NUDHTextBox.Text;
             string sStartupMinutes = StartupTimePicker.NUDMTextBox.Text;
             string sStartupAMPM = StartupTimePicker.NUDAMPTextBox.Text; ;
@@ -84,12 +104,13 @@ namespace Focus_Bear.Onboarding
 
             if(appSettings.InitialSleepTimeValue < appSettings.InitialShutoffTimeValue)
             {
-                FBMessageBox ff = new FBMessageBox("Sleep time cannot be less than finish work time.", "Focus Bear"); //Todo win texts
+                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["sleepTimeAlertText"].ToString(), "Focus Bear"); //"Sleep time cannot be less than finish work time." 
                 ff.Owner = this._parentWindow;
                 ff.ShowDialog();
                 return;
             }
-            _parentWindow.ShowOnboardingBreakRemindersScreen();
+            ///_parentWindow.ShowOnboardingBreakRemindersScreen();
+            _parentWindow.ShowOnbordingConfirmMorningRoutine();
         }
 
         private void StartupTimePicker_ValueChanged(object sender, bool e)

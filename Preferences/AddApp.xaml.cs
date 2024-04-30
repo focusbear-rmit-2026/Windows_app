@@ -72,8 +72,8 @@ namespace Focus_Bear.Preferences
             {
                 btnAddTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddText"].ToString(); //"Add";
                 btnCancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString(); //"Cancel";
-                Heading.Text = "Select Apps to use while focusing:"; //todo win text
-                btnEnterManuallyTXT.Text = "Can't find your app in the above list? Click here to enter manually."; //todo win text
+                Heading.Text = appSettings.ConfigFileStrings["WindowsSpecific"]["selectApps"].ToString(); //"Select Apps to use while focusing:";  
+                btnEnterManuallyTXT.Text = appSettings.ConfigFileStrings["WindowsSpecific"]["clickToEnterManually"].ToString(); //"Can't find your app in the above list? Click here to enter manually.";  
             }
             catch (Exception ex)
             {

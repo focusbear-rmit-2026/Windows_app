@@ -49,20 +49,21 @@
             </ListView.ItemTemplate>
  
         </ListView>
-            <Button Grid.Row="3" x:Name="btnCustomizeHabits"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCustomizeHabits_Click">
+            <Button Grid.Row="3" IsDefault="True"  x:Name="btnBegin"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnBegin_Click" >
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock x:Name="btnBeginTXT" Text="xBegin"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button Grid.Row="4" x:Name="btnCustomizeHabits"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCustomizeHabits_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnCustomizeHabitsTXT" Text="xCustomize my habits first"/>
                 </StackPanel>
             </Button.Content>
-        </Button>
-            <Button Grid.Row="4" IsDefault="True"  x:Name="btnBegin"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnBegin_Click" >
-            <Button.Content>
-                <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnBeginTXT" Text="xBegin"/>
-                </StackPanel>
-            </Button.Content>
-        </Button>
+            </Button>
+        
         </Grid>
         <Grid x:Name="WebGrid" Visibility="Collapsed" Margin="0,70,0,50">
             <Viewbox   Stretch="Uniform">

@@ -65,6 +65,8 @@ namespace Focus_Bear.Tour
                 sStep = sStep.Replace("<CURRENTINDEX>", (nStep + 1).ToString());
                 sStep = sStep.Replace("<TOTALCOUNT>", "3");
                 Steps.Text = sStep;
+
+                appSettings.CapturePostHog("show_menu_tour");
             }
             catch (Exception ex)
             {
@@ -80,6 +82,8 @@ namespace Focus_Bear.Tour
                 SetTexts();
                 GridPopup.Margin = new Thickness(0, 0, 370, 300);
                 Arrow.Margin = new Thickness(0,0,350,480);
+
+                appSettings.CapturePostHog("menu_tour_next_clicked");
             }
             else if (nStep == 2)
             {
@@ -87,6 +91,8 @@ namespace Focus_Bear.Tour
                 SetTexts();
                 GridPopup.Margin = new Thickness(0, 0, 370, 150);
                 Arrow.Margin = new Thickness(0, 0, 350, 270);
+
+                appSettings.CapturePostHog("menu_tour_next_clicked");
             }
             else
             {

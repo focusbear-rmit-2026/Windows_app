@@ -5,22 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="Focus Bear" MinHeight="500" Height="auto" Width="360" ResizeMode="NoResize">
+        Title="Focus Bear"   Height="auto" Width="360" ResizeMode="NoResize">
     <Grid x:Name="MainGrid">
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center" />
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="90" />
-            <RowDefinition Height="160" />
-            <RowDefinition Height="90" />
-            <RowDefinition Height="40" />
-            <RowDefinition Height="180" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Image Name="TopIcon" Grid.Column="0"  Margin="0,0,0,10" Height="64" Width="64" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <Image Name="TopIcon" Grid.Column="0"  Margin="0,10,0,10" Height="64" Width="64" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="1" Name="Heading"  Margin="10,0,10,0" TextWrapping="Wrap" Text="xDo you need to use URL when you're focusing on FOCUSTYPE ?:" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-        <TextBlock  Grid.Row="2" Name="Intention" Margin="10,10,10,10" TextWrapping="Wrap" Text="xYour intention was:" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
+        <TextBlock  Grid.Row="2" Name="Intention" Margin="10,20,10,10" TextWrapping="Wrap" Text="xYour intention was:" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
 
         <TextBlock Grid.Row="3" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="00:15" Foreground="#000" Padding="0" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center"  VerticalAlignment="Center" />
         <StackPanel Grid.Row="4" Orientation="Vertical" Margin="0,0,0,50">

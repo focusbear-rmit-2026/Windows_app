@@ -35,20 +35,38 @@ namespace Focus_Bear.Onboarding
             _parentWindow = parentWindow;
             InitializeComponent();
 
-            string sActivityName = appSettings.OnboardingActivityName;///appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["name"].ToString();
-            string Title = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
-            if (appSettings.bOnboardingActivitySkipped)
+            if (appSettings.bGoalHealthyHabits)
             {
-                Title = appSettings.ConfigFileStrings["activityInfo"]["activitySkippedText"].ToString();
+                string sActivityName = appSettings.OnboardingActivityName;///appSettings.ConfigFileStrings["welcomeInfo"]["introActivities"][0]["name"].ToString();
+                string Title = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
+                if (appSettings.bOnboardingActivitySkipped)
+                {
+                    Title = appSettings.ConfigFileStrings["activityInfo"]["activitySkippedText"].ToString();
+                }
+                else
+                {
+                    Title = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
+                }
+
+                Title = Title.Replace("<ACTIVITY>", sActivityName);
+                Heading.Text = Title.ToString();
             }
             else
             {
-                Title = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
+                Heading.Text = "";
+
+                //Let's set the intial startup time / shutoff time
+                appSettings.InitialStartupTimeValue = Convert.ToDateTime("00:00 AM");
+                Console.WriteLine(appSettings.InitialStartupTimeValue.ToString("HH:mm"));
+
+                appSettings.InitialShutoffTimeValue = Convert.ToDateTime("11:59 PM");
+                Console.WriteLine(appSettings.InitialShutoffTimeValue.ToString("HH:mm"));
+
+                appSettings.InitialSleepTimeValue = Convert.ToDateTime("11:59 PM");
+                Console.WriteLine(appSettings.InitialSleepTimeValue.ToString("HH:mm"));
+
             }
-            
-            Title = Title.Replace("<ACTIVITY>", sActivityName);
-            Heading.Text = Title.ToString();
-           
+            //"Now let's set up an account for you"
             TypeOfWork.Text = appSettings.ConfigFileStrings["common"]["letsCreatAccountText"].ToString();
  
             btnContinueTxt.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["buttonContinueText"].ToString();

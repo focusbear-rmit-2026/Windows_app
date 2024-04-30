@@ -129,7 +129,7 @@ namespace Focus_Bear.Preferences
             {
                 Mouse.OverrideCursor = null;
                 LogWriter.LogWrite("Chat CoreWebView2NavigationCompleted() Success, Load Access token");
-                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.sSelectedAppFont);
+                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode);
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForChat) {{ loadAccessTokenForChat({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                 var ss = webView.ExecuteScriptAsync(settingsFunc);
 

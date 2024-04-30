@@ -100,7 +100,7 @@ namespace Focus_Bear.Models
             if (!res)
                 return false;
 
-            LogWriter.LogWrite("Update Downloaded successfully"); //todo win text
+            LogWriter.LogWrite("Update Downloaded successfully");  
             return true;
         }
 

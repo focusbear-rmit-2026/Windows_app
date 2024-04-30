@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="DiscourageDefault" Height="300" Width="620"  ResizeMode="NoResize" WindowStyle="None">
+        Title="Focus Bear" Height="300" Width="620"  ResizeMode="NoResize" WindowStyle="None">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="120" />

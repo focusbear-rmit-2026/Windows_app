@@ -62,7 +62,7 @@
 
                     <!-- Any content -->
 
-                    <TextBlock x:Name="TxtTimer" Margin="0,22,0,0" TextWrapping="Wrap" Text="00:30" Foreground="#000" Padding="0" FontSize="27" FontWeight="SemiBold" HorizontalAlignment="Center" Height="30" VerticalAlignment="Center" />
+                    <TextBlock x:Name="TxtTimer" Margin="0,22,0,0" TextWrapping="Wrap" Text="00:30" Foreground="#000" Padding="0" FontSize="27" FontWeight="SemiBold" HorizontalAlignment="Center" MinHeight="30" VerticalAlignment="Center" />
 
                 </StackPanel>
 

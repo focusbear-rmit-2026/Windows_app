@@ -278,7 +278,7 @@ namespace Focus_Bear.Quit
 
                 bEmergencyTimer = true;
                 nTimer = 2;
-                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
+                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
                 dispatcherTimer.Start();
@@ -300,7 +300,7 @@ namespace Focus_Bear.Quit
                 bEmergencyTimer = true;
                 nTimer = 2;
 
-                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
+                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
                 dispatcherTimer.Start();
@@ -316,7 +316,7 @@ namespace Focus_Bear.Quit
                 bEmergencyTimer = true;
                 nTimer = 2;
 
-                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
+                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
                 dispatcherTimer.Start();
@@ -338,7 +338,7 @@ namespace Focus_Bear.Quit
                 bEmergencyTimer = true;
                 nTimer = 2;
 
-                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
+                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
                 dispatcherTimer.Start();
@@ -356,7 +356,7 @@ namespace Focus_Bear.Quit
             LogWriter.LogWrite("QuitWindow - btnQuit_Click");
             btnQuit.IsEnabled = false;
 
-            string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString(), TxtExplanation.Text);
+            string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
             appSettings.CapturePostHog("app-quit", sMetadata);
 
 

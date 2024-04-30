@@ -42,6 +42,15 @@ namespace Focus_Bear.Habits
         private const uint SC_CLOSE = 0xF060;
         private const int WM_SHOWWINDOW = 0x00000018;
 
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_NOACTIVATE = 0x08000000;
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        [DllImport("user32.dll")]
+        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
         int nMinutesToPostpone = 5;
 
         FadeInBreakWindow wndFadeInBreakWindow;
@@ -51,11 +60,29 @@ namespace Focus_Bear.Habits
             var hWnd = new WindowInteropHelper(this);
             var sysMenu = GetSystemMenu(hWnd.Handle, false);
             EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+
+            //Set the window style to noactivate.
+            var helper = new WindowInteropHelper(this);
+            SetWindowLong(helper.Handle, GWL_EXSTYLE, GetWindowLong(helper.Handle, GWL_EXSTYLE) | WS_EX_NOACTIVATE);
         }
 
         public BreakWarning()
         {
             InitializeComponent();
+
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                {
+                    this.Height = 250;
+                }
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
             bSecondTime15SecTimerRunning = false;
 
             nTimer = 30;
@@ -76,6 +103,14 @@ namespace Focus_Bear.Habits
                 btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString();
                 Description.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["titleWIN"].ToString();
                 PostponeMinsText.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["titleSelectMinutes"].ToString();
+                BreakDescText.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["descriptionText"].ToString();
+                btnStartBreakNowTXT.Text = "Start micro break now";//todo win texts
+
+                ComboBoxMinutes.SelectedIndex = 5; //30 minutes
+                ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
+                nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
+
+                btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString().Replace("5", nMinutesToPostpone.ToString());
 
                 wndFadeInBreakWindow = new FadeInBreakWindow();
                 wndFadeInBreakWindow.Show();
@@ -224,6 +259,17 @@ namespace Focus_Bear.Habits
             {
                 LogWriter.LogWrite("ComboBoxMinutes_SelectionChanged parse= " + ex.Message);
             }
+        }
+
+        private void btnStartBreakNow_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnStartBreakNow_Click");
+
+            dispatcherTimer.Stop();
+            ((App)(Application.Current)).ShowBreakActivities();
+
+            wndFadeInBreakWindow.Close();
+            Close();
         }
     }
 }

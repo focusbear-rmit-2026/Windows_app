@@ -1,0 +1,75 @@
+﻿<Window x:Class="Focus_Bear.CallDetection.CallFocusNotifier"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.CallDetection"
+        mc:Ignorable="d"
+        Title="CallFocusNotifier" Height="36" Width="180" WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" ShowInTaskbar="False" Background="{x:Null}" MouseDown="Window_MouseDown">
+    <Grid>
+        <Grid x:Name="MiniBar">
+            <Border BorderThickness="1" CornerRadius="10" SnapsToDevicePixels="True" VerticalAlignment="Center" Background="#FF6E6873" Height="27" Margin="17,0,0,0">
+                <Grid Margin="15,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="TxtCall" Grid.Column="0" FontWeight="Bold" TextWrapping="Wrap" Text="xCALL " Foreground="LightGreen" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                       
+                        <Button x:Name="btnExpand" Grid.Column="1" Content="xButton" Margin="0,0,5,0" Style="{DynamicResource BtnStyleExpend}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="16" VerticalAlignment="Center" Width="16" ToolTip="Expand" Click="btnExpand_Click" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
+                        <Button.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform Angle="90"/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </Button.RenderTransform>
+                    </Button>
+                    
+                </Grid>
+            </Border>
+            <Border x:Name="MiniBarCircle" Width="33" Height="33" BorderThickness="1" CornerRadius="100" HorizontalAlignment="Left" VerticalAlignment="Center" Background="#FF282A3B">
+                
+                <Image Width="20" Height="20" Margin="6,1,0,0" ToolTip="Focus Bear" Source="../images/FBicon-64.png"  RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left"/>
+            </Border>
+            <Border Width="33" Height="33" BorderThickness="3" CornerRadius="100" HorizontalAlignment="Left" VerticalAlignment="Center" BorderBrush="Green" Margin="0,0,0,0"/>
+        </Grid>
+
+        <Border x:Name="WidgetBorder" CornerRadius="8" Grid.ColumnSpan="2" BorderThickness="0" Background="#FF6E6873" Visibility="Collapsed">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition MinHeight="80" Height="auto"/>
+                    <RowDefinition Height="50"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0">
+                    <Image Width="20" Height="20" Source="../images/FBicon-64.png"  RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left"/>
+                    <TextBlock x:Name="DialogTitle" TextWrapping="Wrap" Text="Focus Bear" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" FontWeight="Bold"/>
+                </StackPanel>
+                <TextBlock Grid.Row="1" x:Name="AppUsingMic" TextWrapping="Wrap" Text="xexe is using your microphone" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="15,0,0,0" FontWeight="SemiBold" FontSize="13"/>
+                <TextBlock Grid.Row="2" x:Name="MeetingsOn" TextWrapping="Wrap" Text="xMeetings active - breaks off" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="15,0,0,0" FontWeight="SemiBold" FontSize="13"/>
+                <TextBlock Grid.Row="3" x:Name="MeetingsOnDesc" TextWrapping="Wrap" Text="xLooks like you're in a video call. I won't interrupt you with micro-breaks during the meeting to avoid embarrassing screensharing moments. Enjoy the meeting!" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="15,0,20,0" FontWeight="Normal" FontSize="13"/>
+                <TextBlock x:Name="NotInMeetingT" Grid.Row="4" Margin="15,10,0,20" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="13" MinHeight="22" Cursor="Hand">
+                    <Hyperlink x:Name="NotInMeetingH"  Foreground="#fff" Click="NotInMeetingTxt_Click"   TextDecorations="Underline" ><Run x:Name="NotInMeetingTxt" Text="xxWrong - I'm not in a meeting"/></Hyperlink>
+                </TextBlock>
+
+
+                <Button x:Name="btnCollapse" Content="xButton" Margin="0,0,10,0" Style="{DynamicResource BtnStyleExpend}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="16" VerticalAlignment="Center" Width="16" ToolTip="Collapse" Click="btnCollapse_Click" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
+                    <Button.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform Angle="-90"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </Button.RenderTransform>
+                </Button>
+                
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

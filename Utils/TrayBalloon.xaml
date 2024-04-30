@@ -7,7 +7,7 @@
         x:Name="window"
         mc:Ignorable="d"
         UseLayoutRounding="True"
-        Title="TrayBalloon"  Width="340" Height="80" WindowStyle="None" AllowsTransparency="True" Loaded="Window_Loaded" MouseDown="Window_MouseDown" ShowInTaskbar="False" Deactivated="window_Deactivated">
+        Title="Focus Bear"  Width="340" Height="80" WindowStyle="None" AllowsTransparency="True" Loaded="Window_Loaded" MouseDown="Window_MouseDown" ShowInTaskbar="False" Deactivated="window_Deactivated">
     <Window.Resources>
         <Storyboard x:Key="WinFade">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="window">

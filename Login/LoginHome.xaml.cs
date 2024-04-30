@@ -40,6 +40,7 @@ namespace Focus_Bear.Login
                 btnSignUpText.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCreateAccountText"].ToString();
 
                 Suggest.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["descriptionText"].ToString();
+                appSettings.CapturePostHog("pre-signin-view-shown");
             }
             catch (Exception ex)
             {
@@ -62,6 +63,8 @@ namespace Focus_Bear.Login
             Descriptiopn.Visibility = Visibility.Visible;
             Suggest.Visibility = Visibility.Collapsed;
             btnInfo.Visibility = Visibility.Collapsed;
+
+            appSettings.CapturePostHog("pre-signin-view-info-icon-clicked");  
         }
 
         

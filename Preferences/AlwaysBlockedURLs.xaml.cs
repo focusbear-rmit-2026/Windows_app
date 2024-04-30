@@ -34,15 +34,26 @@ namespace Focus_Bear.Preferences
         {
             InitializeComponent();
             _ParentWindow = pp;
-           
-            Heading.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
-            Description.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["subTitleText"].ToString();
 
-            btnAddURL.ToolTip = appSettings.ConfigFileStrings["focusPreferencesAdvancedInfo"]["toolTipAdd"].ToString();
-            btnDeleteURL.ToolTip = appSettings.ConfigFileStrings["focusPreferencesAdvancedInfo"]["toolTipRemove"].ToString();
+            try
+            {
+
+                Heading.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
+                Description.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["subTitleText"].ToString();
+
+                btnAddURL.ToolTip = appSettings.ConfigFileStrings["focusPreferencesAdvancedInfo"]["toolTipAdd"].ToString();
+                btnDeleteURL.ToolTip = appSettings.ConfigFileStrings["focusPreferencesAdvancedInfo"]["toolTipRemove"].ToString();
+                ImmediatelyBlockDistractingURLsText.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["checkBoxText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AlwaysBlockedURLs text setting ex - " + ex.Message);
+            }
+
+            ImmediatelyBlockDistractingURLs.IsChecked = appSettings.bImmediatelyBlockDistractingSites;
 
             ListBLockedURLs.ItemsSource = appSettings.arrAlwaysBlockedURLs;
-
+            
         }
 
         private void btnAddURL_Click(object sender, RoutedEventArgs e)
@@ -190,6 +201,18 @@ namespace Focus_Bear.Preferences
                 Debug.WriteLine("ListBLockedURLs_MouseDoubleClick in ALways blocked URLs List" + ex.Message);
             }
 
+        }
+
+        private void ImmediatelyBlockDistractingURLs_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bImmediatelyBlockDistractingSites = true;
+            appSettings.CapturePostHog("settings-changed-immediately-block-url-enabled");
+        }
+
+        private void ImmediatelyBlockDistractingURLs_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bImmediatelyBlockDistractingSites = false;
+            appSettings.CapturePostHog("settings-changed-immediately-block-url-disabled");
         }
     }
     

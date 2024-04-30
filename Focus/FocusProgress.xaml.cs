@@ -33,7 +33,7 @@ namespace Focus_Bear.Focus
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
                 this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
-                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular" || appSettings.sSelectedAppFont == "Poppins")
                 {
                     this.Height = 100;
                 }

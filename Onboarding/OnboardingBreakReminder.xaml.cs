@@ -65,6 +65,8 @@ namespace Focus_Bear.Onboarding
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("ask-break-time-continue-clicked");
+
             appSettings.BreaksTimeInterval = int.Parse(MinutesValue.Text);
             _parentWindow.ShowOnboardingWelcomeScreen();
         }

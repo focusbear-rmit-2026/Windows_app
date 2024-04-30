@@ -13,16 +13,16 @@
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="185" />
+            <RowDefinition Height="Auto" MinHeight="105" />
             <RowDefinition Height="Auto" MinHeight="70" />
-            <RowDefinition Height="Auto" MinHeight="280" />
-            <RowDefinition Height="*" MinHeight="60" MaxHeight="100" />
-            <RowDefinition Height="180" />
+            <RowDefinition Height="Auto" MinHeight="270" />
+            <RowDefinition Height="*"  />
+            <RowDefinition Height="120" />
 
         </Grid.RowDefinitions>
 
-        <Image Grid.Row="0" Height="135"  Width="135" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xLet's take a quick 30 second break" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <Image Grid.Row="0" Height="99"  Width="99" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xLet's take a quick 30 second break" Foreground="#e88800" FontSize="27" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <StackPanel  Grid.Row="2"  Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock Name="Suggest" Margin="0,0,0,0" TextWrapping="Wrap" Text="xTaking breaks throughout the day helps with stress and focus." Foreground="#000" FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
@@ -35,8 +35,8 @@
         
         <TextBlock  Grid.Row="2" Name="Description" Visibility="Collapsed" Margin="180,0,180,0" TextWrapping="Wrap" Text="xEvery morning, I will help you quiet your urge to check email/Facebook and help you to do your morning routine instead. You can configure your own routine later but for now, I'll give you a suggested activity: 30 seconds of mindful breathing. While you breathe deeply, think of how awesome you'll be if you stick to your morning routine every day." Foreground="#272727" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
 
-        <Viewbox  Grid.Row="3">
-        <StackPanel   Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+         
+            <StackPanel Grid.Row="3"  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock    Name="WhatActivity" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWhat 30 seconds of activity do you want to do?" Foreground="#272727" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
             <ComboBox Name="ComboBoxActivityType"    Width="200" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,30,0,0"    FontSize="15" SelectionChanged="ComboBoxActivityType_SelectionChanged">
             </ComboBox>
@@ -61,8 +61,8 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
         </StackPanel>
-        </Viewbox>
-        <Button Grid.Row="4"  x:Name="btnStartMindfulBreathing"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStartMindfulBreathing_Click" >
+        
+        <Button Grid.Row="4"  x:Name="btnStartMindfulBreathing"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalAlignment="Top" Padding="0" Margin="0,30,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStartMindfulBreathing_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal" Margin="20,0,20,0">
                     <TextBlock x:Name="btnStartMindfulBreathingTXT" Text="xMindful Breathing"/>

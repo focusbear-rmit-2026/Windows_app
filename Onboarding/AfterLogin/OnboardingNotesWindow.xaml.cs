@@ -111,10 +111,9 @@ namespace Focus_Bear.Onboarding.AfterLogin
                 appSettings.CapturePostHog("heard_about_focus_bear", ss);
             }
 
-            //Per new onboarding we now need to show the video desciption screen
-            GridHowDidYouHearAboutFocusBear.Visibility = Visibility.Collapsed;
-            GridVideoDesc.Visibility = Visibility.Visible;
-
+            //6 Sep 2023 - Once the user clicks contionue, now we do not need to show the video confirmation screen, as we will be opening the post install page
+            appSettings.bShowOnBoardingVideo = false;
+            Close();
         }
 
         private void TxtSomewhereElse_TextChanged(object sender, TextChangedEventArgs e)

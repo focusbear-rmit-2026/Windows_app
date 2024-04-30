@@ -312,9 +312,10 @@ namespace Focus_Bear.Habits
 
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
- 
-                    string sSettingsURL = "http://dashboard.focusbear.io/webview/motivational-summary";
 
+                    string sSettingsURL = "https://dashboard.focusbear.io/webview/motivational-summary";
+                    ////string sSettingsURL = "https://dashboard.focusbear.io/webview/todo-list";
+                    
                     webView.Source = new System.Uri(sSettingsURL);
 
                     CommandManager.InvalidateRequerySuggested();
@@ -331,8 +332,9 @@ namespace Focus_Bear.Habits
         {
             if (e.IsSuccess)
             {
-                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.sSelectedAppFont);
+                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"motivation_type\":\"desktop\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode);
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForInspirationPage) {{ loadAccessTokenForInspirationPage({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+
                 var sReturn = webView.ExecuteScriptAsync(settingsFunc);
             }
         }

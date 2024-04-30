@@ -271,7 +271,7 @@ namespace Focus_Bear.Preferences
                     }
                     else
                     {
-                        HowDoYouWant.Text = "All websited are allowed";//todo win texts // appSettings.ConfigFileStrings["focusPreferencesInfo"]["blockUrlsQuestionText"].ToString();
+                        HowDoYouWant.Text = "All websites are allowed";//todo win texts // appSettings.ConfigFileStrings["WindowsSpecific"]["allWebsitesAllowed"].ToString();
 
                         SelectedURLsListBG.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fcf8f0");
                         SelectedURLsListBGSeperator.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fcf8f0");

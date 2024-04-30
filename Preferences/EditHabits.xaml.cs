@@ -67,7 +67,7 @@ namespace Focus_Bear.Preferences
                     //Restart the app.
                     try
                     {
-                        LogWriter.LogWrite("Restart app now for settings to take Effect!");
+                        LogWriter.LogWrite("Edit Habits - Restart app now for settings to take Effect!");
 
                         appSettings.bRestartAppNeeded = true;
 
@@ -96,7 +96,7 @@ namespace Focus_Bear.Preferences
         public void LoadURL()
         {
             string sSettingsURL = appSettings.ConfigFileStrings["settings"]["settingUrl"].ToString();
-            sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString();
+            sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString("o");
             webView.Source = new System.Uri(sSettingsURL);
         }
  
@@ -112,8 +112,10 @@ namespace Focus_Bear.Preferences
                     if (appSettings.userAccount.accessToken.Length > 0)
                     {
                         LogWriter.LogWrite("attempt to LoadSettings()");
-                       
-                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.sSelectedAppFont);
+
+                        string sFlags = string.Format("[\"{0}\"]", appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode");
+        
+                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\",\"lang\":\"{2}\",\"flags\":{3}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sFlags);
                         
                         string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                         var ss1 =  webView.ExecuteScriptAsync(settingsFunc);
@@ -217,6 +219,12 @@ namespace Focus_Bear.Preferences
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+        }
+
+        private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(IsVisible)
+                LoadSettings();
         }
     }
 }

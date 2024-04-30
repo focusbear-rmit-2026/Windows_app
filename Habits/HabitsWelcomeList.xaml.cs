@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
+using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using System;
@@ -67,12 +68,12 @@ namespace Focus_Bear.Habits
 
             _parentWindow = parentWindow;
  
-            if(appSettings.bHasUserEditedSettings)
-            {
-                btnCustomizeHabits.IsEnabled = false;
-                btnCustomizeHabits.Visibility = Visibility.Hidden;
-            }
-            else
+            //if(appSettings.bHasUserEditedSettings)
+            //{
+            //    btnCustomizeHabits.IsEnabled = false;
+            //    btnCustomizeHabits.Visibility = Visibility.Hidden;
+            //}
+            //else
             {
             
                 SetWebView();
@@ -151,6 +152,27 @@ namespace Focus_Bear.Habits
 
         private void btnCustomizeHabits_Click(object sender, RoutedEventArgs e)
         {
+            if (appSettings.bPasswordRequireInChangeSettings)
+            {
+                AskPassword pwdWnd = new AskPassword();
+                pwdWnd.Owner = _parentWindow;
+                _parentWindow.GridShade.Visibility = Visibility.Visible;
+
+                bool? bResult = pwdWnd.ShowDialog();
+
+                _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+                if (bResult.Value)
+                {
+                    //Password is correct
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            //change the button text to back tomy habits
+            _parentWindow.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonBackToMyHabitsText"].ToString();  
             WebGrid.Visibility = Visibility.Visible;
             Normal.Visibility = Visibility.Collapsed;
         }
@@ -201,7 +223,7 @@ namespace Focus_Bear.Habits
                         routine = "evening";
                     }
 
-                    sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString() + "&edit_specific_routine=" + routine;
+                    sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString("o") + "&edit_specific_routine=" + routine;
                     webView.Source = new System.Uri(sSettingsURL);
 
                     CommandManager.InvalidateRequerySuggested();
@@ -235,7 +257,8 @@ namespace Focus_Bear.Habits
                         LogWriter.LogWrite("attempt to LoadSettings()");
                         
                         //New format 03 July 2023
-                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\"}}", appSettings.userAccount.accessToken);
+                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont));
+
                         string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                         var ss1 = await webView.ExecuteScriptAsync(settingsFunc);
                         LogWriter.LogWrite("attempt to LoadSettings() done res:" + ss1.ToString());
@@ -281,6 +304,16 @@ namespace Focus_Bear.Habits
             {
                 WebGrid.Visibility = Visibility.Collapsed;
                 Normal.Visibility = Visibility.Visible;
+
+                if (!appSettings.bPlayActivitiesInFullScreenMode)
+                {
+                    _parentWindow.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
+                }
+                else
+                {
+                    _parentWindow.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
+                }
+
             }
         }
 
@@ -308,7 +341,7 @@ namespace Focus_Bear.Habits
                     //Restart the app.
                     try
                     {
-                        LogWriter.LogWrite("Restart app now for settings to take Effect!");
+                        LogWriter.LogWrite("Habits edited on Welcome Page - Restart app now for settings to take Effect!");
 
                         appSettings.bRestartAppNeeded = true;
 

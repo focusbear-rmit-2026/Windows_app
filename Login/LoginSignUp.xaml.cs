@@ -139,8 +139,8 @@ namespace Focus_Bear.Login
                                                                 EnablControls(true);
 
                                                                 //Login Success
-                                                                appSettings.CapturePostHog("login-homemade");
                                                                 appSettings.GetLoginAndTokenValidSettings();
+                                                                appSettings.CapturePostHog("login-homemade");
                                                                 
                                                                 _parentWindow.bDoNotShutDown = true;
                                                                 _parentWindow.Close();

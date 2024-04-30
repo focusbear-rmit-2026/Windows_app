@@ -14,6 +14,7 @@
                 <RowDefinition Height="35"/>
                 <RowDefinition Height="100"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
 
             <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0"   Text="xAlways Blocked URLs" Foreground="#181818" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
@@ -57,7 +58,10 @@
                     </Button>
                 </StackPanel>
             </Grid>
- 
+            <CheckBox Grid.Row="3" x:Name="ImmediatelyBlockDistractingURLs" Margin="20,0,20,0" FontSize="13"    Checked="ImmediatelyBlockDistractingURLs_Checked" Unchecked="ImmediatelyBlockDistractingURLs_Unchecked" Visibility="Visible">
+                <TextBlock x:Name="ImmediatelyBlockDistractingURLsText" TextWrapping="Wrap" Padding="3,0">xImmediately block super distracting sites</TextBlock>
+            </CheckBox>
+            
             <Border x:Name="GridShadeAdvanced" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.80"   Visibility="Collapsed" />
 
         </Grid>

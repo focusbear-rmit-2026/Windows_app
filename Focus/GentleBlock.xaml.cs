@@ -73,11 +73,16 @@ namespace Focus_Bear.Focus
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
+            // Manually alter window height and width
+            this.SizeToContent = SizeToContent.Manual;
+
+            // Automatically resize height relative to content
+            this.SizeToContent = SizeToContent.Height;
 
             ShowInTaskbar = false;
             Topmost = true;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
-        }
+    }
 
         public void ShowGentleBlockWindowAndStartTimer(IntPtr hWnd, string sFocusModeTitle, string sAppName, string sURL = "", string sIntention = "", string sTabTitle = "")
         {
@@ -131,10 +136,12 @@ namespace Focus_Bear.Focus
             if (sAppName.Length > 0)
             {
                 sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
+                this.Show(); //Will show this window for apps
             }
             else
             {
                 sHeading = sHeading.Replace("<URL>", sActiveURL);
+                this.Hide(); //Will keep this window hidden will we get response from API
             }
             sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeTitle);
             Heading.Text = sHeading;
@@ -171,11 +178,17 @@ namespace Focus_Bear.Focus
             nTimer = 15;
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-            dispatcherTimer.Start();
-            CommandManager.InvalidateRequerySuggested();
 
-             if (sURL.Length > 0 && appSettings.bAiCheckUrlEnabled) //check settings from AI tab
+            if (sURL.Length > 0 && appSettings.bAiCheckUrlEnabled) //check settings from AI tab
+            {
                 CheckWithChatGPT();
+            }
+            else
+            {
+                this.Show(); //Will show this window 
+                dispatcherTimer.Start();
+                CommandManager.InvalidateRequerySuggested();
+            }
         }
          
         private async void CheckWithChatGPT()
@@ -208,7 +221,10 @@ namespace Focus_Bear.Focus
                             sHeading = sHeading.Replace("<URL>", sActiveURL);
                             sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
                             Heading.Text = sHeading;
+
+                            dispatcherTimer.Start();
                             CommandManager.InvalidateRequerySuggested();
+                            this.Show();
                         }));
                     }
                     else if (xResponse == 1) //Safe URL
@@ -263,11 +279,16 @@ namespace Focus_Bear.Focus
                                 sHeading = sHeading.Replace("<URL>", sActiveURL);
                                 sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
                                 Heading.Text = sHeading;
+
+                                dispatcherTimer.Start();
                                 CommandManager.InvalidateRequerySuggested();
+                                this.Show();
                             }
                         }));
 
                     }
+
+                   
                 }
                 catch (Exception ex)
                 {

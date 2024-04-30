@@ -1,0 +1,63 @@
+﻿<Page x:Class="Focus_Bear.Onboarding.OnboardingConfirmMorningRoutine"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Onboarding"
+      mc:Ignorable="d" 
+      d:DesignHeight="1080" d:DesignWidth="1920"
+      Title="OnboardingConfirmMorningRoutine" Background="White">
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MinHeight="105" />
+            <RowDefinition Height="Auto" MinHeight="70" />
+            <RowDefinition Height="*"  />
+            <RowDefinition Height="120" />
+
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0" Height="99"  Width="99" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xConfirm your morning routine" Foreground="#000" FontSize="27" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <StackPanel  Grid.Row="2"  Orientation="Vertical" VerticalAlignment="Center" Width="1000" HorizontalAlignment="Center"  Height="auto"  Margin="0,0,0,0">
+
+            <TextBlock  Name="ToBeClearDesc" Margin="0,0,0,0"  TextWrapping="Wrap" Text="xTo be super clear, here's what's going to happen in the morning." Foreground="#000" FontSize="22" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+
+            <Grid  Margin="0,20,0,0" VerticalAlignment="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="230"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Name="FromTime" Margin="0,0,0,0"    TextWrapping="Wrap" Text="xFrom 08:30 AM:" Foreground="#000" FontSize="20" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                <StackPanel Grid.Column="1" Orientation="Vertical">
+                    <TextBlock  Name="Point1MorningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xYou'll do your Morning routine" Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <TextBlock  Name="Point2MorningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xWhile you're doing your habits, your computer will be locked." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <TextBlock  Name="Point3MorningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="x(You can unlock it if you have an emergency)." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <TextBlock  Name="Point4MorningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xAfter you finish your habits, your computer will be unlocked and Focus Bear will help you avoid distractions during your workday." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Grid>
+
+            
+        </StackPanel>
+
+        <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button x:Name="btnChangeThis"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnChangeThis_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock x:Name="btnChangeThisTXT" Text="xChange this"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button x:Name="btnSoundsGood"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnSoundsGood_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock x:Name="btnSoundsGoodTXT" Text="xSounds Good"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </StackPanel>
+        
+    </Grid>
+</Page>

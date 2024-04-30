@@ -37,7 +37,7 @@ namespace Focus_Bear.Habits
 
         int nTimer = 30;
         int nTickCount;
-        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+        public DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         public bool bTimerRunning;
         bool isVideoPresent;
 
@@ -170,7 +170,7 @@ namespace Focus_Bear.Habits
                         SectionNonTimer.Visibility = Visibility.Visible;
                         SectionTimer.Visibility = Visibility.Collapsed;
                         string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();
-                        sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].completion_requirements);
+                        sCompleteTxt = sCompleteTxt.Replace("<REQUIREMENTS>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].completion_requirements);
                         CompleteAfter.Text = sCompleteTxt;
                         btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
                     }
@@ -281,6 +281,7 @@ namespace Focus_Bear.Habits
                 {
                     appSettings.bHabitwithAllowedAppsRunning = true;
                     _parentWindow.WindowState = WindowState.Minimized;
+                    _parentWindow.Hide();
                     _parentWindow.ShowInTaskbar = false;
                     //here we also need to remove the secondary screen windows.
                     appSettings.RemoveSecondaryWindows();
@@ -419,6 +420,12 @@ namespace Focus_Bear.Habits
                         {
                             videoUrl = videoUrlsBreaks[nRandom].ToString();
                         }
+
+                        if (videoUrl.Contains("&")) //Fix for URLS like https://www.youtube.com/watch?v=vNeRn90QjyA&pp=ygUQbWVkaXRhdGlvbiBtdXNpYw%3D%3D
+                        {
+                            videoUrl = videoUrl.Substring(0, videoUrl.IndexOf("&", 1));
+                        }
+                 
                         if (videoUrl.Contains("watch?v="))
                         {
                             videoUrl = videoUrl.Replace("watch?v=", "embed/");
@@ -479,11 +486,11 @@ namespace Focus_Bear.Habits
 
             }
         }
-
+            
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer -= 20;
+            int val = nTimer -= 10;
 #else
             int val = nTimer--;
 #endif
@@ -546,14 +553,21 @@ namespace Focus_Bear.Habits
 
                         appSettings.bHabitwithAllowedAppsRunning = false;
                         _parentWindow.WindowState = WindowState.Normal;
+                        _parentWindow.Show();
 
-                        ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
+                       ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
 
                         //May be the timer small window is running, close that
                         //Check here if the Breaks window is visible, we will hide it.
-                        if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
+                        if (((App)(Application.Current)).wndTakeABreak != null)
                         {
-                            ((App)(Application.Current)).wndTakeABreak.HideBreakWindowAndStopTimer();
+                            ((App)(Application.Current)).wndTakeABreak.bShowingForNonTimerActivities = false;
+
+                            if (((App)(Application.Current)).wndTakeABreak.IsVisible)
+                            {
+                                ((App)(Application.Current)).wndTakeABreak.Close();
+                                ((App)(Application.Current)).wndTakeABreak = null;
+                            }
                         }
 
                         CommandManager.InvalidateRequerySuggested();
@@ -569,7 +583,7 @@ namespace Focus_Bear.Habits
                 }
                 catch (Exception ex)
                 {
-                    LogWriter.LogWrite("Habit Activity Ongoing dispatcherTimer_Tick" + ex.Message);
+                    LogWriter.LogWrite("Habit Activity Ongoing dispatcherTimer_Tick EX - " + ex.Message);
                 }
             }
         }

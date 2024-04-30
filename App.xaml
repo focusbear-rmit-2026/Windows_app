@@ -622,12 +622,12 @@
         <!--Mac Style Toggle Button-->
         <Style x:Key="MacStyleToggleSwitch" TargetType="{x:Type ToggleButton}">
             <Setter Property="Foreground" Value="Black" />
-            <Setter Property="Background" Value="#FAFAFB" />
-            <Setter Property="BorderBrush" Value="#EAEAEB" />
+            <Setter Property="Background" Value="#AAA" />
+            <Setter Property="BorderBrush" Value="#AAA" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
-                        <Viewbox Stretch="Uniform">
+                        <Viewbox Stretch="Uniform" Width="54" Height="20" VerticalAlignment="Top"  >
                             <Canvas Name="Layer_1" Width="20" Height="20" Canvas.Left="10" Canvas.Top="0">
                                 <Ellipse  Canvas.Left="0" Width="20" Height="20" Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="0.5"/>
                                 <Ellipse  Canvas.Left="15" Width="20" Height="20" Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="0.5"/>
@@ -659,8 +659,8 @@
                                 <Trigger.ExitActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="#FAFAFB" Duration="0:0:0.2" />
-                                            <ColorAnimation Storyboard.TargetProperty="BorderBrush.Color" To="#EAEAEB" Duration="0:0:0.2" />
+                                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="#aaa" Duration="0:0:0.2" />
+                                            <ColorAnimation Storyboard.TargetProperty="BorderBrush.Color" To="#aaa" Duration="0:0:0.2" />
                                             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.RenderTransform).(TranslateTransform.X)" Storyboard.TargetName="ellipse">
                                                 <SplineDoubleKeyFrame KeyTime="0" Value="15"/>
                                                 <SplineDoubleKeyFrame KeyTime="0:0:0.3" Value="0" KeySpline="0, 0.5, 0.5, 1"/>
@@ -782,20 +782,67 @@
                         <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             CornerRadius="5,5,5,5"
-                                Padding="9"
-                                Width="145">
+                                Padding="0"
+                                Width="145"
+                                Height="33">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
 
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Background" Value="#007Aff" />
-                                <Setter Property="BorderBrush" Value="#007Aff" />
+                                <Setter Property="Background" Value="#e88800" />
+                                <Setter Property="BorderBrush" Value="#e88800" />
                                 <Setter Property="Foreground" Value="#fff" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#007Aff" />
+                                <Setter Property="Background" Value="#ffe4c6" />
+                                <Setter Property="Foreground" Value="#000" />
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" Value="#e88800" />
+                                <Setter Property="BorderBrush" Value="#e88800" />
                                 <Setter Property="Foreground" Value="#fff" />
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                       
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="HabitsCareRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="#E0E0E0" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="BorderBrush" Value="#E0E0E0" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Margin" Value="0,0,-1,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            CornerRadius="5,5,5,5"
+                                Padding="15,10"
+                                Width="auto">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#ffdcb3" />
+                                <Setter Property="BorderBrush" Value="#e88800" />
+                                <Setter Property="BorderThickness" Value="2" />
+                                <Setter Property="Foreground" Value="#000" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#ffdcb3" />
+                                <Setter Property="Foreground" Value="#000" />
                             </Trigger>
                         </ControlTemplate.Triggers>
 
@@ -803,6 +850,113 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+ 
+        <Style x:Key="OccupationRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="#fff" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="BorderBrush" Value="#E0E0E0" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Margin" Value="0,0,-1,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            CornerRadius="5,5,5,5"
+                                Padding="15,10"
+                                Width="auto">
+                            <Grid  >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="35"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"   />
+
+                                <Border Grid.Column="1" Width="25" Height="25" BorderThickness="3" CornerRadius="100" HorizontalAlignment="Left" VerticalAlignment="Center" BorderBrush="Gray" Margin="0,0,0,0">
+                                    <Border x:Name="MiniBarCircle" Visibility="Collapsed"  Width="19" Height="19" BorderThickness="1" CornerRadius="100" HorizontalAlignment="Left" VerticalAlignment="Center" Background="#e88800"/>
+                                </Border>
+
+                            </Grid>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#ffdcb3" />
+                                <Setter Property="BorderBrush" Value="#e88800" />
+                                <Setter Property="BorderThickness" Value="2" />
+                                <Setter Property="Foreground" Value="#000" />
+                                <Setter TargetName="MiniBarCircle" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#ffdcb3" />
+                                <Setter Property="Foreground" Value="#000" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BtnStyleExpend" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Image x:Name="ImgTglButton" Cursor="Hand" Margin="0,0,0,0" Source="images/expand.png"  Height="16" Width="16"  HorizontalAlignment="Center"  VerticalAlignment="Center">
+                            <Image.Style>
+                                <Style TargetType="{x:Type Image}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="1"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="False">
+                                            <Setter Property="Opacity" Value="0.80"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True"/>
+                            <Trigger Property="IsDefaulted" Value="True"/>
+                            <Trigger Property="IsMouseOver" Value="True"/>
+                            <Trigger Property="IsPressed" Value="True"/>
+                            <Trigger Property="IsEnabled" Value="False"/>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BtnStyleCollapse" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Image x:Name="ImgTglButton" Cursor="Hand" Margin="0,0,0,0" Source="images/collapse.png"  Height="18" Width="18"  HorizontalAlignment="Center"  VerticalAlignment="Center">
+                            <Image.Style>
+                                <Style TargetType="{x:Type Image}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="1"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="False">
+                                            <Setter Property="Opacity" Value="0.75"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True"/>
+                            <Trigger Property="IsDefaulted" Value="True"/>
+                            <Trigger Property="IsMouseOver" Value="True"/>
+                            <Trigger Property="IsPressed" Value="True"/>
+                            <Trigger Property="IsEnabled" Value="False"/>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Application.Resources>
 </Application>

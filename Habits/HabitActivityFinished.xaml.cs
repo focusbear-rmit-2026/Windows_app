@@ -191,7 +191,8 @@ namespace Focus_Bear.Habits
 
         public void SwapTempChoiceData()
         {
-            appSettings.currentActivityChoice = appSettings.currentActivityChoiceTemp;
+            if(appSettings.currentActivityChoiceTemp.id != null)
+                appSettings.currentActivityChoice = appSettings.currentActivityChoiceTemp;
         }
         public void LoadData(bool bSkipCurrentActivity = false)
         {
@@ -227,8 +228,9 @@ namespace Focus_Bear.Habits
                 //Set button text with next activity start info
                 string sButtonTitle = "";
 
-                int totalSecondsAllHabits = 0;
-                int habitCompletedSeconds = 0;
+                int totalSecondsAllHabits = appSettings.nTotalSecondsAllHabits;
+                int habitCompletedSeconds = appSettings.nHabitCompletedSeconds;
+
                 string sTotal = "";
                 string sCompleted = "";
                 string sRemaining = "";
@@ -288,6 +290,7 @@ namespace Focus_Bear.Habits
 
                         //We need to hide the Please SPare Me Button
                         _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                        _parentWindow.HideCloseButton();
 
                         //Progress text
                         string sProgressLast = appSettings.ConfigFileStrings["activityInfo"]["habitsCompleteText"].ToString();
@@ -410,6 +413,10 @@ namespace Focus_Bear.Habits
                         //Hide the skip this habit button on last activity
                         SkipThisHabitText.Visibility = Visibility.Collapsed;
 
+                        //We need to hide the Please SPare Me Button
+                        _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                        _parentWindow.HideCloseButton();
+
                         //Progress text
                         string sProgressLast = appSettings.ConfigFileStrings["activityInfo"]["habitsCompleteText"].ToString();
                         sProgressLast = sProgressLast.Replace("<duration>", sTotal);
@@ -418,13 +425,17 @@ namespace Focus_Bear.Habits
                         appSettings.nHabitIndex = newHabitIndex - 1; //assign the new habit index to our main habit index less 1 as it will be increased on action button click
                         LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
 
+
                         //If its the last activity of evening habits,. we need a 30 seconds timer to wrap up automatically
-                        sTextTimerWrapUp.Text = "00:30";
-                        sTextTimerWrapUp.Visibility = Visibility.Visible;
-                        dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-                        dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-                        dispatcherTimer.Start();
-                        CommandManager.InvalidateRequerySuggested();
+                        if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantity)
+                        {
+                            sTextTimerWrapUp.Text = "00:30";
+                            sTextTimerWrapUp.Visibility = Visibility.Visible;
+                            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+                            dispatcherTimer.Start();
+                            CommandManager.InvalidateRequerySuggested();
+                        }
 
                         Sounds.PlayEveningRoutineFinishedSound();
                     }
@@ -498,6 +509,7 @@ namespace Focus_Bear.Habits
 
                                     //We need to hide the Please Spare Me Button
                                     _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                                    _parentWindow.HideCloseButton();
 
                                     var currentActivity = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex];
                                     if (!currentActivity.isRandomChoice)
@@ -620,6 +632,7 @@ namespace Focus_Bear.Habits
 
                             //We need to hide the Please Spare Me Button
                             _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                            _parentWindow.HideCloseButton();
 
                             var currentActivity = appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex];
                             if (!currentActivity.isRandomChoice)
@@ -639,6 +652,7 @@ namespace Focus_Bear.Habits
 
                         //We need to hide the Please SPare Me Button
                         _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                        _parentWindow.HideCloseButton();
 
                         sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex].name);
                         bLastActivity = true;
@@ -713,30 +727,13 @@ namespace Focus_Bear.Habits
             string sCurrentLogType = "";
             bool bAverage = false; //Default SUM
 
-            try
-            {
-                //double check graph files exists
-                LogWriter.LogWrite("double check graph files exists");
-                if (!File.Exists(appSettings.sGraphDaysPath))
-                    File.Copy(@"Graph/GraphDays.html", appSettings.sGraphDaysPath);
-                if (!File.Exists(appSettings.sGraphDaysDurationPath))
-                    File.Copy(@"Graph/GraphDaysDuration.html", appSettings.sGraphDaysDurationPath);
-                if (!File.Exists(appSettings.sGraphTimePath))
-                    File.Copy(@"Graph/GraphTime.html", appSettings.sGraphTimePath);
-                if (!File.Exists(appSettings.sGraphTimesDurationPath))
-                    File.Copy(@"Graph/GraphTimeDuration.html", appSettings.sGraphTimesDurationPath);
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("double check graph files exists EX- " + ex.Message);
-            } 
-
             string sLabelQuantity = appSettings.ConfigFileStrings["common"]["graphQuantityText"].ToString();
             string sLabelMinutes = appSettings.ConfigFileStrings["common"]["graphMinutesText"].ToString();
             string sLabelDate = appSettings.ConfigFileStrings["common"]["graphDateText"].ToString();
             string sLabelTime = appSettings.ConfigFileStrings["common"]["graphTimeText"].ToString();
 
-            string curDir = Directory.GetCurrentDirectory();
+            string curDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            curDir = curDir.TrimEnd('\\');
 
             webView.Visibility = Visibility.Visible;
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
@@ -746,12 +743,14 @@ namespace Focus_Bear.Habits
                 sCurrentLogType = "morning routine";
                 if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantity)
                 {
-                    webView.Source = new Uri(String.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
+                    webView.Source = new Uri(string.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
+                    LogWriter.LogWrite("GraphDays.html PATH - " + webView.Source);
                 }
                 else
                 {
                     //Prepare Duration data
                     webView.Source = new Uri(string.Format("file:///{0}/graph/GraphDaysDuration.html", curDir), System.UriKind.Absolute);
+                    LogWriter.LogWrite("GraphDaysDuration.html PATH - " + webView.Source);
                 }
                 sCurrentActivityName = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name;
                 bLogQuantity = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantity;
@@ -764,12 +763,14 @@ namespace Focus_Bear.Habits
 
                 if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantity)
                 {
-                    webView.Source = new Uri(String.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
+                    webView.Source = new Uri(string.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
+                    LogWriter.LogWrite("GraphDays.html PATH - " + webView.Source);
                 }
                 else
                 {
                     //Prepare Duration data
                     webView.Source = new Uri(string.Format("file:///{0}/graph/GraphDaysDuration.html", curDir), System.UriKind.Absolute);
+                    LogWriter.LogWrite("GraphDaysDuration.html PATH - " + webView.Source);
                 }
                 sCurrentActivityName = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name;
                 bLogQuantity = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantity;
@@ -810,14 +811,18 @@ namespace Focus_Bear.Habits
 
                 if (bLogQuantity)
                 {
-                    webView.Source = new Uri(String.Format("file:///{0}/graph/GraphTime.html", curDir), System.UriKind.Absolute);
-                    webView1.Source = new Uri(String.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
+                    webView.Source = new Uri(string.Format("file:///{0}/graph/GraphTime.html", curDir), System.UriKind.Absolute);
+                    webView1.Source = new Uri(string.Format("file:///{0}/graph/GraphDays.html", curDir), System.UriKind.Absolute);
+                    LogWriter.LogWrite("GraphTime.html PATH - " + webView.Source);
+                    LogWriter.LogWrite("GraphDays.html PATH - " + webView1.Source);
                 }
                 else
                 {
                     //Prepare Duration data
-                    webView.Source = new Uri(String.Format("file:///{0}/graph/GraphTimeDuration.html", curDir), System.UriKind.Absolute);
-                    webView1.Source = new Uri(String.Format("file:///{0}/graph/GraphDaysDuration.html", curDir), System.UriKind.Absolute);
+                    webView.Source = new Uri(string.Format("file:///{0}/graph/GraphTimeDuration.html", curDir), System.UriKind.Absolute);
+                    webView1.Source = new Uri(string.Format("file:///{0}/graph/GraphDaysDuration.html", curDir), System.UriKind.Absolute);
+                    LogWriter.LogWrite("GraphTimeDuration.html PATH - " + webView.Source);
+                    LogWriter.LogWrite("GraphDaysDuration.html PATH - " + webView1.Source);
 
                 }
 
@@ -853,70 +858,84 @@ namespace Focus_Bear.Habits
                     LogWriter.LogWrite("sOneMonthActivityDataForGraph from API Found!");
        
                     JObject sLastActivityData = JObject.Parse(appSettings.sOneMonthActivityDataForGraph);
-                    if (sLastActivityData.ContainsKey("log_quantity_answers_stats"))
+                    if (bLogQuantity)
                     {
-                        JArray log_quantity_answer_stats_arrayItems = (JArray)sLastActivityData["log_quantity_answers_stats"];
-                        
-                        if(log_quantity_answer_stats_arrayItems.Count() > 1)
+                        if (sLastActivityData.ContainsKey("log_quantity_answers_stats"))
                         {
-                            if (nQuestionIndexToShowGraphs > log_quantity_answer_stats_arrayItems.Count() - 1)
+                            JArray log_quantity_answer_stats_arrayItems = (JArray)sLastActivityData["log_quantity_answers_stats"];
+
+                            if (log_quantity_answer_stats_arrayItems.Count() > 1)
                             {
-                                nQuestionIndexToShowGraphs = log_quantity_answer_stats_arrayItems.Count() - 1; //Handling for multiple clicks
-                            }
-                            if (nQuestionIndexToShowGraphs == log_quantity_answer_stats_arrayItems.Count()-1)
-                            {
-                                //Last element
-                                ButtonRight.Visibility = Visibility.Collapsed;
+                                if (nQuestionIndexToShowGraphs > log_quantity_answer_stats_arrayItems.Count() - 1)
+                                {
+                                    nQuestionIndexToShowGraphs = log_quantity_answer_stats_arrayItems.Count() - 1; //Handling for multiple clicks
+                                }
+                                if (nQuestionIndexToShowGraphs == log_quantity_answer_stats_arrayItems.Count() - 1)
+                                {
+                                    //Last element
+                                    ButtonRight.Visibility = Visibility.Collapsed;
+                                }
+                                else
+                                {
+                                    ButtonRight.Visibility = Visibility.Visible;
+                                }
+
+                                if (nQuestionIndexToShowGraphs == 0)
+                                {
+                                    ButtonLeft.Visibility = Visibility.Collapsed;
+                                }
+                                else
+                                {
+                                    ButtonLeft.Visibility = Visibility.Visible;
+                                }
                             }
                             else
                             {
-                                ButtonRight.Visibility = Visibility.Visible;
-                            }
-
-                            if(nQuestionIndexToShowGraphs == 0)
-                            {
+                                ButtonRight.Visibility = Visibility.Collapsed;
                                 ButtonLeft.Visibility = Visibility.Collapsed;
                             }
-                            else
+
+                            int i = 0;
+                            foreach (JObject answeritem in log_quantity_answer_stats_arrayItems)
                             {
-                                ButtonLeft.Visibility = Visibility.Visible;
+                                if (i == nQuestionIndexToShowGraphs)
+                                {
+                                    if (answeritem.ContainsKey("items"))
+                                    {
+                                        JArray arrayItems = (JArray)answeritem["items"];
+                                        foreach (JObject item in arrayItems)
+                                        {
+                                            string date = item.ContainsKey("date") ? item.GetValue("date").ToString() : "";
+                                            string summary = item.ContainsKey("summary") ? item.GetValue("summary").ToString() : "";
+                                            LogEntry ll = new LogEntry("", "", sCurrentActivityName, (bLogQuantity ? "" : summary), "", (bLogQuantity ? summary : ""), date, "", "", "", "");
+                                            ListAPIData.Add(ll);
+                                        }
+                                    }
+                                    if (answeritem.ContainsKey("question"))
+                                    {
+                                        JObject QuestionDetails = JObject.Parse(answeritem.GetValue("question").ToString());
+                                        if (QuestionDetails.ContainsKey("question"))
+                                        {
+                                            sQuestionLabelToDisplayOnGraph = QuestionDetails.GetValue("question").ToString();
+                                            sQuestionIDToDisplayOnGraph = QuestionDetails.GetValue("id").ToString();
+                                        }
+                                    }
+
+                                    break;
+                                }
+                                i++;
                             }
                         }
-                        else
+                    }
+                    else if (sLastActivityData.ContainsKey("items")) //FOr duration related monthly data
+                    {
+                        JArray arrayItems = (JArray)sLastActivityData["items"];
+                        foreach (JObject item in arrayItems)
                         {
-                            ButtonRight.Visibility = Visibility.Collapsed;
-                            ButtonLeft.Visibility = Visibility.Collapsed;
-                        }
-
-                        int i = 0;
-                        foreach (JObject answeritem in log_quantity_answer_stats_arrayItems)
-                        {
-                            if (i == nQuestionIndexToShowGraphs)
-                            {
-                                if (answeritem.ContainsKey("items"))
-                                {
-                                    JArray arrayItems = (JArray)answeritem["items"];
-                                    foreach (JObject item in arrayItems)
-                                    {
-                                        string date = item.ContainsKey("date") ? item.GetValue("date").ToString() : "";
-                                        string summary = item.ContainsKey("summary") ? item.GetValue("summary").ToString() : "";
-                                        LogEntry ll = new LogEntry("", "", sCurrentActivityName, (bLogQuantity ? "" : summary), "", (bLogQuantity ? summary : ""), date, "", "", "", "");
-                                        ListAPIData.Add(ll);
-                                    }
-                                }
-                                if (answeritem.ContainsKey("question"))
-                                {
-                                    JObject QuestionDetails = JObject.Parse(answeritem.GetValue("question").ToString());
-                                    if(QuestionDetails.ContainsKey("question"))
-                                    {
-                                        sQuestionLabelToDisplayOnGraph = QuestionDetails.GetValue("question").ToString();
-                                        sQuestionIDToDisplayOnGraph = QuestionDetails.GetValue("id").ToString();
-                                    }
-                                }
-
-                                break;
-                            }
-                            i++;
+                            string date = item.ContainsKey("date") ? item.GetValue("date").ToString() : "";
+                            string summary = item.ContainsKey("summary") ? item.GetValue("summary").ToString() : "";
+                            LogEntry ll = new LogEntry("", "", sCurrentActivityName, (bLogQuantity ? "" : summary), "", (bLogQuantity ? summary : ""), date, "", "", "", "");
+                            ListAPIData.Add(ll);
                         }
                     }
                 }
@@ -934,7 +953,16 @@ namespace Focus_Bear.Habits
 
                 }
 
-                LogEntry lastOne;
+                if (!bLogQuantity)
+                {
+                    if (ss.Count > 0)
+                    {
+                        LogEntry lastOne = ss[ss.Count - 1];
+                        ListAPIData.Add(lastOne);
+                    }
+                }
+
+
                 //We need to add Todays Current Activity Done data. Logically that should be the last entry of the CSV for sure. So we can read from there and add it.
                 if (appSettings.bShowActivitiesFromMid)
                 {
@@ -1460,9 +1488,6 @@ namespace Focus_Bear.Habits
                     }
                 }
 
-                //Once we are done with the activitychoice with all data we need to load graph, we will load thenext temp one
-                SwapTempChoiceData();
-
                 string functiontocall = string.Format("getData({0});", json);
 
                 string functiontocallTime = string.Format("getData({0});", jsonTime);
@@ -1507,6 +1532,10 @@ namespace Focus_Bear.Habits
                     _parentWindow.HideFrameAndClose();
                     return;
                 }
+
+                //Once we are done with the activitychoice with all data we need to load graph, we will load thenext temp one
+                SwapTempChoiceData();
+
                 if (bExcludedActivityIndex >= 0) // Last activity of Include arr have been done, show details of exclude array
                 {
                     appSettings.isMandatoryActivityGoing = false;
@@ -1555,6 +1584,8 @@ namespace Focus_Bear.Habits
         private void btnSkipThisHabit_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Activity Finished Screen btnSkipThisHabit_Clicked ");
+
+            appSettings.bSkipWhileActivityOngoing = false; //if the last activity was skipped when ongoing, reset it
 
             if (appSettings.bShowActivitiesFromMid)
             {

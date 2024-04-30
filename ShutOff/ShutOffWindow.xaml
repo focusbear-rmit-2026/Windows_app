@@ -8,67 +8,98 @@
         xmlns:src="clr-namespace:Focus_Bear.Habits"
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="ShutOffWindow" d:DesignHeight="1080" d:DesignWidth="1920" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" >
+        Title="Focus Bear" d:DesignHeight="1080" d:DesignWidth="1920" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" Closing="FullScreenParent_Closing">
 
     <local1:DpiDecorator>
-        
-        <Grid>
-            
-            <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="80" />
-            <RowDefinition Height="Auto" MinHeight="70" />
-            <RowDefinition Height="Auto" MinHeight="180" />
-            <RowDefinition Height="Auto" MinHeight="100" />
-            <RowDefinition Height="Auto" MinHeight="100" />
-            <RowDefinition Height="Auto" MinHeight="100" />
-            <RowDefinition Height="*" />
 
-        </Grid.RowDefinitions>
+        <Grid x:Name="MainGrid">
+
+            <Grid.Background>
+                <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            </Grid.Background>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" MinHeight="80" />
+                <RowDefinition Height="Auto" MinHeight="70" />
+                <RowDefinition Height="Auto" MinHeight="180" />
+                <RowDefinition Height="Auto" MinHeight="100" />
+                <RowDefinition Height="Auto" MinHeight="100" />
+                <RowDefinition Height="Auto" MinHeight="100" />
+                <RowDefinition Height="80" />
+                <RowDefinition Height="*" />
+
+            </Grid.RowDefinitions>
             <TextBlock Grid.Row="0"  Name="Time" Margin="0,18,40,0" TextWrapping="Wrap" Text="x10:10 AM" Foreground="#000" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Right"/>
 
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Image  Name="Icon"  Height="120"  Width="120" Models:ImageBehavior.AnimatedSource="../Images/gifs/Yawn_small.gif" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-            <TextBlock    Name="Heading" Margin="50,0,0,0" TextWrapping="Wrap" Text="xtime to wind down" Foreground="#e88800" FontSize="33" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        </StackPanel>
-        <TextBlock  Grid.Row="2" Name="Description" Width="800" Margin="80,50,80,50" TextWrapping="Wrap" Text="xYou told me you wanted to stay off your computer from SHUTOFFTIME to STARTTIME. Enjoy your evening and sleep well. Look forward to helping you with your morning routine tomorrow." Foreground="#272727" FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-      
-        <TextBlock  Grid.Row="3" Name="Txtunlocking" Width="900" Margin="0,0,0,0" TextWrapping="Wrap" Text="xunlocking in." Foreground="#272727" FontSize="23" FontWeight="Normal" TextAlignment="Center" HorizontalAlignment="Center" />
-        <TextBlock  Grid.Row="3" Name="TxtTimer" Width="900"  Margin="0,35,0,0" TextWrapping="Wrap" Text="x00:30" Foreground="#272727" FontSize="23" FontWeight="Bold"  TextAlignment="Center" HorizontalAlignment="Center" />
-        
-        <TextBlock  Grid.Row="4" Name="TxtExplain" Width="900"  TextWrapping="Wrap" Text="xFeel free to write an explanation here:" Foreground="#272727" FontSize="17" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
-        <TextBox  Grid.Row="5" Name="TxtExplaination" TextWrapping="Wrap" AcceptsReturn="True"  Width="650" Height="120" Margin="15" VerticalAlignment="Top"  FontSize="15">
-            <TextBox.Effect>
-                <DropShadowEffect ShadowDepth="3"
+                <Image  Name="Icon"  Height="120"  Width="120" Models:ImageBehavior.AnimatedSource="../Images/gifs/Yawn_small.gif" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+                <TextBlock    Name="Heading" Margin="50,0,0,0" TextWrapping="Wrap" Text="xtime to wind down" Foreground="#e88800" FontSize="33" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock  Grid.Row="2" Name="Description" Width="800" Margin="20,10,20,10" TextWrapping="Wrap" Text="xYou told me you wanted to stay off your computer from SHUTOFFTIME to STARTTIME. Enjoy your evening and sleep well. Look forward to helping you with your morning routine tomorrow." Foreground="#272727" FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+
+            <TextBlock  Grid.Row="3" Name="Txtunlocking" Width="900" Margin="0,0,0,0" TextWrapping="Wrap" Text="xunlocking in." Foreground="#272727" FontSize="23" FontWeight="Normal" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock  Grid.Row="3" Name="TxtTimer" Width="900"  Margin="0,35,0,0" TextWrapping="Wrap" Text="x00:30" Foreground="#272727" FontSize="23" FontWeight="Bold"  TextAlignment="Center" HorizontalAlignment="Center" />
+
+            <TextBlock  Grid.Row="4" Name="TxtExplain" Width="900"  TextWrapping="Wrap" Text="xFeel free to write an explanation here:" Foreground="#272727" FontSize="17" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBox  Grid.Row="5" Name="TxtExplaination" TextWrapping="Wrap" AcceptsReturn="True"  Width="650" Height="120" Margin="15" VerticalAlignment="Top"  FontSize="15">
+                <TextBox.Effect>
+                    <DropShadowEffect ShadowDepth="3"
                           Direction="330"
                           Color="Gray"
                           Opacity="0.5"
                           BlurRadius="6"
                            />
-            </TextBox.Effect>
-            <TextBox.FocusVisualStyle>
-                <Style>
-                    <Setter Property="Control.Template">
-                        <Setter.Value>
-                            <ControlTemplate/>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </TextBox.FocusVisualStyle>
-        </TextBox>
-        
-        <Button Grid.Row="6"  Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
-            <Button.Content>
-                <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnActionText" Text="xGet Access Now"/>
+                </TextBox.Effect>
+                <TextBox.FocusVisualStyle>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.FocusVisualStyle>
+            </TextBox>
+
+            <Button Grid.Row="6"  Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock x:Name="btnActionText" Text="xGet Access Now"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Border Grid.Row="7" x:Name="SectionUpEarly" Visibility="Collapsed"   BorderThickness="1" Margin="20" Height="140" Width="800" VerticalAlignment="Top" CornerRadius="10" BorderBrush="LightGray"  >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="70" />
+                        <RowDefinition Height="30" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Name="UpEarly"   Margin="0,4,0,0" TextWrapping="Wrap" Text="xUp Early?" Foreground="#272727" FontSize="17" FontWeight="Normal" TextAlignment="Center" HorizontalAlignment="Center" />
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Button   Name="btnStartMorningRoutine"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="360" HorizontalContentAlignment="Center" VerticalAlignment="Top"  Padding="0" Margin="0,0,20,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStartMorningRoutine_Click" >
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock x:Name="btnStartMorningRoutineText" Text="xStart Morning Routine"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                        <Button    Name="btnWorkEmergency"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="360" HorizontalContentAlignment="Center" VerticalAlignment="Top"  Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnWorkEmergency_Click" >
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock x:Name="btnWorkEmergencyText" Text="xWork Emergency - start focusing"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
                 </StackPanel>
-            </Button.Content>
-        </Button>
+                    <TextBlock   Grid.Row="2" x:Name="CompleteEveningRoutine" Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                    <Hyperlink x:Name="btnCompleteEveningRoutine"  Foreground="#000" Click="btnCompleteEveningRoutine_Click"   TextDecorations="Underline" >
+                        <Run x:Name="btnCompleteEveningRoutineTXT" Text="xComplete your evening routine"/>
+                    </Hyperlink>
+                    </TextBlock>
+                </Grid>
+            </Border>
+            <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
 
-        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
-
-    </Grid>
-        </local1:DpiDecorator>
+        </Grid>
+    </local1:DpiDecorator>
 </src:FullScreenParent>

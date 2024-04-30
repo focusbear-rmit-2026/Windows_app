@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,6 +14,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -24,14 +26,33 @@ namespace Focus_Bear.Focus
     /// Interaction logic for BreakWindow.xaml
     /// </summary>
     public partial class BreakWindow : Window
-    {
+    {   
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_NOACTIVATE = 0x08000000;
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        [DllImport("user32.dll")]
+        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            //Set the window style to noactivate.
+            var helper = new WindowInteropHelper(this);
+            SetWindowLong(helper.Handle, GWL_EXSTYLE, GetWindowLong(helper.Handle, GWL_EXSTYLE) | WS_EX_NOACTIVATE);
+        }
+
+
         AppSettings appSettings = AppSettings.GetInstance;
 
         int nTimer = 300; //Five minutes
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         
-        public bool bShowingForNonTimeActivities = false;
-
+        public bool bShowingForNonTimerActivities = false;
+        bool bIamDoneTypeActivity = false;
         public BreakWindow()
         {
             InitializeComponent();
@@ -65,8 +86,12 @@ namespace Focus_Bear.Focus
         public void ShowBreakWindowAndStartTimer(int nSeconds, string sTitle = "")
         {
             nTimer = nSeconds;
+            TxtTimer.Visibility = Visibility.Visible;
+            bIamDoneTypeActivity = false;
             if (nTimer == appSettings.nTimerValForNonTimerActivities) //Means its an activity with no timer
             {
+                bIamDoneTypeActivity = true;
+
                 TxtTimer.Visibility = Visibility.Collapsed;
                 
                 UseTimerRelated.Visibility = Visibility.Collapsed;
@@ -111,14 +136,6 @@ namespace Focus_Bear.Focus
             dispatcherTimer.Start();
             CommandManager.InvalidateRequerySuggested();
         }
-        public void HideBreakWindowAndStopTimer()
-        {
-            dispatcherTimer.Stop();
-            Hide();
-            TxtTimer.Text = "05:00";
-        }
-
-
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
@@ -139,6 +156,15 @@ namespace Focus_Bear.Focus
                     TxtTimer.Text = "00:00";
                     dispatcherTimer.Stop();
                     Hide();
+
+                    //if (appSettings.bUseSuperPomodoroMode)
+                    //We will need to start the focus mode again after the focus session and X min break is over
+                    if(!appSettings.bHabitwithAllowedAppsRunning && !bIamDoneTypeActivity) //make sure break window is not shown for habits with allowed apps
+                    {
+                        ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
+                        IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                        invokeProv.Invoke();
+                    }
                 }
             }
             catch (Exception ex)
@@ -150,13 +176,16 @@ namespace Focus_Bear.Focus
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            e.Cancel = true;
-            HideBreakWindowAndStopTimer();
+            if (bShowingForNonTimerActivities)
+            {
+                e.Cancel = true;
+                Hide();
+            }
         }
 
         private void btnIAmDone_Click(object sender, RoutedEventArgs e)
         {
-            HideBreakWindowAndStopTimer();
+            dispatcherTimer.Stop();
             if (((App)(Application.Current)).wndHabits != null )
             {
                 //show the habit window
@@ -167,8 +196,9 @@ namespace Focus_Bear.Focus
                 invokeProv.Invoke();
 
             }
-            bShowingForNonTimeActivities = false;
+            bShowingForNonTimerActivities = false;
             Close(); //Best to close here and open new when we have the activity with completion requirement.
+            ((App)(Application.Current)).wndTakeABreak = null;
         }
     }
 }

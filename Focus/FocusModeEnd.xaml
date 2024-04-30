@@ -111,6 +111,9 @@
                     </Button.Content>
                 </Button>
             </StackPanel>
+
+            <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="10" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
+
         </Grid>
     </local1:DpiDecorator>
 </Window>

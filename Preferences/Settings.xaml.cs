@@ -73,6 +73,8 @@ namespace Focus_Bear.Preferences
                 BlockedURLTab.Header = appSettings.ConfigFileStrings["common"]["tabBlockedURLsText"].ToString();
                 AccountTab.Header = appSettings.ConfigFileStrings["common"]["tabAccountsText"].ToString();
 
+                PomodoroTab.Header = appSettings.ConfigFileStrings["common"]["tabPomodoroText"].ToString();
+                AdvancedTab.Header = appSettings.ConfigFileStrings["common"]["tabAdvancedText"].ToString();
                 AITab.Header = appSettings.ConfigFileStrings["common"]["tabAIText"].ToString();
                 UninstallTab.Header = appSettings.ConfigFileStrings["common"]["tabUninstallText"].ToString();
 
@@ -107,6 +109,9 @@ namespace Focus_Bear.Preferences
                     Language.SelectedIndex = 1;
                 }
 
+                FullScreenCheckbox.Content = appSettings.ConfigFileStrings["preferencesInfo"]["checkBoxFullScreenEnabledText"].ToString();
+                FullScreen.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleFullScreen"].ToString();
+                FullScreenCheckbox.IsChecked = appSettings.bPlayActivitiesInFullScreenMode;
 
                 //Fonts related
                 SelectFont.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleFont"].ToString();
@@ -123,8 +128,21 @@ namespace Focus_Bear.Preferences
                 Uninstall control = new Uninstall(_ParentWindow);
                 UninstallTab.Content = control;
 
+                PomodoroTab tabPomodoro = new PomodoroTab(_ParentWindow);
+                PomodoroTab.Content = tabPomodoro;
+
+                AdvancedTab tabAdvanced = new AdvancedTab(_ParentWindow);
+                AdvancedTab.Content = tabAdvanced;
+
+
                 BlockedURLTab.Content = new AlwaysBlockedURLs(_ParentWindow); ;
 
+                SetGeekModeStatus();
+
+                GeekMode.Content = appSettings.ConfigFileStrings["geekModeInfo"]["titleGeekMode"].ToString();
+                GeekMode.ToolTip = appSettings.ConfigFileStrings["geekModeInfo"]["tooltipGeekMode"].ToString();
+                SimpleMode.Content = appSettings.ConfigFileStrings["geekModeInfo"]["titleSimpleMode"].ToString();
+                SimpleMode.ToolTip = appSettings.ConfigFileStrings["geekModeInfo"]["tooltipSimpleMode"].ToString();
             }
             catch (Exception ex)
             {
@@ -207,10 +225,10 @@ namespace Focus_Bear.Preferences
                 DialogResult result = folderBrowserDialog1.ShowDialog();
                 if (result == DialogResult.OK)
                 {
-                    string startPath = AppSettings.AppDataDirPath + "\\FocusBearStats.CSV";
+                    string startPath = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FocusBearStats.CSV");
 
                     string folderName = folderBrowserDialog1.SelectedPath;
-                    string statsExportPath = folderName + "\\FocusBearStats.CSV";
+                    string statsExportPath = System.IO.Path.Combine(folderName, "FocusBearStats.CSV");
 
                     if (File.Exists(statsExportPath))
                     {
@@ -473,6 +491,59 @@ namespace Focus_Bear.Preferences
             appSettings.bRestartAppNeeded = true;
             Application.Current.Shutdown(0);
 
+        }
+
+        private void FullScreenCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPlayActivitiesInFullScreenMode = true;
+        }
+
+        private void FullScreenCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPlayActivitiesInFullScreenMode = false;
+        }
+
+        private void GeekMode_Checked(object sender, RoutedEventArgs e)
+        {
+            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString());
+            ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            ff.ShowDialog();
+            appSettings.bIsGeekModeEnabled = true;
+            SetGeekModeStatus();
+        }
+
+        private void SimpleMode_Checked(object sender, RoutedEventArgs e)
+        {
+            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString());
+            ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            ff.ShowDialog();
+            appSettings.bIsGeekModeEnabled = false;
+            SetGeekModeStatus();
+        }
+
+        public void SetGeekModeStatus()
+        {
+            GeekMode.Checked -= GeekMode_Checked;
+            SimpleMode.Checked -= SimpleMode_Checked;
+            if (appSettings.bIsGeekModeEnabled)
+            {
+                GeekMode.IsChecked = true;
+                PomodoroTab.Visibility = Visibility.Visible;
+                AdvancedTab.Visibility = Visibility.Visible;
+                PasswordTab.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                SimpleMode.IsChecked = true;
+                PomodoroTab.Visibility = Visibility.Collapsed;
+                AdvancedTab.Visibility = Visibility.Collapsed;
+                PasswordTab.Visibility = Visibility.Collapsed;
+            }
+
+            _ParentWindow.SetFocusButtonState();//set the state of the main tab
+
+            GeekMode.Checked += GeekMode_Checked;
+            SimpleMode.Checked += SimpleMode_Checked;
         }
     }
 }

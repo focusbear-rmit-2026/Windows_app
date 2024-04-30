@@ -3,6 +3,7 @@ using Focus_Bear.Onboarding.New;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Focus_Bear.Onboarding.NEW
 {
@@ -25,6 +27,9 @@ namespace Focus_Bear.Onboarding.NEW
     {
         AppSettings appSettings = AppSettings.GetInstance;
         private NewOnboardingStart _parentWindow;
+
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+
         public OnboardingDistractingSites()
         {
         }
@@ -57,11 +62,50 @@ namespace Focus_Bear.Onboarding.NEW
             appSettings.arrDistractingURLs.Add(new DistractingURL("cnn.com", true));
             appSettings.arrDistractingURLs.Add(new DistractingURL("reddit.com", true));
             appSettings.arrDistractingURLs.Add(new DistractingURL("youtube.com", true));
-            //TxtURL
+
+            string sCount = appSettings.ConfigFileStrings["onboardingBlockedUrlsInfo"]["blockSitesCountText"].ToString();
+            sCount = sCount.Replace("<COUNT>", appSettings.arrDistractingURLs.Count.ToString());
+            CountBlockedSites.Text = sCount;
+
+            appSettings.arrDistractingURLs.CollectionChanged += DistractingURLs_CollectionChanged;
+
             ListBLockedURLs.ItemsSource = appSettings.arrDistractingURLs;
-            
+
             //initially disable the button
             btnAddUrl.IsEnabled = false;
+
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimer.Start();
+            CommandManager.InvalidateRequerySuggested();
+
+        }
+
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            SetBlockedText();
+        }
+        void DistractingURLs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            SetBlockedText();
+        }
+
+        private void SetBlockedText()
+        {
+            string sCount = appSettings.ConfigFileStrings["onboardingBlockedUrlsInfo"]["blockSitesCountText"].ToString();
+
+            var listItems = appSettings.arrDistractingURLs.Where(i => i.IsItemChecked == true);
+            if (listItems.Count() == 1)
+            {
+                sCount = appSettings.ConfigFileStrings["onboardingBlockedUrlsInfo"]["oneSiteBlockText"].ToString();
+            }
+            else
+            {
+                sCount = appSettings.ConfigFileStrings["onboardingBlockedUrlsInfo"]["blockSitesCountText"].ToString();
+                sCount = sCount.Replace("<COUNT>", listItems.Count().ToString());
+            }
+
+            CountBlockedSites.Text = sCount;
         }
 
         private void TxtURL_TextChanged(object sender, TextChangedEventArgs e)
@@ -93,8 +137,10 @@ namespace Focus_Bear.Onboarding.NEW
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
+            dispatcherTimer.Stop();
+
             //we need to add the URLS to always blocked urls
-            for(int i = 0; i < appSettings.arrDistractingURLs.Count(); i++)
+            for (int i = 0; i < appSettings.arrDistractingURLs.Count(); i++)
             {
                 if(appSettings.arrDistractingURLs[i].IsItemChecked)
                     appSettings.arrAlwaysBlockedURLs.Add(appSettings.arrDistractingURLs[i].sURL);

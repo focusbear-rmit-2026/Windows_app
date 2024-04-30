@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
-        Title="BlankWindow" Height="450" Width="800"    WindowStartupLocation="Manual" IsVisibleChanged="FullScreenParent_IsVisibleChanged">
+        Title="Focus Bear" Height="450" Width="800"    WindowStartupLocation="Manual" IsVisibleChanged="FullScreenParent_IsVisibleChanged">
     <Grid>
         <Image  HorizontalAlignment="Center" Height="40"  Width="240" Margin="0,0,0,0" Source="../Images/fb.png" Stretch="Fill" VerticalAlignment="Center"  />
     </Grid>

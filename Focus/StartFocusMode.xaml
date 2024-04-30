@@ -5,19 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="StartFocusMode" Height="600" Width="720"  ResizeMode="NoResize" Loaded="Window_Loaded">
+        Title="Focus Bear" Height="670" Width="720"  ResizeMode="NoResize" Loaded="Window_Loaded">
     <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="100" />
+            <RowDefinition Height="100" />
             <RowDefinition Height="Auto" MinHeight="40" />
             <RowDefinition Height="Auto" MinHeight="45" />
-            <RowDefinition Height="Auto" MinHeight="50" />
-            <RowDefinition Height="Auto" MinHeight="85" />
-            <RowDefinition Height="Auto" MinHeight="60" />
+            <RowDefinition Height="Auto" MinHeight="300" />
             <RowDefinition Height="Auto" MinHeight="40" />
+            <RowDefinition Height="Auto" MinHeight="50" />
             <RowDefinition Height="*" />
 
         </Grid.RowDefinitions>
@@ -71,32 +70,67 @@
             <TextBlock  Name="MinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         </StackPanel>
-        
-        <TextBlock  Grid.Row="3" Name="WhatPlan" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <StackPanel Grid.Row="3" Orientation="Vertical" VerticalAlignment="Top" Margin="0,20,0,0">
+            <Button    x:Name="btnSelectTasks" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="30" Width="230" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSelectTasks_Click" >
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock x:Name="btnSelectTasksTXT" Padding="10,0,10,0" Text="xChoose tasks to work on"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <TextBlock x:Name="FreeFormIntention" Grid.Row="4" Margin="0,10,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+             <Hyperlink x:Name="btnWriteFreeFormIntention"  Foreground="#000" Click="btnWriteFreeFormIntention_Click"   TextDecorations="Underline" ><Run x:Name="btnWriteFreeFormIntentionTXT" Text="xWrite a freeform intention instead"/></Hyperlink>
+            </TextBlock>
 
-        <TextBox  Grid.Row="4" Name="TxtIntention" TextWrapping="Wrap" AcceptsReturn="True"  Width="500" Height="80" Margin="15" VerticalAlignment="Top"  FontSize="15">
-            <TextBox.Effect>
-                <DropShadowEffect ShadowDepth="3"
+            <TextBlock  Name="WhatPlan" Visibility="Collapsed"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+            <TextBox   Name="TxtIntention" Visibility="Collapsed"  TextWrapping="Wrap" AcceptsReturn="True"  Width="500" Height="80" Margin="15" VerticalAlignment="Top"  FontSize="15">
+                <TextBox.Effect>
+                    <DropShadowEffect ShadowDepth="3"
                           Direction="330"
                           Color="Gray"
                           Opacity="0.5"
                           BlurRadius="6"
                            />
-            </TextBox.Effect>
-            <TextBox.FocusVisualStyle>
-                <Style>
-                    <Setter Property="Control.Template">
-                        <Setter.Value>
-                            <ControlTemplate/>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </TextBox.FocusVisualStyle>
-        </TextBox>
+                </TextBox.Effect>
+                <TextBox.FocusVisualStyle>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.FocusVisualStyle>
+            </TextBox>
 
-        <TextBlock  Grid.Row="5" Name="Descriptiopn" Width="500" Margin="5,-5,0,0" TextWrapping="Wrap" Text="xxSetting an intention for the focus block helps prime your brain to accomplish that task. To edit the intention after starting the focus mode, click Brain Dump in the menu bar." Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
-        <CheckBox  Grid.Row="6" x:Name="SkipMicroBreaks" FontSize="15" Checked="SkipMicroBreaks_Checked" Unchecked="SkipMicroBreaks_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0">xxSkip microbreaks during work blocks?</CheckBox>
-        <Button  Grid.Row="7" x:Name="btnStartFocus"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" MinHeight="43" MaxHeight="55" HorizontalContentAlignment="Center" Padding="0" Margin="7,20" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartFocus_Click">
+            <TextBlock   Name="Description" Visibility="Collapsed"  Width="500" Margin="5,-5,0,0" TextWrapping="Wrap" Text="xxSetting an intention for the focus block helps prime your brain to accomplish that task. To edit the intention after starting the focus mode, click Brain Dump in the menu bar." Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
+
+            <TextBlock   Name="SelectedTasksTitle" Visibility="Collapsed" Width="300" Margin="5,25,0,5" TextWrapping="Wrap" Text="xxSelected Tasks:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
+
+            <ListView    x:Name="ListTasks" Visibility="Collapsed" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"   Height="120" Width="300" VerticalAlignment="Top">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Focusable" Value="false"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True"  >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Grid.Column="0" Text="{Binding ., StringFormat=\{0\}}" Foreground="#000"  FontSize="15"   VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            
+        </StackPanel>
+        <CheckBox  Grid.Row="4" x:Name="SkipMicroBreaks" FontSize="15" Checked="SkipMicroBreaks_Checked" Unchecked="SkipMicroBreaks_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0">xxSkip microbreaks during work blocks?</CheckBox>
+        <Button  Grid.Row="5" x:Name="btnStartFocus"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" MinHeight="43" MaxHeight="55" HorizontalContentAlignment="Center" Padding="0" Margin="7,20" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartFocus_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock Name="btnStartFocusText" Margin="8" Text="xStart Focus"/>
@@ -104,7 +138,7 @@
             </Button.Content>
         </Button>
 
-        <Border x:Name="GridShade" Grid.RowSpan="7"   CornerRadius="0"  Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
+        <Border x:Name="GridShade" Grid.RowSpan="8"   CornerRadius="0"  Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
         
     </Grid>
 </Window>

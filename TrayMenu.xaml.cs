@@ -25,6 +25,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Focus_Bear.Onboarding.AfterLogin;
 using Focus_Bear.Preferences;
+using Focus_Bear.Pomodoro;
 
 namespace Focus_Bear
 {
@@ -37,6 +38,7 @@ namespace Focus_Bear
 
         bool isFocusModeWindowOpen = false;
         
+
         DispatcherTimer dispatcherTimerFocus = new DispatcherTimer(DispatcherPriority.Normal);
 
       
@@ -87,6 +89,7 @@ namespace Focus_Bear
                 Reactivate.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemReactivateTitle"].ToString();
                 Preferences.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemPreferencesTitle"].ToString();
                 PomodoroMode.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStartPomodoroTitle"].ToString();
+                btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
                 Quit.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemQuitTitle"].ToString();
                 UpgradeNow.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemUpgradeNowTitle"].ToString();
                 Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
@@ -104,7 +107,20 @@ namespace Focus_Bear
                     WFHMode.IsChecked = true;
                 }
 
+                if (appSettings.bIsGeekModeEnabled)
+                {
+                    GeekMode.IsChecked = true;
+                }
+                else
+                {
+                    SimpleMode.IsChecked = true;
+                }
 
+                GeekMode.Checked += GeekMode_Checked;
+                SimpleMode.Checked += SimpleMode_Checked;
+
+                GeekMode.Content = appSettings.ConfigFileStrings["geekModeInfo"]["titleGeekMode"].ToString();
+                SimpleMode.Content = appSettings.ConfigFileStrings["geekModeInfo"]["titleSimpleMode"].ToString();
             }
             catch (Exception ex)
             {
@@ -120,7 +136,7 @@ namespace Focus_Bear
 
             try
             {
-                 if (appSettings.isPurchased)
+                if (appSettings.isPurchased)
                 {
                     //hide the upgrade now button
                     btnUpgradeNow.Visibility = Visibility.Collapsed;
@@ -153,7 +169,12 @@ namespace Focus_Bear
                 OfficeMode.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipOfficeMode"].ToString();
                 WFHMode.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipWfhMode"].ToString();
 
-               
+                GeekMode.Content = appSettings.ConfigFileStrings["geekModeInfo"]["titleGeekMode"].ToString();
+                GeekMode.ToolTip = appSettings.ConfigFileStrings["geekModeInfo"]["tooltipGeekMode"].ToString();
+                SimpleMode.Content = appSettings.ConfigFileStrings["geekModeInfo"]["titleSimpleMode"].ToString();
+                SimpleMode.ToolTip = appSettings.ConfigFileStrings["geekModeInfo"]["tooltipSimpleMode"].ToString();
+
+
                 if (appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
                 {
                     btnResumeHabits.Visibility = Visibility.Visible;
@@ -163,16 +184,100 @@ namespace Focus_Bear
                     btnResumeHabits.Visibility = Visibility.Collapsed;
                 }
 
-                if (RegistryManager.GetFocusModeSetupDone())
+                GeekMode.Checked -= GeekMode_Checked;
+                SimpleMode.Checked -= SimpleMode_Checked;
+                if (appSettings.bIsGeekModeEnabled)
                 {
-                    btnSetupFocusMode.Visibility = Visibility.Collapsed;
+                    GeekMode.IsChecked = true;
                 }
-                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                else
                 {
-                    if(!appSettings.isFocusModeRunning)
-                        OrangeHeader.Height = 30;  
+                    SimpleMode.IsChecked = true;
+                }
+                GeekMode.Checked += GeekMode_Checked;
+                SimpleMode.Checked += SimpleMode_Checked;
+
+                if (appSettings.bIsGeekModeEnabled) //GEEK MODE ENABLED
+                {
+                    FocusSection.Visibility = Visibility.Visible;
+
+                    if (RegistryManager.GetFocusModeSetupDone())
+                    {
+                        btnSetupFocusMode.Visibility = Visibility.Collapsed;
+                    }
+                    if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                    {
+                        if (!appSettings.isFocusModeRunning)
+                            OrangeHeader.Height = 30;
+                        else
+                            OrangeHeader.Height = 70;
+                    }
+
+                    if (appSettings.bUseSuperPomodoroMode)
+                    {
+                        Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemHardcorePomodoroModeTitle"].ToString();
+                    }
                     else
-                        OrangeHeader.Height = 70;
+                    {
+                        Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
+                    }
+
+                    if (appSettings.isFocusModeRunning ||
+                        ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+                        appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
+                        appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
+                        !appSettings.bHabitsPostponedState))
+                    {
+                        btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                        btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        if (appSettings.bUseSuperPomodoroMode)
+                        {
+                            btnStopPomodoroMode.Visibility = Visibility.Visible;
+                            btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                            Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemHardcorePomodoroModeTitle"].ToString();
+                        }
+                        else
+                        {
+                            btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                            btnStartPomodoroMode.Visibility = Visibility.Visible;
+                            Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
+                        }
+                    }
+                    if (appSettings.bUseSuperPomodoroMode) //we need to show only the running focus mode in the list
+                    {
+                        for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
+                        {
+                            if (appSettings.arrFocusModes[i].name == appSettings.SuperPomodoroFocusedName)
+                            {
+                                appSettings.arrFocusModes[i].isShowAbleInTrayMenuList = true; //only show this one in the list
+                            }
+                            else
+                            {
+                                appSettings.arrFocusModes[i].isShowAbleInTrayMenuList = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
+                        {
+                            appSettings.arrFocusModes[i].isShowAbleInTrayMenuList = true;
+                        }
+                    }
+
+                    btnBrainDump.Visibility = Visibility.Visible;
+                    OfficeModeSection.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    FocusSection.Visibility = Visibility.Collapsed;
+                    btnBrainDump.Visibility = Visibility.Collapsed;
+                    btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                    btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                    OfficeModeSection.Visibility = Visibility.Collapsed;
                 }
 
             }
@@ -270,6 +375,7 @@ namespace Focus_Bear
 
         private void btnStartPomodoroMode_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("btnStartPomodoroMode_Click Tray Menu");
 
             if (appSettings.isExpired)
             {
@@ -278,8 +384,24 @@ namespace Focus_Bear
                 return;
             }
 
-            //todo Win text
-            FBMessageBox ff = new FBMessageBox("With Pomodoro mode, you automatically cycle between focus sessions and breaks (e.g. 25 minutes on, 5 minutes off)", "We haven't built Pomodoro mode yet on Windows. How badly do you want this feature?", MessageBoxButton.YesNoCancel, "I need this!", "I probably wouldn't use it", "I might use it"  );
+            Hide();
+
+            if (appSettings.isStartPomodoroWindowOpen || isFocusModeWindowOpen || appSettings.isFocusModeRunning)
+            {
+                LogWriter.LogWrite("isStartPomodoroWindowOpen || isFocusModeWindowOpen || appSettings.isFocusModeRunning - return");
+                return;
+            }
+
+            ((App)(Application.Current)).ShowPomodoroWindow();
+
+           
+
+            return;
+
+            string sMessage = appSettings.ConfigFileStrings["WindowsSpecific"]["withPomodoroMode"].ToString(); //"With Pomodoro mode, you automatically cycle between focus sessions and breaks (e.g. 25 minutes on, 5 minutes off)";
+            string sHeading = appSettings.ConfigFileStrings["WindowsSpecific"]["weHaventBuiltPomodoro"].ToString(); //"We haven't built Pomodoro mode yet on Windows. How badly do you want this feature?"
+                
+            FBMessageBox ff = new FBMessageBox(sMessage, sHeading, MessageBoxButton.YesNoCancel, appSettings.ConfigFileStrings["WindowsSpecific"]["iNeedThis"].ToString(), appSettings.ConfigFileStrings["WindowsSpecific"]["iWontUseIT"].ToString(), appSettings.ConfigFileStrings["WindowsSpecific"]["iMightUseIt"].ToString());
             ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             ff.ShowDialog();
             if(ff.btnClicked == MessageBoxResult.Yes) // "I need this!"
@@ -298,6 +420,15 @@ namespace Focus_Bear
             Hide();
         }
 
+        private void btnStopPomodoroMode_Click(object sender, RoutedEventArgs e)
+        {
+            if (appSettings.bUseSuperPomodoroMode)
+            {
+                LogWriter.LogWrite("Stop the super pomodoro mode and return");
+                appSettings.bUseSuperPomodoroMode = false; //stop the super pomodoro mode and return
+                return;
+            }
+        }
         private void Window_Deactivated(object sender, EventArgs e)
         {
             Hide(); 
@@ -312,6 +443,7 @@ namespace Focus_Bear
                 ((App)(Application.Current)).ShowExpiredNag();
                 return;
             }
+
             try
             {
                 var selectedItem = ListFocusModes.SelectedItem as FocusMode;
@@ -325,14 +457,33 @@ namespace Focus_Bear
                     var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
                     if (listItems.Count() == 0)
                     {
-                        if (isFocusModeWindowOpen)
+                        if (appSettings.isStartPomodoroWindowOpen || isFocusModeWindowOpen || appSettings.bUseSuperPomodoroMode)
+                        {
+                            ListFocusModes.SelectedItem = null;
                             return;
+                        }
+
+                        if ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+                               appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF ||
+                               appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
+                               appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
+                               !appSettings.bHabitsPostponedState)
+                        {
+                            LogWriter.LogWrite("A routine is ongoing, cannot start focus mode");
+                            ListFocusModes.SelectedItem = null;
+                            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["activityRunningCantStartFocusText"].ToString(), "Focus Bear");
+                            ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                            ff.ShowDialog();
+                            return;
+                        }
+
                         isFocusModeWindowOpen = true;
 
                         //Check here if the Breaks window is visible, we will hide it.
                         if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
                         {
-                            ((App)(Application.Current)).wndTakeABreak.HideBreakWindowAndStopTimer();
+                            ((App)(Application.Current)).wndTakeABreak.Close();
+                            ((App)(Application.Current)).wndTakeABreak = null;
                         }
 
                         if(selectedItem.isRelaxFocus && appSettings.bPasswordRequireToUseRelaxFocusMode)
@@ -358,6 +509,8 @@ namespace Focus_Bear
                         StartFocusMode wndFocus = new StartFocusMode(selectedItem.name, selectedItem.isDefault, selectedItem.isLockedFocus);
                         wndFocus.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                         wndFocus.Topmost = true;
+
+                        appSettings.sRawTasks = ""; //reset this as there may be something selected from old focus mode 
 
                         bool? bResult = wndFocus.ShowDialog();
 
@@ -454,6 +607,11 @@ namespace Focus_Bear
                             FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
                             if (CurrentRunningFocusMode.id == selectedItem.id)
                             {
+                                if (((App)(Application.Current)).wndStartPomodoro != null)
+                                {
+                                    ((App)(Application.Current)).wndStartPomodoro.Hide();
+                                    appSettings.isStartPomodoroWindowOpen = false;
+                                }
                                 //Stop the focus mode
                                 //Show WIndow here
                                 StopFocusMode ss = new StopFocusMode();
@@ -470,6 +628,9 @@ namespace Focus_Bear
                                 selectedItem.isOn = false;
                                 Sounds.PlayFocusModeEndSound();
 
+                                //Turn off super pomodoro too as user have manually stopped
+                                appSettings.bUseSuperPomodoroMode = false;
+                                
 
                                 //Clear the Gentle block temp arrays
                                 appSettings.TemporarryBlockedAppsGentleBlock.Clear();
@@ -534,6 +695,7 @@ namespace Focus_Bear
                                     //OK clicked, do nothing
                                     //Deselect the Seleted list view item
                                     ListFocusModes.SelectedItem = null;
+                                    ListFocusModes.SelectedItem = CurrentRunningFocusMode.id;
                                 }
 
                             }
@@ -618,6 +780,10 @@ namespace Focus_Bear
                         OnUntill.Content = "";
                         listItems.First<FocusMode>().isOn = false;
 
+                        if(appSettings.bUseSuperPomodoroMode)
+                        {
+                            appSettings.nSuperPomodoroCountCompleted++;
+                        }
                         //Make the global variable false
                         appSettings.isFocusModeRunning = false;
 
@@ -783,6 +949,24 @@ namespace Focus_Bear
                        
             //Save thelocal settings and upload to server
             LocalSettingsManager.PutLocalSettings();
+        }
+
+        private void GeekMode_Checked(object sender, RoutedEventArgs e)
+        {
+            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString());
+            ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            ff.ShowDialog();
+            appSettings.bIsGeekModeEnabled = true;
+            ((App)(Application.Current)).wndPreferences.PageSettings.SetGeekModeStatus();
+        }
+
+        private void SimpleMode_Checked(object sender, RoutedEventArgs e)
+        {
+            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString());
+            ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            ff.ShowDialog();
+            appSettings.bIsGeekModeEnabled = false;
+            ((App)(Application.Current)).wndPreferences.PageSettings.SetGeekModeStatus();
         }
     }
 }

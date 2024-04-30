@@ -142,8 +142,9 @@ namespace Focus_Bear
         {
             try
             {
-                DownloadProgressBar.Value = e.ProgressPercentage; //todo Win Text
-                TxtStatus.Text = string.Format("Downloading Update: {0} of {1}", Global.ToFileSizeString(e.BytesReceived), Global.ToFileSizeString(e.TotalBytesToReceive));  //$"Downloading Update:  {Utility.ToFileSizeString(e.BytesReceived)} of {Utility.ToFileSizeString(e.TotalBytesToReceive)}";
+                DownloadProgressBar.Value = e.ProgressPercentage;  
+                //"Downloading Update: {0} of {1}"
+                TxtStatus.Text = string.Format(appSettings.ConfigFileStrings["WindowsSpecific"]["downloadProgress"].ToString(), Global.ToFileSizeString(e.BytesReceived), Global.ToFileSizeString(e.TotalBytesToReceive));  
             }
             catch (Exception ex)
             {
@@ -156,9 +157,7 @@ namespace Focus_Bear
             try
             {
                 //Check if Download is correct  
-                string updateFilePath = AppSettings.AppDataDirPath + "\\FocusBearSetup.exe";
-                //var currentFileHash = Utility.GetMD5Hash(updateFilePath);
-               // if (currentFileHash.ToLower() == _appUpdater._UpdateHash.ToLower())
+                string updateFilePath = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FocusBearSetup.exe");
                 {
                     Application.Current.Shutdown(0);
                     Process.Start(updateFilePath, "/SILENT /VERYSILENT");
@@ -210,7 +209,7 @@ namespace Focus_Bear
         {
             try
             {
-                Heading.Text = "Downloading Update"; //todo Win Text
+                Heading.Text = appSettings.ConfigFileStrings["WindowsSpecific"]["downloadingUpdate"].ToString();//"Downloading Update"; 
                 BtnCancel.Content = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
             }
             catch (Exception ex)

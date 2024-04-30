@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear"
-         Title="FOcus Bear Update" Height="200" Width="720" ShowInTaskbar="False" WindowStyle="None" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing">
+        Title="Focus Bear" Height="200" Width="720" ShowInTaskbar="False" WindowStyle="None" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing">
     <Grid >
          
         <Border BorderThickness="1" Grid.RowSpan="2" Grid.ColumnSpan="3" Block.TextAlignment="Center"/>

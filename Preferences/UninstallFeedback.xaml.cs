@@ -129,9 +129,18 @@ namespace Focus_Bear.Preferences
                 }
             }
 
-            FBMessageBox ff1 = new FBMessageBox("All the app related processes will stop and the app will close itself and run the Focus Bear Uninstaller.", "Focus Bear"); //todo wintexts
-            ff1.Owner = this;
-            ff1.ShowDialog();
+            try
+            {
+                string sMessage = appSettings.ConfigFileStrings["WindowsSpecific"]["allProcessesWillStop"].ToString(); //"All the app related processes will stop and the app will close itself and run the Focus Bear Uninstaller."
+                FBMessageBox ff1 = new FBMessageBox(sMessage, "Focus Bear");
+                ff1.Owner = this;
+                ff1.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnUninstall_Click msg Exception - " + ex.Message);
+            }
+
             DialogResult = true;
             Close();
             

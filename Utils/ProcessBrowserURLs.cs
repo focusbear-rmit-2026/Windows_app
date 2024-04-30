@@ -47,6 +47,10 @@ namespace Focus_Bear.Utils
         public static void ProcessCurrentURL(IntPtr hwnd)
         {
             AppSettings appSettings = AppSettings.GetInstance;
+
+            //In case the set intention window is open, we should hide it
+            appSettings.Hide_SetIntentionWindow();
+
             if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
             {
                 
@@ -74,7 +78,13 @@ namespace Focus_Bear.Utils
             {
                 return;
             }
-            //#if !DEBUG
+
+            if (appSettings.bIsUserOnCall && !appSettings.bBlockSuperDistractingSitesDuringMeetings)
+            {
+                LogWriter.LogWrite("User is on Call - bBlockSuperDistractingSitesDuringMeetings false, return");
+                return;
+            }
+
             if (appSettings.arrAlwaysBlockedURLs.Count() > 0)
                 ProcessCurrentAlwaysBlockedURL(hwnd); //For always Blocked URLS
         }
@@ -157,6 +167,10 @@ namespace Focus_Bear.Utils
                     }
                 }
             }
+
+            appSettings.Hide_ShowIntentionWindow();
+            Console.WriteLine("Hide_ShowIntentionWindow from processbrowserurl");
+
             return false;
         }
 
@@ -916,7 +930,73 @@ namespace Focus_Bear.Utils
                 }
                 else if (type == "blocked")
                 {
-                    appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, val);
+                    if (appSettings.bImmediatelyBlockDistractingSites) //BLock immediately
+                    {
+                        appSettings.nTotalDistractingSitesBlocked++; 
+
+                        appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, val);
+                    }
+                    else //show Set intention box
+                    {
+                        string sURLForSetIntention = "";
+                        try
+                        {
+                            Uri myUri = new Uri(val);
+                            string host = myUri.Host; //fails if ther eis no http://
+                            sURLForSetIntention = host;
+                            Debug.WriteLine(sURLForSetIntention);
+                        }
+                        catch (Exception ex)
+                        {
+                            /*
+                            This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                            If uri does not specify a scheme, the scheme defaults to "http:".
+                            */
+                            Uri myUri = new UriBuilder(val).Uri;
+                            sURLForSetIntention = myUri.Host;
+                            Debug.WriteLine(ex.Message);
+                        }
+
+                        var allowedURLs = appSettings.TemporaryAllowedURLsWithSetIntention.Where(i => i.sURL.ToLower() == sURLForSetIntention.ToLower());
+                        if (allowedURLs.Count() != 0)
+                        {
+                            //found in allowed url
+                            //if the intention box is not closed for this URL, show it
+                            //we will also need to check if the time for this url is elapsed, then we need to ask interntion and confirmation again
+                            if (DateTime.Now > allowedURLs.First().EndTime)
+                            {
+                                appSettings.ShowSetIntentionWindow(hWnd, "", val, "", true); //we will send full url here
+                            }
+                            else if (!allowedURLs.First().bIsShowIntentionWindowClosedForThisURL)
+                            {
+                                appSettings.Show_ShowIntentionWindow(hWnd, val, allowedURLs.First().sIntention);
+                            }
+                            else
+                            {
+                                appSettings.Hide_ShowIntentionWindow();
+                                Console.WriteLine("Hide_ShowIntentionWindow from else of TemporaryAllowedURLsWithSetIntention");
+                            }
+                            return;//allow the url
+                        }
+                        else
+                        {
+                            var blockedURLs = appSettings.TemporarryBlockedURLsWithSetIntention.Where(i => i.ToLower() == sURLForSetIntention.ToLower());
+
+                            if (blockedURLs.Count() != 0)
+                            {
+                                //found in blocked urls..block
+                                appSettings.nTotalDistractingSitesBlocked++;
+
+                                appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, val);
+                            }
+                            else
+                            {
+                                appSettings.ShowSetIntentionWindow(hWnd, "", val, ""); //we will send full url here
+                                return;
+                            }
+                        }
+         
+                    }
                 }
                 else
                 {

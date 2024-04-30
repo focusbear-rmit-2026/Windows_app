@@ -39,7 +39,6 @@ namespace Focus_Bear.Onboarding.NEW
                 btnItWorkedText.Text = appSettings.ConfigFileStrings["tryBlockUrlVcInfo"]["buttonNowBlockedText"].ToString();
               
                 Welcome.Text = appSettings.ConfigFileStrings["tryBlockUrlVcInfo"]["tryBrowsersBlockTextWIN"].ToString();
-
             }
             catch (Exception ex)
             {
@@ -58,12 +57,16 @@ namespace Focus_Bear.Onboarding.NEW
 
             appSettings.bBlockingWorkedWhileOnboarding = false;
            _parentWindow.ShowBuildingHabitsScreen();
+
+            appSettings.CapturePostHog("button-still-not-working-clicked");
         }
 
         private void btnItWorked_Click(object sender, RoutedEventArgs e)
         {
             appSettings.bBlockingWorkedWhileOnboarding = true;
             _parentWindow.ShowBuildingHabitsScreen();
+
+            appSettings.CapturePostHog("button-just-tried-those-browsers-clicked");
         }
     }
 }

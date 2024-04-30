@@ -73,12 +73,13 @@ namespace Focus_Bear.Onboarding.New
         {
             RegistryManager.SetWelcomeAboardingDoneStatus();
 
-            ((App)(Application.Current)).ShowLoginWindow();
+            ///((App)(Application.Current)).ShowLoginWindow();
             bShutdownApp = false;
             Close();
         }
         public void ShowPrivacyScreen()
         {
+            appSettings.CapturePostHog("privacy-and-security-shown");
             FrameSteps.Navigate(new OnboardingNewPrivacy(this));
         }
         public void ShowDistractionsShieldActivatedScreen()
