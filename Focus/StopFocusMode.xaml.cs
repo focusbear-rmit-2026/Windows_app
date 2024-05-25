@@ -131,6 +131,8 @@ namespace Focus_Bear.Focus
                         int nSeconds = Convert.ToInt32(durationSeconds);
                         appSettings.AddEntryInCSV("focus mode abort", "focus block - " + appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, "", "", sOption, "");
 
+                        ((App)(Application.Current)).HideToDoPlayer();
+
                         //Call api top finish focus mode
                         FocusBearAPIClient client = new FocusBearAPIClient();
                         var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");

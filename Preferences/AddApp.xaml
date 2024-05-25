@@ -25,17 +25,18 @@
 
             </TextBox>
         </StackPanel>
-        
+
         <Grid Grid.Row="1" Background="#fff" Margin="20,0,20,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="29*"/>
                 <ColumnDefinition Width="162*"/>
-                <ColumnDefinition Width="269*"/>
+                <ColumnDefinition Width="203*"/>
+                <ColumnDefinition Width="66*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <ListView   Grid.Row="0"   x:Name="ListInstalledApps" SelectionMode="Multiple"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" Grid.ColumnSpan="3"  >
+            <ListView   Grid.Row="0"   x:Name="ListInstalledApps" SelectionMode="Multiple"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" Grid.ColumnSpan="4"  >
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="IsSelected" Value="{Binding IsSelected}" />

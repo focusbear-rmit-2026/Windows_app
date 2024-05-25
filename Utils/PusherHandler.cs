@@ -312,6 +312,8 @@ namespace Focus_Bear.Utils
                         ((App)(Application.Current)).wndTrayMenu.OnUntill.Content = "";
                         ((App)Application.Current).CloseFocusProgressWindow();
 
+                        ((App)(Application.Current)).HideToDoPlayer();
+
                         ((App)(Application.Current)).wndTrayMenu.OnUntill.Visibility = Visibility.Collapsed;
                         //Increase hearder height
                         ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 25; //Originally 25
@@ -331,6 +333,7 @@ namespace Focus_Bear.Utils
                     string sDistractions = ObjData.ContainsKey("distractions") ? ObjData["distractions"].ToString() : "";
                     appSettings.AddEntryInCSV("focus block", appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, sAchieve, sDistractions, "", "");
                
+
                     //Ask if we need to show the Add URLS/Keywords window and update focus modes
                 }
                 catch (Exception ex)

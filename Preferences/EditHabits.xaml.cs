@@ -223,8 +223,12 @@ namespace Focus_Bear.Preferences
 
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if(IsVisible)
-                LoadSettings();
+            
+        }
+        public void RefreshOnModeChange()
+        {
+            var sTemp = webView.ExecuteScriptAsync("refreshSettingPage();");
+            LoadSettings();
         }
     }
 }

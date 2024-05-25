@@ -2002,7 +2002,7 @@ namespace Focus_Bear.API
                     string sOSVersion = appSettings.sOSVersion;
                     bool bUsesWindowsApp = true;
                     string sID = (appSettings.userAccount.userID != null && appSettings.userAccount.userID.Length > 0) ? appSettings.userAccount.userID : appSettings.sGlobalUUID;
-                    string context = $"{{\"os\":\"windows\"," +
+                    string context = $"{{\"os\":\"windows\"," + 
                                      $"\"osVersion\":\"{sOSVersion}\"," +
                                      $"\"appVersion\":\"{appSettings.AppVersion.ToString()}\"}}";
                  

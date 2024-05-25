@@ -302,6 +302,9 @@
     <Compile Include="Focus\StopFocusMode.xaml.cs">
       <DependentUpon>StopFocusMode.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\ToDoPlayer.xaml.cs">
+      <DependentUpon>ToDoPlayer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Habits\AnalyzeSleepMoodWindow.xaml.cs">
       <DependentUpon>AnalyzeSleepMoodWindow.xaml</DependentUpon>
     </Compile>
@@ -486,6 +489,9 @@
     <Compile Include="Preferences\AskPassword.xaml.cs">
       <DependentUpon>AskPassword.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\CommunityPreference.xaml.cs">
+      <DependentUpon>CommunityPreference.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Preferences\EditHabits.xaml.cs">
       <DependentUpon>EditHabits.xaml</DependentUpon>
     </Compile>
@@ -626,6 +632,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\StopFocusMode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\ToDoPlayer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -866,6 +876,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Preferences\AskPassword.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\CommunityPreference.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

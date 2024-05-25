@@ -540,6 +540,11 @@ namespace Focus_Bear.Preferences
                 PasswordTab.Visibility = Visibility.Collapsed;
             }
 
+            if (_ParentWindow.PageEditHabits != null)
+            {
+                _ParentWindow.PageEditHabits.RefreshOnModeChange();
+            }
+
             _ParentWindow.SetFocusButtonState();//set the state of the main tab
 
             GeekMode.Checked += GeekMode_Checked;

@@ -170,8 +170,8 @@ namespace Focus_Bear.Utils
         public bool bHabitsPostponedState = false; //variable to handle the Resume Habits menu item
         public bool bFocusSummaryPostponedState = false; //variable to handle the Resume Habits menu item in case of focus summary postponed
 
-        public string sRawTasks;
-        public string sRawTasksDone; //used to get a list of tasks done from focus mode end window.
+        public string sRawTasks = "";
+        public string sRawTasksDone = ""; //used to get a list of tasks done from focus mode end window.
 
         public JArray arraySkipped = new JArray();
         public JArray arrayCompletedActivities = new JArray();

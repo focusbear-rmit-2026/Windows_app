@@ -58,7 +58,12 @@ namespace Focus_Bear.Preferences
 
                 ReportProblemTab.Header = appSettings.ConfigFileStrings["preferencesInfo"]["tabReportProblemText"].ToString();
                 ChatTab.Header = appSettings.ConfigFileStrings["preferencesInfo"]["tabChatText"].ToString();
+                Community.Header = appSettings.ConfigFileStrings["helpVcInfo"]["tabCommunity"].ToString();
 
+
+                CommunityHeading.Text = appSettings.ConfigFileStrings["helpVcInfo"]["titleCommunity"].ToString();
+                btnJoinDiscordTXT.Text = appSettings.ConfigFileStrings["helpVcInfo"]["buttonJoinDiscordText"].ToString();
+                BtnDontUseDiscordTxt.Text = appSettings.ConfigFileStrings["helpVcInfo"]["buttonDontUseDiscordText"].ToString();
             }
             catch (Exception ex)
             {
@@ -160,6 +165,39 @@ namespace Focus_Bear.Preferences
                 {
                     LogWriter.LogWrite("HelpTab CoreWebView2InitializationCompleted() ex - " + ex.Message);
                 }
+            }
+        }
+
+        private void BtnDontUseDiscord_Click(object sender, RoutedEventArgs e)
+        {
+            appSettings.CapturePostHog("button-i-dont-use-discord-clicked");
+            //ask for preferred community
+            _ParentWindow.RepositionWindow();
+            _ParentWindow.GridShade.Visibility = Visibility.Visible;
+            CommunityPreference wndCommunityPref = new CommunityPreference();
+            wndCommunityPref.Owner = _ParentWindow;
+            wndCommunityPref.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            wndCommunityPref.Topmost = true;
+            bool? DialogResult = wndCommunityPref.ShowDialog();
+
+            _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+        }
+
+        private void btnJoinDiscord_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string sDiscordUrl = "https://discord.gg/VZdv3ZjhSq";//default
+                sDiscordUrl = appSettings.ConfigFileStrings["discordUrl"].ToString();
+                
+                System.Diagnostics.Process.Start(sDiscordUrl);
+
+                appSettings.CapturePostHog("button-join-discord-server-clicked");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnJoinDiscord_Click + " + ex.Message);
             }
         }
     }

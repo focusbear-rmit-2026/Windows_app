@@ -88,6 +88,7 @@ namespace Focus_Bear
         private bool bScreenSaverStarted = false;
         private bool bSuggestMeetingsPopupShownForThisCallSession = false;
 
+        bool bLoadURLAgainInToDoPlayer = false;
         public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             //Always get the last active app name when the menu is clicked and ignore Focus Bear
@@ -296,6 +297,8 @@ namespace Focus_Bear
 
         public CallFocusNotifier wndCallFocusNotifier = null;
 
+        public ToDoPlayer wndToDoPlayer = null;
+        
         bool bAppExtracted = false;
 
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
@@ -2828,6 +2831,8 @@ namespace Focus_Bear
             {
                 wndFocusModeEnd.ShowTasksEndWindow();
             }
+
+            ((App)(Application.Current)).HideToDoPlayer();
         }
         public void ShowBreakWindow()
         {
@@ -3322,6 +3327,16 @@ namespace Focus_Bear
 
                 // Unsubscribe from the events when you're done
                 SystemEvents.PowerModeChanged -= OnPowerChange;
+
+                try
+                {
+                    if(wndToDoPlayer != null)
+                        wndToDoPlayer.webView.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("Todo Player webView.Dispose(); - " + ex.Message);
+                }
 
                 LogWriter.LogWrite("Application_Exit() done");
 
@@ -3863,6 +3878,30 @@ namespace Focus_Bear
 
            
             return false;
+        }
+
+        public void ShowToDoPlayer()
+        {
+            if(wndToDoPlayer == null)
+            {
+                wndToDoPlayer = new ToDoPlayer();
+            }
+            wndToDoPlayer.Show();
+
+            if(bLoadURLAgainInToDoPlayer)
+            {
+                wndToDoPlayer.LoadURL();
+                bLoadURLAgainInToDoPlayer = false;
+            }
+        }
+        public void HideToDoPlayer()
+        {
+            //Called when focus mode ends
+            if (wndToDoPlayer != null)
+            {
+                bLoadURLAgainInToDoPlayer = true;
+                wndToDoPlayer.Close();
+            }
         }
     }
 }

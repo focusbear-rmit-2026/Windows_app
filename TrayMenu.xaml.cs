@@ -96,6 +96,8 @@ namespace Focus_Bear
                 btnResumeHabitsTxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();
                 btnBrainDumpTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
 
+                btnToDoPlayerTXT.Text = "To Do Player";//appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString(); //todo wintexts
+
                 btnSetupFocusModeText.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemSetFocusModesTitle"].ToString();
 
                 if (appSettings.isOfficeModeEnabled)
@@ -280,6 +282,14 @@ namespace Focus_Bear
                     OfficeModeSection.Visibility = Visibility.Collapsed;
                 }
 
+                if(appSettings.isFocusModeRunning)
+                {
+                    btnToDoPlayer.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    btnToDoPlayer.Visibility = Visibility.Collapsed;
+                }
             }
             catch (Exception ex)
             {
@@ -750,6 +760,9 @@ namespace Focus_Bear
 
                 dispatcherTimerFocus.Start();
                 CommandManager.InvalidateRequerySuggested();
+
+                //Start the todo player
+                ((App)(Application.Current)).ShowToDoPlayer();
             }
             catch (Exception ex)
             {
@@ -967,6 +980,11 @@ namespace Focus_Bear
             ff.ShowDialog();
             appSettings.bIsGeekModeEnabled = false;
             ((App)(Application.Current)).wndPreferences.PageSettings.SetGeekModeStatus();
+        }
+
+        private void btnToDoPlayer_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)(Application.Current)).ShowToDoPlayer();
         }
     }
 }
