@@ -333,7 +333,6 @@ namespace Focus_Bear.Utils
                     string sDistractions = ObjData.ContainsKey("distractions") ? ObjData["distractions"].ToString() : "";
                     appSettings.AddEntryInCSV("focus block", appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, sAchieve, sDistractions, "", "");
                
-
                     //Ask if we need to show the Add URLS/Keywords window and update focus modes
                 }
                 catch (Exception ex)
