@@ -23,7 +23,7 @@ namespace Focus_Bear.Tour
     {
         AppSettings appSettings = AppSettings.GetInstance;
 
-        int nStep = 0;
+        int nStep = -1;
         public FocusBearMenuTour()
         {
             InitializeComponent();
@@ -36,7 +36,16 @@ namespace Focus_Bear.Tour
                 btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonGetStartedText"].ToString();
                 Heading.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["title"].ToString();
 
-                SetTexts();
+                
+
+                Description.Text = "Focus Bear keeps running in System Tray. Click on the icon to bring up the Focus Bear Menu.";
+
+                string sStep = appSettings.ConfigFileStrings["menuTourVcInfo"]["indexText"].ToString();
+                sStep = sStep.Replace("<CURRENTINDEX>", (nStep + 2).ToString()); //1
+                sStep = sStep.Replace("<TOTALCOUNT>", "4");
+                Steps.Text = sStep;
+
+                //SetTexts();
             }
             catch (Exception ex)
             {
@@ -62,8 +71,8 @@ namespace Focus_Bear.Tour
                 Description.Text = sDescription;
 
                 string sStep = appSettings.ConfigFileStrings["menuTourVcInfo"]["indexText"].ToString();
-                sStep = sStep.Replace("<CURRENTINDEX>", (nStep + 1).ToString());
-                sStep = sStep.Replace("<TOTALCOUNT>", "3");
+                sStep = sStep.Replace("<CURRENTINDEX>", (nStep + 2).ToString());
+                sStep = sStep.Replace("<TOTALCOUNT>", "4");
                 Steps.Text = sStep;
 
                 appSettings.CapturePostHog("show_menu_tour");
@@ -76,7 +85,24 @@ namespace Focus_Bear.Tour
         private void btnNext_Click(object sender, RoutedEventArgs e)
         {
             nStep++;
-            if (nStep == 1)
+            if (nStep == 0) //we started with -1 for system tray info
+            {
+                string imagePath = ("pack://application:,,,/Focus Bear;component/images/fbmenu.png");
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(imagePath);
+                image.EndInit();
+
+                FBMenu.Source = image;
+
+                btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonNextText"].ToString();
+                SetTexts();
+                GridPopup.Margin = new Thickness(0, 0, 370, 420);
+                Arrow.Margin = new Thickness(0, 0, 350, 540);
+
+                appSettings.CapturePostHog("menu_tour_next_clicked");
+            }
+            else if (nStep == 1)
             {
                 btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonNextText"].ToString();
                 SetTexts();

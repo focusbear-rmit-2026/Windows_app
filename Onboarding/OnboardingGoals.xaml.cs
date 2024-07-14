@@ -48,12 +48,12 @@ namespace Focus_Bear.Onboarding
                 InfoHealthyHabits.ToolTip = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["infoBuildHabitsText"].ToString();
                 InfoStayFocused.ToolTip = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["infoStayFocusedText"].ToString();
 
-                SetGoals.Text = "Set your Goals and Preferences"; //todo win text
-                CareAboutHabits.Text = "How much do you care about building habits?";
-                SelectOne.Text = "Select one that apply";
-                DoNotCare.Content = "Meh - don't really care";
-                NotCommitted.Content = "I probably should do habits but am not that committed";
-                Committed.Content = "Super committed -this is the main reason I want to use Focus Bear";
+                SetGoals.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["subTitle"].ToString(); //"Set your Goals and Preferences";  
+                CareAboutHabits.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["titleHowMuchCare"].ToString(); // "How much do you care about building habits?";
+                SelectOne.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["selectOneText"].ToString(); //"Select one that apply";
+                DoNotCare.Content = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonDontCareText"].ToString(); //"Meh - don't really care";
+                NotCommitted.Content = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonNotCommittedText"].ToString(); //"I probably should do habits but am not that committed";
+                Committed.Content = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonCommittedText"].ToString(); //"Super committed -this is the main reason I want to use Focus Bear";
 
                 appSettings.CapturePostHog("goals-screen-shown");
                 
@@ -145,7 +145,7 @@ namespace Focus_Bear.Onboarding
         }
 
 
-        public async void btnContinue_Click(object sender, RoutedEventArgs e)
+        public void btnContinue_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -208,12 +208,13 @@ namespace Focus_Bear.Onboarding
                 //will get habit packs only if the user is doing habits
                 if (appSettings.bGoalHealthyHabits)
                 {
+                    /**
                     Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
-                    //Here firat we need to call the API to get the packs list
+                    //Here first we need to call the API to get the packs list
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var xResponse = await client.GetHabitPacks();
                     Mouse.OverrideCursor = null;
-
+                    **/
                     //Proceed normally to the next screen toa sk for additional goals
                     _parentWindow.ShowOnboardingAdditionalGoalsScreen();
                     return;

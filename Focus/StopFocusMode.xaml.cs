@@ -104,6 +104,10 @@ namespace Focus_Bear.Focus
         {
             try
             {
+                if(!appSettings.bIsGeekModeEnabled)//Simple mode
+                {
+                    appSettings.bAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabledLastValueBeforeSimplePomodoro; //resetting the AI value
+                }
                 //If super pomodoro was running and user manually stopped the focus mode, we will reset the variable
                 appSettings.bUseSuperPomodoroMode = false;
 
@@ -132,6 +136,9 @@ namespace Focus_Bear.Focus
                         appSettings.AddEntryInCSV("focus mode abort", "focus block - " + appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, "", "", sOption, "");
 
                         ((App)(Application.Current)).HideToDoPlayer();
+
+                        FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                        FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
 
                         //Call api top finish focus mode
                         FocusBearAPIClient client = new FocusBearAPIClient();

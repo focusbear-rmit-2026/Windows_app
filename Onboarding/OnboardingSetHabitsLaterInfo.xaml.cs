@@ -38,7 +38,7 @@ namespace Focus_Bear.Onboarding
                 Desc.Text = "If you ever decide you want to activate habits in the future, you can open Preferences from the menu bar and click Edit Habits"; //todo win texts
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
 
-                //Let's set the intial startup time / shutoff time
+                //Let's set the intial startup time / shutoff time when no habits are there so defaulting to maximum time
                 appSettings.InitialStartupTimeValue = Convert.ToDateTime("00:00 AM");
                 Console.WriteLine(appSettings.InitialStartupTimeValue.ToString("HH:mm"));
 
@@ -55,7 +55,8 @@ namespace Focus_Bear.Onboarding
         }
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
-            _parentWindow.ShowMindFullBreathingFinished();//this will handle to show only setting account info
+            //mj//_parentWindow.ShowMindFullBreathingFinished();//this will handle to show only setting account info
+            _parentWindow.HideFrameAndClose();
         }
     }
 }

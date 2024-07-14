@@ -1,0 +1,128 @@
+﻿<Window x:Class="Focus_Bear.Pomodoro.StartSimplePomodoro"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Pomodoro"
+        mc:Ignorable="d"
+        Title="Focus Bear" Height="540" Width="744"  ResizeMode="NoResize" Closing="Window_Closing">
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="35" />
+            <RowDefinition Height="70" />
+ 
+            <RowDefinition Height="40" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="180" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+
+
+        <TextBlock Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xPomodoro Time" Foreground="#e88800" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <TextBlock  x:Name="BlockingStyle" Visibility="Visible" Width="300"  Margin="0,0,0,0" TextWrapping="Wrap" Text="xBlocking Style:" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"/>
+            <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" VerticalAlignment="Top"  >
+                <RadioButton  Name="RadioAI" Margin="10,5,0,0" GroupName="BlockingStyle"  FontSize="15"  FontWeight="Normal" Padding="5,-5,0,0" Cursor="Hand" Checked="RadioAI_Checked">
+                    xAI powered blocking (recommended)
+                </RadioButton>
+                <RadioButton Name="RadioSuperDistracting" Margin="10,12,0,0" GroupName="BlockingStyle"  FontSize="15" FontWeight="Normal" Padding="5,-5,0,0" Cursor="Hand"  Checked="RadioSuperDistracting_Checked" >
+                    xJust block super distracting sites
+                </RadioButton>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3"  Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+            <TextBlock  Name="HowMuchTime" Margin="10,0,10,0" TextWrapping="Wrap" Width="351" Text="xPomodoro Mode duration:" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" />
+             <TextBox      x:Name="Minutes"  MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="Minutes_TextChanged">
+                <TextBox.Effect>
+                    <DropShadowEffect ShadowDepth="3"
+                          Direction="330"
+                          Color="Gray"
+                          Opacity="0.5"
+                          BlurRadius="6"
+                           />
+                </TextBox.Effect>
+                <TextBox.FocusVisualStyle>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.FocusVisualStyle>
+            </TextBox>
+            <TextBlock  Name="MinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+            <TextBlock  Name="BreakDuration" Margin="10,0,10,0" TextWrapping="Wrap" Width="351" Text="xBreak duration:" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Center"/>
+
+            <TextBox    x:Name="MinutesBreak"  MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="Minutes_TextChanged">
+                <TextBox.Effect>
+                    <DropShadowEffect ShadowDepth="3"
+                          Direction="330"
+                          Color="Gray"
+                          Opacity="0.5"
+                          BlurRadius="6"
+                           />
+                </TextBox.Effect>
+                <TextBox.FocusVisualStyle>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.FocusVisualStyle>
+            </TextBox>
+            <TextBlock  Name="MinutesBreakTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="5" Orientation="Vertical" VerticalAlignment="Top" Margin="0,20,0,0">
+              
+            <TextBlock  Name="WhatPlan" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+            <TextBox   Name="TxtIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"  Width="500" Height="80" Margin="15" VerticalAlignment="Top"  FontSize="15" TextChanged="TxtIntention_TextChanged">
+                <TextBox.Effect>
+                    <DropShadowEffect ShadowDepth="3"
+                          Direction="330"
+                          Color="Gray"
+                          Opacity="0.5"
+                          BlurRadius="6"
+                           />
+                </TextBox.Effect>
+                <TextBox.FocusVisualStyle>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.FocusVisualStyle>
+            </TextBox>
+            
+
+        </StackPanel>
+        
+        <Button  Grid.Row="6" x:Name="btnStartSession"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" Height="45" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartSession_Click">
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock Name="btnStartSessionText" Margin="8" Text="xStart Session"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+        
+        <Border x:Name="GridShade" Grid.RowSpan="13"   CornerRadius="0"  Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
+
+    </Grid>
+</Window>

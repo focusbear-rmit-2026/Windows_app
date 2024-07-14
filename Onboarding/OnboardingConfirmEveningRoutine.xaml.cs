@@ -50,10 +50,10 @@ namespace Focus_Bear.Onboarding
 
                 TimeSpan difference = appSettings.InitialSleepTimeValue.Subtract(appSettings.InitialShutoffTimeValue);
                 int nMinutesBetweenFinishWorkAndSleepTime = (int)(difference.TotalSeconds / 60);
-                int nActualMinutesToRelax = nMinutesBetweenFinishWorkAndSleepTime - (int.Parse(appSettings.sEveningRoutineDuration) / 60) - 30; //we need to reduce the actual evening time duration //30 is the buffer before sleep time
+                int nActualMinutesToRelax = nMinutesBetweenFinishWorkAndSleepTime - (appSettings.nEveningRoutineDuration / 60) - 30; //we need to reduce the actual evening time duration //30 is the buffer before sleep time
 
                 string sAtTime2 = appSettings.ConfigFileStrings["confirmEveningRoutineTimeVcInfo"]["timeText"].ToString();
-                AtTime2.Text = sAtTime2.Replace("<TIME>", appSettings.InitialShutoffTimeValue.AddMinutes(nActualMinutesToRelax).AddMinutes(int.Parse(appSettings.sEveningRoutineDuration) / 60).ToString("hh:mm tt"));
+                AtTime2.Text = sAtTime2.Replace("<TIME>", appSettings.InitialShutoffTimeValue.AddMinutes(nActualMinutesToRelax).AddMinutes(appSettings.nEveningRoutineDuration / 60).ToString("hh:mm tt"));
 
                 
                 pointFirstEveningTimeText.Text = appSettings.ConfigFileStrings["confirmEveningRoutineTimeVcInfo"]["pointFirstMorningTimeText"].ToString();
@@ -80,9 +80,9 @@ namespace Focus_Bear.Onboarding
 
                 TimeSpan difference = appSettings.InitialSleepTimeValue.Subtract(appSettings.InitialShutoffTimeValue);
                 int nMinutesBetweenFinishWorkAndSleepTime = (int)(difference.TotalSeconds / 60);
-                int nActualMinutesToRelax = nMinutesBetweenFinishWorkAndSleepTime - (int.Parse(appSettings.sEveningRoutineDuration) / 60) - 30; //we need to reduce the actual evening time duration //30 is the buffer before sleep time
+                int nActualMinutesToRelax = nMinutesBetweenFinishWorkAndSleepTime - (appSettings.nEveningRoutineDuration / 60) - 30; //we need to reduce the actual evening time duration //30 is the buffer before sleep time
 
-                AtTime2.Text = sAtTime1.Replace("<TIME>", appSettings.InitialShutoffTimeValue.AddMinutes(nActualMinutesToRelax).AddMinutes(int.Parse(appSettings.sEveningRoutineDuration) / 60).ToString("hh:mm tt"));
+                AtTime2.Text = sAtTime1.Replace("<TIME>", appSettings.InitialShutoffTimeValue.AddMinutes(nActualMinutesToRelax).AddMinutes(appSettings.nEveningRoutineDuration / 60).ToString("hh:mm tt"));
 
                 pointFirstEveningTimeText.Text = "You'll enter \"Wind Down mode\".";
                 pointSecondEveningTimeText.Text = "It's time to do your evening habits and get ready to sleep.";
@@ -103,7 +103,7 @@ namespace Focus_Bear.Onboarding
         private void btnSoundsGood_Click(object sender, RoutedEventArgs e)
         {
             appSettings.CapturePostHog("continue-confirm-evening-routine");
-            _parentWindow.ShowOnboardingBreakRemindersScreen();
+            _parentWindow.ShowOnboardingConfirmBreaksScreen();
         }
     }
 }

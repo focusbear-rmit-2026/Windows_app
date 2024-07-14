@@ -1086,6 +1086,35 @@ namespace Focus_Bear.Models
             return res;
         }
 
+        internal static void SetOnboardingAfterLoginDoneStatus()
+        {
+            try
+            {
+                bool status = true;
+                byte[] regData = new byte[1] { Convert.ToByte(status) };
+                Write("ONBOARDINGAFTERLOGINDONE", regData);
+
+                regData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetOnboardingAfterLoginDoneStatus - " + ex.Message);
+            }
+        }
+
+        internal static bool GetOnboardingAfterLoginDoneStatus()
+        {
+            byte[] regData = (byte[])Read("ONBOARDINGAFTERLOGINDONE");
+
+            if (regData == null)
+                return false;
+
+            bool res = Convert.ToBoolean(regData[0]);
+
+            regData = null;
+            return res;
+        }
+
         internal static void SetOnboardingVideoShownStatus()
         {
             try

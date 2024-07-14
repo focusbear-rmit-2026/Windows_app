@@ -1,5 +1,8 @@
-﻿using Focus_Bear.Habits;
+﻿using Focus_Bear.API;
+using Focus_Bear.Habits;
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,6 +37,7 @@ namespace Focus_Bear.Onboarding
         OnboardingSetHabitsLaterInfo WndSetHabitsLaterInfo = null;
         OnboardingSelectHabitPacks WndOnboardingSelectHabitPacks = null;
         OnboardingAskWorkTime WndOnboardingAskWorkTime = null;
+        OnboardingConfirmBreaks WndOnboardingConfirmBreaks = null;
         OnboardingBreakReminder WndOnboardingBreaksReminder = null;
         OnboardingWelcome WndOnboardingWelcome = null;
         OnboardingMindfulBreathing WndOnboardingMindfulBreathing = null;
@@ -220,9 +224,24 @@ namespace Focus_Bear.Onboarding
                 invokeProv.Invoke();
             }
         }
-        public void ShowOnboardingBreakRemindersScreen()
+
+        public void ShowOnboardingConfirmBreaksScreen()
         {
             nScreenNumberWeAreOn = 7;
+            WndOnboardingConfirmBreaks = new OnboardingConfirmBreaks(this);
+            AppFrameOnboarding.Navigate(WndOnboardingConfirmBreaks);
+            if (appSettings.bExitFullScreenClickedWhileOnboarding)
+            {
+                //Window is already hidden, simulate the continue button click so assign all variables.
+                //We need to click the continue button on the screen
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingConfirmBreaks.btnContinue);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
+        }
+        public void ShowOnboardingBreakRemindersScreen()
+        {
+            nScreenNumberWeAreOn = 8;
             WndOnboardingBreaksReminder = new OnboardingBreakReminder(this);
             AppFrameOnboarding.Navigate(WndOnboardingBreaksReminder);
 
@@ -237,9 +256,54 @@ namespace Focus_Bear.Onboarding
         }
         public void ShowOnboardingWelcomeScreen()
         {
-            nScreenNumberWeAreOn = 8;
+            nScreenNumberWeAreOn = 9;
             WndOnboardingWelcome = new OnboardingWelcome(this);
             AppFrameOnboarding.Navigate(WndOnboardingWelcome);
+
+            //Now we need to push the updated times to the backend
+            FocusBearAPIClient client = new FocusBearAPIClient();
+            //we will need to put the user settings back if the startup or shutoff time is changed
+            //if (appSettings.IsFirstInstall)
+            {
+                String jsonString = appSettings.sRawUserSettings;
+
+                JObject UserSettings = JObject.Parse(appSettings.sRawUserSettings);
+
+                if (UserSettings.ContainsKey("startup_time"))
+                {
+                    UserSettings.Remove("startup_time");
+                    UserSettings.Add("startup_time", appSettings.InitialStartupTimeValue.ToString("HH:mm"));
+                }
+                if (UserSettings.ContainsKey("shutdown_time"))
+                {
+                    UserSettings.Remove("shutdown_time");
+                    UserSettings.Add("shutdown_time", appSettings.InitialShutoffTimeValue.ToString("HH:mm"));
+                }
+                if (UserSettings.ContainsKey("sleep_time"))
+                {
+                    UserSettings.Remove("sleep_time");
+                    UserSettings.Add("sleep_time", appSettings.InitialSleepTimeValue.ToString("HH:mm"));
+                }
+                else
+                {
+                    UserSettings.Add("sleep_time", appSettings.InitialSleepTimeValue.ToString("HH:mm"));
+                }
+                if (UserSettings.ContainsKey("break_after_minutes"))
+                {
+                    UserSettings.Remove("break_after_minutes");
+                    UserSettings.Add("break_after_minutes", appSettings.BreaksTimeInterval);
+                }
+                appSettings.sDayStartTime = appSettings.InitialStartupTimeValue.ToString("HH:mm");
+                appSettings.sDayShutOffTime = appSettings.InitialShutoffTimeValue.ToString("HH:mm");
+
+                //Also save the udpated settings to Registry
+                appSettings.sRawUserSettings = UserSettings.ToString();
+                RegistryManager.SaveUserSettings();
+
+                //We will need to put the settings.
+                var y = client.PutUserSettings();
+            }
+
 
             if (appSettings.bExitFullScreenClickedWhileOnboarding)
             {
@@ -252,14 +316,14 @@ namespace Focus_Bear.Onboarding
       
         public void ShowMindFullBreathing()
         {
-            nScreenNumberWeAreOn = 9;
+            nScreenNumberWeAreOn = 10;
             WndOnboardingMindfulBreathing = new OnboardingMindfulBreathing(this);
             AppFrameOnboarding.Navigate(WndOnboardingMindfulBreathing);
         }
 
         public void ShowMindFullBreathingFinished()
         {
-            nScreenNumberWeAreOn = 10;
+            nScreenNumberWeAreOn = 11;
             AppFrameOnboarding.Navigate(new OnboardingWorkType(this)); //MindFullBreathingFinished screen
 
             //here we can hide the skip button
@@ -275,7 +339,9 @@ namespace Focus_Bear.Onboarding
 
         public void HideFrameAndClose()
         {
-            ((App)(Application.Current)).ShowLoginWindow();
+            //mj//((App)(Application.Current)).ShowLoginWindow();
+
+            ((App)(Application.Current)).ProceedAfterOnboardingDonePostLogin();
 
             //appSettings.RemoveSecondaryWindows();
 
@@ -371,7 +437,15 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (nScreenNumberWeAreOn == 7) //Welcome Screen before mindful breathing to sk breaks time
+                else if (nScreenNumberWeAreOn == 7) //confirm taking breaks
+                {
+                    //Window is already hidden, simulate the continue button click so assign all variables.
+                    //We need to click the continue button on the screen
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingConfirmBreaks.btnContinue);
+                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                    invokeProv.Invoke();
+                }
+                else if (nScreenNumberWeAreOn == 8) //Welcome Screen before mindful breathing to sk breaks time
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to click the continue button on the screen
@@ -379,20 +453,19 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-
-                else if (nScreenNumberWeAreOn == 8) //Welcome Screen before mindful breathing
+                else if (nScreenNumberWeAreOn == 9) //Welcome Screen before mindful breathing
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to finish here as we do not need to show the mindful breathing screen
                     HideFrameAndClose();
                 }
-                else if (nScreenNumberWeAreOn == 9) //mindful breathing Screen  
+                else if (nScreenNumberWeAreOn == 10) //mindful breathing Screen  
                 {
                     HyperlinkAutomationPeer peer = new HyperlinkAutomationPeer(WndOnboardingMindfulBreathing.btnSkipThisHabit);
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (nScreenNumberWeAreOn == 10) // mindful breathing finished screen
+                else if (nScreenNumberWeAreOn == 11) // mindful breathing finished screen
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to finish here as we do not need to show the mindful breathing screen

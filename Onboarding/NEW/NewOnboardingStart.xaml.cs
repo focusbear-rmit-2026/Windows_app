@@ -73,7 +73,7 @@ namespace Focus_Bear.Onboarding.New
         {
             RegistryManager.SetWelcomeAboardingDoneStatus();
 
-            ///((App)(Application.Current)).ShowLoginWindow();
+            ((App)(Application.Current)).ShowLoginWindow();
             bShutdownApp = false;
             Close();
         }

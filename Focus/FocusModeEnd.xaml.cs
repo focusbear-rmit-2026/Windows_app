@@ -143,42 +143,45 @@ namespace Focus_Bear.Focus
                     }
                 }
 
-                AddTempAllowedToFocusModeWindow aa = new AddTempAllowedToFocusModeWindow();
-                aa.Topmost = true;
-                bool? bResult = aa.ShowDialog();
-                if(bResult.Value)
+                if (appSettings.bIsGeekModeEnabled) //only in Geek mode
                 {
-
-                    var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
-                    if (listItems.Count() != 0)
+                    AddTempAllowedToFocusModeWindow aa = new AddTempAllowedToFocusModeWindow();
+                    aa.Topmost = true;
+                    bool? bResult = aa.ShowDialog();
+                    if (bResult.Value)
                     {
-                        FocusMode ff = listItems.First();
 
-                        try
+                        var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
+                        if (listItems.Count() != 0)
                         {
-                            foreach (DistractingURL dd in appSettings.TemporaryAllowedAppsGentleBlock)
-                            {
-                                 if(dd.IsItemChecked)
-                                ff.arrAllowedAppsWin.Add(new AppDetails(dd.sURL, dd.sURL));
-                            }
-                            foreach (DistractingURL dd in appSettings.TemporaryAllowedURLsGentleBlock)
-                            {
-                                if(dd.IsItemChecked)
-                                    ff.arrAllowedUrls.Add(dd.sURL);
-                            }
-                            foreach (DistractingURL dd in appSettings.TemporaryAllowedKeywords)
-                            {
-                                if(dd.IsItemChecked && dd.sURL.Length > 0)
-                                    ff.arrAllowedUrls.Add(dd.sURL);
-                            }
-                            //we will call the API to update all the focus modes.
-                            LogWriter.LogWrite("attempt to UpdateAllFocusModes() API");
-                            var response = client.UpdateAllFocusModes();
+                            FocusMode ff = listItems.First();
 
-                        }
-                        catch (Exception ex)
-                        {
-                            LogWriter.LogWrite("btnAddDeleteAllowedURLs_Click EX = " + ex.Message);
+                            try
+                            {
+                                foreach (DistractingURL dd in appSettings.TemporaryAllowedAppsGentleBlock)
+                                {
+                                    if (dd.IsItemChecked)
+                                        ff.arrAllowedAppsWin.Add(new AppDetails(dd.sURL, dd.sURL));
+                                }
+                                foreach (DistractingURL dd in appSettings.TemporaryAllowedURLsGentleBlock)
+                                {
+                                    if (dd.IsItemChecked)
+                                        ff.arrAllowedUrls.Add(dd.sURL);
+                                }
+                                foreach (DistractingURL dd in appSettings.TemporaryAllowedKeywords)
+                                {
+                                    if (dd.IsItemChecked && dd.sURL.Length > 0)
+                                        ff.arrAllowedUrls.Add(dd.sURL);
+                                }
+                                //we will call the API to update all the focus modes.
+                                LogWriter.LogWrite("attempt to UpdateAllFocusModes() API");
+                                var response = client.UpdateAllFocusModes();
+
+                            }
+                            catch (Exception ex)
+                            {
+                                LogWriter.LogWrite("btnAddDeleteAllowedURLs_Click EX = " + ex.Message);
+                            }
                         }
                     }
                 }
@@ -256,6 +259,15 @@ namespace Focus_Bear.Focus
                             ((App)(Application.Current)).wndStartPomodoro.Hide();
                         }
                         appSettings.isStartPomodoroWindowOpen = false;
+                    }
+
+                    if(!appSettings.bIsGeekModeEnabled) //simple mode
+                    {
+                        btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        btnStartAnotherFocusMode.Visibility = Visibility.Visible;
                     }
 
                 }

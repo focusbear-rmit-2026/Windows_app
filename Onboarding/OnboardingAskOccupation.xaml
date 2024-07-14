@@ -36,16 +36,16 @@
                 <RowDefinition Height="40" />
             </Grid.RowDefinitions>
             <StackPanel Orientation="Vertical" Grid.Column="0">
-                <RadioButton x:Name="RadioButton1" GroupName="Occupation"  Margin="20,10" Content="xUniversity student" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton1_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="RadioButton2" GroupName="Occupation" Margin="20,10"  Content="xSoftware dev" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton2_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="RadioButton3" GroupName="Occupation" Margin="20,10"  Content="xGraphic designer" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton3_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="RadioButton4" GroupName="Occupation" Margin="20,10"  Content="xBusiness owner" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton4_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="RadioButton1" GroupName="Occupation1"  Margin="20,10" Content="xUniversity student" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton1_Checked" Cursor="Hand"  Click="RadioButton1_Click" />
+                <RadioButton x:Name="RadioButton2" GroupName="Occupation2" Margin="20,10"  Content="xSoftware dev" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton2_Checked" Cursor="Hand" Click="RadioButton2_Click" />
+                <RadioButton x:Name="RadioButton3" GroupName="Occupation3" Margin="20,10"  Content="xGraphic designer" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton3_Checked" Cursor="Hand" Click="RadioButton3_Click" />
+                <RadioButton x:Name="RadioButton4" GroupName="Occupation4" Margin="20,10"  Content="xBusiness owner" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton4_Checked" Cursor="Hand"  Click="RadioButton4_Click"/>
             </StackPanel>
             <StackPanel Orientation="Vertical" Grid.Column="1">
-                <RadioButton x:Name="RadioButton5" GroupName="Occupation"   Margin="20,10" Content="xOther office work" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton5_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="RadioButton6" GroupName="Occupation"  Margin="20,10"  Content="xField worker (not in front of computer)" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton6_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="RadioButton7" GroupName="Occupation"   Margin="20,10"  Content="xParent (setting it up for child)" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton7_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="RadioButton8" GroupName="Occupation"  Margin="20,10"  Content="xOther" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton8_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="RadioButton5" GroupName="Occupation5"   Margin="20,10" Content="xOther office work" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton5_Checked" Cursor="Hand" Click="RadioButton5_Click" />
+                <RadioButton x:Name="RadioButton6" GroupName="Occupation6"  Margin="20,10"  Content="xField worker (not in front of computer)" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton6_Checked" Cursor="Hand" Click="RadioButton6_Click"  />
+                <RadioButton x:Name="RadioButton7" GroupName="Occupation7"   Margin="20,10"  Content="xParent (setting it up for child)" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton7_Checked" Cursor="Hand" Click="RadioButton7_Click" />
+                <RadioButton x:Name="RadioButton8" GroupName="Occupation8"  Margin="20,10"  Content="xOther" FontSize="18" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton8_Checked" Cursor="Hand" Click="RadioButton8_Click" />
             </StackPanel>
             <TextBox Grid.Row="1" Grid.Column="1"  MinHeight="30" x:Name="TxtOtherJob" MaxLength="250"  TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,5,5,5"  BorderThickness="1" FontSize="16" TextAlignment="Left" MaxLines="1" Width="456" Visibility="Visible" HorizontalAlignment="Center" TextChanged="TxtOtherJob_TextChanged">
                 <TextBox.Effect>

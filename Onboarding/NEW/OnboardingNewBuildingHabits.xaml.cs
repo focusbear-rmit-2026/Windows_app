@@ -82,10 +82,11 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 RegistryManager.SetWelcomeAboardingDoneStatus();
 
-                ((App)(Application.Current)).ShowOnBoradingFlow();
+                _parentWindow.ShowSetupFocusBearAccount();
+                //mj//((App)(Application.Current)).ShowOnBoradingFlow();
 
-                _parentWindow.bShutdownApp = false;
-                _parentWindow.Close();
+                //mj//_parentWindow.bShutdownApp = false;
+                //mj//_parentWindow.Close();
             }
             else
             {
@@ -140,7 +141,7 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 appSettings.CapturePostHog("button-no-thanks-clicked");
 
-                FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["alertConfirmText"].ToString(), MessageBoxButton.YesNo, appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonOkShowHabitText"].ToString(), appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonCancelHabitText"].ToString());
+               /** FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["alertConfirmText"].ToString(), MessageBoxButton.YesNo, appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonOkShowHabitText"].ToString(), appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonCancelHabitText"].ToString());
                 ff.Owner = _parentWindow;
                 _parentWindow.GridShade.Visibility = Visibility.Visible;
                 ff.ShowDialog();
@@ -152,7 +153,7 @@ namespace Focus_Bear.Onboarding.NEW
                     invokeProv.Invoke();
 
                 }
-                else
+                else**/
                 {
                     RegistryManager.SetWelcomeAboardingDoneStatus();
                     _parentWindow.ShowSetupFocusBearAccount();

@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -90,7 +92,15 @@ namespace Focus_Bear.Upgrade
             LogWriter.LogWrite("btnUpgradeNow_Click");
             try 
             {
-                Process.Start(appSettings.ConfigFileStrings["upgradeNowUrl"].ToString());
+                // Process.Start(appSettings.ConfigFileStrings["upgradeNowUrl"].ToString());
+                ManageSubscription wndManageSubs = new ManageSubscription();
+                wndManageSubs.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                wndManageSubs.ShowDialog();
+
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnSyncPayment);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+
             }
             catch (Exception ex)
             {

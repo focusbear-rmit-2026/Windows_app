@@ -56,7 +56,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
                 btnContinue.IsEnabled = false;
 
 
-                var arrOptions = new string[] { appSettings.ConfigFileStrings["howHeardVcInfo"]["optionFirstText"].ToString(), appSettings.ConfigFileStrings["howHeardVcInfo"]["optionSecondText"].ToString(), appSettings.ConfigFileStrings["howHeardVcInfo"]["optionThirdText"].ToString(), appSettings.ConfigFileStrings["howHeardVcInfo"]["optionRemarkableText"].ToString() };
+                var arrOptions = new string[] { appSettings.ConfigFileStrings["howHeardVcInfo"]["optionFirstText"].ToString(), appSettings.ConfigFileStrings["howHeardVcInfo"]["optionSecondText"].ToString(), appSettings.ConfigFileStrings["howHeardVcInfo"]["optionThirdText"].ToString(), appSettings.ConfigFileStrings["howHeardVcInfo"]["optionPodcastsText"].ToString() };
                 Random rnd = new Random();
                 string[] MyRandomArray = arrOptions.OrderBy(x => rnd.Next()).ToArray();
 

@@ -227,8 +227,15 @@ namespace Focus_Bear.Preferences
         }
         public void RefreshOnModeChange()
         {
-            var sTemp = webView.ExecuteScriptAsync("refreshSettingPage();");
-            LoadSettings();
+            try
+            {
+                var sTemp = webView.ExecuteScriptAsync("refreshSettingPage();");
+                LoadSettings();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RefreshOnModeChange() ex - " + ex.Message);
+            }
         }
     }
 }

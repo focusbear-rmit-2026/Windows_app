@@ -219,7 +219,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
                     }
                 }
  
-                appSettings.FocusModeNameToCreateWhileOnBoarding = new FocusMode(System.Guid.NewGuid().ToString(), sFocusName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, false, false, false);
+                appSettings.FocusModeNameToCreateWhileOnBoarding = new FocusMode(System.Guid.NewGuid().ToString(), sFocusName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, false, false, false, false);
                 appSettings.AddFocusModeToArrayAndUploadtoAPI(appSettings.FocusModeNameToCreateWhileOnBoarding);
 
                 RegistryManager.SetFocusModeSetupDone(true);

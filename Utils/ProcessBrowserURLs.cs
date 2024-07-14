@@ -1,4 +1,5 @@
 ﻿using Focus_Bear.API;
+using Focus_Bear.Focus;
 using Focus_Bear.Models;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Threading;
 
 namespace Focus_Bear.Utils
 {
@@ -187,15 +189,26 @@ namespace Focus_Bear.Utils
             }
             else
             {
+                if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
+                {
+                    FocusAlignmentScoreManager.FocusModeCloseCurrentUrlForAlignmentScore();
+                    FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                }
                 return;
             }
             if (sURL.Contains("file://"))
             {
+                if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
+                {
+                    FocusAlignmentScoreManager.FocusModeCloseCurrentUrlForAlignmentScore();
+                    FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                }
+
                 return;
             }
             if (appSettings.nFocusBearMode == 1)
             {
-                if (sURL.Contains("focus_bear_temporarily_allow=true"))
+                if (sURL.Contains("focus_bear_temporarily_allow=true"))//If user have clicked I need this URL from blocked page, ignore it
                 {
                     return;
                 }
@@ -207,9 +220,18 @@ namespace Focus_Bear.Utils
                 string sToCheck = UNBLOCKED_URLS[m];
                 if (sURL.Contains(sToCheck))
                 {
+                    if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
+                    {
+                        FocusAlignmentScoreManager.FocusModeCloseCurrentUrlForAlignmentScore();
+                        FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                    }
                     return;
                 }
             }
+
+                       
+            
+            FocusAlignmentScoreManager.FocusModeOpenCurrentUrlForAlignmentScore(sURL);
 
             bool bAllowedURLFound = true; //by default allowed url is true
 
@@ -327,7 +349,7 @@ namespace Focus_Bear.Utils
                                         {
                                             LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of focus mode - ALLOW");
                                             bAllowedURLFound = true;
-                                            return;
+                                            ///return;
                                         }
                                         else
                                         {
@@ -337,7 +359,7 @@ namespace Focus_Bear.Utils
                                                 LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
 
                                                 bAllowedURLFound = true;
-                                                return;
+                                                ///return;
                                             }
                                             else
                                             {
@@ -353,7 +375,7 @@ namespace Focus_Bear.Utils
                                                         {
                                                             LogWriter.LogWrite(sTitle + "title found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
                                                             bAllowedURLFound = true;
-                                                            return;
+                                                            ///return;
                                                         }
                                                     }
                                                 }
@@ -365,6 +387,37 @@ namespace Focus_Bear.Utils
                                             }
                                         }
 
+                                    }
+
+                                    if(bAllowedURLFound)
+                                    {
+                                        string sHeading = appSettings.ConfigFileStrings["common"]["appAllowedInFocusModeText"].ToString();
+                                        sHeading = sHeading.Replace("<APP>", sURL);
+                                        sHeading = sHeading.Replace("<FOCUSMODE>", appSettings.sRunningFocusModeName);
+                                  
+                                        //Safe URL, need to allow.
+                                        if (!FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.ContainsKey(sURL))
+                                        {
+
+                                            FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sURL] = new Dictionary<string, object>
+                                            {
+                                                { "probability", 1.0 },
+                                                { "isVisibleUrl", true },
+                                                { "totalSeconds", 0 },
+                                                { "startedTime", DateTime.Now },
+                                                { "reason", sHeading }
+                                            };
+
+                                            FocusAlignmentScoreManager.CustomToolTip = sHeading;
+                                            FocusAlignmentScoreManager.SetAppIconForFocusModeScore(1);
+                                        }
+
+                                        double currentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
+                                        Console.WriteLine("*****************************currentFocusAlignmentScore");
+                                        Console.WriteLine(currentFocusAlignmentScore);
+
+                                        Task.Delay(1000);
+                                        return;
                                     }
                                 }
                             }
@@ -868,7 +921,7 @@ namespace Focus_Bear.Utils
                                     LogWriter.LogWrite("suppressURLForFirefox GetWindowText blockedurls EX - " + ex.Message);
                                 }
                             }
-
+                            LogWriter.LogWrite("Found in appSettings.TemporaryAllowedURLsGentleBlock - returning - " + sURLForFocusMode);
                             return;//allow the url
                         }
                         else

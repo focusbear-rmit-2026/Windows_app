@@ -72,7 +72,8 @@
         "buttonMoreActionsText": "More Actions",
         "buttonSelectHabitsText": "I don't have time for all these habits",
         "menuItemSelectHabitsText": "Select the habits to do from the list of all habits",
-        "buttonTutorialText": "Tutorial"
+        "buttonTutorialText": "Tutorial",
+        "questionHowMotivatedText": "How motivated do you feel to do your habits?"
     },
     "common": {
         "emailId": "support@focusbear.io",
@@ -187,7 +188,8 @@
         "missingFeaturesReasonText": "Missing features",
         "tooComplicatedReasonText": "Too complicated",
         "tabBlockedListText": "Blocked List",
-        "titleAccountProgress": "Account Progress"
+        "titleAccountProgress": "Account Progress",
+        "taskPlayerWindowTitle": "Focus Bear - To Do Player"
     },
     "abortInfo": {
         "abortingTitle": "Cancelling..",
@@ -341,7 +343,8 @@
         "titleUpEarly": "Up early?",
         "buttonStartMorningRoutineText": "Start morning routine",
         "buttonWorkEmergencyText": "Work emergency - start focusing",
-        "buttonCompleteEveningRoutineText": "Complete your evening routine"
+        "buttonCompleteEveningRoutineText": "Complete your evening routine",
+        "buttonShutDownText": "Shut Down"
     },
     "settings": {
         "title": "Enter settings JSON below:",
@@ -431,7 +434,12 @@
         "nextBreakText": "Next break in: <DURATION>",
         "menuItemStartHabitsFirstTimeTitle": "Start first routine",
         "focusAlignmentScoreText": "Focus alignment score = <SCORE>",
-        "alertNoHabitsFound": "There are no habits set for your account. Do you want to set habits now?"
+        "alertNoHabitsFound": "There are no habits set for your account. Do you want to set habits now?",
+        "menuItemToDoPlayerTitle": "To Do Player",
+        "menuItemStopPomodoroTitle": "Stop Pomodoro Mode",
+        "focusBreakTimeText": "<MINUTE> minutes of break remaining",
+        "waitingBreakTimeText": "It's time for a break. Waiting for a good moment",
+        "cantStopFocusModeText": "Super strict mode activated: You cannot stop this focus session until it ends."
     },
     "preferencesInfo": {
         "titlePomodoro": "Pomodoro Mode:",
@@ -581,7 +589,10 @@
         "titleAllowUrlList": "Allow List:",
         "titleBlockUrlList": "Block List:",
         "allWebsitesAllowedText": "All websites are allowed",
-        "infoAlwaysBlockedUrlsText": "Super distracting sites are automatically blocked"
+        "infoAlwaysBlockedUrlsText": "Super distracting sites are automatically blocked",
+        "titleWorkToBreakRatio": "Work to break ratio:",
+        "descriptionWorkToBreakRatio": "For every <WORKRATIO> minutes you focus, you will have a <BREAKRATIO> minutes break.",
+        "toText": "to"
     },
     "focusPreferencesAdvancedInfo": {
         "runScriptBeforeText": "Run apple script before starting focus mode.",
@@ -632,7 +643,15 @@
             "frictionLevelLowText": "low",
             "frictionLevelHighText": "high",
             "tooltipFrictionLevelLowText": "You can stop focusing at any time",
-            "tooltipFrictionLevelHighText": "You need to enter a password to stop focusing"
+            "tooltipFrictionLevelHighText": "You need to enter a password to stop focusing",
+            "strictnessNormalText": "Normal",
+            "strictnessStrictText": "Strict",
+            "strictnessSuperStrictText": "Super strict",
+            "strictnessNormalTooltip": "can pause/stop focus session at any time",
+            "strictnessStrictTooltip": "requires countdown timer before pausing/stopping focus session",
+            "strictnessSuperStrictTooltip": "grizzly mode + immediately block urls + prevents pausing/stopping focus session or opening settings",
+            "titleStrictnessLevel": "Strictness level:",
+            "strictnessSuperStrictClickedText": "I understand I cannot stop this focus session until it ends. I am committed to avoiding distractions and getting a ton of work done."
         },
         "abortingFocusModeInfo": {
             "title": "Deactivating Focus Block - <FOCUSTYPE>",
@@ -641,7 +660,10 @@
             "reasonsSecondText": "I have an emergency",
             "reasonsThirdText": "Focus mode is not working properly.",
             "buttonCancelText": "Cancel",
-            "buttonAbortFocusText": "Deactivate Focus Block"
+            "buttonAbortFocusText": "Deactivate Focus Block",
+            "titlePauseText": "Pausing Focus type - <FOCUSTYPE>",
+            "strictModeText": "Strict mode activated: you asked me to show a 15 second countdown timer before you can pause / deactivate",
+            "buttonPauseFocusText": "Pause Focus Block"
         },
         "focusCompletedInfo": {
             "title": "You did it!",
@@ -675,7 +697,9 @@
             "alertBlockUrlsDisbaledInBreaksText": "Super distracting sites unlocked during your pomodoro break. If you're brave, you can keep distractions blocked and go for a walk away from your computer instead.",
             "buttonBlockUrlsText": "Block distractions!",
             "buttonCancelText": "Let me get distracted 😅",
-            "pinWindowText": "You can pin this window so you don't forget to fill out your achievements after a focus session."
+            "pinWindowText": "You can pin this window so you don't forget to fill out your achievements after a focus session.",
+            "titleStarRatingText": "How focused were you?",
+            "addTagsInfoText": "Press enter to add the tag"
         },
         "focusSummaryInfo": {
             "title": "You completed <COUNT> focus blocks today.",
@@ -743,7 +767,12 @@
         "tourSelectTasks": "Select tasks",
         "descriptionSelectTasks": "Choose tasks to focus on from Focus Bear's inbuilt to do list",
         "tourIntention": "Freeform intention",
-        "descriptionIntention": "If you don't want to bother creating tasks, you can write a quick intention for what you'll do during this focus session"
+        "descriptionIntention": "If you don't want to bother creating tasks, you can write a quick intention for what you'll do during this focus session",
+        "buttonEditRatioText": "Edit",
+        "workRatioText": "Break duration is based on <WORKRATIO> to <BREAKRATIO> minutes work to break ratio.",
+        "titleBlockingStyleText": "Blocking Style:",
+        "buttonBlockingStyleAiText": "AI powered blocking (recommended)",
+        "buttonBlockingStyleDistractingSitesText": "Just block super distracting sites"
     },
     "logQuantityInfo": {
         "title": "Log Quantity of activity",
@@ -803,7 +832,8 @@
         "buttonSavedPasswordText": "I've saved the password somewhere safe",
         "buttonUseRelaxFocusModeText": "Allow using relax focus mode",
         "titleSetPasswordOnboarding": "Set a password to unlock the computer",
-        "descriptionSetPasswordOnboarding": "To make it harder to impulsively use your computer late at night or before you've done your morning routine, you can set a password. This is not the same as your login password. We recommend that you get an accountability partner to set the password. That way, you have to ask them to use your computer at a time you probably shouldn't be using it."
+        "descriptionSetPasswordOnboarding": "To make it harder to impulsively use your computer late at night or before you've done your morning routine, you can set a password. This is not the same as your login password. We recommend that you get an accountability partner to set the password. That way, you have to ask them to use your computer at a time you probably shouldn't be using it.",
+        "buttonCircumventingBlocksText": "Changing settings that allow circumventing blocks"
     },
     "blockedUrlsViewInfo": {
         "title": "Super Distracting Sites",
@@ -1184,7 +1214,9 @@
         "checkboxDonotShowText": "Don't show this anymore",
         "progressInfoText": "You're teaching Focus Bear what sites and apps are productive for you. It takes a bit of effort at first but within a few days, you'll have taught Focus Bear what apps and websites are productive.",
         "buttonBlockAndAddToRelaxModeText": "Block and save for Relax mode",
-        "focusAlignmentScoreText": "Your Focus alignment score is <SCORE>%"
+        "focusAlignmentScoreText": "Your Focus alignment score is <SCORE>%",
+        "buttonAllowDomainText": "Allow all URLs from <DOMAIN> for this focus session",
+        "waitingAiText": "Waiting for AI decision..."
     },
     "easyPostponeVcInfo": {
         "title": "Ok I get it - now's not a good time. I'll try again in 5 minutes. You can postpone for longer if you need to.",
@@ -1319,7 +1351,8 @@
             "Creating a machine learning algorithm that predicts which coworker will bring donuts to the office next",
             "Writing a script that generates random passwords that only consist of emojis",
             "Designing a user interface for a self-driving unicycle"],
-        "subTitleMeetings": "You're going to focus better on the meeting after this break. Write down any quick thoughts you don't forget."
+        "subTitleMeetings": "You're going to focus better on the meeting after this break. Write down any quick thoughts you don't forget.",
+        "lastWorkText": "I had <WORK> open. I was about to..."
     },
     "askWorkTimeVcInfo": {
         "titleStartupTime": "Startup Time:",
@@ -1590,7 +1623,9 @@
         "titleGentle": "Gentle",
         "titleSlightlyStrict": "Slightly strict",
         "titleStrict": "Strict",
-        "titleSuperStrict": "Super strict"
+        "titleSuperStrict": "Super strict",
+        "breaksNewSettingTitle": "Breaks",
+        "toDoListSettingTitle": "To Do List"
     },
     "impactMeasurementVcInfo": {
         "title": "Analyse Your Sleep and Mood",
@@ -1661,7 +1696,8 @@
         "buttonJoinDiscordText": "Join Discord Server",
         "buttonDontUseDiscordText": "I don't use Discord",
         "titleChooseCommunity": "What community system would you prefer to use?",
-        "placeHolderEnterCommunity": "Enter community name"
+        "placeHolderEnterCommunity": "Enter community name",
+        "tabCourses": "Courses"
     },
     "confirmMorningRoutineTimeVcInfo": {
         "title": "Confirm your morning routine",
@@ -1739,7 +1775,9 @@
         "strictness_Password_AbortingShutoff": "Late-night access control! Tick this box to demand your password when using your computer late at night, offering secure and intentional access during nighttime hours.",
         "strictness_Password_StopSuperPomodoro": "Guard your focus zone! Activate this setting to require a password when stopping the Super Pomodoro mode.",
         "strictness_Password_QuitApp": "Secure goodbyes! Enable this setting to require a password when you decide to quit the Focus Bear, adding an extra layer of security to your intentional exits.",
-        "strictness_Password_UseRelaxFocusMode": "Browse freely with control! Enable this feature to require a password when allowing the use of Relax Focus mode, adding a security layer to your leisurely internet sessions."
+        "strictness_Password_UseRelaxFocusMode": "Browse freely with control! Enable this feature to require a password when allowing the use of Relax Focus mode, adding a security layer to your leisurely internet sessions.",
+        "breaks_EnableBreaks": "Enable taking breaks at regular intervals. Breaks help your productivity, energy levels, and ability to focus.",
+        "strictness_Password_CircumventingBlocks": "Some settings like \"Show Dock Icon\" and \"Restart after force quit\" can reduce the strictness of blocking. If you tick this box, it will prompt for a password if the setting is changed to the less strict version."
     },
     "chooseHabitsVCInfo": {
         "title": "Choose Habits:",
@@ -1789,6 +1827,49 @@
         "tooltipSimpleMode": "Simple Mode active - only basic features shown. Toggle the switch to activate Geek Mode",
         "alertGeekModeEnabled": "You’ve activated Geek Mode! Advanced features activated. Overwhelmed? Toggle the switch to go back to Simple Mode",
         "alertSimpleModeEnabled": "Simple Mode active - only basic features shown. Focus modes, pomodoros etc. are no longer available. Toggle the switch to go back to Geek Mode."
+    },
+    "takeBreaksInfoVcInfo":{
+        "subTitle": "Focus Bear can help you remember to take breaks regularly throughout the day. This will help avoid screen headaches and actually improve your productivity. You can even do microworkouts during the breaks 💪",
+        "warningText": "Warning: you will get popups asking you to take breaks. Some people find them annoying. You can skip/postpone the breaks but your eyes and body will really appreciate it if you do take breaks!",
+        "titleHowMuchCare": "How much do you care about taking breaks?",
+        "selectOneText": "Select one that apply",
+        "buttonDontCareText": "Meh - don't really care",
+        "buttonNotCommittedText": "I probably should take breaks but am not that committed",
+        "buttonCommittedText": "Super committed - i vow to take breaks regularly",
+        "resultDisableBreaksText": "No worries. You can always enable breaks later from Preferences > Breaks > Enable Breaks",
+        "resultEnableBreaksText": "Cool. We'll let you set up your breaks right away"
+    },
+    "deactivateBreaksVcInfo":{
+        "title": "Do you want to turn breaks off completely?",
+        "buttonTurnOffForTodayText": "Turn them off for today",
+        "buttonKeepThemOnText": "Keep them on",
+        "buttonTurnBreaksOffText": "Turn breaks off completely"
+    },
+    "microBreaksSettingsVcInfo":{
+        "enableBreaksText": "Enable Breaks",
+        "titleDoNotBlockSuperDistractingUrls": "Do not block \"Super Distracting Sites\" during breaks"
+    },
+    "toDoListSettingsVcInfo":{
+        "showToDoPlayerSettingTitle": "Launch To Do player automatically",
+        "brainDumpSettingTitle": "Start brain dump after morning routine"
+    },
+    "toDoPlayerVcInfo":{
+        "alertStopLaunchingToDoPlayer": "Do you want to stop the To Do player from launching automatically?",
+        "buttonKeepItText": "Keep it",
+        "buttonDontShowText": "Don't Show it Again"
+    },
+    "breakSurveyVcInfo":{
+        "title": "How was the break?",
+        "questionFirstText": "How refreshed do you feel?",
+        "questionSecondText": "Did the break come at the right time?",
+        "questionThirdText": "Any other feedback?",
+        "buttonContinueText": "Back to work!",
+        "buttonSkipText": "Skip"
+    },
+    "accessibilityPermissionVcInfo":{
+        "title": "Grant accessibility permission to Focus Bear",
+        "subTitle": "In order to interact with other browsers , you need to authorize Focus Bear in the Accessibility section of the Security & Privacy Pane of the System Preferences.",
+        "nextViewInfoText": "On the next screen we will ask permissions to intract with browsers."
     },
     "discordUrl": "https://discord.gg/VZdv3ZjhSq",
     "WindowsSpecific": {

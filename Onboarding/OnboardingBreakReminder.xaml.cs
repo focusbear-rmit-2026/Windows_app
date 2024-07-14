@@ -1,4 +1,7 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.API;
+using Focus_Bear.Models;
+using Focus_Bear.Utils;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,6 +71,7 @@ namespace Focus_Bear.Onboarding
             appSettings.CapturePostHog("ask-break-time-continue-clicked");
 
             appSettings.BreaksTimeInterval = int.Parse(MinutesValue.Text);
+
             _parentWindow.ShowOnboardingWelcomeScreen();
         }
 

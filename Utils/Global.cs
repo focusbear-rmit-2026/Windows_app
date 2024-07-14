@@ -439,6 +439,7 @@ namespace Focus_Bear.Utils
         public bool isMeetings { get; set; }
         public bool isLockedFocus;
         public bool isRelaxFocus;
+        public bool isDeepWorkFocus;
 
         public bool isShowAbleInList
         {
@@ -492,7 +493,7 @@ namespace Focus_Bear.Utils
         {
 
         }
-        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, string sToolTip = "")
+        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, bool isDeepWorkFocus, string sToolTip = "")
         {
             this.id = id;
             this.name = name;
@@ -507,6 +508,7 @@ namespace Focus_Bear.Utils
             this.isMeetings = isMeetings;
             this.isLockedFocus = isLockedFocus;
             this.isRelaxFocus = isRelaxFocus;
+            this.isDeepWorkFocus = isDeepWorkFocus;
             this.sToolTip = sToolTip;
         }
 

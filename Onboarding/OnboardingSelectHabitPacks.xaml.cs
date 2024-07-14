@@ -1,4 +1,6 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.API;
+using Focus_Bear.Models;
+using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -16,6 +18,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 
 namespace Focus_Bear.Onboarding
 {
@@ -41,12 +45,11 @@ namespace Focus_Bear.Onboarding
             SetWebView();
 
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
-
+            webView.NavigationCompleted += CoreWebView2NavigationCompleted;
 
             try
             {
-                btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
-
+               
                 if (appSettings.bGoalHealthyHabits)
                     Heading.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["titleSelectHabitPack"].ToString();
                 else
@@ -56,28 +59,7 @@ namespace Focus_Bear.Onboarding
             {
                 LogWriter.LogWrite("OnboardingSelectHabitPacks()" + ex.Message);
             }
-
-            //Check is we got some response from keywords api
-            if (appSettings.sRawHabitPacks != null || (appSettings.sRawHabitPacks.Length != 0))
-            {
-                //Parse the JSON string
-                try
-                {
-
-                    JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawHabitPacks); 
-                 
-                    for (int i = 0; i < array.Count(); i++ )
-                    {
-                        JObject PackSettings = JObject.Parse(array[i].ToString());
-                        string sName = PackSettings.ContainsKey("pack_name") ? PackSettings["pack_name"].ToString() : "";
-                        ComboBoxPack.Items.Add(sName);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogWriter.LogWrite("ReadAndParseSettingsJson() EX - " + ex.Message);
-                }
-            }
+             
         }
 
         private async void SetWebView()
@@ -111,32 +93,11 @@ namespace Focus_Bear.Onboarding
                     webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+                    webView.WebMessageReceived += webView_WebMessageReceived;
 
-                    if (appSettings.sRawHabitPacks != null || (appSettings.sRawHabitPacks.Length != 0))
-                    {
-                        //Parse the JSON string
-                        try
-                        {
-                            JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawHabitPacks);
-                            for (int i = 0; i < array.Count(); i++)
-                            {
-                                if (ComboBoxPack.SelectedIndex == i)
-                                {
-                                    JObject PackSettings = JObject.Parse(array[i].ToString());
-                                    appSettings.sHabitPackIdToInstall = PackSettings.ContainsKey("id") ? PackSettings["id"].ToString() : "";
-                                    string sURL = string.Format("https://dashboard.focusbear.io/habit-packs/share/{0}?embedded=true", appSettings.sHabitPackIdToInstall);
-
-                                    appSettings.sMorningRoutineDuration = PackSettings.ContainsKey("morning_routine_duration_seconds") ? PackSettings["morning_routine_duration_seconds"].ToString() : "";
-                                    appSettings.sEveningRoutineDuration = PackSettings.ContainsKey("morning_routine_duration_seconds") ? PackSettings["morning_routine_duration_seconds"].ToString() : "";
-                                    webView.Source = new Uri(sURL, System.UriKind.Absolute);
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogWriter.LogWrite("OnboardingSelectHabitPacks CoreWebView2InitializationCompleted() EX - " + ex.Message);
-                        }
-                    }
+                    string sURL = string.Format("https://dashboard.focusbear.io/webview/routine-suggestion");
+                    webView.Source = new Uri(sURL, System.UriKind.Absolute);
+ 
                 }
                 catch (Exception ex)
                 {
@@ -145,40 +106,77 @@ namespace Focus_Bear.Onboarding
             }
         }
 
+        private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            if (e.IsSuccess)
+            {
+                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"long_term_goals\":{3}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sAdditionalGoals);
+
+                string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForRoutineSuggestion) {{ loadMetaDataForRoutineSuggestion({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
+
+                var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
+            }
+        }
+
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
             webView.Dispose();
             _parentWindow.ShowOnboardingAskWorkTimeScreen();
         }
+ 
 
-        private void ComboBoxPack_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
-            if (appSettings.sRawHabitPacks != null || (appSettings.sRawHabitPacks.Length != 0))
+            try
             {
-                //Parse the JSON string
-                try
+                LogWriter.LogWrite("select habit packs webView_WebMessageReceived() - tasks got from webview");
+                //Get User Settings
+                FocusBearAPIClient client = new FocusBearAPIClient();
+
+                //We should the settings and replace the time
+                await Task.Run(async () =>
                 {
-                    JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawHabitPacks);
-                    for (int i = 0; i < array.Count(); i++)
+                    CommandManager.InvalidateRequerySuggested();
+
+                    LogWriter.LogWrite("attempt to GetUserSettings");
+                    var userSettingsResponse = await client.GetUserSettings();
+                    int x = int.Parse(userSettingsResponse.ToString());
+                    if (x == 1)
                     {
-                        if (ComboBoxPack.SelectedIndex == i)
-                        {
-                            JObject PackSettings = JObject.Parse(array[i].ToString());
-                            appSettings.sHabitPackIdToInstall = PackSettings.ContainsKey("id") ? PackSettings["id"].ToString() : "";
-                            string sURL = string.Format("https://dashboard.focusbear.io/habit-packs/share/{0}?embedded=true", appSettings.sHabitPackIdToInstall);
-
-                            appSettings.sMorningRoutineDuration = PackSettings.ContainsKey("morning_routine_duration_seconds") ? PackSettings["morning_routine_duration_seconds"].ToString() : "";
-                            appSettings.sEveningRoutineDuration = PackSettings.ContainsKey("morning_routine_duration_seconds") ? PackSettings["morning_routine_duration_seconds"].ToString() : "";
-                            webView.Source = new Uri(sURL, System.UriKind.Absolute);
-                        }
+                        LogWriter.LogWrite("GetUserSettings Success");
+                        //User SEttings retrieved Successfully, Process them.
+                        appSettings.ReadAndParseSettingsJson();
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogWriter.LogWrite("ReadAndParseSettingsJson() EX - " + ex.Message);
-                }
-            }
+                    else
+                    {
+                        LogWriter.LogWrite("GetUserSettings Failed");
+                        appSettings.ReadAndParseSettingsJson(); //This function handles if the settings are not derieved from Server
+                    }
 
+                    CommandManager.InvalidateRequerySuggested();
+
+                    //One we have parsed the raw settings, we can get the duration for routines from the habits arrays
+                    for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
+                    {
+                        appSettings.nMorningRoutineDuration = appSettings.arrGLOBALAllMorningHabits[i].durationSeconds;
+                    }
+                    for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
+                    {
+                        appSettings.nEveningRoutineDuration = appSettings.arrGLOBALAllMorningHabits[i].durationSeconds;
+                    }
+                });
+
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnContinue);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("select habit packs webView_WebMessageReceived()" + ex.Message);
+            }
         }
+
+
     }
 }

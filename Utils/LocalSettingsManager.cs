@@ -377,6 +377,18 @@ namespace Focus_Bear.Utils
                                 sMacOSSettingsOBJ.Add("kIsGeekModeEnabled", appSettings.bIsGeekModeEnabled);
                             }
 
+                            //breaks enabled or disabled
+                            if (sMacOSSettingsOBJ.ContainsKey("kUserdefaultsBreaksEnabledFromOnboarding"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kUserdefaultsBreaksEnabledFromOnboarding"); //Remove  
+                                                                                //Add new  
+                                sMacOSSettingsOBJ.Add("kUserdefaultsBreaksEnabledFromOnboarding", appSettings.bAreBreaksEnabled);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kUserdefaultsBreaksEnabledFromOnboarding", appSettings.bAreBreaksEnabled);
+                            }
+
                             //Now remove macOS from local and add updated one
                             LocalSettings.Remove("MacOS");
 

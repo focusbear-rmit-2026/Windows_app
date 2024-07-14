@@ -67,8 +67,8 @@ namespace Focus_Bear.Onboarding
 
             }
             //"Now let's set up an account for you"
-            TypeOfWork.Text = appSettings.ConfigFileStrings["common"]["letsCreatAccountText"].ToString();
- 
+            TypeOfWork.Text = appSettings.ConfigFileStrings["common"]["stayFocusedText"].ToString(); //stay focused
+            
             btnContinueTxt.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["buttonContinueText"].ToString();
             btnContinue.IsEnabled = true;
 

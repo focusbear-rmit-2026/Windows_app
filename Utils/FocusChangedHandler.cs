@@ -49,7 +49,7 @@ namespace FocusBear.Utils
         string sActivityBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
 
 
-        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "csrss", "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui", "searchhost" };
+        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "csrss", "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui", "searchhost", "applicationframehost" };
         public static readonly int SW_MINIMIZE = 6;
         public static readonly int SW_FORCEMINIMIZE = 11;
 
@@ -818,6 +818,7 @@ namespace FocusBear.Utils
                         // block or Unblock apps
                         if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName.ToLower()))
                         {
+                            FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
                             return;
                         }
 
@@ -876,8 +877,8 @@ namespace FocusBear.Utils
                                     {
                                         LogWriter.LogWrite("processCurrentFocusElement GetWindowText ALLOWED URLS EX - " + ex.Message);
                                     }
-
                                 }
+
                                 if (!bAllowedAppFound)
                                 {
                                     if (appSettings.nFocusBearMode == 1)//Cuddly bearMode
@@ -885,6 +886,11 @@ namespace FocusBear.Utils
                                         var allowedApps = appSettings.TemporaryAllowedAppsGentleBlock.Where(i => i.sURL.ToLower() == process.ProcessName.ToLower());
                                         if (allowedApps.Count() != 0)
                                         {
+                                            //If the app is allowed and is not one of the browsers, we will OPEN is to calculate
+                                            if (!BROWSERS.Exists(ele => ele == process.ProcessName))
+                                            {
+                                                FocusAlignmentScoreManager.FocusModeOpenCurrentAppForAlignmentScore(process.ProcessName, appSettings.sRunningFocusModeName, 0, false, process.ProcessName);
+                                            }
                                             //found in allowed app
                                             bAllowedAppFound = true; //allow the app //If its a browser we will check the urls too
                                         }
@@ -897,12 +903,27 @@ namespace FocusBear.Utils
                                             }
                                             else
                                             {
+                                                //only open for non browser apps
+                                                //If the app is allowed and is not one of the browsers, we will OPEN is to calculate
+                                                if (!BROWSERS.Exists(ele => ele == process.ProcessName))
+                                                {
+                                                    FocusAlignmentScoreManager.FocusModeOpenCurrentAppForAlignmentScore(process.ProcessName, appSettings.sRunningFocusModeName, 0, false, process.ProcessName);
+                                                }
                                                 appSettings.ShowGentleBlockWindow(process.MainWindowHandle, process.ProcessName);
                                                 return;
                                             }
                                         }
                                     }
                                 }
+                                else //allowed app
+                                {
+                                    //If the app is allowed and is not one of the browsers, we will OPEN is to calculate
+                                    if (!BROWSERS.Exists(ele => ele == process.ProcessName))
+                                    {
+                                        FocusAlignmentScoreManager.FocusModeOpenCurrentAppForAlignmentScore(process.ProcessName, appSettings.sRunningFocusModeName, 1, true, process.ProcessName);
+                                    }
+                                }
+
                                 if (!bAllowedAppFound)
                                 {
                                     if (IsWindowVisible(process.MainWindowHandle))

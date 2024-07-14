@@ -55,7 +55,7 @@ namespace Focus_Bear.Onboarding.NEW
         {
             appSettings.CapturePostHog("button-already-have-account-clicked");
             //We need to set the defaults as we will be jumping every onboarding screen off
-            ((App)(Application.Current)).ShowOnBoradingFlow(true);
+            //mj//((App)(Application.Current)).ShowOnBoradingFlow(true);
             _parentWindow.ShowLoginScreen();
         }
 

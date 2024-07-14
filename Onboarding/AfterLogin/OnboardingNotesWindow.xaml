@@ -33,7 +33,7 @@
                     xAd on reddit
                 </RadioButton>
                 <RadioButton  Name="Radio4" Margin="0,13,0,0" GroupName="HearChoices"  FontSize="16" FontWeight="SemiBold" Padding="5,-5,0,0" Cursor="Hand" Checked="Radio4_Checked"  >
-                    xRemarkable
+                    xPodcasts
                 </RadioButton>
                 <RadioButton Name="SomewhereElse" Margin="0,13,0,0" GroupName="HearChoices"  FontSize="16" FontWeight="SemiBold"  Padding="5,-5,0,0" Cursor="Hand" Checked="SomewhereElse_Checked" >
                     xSomewhere else

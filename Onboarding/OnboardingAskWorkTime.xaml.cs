@@ -154,13 +154,13 @@ namespace Focus_Bear.Onboarding
                 TimeSpan difference =  appSettings.InitialSleepTimeValue.Subtract(appSettings.InitialShutoffTimeValue);  
                 int nMinutesBetweenFinishWorkAndSleepTime = (int) (difference.TotalSeconds / 60);
 
-                int nActualMinutesToRelax = nMinutesBetweenFinishWorkAndSleepTime - (int.Parse(appSettings.sEveningRoutineDuration) / 60) - 30; //we need to reduce the actual evening time duration //30 is the buffer before sleep time
+                int nActualMinutesToRelax = nMinutesBetweenFinishWorkAndSleepTime - (appSettings.nEveningRoutineDuration / 60) - 30; //we need to reduce the actual evening time duration //30 is the buffer before sleep time
 
                 string ss = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["explanationText"].ToString();
 
                 ss = "Your schedule looks like:\n\n🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Relax - block nothing\n\n<RELAX_END_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)"; //Todo win texts
 
-                int nStartDiff = -1 * (((15*60) + int.Parse(appSettings.sMorningRoutineDuration))/60) ;
+                int nStartDiff = -1 * (((15*60) + appSettings.nMorningRoutineDuration)/60) ;
                 ss = ss.Replace("<MORNING_ROUTINE_START_TIME>", appSettings.InitialStartupTimeValue.AddMinutes(nStartDiff).ToString("hh:mm tt"));
                 ss = ss.Replace("<MORNING_ROUTINE_END_TIME>", appSettings.InitialStartupTimeValue.AddMinutes(-15).ToString("hh:mm tt"));
 
@@ -169,7 +169,7 @@ namespace Focus_Bear.Onboarding
 
                 ss = ss.Replace("<RELAX_END_TIME>", appSettings.InitialShutoffTimeValue.AddMinutes(nActualMinutesToRelax).ToString("hh:mm tt"));
 
-                ss = ss.Replace("<EVENING_ROUTINE_END_TIME>", appSettings.InitialShutoffTimeValue.AddMinutes(nActualMinutesToRelax).AddMinutes(int.Parse(appSettings.sEveningRoutineDuration) / 60).ToString("hh:mm tt"));
+                ss = ss.Replace("<EVENING_ROUTINE_END_TIME>", appSettings.InitialShutoffTimeValue.AddMinutes(nActualMinutesToRelax).AddMinutes(appSettings.nEveningRoutineDuration / 60).ToString("hh:mm tt"));
 
                 Schedule.Text = ss;
             }

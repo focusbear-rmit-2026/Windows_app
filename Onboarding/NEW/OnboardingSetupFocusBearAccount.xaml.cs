@@ -81,8 +81,8 @@ namespace Focus_Bear.Onboarding.NEW
             //Show we will simulate loading of onboarding flow but will not show the window and hit the please spare me window
             //Lastly that will show the login window
 
-            ((App)(Application.Current)).ShowOnBoradingFlow(true);
-
+            //mj//((App)(Application.Current)).ShowOnBoradingFlow(true);
+            ((App)(Application.Current)).ShowLoginWindow();
             _parentWindow.bShutdownApp = false;
             _parentWindow.Close();
         }

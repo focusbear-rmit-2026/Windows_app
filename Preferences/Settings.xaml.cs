@@ -95,6 +95,11 @@ namespace Focus_Bear.Preferences
                 CheckUseRelaxMode.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonUseRelaxFocusModeText"].ToString();
                 CheckSkipEveningAfterCutOff.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonSkipEveningHabitAfterCutOffText"].ToString();
 
+                //break
+                EnableBreaks.Text = appSettings.ConfigFileStrings["settingsNew"]["breaksNewSettingTitle"].ToString();
+                EnableBreaksCheckbox.Content = appSettings.ConfigFileStrings["microBreaksSettingsVcInfo"]["enableBreaksText"].ToString();
+                EnableBreaksCheckbox.IsChecked = appSettings.bAreBreaksEnabled;
+
                 SelectLanguage.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleSelectLanguage"].ToString();
 
                 Language.Items.Add(appSettings.ConfigFileStrings["languageInfo"]["languageEnglish"].ToString());
@@ -510,6 +515,7 @@ namespace Focus_Bear.Preferences
             ff.ShowDialog();
             appSettings.bIsGeekModeEnabled = true;
             SetGeekModeStatus();
+            appSettings.CapturePostHog("switch-to-geek-mode");
         }
 
         private void SimpleMode_Checked(object sender, RoutedEventArgs e)
@@ -519,6 +525,7 @@ namespace Focus_Bear.Preferences
             ff.ShowDialog();
             appSettings.bIsGeekModeEnabled = false;
             SetGeekModeStatus();
+            appSettings.CapturePostHog("switch-to-simple-mode");
         }
 
         public void SetGeekModeStatus()
@@ -549,6 +556,18 @@ namespace Focus_Bear.Preferences
 
             GeekMode.Checked += GeekMode_Checked;
             SimpleMode.Checked += SimpleMode_Checked;
+        }
+
+        private void EnableBreaksCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bAreBreaksEnabled = true;
+            ((App)(Application.Current)).StartBreakActivityTimer();
+        }
+
+        private void EnableBreaksCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bAreBreaksEnabled = false;
+            ((App)(Application.Current)).StopBreakActivityTimer();
         }
     }
 }

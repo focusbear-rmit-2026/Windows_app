@@ -103,6 +103,9 @@ namespace Focus_Bear.Utils
 
         public bool bGoalHealthyHabits { get; set; }
         public bool bGoalStayFocused { get; set; }
+
+        public bool bAreBreaksEnabled = false; //default off
+
         public bool bExitFullScreenClickedWhileOnboarding { get; set; }
         public DateTime MorningHabitsShownTillDate { get; set; }
         public DateTime EveningHabitsShownTillDate { get; set; }
@@ -118,13 +121,13 @@ namespace Focus_Bear.Utils
 
         public bool bBlockingWorkedWhileOnboarding = false;
         //API infos Related
-        public string sDeviceID;
-        public string sRawUserSettings;
-        public string sLastActivityDoneInfo; //Last activity infor from current-activity-props api
-        public string sRawHabitPacks;
-        public string sHabitPackIdToInstall;
-        public string sMorningRoutineDuration;
-        public string sEveningRoutineDuration;
+        public string sDeviceID = "";
+        public string sRawUserSettings = "";
+        public string sLastActivityDoneInfo = ""; //Last activity infor from current-activity-props api
+        public string sRawHabitPacks = "";
+        public string sHabitPackIdToInstall = "";
+        public int nMorningRoutineDuration = 0;
+        public int nEveningRoutineDuration = 0;
         public int BreaksTimeInterval = 20;
 
         public string sUserDetailsInfo; //All user details from API
@@ -315,6 +318,8 @@ namespace Focus_Bear.Utils
         public bool bMotivationalMessageEnabled { get; set; }
         public bool bAiCheckUrlEnabled { get; set; }
         public bool bAiAllowUrlShowAlertEnabled { get; set; }
+
+        public bool bAiCheckUrlEnabledLastValueBeforeSimplePomodoro { get; set; }
         /// 
 
         public string sConfigFilePath;
@@ -1221,6 +1226,7 @@ namespace Focus_Bear.Utils
                                     bool isMeetings = false;
                                     bool isLockedFocus = false;
                                     bool isRelaxFocus = false;
+                                    bool isDeepWorkFocus = false;
 
                                     if (item.ContainsKey("allowed_urls"))
                                     {
@@ -1259,9 +1265,10 @@ namespace Focus_Bear.Utils
                                         isMeetings = metadata.ContainsKey("isMeetings") ? Convert.ToBoolean(metadata.GetValue("isMeetings")) : false;
                                         isLockedFocus = metadata.ContainsKey("isLockedFocus") ? Convert.ToBoolean(metadata.GetValue("isLockedFocus")) : false;
                                         isRelaxFocus = metadata.ContainsKey("isRelaxFocus") ? Convert.ToBoolean(metadata.GetValue("isRelaxFocus")) : false;
+                                        isDeepWorkFocus = metadata.ContainsKey("isDeepWorkFocus") ? Convert.ToBoolean(metadata.GetValue("isDeepWorkFocus")) : false;
                                     }
 
-                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : "")));
+                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : "")));
                                 }
 
                                 catch (Exception ex)
@@ -1402,6 +1409,8 @@ namespace Focus_Bear.Utils
                             bShowBreaksWhileInCall = sMacOSSettingsOBJ.ContainsKey("kIsShowBreaksInCallEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsShowBreaksInCallEnabled") : false;
 
                             bIsGeekModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsGeekModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsGeekModeEnabled") : true;
+
+                            bAreBreaksEnabled = sMacOSSettingsOBJ.ContainsKey("kUserdefaultsBreaksEnabledFromOnboarding") ? (bool)sMacOSSettingsOBJ.GetValue("kUserdefaultsBreaksEnabledFromOnboarding") : false; //breaks off by default
                         }
                     }
                     catch (Exception ex)
@@ -1420,6 +1429,53 @@ namespace Focus_Bear.Utils
             }
         }
 
+        public bool CheckIfLocalDeviceSettingsJsonExistsForOldUser()
+        {
+            LogWriter.LogWrite("CheckIfLocalDeviceSettingsJsonExistsForOldUser()");
+
+            try
+            {
+                //Check is settings are there
+                if (sUserLocalDeviceSettings == null || sUserLocalDeviceSettings.Length == 0)
+                {
+                    LogWriter.LogWrite("sUserLocalDeviceSettings == null - Read previously saved in registry");
+                    //Read previously saved in registry
+                    RegistryManager.GetLocalDeviceSettings();
+                }
+                if (sUserLocalDeviceSettings.Length > 0)
+                {
+                    //Parse the JSON string
+                    try
+                    {
+                        JObject LocalSettings = JObject.Parse(sUserLocalDeviceSettings);
+
+                        string sMacOSSettings = LocalSettings.ContainsKey("MacOS") ? LocalSettings["MacOS"].ToString() : "";
+                        if (sMacOSSettings != null && sMacOSSettings.Length > 0)
+                        {
+                            JObject sMacOSSettingsOBJ = JObject.Parse(sMacOSSettings);
+
+                            if (sMacOSSettingsOBJ.Count > 0)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("ReadAndParseUserLocalDeviceSettingsJson() 1 ex - " + ex.Message);
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ReadAndParseUserLocalDeviceSettingsJson() 2 ex - " + ex.Message);
+            }
+            return false;
+        }
         public void AddFocusModeToArrayAndUploadtoAPI(FocusMode ff)
         {
             LogWriter.LogWrite("AddFocusModeToArrayAndUploadtoAPI() - " + ff.name);
@@ -1459,7 +1515,7 @@ namespace Focus_Bear.Utils
                         //add to focus modes  array and Upload to api
                         //#A3FFA1 is the default color
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["defaultFocusText"].ToString(); //Block super distracting sites/apps
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, true, false, false, false));
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, true, false, false, false, false));
 
                     }
                     //Check Meetings Focus Mode
@@ -1502,7 +1558,7 @@ namespace Focus_Bear.Utils
                         arrAllowedAppsWin.Add(new AppDetails("Slack", "slack.exe"));
 
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusText"].ToString(); //"meetingsFocusText":"Meetings",
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, true, false, false));
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, true, false, false, false));
 
                     }
                     //Check Locked Focus Mode
@@ -1514,7 +1570,7 @@ namespace Focus_Bear.Utils
                         //add to focus modes  array and Upload to api
                         //#A3FFA1 is the default color
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["lockedFocusText"].ToString();//        "lockedFocusText":"Locked Focus on current activity",
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, false, true, false, false, true, false));
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, false, true, false, false, true, false, false));
                     }
 
                     //Check Relax Focus Mode
@@ -1526,9 +1582,23 @@ namespace Focus_Bear.Utils
                         //add to focus modes  array and Upload to api
                         //#A3FFA1 is the default color
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["relaxFocusText"].ToString(); //"Relax - block nothing"
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, false, false, false, false, true));
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, false, false, false, false, true, false));
                     }
 
+                    //Check Deep Work Focus Mode
+                    var listItemsDeep = arrFocusModes.Where(l => l.isDeepWorkFocus == true);
+                    if (listItemsDeep.Count() == 0)
+                    {
+                        LogWriter.LogWrite("isDeepWorkFocus focus mode not found, create new");
+                        //Call the API to upload the newly created focus mode
+                        //add to focus modes  array and Upload to api
+                        //#A3FFA1 is the default color
+                        ObservableCollection<string> arrAllowedUrls = new ObservableCollection<string>();
+                        arrAllowedUrls.Add("google.com");
+
+                        string sName = "Deep Work";// todo win texts ConfigFileStrings["focusPreferencesInfo"]["relaxFocusText"].ToString(); //"Relax - block nothing"
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, arrAllowedUrls, new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, false, false, false, false, true));
+                    }
                 }
 
             }
