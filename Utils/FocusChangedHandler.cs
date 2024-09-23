@@ -41,7 +41,7 @@ namespace FocusBear.Utils
         public static readonly int UIA_EditControlTypeId = 50004;
         public static readonly int UIA_PATTERN_ID = 10002;
 
-        public static readonly List<string> BLOCKED_URLS = new List<string> { "*.google.com", "facebook.com", "twitter.com" };
+        public static readonly List<string> BLOCKED_URLS = new List<string> { "*.google.com", "facebook.com", "x.com" };
         public static readonly List<string> BLOCKED_APPS = new List<string> { "notepad", "regedit", "registry editor" };
 
         string sAlwaysBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type=always-blocked";

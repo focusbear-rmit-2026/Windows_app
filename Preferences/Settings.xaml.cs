@@ -73,7 +73,8 @@ namespace Focus_Bear.Preferences
                 BlockedURLTab.Header = appSettings.ConfigFileStrings["common"]["tabBlockedURLsText"].ToString();
                 AccountTab.Header = appSettings.ConfigFileStrings["common"]["tabAccountsText"].ToString();
 
-                PomodoroTab.Header = appSettings.ConfigFileStrings["common"]["tabPomodoroText"].ToString();
+                //todo win texts
+                PomodoroTab.Header = "Focus Sessions";//appSettings.ConfigFileStrings["common"]["tabPomodoroText"].ToString();
                 AdvancedTab.Header = appSettings.ConfigFileStrings["common"]["tabAdvancedText"].ToString();
                 AITab.Header = appSettings.ConfigFileStrings["common"]["tabAIText"].ToString();
                 UninstallTab.Header = appSettings.ConfigFileStrings["common"]["tabUninstallText"].ToString();
@@ -510,6 +511,20 @@ namespace Focus_Bear.Preferences
 
         private void GeekMode_Checked(object sender, RoutedEventArgs e)
         {
+            if (appSettings.isExpired)
+            {
+                e.Handled = true;
+
+                SimpleMode.Checked -= SimpleMode_Checked;
+                SimpleMode.IsChecked = true;
+                SimpleMode.Checked += SimpleMode_Checked;
+
+                ((App)(Application.Current)).ShowUpgradeToProNag(appSettings.ConfigFileStrings["upgradeToProNagVcInfo"]["titleNoGeekMode"].ToString());
+                // Prevent the click event from being processed further
+                
+                return;
+            }
+
             FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString());
             ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             ff.ShowDialog();
@@ -561,7 +576,27 @@ namespace Focus_Bear.Preferences
         private void EnableBreaksCheckbox_Checked(object sender, RoutedEventArgs e)
         {
             appSettings.bAreBreaksEnabled = true;
-            ((App)(Application.Current)).StartBreakActivityTimer();
+
+            //Only start the timer if the morning habits are shown
+            bool isMorningHabitsAlreadyShown = false;
+            if (RegistryManager.GetMorningHabitsShownTillDate())
+            {
+                if (DateTime.Now < appSettings.MorningHabitsShownTillDate)
+                {
+                    isMorningHabitsAlreadyShown = true;
+                }
+                else
+                {
+                    isMorningHabitsAlreadyShown = false;
+                }
+            }
+            else
+            {
+                isMorningHabitsAlreadyShown = false;
+            }
+            
+            if(isMorningHabitsAlreadyShown)
+                ((App)(Application.Current)).StartBreakActivityTimer();
         }
 
         private void EnableBreaksCheckbox_Unchecked(object sender, RoutedEventArgs e)
@@ -569,5 +604,8 @@ namespace Focus_Bear.Preferences
             appSettings.bAreBreaksEnabled = false;
             ((App)(Application.Current)).StopBreakActivityTimer();
         }
+
+        
+
     }
 }

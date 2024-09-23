@@ -50,11 +50,13 @@ namespace Focus_Bear.Login
        
         private void btnSignIn_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("button-signin-with-email-clicked");//to match with mac
             _parentWindow.ShowSignInWindow();
         }
 
         private void btnSignUp_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("button-signup-with-email-clicked"); //to match with mac
             _parentWindow.ShowSignUpWindow();
         }
 

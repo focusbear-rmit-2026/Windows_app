@@ -28,9 +28,9 @@ namespace Focus_Bear.Utils
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
-        private static string sAlwaysBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type=always-blocked";
-        private static string sFcousBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
-        private static string sActivityBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
+        private static string sAlwaysBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type=always-blocked&block_mode={1}&version={2}";
+        private static string sFcousBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}&version={4}";
+        private static string sActivityBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type={1}&version={2}"; //evening-habit, morning-habit, break-activity
 
         public static readonly List<string> UNBLOCKED_URLS = new List<string> { "about:blank",
             "chrome://",
@@ -91,12 +91,74 @@ namespace Focus_Bear.Utils
                 ProcessCurrentAlwaysBlockedURL(hwnd); //For always Blocked URLS
         }
 
+        static string ExtractOldUrl(string input)
+        {
+            // Regular expression to find the string between old_url= and &block_type=
+            string pattern = @"[?&]old_url=([^&]+)";
+            Match match = Regex.Match(input, pattern);
+
+            if (match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+
+            return null; // Return null if no match is found
+        }
+
         public static bool ProcessCurrentAlwaysBlockedURL(IntPtr hwnd)
         {
             AppSettings appSettings = AppSettings.GetInstance;
 
-            if (appSettings.FirefoxLastAccWindow != null && (appSettings.sLastActiveURLInFirefox != null && appSettings.sLastActiveURLInFirefox.Length > 0 && (!appSettings.sLastActiveURLInFirefox.Contains("focus-block.html"))))
+            if (appSettings.FirefoxLastAccWindow != null && (appSettings.sLastActiveURLInFirefox != null && appSettings.sLastActiveURLInFirefox.Length > 0 ))
             {
+                //Check if the user is trying to unblock the URL that is blocked using Oops I actually need this
+                if(appSettings.sLastActiveURLInFirefox.Contains("&unblock_it=true"))
+                {
+                    string oldURLToOpen = ExtractOldUrl(appSettings.sLastActiveURLInFirefox);
+
+                    if (oldURLToOpen != null && oldURLToOpen.Length > 0)
+                    {
+                        string sDomain = "";
+                        try
+                        {
+                            Uri myUri = new Uri(oldURLToOpen);
+                            string host = myUri.Host; //fails if there is no http://
+                            sDomain = host;
+                        }
+                        catch (Exception ex)
+                        {
+                            /*
+                            This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                            If uri does not specify a scheme, the scheme defaults to "http:".
+                            */
+                            Uri myUri = new UriBuilder(oldURLToOpen).Uri;
+                            sDomain = myUri.Host;
+                        }
+
+                        //Open the url and also add it to temporary allowed URL list
+                        var blockedURLs = appSettings.TemporarryBlockedURLsWithSetIntention.Where(i => i.ToLower() == sDomain.ToLower());
+
+                        if (blockedURLs.Count() != 0)
+                        {
+                            appSettings.TemporarryBlockedURLsWithSetIntention.Remove(sDomain);
+                        }
+
+                        //Now fire the OLD url so that it will ask for intention again
+                        appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = oldURLToOpen;
+                        SetForegroundWindow(hwnd);
+                        Task.Delay(1);
+                        appSettings.FirefoxLastAccWindow.accSelect(0x1, appSettings.objChild);//take selection
+
+                        SendKeys.SendWait("{ENTER}");
+
+                        appSettings.CapturePostHog("unblock-distracting-url");
+                    }
+                }
+                else if(appSettings.sLastActiveURLInFirefox.Contains("focus-block.html"))
+                {
+                    //return if its a normal block page
+                    return false;
+                }
                 //Check if its an always unblocked url
                 for (int m = 0; m < UNBLOCKED_URLS.Count(); m++)
                 {
@@ -867,7 +929,8 @@ namespace Focus_Bear.Utils
                     if (appSettings.nFocusBearMode == 1)//Cuddly bearMode
                     {
                         string sURLForFocusMode = "";
-                        try
+                        sURLForFocusMode = val;
+                       /** try
                         {
                             Uri myUri = new Uri(val);
                             string host = myUri.Host; //fails if ther eis no http://
@@ -879,11 +942,11 @@ namespace Focus_Bear.Utils
                             /*
                             This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
                             If uri does not specify a scheme, the scheme defaults to "http:".
-                            */
+                            * /
                             Uri myUri = new UriBuilder(val).Uri;
                             sURLForFocusMode = myUri.Host;
                             Debug.WriteLine(ex.Message);
-                        }
+                        }**/
 
                         var allowedURLs = appSettings.TemporaryAllowedURLsGentleBlock.Where(i => i.sURL.ToLower() == sURLForFocusMode.ToLower());
                         if (allowedURLs.Count() != 0)
@@ -960,7 +1023,7 @@ namespace Focus_Bear.Utils
                     if (appSettings.bHabitwithUseFocusModeRunning)
                     {
                         //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
-                        string sURL = string.Format(sActivityBlockedWebUrl, val, appSettings.sHabitTypeForUseFocusModeIDInActivity);
+                        string sURL = string.Format(sActivityBlockedWebUrl, val, appSettings.sHabitTypeForUseFocusModeIDInActivity, appSettings.AppVersion.ToString());
                         if (appSettings.nFocusBearMode == 1)//cuddly mode
                             sURL = sURL + "&cuddly_bear_mode=true";
                         appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = sURL;
@@ -970,7 +1033,7 @@ namespace Focus_Bear.Utils
                     {
                         DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
                         string sEndTime = end.ToString("o");
-                        string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, val, sEndTime, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention);
+                        string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, val, sEndTime, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.AppVersion.ToString());
                         // "https://focus-bear.github.io/assets/focus-blocked/?old_url={0)&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
 
                         if (appSettings.nFocusBearMode == 1)//cuddly mode
@@ -987,7 +1050,7 @@ namespace Focus_Bear.Utils
                     {
                         appSettings.nTotalDistractingSitesBlocked++; 
 
-                        appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, val);
+                        appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, val, (appSettings.nFocusBearMode == 1) ? "cuddly" : "grizzly", appSettings.AppVersion.ToString()); //1 is cuddly bear mode
                     }
                     else //show Set intention box
                     {
@@ -1040,7 +1103,7 @@ namespace Focus_Bear.Utils
                                 //found in blocked urls..block
                                 appSettings.nTotalDistractingSitesBlocked++;
 
-                                appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, val);
+                                appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, val, (appSettings.nFocusBearMode == 1) ? "cuddly" : "grizzly", appSettings.AppVersion.ToString()); //1 is cuddly bear mode
                             }
                             else
                             {
@@ -1054,7 +1117,7 @@ namespace Focus_Bear.Utils
                 else
                 {
                     //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
-                    appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sActivityBlockedWebUrl, val, type);
+                    appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sActivityBlockedWebUrl, val, type, appSettings.AppVersion.ToString());
                 }
                                
                 SetForegroundWindow(hWnd);

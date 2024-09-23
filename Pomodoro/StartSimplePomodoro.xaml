@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Pomodoro"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="540" Width="744"  ResizeMode="NoResize" Closing="Window_Closing">
+        Title="Focus Bear" Height="540" Width="744"  ResizeMode="NoResize" Closing="Window_Closing" LocationChanged="Window_LocationChanged">
     <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
@@ -27,7 +27,7 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal">
             <TextBlock  x:Name="BlockingStyle" Visibility="Visible" Width="300"  Margin="0,0,0,0" TextWrapping="Wrap" Text="xBlocking Style:" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"/>
             <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" VerticalAlignment="Top"  >
-                <RadioButton  Name="RadioAI" Margin="10,5,0,0" GroupName="BlockingStyle"  FontSize="15"  FontWeight="Normal" Padding="5,-5,0,0" Cursor="Hand" Checked="RadioAI_Checked">
+                <RadioButton  Name="RadioAI" Margin="10,5,0,0" GroupName="BlockingStyle"  FontSize="15"  FontWeight="Normal" Padding="5,-5,0,0" Cursor="Hand" Checked="RadioAI_Checked"  >
                     xAI powered blocking (recommended)
                 </RadioButton>
                 <RadioButton Name="RadioSuperDistracting" Margin="10,12,0,0" GroupName="BlockingStyle"  FontSize="15" FontWeight="Normal" Padding="5,-5,0,0" Cursor="Hand"  Checked="RadioSuperDistracting_Checked" >
@@ -124,5 +124,62 @@
         
         <Border x:Name="GridShade" Grid.RowSpan="13"   CornerRadius="0"  Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
 
+        <!-- Define the Popup -->
+        <Popup x:Name="MyPopup" 
+               Placement="Left" 
+               PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+               HorizontalOffset="100" 
+               VerticalOffset="-120"
+               StaysOpen="True" 
+               AllowsTransparency="True">
+            <Grid Width="287" Height="auto"  Background="{x:Null}">
+               
+                <!-- Popup Content -->
+                <Border Background="LightGoldenrodYellow" Width="250" BorderBrush="Orange" BorderThickness="1" Margin="0,0,0,0" CornerRadius="7">
+                    <Grid x:Name="GridPopup" Width="250" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" MinHeight="70" />
+                            <RowDefinition Height="Auto" MinHeight="30" />
+                            <RowDefinition Height="Auto" MinHeight="35" />
+                            <RowDefinition Height="Auto" MinHeight="25" />
+                            <RowDefinition Height="2" />
+                            <RowDefinition Height="40" />
+                        </Grid.RowDefinitions>
+                        <Rectangle Grid.Row="0" Grid.RowSpan="6" Height="auto" Fill="LightGoldenrodYellow" HorizontalAlignment="Right"  RadiusX="7" RadiusY="7" Grid.ColumnSpan="2" />
+                        <Image Name="Logo" Grid.Row="0"   Width="40"  Margin="20,20,0,0"  Source="../Images/fbicon-64.png"   VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                        <TextBlock Name="HeadingPopup" Grid.Row="0"   Margin="70,30,0,0"    VerticalAlignment="Top"  Foreground="Black" FontSize="14" FontWeight="Semibold" >xStart Pomodoro Mode</TextBlock>
+                        <TextBlock Name="Title" Grid.Row="1"   Margin="20,20,0,0"     VerticalAlignment="Top"  Foreground="Black" FontSize="14" FontWeight="Semibold" >Pomodoro Time</TextBlock>
+                        <TextBlock Name="Description" Grid.Row="2" TextWrapping="Wrap"  Margin="20,20,20,0"  VerticalAlignment="Top"  Foreground="Black" FontSize="14" FontFamily="Segoe UI" >xThe Pomodoro technique works well for many ADHDers. You do 25 minutes of work (could be shorter or longer) and then have a 5 minute break. Click on the (i) to learn more about how it works."</TextBlock>
+                        <Grid Grid.Row="4" Background="LightGray" ></Grid>
+                        <Grid Grid.Row="5" >
+                            <TextBlock Name="Steps" TextWrapping="Wrap"  Margin="20,0,20,0"  VerticalAlignment="Center"  Foreground="Gray" FontSize="12" FontFamily="Segoe UI" >x1 of 3</TextBlock>
+                            <Button  x:Name="btnNextPopup" Width="auto" HorizontalAlignment="Right"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26"  VerticalAlignment="Center"  Margin="0,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnNextPopup_Click" >
+                                <Button.Content>
+                                    <StackPanel  Orientation="Horizontal">
+                                        <TextBlock x:Name="btnNextPopupTXT" Padding="10,0" Text="xNext"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+
+                        </Grid>
+                    </Grid >
+                </Border>
+
+                <!-- Arrow -->
+                <Path x:Name="Arrow" StrokeThickness="1" Stroke="Orange" Fill="LightGoldenrodYellow" VerticalAlignment="Top" 
+                  HorizontalAlignment="Right" 
+                  Margin="0,120,-1,0">
+                    <Path.Data>
+                        <PathGeometry>
+                            <PathFigure StartPoint="20,0">
+                                <PolyLineSegment Points="40,20 20,40"/>
+                                <LineSegment Point="20,0" IsStroked="False"/>
+                            </PathFigure>
+                        </PathGeometry>
+                    </Path.Data>
+                </Path>
+
+            </Grid>
+        </Popup>
     </Grid>
 </Window>

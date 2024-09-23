@@ -55,7 +55,7 @@ namespace Focus_Bear.Onboarding.NEW
             }
             //Default Always Blocked URLS
             appSettings.arrDistractingURLs.Add(new DistractingURL("facebook.com", true));
-            appSettings.arrDistractingURLs.Add(new DistractingURL("twitter.com", true));
+            appSettings.arrDistractingURLs.Add(new DistractingURL("x.com", true));
             appSettings.arrDistractingURLs.Add(new DistractingURL("instagram.com", true));
             appSettings.arrDistractingURLs.Add(new DistractingURL("tiktok.com", true));
             appSettings.arrDistractingURLs.Add(new DistractingURL("bbc.com", true));

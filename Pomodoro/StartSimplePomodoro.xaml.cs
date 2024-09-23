@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Focus;
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -26,6 +27,9 @@ namespace Focus_Bear.Pomodoro
     public partial class StartSimplePomodoro : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
+
+        int nStep = 1;
+
         public StartSimplePomodoro()
         {
             InitializeComponent();
@@ -44,19 +48,30 @@ namespace Focus_Bear.Pomodoro
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["title"].ToString();
-                RadioAI.Content = "AI powered blocking(recommended)";//todo win texts
+                RadioAI.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonBlockingStyleAiText"].ToString(); //"AI powered blocking(recommended)";
                 
-                RadioSuperDistracting.Content = "Just block super distracting sites";//
-                BlockingStyle.Text = "Blocking Style: ";
-                RadioAI.IsChecked = true; //default checked
+                RadioSuperDistracting.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonBlockingStyleDistractingSitesText"].ToString(); //"Just block super distracting sites";//
+                BlockingStyle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["titleBlockingStyleText"].ToString(); //"Blocking Style: ";
+               
 
                 HowMuchTime.Text = appSettings.ConfigFileStrings["preferencesInfo"]["pomodoroModeDurationText"].ToString();
                 MinutesTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
                 BreakDuration.Text = appSettings.ConfigFileStrings["preferencesInfo"]["breakDurationText"].ToString();
                 MinutesBreakTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
 
-                WhatPlan.Text = "What do you want to achieve in this pomodoro session?";//todo win texts //appSettings.ConfigFileStrings["pomodoroInfo"]["questionFirstText"].ToString();
+                WhatPlan.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["questionFirstText"].ToString();  //"What do you want to achieve in this pomodoro session?";
                 btnStartSessionText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonLetsDoItText"].ToString();
+
+                if(appSettings.isExpired)
+                {
+                    RadioSuperDistracting.IsChecked = true;
+                }
+                else
+                {
+                    RadioAI.IsChecked = true; //default checked in trial and full version
+                }
+
+                btnNextPopupTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonNextText"].ToString();
             }
             catch (Exception ex)
             {
@@ -64,13 +79,92 @@ namespace Focus_Bear.Pomodoro
             }
 
             UpdateValues();
+
+            if (!RegistryManager.GetSimplePomodoroTourShownStatus())
+            {
+                ShowTourPopup();
+            }
+        }
+        private void ShowTourPopup()
+        {
+            // Update the popup position before opening it
+            //UpdatePopupPosition();
+
+            // Open the popup
+            MyPopup.IsOpen = true;
+            UpdateTourPopupTexts();
         }
 
+        private void UpdateTourPopupTexts()
+        {
+            try
+            {
+                HeadingPopup.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleTour"].ToString();
+
+
+                string sStep = appSettings.ConfigFileStrings["menuTourVcInfo"]["indexText"].ToString();
+                sStep = sStep.Replace("<CURRENTINDEX>", (nStep).ToString()); //1
+                sStep = sStep.Replace("<TOTALCOUNT>", "5");
+                Steps.Text = sStep;
+
+                if (nStep == 1)
+                {
+                    Title.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titlePomodoroTime"].ToString();
+                    Description.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["subTitlePomodoroTime"].ToString();
+                }
+                else if (nStep == 2)
+                {
+                    MyPopup.VerticalOffset = MyPopup.VerticalOffset + 70;
+                    Title.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleBlockingStyle"].ToString();
+                    Description.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["subTitleBlockingStyle"].ToString();
+                }
+                else if (nStep == 3)
+                {
+                    MyPopup.VerticalOffset = MyPopup.VerticalOffset + 85;
+                    Title.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleWorkDuration"].ToString();
+                    Description.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["subTitleWorkDuration"].ToString();
+                }
+                else if (nStep == 4)
+                {
+                    MyPopup.VerticalOffset = MyPopup.VerticalOffset + 50;
+                    Title.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleBreakDuration"].ToString();
+                    Description.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["subTitleBreakDuration"].ToString();
+                }
+                else if (nStep == 5)
+                {
+                    MyPopup.VerticalOffset = MyPopup.VerticalOffset + 50;
+                    Title.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleIntention"].ToString();
+                    Description.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["subTitleIntention"].ToString();
+
+                    btnNextPopupTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonFinishText"].ToString(); //Finish
+                }
+                else if (nStep == 6)
+                {
+                    RegistryManager.SetSimplePomodoroTourShownStatus();
+                    //Close the popup
+                    MyPopup.IsOpen = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpdateTourPopupTexts() simple pomodoro popup ex - " + ex.Message);
+            }
+        }
+      
         public void UpdateValues()
         {
             LogWriter.LogWrite("Pomodoro window UpdateValues()" );
             try
             {
+                if (appSettings.isExpired)
+                {
+                    RadioSuperDistracting.IsChecked = true;
+                }
+                else
+                {
+                    RadioAI.IsChecked = true; //default checked in trial and full version
+                }
+
                 Minutes.Text = appSettings.PomodoroMinutes;
                 MinutesBreak.Text = appSettings.PomodoroBreakMinutes;
 
@@ -148,6 +242,11 @@ namespace Focus_Bear.Pomodoro
             appSettings.sMinutesBreakPomodoro = "";
             //Start Normal Focus mode            
             StartFocusMode();
+            
+            //Close the popup if open
+            MyPopup.IsOpen = false;
+            RegistryManager.SetSimplePomodoroTourShownStatus();
+
             Hide();
             appSettings.isStartPomodoroWindowOpen = false;
         }
@@ -255,13 +354,31 @@ namespace Focus_Bear.Pomodoro
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
+
+            //Close the popup
+            MyPopup.IsOpen = false;
+            RegistryManager.SetSimplePomodoroTourShownStatus();
+
             Hide();
             appSettings.isStartPomodoroWindowOpen = false;
         }
 
         private void RadioAI_Checked(object sender, RoutedEventArgs e)
         {
+            if (appSettings.isExpired)
+            {
+                e.Handled = true;
 
+                //RadioSuperDistracting.Checked -= RadioSuperDistracting_Checked;
+                RadioSuperDistracting.IsChecked = true;
+               // RadioSuperDistracting.Checked += RadioSuperDistracting_Checked;
+
+                ((App)(Application.Current)).ShowUpgradeToProNag(appSettings.ConfigFileStrings["upgradeToProNagVcInfo"]["titleNoAiBlocking"].ToString());
+                // Prevent the click event from being processed further
+
+                return;
+            }
+            e.Handled = false;
         }
 
         private void RadioSuperDistracting_Checked(object sender, RoutedEventArgs e)
@@ -272,6 +389,17 @@ namespace Focus_Bear.Pomodoro
         private void TxtIntention_TextChanged(object sender, TextChangedEventArgs e)
         {
             HandleStartFocusEnableDisable();
+        }
+
+        private void Window_LocationChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnNextPopup_Click(object sender, RoutedEventArgs e)
+        {   
+            nStep++;
+            UpdateTourPopupTexts();
         }
     }
 }

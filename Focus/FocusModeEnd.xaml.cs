@@ -10,6 +10,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -319,12 +321,16 @@ namespace Focus_Bear.Focus
 
             Hide();
 
-            var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
-            if (listItems.Count() != 0)
-            {
-                ((App)(Application.Current)).wndTrayMenu.ListFocusModes.SelectedItem = listItems.First();
-            }
-           
+            //var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
+            //if (listItems.Count() != 0)
+            //{
+            //    ((App)(Application.Current)).wndTrayMenu.ListFocusModes.SelectedItem = listItems.First();
+            //}
+
+            //fire the start focus session button again
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
         }
 
         public void ShowTasksEndWindow()

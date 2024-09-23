@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel    Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,0" >
-            <RadioButton x:Name="GeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"  />
+            <RadioButton x:Name="GeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"    />
             <RadioButton x:Name="SimpleMode" Content="xSimple Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Cursor="Hand"  />
         </StackPanel>
         

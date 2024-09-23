@@ -22,7 +22,7 @@ namespace Focus_Bear.Focus
     public partial class FocusProgress : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        int nTimer = 300; //Five minutes
+        public int nTimer = 300; //Five minutes
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         string sRemaining = "";
 

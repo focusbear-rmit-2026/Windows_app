@@ -18,6 +18,7 @@
             <RowDefinition Height="Auto" MinHeight="105" />
             <RowDefinition Height="40" />
             <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
             <RowDefinition Height="*" />
             <RowDefinition Height="120" />
 
@@ -26,7 +27,13 @@
         <Image Grid.Row="0" Height="99"  Width="99" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,10,0,0" TextWrapping="Wrap" Text="xWelcome to Focus Bear" Foreground="#e88800" FontSize="27" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="2" Name="Occupation" Margin="0,10,0,0" TextWrapping="Wrap" Text="xWhich of the following best describes your occupation?" Foreground="#272727" FontSize="23" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-        <Grid Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0">
+        
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Bottom">
+            <TextBlock  Name="Description"   TextWrapping="Wrap" Text="xThis will be used to recommend the most suitable features for your work." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <Image x:Name="InfoDescription"   Source="../images/info.png" Width="20"  Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"   ></Image>
+        </StackPanel>
+        
+        <Grid Grid.Row="4" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="500"/>
                 <ColumnDefinition Width="500"/>

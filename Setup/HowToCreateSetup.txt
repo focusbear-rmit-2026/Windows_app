@@ -1,0 +1,9 @@
+1. Copy all release files to the Files folder in Setup Folder
+2. Open ISS with Inno Setup 6 Unicode and upgrade the version number to the latest version
+3. run 1_SignFilesCreateSetup.bat
+It will sign the main focus bear.exe and create the uninstaller which ends with e.32
+3. Verify the signature in Focus Bear.exe in files folder
+4. Copy the .e32 file name and replace that in 2_SignSetup.bat
+5. run 2_SignSetup.bat
+6. Verify the new setup file created in Output folder and its signature.
+

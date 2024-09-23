@@ -43,11 +43,12 @@ namespace Focus_Bear.Onboarding.NEW
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["askAccountVcInfo"]["title"].ToString();
-                Description.Text = appSettings.ConfigFileStrings["askAccountVcInfo"]["descriptionText"].ToString();
+                //todo win texts
+                Description.Text = "Focus Bear works best if you install it on your computer and your phone. Set up an account so your settings will sync across.";// appSettings.ConfigFileStrings["askAccountVcInfo"]["descriptionText"].ToString();
                 AccountCost.Text = appSettings.ConfigFileStrings["askAccountVcInfo"]["tipText"].ToString();
                 
                 btnNotRightNowText.Text = appSettings.ConfigFileStrings["askAccountVcInfo"]["buttonNotRightNowText"].ToString();  
-                btnSignupText.Text = appSettings.ConfigFileStrings["askAccountVcInfo"]["buttonSignUpText"].ToString(); 
+                btnSignupText.Text = appSettings.ConfigFileStrings["onboardingPrivacyTipVcInfo"]["buttonContinueText"].ToString(); 
                  
             }
             catch (Exception ex)

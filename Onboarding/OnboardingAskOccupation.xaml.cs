@@ -59,6 +59,9 @@ namespace Focus_Bear.Onboarding
                 RadioButton7.Content = appSettings.ConfigFileStrings["askOccupationVcInfo"]["arrayOccupations"][6].ToString();
                 RadioButton8.Content = appSettings.ConfigFileStrings["askOccupationVcInfo"]["arrayOccupations"][7].ToString();
 
+                Description.Text = appSettings.ConfigFileStrings["askOccupationVcInfo"]["description"].ToString();
+                InfoDescription.ToolTip = appSettings.ConfigFileStrings["askOccupationVcInfo"]["infoText"].ToString();
+
                 appSettings.CapturePostHog("ask-occupation-screen-shown");
             }
             catch (Exception ex)
@@ -104,8 +107,8 @@ namespace Focus_Bear.Onboarding
             }
             sJobs = sJobs + "]";
 
-            appSettings.CapturePostHog("occupation-selected", string.Format("\"occupation\":{0}", sJobs));
-            _parentWindow.ShowOnboardingGoalsScreen();
+			appSettings.CapturePostHog("occupation-selected", string.Format("\"occupation\":{0}", sJobs));
+            _parentWindow.ShowOnboardingExplainDeepFocusScreen();
         }
 
         private void RadioButton1_Checked(object sender, RoutedEventArgs e)

@@ -23,7 +23,7 @@ namespace Focus_Bear.Onboarding
     {
         private OnBoardingWindow _parentWindow;
         AppSettings appSettings = AppSettings.GetInstance;
-
+        int nStep = 1;
         public OnboardingAskWorkTime()
         {
         }
@@ -39,13 +39,21 @@ namespace Focus_Bear.Onboarding
                 ShutdownTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionFinishWorkTimeText"].ToString();
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
                 SleepTime.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionSleepTimeText"].ToString(); //"What time do you want to go to sleep?";
+
+                btnNextStartWorkTXT.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["buttonNextText"].ToString();
+                btnNextFinishWorkTXT.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["buttonNextText"].ToString();
+                btnNextSleepTXT.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["buttonNextText"].ToString();
+
+                SetPopupTexts();
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("OnboardingAskWorkTime() ex - " + ex.Message);
             }
+            
+            btnContinue.IsEnabled = false;
 
-            if(appSettings.bGoalHealthyHabits)
+            if (appSettings.bGoalHealthyHabits)
             {
                 StartupTimePicker.NUDHTextBox.Text = "08";
                 StartupTimePicker.NUDMTextBox.Text = "30";
@@ -76,7 +84,35 @@ namespace Focus_Bear.Onboarding
            
 
         }
+        private void SetPopupTexts()
+        {
+            try
+            {
+                if (nStep == 1)
+                {
+                    HeadingSchedule.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["titleSchedule"].ToString();
+                    Title.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionStartWorkTimeText"].ToString();
+                    Description.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["infoStartTimeText"].ToString();
+                }
+                else if (nStep == 2)
+                {
+                    HeadingSchedule.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["titleSchedule"].ToString();
+                    Title.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionFinishWorkTimeText"].ToString();
+                    Description.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["infoFinishTimeText"].ToString();
+                }
+                else if (nStep == 3)
+                {
+                    HeadingSchedule.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["titleSchedule"].ToString();
+                    Title.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["questionSleepTimeText"].ToString();
+                    Description.Text = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["infoSleepTimeText"].ToString();
+                }
 
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetPopupTexts() ex - " + ex.Message);
+            }
+        }
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
             appSettings.CapturePostHog("ask-work-time-continue-clicked");
@@ -158,7 +194,13 @@ namespace Focus_Bear.Onboarding
 
                 string ss = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["explanationText"].ToString();
 
-                ss = "Your schedule looks like:\n\n🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Relax - block nothing\n\n<RELAX_END_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)"; //Todo win texts
+                //ss = "Your schedule looks like:\n\n🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Relax - block nothing\n\n<RELAX_END_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)"; //Todo win texts
+                ss = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["titleTimeText"].ToString() + "\n\n" + 
+                    appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["morningRoutineTimeText"].ToString() + "\n\n" +
+                    appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["prepareToStartWorkTimeText"].ToString() + "\n\n" +
+                    appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["workTimeText"].ToString() + "\n\n" +
+                    appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["eveningRoutineTimeText"].ToString() + "\n\n" +
+                    appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["lockComputerTimeText"].ToString();
 
                 int nStartDiff = -1 * (((15*60) + appSettings.nMorningRoutineDuration)/60) ;
                 ss = ss.Replace("<MORNING_ROUTINE_START_TIME>", appSettings.InitialStartupTimeValue.AddMinutes(nStartDiff).ToString("hh:mm tt"));
@@ -179,5 +221,33 @@ namespace Focus_Bear.Onboarding
             }
         }
 
+        private void btnNextStartWork_Click(object sender, RoutedEventArgs e)
+        {
+            FinishWorkSection.Opacity = 1;
+            nStep = 2;
+            GridPopup.Margin = new Thickness(100, 100 + 40, 0, 0);
+            Arrow.Margin = new Thickness(329,185 + 40, 0,0);
+            btnNextStartWork.Visibility = Visibility.Collapsed;
+            SetPopupTexts();
+        }
+
+        private void btnNextFinishWork_Click(object sender, RoutedEventArgs e)
+        {
+            SleepTimeSection.Opacity = 1;
+            nStep = 3;
+            GridPopup.Margin = new Thickness(100, 100 + 80, 0, 0);
+            Arrow.Margin = new Thickness(329, 185 + 80, 0, 0);
+            btnNextFinishWork.Visibility = Visibility.Collapsed;
+            SetPopupTexts();
+        }
+
+        private void btnNextSleep_Click(object sender, RoutedEventArgs e)
+        {
+            GridPopup.Visibility = Visibility.Collapsed;
+            Arrow.Visibility = Visibility.Collapsed;
+            btnNextSleep.Visibility = Visibility.Collapsed;
+            Schedule.Opacity = 1;
+            btnContinue.IsEnabled = true;
+        }
     }
 }

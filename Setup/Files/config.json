@@ -1,31 +1,34 @@
 {
     "welcomeInfo": {
-        "welcomeMessageHeading": "Let’s take a quick 10 second break",
-        "welcomeMessageIntro": "Every morning, I will help you silence your urge to check email/Facebook and help you to do your morning routine instead.\n\nYou can configure your own routine later but for now, let’s try out some sample activities (deep breathing/stretching).\n\nWhile you breathe deeply/stretch, think of how awesome you’ll be if you stick to your morning routine every day.",
+        "welcomeMessageHeading": "Let’s do a quick 30 seconds activity",
+        "welcomeMessageIntro": "Every morning, I will help you silence your urge to check email/Facebook and help you to do your morning routine instead.\n\nLet’s try out some sample habits (deep breathing/stretching).\n\nWhile you breathe deeply/stretch, think of how awesome you’ll be if you stick to your morning routine every day.",
         "welcomeEndMessage": "Hope you feel calmer. You can now personalise your morning routine by clicking on the icon <icon> on the top bar and choosing Preferences -> Settings.",
         "introActivities": [
             {
                 "name": "Deep Breathing",
-                "duration_seconds": 10,
+                "duration_seconds": 30,
                 "video_urls": [
-                    "https://www.youtube.com/watch?v=CUre1WgjIyU"
+                    "https://www.youtube.com/watch?v=IkaN7HhWfHg"
                 ]
             },
             {
                 "name": "Stretching",
-                "duration_seconds": 10,
+                "duration_seconds": 30,
                 "video_urls": [
                     "https://www.youtube.com/watch?v=s5V_sVvagrM"
                 ]
             }
         ],
         "welcomeVideoUrl": "https://youtu.be/2gPiProa-rg",
-        "welcomeMessageOnlyBreakIntro": "Throughout the day, I'll remind you to take regular breaks to keep your mind sharp and your body flexible. Here's an example of a break activity: 10 seconds of deep breathing.",
-        "titleSelectActivity": "What 10 seconds of activity do you want to do?",
+        "welcomeMessageOnlyBreakIntro": "Throughout the day, I'll remind you to take regular breaks to keep your mind sharp and your body flexible. Here's an example of a break activity: 30 seconds of deep breathing.",
+        "titleSelectActivity": "Pick a micro habit to rev up your brain",
         "titleEnterActivityName": "Enter name of activity",
         "buttonSkipText": "Skip",
         "takingBreaksText": "Taking breaks throughout the day helps with stress and focus.",
-        "buttonEditHabitsText": "Customise my habits first"
+        "buttonEditHabitsText": "Customise my habits first",
+        "breaksEnabledText": "This is what your micro breaks and morning/evening habits will be like.",
+        "breaksDisabledText": "You don’t have breaks activated but this is what your morning/evening routine will be like.",
+        "descriptionHabitsText": "Each habit has a countdown timer and if it makes sense, an embedded Youtube video. You can edit your habits later."
     },
     "activityInfo": {
         "startMorningHabitTitleText": "Good Morning! Here are the habits to kick off an awesome day.",
@@ -189,7 +192,8 @@
         "tooComplicatedReasonText": "Too complicated",
         "tabBlockedListText": "Blocked List",
         "titleAccountProgress": "Account Progress",
-        "taskPlayerWindowTitle": "Focus Bear - To Do Player"
+        "taskPlayerWindowTitle": "Focus Bear - To Do Player",
+        "allowAllUrlsFromDomainText": "Do you want to allow all URLs from <DOMAIN> for this focus session?"
     },
     "abortInfo": {
         "abortingTitle": "Cancelling..",
@@ -323,7 +327,10 @@
             "routineMorningText":"morning",
             "routineEveningText":"evening",
             "subTitlePostpone":"You're in the middle of your <ROUTINE> routine. Do you want to skip/postpone <HABITNAME> or turn the app off completely?",
-            "buttonSkipText":"Skip <HABITNAME>"
+            "buttonSkipText":"Skip <HABITNAME>",
+            "titleSkipMorningHabit": "Do you want to do your morning routine later today or skip it?",
+            "buttonSkipMorningHabitText": "Skip my morning routine",
+            "buttonWillDoMorningHabitText": "I'll do my morning routine"
         }
     },
     "shutOffTimeInfo": {
@@ -344,14 +351,15 @@
         "buttonStartMorningRoutineText": "Start morning routine",
         "buttonWorkEmergencyText": "Work emergency - start focusing",
         "buttonCompleteEveningRoutineText": "Complete your evening routine",
-        "buttonShutDownText": "Shut Down"
+        "buttonShutDownText": "Shut Down",
+        "buttonSleepText": "Put Mac to sleep"
     },
     "settings": {
         "title": "Enter settings JSON below:",
         "buttonSaveText": "Save",
         "visitText": "Visit <SETTINGURL> to generate settings",
         "settingUrl": "https://settings.focusbear.io",
-        "schemaError": "Your settings can not be validated.",
+        "schemaError": "Your settings cannot be validated.",
         "buttonOkText": "OK",
         "settingIsNotValidText": "Sorry it seems like your settings aren’t valid. Please generate settings at https://settings.focusbear.io",
         "buttonEditSettingsText": "Edit Habits",
@@ -397,8 +405,8 @@
         "menuItemExportStatisticsTitle": "Export Data",
         "menuItemFocusTitle": "Focus",
         "menuItemHardcorePomodoroModeTitle": "Super Pomodoro Mode",
-        "menuItemStartPomodoroTitle": "Start Pomodoro Mode",
-        "menuItemStopHardcorePomodoroTitle": "Stop Super Pomodoro Mode",
+        "menuItemStartPomodoroTitle": "Start Focus Session",
+        "menuItemStopHardcorePomodoroTitle": "Stop Super Focus Session",
         "menuItemCheckForUpdatesTitle": "Check for updates",
         "menuItemEnableOfficeModeTitle": "Office Mode Enabled",
         "menuItemDisableOfficeModeTitle": "WFH Mode Enabled",
@@ -436,14 +444,17 @@
         "focusAlignmentScoreText": "Focus alignment score = <SCORE>",
         "alertNoHabitsFound": "There are no habits set for your account. Do you want to set habits now?",
         "menuItemToDoPlayerTitle": "To Do Player",
-        "menuItemStopPomodoroTitle": "Stop Pomodoro Mode",
+        "menuItemStopPomodoroTitle": "Stop Focus Session",
         "focusBreakTimeText": "<MINUTE> minutes of break remaining",
         "waitingBreakTimeText": "It's time for a break. Waiting for a good moment",
-        "cantStopFocusModeText": "Super strict mode activated: You cannot stop this focus session until it ends."
+        "cantStopFocusModeText": "Super strict mode activated: You cannot stop this focus session until it ends.",
+        "toolTipPomodoroSessionText": "Start a Focus session to get deep work done.",
+        "menuItemResumeFocusTitle": "Resume Focus Session",
+        "menuItemPauseFocusTitle": "Pause Focus Session"
     },
     "preferencesInfo": {
         "titlePomodoro": "Pomodoro Mode:",
-        "checkBoxPomodoroText": "Enter Pomodoro mode after completing morning routine",
+        "checkBoxPomodoroText": "Enter Focus session after completing morning routine",
         "titleReduceMotion": "Reduce motion:",
         "checkBoxReduceMotionText": "Prefer reduced motion (don't show animated bears)",
         "titleAskNextHabit": "Next habit reminder:",
@@ -451,12 +462,12 @@
         "titleSelectLanguage": "Select Language:",
         "alertChangeLanguageMessageText": "Are you sure you want to change the language to <LANGUAGE>?",
         "buttonAdvancedText": "Advanced",
-        "pomodoroModeDurationText": "Pomodoro Mode duration:",
+        "pomodoroModeDurationText": "Focus Mode duration:",
         "minutesText": "minutes",
-        "hardCorePomodoroEnabledText": "Super Pomodoro mode enabled to focus on <FOCUSTYPE> for <COUNT> pomodoros on <DAYS>.",
-        "hardCorePomodoroNotEnabledText": "Super Pomodoro mode not enabled.",
-        "automaticPomodoroNotEnabledText": "Automatic Pomodoro mode is disabled.",
-        "reviewFocusModeAlertText": "Please review focus mode settings for super pomodoro mode.",
+        "hardCorePomodoroEnabledText": "Super Focus Session enabled to focus on <FOCUSTYPE> for <COUNT> pomodoros on <DAYS>.",
+        "hardCorePomodoroNotEnabledText": "Super Focus Session not enabled.",
+        "automaticPomodoroNotEnabledText": "Automatic Focus session is disabled.",
+        "reviewFocusModeAlertText": "Please review focus mode settings for Super Focus Session.",
         "breakDurationText": "Break duration:",
         "titleSurveillance": "Surveillance:",
         "checkBoxSurveillanceText": "I'm under employer surveillance",
@@ -475,7 +486,7 @@
         "descriptionCuddlyBearText": "Cuddly Bear mode: kind and gentle - gives you the benefit of the doubt when you open a non-allowed URL. Lets you temporarily allow blocked URLs during a focus mode.",
         "checkBoxGrizzlyBearText": "Grizzly Bear mode",
         "descriptionGrizzlyBearText": "Grizzly Bear mode: super strict - immediately block URLs that aren't allowed and don't let yourself allow them until the focus mode is over.",
-        "pomodoroDescriptionText": "Pomodoro Mode cycles between deep work blocks where a focus mode is turned on (and distractions turned off) and break periods.",
+        "pomodoroDescriptionText": "Focus Sessions (pomodoro mode) cycles between deep work blocks where a focus mode is turned on (and distractions turned off) and break periods.",
         "buttonLearnPomodoroTechniqueText": "Learn more about the pomodoro technique here.",
         "titleDockIcon": "Dock icon:",
         "checkBoxShowDockIconText": "Show Dock icon",
@@ -515,10 +526,10 @@
         "titleReloadAppAfterForceQuit": "Reload:",
         "checkBoxReloadAppAfterForceQuitText": "Reload after Force Quit",
         "titleFont": "Application Font:",
-        "titlePomodoroShortcut": "Shortcut to start pomodoro:",
+        "titlePomodoroShortcut": "Shortcut to start focus session:",
         "recordShorcutText": "Record Shortcut",
         "alertShortcutErrorText": "Please use a different key combination.",
-        "titleDoNotBlockUrlsInPomodoroBreak": "Do not block \"Super Distracting Sites\" during breaks in super pomodoro",
+        "titleDoNotBlockUrlsInPomodoroBreak": "Do not block \"Super Distracting Sites\" during breaks in super focus session",
         "blockUrlsDuringMeetingsText": "Block \"Super Distracting Sites\" during Meetings",
         "allowOutOfOrderHabitsText": "Allow doing habits out of order",
         "settingRequireIntentionText": "Require intention when postponing",
@@ -557,11 +568,11 @@
         "toolTipAdd": "Add",
         "toolTipRemove": "Remove",
         "toolTipDuplicate": "Duplicate",
-        "hardCorePomodoroIsOnMessageText": "Super Pomodoro mode is on. Please deactivate super Pomodoro mode to delete it.",
+        "hardCorePomodoroIsOnMessageText": "Super Focus Session is on. Please deactivate super focus session to delete it.",
         "buttonAdvancedText": "Advanced",
         "defaultFocusText": "Block super distracting sites/apps",
         "meetingsFocusText": "Meetings",
-        "disablePomodoroModeAlertText": "The selected focus mode is enabled in super pomodoro mode. Please disable super pomodoro mode to delete this.",
+        "disablePomodoroModeAlertText": "The selected focus mode is enabled in super focus session. Please disable super focus session to delete this.",
         "buttonAddFocusTypeText": "Add Focus Mode",
         "buttonDeleteFocusTypeText": "Delete",
         "allowUrlInstructionFirstText": "To allow a certain website: domain.com",
@@ -583,7 +594,7 @@
         "titleBlockedUrls": "Below is the list of Always Blocked URLs:",
         "checkBoxDoNotDisturbText": "Block Notifications while focusing",
         "buttonDeleteUrlText": "Delete URL",
-        "relaxFocusText": "Relax - block nothing",
+        "relaxFocusText": "Free time - block nothing",
         "titleTags": "Reporting Tags:",
         "tagsInfoText": "Add tags to be able to prepare time logs for specific focus blocks. Examples of tags would be: billable, jones, client, Project 1.",
         "titleAllowUrlList": "Allow List:",
@@ -638,7 +649,7 @@
             "buttonChooseTaskText": "Choose task to work on",
             "selectedTasksText": "Selected Tasks:",
             "focusedText": "Total focused time: <DURATION> (<COUNT> focus sessions)",
-            "pomodoroRunningCantStartFocusText": "You cannot start a focus mode while Super Pomodoro session is running.",
+            "pomodoroRunningCantStartFocusText": "You cannot start a focus mode while Super Focus session is running.",
             "titleFrictionLevel": "Friction level:",
             "frictionLevelLowText": "low",
             "frictionLevelHighText": "high",
@@ -651,7 +662,8 @@
             "strictnessStrictTooltip": "requires countdown timer before pausing/stopping focus session",
             "strictnessSuperStrictTooltip": "grizzly mode + immediately block urls + prevents pausing/stopping focus session or opening settings",
             "titleStrictnessLevel": "Strictness level:",
-            "strictnessSuperStrictClickedText": "I understand I cannot stop this focus session until it ends. I am committed to avoiding distractions and getting a ton of work done."
+            "strictnessSuperStrictClickedText": "I understand I cannot stop this focus session until it ends. I am committed to avoiding distractions and getting a ton of work done.",
+            "warningDefaultFocusMode": "Heads up: this will not use AI blocking. Focus Bear will only block the sites in your super distracting sites list"
         },
         "abortingFocusModeInfo": {
             "title": "Deactivating Focus Block - <FOCUSTYPE>",
@@ -699,7 +711,11 @@
             "buttonCancelText": "Let me get distracted 😅",
             "pinWindowText": "You can pin this window so you don't forget to fill out your achievements after a focus session.",
             "titleStarRatingText": "How focused were you?",
-            "addTagsInfoText": "Press enter to add the tag"
+            "addTagsInfoText": "Press enter to add the tag",
+            "buttonStartFocusSessionText": "Start new focus session",
+            "buttonDoBreakActivitiesText": "Do break habits",
+            "buttonRelaxText": "Relax for 5 minutes",
+            "buttonRelaxOneMinuteText": "Relax for 1 minute"
         },
         "focusSummaryInfo": {
             "title": "You completed <COUNT> focus blocks today.",
@@ -744,15 +760,15 @@
         }
     },
     "pomodoroInfo": {
-        "title": "Pomodoro time!",
-        "questionFirstText": "What do you want to achieve in this pomodoro session?",
+        "title": "Focus time!",
+        "questionFirstText": "What do you want to achieve in this focus session?",
         "questionSecondText": "Which focus mode do you want to use?",
         "buttonEditFocusModeText": "Edit focus modes",
         "buttonLetsDoItText": "Start Session",
-        "buttonHardcorePomodoroText": "Use super pomodoro mode (lock in the focus mode for multiple pomodoros)",
-        "howManyPomodoroText": "How many pomodoros you want to focus for:",
+        "buttonHardcorePomodoroText": "Use Super Focus Session (lock in the focus mode for multiple focus sessions)",
+        "howManyPomodoroText": "How many focus sessions you want to focus for:",
         "chooseTheFocusModeText": "Choose the focus mode and duration - you won't be able to change the focus mode until the time is up (you still get to use any app/website during the 5 minute break)",
-        "alertWarningPaswwordSetText": "To make super pomodoro mode more effective, we recommend setting a password in Preferences (ask someone else to do it for you) otherwise you'll still be able to cancel the focus modes before the time is up.",
+        "alertWarningPaswwordSetText": "To make super focus session more effective, we recommend setting a password in Preferences (ask someone else to do it for you) otherwise you'll still be able to cancel the focus modes before the time is up.",
         "completedPomodoroCountText": "You have completed <COMPLETED_POMODORO> of <TOTAL_POMODORO> pomodoros. <REMAINING_POMODORO> more to go.",
         "buttonSkipMicrobreaksText": "Skip microbreaks during work blocks",
         "timerText": "Time spent unfocused: <TIME>",
@@ -804,7 +820,7 @@
         "titleChangePassword": "Change Password",
         "newPasswordPlaceholderText": "New Password",
         "confirmPasswordPlaceholderText": "Confirm Password",
-        "infoText": "You can reset the password at any time (but it has a 24hr cooling off period before it resets to stop you from cheating yourself). You'll need to provide the password when you cancel your morning/evening routine or super pomodoro mode. You can reset the password at any time - you just have to wait 24hrs.",
+        "infoText": "You can reset the password at any time (but it has a 24hr cooling off period before it resets to stop you from cheating yourself). You'll need to provide the password when you cancel your morning/evening routine or super focus session. You can reset the password at any time - you just have to wait 24hrs.",
         "buttonSetPasswordText": "Set Password",
         "buttonChangePasswordText": "Change Password",
         "passwordNotSetText": "If you're struggling to stick to your habits, get a housemate/partner to set a password. You won't be able to skip habits without the password.",
@@ -822,8 +838,8 @@
         "passwordDisableDoneText": "Your password has been disabled.",
         "titleAskPassword": "Ask for password:",
         "questionPassword": "When do you want to require a password?",
-        "buttonQuitAppText": "Quitting app",
-        "buttonStopPomodoroText": "Stopping Super pomodoro mode",
+        "buttonQuitAppText": "Quitting/deactivating app",
+        "buttonStopPomodoroText": "Stopping Super Focus Session",
         "buttonAbortingShutoffText": "Using your computer late at night",
         "buttonSkipEveningHabitText": "Postponing/skipping evening routine",
         "buttonSkipMorningHabitText": "Postponing/skipping morning routine",
@@ -833,7 +849,8 @@
         "buttonUseRelaxFocusModeText": "Allow using relax focus mode",
         "titleSetPasswordOnboarding": "Set a password to unlock the computer",
         "descriptionSetPasswordOnboarding": "To make it harder to impulsively use your computer late at night or before you've done your morning routine, you can set a password. This is not the same as your login password. We recommend that you get an accountability partner to set the password. That way, you have to ask them to use your computer at a time you probably shouldn't be using it.",
-        "buttonCircumventingBlocksText": "Changing settings that allow circumventing blocks"
+        "buttonCircumventingBlocksText": "Changing settings that allow circumventing blocks",
+        "buttonOpenPreferencesAfterCutOffText": "Require password for opening Preferences after cutoff time"
     },
     "blockedUrlsViewInfo": {
         "title": "Super Distracting Sites",
@@ -869,13 +886,13 @@
         "maxChars": "* Max 250 characters"
     },
     "pomodoroPreferencesAdvancedInfo": {
-        "checkBoxUseHardcorePomodoroText": "Use super pomodoro mode",
-        "descriptionHardcorePomodoroText": "(Lock in the focus mode for multiple pomodoros)",
+        "checkBoxUseHardcorePomodoroText": "Use Super Focus Session",
+        "descriptionHardcorePomodoroText": "(lock in the focus mode for multiple focus sessions)",
         "chooseFocusText": "Choose the focus mode",
         "descriptionChooseFocusFirstText": "You won't be able to change the focus mode until the time is up",
         "descriptionChooseFocusSecondText": "(you still get to use any app/website during the 5 minute break)",
-        "HowManyPomodoroText": "How many pomodoros you want to focus for:",
-        "selectDaysForPomodoroText": "Schedule specific days you want to run the super pomodoro mode after Morning Routine:",
+        "HowManyPomodoroText": "How many focus sessions you want to focus for:",
+        "selectDaysForPomodoroText": "Schedule specific days you want to run the Super Focus Session after Morning Routine:",
         "buttonApplyText": "Apply",
         "selectAtleastOneDayText": "Please select at least one day.",
         "buttonSkipMicrobreaksText": "Skip microbreaks during work blocks?"
@@ -947,7 +964,14 @@
         "subscriptionExpiredText": "Your subscription has expired",
         "toolTipCopyId": "Copy user id",
         "titleUserId": "Your user id:",
-        "toolTipCopied": "Copied"
+        "toolTipCopied": "Copied",
+        "buttonContinueText": "Continue with Basic Version",
+        "titleBasicVersion": "Basic Version allow you access to limited features",
+        "pointSimplePomodoroText": "* Simple Focus Session",
+        "pointLimitedBlockText": "* Block up to <COUNT> websites & apps",
+        "pointLimitedHabitsText": "* Limited Morning & Evening Routines",
+        "pointLimitedMicroBreaksText": "* Limited Micro-Breaks",
+        "pointNoGeekModeText": "* No access to Geek Mode"
     },
     "onboardingPostponeVcInfo": {
         "title": "If you have something urgent, you can postpone the Onboarding process for a few minutes.",
@@ -1150,7 +1174,9 @@
                 "attribution": "Rodolfo Peon",
                 "quote": "For those of us who live in a sunny and hot desert, a cloudy day is sometimes all we need to clear our minds..."
             }
-        ]
+        ],
+        "buttonPostponeNewText": "Postpone",
+        "buttonSkipText": "Skip"
     },
     "askAppWorkVcInfo": {
         "title": "Welcome to Focus Bear",
@@ -1177,14 +1203,16 @@
         "selectOneText": "Select one that apply",
         "buttonDontCareText": "Meh - don't really care",
         "buttonNotCommittedText": "I probably should do habits but am not that committed",
-        "buttonCommittedText": "Super committed - this is the main reason i want to use Focus Bear",
+        "buttonCommittedText": "Super committed - this is the main reason I want to use Focus Bear",
         "subTitle": "Set your Goals and Preferences",
         "resultFocusOnlyText": "Ok no worries. We'll let you focus on focusing!",
         "resultNoHabitsText": "Got it. We won't activate the habit features for now but you can activate them later.",
         "resultHabitsText": "Cool. We'll let you set up your habits right away",
         "titleAdditionalGoals": "Are there other goals you want to achieve with Focus Bear?",
         "gladText": "Glad you're as passionate about building routines as we are!",
-        "selectGoalsText": "Select all that apply"
+        "selectGoalsText": "Select all that apply",
+        "titleActivateFeatures": "Activate features",
+        "subTitleActivateFeatures": "We'll do our best to help you achieve your goals 🤩 Which Focus Bear features do you want to activate?"
     },
     "toolBoxVcInfo": {
         "title": "The toolbox makes it easy to open the apps and websites that you've allowed in the <FOCUS_NAME> focus mode. You can access it from the Menu under Tools.",
@@ -1366,7 +1394,7 @@
         "questionStartWorkTimeText_study": "What time do you start study?",
         "questionFinishWorkTimeText_study": "What time do you finish study?",
         "explanationText": "Your schedule looks like:\n\n🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n🥱 <END_WORK_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)",
-        "explanationTextWIN": "Your schedule looks like:\n\n🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Relax - block nothing\n\n<RELAX_END_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)",
+        "explanationTextWIN": "Your schedule looks like:\n\n🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Free time - block nothing\n\n<RELAX_END_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)",
         "titleTimeText": "Your schedule looks like:",
         "morningRoutineTimeText": "🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine",
         "prepareToStartWorkTimeText": "💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)",
@@ -1377,7 +1405,15 @@
         "lockComputerTimeText": "😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)",
         "questionSleepTimeText": "What time do you want to go to sleep?",
         "sleepTimeAlertText": "Sleep time cannot be less than finish work time.",
-        "relaxTimeText": "🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Relax - block nothing"
+        "relaxTimeText": "🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Free time - block nothing",
+        "buttonNextText": "Next",
+        "infoStartTimeText": "Choose the earliest possible time you would want to start work. You’ll do your morning routine before starting work. You can start later than this time if you need to.",
+        "infoFinishTimeText": "When do you typically finish work? You can keep using your computer after this if needed but Focus Bear will nudge you to get off your tech in the evening so you can relax, do your evening routine and sleep well.",
+        "infoSleepTimeText": "When do you want to get to sleep? We’ll nudge you to do your evening routine beforehand so you can wind down and sleep well.",
+        "titleSchedule": "Set your schedule",
+        "wakeUpTimeText": "☀️ <WAKEUP_TIME> - Wake up",
+        "questionWakeUpTimeText": "What time do you usually wake up?",
+        "infoWakeUpTimeText": "select or input the time you generally wake up each morning."
     },
     "welcomeVcInfo": {
         "descriptionFirstText": "Focus Bear helps you avoid distractions and build healthy habits.",
@@ -1405,7 +1441,15 @@
         "moreDetailText": "For more details, refer to our privacy policy or feel free to email support@focusbear.io.",
         "buttonViewPrivacyText": "Click here to view Privacy Policy",
         "buttonContinueText": "Continue",
-        "buttonAcceptPrivacyPolicyText": "I accept the Privacy Policy"
+        "buttonAcceptPrivacyPolicyText": "I accept the Privacy Policy",
+        "buttonViewTermsText": "Click here to view the terms of the software license agreement.",
+        "buttonAcceptTermsText": "I agree to the terms of the software license agreement.",
+        "descriptionTermsText": "🤝 To continue using Focus Bear you must agree to the terms of the software license agreement.",
+        "titleTermsAndConditions": "Terms and Conditions",
+        "buttonViewTermsNewText": "software license agreement.",
+        "buttonAcceptTermsNewText": "I agree to the terms of the",
+        "buttonAcceptPrivacyPolicyNewText": "I accept the",
+        "buttonViewPrivacyPolicyNewText": "Privacy Policy"
     },
     "tryBlockUrlVcInfo": {
         "titleShieldActivated": "Distraction Shield activated!",
@@ -1420,7 +1464,8 @@
         "emailUsText": "Sorry about that 😓 Any chance you could email us (support@focusbear.io) and we'll try and fix it for you?",
         "descriptionTryIntentionText": "Try opening <BLOCKED_URL>. Focus Bear will help you be more intentional with how you use the site.",
         "buttonItBlockedNewText": "It made me more intentional",
-        "buttonDidNotBlockedNewText": "It didn't stop me at all"
+        "buttonDidNotBlockedNewText": "It didn't stop me at all",
+        "buttonOpenUrlText": "Click here to open <BLOCKED_URL> now"
     },
     "askBuildHabitsVcInfo": {
         "titleBlockedSuccessfully": "Awesome! We look forward to helping you block distractions.",
@@ -1435,7 +1480,7 @@
     },
     "askAccountVcInfo": {
         "title": "Setting up a Focus Bear Account",
-        "descriptionText": "How about setting up an account so you can sync your block preferences across your devices?",
+        "descriptionText": "Focus Bear works best if you install it on your computer and your phone. Set up an account so your settings will sync across.",
         "tipText": "Setting up an account doesn't cost anything - you still get a 7 day free trial- but it is necessary to enable the more advanced features.",
         "buttonNotRightNowText": "Not right now",
         "buttonSignUpText": "Sure - let me sign up",
@@ -1565,7 +1610,8 @@
         "descriptionSetupFocusMode": "Setup focus modes to get into deep work with distraction blocking. You can remove blocks if you have an emergency.",
         "titleAlertSetupComplete":"Setup complete!",
         "subTitleAlertSetupComplete":"To get up and running quickly, have a read of our quick start guide.",
-        "buttonOkText":"Enlighten me"
+        "buttonOkText":"Enlighten me",
+        "thisIsDemoText": "This is a demo - you can open the menu after the tour is done"
     },
     "relaxModeVcInfo":{
         "title": "Sites you saved for relax mode:",
@@ -1581,7 +1627,14 @@
         "buttonDontShowAgainForBlockAppText": "Don't ask for intentions - block super distracting apps immediately",
         "confirmUseAgainText": "Are you sure? You already spent <MINUTES> minutes",
         "privacyNoteText": "Privacy note: we only store this data on your local machine not on our servers",
-        "timeSpentText": "Total time spent: <TIME>"
+        "timeSpentText": "Total time spent: <TIME>",
+        "titleTour": "Block distractions",
+        "titleReason": "Reason",
+        "titleDuration": "Duration",
+        "titleBlockIt": "Block it",
+        "subTitleReason": "If you need to access this site, enter the reason why and click on Set Intention button.",
+        "subTitleDuration": "Choose how long you need to access it.",
+        "subTitleBlockIt": "If you don't need it, click here to block the site"
     },
     "intentionBlockedUrlsVcInfo":{
         "title": "Your intention for <SITE>",
@@ -1598,7 +1651,7 @@
         "uiSettingTitle": "UI",
         "accessibilitySettingTitle": "Accessibility",
         "aISettingTitle": "AI Features",
-        "pomodoroSettingTitle": "Pomodoro",
+        "pomodoroSettingTitle": "Focus Sessions",
         "strictnessSettingTitle": "Strictness",
         "advancedSettingTitle": "Advanced",
         "accountSettingTitle": "Account",
@@ -1625,7 +1678,9 @@
         "titleStrict": "Strict",
         "titleSuperStrict": "Super strict",
         "breaksNewSettingTitle": "Breaks",
-        "toDoListSettingTitle": "To Do List"
+        "toDoListSettingTitle": "To Do List",
+        "titleDownloadTimeTrackerText": "Focus Bear Time Tracker needs to be downloaded and installed as a separate component.",
+        "buttonDownloadTimeTrackerText": "Download Now"
     },
     "impactMeasurementVcInfo": {
         "title": "Analyse Your Sleep and Mood",
@@ -1647,7 +1702,8 @@
         "pointFourthText": "Track time on meetings and when you're away from your Mac",
         "buttonEnableText": "Enable Focus Bear Time Tracker",
         "buttonCancelText": "No thanks",
-        "alertInfoText": "You can always enable Focus Bear Time Tracker from Focus Bear preferences later."
+        "alertInfoText": "You can always enable Focus Bear Time Tracker from Focus Bear preferences later.",
+        "buttonDownloadText": "Download Focus Bear Time Tracker"
     },
     "lateNoMorePopUpVcInfo": {
         "title": "Introducing Late No More.",
@@ -1664,7 +1720,7 @@
         "description": "In order to allow blocking within Firefox, you need to grant specific permissions to Focus Bear.",
         "pointFirstText": "Open System Preferences > Security & Privacy > Privacy > Accessibility or use the button below.",
         "pointSecondText": "Select the lock icon in the bottom left corner and enter your password to unlock.",
-        "pointThirdText": "Drag and drop the icon below into the allowed apps list under Accessibility.",
+        "pointThirdText": "Click on the icon and then drag it into the allowed apps list under Accessibility.",
         "pointFourthText": "If Focus Bear is already in the list and checked, please remove Focus Bear by clicking the - button at the bottom and add it again.",
         "pointFifthText": "Change the setting - \"accessibility.force_disabled\" to -1 in Firefox to enable distractions in blocking.",
         "buttonActivateFirefoxText": "Open/Activate Firefox",
@@ -1673,7 +1729,8 @@
         "buttonContinueText": "Continue",
         "pointFirstNewText": "Open System Preferences > Privacy & Security > Accessibility or use the button below.",
         "step1Text": "Step 1: Grant Accessibility permission to focus bear",
-        "step2Text": "Step 2: Edit specific setting in Firefox"
+        "step2Text": "Step 2: Edit specific setting in Firefox",
+        "buttonOpenAccessibilityPermissionsText": "Open Accessibility Permissions"
     },
     "longTermGoalsVcInfo": {
         "title": "Are you sure?",
@@ -1697,7 +1754,10 @@
         "buttonDontUseDiscordText": "I don't use Discord",
         "titleChooseCommunity": "What community system would you prefer to use?",
         "placeHolderEnterCommunity": "Enter community name",
-        "tabCourses": "Courses"
+        "tabCourses": "Tutorials",
+        "arrayCommunityOptions": ["Sub-Reddit", "Facebook Messenger Community", "Facebook Group", "Other"],
+        "titleWhatsAppGroup": "Join the Focus Bear WhatsApp group to exchange ideas, organize co-working/body doubling sessions, and get support with the app!",
+        "buttonJoinWhatsAppGroupText": "Join WhatsApp Group"
     },
     "confirmMorningRoutineTimeVcInfo": {
         "title": "Confirm your morning routine",
@@ -1742,15 +1802,15 @@
         "accessibility_PlaySound": "We play video game style sound effects (ding!) after you complete habits to make you feel good about your progress. If you don’t like these sound effects, you can turn them off. You can also email us: support@focusbear.io if you’d like to be able to customize the sound effects.",
         "accessibility_Announcement": "This feature is helpful if you have trouble reading from a screen. If you turn it on, it will use a Siri style voice to read out the next habit in your routine and let you know when you’ve finished the current habit.",
         "accessibility_Font": "We’ve chosen some dyslexic friendly fonts to help you read the text in the Focus Bear app.",
-        "pomodoro_AfterMorning": "Supercharge your morning routine! If you activate this feature, you will seamlessly transition into Pomodoro mode right after completing your morning routine, boosting your productivity to new heights.",
+        "pomodoro_AfterMorning": "Supercharge your morning routine! If you activate this feature, you will seamlessly transition into Focus mode right after completing your morning routine, boosting your productivity to new heights.",
         "pomodoro_DoNotBlockDistractingSites": "We actually recommend you turn this off because breaks are much better if you get away from the computer. You could go for a walk instead :) However, if you don’t feel like giving your brain a break, you can turn off blocking and enjoy unrestricted breaks where you can access all of those distracting sites.",
         "pomodoro_PomodoroModeDuration": "Normally pomodoro work blocks are 25 minutes long (with a 5 minute break) but you can customize it to a different time",
         "pomodoro_BreakDuration": "Normally pomodoro breaks are 5 minutes long but you can take a break on your terms! Customize the Break Duration to align with your preferred downtime interval, allowing you to recharge and refresh in a way that perfectly complements your unique work style and preferences.",
         "pomodoro_Shortcut": "Instant focus mode! The default shortcut is (^⌥⌘P) but you can easily assign a personalized shortcut for immediate access to concentrated work sessions, providing you with seamless productivity whenever and wherever you need it most.",
-        "pomodoro_Advanced_SuperPomodoro": "Tick this box if you want to use Focus Bear’s super pomodoro mode! When using this feature, you can schedule your work sessions and enter your goals for the day, and the app will help you cycle through pomodoro work/break sessions for the whole day.",
+        "pomodoro_Advanced_SuperPomodoro": "Tick this box if you want to use Focus Bear’s super focus session! When using this feature, you can schedule your work sessions and enter your goals for the day, and the app will help you cycle through focus work/break sessions for the whole day.",
         "pomodoro_Advanced_ChooseFocusMode": "Feel free to choose between your customized focus modes.",
-        "pomodoro_Advanced_ChoosePomodoroCount": "Set your own pace! Choose the number of super pomodoros for the day using this dropdown, allowing you to establish a personalized and achievable focus target.",
-        "pomodoro_Advanced_ChoosePomodoroDays": "Tailor your Super Pomodoro days! Check the boxes for specific days of the week in this schedule to create a personalized routine that aligns seamlessly with your preferences and commitments.",
+        "pomodoro_Advanced_ChoosePomodoroCount": "Set your own pace! Choose the number of focus sessions for the day using this dropdown, allowing you to establish a personalized and achievable focus target.",
+        "pomodoro_Advanced_ChoosePomodoroDays": "Tailor your Super Focus Session days! Check the boxes for specific days of the week in this schedule to create a personalized routine that aligns seamlessly with your preferences and commitments.",
         "pomodoro_Advanced_SkipBreaks": "Focused work sessions! Activate this setting to automatically skip micro breaks when engaged in work blocks, maintaining an unbroken flow for sustained concentration and efficiency.",
         "ai_MotivationalMessage": "Start your day inspired! Enable this setting to receive a unique motivational message crafted just for you every morning. We use AI (in a privacy safe manner) to generate the message.",
         "ai_AllowSites": "When you open a website that you haven’t explicitly allowed or blocked, we’ll use AI to check whether it seems relevant. For example, facebook.com would not be relevant if you’re working on writing a business case for earthmoving equipment but would be relevant if you’re doing social media marketing. Your personal details are not shared with AI, just the website URL and your focus intention.",
@@ -1773,7 +1833,7 @@
         "strictness_Password_SkipEveningHabit": "Password-protected evenings! Enable this setting to require a password when postponing or skipping your evening routine, ensuring that your choice is intentional.",
         "strictness_Password_SkipEveningHabitAfterCutOffTime": "Password shield for evenings! Select this option to enforce password entry when adjusting your evening routine after the cutoff time, this is just to make sure that your choice is intentional and securing the consistency of your nighttime habits.",
         "strictness_Password_AbortingShutoff": "Late-night access control! Tick this box to demand your password when using your computer late at night, offering secure and intentional access during nighttime hours.",
-        "strictness_Password_StopSuperPomodoro": "Guard your focus zone! Activate this setting to require a password when stopping the Super Pomodoro mode.",
+        "strictness_Password_StopSuperPomodoro": "Guard your focus zone! Activate this setting to require a password when stopping the Super Focus Session.",
         "strictness_Password_QuitApp": "Secure goodbyes! Enable this setting to require a password when you decide to quit the Focus Bear, adding an extra layer of security to your intentional exits.",
         "strictness_Password_UseRelaxFocusMode": "Browse freely with control! Enable this feature to require a password when allowing the use of Relax Focus mode, adding a security layer to your leisurely internet sessions.",
         "breaks_EnableBreaks": "Enable taking breaks at regular intervals. Breaks help your productivity, energy levels, and ability to focus.",
@@ -1785,7 +1845,9 @@
         "titleCompletionTime": "Expected completion time:",
         "buttonContinueText": "Continue",
         "subTitle": "Select the habits you want to do in this routine.",
-        "checkBoxSelectAllText": "Select / Deselect all"
+        "checkBoxSelectAllText": "Select / Deselect all",
+        "buttonSkipMorningHabitsText": "Completely Skip my morning habits for today",
+        "buttonSkipEveningHabitsText": "Completely Skip my evening habits for today"
     },
     "confirmRunScriptVcInfo": {
         "title": "Confirm you want to run a Apple/shell script",
@@ -1805,20 +1867,37 @@
         "titleName": "Title",
         "titleDescription": "Description",
         "titleIntention": "Why do you want to do this task? How will you motivate yourself to do this task?",
-        "titleDueDate": "Due Date",
+        "titleDueDatePlain": "Due Date",
         "titleElsenhower": "Elsenhower quadrant",
         "titleProjects": "Projects",
         "elsenhowerQuadrantOptions": ["Urgent and Important", "Important but not urgent", "Not important and urgent", "Not important and not urgent"],
         "buttonCreateText": "Create",
         "titleCreateTask": "Create a task",
-        "titleDueDate": "With due date",
+        "titleWithDueDate": "With due date",
         "titleDay": "(<NUMBER> Day)",
         "titleDays": "(<NUMBER> Days)"
     },
     "askOccupationVcInfo": {
         "subTitle": "Which of the following best describes your occupation?",
         "description": "This will be used to recommend the most suitable features for your work.",
-        "arrayOccupations": ["University student"," Software dev", "Graphic designer", "Business owner", "Other office work", "Field worker (not in front of computer)", "Parent (setting it up for child)", "Other"]
+        "arrayOccupations": ["University student"," Software dev", "Graphic designer", "Business owner", "Other office work", "Field worker (not in front of computer)", "Parent (setting it up for child)", "Other"],
+        "infoText": "We’ll set up a special focus mode designed for your job that will have websites and apps that are relevant for your work. This information also helps us understand who’s using the app so we can improve the features.",
+        "titleSelectLevelStudy": "Select level of study:",
+        "optionSchool": "High school",
+        "optionUndergraduate": "Undergraduate",
+        "optionGraduate": "Graduate",
+        "optionPostgraduate": "Postgraduate",
+        "titleSelectIndustry": "Select Industry:",
+        "optionProgrammer": "Programmer",
+        "optionGraphicDesigner": "Graphic designer",
+        "optionOtherOfficeWork": "Other work from office",
+        "optionFieldWork": "Non desk based work",
+        "occupationStudent": "University student",
+        "occupationBusinessOwner": "Business owner",
+        "occupationEmployee": "Employee",
+        "occupationOther": "Other",
+        "occupationFreelancer": "Freelancer",
+        "titleFreelancerType": "Type of work:"
     },
     "geekModeInfo": {
         "titleGeekMode": "🤓 Geek Mode",
@@ -1826,7 +1905,12 @@
         "tooltipGeekMode": "Geek Mode active! Advanced features activated. Overwhelmed? Toggle the switch to go back to Simple Mode",
         "tooltipSimpleMode": "Simple Mode active - only basic features shown. Toggle the switch to activate Geek Mode",
         "alertGeekModeEnabled": "You’ve activated Geek Mode! Advanced features activated. Overwhelmed? Toggle the switch to go back to Simple Mode",
-        "alertSimpleModeEnabled": "Simple Mode active - only basic features shown. Focus modes, pomodoros etc. are no longer available. Toggle the switch to go back to Geek Mode."
+        "alertSimpleModeEnabled": "Simple Mode active - only basic features shown. Focus modes, pomodoros etc. are no longer available. Toggle the switch to go back to Geek Mode.",
+        "alertConfirmSwitchGeekMode": "Geek Mode activates a lot more features and can be overwhelming. We recommend you stick with Simple Mode for the first few days.",
+        "buttonActivateGeekModeText": "Activate Geek Mode",
+        "buttonStickSimpleModeText": "Stick with Simple Mode",
+        "buttonDontShowAgainText": "Don't show again",
+        "alertConfirmSwitchGeekModeDescription": "You can switch the modes from Preferences -> Settings tab"
     },
     "takeBreaksInfoVcInfo":{
         "subTitle": "Focus Bear can help you remember to take breaks regularly throughout the day. This will help avoid screen headaches and actually improve your productivity. You can even do microworkouts during the breaks 💪",
@@ -1835,9 +1919,12 @@
         "selectOneText": "Select one that apply",
         "buttonDontCareText": "Meh - don't really care",
         "buttonNotCommittedText": "I probably should take breaks but am not that committed",
-        "buttonCommittedText": "Super committed - i vow to take breaks regularly",
+        "buttonCommittedText": "Super committed - I vow to take breaks regularly",
         "resultDisableBreaksText": "No worries. You can always enable breaks later from Preferences > Breaks > Enable Breaks",
-        "resultEnableBreaksText": "Cool. We'll let you set up your breaks right away"
+        "resultEnableBreaksText": "Cool. We'll let you set up your breaks right away",
+        "warningNewText": "We time breaks so they don't disrupt hyperfocus. Focus Bear will detect when you are less active (based on not typing or moving your mouse) and suggest a break at that time. You can skip/postpone the breaks but your eyes and body will really appreciate it if you do take breaks!",
+        "buttonMostlyCommittedText": "Mostly committed - I’ll take breaks most of the time",
+        "resultMostlyCommittedText": "Got it - you can skip breaks if it comes at a bad time"
     },
     "deactivateBreaksVcInfo":{
         "title": "Do you want to turn breaks off completely?",
@@ -1868,10 +1955,99 @@
     },
     "accessibilityPermissionVcInfo":{
         "title": "Grant accessibility permission to Focus Bear",
-        "subTitle": "In order to interact with other browsers , you need to authorize Focus Bear in the Accessibility section of the Security & Privacy Pane of the System Preferences.",
-        "nextViewInfoText": "On the next screen we will ask permissions to intract with browsers."
+        "subTitle": "In order to block distractions, you need to authorize Focus Bear in the Accessibility section of the Security & Privacy Pane of the System Preferences.",
+        "nextViewInfoText": "On the next screen we will ask permissions to block distractions.",
+        "step1Text": "Step 1:",
+        "step2Text": "Step 2:",
+        "step3Text": "Step 3:",
+        "step4Text": "Step 4:"
+    },
+    "alertLimitedUsageVcInfo":{
+        "title": "You are running the Basic FREE Version of Focus Bear",
+        "subTitle": "Basic version limits the number of habits to <COUNT> per routine. You'll be able to do your first <COUNT> habits. Upgrade to unlock unlimited access and other premium features.",
+        "buttonUpgradeNowText": "Upgrade now",
+        "buttonContinueText": "Continue with Basic Version"
+    },
+    "upgradeToProNagVcInfo":{
+        "title": "You're currently using the Basic version of Focus Bear, which offers limited features. Consider upgrading to the Pro version for access to unlimited blocking, habits, and other premium features to maximize your productivity.",
+        "basicVersionTitle": "Basic",
+        "proVersionTitle": "Pro",
+        "keepRunningText": "To keep you running",
+        "allInProVersionText": "Everything In Basic plus...",
+        "pointSimplePomodoroText": "Simple mode",
+        "pointPomodoroText": "Focus Sessions",
+        "pointLimitedBlockText": "Block up to <COUNT> websites & apps",
+        "pointLimitedHabitsText": "Morning & Evening Routines With Limited habits",
+        "pointLimitedMicroBreaksText": "Micro-Breaks with Limited activities",
+        "pointBrowserTabLimiterText": "Browser Tab Limiter",
+        "pointToDoListText": "To-Do List",
+        "freeText": "FREE",
+        "pointGeekModeText": "Geek Mode",
+        "pointSuperPomodoroText": "Super Focus Session",
+        "pointUnlimitedBlockingText": "Unlimited Blocking",
+        "pointAlBlockingText": "Al Blocking",
+        "pointFocusModesText": "Focus Modes",
+        "pointFocusMusicText": "Focus Music",
+        "pointMeetingDetectionText": "Meeting Detection",
+        "pointPartnerPasswordText": "Partner Password",
+        "pointCustomizableStrictnessText": "Customizable Strictness Levels",
+        "pointAddOnsText": "Other Add-Ons",
+        "buttonContinueText": "Continue with Limited Features",
+        "buttonUpgradeNowText": "Upgrade now",
+        "titleLimitedBlockUrls": "Max 3 blocked urls can be added in Basic version.",
+        "titleLimitedBlockApps": "Max 3 blocked apps can be added in Basic version.",
+        "titleNoAiBlocking": "AI blocking is only supported in Pro edition.",
+        "titleNoGeekMode": "Geek mode is only supported in Pro edition."
+    },
+    "onboardingFocusExplainVcInfo":{
+        "title": "Get into deep focus",
+        "subTitle": "Focus Bear can help you get more deep work done by blocking distractions. You tell the app what you want to do and it uses AI to keep you on track.",
+        "buttonContinueText": "Got it",
+        "video_url": "https://www.youtube.com/watch?v=ssiLisLbN2o"
+    },
+    "onboardingHabitExplainVcInfo":{
+        "title": "Get your brain and body ready for focus",
+        "subTitle": "Research indicates that habits like meditation and exercise improve your ability to focus if you have ADHD. Focus Bear guides you through your morning and evening routine to set yourself up for a productive day and a good night’s sleep.",
+        "buttonContinueText": "Got it",
+        "video_url": "https://youtu.be/ZRbrfTWa8AI"
+    },
+    "simplePomodoroVcInfo":{
+        "titleTour": "Start Focus Session",
+        "titlePomodoroTime": "Focus Time",
+        "subTitlePomodoroTime": "The Pomodoro technique works well for many ADHDers. You do 25 minutes of work (could be shorter or longer) and then have a 5 minute break. Click on the (i) to learn more about how it works.",
+        "titleBlockingStyle": "Blocking style",
+        "subTitleBlockingStyle": "If you enable AI powered blocking, Focus Bear will use AI to check whether each website is relevant for what you’re trying to achieve in this focus session. It’s privacy safe - your identity is not shared with the AI.",
+        "titleWorkDuration": "Focus session duration",
+        "subTitleWorkDuration": "Put in how long you want to focus for",
+        "titleBreakDuration": "Break duration",
+        "subTitleBreakDuration": "How long will you have as a break once you finish focusing",
+        "titleIntention": "Intention",
+        "subTitleIntention": "Put in what you hope to achieve during this focus session. Helps avoid getting distracted because you’re clear what your goals are.",
+        "titleFrictionLevel": "Friction level",
+        "subTitleFrictionLevel": "If you enable Geek Mode, you can increase how strict Focus Bear is. In low friction mode, you can stop the focus session at any time.",
+        "toolTipAiBlocking": "When you open a website you haven't specifically blocked or allowed, we'll use AI to check whether the website is relevant or not based on your focus intention. In strict mode, it will block it immediately if it's not relevant. In non strict mode, it will show a popup asking whether you really need it.",
+        "titleStrictnessLevel": "Strictness level",
+        "subTitleStrictnessLevel": "Adjust the slider to increase the strictness of your Focus session."
+    },
+    "achieveWithFocusBearVcInfo":{
+        "title": "What do you want to achieve with Focus Bear?",
+        "subTitle": "How do you want your life to change from using Focus Bear?",
+        "buttonContinueText": "Continue"
+    },
+    "confirmRoutineDurationVcInfo":{
+        "title": "How much time do you have for your habits today?",
+        "buttonContinueText": "Continue",
+        "alertDoOneHabitText": "Are you sure? Can you make time for just one habit so you keep the routine going?",
+        "alertDoAllHabitsText": "Awesome - you'll get through all your habits!",
+        "alertDoSomeHabitsText": "Nice - even though you won't get through all your habits, you're still going to make progress."
+    },
+    "onboardingFeedbackVcInfo":{
+        "title": "We want your feedback",
+        "subTitle": "We're a small independent team, not a faceless mega-corporation. Focus Bear is still a new app and we really want your feedback. If you have suggestions, please email support@focusbear.io.",
+        "buttonContinueText": "Continue"
     },
     "discordUrl": "https://discord.gg/VZdv3ZjhSq",
+    "whatsAppUrl": "https://chat.whatsapp.com/FV0oTbCUWpILBYif7CP6UD",
     "WindowsSpecific": {
         "welcomeVideoUrl": "https://www.youtube.com/watch?v=xTUIGfmi3xg",
         "runningbg": "Focus Bear is running in Background",

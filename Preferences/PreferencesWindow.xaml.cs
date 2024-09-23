@@ -97,7 +97,7 @@ namespace Focus_Bear.Preferences
 
             SetFocusButtonState();
 
-            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnStats);
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnHelp);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
         }
@@ -433,6 +433,10 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnHelp.IsEnabled = false;
             btnHelp.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+
+            this.MinWidth = 680 * ScaleX;
+            this.MinHeight = 750 * ScaleY;
+
             this.Width = 680 * ScaleX;
             this.Height = 750 * ScaleY;
 

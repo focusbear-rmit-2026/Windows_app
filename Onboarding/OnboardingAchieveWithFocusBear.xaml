@@ -1,0 +1,53 @@
+﻿<Page x:Class="Focus_Bear.Onboarding.OnboardingAchieveWithFocusBear"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Onboarding"
+      mc:Ignorable="d" 
+       d:DesignHeight="1080" d:DesignWidth="1920"
+      Title="Focus Bear" Background="#fff">
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="50"   />
+            <RowDefinition Height="80"   />
+            <RowDefinition Height="*"  />
+            <RowDefinition Height="105"  />
+        </Grid.RowDefinitions>
+
+        <Image Name="TopIcon" Grid.Row="0"  Margin="0,10,0,0" Height="99"  Width="99" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="50,7,50,0" TextWrapping="Wrap" Text="xWhat do you want to achieve with Focus Bear?" Foreground="#e88800" FontSize="27" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="2"  Name="Description" Margin="50,0,50,0" TextWrapping="Wrap" Text="xHow do you want your life to change from using Focus Bear?"  FontSize="20" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBox  Grid.Row="3" Name="TxtAchieve" TextWrapping="Wrap" AcceptsReturn="True"  Width="855" Height="220"  Margin="0,50,0,0" VerticalAlignment="Top"  FontSize="18">
+            <TextBox.Effect>
+                <DropShadowEffect ShadowDepth="3"
+                              Direction="330"
+                              Color="Gray"
+                              Opacity="0.5"
+                              BlurRadius="6"
+                               />
+            </TextBox.Effect>
+            <TextBox.FocusVisualStyle>
+                <Style>
+                    <Setter Property="Control.Template">
+                        <Setter.Value>
+                            <ControlTemplate/>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TextBox.FocusVisualStyle>
+        </TextBox>
+        <Button Grid.Row="4"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock x:Name="btnContinueTXT" Text="xContinue"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+    </Grid>
+</Page>

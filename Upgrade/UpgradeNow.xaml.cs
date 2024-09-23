@@ -85,15 +85,21 @@ namespace Focus_Bear.Upgrade
             {
                 UninstallText.Visibility = Visibility.Collapsed;
             }
+
+            appSettings.CapturePostHog("upgrade-nag-shown");
         }
 
         private void btnUpgradeNow_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnUpgradeNow_Click");
+            
+            appSettings.CapturePostHog("upgrade-nag-button-upgrade-clicked");
+
             try 
             {
                 // Process.Start(appSettings.ConfigFileStrings["upgradeNowUrl"].ToString());
                 ManageSubscription wndManageSubs = new ManageSubscription();
+                wndManageSubs.Owner = this;
                 wndManageSubs.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 wndManageSubs.ShowDialog();
 

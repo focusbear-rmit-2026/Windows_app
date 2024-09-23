@@ -52,6 +52,9 @@ namespace Focus_Bear.Login
                 LogWriter.LogWrite("LoginSignIn ex = " + ex.Message);
             }
             Loaded += (sender, e) => TxtEmailAddress.Focus();
+
+            appSettings.CapturePostHog("view-signin-shown");
+
         }
 
         private void btnCreatAccount_Click(object sender, RoutedEventArgs e)
@@ -66,7 +69,9 @@ namespace Focus_Bear.Login
 
         private async void btnSignIn_Click(object sender, RoutedEventArgs e)
         {
+
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+            appSettings.CapturePostHog("button-signin-clicked");
 
             try
             {

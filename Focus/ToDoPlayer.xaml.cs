@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,11 +60,11 @@ namespace Focus_Bear.Focus
                 TimeSpan difference = end.Subtract(start); // could also write `now - otherTime`
                 double durationMinutes = difference.TotalMinutes;
 
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"total_duration\":{1},lang:\"{2}\",\"font\":\"{3}\",\"intention\":\"{4}\"}}", appSettings.userAccount.accessToken, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention);
+                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"total_duration\":{1},lang:\"{2}\",\"font\":\"{3}\",\"intention\":\"{4}\",\"brain_dump\":\"{5}\"}}", appSettings.userAccount.accessToken, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump);
 
                 if (appSettings.sRawTasks.Length > 0)
                 {
-                    LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{3}\",\"font\":\"{4}\",\"intention\":\"{5}\"}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention);
+                    LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{3}\",\"font\":\"{4}\",\"intention\":\"{5}\",\"brain_dump\":\"{6}\"}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump);
                 }
                 
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForToDoPlayer) {{ loadMetaDataForToDoPlayer({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
@@ -116,7 +117,21 @@ namespace Focus_Bear.Focus
             try
             {
                 LogWriter.LogWrite("todo player - webView_WebMessageReceived() - tasks got from webview");
-                appSettings.sRawTasks = e.WebMessageAsJson;
+
+                string sContent = e.WebMessageAsJson;
+                JObject sContentJson = JObject.Parse(sContent);
+                if (sContentJson.ContainsKey("brain_dump_content"))
+                {
+                    appSettings.sBrainDump = sContentJson["brain_dump_content"].ToString();
+                }
+                if (sContentJson.ContainsKey("tasks"))
+                {
+                    appSettings.sRawTasks = sContentJson["tasks"].ToString();
+                }
+                if (sContentJson.ContainsKey("intention"))
+                {
+                    appSettings.sRunningFocusModeIntention = sContentJson["intention"].ToString();
+                }
             }
             catch (Exception ex)
             {

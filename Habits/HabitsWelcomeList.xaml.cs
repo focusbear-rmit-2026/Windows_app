@@ -152,22 +152,25 @@ namespace Focus_Bear.Habits
 
         private void btnCustomizeHabits_Click(object sender, RoutedEventArgs e)
         {
-            if (appSettings.bPasswordRequireInChangeSettings)
+            if (appSettings.isPasswordSet)
             {
-                AskPassword pwdWnd = new AskPassword();
-                pwdWnd.Owner = _parentWindow;
-                _parentWindow.GridShade.Visibility = Visibility.Visible;
-
-                bool? bResult = pwdWnd.ShowDialog();
-
-                _parentWindow.GridShade.Visibility = Visibility.Collapsed;
-                if (bResult.Value)
+                if (appSettings.bPasswordRequireInChangeSettings)
                 {
-                    //Password is correct
-                }
-                else
-                {
-                    return;
+                    AskPassword pwdWnd = new AskPassword();
+                    pwdWnd.Owner = _parentWindow;
+                    _parentWindow.GridShade.Visibility = Visibility.Visible;
+
+                    bool? bResult = pwdWnd.ShowDialog();
+
+                    _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+                    if (bResult.Value)
+                    {
+                        //Password is correct
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
             }
 

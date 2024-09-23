@@ -17,21 +17,7 @@
                     <Setter Property="HorizontalAlignment" Value="Center" />
                 </Style>
             </TabControl.Resources>
-            <TabItem Name="ChatTab" Header="xChat with Focus Bear" >
-                <wv2:WebView2 Name="webView" />
-            </TabItem>
-            <TabItem Name="ReportProblemTab" Header="xReport Problem" >
-                <Grid Background="#fcf8f0" Margin="20">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="40"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock  Grid.Row="0" Name="Heading" Margin="20,20,20,0"   Text="xFocus Bear is still a new app and you might encounter issues (or have great ideas on how to make it better). We'd really appreciate your feedback. You can email us at team@focusbear.io. Screenshots are really helpful to let us understand the problem. Also if you had a problem, please export your logs (use the link below) and attach it to the email." Foreground="#181818" TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
-                    <TextBlock Grid.Row="1" x:Name="ExportLogs" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15"  Cursor="Hand">
-                         <Hyperlink x:Name="btnExportLogs"  Foreground="#000" Click="btnExportLogs_Click"   TextDecorations="Underline"  ><Run x:Name="btnExportLogsTXT" Text="xClick here to export logs to share with Support Team."/></Hyperlink>
-                    </TextBlock>
-                </Grid>
-            </TabItem>
+
             <TabItem Name="Community" Header="xCommunity" >
                 <Grid Background="#fcf8f0" Margin="20">
                     <Grid.RowDefinitions>
@@ -52,6 +38,23 @@
                          <Hyperlink x:Name="BtnDontUseDiscord"  Foreground="#000" Click="BtnDontUseDiscord_Click"   TextDecorations="Underline"  ><Run x:Name="BtnDontUseDiscordTxt" Text="xI don't use Discord"/></Hyperlink>
                     </TextBlock>
                 </Grid>
+            </TabItem>
+            
+         
+            <TabItem Name="ReportProblemTab" Header="xReport Problem" >
+                <Grid Background="#fcf8f0" Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock  Grid.Row="0" Name="Heading" Margin="20,20,20,0"   Text="xFocus Bear is still a new app and you might encounter issues (or have great ideas on how to make it better). We'd really appreciate your feedback. You can email us at team@focusbear.io. Screenshots are really helpful to let us understand the problem. Also if you had a problem, please export your logs (use the link below) and attach it to the email." Foreground="#181818" TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+                    <TextBlock Grid.Row="1" x:Name="ExportLogs" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15"  Cursor="Hand">
+                         <Hyperlink x:Name="btnExportLogs"  Foreground="#000" Click="btnExportLogs_Click"   TextDecorations="Underline"  ><Run x:Name="btnExportLogsTXT" Text="xClick here to export logs to share with Support Team."/></Hyperlink>
+                    </TextBlock>
+                </Grid>
+            </TabItem>
+            <TabItem Name="ChatTab" Header="xChat with Focus Bear" >
+                <wv2:WebView2 Name="webView" />
             </TabItem>
 
         </TabControl>

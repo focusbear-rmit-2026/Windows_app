@@ -1993,6 +1993,35 @@ namespace Focus_Bear.Models
             return res;
         }
 
+        internal static void SetSimplePomodoroTourShownStatus()
+        {
+            try
+            {
+                bool status = true;
+                byte[] regData = new byte[1] { Convert.ToByte(status) };
+                Write("SIMPLEPOMODOROTOURSHOWN", regData);
+
+                regData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite(ex.Message);
+            }
+        }
+
+        internal static bool GetSimplePomodoroTourShownStatus()
+        {
+            byte[] regData = (byte[])Read("SIMPLEPOMODOROTOURSHOWN");
+
+            if (regData == null)
+                return false;
+
+            bool res = Convert.ToBoolean(regData[0]);
+
+            regData = null;
+            return res;
+        }
+
         internal static void SetAnalyzeSleepAndMoodStatus()
         {
             try

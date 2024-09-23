@@ -101,7 +101,7 @@ namespace Focus_Bear.Focus
             if (sURL.Length > 0)
             {
                 btnSaveForRelax.Visibility = Visibility.Visible;
-
+                /**
                 try
                 {
                     Uri myUri = new Uri(sURL);
@@ -114,11 +114,11 @@ namespace Focus_Bear.Focus
                     /*
                     This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
                     If uri does not specify a scheme, the scheme defaults to "http:".
-                    */
+                    * /
                     Uri myUri = new UriBuilder(sURL).Uri;
                     sActiveURL = myUri.Host;
                     Debug.WriteLine(ex.Message);
-                }
+                }**/
 
                 if(appSettings.bAiCheckUrlEnabled)
                     sHeading = sHeading + "\n\n" + appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkingUrlText"].ToString();

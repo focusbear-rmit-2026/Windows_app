@@ -73,6 +73,12 @@ namespace Focus_Bear.Onboarding.NEW
         {
             appSettings.CapturePostHog("button-lets-do-it-clicked");
 
+            RegistryManager.SetWelcomeAboardingDoneStatus();
+
+            _parentWindow.ShowSetupFocusBearAccount();
+
+            return;
+
             FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["confirmText"].ToString(), MessageBoxButton.YesNo, appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonConfirmLetsDoItText"].ToString(), appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonNeedMoreTimeText"].ToString());
             ff.Owner = _parentWindow;
             _parentWindow.GridShade.Visibility = Visibility.Visible;

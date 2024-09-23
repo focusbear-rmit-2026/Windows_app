@@ -104,7 +104,7 @@ namespace Focus_Bear.Utils
         public bool bGoalHealthyHabits { get; set; }
         public bool bGoalStayFocused { get; set; }
 
-        public bool bAreBreaksEnabled = false; //default off
+        public bool bAreBreaksEnabled = true; //default ON
 
         public bool bExitFullScreenClickedWhileOnboarding { get; set; }
         public DateTime MorningHabitsShownTillDate { get; set; }
@@ -161,6 +161,8 @@ namespace Focus_Bear.Utils
 
         public List<habit> arrAllMorningHabits = new List<habit>(); //these will now be filtered with the Days Of week
         public List<habit> arrAllEveningHabits = new List<habit>();
+
+        public bool bShowReducedHabitsOnExpired = false;
 
         public bool bHabitwithAllowedAppsRunning = false;
         public bool bHabitwithUseFocusModeRunning = false;
@@ -236,7 +238,7 @@ namespace Focus_Bear.Utils
         public string sRunningFocusModeStartTime = "";
         public string sRunningFocusModeEndTime = "";
         public string sRunningFocusModeIntention = "";
-        public bool bSkipMicroBreaksDuringFocus = false;
+        public bool bSkipMicroBreaksDuringFocus = true; //default to true
         public string sChatGPTReasonForCurrentURL = "";
         public double dProbablity = 0;
         public string sChatGPTPayLoad = "";
@@ -345,7 +347,7 @@ namespace Focus_Bear.Utils
         public bool bBlockSuperDistractingSitesDuringMeetings = false;
         public bool bShowBreaksWhileInCall = false;
 
-        public bool bIsGeekModeEnabled = true;
+        public bool bIsGeekModeEnabled = false;
         //Simple mode Focus summary related
         public int nTotalDistractingSitesBlocked = 0;
         public int nTimeSpentBlockingDistractingSites = 0;
@@ -362,6 +364,9 @@ namespace Focus_Bear.Utils
 
         //Relax activities related
         public string sSavedURLSForRelaxActivity; //To get the urls from API
+
+        //menu opening first time variable
+        public bool bMenuOpeningFirstTime = false;
 
         public CUIAutomation automation;
         public IUIAutomationFocusChangedEventHandler handler;
@@ -399,7 +404,7 @@ namespace Focus_Bear.Utils
 
             isPasswordSet = false;
 
-            bSkipMicroBreaksDuringFocus = false;
+            bSkipMicroBreaksDuringFocus = true;
 
             //Default true on 23 June 2023 #188
             bMotivationalMessageEnabled = true;
@@ -497,6 +502,7 @@ namespace Focus_Bear.Utils
             catch (Exception ex)
             {
                 LogWriter.LogWrite("GetLoginAndTokenValidSettings()" + ex.Message);
+                ((App)(Application.Current)).ShowLoginWindow(); //In any case if we are not able to get the logged in info, we shold ask to login back
             }
 
         }
@@ -1294,7 +1300,7 @@ namespace Focus_Bear.Utils
                             //We need to decide if the Focus mode had been setup
                             if (!RegistryManager.GetFocusModeSetupDone())
                             {
-                                if (arrFocusModes.Count > 4)
+                                if (arrFocusModes.Count > 5)
                                 {
                                     RegistryManager.SetFocusModeSetupDone(true);
                                 }
@@ -1408,9 +1414,9 @@ namespace Focus_Bear.Utils
                             bBlockSuperDistractingSitesDuringMeetings = sMacOSSettingsOBJ.ContainsKey("kIsBlockDistractingSitesDuringMeetingsEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsBlockDistractingSitesDuringMeetingsEnabled") : false;
                             bShowBreaksWhileInCall = sMacOSSettingsOBJ.ContainsKey("kIsShowBreaksInCallEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsShowBreaksInCallEnabled") : false;
 
-                            bIsGeekModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsGeekModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsGeekModeEnabled") : true;
+                            bIsGeekModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsGeekModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsGeekModeEnabled") : false;
 
-                            bAreBreaksEnabled = sMacOSSettingsOBJ.ContainsKey("kUserdefaultsBreaksEnabledFromOnboarding") ? (bool)sMacOSSettingsOBJ.GetValue("kUserdefaultsBreaksEnabledFromOnboarding") : false; //breaks off by default
+                            bAreBreaksEnabled = sMacOSSettingsOBJ.ContainsKey("kUserdefaultsBreaksEnabledFromOnboarding") ? (bool)sMacOSSettingsOBJ.GetValue("kUserdefaultsBreaksEnabledFromOnboarding") : true; //breaks ON by default
                         }
                     }
                     catch (Exception ex)
@@ -1668,6 +1674,37 @@ namespace Focus_Bear.Utils
                 {
                     return false;
                 }
+
+                //If its expired version we will need to limit to three activities
+                if (isExpired)
+                {
+                    bShowReducedHabitsOnExpired = false;
+                    for (int i = 0; i < arrActivitiesIncludeInEveryBreak.Count; i++)
+                    {
+                        if (i > 2)
+                        {
+                            arrActivitiesIncludeInEveryBreak.RemoveAt(i);
+                            i--;
+                            bShowReducedHabitsOnExpired = true;
+                        }
+                    }
+                    if (bShowReducedHabitsOnExpired) //remove all from arrActivitiesExcludeInEveryBreak as we have 3 in include
+                        arrActivitiesExcludeInEveryBreak.Clear();
+                    else
+                    {
+                        for (int i = 0; i < arrActivitiesExcludeInEveryBreak.Count; i++)
+                        {
+                            if (i > 2)
+                            {
+                                arrActivitiesExcludeInEveryBreak.RemoveAt(i);
+                                i--;
+                                bShowReducedHabitsOnExpired = true;
+                            }
+                        }
+                    }
+                }
+
+
                 if (isAnyMandatoryActivityIncluded)
                 {
                     isMandatoryActivityGoing = true;

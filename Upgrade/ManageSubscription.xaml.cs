@@ -91,9 +91,9 @@ namespace Focus_Bear.Upgrade
 
         public void LoadURL()
         {
-            string sTodoPlayerURL = "https://dashboard.focusbear.io/webview/manage-subscription?bust_cache=" + DateTime.UtcNow.ToString();
+            string sSubscriptionURL = "https://dashboard.focusbear.io/webview/manage-subscription?bust_cache=" + DateTime.UtcNow.ToString();
 
-            webView.Source = new System.Uri(sTodoPlayerURL);
+            webView.Source = new System.Uri(sSubscriptionURL);
         }
 
         private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)

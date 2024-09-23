@@ -95,7 +95,7 @@ namespace Focus_Bear.Onboarding
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
                     webView.WebMessageReceived += webView_WebMessageReceived;
 
-                    string sURL = string.Format("https://dashboard.focusbear.io/webview/routine-suggestion");
+                    string sURL = "https://dashboard.focusbear.io/webview/routine-suggestion?bust_cache=" + DateTime.UtcNow.ToString();
                     webView.Source = new Uri(sURL, System.UriKind.Absolute);
  
                 }
@@ -108,9 +108,9 @@ namespace Focus_Bear.Onboarding
 
         private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
-            if (e.IsSuccess)
+             if (e.IsSuccess)
             {
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"long_term_goals\":{3}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sAdditionalGoals);
+                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\"}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont);
 
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForRoutineSuggestion) {{ loadMetaDataForRoutineSuggestion({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
 
@@ -130,45 +130,59 @@ namespace Focus_Bear.Onboarding
             try
             {
                 LogWriter.LogWrite("select habit packs webView_WebMessageReceived() - tasks got from webview");
-                //Get User Settings
-                FocusBearAPIClient client = new FocusBearAPIClient();
 
-                //We should the settings and replace the time
-                await Task.Run(async () =>
+
+                string sContent = e.WebMessageAsJson;
+                if(sContent == "routine-suggestions-installed-successfully" || sContent == "\"routine-suggestions-installed-successfully\"")
                 {
-                    CommandManager.InvalidateRequerySuggested();
+                    //Get User Settings
+                    FocusBearAPIClient client = new FocusBearAPIClient();
 
-                    LogWriter.LogWrite("attempt to GetUserSettings");
-                    var userSettingsResponse = await client.GetUserSettings();
-                    int x = int.Parse(userSettingsResponse.ToString());
-                    if (x == 1)
+                    //We should the settings and replace the time
+                    await Task.Run(async () =>
                     {
-                        LogWriter.LogWrite("GetUserSettings Success");
-                        //User SEttings retrieved Successfully, Process them.
-                        appSettings.ReadAndParseSettingsJson();
-                    }
-                    else
-                    {
-                        LogWriter.LogWrite("GetUserSettings Failed");
-                        appSettings.ReadAndParseSettingsJson(); //This function handles if the settings are not derieved from Server
-                    }
+                        CommandManager.InvalidateRequerySuggested();
 
-                    CommandManager.InvalidateRequerySuggested();
+                        LogWriter.LogWrite("attempt to GetUserSettings");
+                        var userSettingsResponse = await client.GetUserSettings();
+                        int x = int.Parse(userSettingsResponse.ToString());
+                        if (x == 1)
+                        {
+                            LogWriter.LogWrite("GetUserSettings Success");
+                            //User SEttings retrieved Successfully, Process them.
+                            appSettings.ReadAndParseSettingsJson();
+                        }
+                        else
+                        {
+                            LogWriter.LogWrite("GetUserSettings Failed");
+                            appSettings.ReadAndParseSettingsJson(); //This function handles if the settings are not derieved from Server
+                        }
 
-                    //One we have parsed the raw settings, we can get the duration for routines from the habits arrays
-                    for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
-                    {
-                        appSettings.nMorningRoutineDuration = appSettings.arrGLOBALAllMorningHabits[i].durationSeconds;
-                    }
-                    for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
-                    {
-                        appSettings.nEveningRoutineDuration = appSettings.arrGLOBALAllMorningHabits[i].durationSeconds;
-                    }
-                });
+                        CommandManager.InvalidateRequerySuggested();
 
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnContinue);
-                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                invokeProv.Invoke();
+                        //One we have parsed the raw settings, we can get the duration for routines from the habits arrays
+                        for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
+                        {
+                            appSettings.nMorningRoutineDuration = appSettings.arrGLOBALAllMorningHabits[i].durationSeconds;
+                        }
+                        for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
+                        {
+                            appSettings.nEveningRoutineDuration = appSettings.arrGLOBALAllMorningHabits[i].durationSeconds;
+                        }
+                    });
+
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(btnContinue);
+                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                    invokeProv.Invoke();
+                }
+                else //just navigating the steps
+                {
+                    JObject sContentJson = JObject.Parse(sContent);
+                    if (sContentJson.ContainsKey("step"))
+                    {
+                        return; //nothing to do
+                    }
+                }
 
             }
             catch (Exception ex)

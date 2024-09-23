@@ -58,17 +58,26 @@ namespace Focus_Bear.Tour
         {
             try
             {
-                Title.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["tourMessagesInfo"][nStep]["title"].ToString();
-                string sDescription = appSettings.ConfigFileStrings["menuTourVcInfo"]["tourMessagesInfo"][nStep]["description"].ToString();
-                JArray arrActivities = (JArray)appSettings.ConfigFileStrings["menuTourVcInfo"]["tourMessagesInfo"][nStep]["arrayListItems"];
-                if (arrActivities != null)
+                if (nStep < 2)
                 {
-                    foreach (string item in arrActivities)
+                    Title.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["tourMessagesInfo"][nStep]["title"].ToString();
+                    string sDescription = appSettings.ConfigFileStrings["menuTourVcInfo"]["tourMessagesInfo"][nStep]["description"].ToString();
+                    JArray arrActivities = (JArray)appSettings.ConfigFileStrings["menuTourVcInfo"]["tourMessagesInfo"][nStep]["arrayListItems"];
+                    if (arrActivities != null)
                     {
-                        sDescription = sDescription + "\n\n• " + item.ToString();
+                        foreach (string item in arrActivities)
+                        {
+                            sDescription = sDescription + "\n\n• " + item.ToString();
+                        }
                     }
+                    Description.Text = sDescription;
                 }
-                Description.Text = sDescription;
+                else if(nStep == 2) //2nd step since index starting from -1
+                {
+                    //tell about pomodoro 
+                    Title.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStartPomodoroTitle"].ToString();
+                    Description.Text = appSettings.ConfigFileStrings["menuInfo"]["toolTipPomodoroSessionText"].ToString();
+                }
 
                 string sStep = appSettings.ConfigFileStrings["menuTourVcInfo"]["indexText"].ToString();
                 sStep = sStep.Replace("<CURRENTINDEX>", (nStep + 2).ToString());
@@ -97,8 +106,8 @@ namespace Focus_Bear.Tour
 
                 btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonNextText"].ToString();
                 SetTexts();
-                GridPopup.Margin = new Thickness(0, 0, 370, 420);
-                Arrow.Margin = new Thickness(0, 0, 350, 540);
+                GridPopup.Margin = new Thickness(0, 0, 370, 200);
+                Arrow.Margin = new Thickness(0, 0, 350, 320);
 
                 appSettings.CapturePostHog("menu_tour_next_clicked");
             }
@@ -106,8 +115,8 @@ namespace Focus_Bear.Tour
             {
                 btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonNextText"].ToString();
                 SetTexts();
-                GridPopup.Margin = new Thickness(0, 0, 370, 300);
-                Arrow.Margin = new Thickness(0,0,350,480);
+                GridPopup.Margin = new Thickness(0, 0, 370, 150);
+                Arrow.Margin = new Thickness(0,0,350,210);
 
                 appSettings.CapturePostHog("menu_tour_next_clicked");
             }
@@ -115,13 +124,14 @@ namespace Focus_Bear.Tour
             {
                 btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonFinishText"].ToString();
                 SetTexts();
-                GridPopup.Margin = new Thickness(0, 0, 370, 150);
-                Arrow.Margin = new Thickness(0, 0, 350, 270);
+                GridPopup.Margin = new Thickness(0, 0, 370, 120);
+                Arrow.Margin = new Thickness(0, 0, 350, 165);
 
                 appSettings.CapturePostHog("menu_tour_next_clicked");
             }
             else
             {
+                appSettings.bMenuOpeningFirstTime = true;
                 Close();
             }
             

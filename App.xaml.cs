@@ -1146,7 +1146,10 @@ namespace Focus_Bear
                     wndSplash.Close();
                 }
 
-                ShowExpiredNag(true);
+                //ShowExpiredNag(true);
+                //WE need to make sure that the app is running in the SIMPLE MODE and NOT THE GEEK MODE
+                appSettings.bIsGeekModeEnabled = false;
+                ShowUpgradeToProNag("");
             }
             //Get local settings
 
@@ -1276,7 +1279,7 @@ namespace Focus_Bear
 
                 if (!RegistryManager.GetFocusModeSetupDone())
                 {
-                    if (appSettings.arrFocusModes.Count <= 4)
+                    if (appSettings.arrFocusModes.Count <= 5)
                     {
                         //Get focus mode templates
 
@@ -1327,6 +1330,11 @@ namespace Focus_Bear
             //Write any routines or functionality to test in DEBUG mode here
             ///ShowCallFocusNotifier();
             ///
+
+           // FocusBearMenuTour wndFocusBearMenuTour = new FocusBearMenuTour();
+            //wndFocusBearMenuTour.ShowDialog();
+
+
 #endif
 
             if (appSettings.IsFirstInstall)
@@ -2272,6 +2280,21 @@ namespace Focus_Bear
                 LogWriter.LogWrite("Props block ex- " + ex.Message);
             }
 
+            //If its the expired version, then we need to show top 3 activities only
+            if (appSettings.isExpired)
+            {
+                appSettings.bShowReducedHabitsOnExpired = false;
+                for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
+                {
+                    if (i > 2)
+                    {
+                        appSettings.arrAllMorningHabits.RemoveAt(i);
+                        i--;
+                        appSettings.bShowReducedHabitsOnExpired = true;
+                    }
+                }
+            }
+
             try
             {
                 LogWriter.LogWrite("ShowMorningRoutine - Now show the HabitWindow");
@@ -2794,6 +2817,21 @@ namespace Focus_Bear
                 //We could not get last activity info so we will start the routine for sure
             }
 
+            //If its the expired version, then we need to show top 3 activities only
+            if (appSettings.isExpired)
+            {
+                appSettings.bShowReducedHabitsOnExpired = false;
+                for (int i = 0; i < appSettings.arrAllEveningHabits.Count; i++)
+                {
+                    if (i > 2)
+                    {
+                        appSettings.arrAllEveningHabits.RemoveAt(i);
+                        i--;
+                        appSettings.bShowReducedHabitsOnExpired = true;
+                    }
+                }
+            }
+
 
             LogWriter.LogWrite("ShowEveningRoutine() - show evening habits screen now");
 
@@ -2853,6 +2891,24 @@ namespace Focus_Bear
                 }
             }
         }
+
+        public void ShowUpgradeToProNag(string sTitleContext)
+        {
+            LogWriter.LogWrite("ShowUpgradeToProNag()");
+
+            UpgradeToPro up = new UpgradeToPro(sTitleContext);
+            bool? bResult = up.ShowDialog();
+
+            //if (bShowingOnAppStartedExpired)
+            //{
+            //    if (bResult.Value == false)
+            //    {
+            //        LogWriter.LogWrite("Upgrade Nag Closed at very beginning, Terminate application");
+            //        Application.Current.Shutdown(0);
+            //    }
+            //}
+        }
+
 
         public void ShowPreferencesWindow()
         {
@@ -3319,6 +3375,7 @@ namespace Focus_Bear
                 {
                     wndFocusProgress = new FocusProgress();
                 }
+                wndFocusProgress.nTimer = (int.Parse(appSettings.sRunningFocusModeMinutes) * 60);
                 wndFocusProgress.Show();
                 wndFocusProgress.BringIntoView();
             }

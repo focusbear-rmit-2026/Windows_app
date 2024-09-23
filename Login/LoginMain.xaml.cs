@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Focus_Bear.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,7 @@ namespace Focus_Bear.Login
     /// </summary>
     public partial class LoginMain : Window
     {
+        AppSettings appSettings = AppSettings.GetInstance;
         public bool bDoNotShutDown = false;
         public LoginMain()
         {
@@ -44,6 +46,9 @@ namespace Focus_Bear.Login
         {
             if (!bDoNotShutDown)
             {
+                appSettings.CapturePostHog("login-window-closed"); //might not trigger
+
+                Task.Delay(500);
                 Application.Current.Shutdown(0);
             }
         }

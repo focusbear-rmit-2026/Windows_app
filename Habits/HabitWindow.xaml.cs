@@ -47,6 +47,8 @@ namespace Focus_Bear.Habits
         DispatcherTimer dispatcherTimerShowDateTime = new DispatcherTimer(DispatcherPriority.Normal);
 
         DispatcherTimer dispatcherTimerAskSleepAndMood = new DispatcherTimer(DispatcherPriority.Normal);
+        
+        DispatcherTimer dispatcherTimerShowReducedHabitsMessage = new DispatcherTimer(DispatcherPriority.Normal);
 
         protected override async void OnContentRendered(EventArgs e)
         {
@@ -181,11 +183,59 @@ namespace Focus_Bear.Habits
                     AppFrameHabitScreens.Navigate(PageWelcomeList); //Normal process
 
                     AskToAnalyzeSleepAndMood();
+
+                    if(appSettings.isExpired)
+                        ShowReducedHabitsMessageOnExpired();
                 }
             }
 
         }
       
+        public void ShowReducedHabitsMessageOnExpired()
+        {
+            dispatcherTimerShowReducedHabitsMessage.Tick += new EventHandler(dispatcherTimerShowReducedHabitsMessage_Tick);
+            dispatcherTimerShowReducedHabitsMessage.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimerShowReducedHabitsMessage.Start();
+        }
+
+        private void dispatcherTimerShowReducedHabitsMessage_Tick(object sender, EventArgs e)
+        {
+
+            try
+            {
+                dispatcherTimerShowReducedHabitsMessage.Stop();
+                CommandManager.InvalidateRequerySuggested();
+                GridShade.Visibility = Visibility.Visible;
+
+                appSettings.CapturePostHog("alert-limited-usage-shown");
+
+                string sTitle = appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["title"].ToString().Replace("<COUNT>", "3");
+                string sSubTitle = appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["subTitle"].ToString().Replace("<COUNT>", "3");
+                FBMessageBox ff = new FBMessageBox(sSubTitle, sTitle, MessageBoxButton.YesNo, appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["buttonUpgradeNowText"].ToString(), appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["buttonContinueText"].ToString());
+                ff.Owner = this;
+                ff.ShowDialog();
+
+                GridShade.Visibility = Visibility.Collapsed;
+
+                //if user has cancelled the update process
+                if (ff.btnClicked == MessageBoxResult.Yes)
+                {
+                    appSettings.CapturePostHog("alert-limited-usage-button-upgrade-clicked");
+                    ((App)(Application.Current)).ShowUpgradeToProNag("");
+                }
+                else
+                {
+                    appSettings.CapturePostHog("alert-limited-usage-button-continue-clicked");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("dispatcherTimerAskSleepAndMood_Tick ex = " + ex.Message);
+            }
+
+        }
+
         public void ShowStartBreakActivityScreen()
         {
             AppFrameHabitScreens.Navigate(new StartBreakActivity(this));

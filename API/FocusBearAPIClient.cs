@@ -705,6 +705,7 @@ namespace Focus_Bear.API
                         $"\"isMeetings\":{JsonConvert.SerializeObject(FF.isMeetings)}," +
                         $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
                         $"\"isRelaxFocus\":{JsonConvert.SerializeObject(FF.isRelaxFocus)}," +
+                        $"\"isDeepWorkFocus\":{JsonConvert.SerializeObject(FF.isDeepWorkFocus)}," +
                         $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
                         $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
 

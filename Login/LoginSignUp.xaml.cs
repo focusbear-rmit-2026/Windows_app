@@ -83,13 +83,13 @@ namespace Focus_Bear.Login
             {
                 LogWriter.LogWrite("LoginSignUp Texts Exception - " + ex.Message);
             }
-
+            appSettings.CapturePostHog("view-signup-shown");
         }
 
         private async void btnCreatAccount_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnCreatAccount_Click");
-
+            appSettings.CapturePostHog("button-create-account-clicked");
             try
             {
 
@@ -451,6 +451,7 @@ namespace Focus_Bear.Login
 
         private void OwnPassword_Checked(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("button-use-own-password-clicked");
             GridGeneratePassRelated.Visibility = Visibility.Collapsed;
             GridPasswordRules.Visibility = Visibility.Visible;
             WeGeneratedPassword.Visibility = Visibility.Collapsed;
@@ -459,6 +460,7 @@ namespace Focus_Bear.Login
 
         private async void GeneratePassword_Checked(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("button-generate-password-clicked");
             GridGeneratePassRelated.Visibility = Visibility.Visible;
             GridPasswordRules.Visibility = Visibility.Collapsed;
             WeGeneratedPassword.Visibility = Visibility.Visible;
@@ -481,6 +483,8 @@ namespace Focus_Bear.Login
 
         private void SavedPassword_Checked(object sender, RoutedEventArgs e)
         {
+            appSettings.CapturePostHog("saved-password-safe-checked");
+
             if(GeneratePassword.IsChecked.Value)
             {
                 btnCreatAccount.IsEnabled = true;

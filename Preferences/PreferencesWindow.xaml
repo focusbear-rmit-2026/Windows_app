@@ -19,12 +19,28 @@
             <Grid Margin="0" Grid.Row="0" Background="#faf9f6" >
 
                 <StackPanel Orientation="Horizontal" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center"  >
-                        <Button x:Name="btnStats" Style="{StaticResource BtnStylePreferences}" Click="btnStats_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand" >
+                        <Button x:Name="btnHelp" Style="{StaticResource BtnStylePreferences}" Click="btnHelp_Click"  MinWidth="55" Height="55"  Cursor="Hand">
                             <StackPanel Orientation="Vertical">
-                                <Image Source="../images/person.png" Margin="0,5,0,0" Height="24" Width="24" />
-                                <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnStatsTXT" >xStats</TextBlock>
+                                <Image Source="../images/info.png" Margin="0,5,0,0" Height="24" Width="24" />
+                                <TextBlock Margin="0,3,0,0" Padding="6,0,6,0" x:Name="btnHelpTXT">xHelp</TextBlock>
                             </StackPanel>
                         </Button>
+
+                        <Button x:Name="btnSettings" Style="{StaticResource BtnStylePreferences}" Click="btnSettings_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand" >
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="../images/gear_alt.png" Margin="0,5,0,0" Height="24" Width="24" />
+                                <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnSettingsTXT" >xSettings</TextBlock>
+                            </StackPanel>
+                        </Button>
+
+                        <Button x:Name="btnEditHabits" Style="{StaticResource BtnStylePreferences}" Click="btnEditHabits_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="../images/checkmark_rectangle.png" Margin="0,5,0,0" Height="24" Width="24" />
+                                <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnEditHabitsTXT">xEdit Habits</TextBlock>
+                            </StackPanel>
+                        </Button>
+
+                       
 
                         <Button x:Name="btnBlockedList" Style="{StaticResource BtnStylePreferences}" Click="btnBlockedURLs_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
                             <StackPanel Orientation="Vertical">
@@ -40,18 +56,13 @@
                         </StackPanel>
                         </Button>
 
-                        <Button x:Name="btnEditHabits" Style="{StaticResource BtnStylePreferences}" Click="btnEditHabits_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
-                        <StackPanel Orientation="Vertical">
-                            <Image Source="../images/checkmark_rectangle.png" Margin="0,5,0,0" Height="24" Width="24" />
-                            <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnEditHabitsTXT">xEdit Habits</TextBlock>
-                        </StackPanel>
-                    </Button>
-                        <Button x:Name="btnSettings" Style="{StaticResource BtnStylePreferences}" Click="btnSettings_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand" >
+                        <Button x:Name="btnStats" Style="{StaticResource BtnStylePreferences}" Click="btnStats_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand" >
                             <StackPanel Orientation="Vertical">
-                                <Image Source="../images/gear_alt.png" Margin="0,5,0,0" Height="24" Width="24" />
-                                <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnSettingsTXT" >xSettings</TextBlock>
+                                <Image Source="../images/person.png" Margin="0,5,0,0" Height="24" Width="24" />
+                                <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnStatsTXT" >xStats</TextBlock>
                             </StackPanel>
                         </Button>
+                      
                         <!--<Button x:Name="btnPassword" Style="{StaticResource BtnStylePreferences}" Click="btnPassword_Click"  MinWidth="55" Height="55" Margin="0,0,5,0">
                         <StackPanel Orientation="Vertical">
                             <Image Source="../images/lock.png" Margin="0,5,0,0" Height="24" Width="24" />
@@ -79,12 +90,7 @@
                             <TextBlock Margin="0,3,0,0" Padding="6,0,6,0" x:Name="btnUninstallTXT">xUninstall</TextBlock>
                         </StackPanel>
                     </Button>-->
-                        <Button x:Name="btnHelp" Style="{StaticResource BtnStylePreferences}" Click="btnHelp_Click"  MinWidth="55" Height="55"  Cursor="Hand">
-                            <StackPanel Orientation="Vertical">
-                                <Image Source="../images/info.png" Margin="0,5,0,0" Height="24" Width="24" />
-                                <TextBlock Margin="0,3,0,0" Padding="6,0,6,0" x:Name="btnHelpTXT">xHelp</TextBlock>
-                            </StackPanel>
-                        </Button>
+                       
                     </StackPanel>
 
             </Grid>

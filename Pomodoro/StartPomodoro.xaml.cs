@@ -118,11 +118,13 @@ namespace Focus_Bear.Pomodoro
                 MinutesBreak.IsEnabled = !appSettings.bUseSuperPomodoroMode;
                 SkipMicroBreaks.IsEnabled = !appSettings.bUseSuperPomodoroMode;
 
+                SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
+
                 //set the previous values selected by user in case of Super Pomodoro by user
                 if (appSettings.bUseSuperPomodoroMode)
                 {
                     UseSuperPomodoroMode.IsChecked = true;
-                    SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
+                    
                     ComboBoxFocusModes.SelectedItem = appSettings.SuperPomodoroFocusedName;
                     ComboBoxNumberOfPomodoros.SelectedIndex = (appSettings.NumberOfSuperPomodorosToRun - 2);
                     Minutes.Text = appSettings.sMinutesSuperPomodoro;
