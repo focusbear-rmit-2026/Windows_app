@@ -25,6 +25,15 @@ In Visual Studio, ensure that the solution is set to build in Release mode for p
 You can change this in the toolbar where it says Debug, select Release instead.
 Go to Build > Build Solution or press Ctrl + Shift + B.
 
+## Upgrading the App Version
+To update the application version:
+Open the Assembly.cs file located in the Properties folder.
+Locate the following lines:
+[assembly: AssemblyVersion("1.0.131.0")]
+[assembly: AssemblyFileVersion("1.0.131.0")]
+
+Change the version numbers as needed following semantic versioning guidelines (major.minor.patch).
+
 ## Dependencies 
 All dependencies along with packages are already included in the project and the soultion
 
