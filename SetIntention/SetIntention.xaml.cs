@@ -53,7 +53,7 @@ namespace Focus_Bear.SetIntention
         DispatcherTimer dispatcherTimerUnlock = new DispatcherTimer(DispatcherPriority.Normal);
         int nTimer = 5;
 
-        int nAutoBlockTimer = 15; //15 Seconds
+        int nAutoBlockTimer = 30; //30 Seconds
         DispatcherTimer dispatcherTimerAutoBlock = new DispatcherTimer(DispatcherPriority.Normal);
 
         public SetIntention()
@@ -278,8 +278,9 @@ namespace Focus_Bear.SetIntention
             //    Intention.Visibility = Visibility.Collapsed;
             //}
 
-            //Start the 15 seconds automatic block timer if the user takes no action
-            nAutoBlockTimer = 15;
+            //Start the 30 seconds automatic block timer if the user takes no action
+            TxtAutoBlockTimer.Text = "00:30";
+            nAutoBlockTimer = 30;
             dispatcherTimerAutoBlock.Tick += new EventHandler(dispatcherTimer_AutoBlock);
             dispatcherTimerAutoBlock.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimerAutoBlock.Start();
@@ -338,7 +339,12 @@ namespace Focus_Bear.SetIntention
             nAutoBlockTimer--;
             try
             {
+                TxtAutoBlockTimer.Text = appSettings.SecondsToTimerText(nAutoBlockTimer);
                 CommandManager.InvalidateRequerySuggested();
+                if (nAutoBlockTimer == 0)
+                {
+                    TxtAutoBlockTimer.Text = "00:00";
+                }
                 if (nAutoBlockTimer <= 0)
                 {
                     CommandManager.InvalidateRequerySuggested();

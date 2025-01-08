@@ -107,6 +107,8 @@ namespace Focus_Bear.Focus
         {
             try
             {
+                appSettings.CapturePostHog("start-focus-session-manually");
+
                 sIntention = TxtIntention.Text;
                 sHours = Hours.Text;
                 sMinutes = Minutes.Text;

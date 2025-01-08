@@ -22,9 +22,10 @@
 
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="x finished!✅ You've earned your screen time. 💪" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <StackPanel  Grid.Row="2"  Orientation="Vertical" HorizontalAlignment="Center">
-        <TextBlock    Name="TypeOfWork" Margin="0,150,0,0" TextWrapping="Wrap" Text="xWhat type of work do you mainly do?." Foreground="#272727" FontSize="25" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-            
-             
+        <TextBlock    Name="Message" Margin="0,100,0,0" TextWrapping="Wrap" Text="xWhat type of work do you mainly do?." Foreground="#272727" FontSize="25" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock    Name="MessageDetails" Margin="0,20,0,0" TextWrapping="Wrap" Text="x." Foreground="#272727" FontSize="21" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+
+
         </StackPanel>
         <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>

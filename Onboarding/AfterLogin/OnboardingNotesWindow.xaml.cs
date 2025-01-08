@@ -55,18 +55,6 @@ namespace Focus_Bear.Onboarding.AfterLogin
                 btnContinueTxt.Text = appSettings.ConfigFileStrings["howHeardVcInfo"]["buttonContinueText"].ToString();
                 btnContinue.IsEnabled = false;
 
-
-                var arrOptions = new string[] { appSettings.ConfigFileStrings["howHeardVcInfo"]["optionFirstText"].ToString(), appSettings.ConfigFileStrings["howHeardVcInfo"]["optionSecondText"].ToString(), appSettings.ConfigFileStrings["howHeardVcInfo"]["optionThirdText"].ToString(), appSettings.ConfigFileStrings["howHeardVcInfo"]["optionPodcastsText"].ToString() };
-                Random rnd = new Random();
-                string[] MyRandomArray = arrOptions.OrderBy(x => rnd.Next()).ToArray();
-
-                Radio1.Content = MyRandomArray[0];
-                Radio2.Content = MyRandomArray[1];
-                Radio3.Content = MyRandomArray[2];
-                Radio4.Content = MyRandomArray[3];
-
-                SomewhereElse.Content = appSettings.ConfigFileStrings["howHeardVcInfo"]["optionFourthText"].ToString();
-
                 GridHowDidYouHearAboutFocusBear.Visibility = Visibility.Visible;
 
                 AccountReady.Text = appSettings.ConfigFileStrings["askOnboardingVideoVcInfo"]["title"].ToString();
@@ -74,7 +62,10 @@ namespace Focus_Bear.Onboarding.AfterLogin
                 btnPlayVideoTxt.Text = appSettings.ConfigFileStrings["askOnboardingVideoVcInfo"]["buttonPlayText"].ToString();
                 btnNoThanksText.Text = appSettings.ConfigFileStrings["askOnboardingVideoVcInfo"]["buttonNoThanksText"].ToString();
 
-
+                //todo win texts
+                HeadingWantFeedback.Text = "We want your feedback"; //onboardingFeedbackVcInfo
+                DescriptionWantFeedback.Text = "We're a small independent team, not a faceless mega-corporation. Focus Bear is still a new app and we really want your feedback. If you have suggestions, please email support@focusbear.io.";
+                btnContinueFeedbackTxt.Text = appSettings.ConfigFileStrings["howHeardVcInfo"]["buttonContinueText"].ToString(); //appSettings.ConfigFileStrings["onboardingFeedbackVcInfo"]["buttonContinueText"].ToString();
 
             }
             catch (Exception ex)
@@ -84,36 +75,12 @@ namespace Focus_Bear.Onboarding.AfterLogin
         }
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
-            if (Radio1.IsChecked.Value)
-            {
-                string ss = string.Format("\"heard-from\":\"{0}\"", Radio1.Content.ToString());
-                appSettings.CapturePostHog("heard_about_focus_bear", ss);
-
-            }
-            else if (Radio2.IsChecked.Value)
-            {
-                string ss = string.Format("\"heard-from\":\"{0}\"", Radio2.Content.ToString());
-                appSettings.CapturePostHog("heard_about_focus_bear", ss);
-            }
-            else if (Radio3.IsChecked.Value)
-            {
-                string ss = string.Format("\"heard-from\":\"{0}\"", Radio3.Content.ToString());
-                appSettings.CapturePostHog("heard_about_focus_bear", ss);
-            }
-            else if (Radio4.IsChecked.Value)
-            {
-                string ss = string.Format("\"heard-from\":\"{0}\"", Radio4.Content.ToString());
-                appSettings.CapturePostHog("heard_about_focus_bear", ss);
-            }
-            else if (SomewhereElse.IsChecked.Value)
-            {
-                string ss = string.Format("\"heard-from\":\"{0}\"", TxtSomewhereElse.Text);
-                appSettings.CapturePostHog("heard_about_focus_bear", ss);
-            }
-
-            //6 Sep 2023 - Once the user clicks contionue, now we do not need to show the video confirmation screen, as we will be opening the post install page
-            appSettings.bShowOnBoardingVideo = false;
-            Close();
+            string ss = string.Format("\"heard-from\":\"{0}\"", TxtSomewhereElse.Text);
+            appSettings.CapturePostHog("heard_about_focus_bear", ss);
+             
+            GridHowDidYouHearAboutFocusBear.Visibility = Visibility.Hidden;
+            GridWantFeedback.Visibility = Visibility.Visible;
+            appSettings.CapturePostHog("show_want_feedback_screen");
         }
 
         private void TxtSomewhereElse_TextChanged(object sender, TextChangedEventArgs e)
@@ -128,43 +95,6 @@ namespace Focus_Bear.Onboarding.AfterLogin
             }
         }
 
-        private void SomewhereElse_Checked(object sender, RoutedEventArgs e)
-        {
-            TxtSomewhereElse.Visibility = Visibility.Visible;
-            if (TxtSomewhereElse.Text.Length > 0)
-            {
-                btnContinue.IsEnabled = true;
-            }
-            else
-            {
-                btnContinue.IsEnabled = false;
-            }
-        }
-
-        private void Radio3_Checked(object sender, RoutedEventArgs e)
-        {
-            btnContinue.IsEnabled = true;
-            TxtSomewhereElse.Visibility = Visibility.Collapsed;
-        }
-
-        private void Radio2_Checked(object sender, RoutedEventArgs e)
-        {
-            btnContinue.IsEnabled = true;
-            TxtSomewhereElse.Visibility = Visibility.Collapsed;
-        }
-
-        private void Radio1_Checked(object sender, RoutedEventArgs e)
-        {
-            btnContinue.IsEnabled = true;
-            TxtSomewhereElse.Visibility = Visibility.Collapsed;
-        }
-
-        private void Radio4_Checked(object sender, RoutedEventArgs e)
-        {
-            btnContinue.IsEnabled = true;
-            TxtSomewhereElse.Visibility = Visibility.Collapsed;
-        }
-
         private void btnPlayVideo_Click(object sender, RoutedEventArgs e)
         {
             appSettings.bShowOnBoardingVideo = true;
@@ -174,6 +104,11 @@ namespace Focus_Bear.Onboarding.AfterLogin
         private void btnNoThanks_Click(object sender, RoutedEventArgs e)
         {
             appSettings.bShowOnBoardingVideo = false;
+            Close();
+        }
+
+        private void btnContinueFeedback_Click(object sender, RoutedEventArgs e)
+        {
             Close();
         }
     }

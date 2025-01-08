@@ -8,7 +8,7 @@
       mc:Ignorable="d" 
        d:DesignHeight="1080" d:DesignWidth="1920"
       Title="Focus Bear" Background="#fff">
-    <local1:DpiDecorator>
+    <!--<local1:DpiDecorator>-->
         <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
@@ -54,5 +54,5 @@
 
 
     </Grid>
-        </local1:DpiDecorator>
+        <!--</local1:DpiDecorator>-->
 </Page>

@@ -70,7 +70,7 @@ namespace Focus_Bear.Preferences
 
                 GeneralTab.Header = appSettings.ConfigFileStrings["common"]["tabGeneralText"].ToString();
                 PasswordTab.Header = appSettings.ConfigFileStrings["common"]["tabPasswordText"].ToString();
-                BlockedURLTab.Header = appSettings.ConfigFileStrings["common"]["tabBlockedURLsText"].ToString();
+                BlockedURLTab.Header = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
                 AccountTab.Header = appSettings.ConfigFileStrings["common"]["tabAccountsText"].ToString();
 
                 //todo win texts
@@ -568,6 +568,9 @@ namespace Focus_Bear.Preferences
             }
 
             _ParentWindow.SetFocusButtonState();//set the state of the main tab
+
+            //Save the local settings and upload to server
+            LocalSettingsManager.PutLocalSettings();
 
             GeekMode.Checked += GeekMode_Checked;
             SimpleMode.Checked += SimpleMode_Checked;

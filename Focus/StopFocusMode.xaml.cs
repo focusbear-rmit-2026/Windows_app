@@ -140,6 +140,8 @@ namespace Focus_Bear.Focus
                         FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
                         FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
 
+                        appSettings.CapturePostHog("completed-focus-session", string.Format("\"focus-type\":\"manual_focus\",\"focusDurationMinutes\":{0}", (nSeconds / 60)));
+                        
                         //Call api top finish focus mode
                         FocusBearAPIClient client = new FocusBearAPIClient();
                         var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");

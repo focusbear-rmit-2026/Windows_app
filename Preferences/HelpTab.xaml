@@ -18,6 +18,13 @@
                 </Style>
             </TabControl.Resources>
 
+            <TabItem Name="GetSupport" Header="xGetSupport" >
+                <wv2:WebView2 Name="webViewGetSupport" />
+            </TabItem>
+            <TabItem Name="Tutorials" Header="xTutorials" >
+                <wv2:WebView2 Name="webViewTutorials" />
+            </TabItem>
+            
             <TabItem Name="Community" Header="xCommunity" >
                 <Grid Background="#fcf8f0" Margin="20">
                     <Grid.RowDefinitions>
@@ -53,10 +60,6 @@
                     </TextBlock>
                 </Grid>
             </TabItem>
-            <TabItem Name="ChatTab" Header="xChat with Focus Bear" >
-                <wv2:WebView2 Name="webView" />
-            </TabItem>
-
         </TabControl>
     </Grid>
 </Page>

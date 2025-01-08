@@ -77,6 +77,11 @@ namespace Focus_Bear.Onboarding.New
             bShutdownApp = false;
             Close();
         }
+        public void ShowBlockingScheduleScreen()
+        {
+            appSettings.CapturePostHog("onboarding-blocking-schedule-shown");
+            FrameSteps.Navigate(new OnboardingNewBlockingSchedule(this));
+        }
         public void ShowPrivacyScreen()
         {
             appSettings.CapturePostHog("privacy-and-security-shown");

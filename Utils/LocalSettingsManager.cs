@@ -388,6 +388,17 @@ namespace Focus_Bear.Utils
                             {
                                 sMacOSSettingsOBJ.Add("kUserdefaultsBreaksEnabledFromOnboarding", appSettings.bAreBreaksEnabled);
                             }
+                            //Blocks schedule related
+                            if (sMacOSSettingsOBJ.ContainsKey("kBlockingSchedule"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kBlockingSchedule"); //Remove  
+                                                                                                      //Add new  
+                                sMacOSSettingsOBJ.Add("kBlockingSchedule", (int) appSettings.nBlockingSchedule);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kBlockingSchedule", (int) appSettings.nBlockingSchedule);
+                            }
 
                             //Now remove macOS from local and add updated one
                             LocalSettings.Remove("MacOS");

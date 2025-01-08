@@ -8,7 +8,7 @@
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
         Title="Focus Bear" Height="835" Width="1050" Loaded="Window_Loaded">
-    <local1:DpiDecorator>
+    <!--<local1:DpiDecorator>-->
         <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
@@ -37,5 +37,5 @@
             </Button.Content>
         </Button>
     </Grid>
-    </local1:DpiDecorator>
+    <!--</local1:DpiDecorator>-->
 </Window>

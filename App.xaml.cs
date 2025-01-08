@@ -87,6 +87,7 @@ namespace Focus_Bear
 
         private bool bScreenSaverStarted = false;
         private bool bSuggestMeetingsPopupShownForThisCallSession = false;
+        public  bool bUserManuallyClosedNotifierForThisCallSession = false;
 
         bool bLoadURLAgainInToDoPlayer = false;
         public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
@@ -138,6 +139,10 @@ namespace Focus_Bear
                                             ProcessBrowserURLs.ProcessCurrentURL(hwnd);
                                         }
 
+                                    }
+                                    else
+                                    {
+                                        LogWriter.LogWrite("Mozilla's sName is null or other language then EN / ES- OR (sURL != null && sURL.Length > 0 FAILS" + sName + "URL =" + sURL);
                                     }
                                 }
                             }
@@ -300,7 +305,7 @@ namespace Focus_Bear
         public CallFocusNotifier wndCallFocusNotifier = null;
 
         public ToDoPlayer wndToDoPlayer = null;
-        
+
         bool bAppExtracted = false;
 
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
@@ -1016,11 +1021,12 @@ namespace Focus_Bear
 
                 var SyncPlatformCoursesResponseUnused = await client.SyncPlatformCourses();
 
-
-                if (appSettings.sAdditionalGoals.Length > 0)
-                {
-                    var ResponseUnused = client.PutAdditionalGoals();
-                }
+                var EnrolForCoursesUnused = await client.EnrollForCourses(); //Enroll for courses 
+           
+                //if (appSettings.sAdditionalGoals.Length > 0)
+                //{
+                //    var ResponseUnused = client.PutAdditionalGoals();
+                //}
 
                 if (wndSplash != null)
                 {
@@ -1059,21 +1065,28 @@ namespace Focus_Bear
 
                 appSettings.CapturePostHog("menu_tour_setup_complete");
 
+                OnboardingAskProcrastinatingWindow wndOnboardingAskProcrastinatingWindow = new OnboardingAskProcrastinatingWindow();
+                wndOnboardingAskProcrastinatingWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                wndOnboardingAskProcrastinatingWindow.Topmost = true;
+                wndOnboardingAskProcrastinatingWindow.ShowDialog();
+                wndOnboardingAskProcrastinatingWindow.Activate();
+                wndOnboardingAskProcrastinatingWindow.Focus();
+
                 /*  "titleAlertSetupComplete":"Setup complete!",
                     "subTitleAlertSetupComplete":"To get up and running quickly, have a read of our quick start guide.",
                      "buttonOkText":"Enlighten me"*/
-                FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["menuTourVcInfo"]["subTitleAlertSetupComplete"].ToString(), appSettings.ConfigFileStrings["menuTourVcInfo"]["titleAlertSetupComplete"].ToString(), MessageBoxButton.OK, appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonOkText"].ToString());
-                msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                msg.ShowDialog();
+                //FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["menuTourVcInfo"]["subTitleAlertSetupComplete"].ToString(), appSettings.ConfigFileStrings["menuTourVcInfo"]["titleAlertSetupComplete"].ToString(), MessageBoxButton.OK, appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonOkText"].ToString());
+                //msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                //msg.ShowDialog();
 
-                try
-                {
-                    Process.Start("https://www.focusbear.io/en/post-install-windows");
-                }
-                catch (Exception ex)
-                {
-                    LogWriter.LogWrite("Post install url failed to load + " + ex.Message);
-                }
+                //try
+                //{
+                //    Process.Start("https://www.focusbear.io/en/post-install-windows");
+                //}
+                //catch (Exception ex)
+                //{
+                //    LogWriter.LogWrite("Post install url failed to load + " + ex.Message);
+                //}
 
             }
 
@@ -1345,6 +1358,11 @@ namespace Focus_Bear
                 RegistryManager.SetMorningHabitsShownTillDate();
             }
 
+            //Right after the procastinating screen have been shown and the tray menu window have been created, we will show the start simple pomodoro window
+            if (!RegistryManager.GetSimplePomodoroTourShownStatus()) //can use this to detect the first pomodoro session
+            {
+                ((App)(Application.Current)).ShowSimplePomodoroWindow();
+            }
 
             //Do clear the Postponed variables
             RegistryManager.RemovePostponedHabitData();
@@ -1490,11 +1508,13 @@ namespace Focus_Bear
                 {
                     if (AudioUtilities.IsUserOnaAudioCall() || CameraUtilities.IsUserOnVideoCall())
                     {
-                        ShowCallFocusNotifier();
+                        if(!bUserManuallyClosedNotifierForThisCallSession)
+                            ShowCallFocusNotifier();
                         appSettings.bIsUserOnCall = true;
                     }
                     else
                     {
+                        bUserManuallyClosedNotifierForThisCallSession = false;
                         appSettings.bIsUserOnCall = false;
                         HideCallFocusNotifier();
                     }

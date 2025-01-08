@@ -87,7 +87,7 @@ namespace Focus_Bear.Utils
                 return;
             }
 
-            if (appSettings.arrAlwaysBlockedURLs.Count() > 0)
+            if (appSettings.arrAlwaysBlockedURLs.Count() > 0 && appSettings.nBlockingSchedule == BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK) //only block when untill I finish work is selected
                 ProcessCurrentAlwaysBlockedURL(hwnd); //For always Blocked URLS
         }
 
@@ -140,7 +140,7 @@ namespace Focus_Bear.Utils
 
                         if (blockedURLs.Count() != 0)
                         {
-                            appSettings.TemporarryBlockedURLsWithSetIntention.Remove(sDomain);
+                            appSettings.TemporarryBlockedURLsWithSetIntention.RemoveAll(i => i.ToLower() == sDomain.ToLower()); //We need to remove all instanes
                         }
 
                         //Now fire the OLD url so that it will ask for intention again
@@ -930,91 +930,142 @@ namespace Focus_Bear.Utils
                     {
                         string sURLForFocusMode = "";
                         sURLForFocusMode = val;
-                       /** try
+                      
+                        //Check if the user had allowed the entire domain
+                        var domainAllowed = appSettings.TemporaryAllowedURLsGentleBlock.Where(i => i.BAllowDomain == true);
+                        if (domainAllowed.Count() != 0)
                         {
-                            Uri myUri = new Uri(val);
-                            string host = myUri.Host; //fails if ther eis no http://
-                            sURLForFocusMode = host;
-                            Debug.WriteLine(sURLForFocusMode);
-                        }
-                        catch (Exception ex)
-                        {
-                            /*
-                            This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
-                            If uri does not specify a scheme, the scheme defaults to "http:".
-                            * /
-                            Uri myUri = new UriBuilder(val).Uri;
-                            sURLForFocusMode = myUri.Host;
-                            Debug.WriteLine(ex.Message);
-                        }**/
-
-                        var allowedURLs = appSettings.TemporaryAllowedURLsGentleBlock.Where(i => i.sURL.ToLower() == sURLForFocusMode.ToLower());
-                        if (allowedURLs.Count() != 0)
-                        {
-                            //found in allowed url
-                            //if found in allowed URLs then add the title of what ever tab that is opened to the keywords list to send to server
-                            if (hWnd != IntPtr.Zero)
+                            //here we need to check the domain of the url in question
+                            try
                             {
-                                try
+                                Uri myUri = new Uri(val);
+                                string host = myUri.Host; //fails if ther eis no http://
+                                sURLForFocusMode = host;
+                                Debug.WriteLine(sURLForFocusMode);
+                            }
+                            catch (Exception ex)
+                            {
+                                /*
+                                This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                                If uri does not specify a scheme, the scheme defaults to "http:".
+                                */
+                                Uri myUri = new UriBuilder(val).Uri;
+                                sURLForFocusMode = myUri.Host;
+                                Debug.WriteLine(ex.Message);
+                            }
+
+                            var allowedURLs = appSettings.TemporaryAllowedURLsGentleBlock.Where(i => i.sURL.ToLower() == sURLForFocusMode.ToLower());
+                            if (allowedURLs.Count() != 0)
+                            {
+                                //found in allowed url
+                                //if found in allowed URLs then add the title of what ever tab that is opened to the keywords list to send to server
+                                if (hWnd != IntPtr.Zero)
                                 {
-                                    //Check title
-                                    const int nChars = 256;
-                                    StringBuilder Buff = new StringBuilder(nChars);
-                                    if (GetWindowText(hWnd, Buff, nChars) > 0)
+                                    try
                                     {
-                                        string sTitle = Buff.ToString();
-
-                                        sTitle = sTitle.Replace(" - Google Chrome", "");
-                                        sTitle = sTitle.Replace(" — Mozilla Firefox", "");
-                                        sTitle = sTitle.Replace(" - Microsoft? Edge", "");
-
-                                        if (sTitle.Length > 0)
+                                        //Check title
+                                        const int nChars = 256;
+                                        StringBuilder Buff = new StringBuilder(nChars);
+                                        if (GetWindowText(hWnd, Buff, nChars) > 0)
                                         {
-                                            var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sTitle.ToLower());
-                                            if (titleExists.Count() == 0)
+                                            string sTitle = Buff.ToString();
+
+                                            sTitle = sTitle.Replace(" - Google Chrome", "");
+                                            sTitle = sTitle.Replace(" — Mozilla Firefox", "");
+                                            sTitle = sTitle.Replace(" - Microsoft? Edge", "");
+
+                                            if (sTitle.Length > 0)
                                             {
-                                                //add to list
-                                                appSettings.TemporaryAllowedURLsTabTitles.Add(sTitle);
+                                                var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sTitle.ToLower());
+                                                if (titleExists.Count() == 0)
+                                                {
+                                                    //add to list
+                                                    appSettings.TemporaryAllowedURLsTabTitles.Add(sTitle);
+                                                }
                                             }
                                         }
                                     }
+                                    catch (Exception ex)
+                                    {
+                                        LogWriter.LogWrite("suppressURLForFirefox GetWindowText blockedurls EX - " + ex.Message);
+                                    }
                                 }
-                                catch (Exception ex)
-                                {
-                                    LogWriter.LogWrite("suppressURLForFirefox GetWindowText blockedurls EX - " + ex.Message);
-                                }
+                                LogWriter.LogWrite("Found in appSettings.TemporaryAllowedURLsGentleBlock - returning - " + sURLForFocusMode);
+                                return;//allow the url
                             }
-                            LogWriter.LogWrite("Found in appSettings.TemporaryAllowedURLsGentleBlock - returning - " + sURLForFocusMode);
-                            return;//allow the url
-                        }
-                        else
-                        {
-                            var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == sURLForFocusMode.ToLower());
 
-                            if (blockedURLs.Count() != 0)
+                        }
+                        //if the control is not returned from above, we still need to check the full urls
+                        {
+
+                            var allowedURLs = appSettings.TemporaryAllowedURLsGentleBlock.Where(i => i.sURL.ToLower() == sURLForFocusMode.ToLower());
+                            if (allowedURLs.Count() != 0)
                             {
-                                //found in blocked urls..block
+                                //found in allowed url
+                                //if found in allowed URLs then add the title of what ever tab that is opened to the keywords list to send to server
+                                if (hWnd != IntPtr.Zero)
+                                {
+                                    try
+                                    {
+                                        //Check title
+                                        const int nChars = 256;
+                                        StringBuilder Buff = new StringBuilder(nChars);
+                                        if (GetWindowText(hWnd, Buff, nChars) > 0)
+                                        {
+                                            string sTitle = Buff.ToString();
+
+                                            sTitle = sTitle.Replace(" - Google Chrome", "");
+                                            sTitle = sTitle.Replace(" — Mozilla Firefox", "");
+                                            sTitle = sTitle.Replace(" - Microsoft? Edge", "");
+
+                                            if (sTitle.Length > 0)
+                                            {
+                                                var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sTitle.ToLower());
+                                                if (titleExists.Count() == 0)
+                                                {
+                                                    //add to list
+                                                    appSettings.TemporaryAllowedURLsTabTitles.Add(sTitle);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogWriter.LogWrite("suppressURLForFirefox GetWindowText blockedurls EX - " + ex.Message);
+                                    }
+                                }
+                                LogWriter.LogWrite("Found in appSettings.TemporaryAllowedURLsGentleBlock - returning - " + sURLForFocusMode);
+                                return;//allow the url
                             }
                             else
                             {
-                                string sTitle = "";
-                                try
-                                {
-                                    //Check title
-                                    const int nChars = 256;
-                                    StringBuilder Buff = new StringBuilder(nChars);
-                                    if (GetWindowText(hWnd, Buff, nChars) > 0)
-                                    {
-                                        sTitle = Buff.ToString();
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogWriter.LogWrite("suppressURLForFirefox 1 GetWindowText blockedurls EX - " + ex.Message);
-                                }
+                                var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == sURLForFocusMode.ToLower());
 
-                                appSettings.ShowGentleBlockWindow(hWnd, "", val, sTitle); //we will send full url here
-                                return;
+                                if (blockedURLs.Count() != 0)
+                                {
+                                    //found in blocked urls..block
+                                }
+                                else
+                                {
+                                    string sTitle = "";
+                                    try
+                                    {
+                                        //Check title
+                                        const int nChars = 256;
+                                        StringBuilder Buff = new StringBuilder(nChars);
+                                        if (GetWindowText(hWnd, Buff, nChars) > 0)
+                                        {
+                                            sTitle = Buff.ToString();
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogWriter.LogWrite("suppressURLForFirefox 1 GetWindowText blockedurls EX - " + ex.Message);
+                                    }
+
+                                    appSettings.ShowGentleBlockWindow(hWnd, "", val, sTitle); //we will send full url here
+                                    return;
+                                }
                             }
                         }
                     }

@@ -116,8 +116,14 @@ namespace FocusBear.Utils
 
 #if DEBUG
             ///BrowserTitleGrabber.GetTabTitles(BrowserTitleGrabber.EBrowser.Firefox) ;
-            
+
 #endif
+            //if its shutoff time, then we need to block all apps
+            if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF)
+            {
+                ProcessShutOffStateBlockAllApps(element);
+            }
+
 
             if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
             {
@@ -152,6 +158,31 @@ namespace FocusBear.Utils
 
         }
 
+        private void ProcessShutOffStateBlockAllApps(IUIAutomationElement element)
+        {
+            try
+            {
+                using (Process process = Process.GetProcessById(element.CurrentProcessId))
+                {
+                    if (element != null && process != null)
+                    {
+                        // block or Unblock apps
+                        if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName.ToLower()))
+                        {
+                            return;
+                        }
+
+                        LogWriter.LogWrite(process.ProcessName + " Not allowed app When in shutOff State -  BLOCK");
+                        ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
+                        appSettings.CapturePostHog("block-distracting-app");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ProcessShutOffStateBlockAllApps - " + ex.Message);
+            }
+        }
         private void ProcessAllowedAppAndURLsInActivity(IUIAutomationElement element)
         {
             try
@@ -929,6 +960,7 @@ namespace FocusBear.Utils
                                     if (IsWindowVisible(process.MainWindowHandle))
                                         ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
 
+                                    LogWriter.LogWrite(process.ProcessName + " Not allowed app found in Focus Element activity - BLOCK");
                                     appSettings.CapturePostHog("block-distracting-app");
 
                                     return; //if not an allowed app, no need to check URLs
@@ -958,7 +990,7 @@ namespace FocusBear.Utils
                                 else
                                 {
                                     //First let's get the URL value
-
+                                    /**
                                     IUIAutomationElement elm = appSettings.automation.ElementFromHandle(process.MainWindowHandle);
                                     IUIAutomationCondition Cond = appSettings.automation.CreatePropertyCondition(UIA_ControlTypePropertyId, UIA_EditControlTypeId);
                                     IUIAutomationElementArray elm2 = elm.FindAll(TreeScope.TreeScope_Descendants, Cond);
@@ -973,7 +1005,7 @@ namespace FocusBear.Utils
                                                 ProcessURLForFocusModes(val.CurrentValue, focusType, process.MainWindowHandle, element, val);
                                             }
                                         }
-                                    }
+                                    }**/
                                     ///
                                 }
 

@@ -7,7 +7,7 @@
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
         Title="Preferences" Height="700" Width="670" ResizeMode="CanResize" Loaded="Window_Loaded" Closing="Window_Closing" IsVisibleChanged="Window_IsVisibleChanged"  >
-    <local1:DpiDecorator>
+    <!--<local1:DpiDecorator>-->
         <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="81" MinHeight="81" />
@@ -26,6 +26,20 @@
                             </StackPanel>
                         </Button>
 
+                        <Button x:Name="btnFocus" Style="{StaticResource BtnStylePreferences}" Click="btnFocus_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="../images/eye.png" Margin="0,5,0,0" Height="24" Width="24" />
+                                <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnFocusTXT">xFocus</TextBlock>
+                            </StackPanel>
+                        </Button>
+
+                        <Button x:Name="btnBlocks" Style="{StaticResource BtnStylePreferences}" Click="btnBlocks_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="../images/blocked_list.png" Margin="0,5,0,0" Height="24" Width="24" />
+                                <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnBlocksTXT">xBlocks</TextBlock>
+                            </StackPanel>
+                        </Button>
+                    
                         <Button x:Name="btnSettings" Style="{StaticResource BtnStylePreferences}" Click="btnSettings_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand" >
                             <StackPanel Orientation="Vertical">
                                 <Image Source="../images/gear_alt.png" Margin="0,5,0,0" Height="24" Width="24" />
@@ -41,21 +55,6 @@
                         </Button>
 
                        
-
-                        <Button x:Name="btnBlockedList" Style="{StaticResource BtnStylePreferences}" Click="btnBlockedURLs_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
-                            <StackPanel Orientation="Vertical">
-                                <Image Source="../images/blocked_list.png" Margin="0,5,0,0" Height="24" Width="24" />
-                                <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnBlockedListTXT">xBlocked List</TextBlock>
-                            </StackPanel>
-                        </Button>
-
-                        <Button x:Name="btnFocus" Style="{StaticResource BtnStylePreferences}" Click="btnFocus_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
-                        <StackPanel Orientation="Vertical">
-                            <Image Source="../images/eye.png" Margin="0,5,0,0" Height="24" Width="24" />
-                            <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnFocusTXT">xFocus</TextBlock>
-                        </StackPanel>
-                        </Button>
-
                         <Button x:Name="btnStats" Style="{StaticResource BtnStylePreferences}" Click="btnStats_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand" >
                             <StackPanel Orientation="Vertical">
                                 <Image Source="../images/person.png" Margin="0,5,0,0" Height="24" Width="24" />
@@ -101,7 +100,7 @@
 
         <Frame x:Name="FrameEditHabits" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
         <Frame x:Name="FrameFocus" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"  IsVisibleChanged="FrameFocus_IsVisibleChanged" />
-        <Frame x:Name="FrameBlockedURLs" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
+        <Frame x:Name="FrameBlocks" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
         <Frame x:Name="FrameAccountTab" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
         <Frame x:Name="FrameUninstallTab" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
         <Frame x:Name="FrameHelpTab" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
@@ -109,5 +108,5 @@
         <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
         
     </Grid>
-        </local1:DpiDecorator>
+        <!--</local1:DpiDecorator>-->
 </Window>

@@ -128,6 +128,8 @@ namespace Focus_Bear.Preferences
 
         private void btnDuplicateFocusMode_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("btnDuplicateFocusMode_Click");
+
             var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
             if (selectedFocusMode != null)
             {
@@ -178,6 +180,8 @@ namespace Focus_Bear.Preferences
         }
         private void AllowAllApps_Checked(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("AllowAllApps_Checked");
+
             ListApps.IsEnabled = false;
             btnAddAllowedApp.IsEnabled = false;
             btnAddDeleteAllowedApp.IsEnabled = false;
@@ -198,6 +202,8 @@ namespace Focus_Bear.Preferences
 
         private void AllowSelectedApps_Checked(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("AllowSelectedApps_Checked");
+
             ListApps.IsEnabled = true;
             btnAddAllowedApp.IsEnabled = true;
             btnAddDeleteAllowedApp.IsEnabled = true;
@@ -217,6 +223,8 @@ namespace Focus_Bear.Preferences
 
         private void BlockEverything_Checked(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("BlockEverything_Checked");
+
             HowDoYouWant.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["allowUrlsQuestionText"].ToString();
 
             // Remove the handler
@@ -247,6 +255,8 @@ namespace Focus_Bear.Preferences
 
         private void AllowEverything_Checked(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("AllowEverything_Checked");
+
             HowDoYouWant.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["blockUrlsQuestionText"].ToString();
 
             var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
@@ -288,6 +298,8 @@ namespace Focus_Bear.Preferences
 
         private void btnadvanced_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("btnadvanced_Click");
+
             var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
             if (selectedFocusMode != null)
             {
@@ -423,6 +435,8 @@ namespace Focus_Bear.Preferences
 
         private void btnAddAllowedURLs_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("btnAddAllowedURLs_Click");
+
             _ParentWindow.RepositionWindow();
             _ParentWindow.GridShade.Visibility = Visibility.Visible;
             AddWebUrl aa = null;
@@ -520,6 +534,7 @@ namespace Focus_Bear.Preferences
 
         private void btnAddDeleteAllowedURLs_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("btnAddDeleteAllowedURLs_Click");
             try
             {
                 var selectedItem = ListURLs.SelectedItem as string;
@@ -548,6 +563,8 @@ namespace Focus_Bear.Preferences
 
         private void btnAddFocusMode_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("btnAddFocusMode_Click");
+
             _ParentWindow.RepositionWindow();
             _ParentWindow.GridShade.Visibility = Visibility.Visible;
             AddFocusType aa = new AddFocusType(_ParentWindow);
@@ -589,6 +606,8 @@ namespace Focus_Bear.Preferences
 
         private void ListFocusModes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            LogWriter.LogWrite("Focus mode tab in preferences - ListFocusModes_SelectionChanged");
+
             try
             {
                 var selectedItem = ListFocusModes.SelectedItem as FocusMode;

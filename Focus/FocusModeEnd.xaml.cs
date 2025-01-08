@@ -80,6 +80,8 @@ namespace Focus_Bear.Focus
                 }
             }
 
+            appSettings.CapturePostHog("completed-focus-session", string.Format("\"focus-type\":\"manual_focus\",\"focusDurationMinutes\":{0}", (nSeconds / 60)));
+
             //Call api top finish focus mode
             FocusBearAPIClient client = new FocusBearAPIClient();
             try
@@ -293,24 +295,24 @@ namespace Focus_Bear.Focus
                 e.Handled = true;
 
 
-            var source = PresentationSource.FromVisual(this);
+            //var source = PresentationSource.FromVisual(this);
 
-            if (null != source && null != source.CompositionTarget)
-            {
-                var matrix = source.CompositionTarget.TransformToDevice;
+            //if (null != source && null != source.CompositionTarget)
+            //{
+            //    var matrix = source.CompositionTarget.TransformToDevice;
 
-                var dpiTransform = new ScaleTransform(1 / matrix.M11, 1 / matrix.M22);
+            //    var dpiTransform = new ScaleTransform(1 / matrix.M11, 1 / matrix.M22);
 
-                if (dpiTransform.CanFreeze)
-                    dpiTransform.Freeze();
+            //    if (dpiTransform.CanFreeze)
+            //        dpiTransform.Freeze();
 
-                LayoutTransform = dpiTransform;
-                this.Width = this.Width * dpiTransform.ScaleX;
-                this.Height = this.Height * dpiTransform.ScaleY;
-                var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-                this.Left = (desktopWorkingArea.Width - this.Width) / 2;
-                this.Top = (desktopWorkingArea.Height - this.Height) / 2;
-            }
+            //    LayoutTransform = dpiTransform;
+            //    this.Width = this.Width * dpiTransform.ScaleX;
+            //    this.Height = this.Height * dpiTransform.ScaleY;
+            //    var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            //    this.Left = (desktopWorkingArea.Width - this.Width) / 2;
+            //    this.Top = (desktopWorkingArea.Height - this.Height) / 2;
+            //}
         }
 
         private void btnStartAnotherFocusMode_Click(object sender, RoutedEventArgs e)

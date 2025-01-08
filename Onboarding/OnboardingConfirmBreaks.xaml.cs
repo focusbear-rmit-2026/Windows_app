@@ -35,21 +35,20 @@ namespace Focus_Bear.Onboarding
 
             try
             {
-                Heading.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["title"].ToString();
+                Heading.Text = "Focus Bear";
                 
                 RememberBreaks.Text = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["subTitle"].ToString();
-                Warning.Text = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["warningText"].ToString();
+                Warning.Text = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["warningNewText"].ToString();
                
                 CareAboutBreaks.Text = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["titleHowMuchCare"].ToString();  
                 SelectOne.Text = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["selectOneText"].ToString(); //"Select one that apply";
                 DoNotCare.Content = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["buttonDontCareText"].ToString(); //"Meh - don't really care";
                 NotCommitted.Content = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["buttonNotCommittedText"].ToString();  
-                Committed.Content = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["buttonCommittedText"].ToString();  
-
+                Committed.Content = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["buttonCommittedText"].ToString();
+                MostlyCommitted.Content = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["buttonMostlyCommittedText"].ToString();
+                
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
-
-                appSettings.CapturePostHog("take-breaks-info-screen-shown");
-
+                InfoWarn.ToolTip = "Focus Bear will detect when you are less active (based on not typing or moving your mouse) and suggest a break at that time. You can skip/postpone the breaks but your eyes and body will really appreciate it if you do take breaks!";// "appSettings.ConfigFileStrings["askAppWorkVcInfo"]["infoText"].ToString();
             }
             catch (Exception ex)
             {
@@ -82,7 +81,12 @@ namespace Focus_Bear.Onboarding
                     appSettings.bAreBreaksEnabled = true;
                     appSettings.CapturePostHog("cares-about-breaks", "\"commitment-level-for-breaks\":\"committed\"");
                 }
-              
+                else if (MostlyCommitted.IsChecked.Value)
+                {
+                    appSettings.bAreBreaksEnabled = true;
+                    appSettings.CapturePostHog("cares-about-breaks", "\"commitment-level-for-breaks\":\"mostly_committed\"");
+                }
+
 
                 //If the user hadclicked EXIT full screen we will take up the default values as breaks enabled
                 if (appSettings.bExitFullScreenClickedWhileOnboarding)
@@ -124,6 +128,10 @@ namespace Focus_Bear.Onboarding
             btnContinue.IsEnabled = true;
         }
 
-
+        private void MostlyCommitted_Checked(object sender, RoutedEventArgs e)
+        {
+            CareDesc.Text = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["resultMostlyCommittedText"].ToString();
+            btnContinue.IsEnabled = true;
+        }
     }
 }

@@ -148,7 +148,7 @@ namespace Focus_Bear.Onboarding.NEW
                     appSettings.bHasEditedBlockedURLs = true;
             }
             
-            _parentWindow.ShowPrivacyScreen();
+            _parentWindow.ShowBlockingScheduleScreen();
         }
     }
 }

@@ -22,7 +22,10 @@
 
         <Image Name="TopIcon" Grid.Row="0"  Margin="0,10,0,0" Height="99"  Width="99" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="50,7,50,0" TextWrapping="Wrap" Text="xWhat do you want to achieve with Focus Bear?" Foreground="#e88800" FontSize="27" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="2"  Name="Description" Margin="50,0,50,0" TextWrapping="Wrap" Text="xHow do you want your life to change from using Focus Bear?"  FontSize="20" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <StackPanel Grid.Row="2"  Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock  Name="Description" Margin="50,0,0,0" TextWrapping="Wrap" Text="xHow do you want your life to change from using Focus Bear?"  FontSize="20" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <Image x:Name="InfoChange"   Source="../images/info.png" Width="18"  Margin="10,0,0,3" VerticalAlignment="Bottom" HorizontalAlignment="Left"   ></Image>
+        </StackPanel>
         <TextBox  Grid.Row="3" Name="TxtAchieve" TextWrapping="Wrap" AcceptsReturn="True"  Width="855" Height="220"  Margin="0,50,0,0" VerticalAlignment="Top"  FontSize="18">
             <TextBox.Effect>
                 <DropShadowEffect ShadowDepth="3"

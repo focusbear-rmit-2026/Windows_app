@@ -192,6 +192,12 @@ namespace Focus_Bear.Utils
             this.SKIP_ALREADY_DONE = SKIP_ALREADY_DONE;
         }
     }
+    public enum BLOCKINGSCHEDULE
+    {
+        UNTIL_I_FINISH_WORK = 0,
+        WHEN_STARTING_FOCUS_SESSION = 1,
+        CUSTOM_SCHEDULE = 2,
+    }
 
     public enum CurrentActivityType
     {
@@ -526,7 +532,7 @@ namespace Focus_Bear.Utils
     public class DistractingURL
     {
         private bool isItemChecked;
-
+        private bool bAllowDomain;
         public string sURL { get; set; }  
         public bool IsItemChecked
         {
@@ -537,15 +543,24 @@ namespace Focus_Bear.Utils
                 OnChanged("IsItemChecked");
             }
         }
-
+        public bool BAllowDomain
+        {
+            get { return bAllowDomain; }
+            set
+            {
+                bAllowDomain = value;
+                OnChanged("BAllowDomain");
+            }
+        }
         public DistractingURL()
         {
            
         }
-        public DistractingURL(string sURL, bool bChecked)
+        public DistractingURL(string sURL, bool bChecked, bool bAllowDomain = false)
         {
             this.sURL = sURL;
             this.IsItemChecked = bChecked;
+            this.BAllowDomain = bAllowDomain;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

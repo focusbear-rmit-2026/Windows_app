@@ -37,7 +37,7 @@ namespace Focus_Bear.Onboarding
 
             try
             {
-                Heading.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["title"].ToString();
+                Heading.Text = "Focus Bear";//appSettings.ConfigFileStrings["askAppWorkVcInfo"]["title"].ToString();
                 //todo win texts
                 WhatGoals.Text = "We'll do our best to help you achieve your goals 🤩 Which Focus Bear features do you want to activate?"; //appSettings.ConfigFileStrings["askAppWorkVcInfo"]["questionText"].ToString();
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
@@ -49,16 +49,13 @@ namespace Focus_Bear.Onboarding
                 InfoHealthyHabits.ToolTip = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["infoBuildHabitsText"].ToString();
                 InfoStayFocused.ToolTip = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["infoStayFocusedText"].ToString();
 
-                SetGoals.Text = "Activate features";//appSettings.ConfigFileStrings["askAppWorkVcInfo"]["subTitle"].ToString(); //"Set your Goals and Preferences";  
-
+                SetGoals.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["titleActivateFeatures"].ToString(); //"Set your Goals and Preferences";  
                 CareAboutHabits.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["titleHowMuchCare"].ToString(); // "How much do you care about building habits?";
                 SelectOne.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["selectOneText"].ToString(); //"Select one that apply";
                 DoNotCare.Content = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonDontCareText"].ToString(); //"Meh - don't really care";
                 NotCommitted.Content = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonNotCommittedText"].ToString(); //"I probably should do habits but am not that committed";
                 Committed.Content = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonCommittedText"].ToString(); //"Super committed -this is the main reason I want to use Focus Bear";
 
-                appSettings.CapturePostHog("goals-screen-shown");
-                
             }
             catch (Exception ex)
             {
@@ -217,7 +214,6 @@ namespace Focus_Bear.Onboarding
                     var xResponse = await client.GetHabitPacks();
                     Mouse.OverrideCursor = null;
                     **/
-
                     //Proceed normally to the next screen to select habit packs.
                     _parentWindow.ShowOnboardingSelectHabitPacksScreen();
                     return;

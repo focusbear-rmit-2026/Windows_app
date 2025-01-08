@@ -93,13 +93,14 @@ namespace Focus_Bear.Utils
         public DateTime InitialShutoffTimeValue { get; set; }
         public DateTime InitialSleepTimeValue { get; set; }
 
+        public string sSavedOccupationForFirstFocusSession = "";
+        public string sSavedIntentionFirstFocusSession = "";
+
         public FocusMode FocusModeNameToCreateWhileOnBoarding;
         public string OnboardingActivityName = "";
         public int OnboardingActivityDurationSeconds;
         public string OnboardingVideoUrl = "";
         public bool bOnboardingActivitySkipped = false;
-
-        public string sSelectedOccupationWhileOnboarding = "";
 
         public bool bGoalHealthyHabits { get; set; }
         public bool bGoalStayFocused { get; set; }
@@ -225,6 +226,7 @@ namespace Focus_Bear.Utils
 
         public bool bShowOnBoardingVideo = false;
 
+        public string sCustomGoalSelected = "";
         public string sAdditionalGoals = "";
 
         public string sLastActiveAppName = "";
@@ -367,6 +369,8 @@ namespace Focus_Bear.Utils
 
         //menu opening first time variable
         public bool bMenuOpeningFirstTime = false;
+
+        public BLOCKINGSCHEDULE nBlockingSchedule { get; set; }
 
         public CUIAutomation automation;
         public IUIAutomationFocusChangedEventHandler handler;
@@ -1417,6 +1421,13 @@ namespace Focus_Bear.Utils
                             bIsGeekModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsGeekModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsGeekModeEnabled") : false;
 
                             bAreBreaksEnabled = sMacOSSettingsOBJ.ContainsKey("kUserdefaultsBreaksEnabledFromOnboarding") ? (bool)sMacOSSettingsOBJ.GetValue("kUserdefaultsBreaksEnabledFromOnboarding") : true; //breaks ON by default
+
+                            if(!IsFirstInstall)
+                            {
+                                //Let's keep from the local variable that we saved with user's selection otherwise read from settings
+                                nBlockingSchedule = sMacOSSettingsOBJ.ContainsKey("kBlockingSchedule") ? ((int)(sMacOSSettingsOBJ.GetValue("kBlockingSchedule")) == 0 ? BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK : BLOCKINGSCHEDULE.WHEN_STARTING_FOCUS_SESSION) : BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK;
+                            }
+                            
                         }
                     }
                     catch (Exception ex)

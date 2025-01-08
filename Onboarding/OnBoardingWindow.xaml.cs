@@ -91,13 +91,16 @@ namespace Focus_Bear.Onboarding
             WndOnboardingExplainDeepFocus = new OnboardingExplainDeepFocus(this);
             AppFrameOnboarding.Navigate(WndOnboardingExplainDeepFocus);
 
-            appSettings.CapturePostHog("focus-explain-screen-shown");
-
+            
             if (appSettings.bExitFullScreenClickedWhileOnboarding)
             {
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingExplainDeepFocus.btnGotIt);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
+            }
+            else
+            {
+                appSettings.CapturePostHog("focus-explain-screen-shown");
             }
         }
 
@@ -108,13 +111,15 @@ namespace Focus_Bear.Onboarding
             WndOnboardingExplainHabits = new OnboardingExplainHabits(this);
             AppFrameOnboarding.Navigate(WndOnboardingExplainHabits);
 
-            appSettings.CapturePostHog("routine-explain-screen-shown");
-
             if (appSettings.bExitFullScreenClickedWhileOnboarding)
             {
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingExplainHabits.btnGotIt);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
+            }
+            else
+            {
+                appSettings.CapturePostHog("routine-explain-screen-shown");
             }
         }
         public void ShowOnboardingAchieveWithFocusBearScreen()
@@ -132,7 +137,7 @@ namespace Focus_Bear.Onboarding
             }
             else
             {
-                //posthog only of actually being shown
+                //posthog only if the screen is actually being shown
                 appSettings.CapturePostHog("what-to-achieve-with-focus-bear-screen-shown");
             }
 
@@ -160,6 +165,10 @@ namespace Focus_Bear.Onboarding
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingGoals.btnContinue);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
+            }
+            else
+            {
+                appSettings.CapturePostHog("goals-screen-shown");
             }
 
         }
@@ -193,8 +202,6 @@ namespace Focus_Bear.Onboarding
             WndSetHabitsLaterInfo = new OnboardingSetHabitsLaterInfo(this);
             AppFrameOnboarding.Navigate(WndSetHabitsLaterInfo);
 
-            appSettings.CapturePostHog("set-habits-later-info-screen-shown");
-
             if (appSettings.bExitFullScreenClickedWhileOnboarding)
             {
                 //Window is already hidden, simulate the continue button click so assign all variables.
@@ -202,6 +209,10 @@ namespace Focus_Bear.Onboarding
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(WndSetHabitsLaterInfo.btnContinue);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
+            }
+            else
+            {
+                appSettings.CapturePostHog("set-habits-later-info-screen-shown");
             }
         }
 
@@ -213,8 +224,6 @@ namespace Focus_Bear.Onboarding
             
             AppFrameOnboarding.Navigate(WndOnboardingSelectHabitPacks);
 
-            appSettings.CapturePostHog("habit-packs-shown");
-            
             if (appSettings.bExitFullScreenClickedWhileOnboarding)
             {
                 //Window is already hidden, simulate the continue button click so assign all variables.
@@ -222,6 +231,10 @@ namespace Focus_Bear.Onboarding
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingSelectHabitPacks.btnContinue);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
+            }
+            else
+            {
+                appSettings.CapturePostHog("habit-packs-shown");
             }
         }
 
@@ -232,7 +245,6 @@ namespace Focus_Bear.Onboarding
             if (WndOnboardingAskWorkTime == null)
             {
                 WndOnboardingAskWorkTime = new OnboardingAskWorkTime(this);
-                appSettings.CapturePostHog("ask-work-time-shown");
             }
             AppFrameOnboarding.Navigate(WndOnboardingAskWorkTime);
             
@@ -243,6 +255,10 @@ namespace Focus_Bear.Onboarding
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingAskWorkTime.btnContinue);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
+            }
+            else
+            {
+                appSettings.CapturePostHog("ask-work-time-shown");
             }
 
         }
@@ -299,6 +315,10 @@ namespace Focus_Bear.Onboarding
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingConfirmBreaks.btnContinue);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
+            }
+            else
+            {
+                appSettings.CapturePostHog("take-breaks-info-screen-shown");
             }
         }
         public void ShowOnboardingBreakRemindersScreen()

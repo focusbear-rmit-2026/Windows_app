@@ -43,7 +43,7 @@ namespace Focus_Bear.Onboarding
 
                 string sStartTime = appSettings.ConfigFileStrings["confirmMorningRoutineTimeVcInfo"]["timeText"].ToString();
                 int nStartDiff = -1 * (((15 * 60) + appSettings.nMorningRoutineDuration) / 60);
-                FromTime.Text = sStartTime.Replace("<TIME>", appSettings.InitialStartupTimeValue.AddMinutes(nStartDiff).ToString("hh:mm tt"));
+                FromTime.Text = sStartTime.Replace("<TIME>", appSettings.InitialStartupTimeValue.ToString("hh:mm tt"));
 
                 Point1MorningTimeText.Text = appSettings.ConfigFileStrings["confirmMorningRoutineTimeVcInfo"]["pointFirstMorningTimeText"].ToString();
                 Point2MorningTimeText.Text = appSettings.ConfigFileStrings["confirmMorningRoutineTimeVcInfo"]["pointSecondMorningTimeText"].ToString();

@@ -1964,6 +1964,39 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static bool GetSavedOccupation()
+        {
+
+            try
+            {
+                var regData = ReadStr("OCCUPATION");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.sSavedOccupationForFirstFocusSession = regData.ToString();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedOccupation() - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetSavedOccupation()
+        {
+            try
+            {
+                Write("OCCUPATION", appSettings.sSavedOccupationForFirstFocusSession);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetSavedOccupation - " + ex.Message);
+            }
+        }
+
         internal static void SetSurveyShownStatus()
         {
             try

@@ -143,20 +143,26 @@ namespace Focus_Bear.Focus
 
                 if (bFocusModeEndWindow)
                 {
-                    appSettings.sRawTasksDone = e.WebMessageAsJson;
-
-                    if (e.WebMessageAsJson == "\"close-todo-focus-end-ui\"") //means user just closed the window from webview
+                    if (e.WebMessageAsJson == "\"close-focus-end-ui\"") //means user just closed the window from webview
                     {
                         appSettings.sRawTasksDone = "";
+                    }
+                    else
+                    {
+                        appSettings.sRawTasksDone = e.WebMessageAsJson;
                     }
                 }
                 else
                 {
-                    appSettings.sRawTasks = e.WebMessageAsJson;
+                   
 
                     if (e.WebMessageAsJson == "\"close-to-do-task-ui\"") //means user just closed the window from webview
                     {
                         appSettings.sRawTasks = "";
+                    }
+                    else
+                    {
+                        appSettings.sRawTasks = e.WebMessageAsJson;
                     }
                 }
 

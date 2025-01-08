@@ -19,7 +19,7 @@
             <RowDefinition Height="105"   />
             <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="*"  />
-            <RowDefinition Height="120" />
+            <RowDefinition Height="90" />
 
         </Grid.RowDefinitions>
        
@@ -29,9 +29,21 @@
         <Viewbox Grid.Row="2" Stretch="Uniform" Margin="50,20,50,0"  >
             
             <StackPanel   Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center"  Width="650"   Margin="0,0,0,0">
-            <StackPanel Orientation="Horizontal"   Margin="20,0,0,0">
+                    <StackPanel   Orientation="Horizontal"   Margin="20,0,0,0">
+
+                        <TextBlock  Name="WakeupTime" Margin="-20,0,0,0"     TextWrapping="Wrap" Text="xWhat time do you wake up?" Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                        <localView:HourControl x:Name="WakeupTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0"  ValueChanged="WakeupTimePicker_ValueChanged"/>
+                        <Button x:Name="btnNextWakeupTime"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextWakeupTime_Click">
+                            <Button.Content>
+                                <StackPanel  Orientation="Horizontal">
+                                    <TextBlock x:Name="btnNextWakeupTimeTXT" Text="xNext"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel x:Name="StartupTimeSection" Opacity="0" Orientation="Horizontal"   Margin="20,30,0,0">
                  
-                    <TextBlock  Name="StartupTime" Margin="-20,0,0,0"     TextWrapping="Wrap" Text="xWhat time do you start work?" Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <TextBlock Name="StartupTime" Margin="-20,0,0,0"     TextWrapping="Wrap" Text="xWhat time do you start work?" Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
                     <localView:HourControl x:Name="StartupTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0"  ValueChanged="StartupTimePicker_ValueChanged"/>
                     <Button x:Name="btnNextStartWork"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextStartWork_Click">
                         <Button.Content>
@@ -40,7 +52,8 @@
                             </StackPanel>
                         </Button.Content>
                     </Button>
-                </StackPanel>
+            </StackPanel>
+                
             <StackPanel x:Name="FinishWorkSection" Opacity="0"  Orientation="Horizontal"  Margin="20,30,0,0" >
                     <TextBlock  Name="ShutdownTime" Margin="-20,0,0,0"    TextWrapping="Wrap" Text="xWhat time do you finish work?" Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
                     <localView:HourControl x:Name="ShutdownTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0" ValueChanged="ShutdownTimePicker_ValueChanged" />
@@ -86,9 +99,9 @@
                 </Grid.RowDefinitions>
                 <Rectangle Grid.Row="0"   Height="auto" Width="250"   Fill="LightGoldenrodYellow" HorizontalAlignment="Right" Stroke="Orange" RadiusX="7" RadiusY="7"   />
                 <Image Name="Logo" Grid.Row="0"   Width="40"  Margin="20,20,0,0"  Source="../Images/fbicon-64.png"   VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                <TextBlock Name="HeadingSchedule" Grid.Row="0"   Margin="70,30,10,0"    VerticalAlignment="Top"  Foreground="Black" FontSize="14" FontWeight="Semibold" >xSet your schedule</TextBlock>
-                <TextBlock Name="Title" Grid.Row="0" TextWrapping="Wrap"  Margin="20,70,20,0"     VerticalAlignment="Top"  Foreground="Black" FontSize="14" FontWeight="Semibold" >xWhat time do you start work?</TextBlock>
-                <TextBlock Name="Description" Grid.Row="0" TextWrapping="Wrap"  Margin="20,110,20,20"  VerticalAlignment="Top"  Foreground="Black" FontSize="14" FontFamily="Segoe UI" >xChoose the earliest possible time you would want to start work. You’ll do your morning routine before starting work. You can start later than this time if you need to.</TextBlock>
+                <TextBlock Name="HeadingSchedule" Grid.Row="0"   Margin="70,30,10,0"    VerticalAlignment="Top"  Foreground="Black" FontSize="15" FontWeight="Semibold" >xSet your schedule</TextBlock>
+                <TextBlock Name="Title" Grid.Row="0" TextWrapping="Wrap"  Margin="20,70,20,0"     VerticalAlignment="Top"  Foreground="Black" FontSize="15" FontWeight="Semibold" >xWhat time do you start work?</TextBlock>
+                <TextBlock Name="Description" Grid.Row="0" TextWrapping="Wrap"  Margin="20,110,20,20"  VerticalAlignment="Top"  Foreground="Black" FontSize="15" FontFamily="Segoe UI" >xChoose the earliest possible time you would want to start work. You’ll do your morning routine before starting work. You can start later than this time if you need to.</TextBlock>
 
             </Grid >
 

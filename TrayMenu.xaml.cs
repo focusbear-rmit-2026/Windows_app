@@ -97,9 +97,13 @@ namespace Focus_Bear
                 btnResumeHabitsTxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();
                 btnBrainDumpTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
 
-                btnToDoPlayerTXT.Text = "To Do Player";//appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString(); //todo wintexts
+                btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
 
                 btnSetupFocusModeText.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemSetFocusModesTitle"].ToString();
+
+                LimitedBlocking.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBlockingDisabledTitle"].ToString();
+                LimitedBlockingInfo.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipBlockingDisabled"].ToString();
+                LimitedBlockingEdit.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipButtonEditBlockingSchedule"].ToString();
 
                 if (appSettings.isOfficeModeEnabled)
                 {
@@ -139,6 +143,15 @@ namespace Focus_Bear
 
             try
             {
+                if(appSettings.nBlockingSchedule == BLOCKINGSCHEDULE.WHEN_STARTING_FOCUS_SESSION)
+                {
+                    LimitedBlockingSection.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    LimitedBlockingSection.Visibility = Visibility.Collapsed;
+                }
+
                 if (appSettings.isPurchased)
                 {
                     //hide the upgrade now button
@@ -231,18 +244,6 @@ namespace Focus_Bear
                         Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
                     }**/
 
-                    if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
-                        appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
-                        appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
-                        !appSettings.bHabitsPostponedState))
-                    {
-                        btnStartPomodoroMode.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        btnStartPomodoroMode.Visibility = Visibility.Visible; //both start and stop
-                    }
-
                     if (appSettings.isFocusModeRunning)
                     {
                         btnStartPomodoroMode.Visibility = Visibility.Collapsed;
@@ -262,7 +263,17 @@ namespace Focus_Bear
                         btnStartPomodoroMode.Visibility = Visibility.Visible;
                         btnStopPomodoroMode.Visibility = Visibility.Collapsed;
                     }
-
+                    if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+                       appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
+                       appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
+                       !appSettings.bHabitsPostponedState))
+                    {
+                        btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        btnStartPomodoroMode.Visibility = Visibility.Visible; //both start and stop
+                    }
                     /**if (appSettings.isFocusModeRunning ||
                         ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
                         appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
@@ -331,19 +342,6 @@ namespace Focus_Bear
                     ///FocusSection.Visibility = Visibility.Collapsed;
                     btnBrainDump.Visibility = Visibility.Collapsed;
 
-
-                    if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
-                        appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
-                        appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
-                        !appSettings.bHabitsPostponedState))
-                    {
-                        btnStartPomodoroMode.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        btnStartPomodoroMode.Visibility = Visibility.Visible; //both start and stop
-                    }
-
                     if (appSettings.isFocusModeRunning)
                     {
                         btnStartPomodoroMode.Visibility = Visibility.Collapsed;
@@ -363,7 +361,17 @@ namespace Focus_Bear
                         btnStartPomodoroMode.Visibility = Visibility.Visible;
                         btnStopPomodoroMode.Visibility = Visibility.Collapsed;
                     }
-
+                    if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+                       appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
+                       appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
+                       !appSettings.bHabitsPostponedState))
+                    {
+                        btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        btnStartPomodoroMode.Visibility = Visibility.Visible; //both start and stop
+                    }
 
                     OfficeModeSection.Visibility = Visibility.Collapsed;
 
@@ -1252,6 +1260,12 @@ namespace Focus_Bear
         private void btnToDoPlayer_Click(object sender, RoutedEventArgs e)
         {
             ((App)(Application.Current)).ShowToDoPlayer();
+        }
+
+        private void btnLimitedBlockingEdit_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)(Application.Current)).ShowPreferencesWindow();
+            ((App)(Application.Current)).wndPreferences.ShowBlocksTab();
         }
     }
 }

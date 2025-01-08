@@ -2567,6 +2567,77 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        internal async Task<int> EnrollForCourses() // OK
+        {
+            LogWriter.LogWrite("EnrollForCourses()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string addItemJsonString = $"{{\"course_id\":\"8c7e4d6e-b43a-496d-bb17-90de77d3b8ee\"}}";
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        //Make the data for Focus Mode
+                        var response = await client.PostAsync("https://api.focusbear.io/course/enrolled", content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //200
+                        {
+                            if (response.Content != null)
+                            {
+                                LogWriter.LogWrite("EnrollForCourses() GOT Success");
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("EnrollForCourses() FAILED" + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("EnrollForCourses WebException - " + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("EnrollForCourses Exception - " + ex.Message);
+
+            }
+            return 0;
+        }
+
+
         internal async Task<int> GetSavedWebsite() //OK
         {
             LogWriter.LogWrite("GetSavedWebsite()");

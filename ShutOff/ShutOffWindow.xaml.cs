@@ -41,7 +41,7 @@ namespace Focus_Bear.ShutOff
         DispatcherTimer dispatcherTimerUnlock = new DispatcherTimer(DispatcherPriority.Normal);
         DispatcherTimer dispatcherTimerShowDateTime = new DispatcherTimer(DispatcherPriority.Normal);
 
-        int nTimer = 15;
+        int nTimer = 10;
 
         public ShutOffWindow()
         {
@@ -226,7 +226,7 @@ namespace Focus_Bear.ShutOff
             //stop and reset the timer
             CommandManager.InvalidateRequerySuggested();
             dispatcherTimer.Stop();
-            nTimer = 15;
+            nTimer = 10;
 
             try
             {

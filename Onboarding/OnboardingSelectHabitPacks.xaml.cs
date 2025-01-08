@@ -108,9 +108,9 @@ namespace Focus_Bear.Onboarding
 
         private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
-             if (e.IsSuccess)
+            if (e.IsSuccess)
             {
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\"}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont);
+                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"long_term_goals\":[\"{3}\"]}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected);
 
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForRoutineSuggestion) {{ loadMetaDataForRoutineSuggestion({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
 

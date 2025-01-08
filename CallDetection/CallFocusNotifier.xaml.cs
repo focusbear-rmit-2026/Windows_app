@@ -207,6 +207,12 @@ namespace Focus_Bear.CallDetection
             }
         }
 
-        
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            //user manually closes the call notifier so should not be shown again for this call session
+            ((App)(Application.Current)).bUserManuallyClosedNotifierForThisCallSession = true;
+
+            ((App)(Application.Current)).HideCallFocusNotifier();
+        }
     }
 }

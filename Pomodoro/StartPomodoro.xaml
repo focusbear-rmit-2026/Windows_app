@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Pomodoro"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="760" Width="744"  ResizeMode="NoResize" Closing="Window_Closing">
+        Title="Focus Bear" Height="700" Width="744"  ResizeMode="NoResize" Closing="Window_Closing">
     <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
@@ -19,7 +19,7 @@
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
-            <RowDefinition Height="230" />
+            <RowDefinition Height="170" />
             <RowDefinition Height="35" />
             <RowDefinition Height="60" />
             <RowDefinition Height="*" />
@@ -113,20 +113,11 @@
         </StackPanel>
 
         <StackPanel Grid.Row="8" Orientation="Vertical" VerticalAlignment="Top" Margin="0,20,0,0">
-            <Button    x:Name="btnSelectTasks" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="30" Width="230" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSelectTasks_Click" >
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnSelectTasksTXT" Padding="10,0,10,0" Text="xChoose tasks to work on"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-            <TextBlock x:Name="FreeFormIntention" Grid.Row="4" Margin="0,10,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-             <Hyperlink x:Name="btnWriteFreeFormIntention"  Foreground="#000" Click="btnWriteFreeFormIntention_Click"   TextDecorations="Underline" ><Run x:Name="btnWriteFreeFormIntentionTXT" Text="xWrite a freeform intention instead"/></Hyperlink>
-            </TextBlock>
+             
 
-            <TextBlock  Name="WhatPlan" Visibility="Collapsed"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Name="WhatPlan" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <TextBox   Name="TxtIntention" Visibility="Collapsed"  TextWrapping="Wrap" AcceptsReturn="True"  Width="500" Height="80" Margin="15" VerticalAlignment="Top"  FontSize="15">
+            <TextBox   Name="TxtIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"  Width="500" Height="80" Margin="15" VerticalAlignment="Top"  FontSize="15">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"

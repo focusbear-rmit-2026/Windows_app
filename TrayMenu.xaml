@@ -96,6 +96,17 @@
                 <ToggleButton x:Name="btnOfficeMode"  Style="{DynamicResource MacStyleToggleSwitch}"    Height="20" Width="52" Margin="15,0,0,0" HorizontalAlignment="Right"  Click="OfficeModeButton_Click"  Cursor="Hand" Focusable="False"/>
 
             </StackPanel>-->
+            <StackPanel Orientation="Horizontal" Name="LimitedBlockingSection" Visibility="Collapsed">
+                <TextBlock   Name="LimitedBlocking"  Margin="20,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Visibility="Visible">xLimited Blocking</TextBlock>
+                <Image Name="LimitedBlockingInfo" Source="images/info.png" Width="20"  Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Cursor="Hand"></Image>
+                
+                <Button x:Name="btnLimitedBlockingEdit" Margin="10,6,0,0" Style="{StaticResource BtnStyleInfo}" Click="btnLimitedBlockingEdit_Click" MinWidth="18" Height="18" Cursor="Hand" >
+                    <StackPanel Orientation="Vertical">
+                        <Image Name="LimitedBlockingEdit" Source="images/edit.png" Margin="0,0,0,0" Height="18" Width="18" />
+                    </StackPanel>
+                </Button>
+                
+            </StackPanel>
             <StackPanel Name="OfficeModeSection"  Orientation="Horizontal" HorizontalAlignment="Center"  Margin="0,10,0,10" >
                 <RadioButton x:Name="OfficeMode" Content="xOffice Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Checked="OfficeMode_Checked" Cursor="Hand"  />
                 <RadioButton x:Name="WFHMode" Content="xWFH Mode" Style="{StaticResource SegmentRadioButtonStyle}"  Checked="WFHMode_Checked" Cursor="Hand"  />

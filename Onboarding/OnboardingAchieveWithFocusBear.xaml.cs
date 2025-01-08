@@ -34,16 +34,17 @@ namespace Focus_Bear.Onboarding
             _parentWindow = parentWindow;
 
             //todo win texts
-            Heading.Text = "What do you want to achieve with Focus Bear?";//appSettings.ConfigFileStrings["askAppWorkVcInfo"]["title"].ToString();
-            Description.Text = "How do you want your life to change from using Focus Bear?";
-            btnContinueTXT.Text = "Continue"; //appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
+            Heading.Text = appSettings.ConfigFileStrings["achieveWithFocusBearVcInfo"]["title"].ToString(); //"What do you want to achieve with Focus Bear?"
+            Description.Text = appSettings.ConfigFileStrings["achieveWithFocusBearVcInfo"]["subTitle"].ToString(); //"How do you want your life to change from using Focus Bear?";
+            btnContinueTXT.Text = appSettings.ConfigFileStrings["achieveWithFocusBearVcInfo"]["buttonContinueText"].ToString(); //"Continue";
+            InfoChange.ToolTip = "We’ll save this as a long term goal for you - it will also help us understand what you’re expecting so we can improve the app"; //todo win texts
         }
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
             string sParam = string.Format("\"customGoal\": \"{0}\"", TxtAchieve.Text);
             appSettings.CapturePostHog("custom-goal-selected", sParam);
-
+            appSettings.sCustomGoalSelected = TxtAchieve.Text;
             _parentWindow.ShowOnboardingGoalsScreen();
         }
     }

@@ -80,8 +80,9 @@ namespace Focus_Bear.Pomodoro
 
             UpdateValues();
 
-            if (!RegistryManager.GetSimplePomodoroTourShownStatus())
+            if (!RegistryManager.GetSimplePomodoroTourShownStatus()) //can use this to detect the first pomodoro session
             {
+                TxtIntention.Text = appSettings.sSavedIntentionFirstFocusSession;
                 ShowTourPopup();
             }
         }
@@ -225,7 +226,7 @@ namespace Focus_Bear.Pomodoro
         {
             LogWriter.LogWrite("btnStartSession_Click - Simple pomodoro");
 
-            appSettings.CapturePostHog("start-pomodoro-mode-manually", string.Format("\"type\":\"simple-pomodoro\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
+            appSettings.CapturePostHog("start-focus-session-manually", string.Format("\"type\":\"simple-focus\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
 
             appSettings.bAiCheckUrlEnabledLastValueBeforeSimplePomodoro = appSettings.bAiCheckUrlEnabled;
 
@@ -318,7 +319,7 @@ namespace Focus_Bear.Pomodoro
                         dTill = dTill.AddMinutes(nMinutes);
                         string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
                         sTill = sTill.Replace("<TIME>", dTill.ToString());
-                        ((App)(Application.Current)).wndTrayMenu.OnUntill.Content = sTill;
+                        //((App)(Application.Current)).wndTrayMenu.OnUntill.Content = sTill;
 
                         appSettings.sRunningFocusModeID = appSettings.arrFocusModes[i].id;
                         appSettings.sRunningFocusModeName = appSettings.arrFocusModes[i].name;
