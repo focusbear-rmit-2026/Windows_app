@@ -2164,7 +2164,7 @@ namespace Focus_Bear
 
                                                                         if (i != 0)
                                                                         {
-                                                                            appSettings.nHabitIndex = i - 1; //We will assign the habit index from the previous actiity and show the finish screen for that activity
+                                                                            appSettings.nHabitIndex = i - 1; //We will assign the habit index from the previous activity and show the finish screen for that activity
 
                                                                             //Now we do not need to start normal but need to show the finish screen of this
                                                                             appSettings.bShowActivitiesFromMid = true;
@@ -2298,6 +2298,51 @@ namespace Focus_Bear
             catch (Exception ex)
             {
                 LogWriter.LogWrite("Props block ex- " + ex.Message);
+            }
+
+            //Check if we the user have selected some activities for today, first check date, then get the habits , complicated logic
+            appSettings.arrAllMorningHabitsFiltered = new List<habit>(appSettings.arrAllMorningHabits);
+
+            if (RegistryManager.GetSelectedMorningHabitsDate())
+            {
+                TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+
+                DateTime now = DateTime.Now;
+
+                DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+                Console.WriteLine("{0}", myStartTime.ToString());
+
+                DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
+                Console.WriteLine("{0}", myShutOffTime.ToString());
+
+                if (appSettings.SelectedMorningHabitsDate > myStartTime && appSettings.SelectedMorningHabitsDate < myShutOffTime)
+                {
+                    //So user selectd habits for today.
+                    //Now extract the saved habits list
+                    RegistryManager.GetSelectedMorningHabitsForToday(); //These will come in the arrAllMorningHabits array
+                                                                        
+                    //Now filter the arrAllMorningHabits so that if any habit was done, it should not be there in the Filtered array and thus should be removed from arrAllMorningHabits too
+                    //run a loof for the arrAllMorningHabitsFiltered
+                    for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
+                    {
+                        string sID = appSettings.arrAllMorningHabits[i].id;
+                        bool bFound = false;
+                        for (int j = 0; j < appSettings.arrAllMorningHabitsFiltered.Count; j++)
+                        {
+                            if (sID == appSettings.arrAllMorningHabitsFiltered[j].id)
+                            {
+                                bFound = true;
+                                break;
+                            }
+                        }
+                        if(!bFound)
+                        {
+                            appSettings.arrAllMorningHabits.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                }
             }
 
             //If its the expired version, then we need to show top 3 activities only
@@ -2837,6 +2882,51 @@ namespace Focus_Bear
                 //We could not get last activity info so we will start the routine for sure
             }
 
+            //Check if we the user have selected some activities for today, first check date, then get the Evening habits , complicated logic
+            appSettings.arrAllEveningHabitsFiltered = new List<habit>(appSettings.arrAllEveningHabits);
+
+            if (RegistryManager.GetSelectedEveningHabitsDate())
+            {
+                TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+
+                DateTime now = DateTime.Now;
+
+                DateTime myStartTimeNextDay = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+                myStartTimeNextDay = myStartTimeNextDay.AddDays(1); //next day
+                Console.WriteLine("{0}", myStartTimeNextDay.ToString());
+
+                DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
+                Console.WriteLine("{0}", myShutOffTime.ToString());
+
+                if (appSettings.SelectedEveningHabitsDate > myShutOffTime && appSettings.SelectedEveningHabitsDate < myStartTimeNextDay)
+                {
+                    //So user selectd habits for today.
+                    //Now extract the saved habits list
+                    RegistryManager.GetSelectedEveningHabitsForToday(); //These will come in the arrAllEveningHabits array
+
+                    //Now filter the arrAllEveningHabits so that if any habit was done, it should not be there in the Filtered array and thus should be removed from arrAllMorningHabits too
+                    //run a loof for the arrAllEveningHabitsFiltered
+                    for (int i = 0; i < appSettings.arrAllEveningHabits.Count; i++)
+                    {
+                        string sID = appSettings.arrAllEveningHabits[i].id;
+                        bool bFound = false;
+                        for (int j = 0; j < appSettings.arrAllEveningHabitsFiltered.Count; j++)
+                        {
+                            if (sID == appSettings.arrAllEveningHabitsFiltered[j].id)
+                            {
+                                bFound = true;
+                                break;
+                            }
+                        }
+                        if (!bFound)
+                        {
+                            appSettings.arrAllEveningHabits.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                }
+            }
             //If its the expired version, then we need to show top 3 activities only
             if (appSettings.isExpired)
             {

@@ -272,7 +272,10 @@ namespace Focus_Bear
                     }
                     else
                     {
-                        btnStartPomodoroMode.Visibility = Visibility.Visible; //both start and stop
+                        if (!appSettings.isFocusModeRunning)
+                        {
+                            btnStartPomodoroMode.Visibility = Visibility.Visible; //both start and stop
+                        }
                     }
                     /**if (appSettings.isFocusModeRunning ||
                         ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
@@ -370,7 +373,10 @@ namespace Focus_Bear
                     }
                     else
                     {
-                        btnStartPomodoroMode.Visibility = Visibility.Visible; //both start and stop
+                        if (!appSettings.isFocusModeRunning)
+                        {
+                            btnStartPomodoroMode.Visibility = Visibility.Visible; //both start and stop
+                        }
                     }
 
                     OfficeModeSection.Visibility = Visibility.Collapsed;

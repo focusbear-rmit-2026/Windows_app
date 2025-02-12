@@ -135,8 +135,8 @@ namespace Focus_Bear.Focus
         {
             e.Cancel = true;
             Hide();
-            //string LoadTokenFunc = string.Format("getToDosFromPlayer()");
-            //var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
+            string LoadTokenFunc = string.Format("getToDosFromPlayer()");
+            var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
             
         }
 
@@ -155,6 +155,10 @@ namespace Focus_Bear.Focus
                 if (sContentJson.ContainsKey("tasks"))
                 {
                     appSettings.sRawTasks = sContentJson["tasks"].ToString();
+                    if(appSettings.sRawTasks == "[]")
+                    {
+                        appSettings.sRawTasks = "";//empty it
+                    }
                 }
                 if (sContentJson.ContainsKey("intention"))
                 {

@@ -129,6 +129,13 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(this));");
                 AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(this));
 
+
+                if (appSettings.isExpired)
+                {
+                    if (((appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) && ((appSettings.arrActivitiesIncludeInEveryBreak.Count + appSettings.arrActivitiesExcludeInEveryBreak.Count) > 3))
+                       )
+                        ShowReducedHabitsMessageOnExpired();
+                }
             }
             else
             {
@@ -184,8 +191,13 @@ namespace Focus_Bear.Habits
 
                     AskToAnalyzeSleepAndMood();
 
-                    if(appSettings.isExpired)
+                    if (appSettings.isExpired)
+                    {
+                        if( ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) && appSettings.arrAllMorningHabits.Count > 3 ) ||
+                            ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) && appSettings.arrAllEveningHabits.Count > 3)
+                          )
                         ShowReducedHabitsMessageOnExpired();
+                    }
                 }
             }
 
@@ -1443,7 +1455,6 @@ namespace Focus_Bear.Habits
         }
         private void dispatcherTimerAskSleepAndMood_Tick(object sender, EventArgs e)
         {
-
             try
             {
                 dispatcherTimerAskSleepAndMood.Stop();
@@ -1469,6 +1480,38 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("dispatcherTimerAskSleepAndMood_Tick ex = " + ex.Message);
             }
 
+        }
+
+        public void ShowChooseHabitsWindow()
+        {
+            GridShade.Visibility = Visibility.Visible;
+            ChooseHabits WndChooseHabits = new ChooseHabits(this);
+
+            bool? DialogResult = WndChooseHabits.ShowDialog();
+            GridShade.Visibility = Visibility.Collapsed;
+
+            if (DialogResult.Value == true) //means user wants to skip morning habits completely
+            {
+                Hide();
+                appSettings.RemoveSecondaryWindows();
+            }
+  
+        }
+
+        public bool ShowChooseAnotherHabitsWindow()
+        {
+            GridShade.Visibility = Visibility.Visible;
+            
+            ChooseAnotherHabit WndChooseAnotherHabit = new ChooseAnotherHabit(this);
+
+            bool? DialogResult = WndChooseAnotherHabit.ShowDialog();
+            GridShade.Visibility = Visibility.Collapsed;
+
+            if (DialogResult.Value) //True means user have selected another habit and that is to be done
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

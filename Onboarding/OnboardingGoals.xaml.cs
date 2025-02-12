@@ -158,17 +158,20 @@ namespace Focus_Bear.Onboarding
                     {
                         appSettings.bGoalStayFocused = true;
                         appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"do_not_care\"");
+                        appSettings.sCareFactorString = "do_not_care";
                     }
                     else if (NotCommitted.IsChecked.Value) //still no habits and just focus
                     {
                         appSettings.bGoalStayFocused = true;
                         appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"not_committed\"");
+                        appSettings.sCareFactorString = "not_committed";
                     }
                     else if (Committed.IsChecked.Value) // ALL habits
                     {
                         appSettings.bGoalHealthyHabits = true;
                         appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"committed\"");
                         appSettings.CapturePostHog("activate-all-features");
+                        appSettings.sCareFactorString = "committed";
                     }
                 }
                 else if (HealthyHabits.IsChecked.Value)
@@ -177,17 +180,20 @@ namespace Focus_Bear.Onboarding
                     {
                         appSettings.bGoalStayFocused = true;
                         appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"do_not_care\"");
+                        appSettings.sCareFactorString = "do_not_care";
                     }
                     else if (NotCommitted.IsChecked.Value) //still no habits and just focus
                     {
                         appSettings.bGoalStayFocused = true;
                         appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"not_committed\"");
+                        appSettings.sCareFactorString = "not_committed";
                     }
                     else if (Committed.IsChecked.Value) // ALL habits
                     {
                         appSettings.bGoalHealthyHabits = true;
                         appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"committed\"");
                         appSettings.CapturePostHog("activate-habits-only");
+                        appSettings.sCareFactorString = "committed";
                     }
 
                 }

@@ -1,6 +1,7 @@
 ﻿
 using Focus_Bear.Utils;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -2255,6 +2256,181 @@ namespace Focus_Bear.Models
                 LogWriter.LogWrite("SetTotalDistractingSiteBlockedToday - " + ex.Message);
             }
         }
+
+        internal static bool GetSelectedMorningHabitsForToday()
+        {
+            LogWriter.LogWrite("RM GetSelectedMorningHabitsForToday()");
+
+            try
+            {
+                byte[] SelectedMorningHabitsData = (byte[])Read("SelectedMorningHabitsData");
+
+                if (SelectedMorningHabitsData == null)
+                    return false;
+
+                string sSelectedMorningHabitsData = Encoding.Unicode.GetString(SelectedMorningHabitsData);
+                // Deserialize the JSON string back into an array of user details
+                appSettings.arrAllMorningHabits = JsonConvert.DeserializeObject<habit[]>(sSelectedMorningHabitsData).ToList();
+
+                sSelectedMorningHabitsData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedUserSettings - " + ex.Message);
+                return false;
+            }
+
+
+        }
+        internal static void SaveSelectedMorningHabitsForToday()
+        {
+            LogWriter.LogWrite("RM SaveSelectedMorningHabitsForToday()");
+            try
+            {
+                // Serialize the array of user details to a JSON string
+                string jsonSelectedMorningHabits = JsonConvert.SerializeObject(appSettings.arrAllMorningHabits);
+
+                Encoding unicode = Encoding.Unicode;
+                // Convert the JSON string into a byte array.
+                byte[] sSelectedMorningHabitsData = unicode.GetBytes(jsonSelectedMorningHabits);
+
+                // Save the byte array (you can implement your Write method accordingly)
+                Write("SelectedMorningHabitsData", sSelectedMorningHabitsData);
+
+                SetSelectedMorningHabitsDate(); //Also set the date for which the selected morning habits will be applicable
+
+                sSelectedMorningHabitsData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveSelectedMorningHabitsForToday - " + ex.Message);
+            }
+        }
+
+        internal static bool GetSelectedMorningHabitsDate()
+        {
+            try
+            {
+                var regData = ReadStr("SELECTEDMORNINGHABITSDATE");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.SelectedMorningHabitsDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSelectedMorningHabitsDate - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetSelectedMorningHabitsDate()
+        {
+            LogWriter.LogWrite("SetSelectedMorningHabitsDate()");
+
+            appSettings.SelectedMorningHabitsDate = DateTime.Now;
+            try
+            {
+                Write("SELECTEDMORNINGHABITSDATE", Global.ConvertToUnixTime(appSettings.SelectedMorningHabitsDate).ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetSelectedMorningHabitsDate - " + ex.Message);
+            }
+        }
+
+        internal static bool GetSelectedEveningHabitsForToday()
+        {
+            LogWriter.LogWrite("RM GetSelectedEveningHabitsForToday()");
+
+            try
+            {
+                byte[] SelectedEveningHabitsData = (byte[])Read("SelectedEveningHabitsData");
+
+                if (SelectedEveningHabitsData == null)
+                    return false;
+
+                string sSelectedEveningHabitsData = Encoding.Unicode.GetString(SelectedEveningHabitsData);
+                // Deserialize the JSON string back into an array of user details
+                appSettings.arrAllEveningHabits = JsonConvert.DeserializeObject<habit[]>(sSelectedEveningHabitsData).ToList();
+
+                sSelectedEveningHabitsData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSelectedEveningHabitsForToday - " + ex.Message);
+                return false;
+            }
+
+
+        }
+        internal static void SaveSelectedEveningHabitsForToday()
+        {
+            LogWriter.LogWrite("RM SaveSelectedEveningHabitsForToday()");
+            try
+            {
+                // Serialize the array of user details to a JSON string
+                string jsonSelectedEveningHabits = JsonConvert.SerializeObject(appSettings.arrAllEveningHabits);
+
+                Encoding unicode = Encoding.Unicode;
+                // Convert the JSON string into a byte array.
+                byte[] sSelectedEveningHabitsData = unicode.GetBytes(jsonSelectedEveningHabits);
+
+                // Save the byte array (you can implement your Write method accordingly)
+                Write("SelectedEveningHabitsData", sSelectedEveningHabitsData);
+
+                SetSelectedEveningHabitsDate(); //Also set the date for which the selected morning habits will be applicable
+
+                sSelectedEveningHabitsData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveSelectedEveningHabitsForToday - " + ex.Message);
+            }
+        }
+
+        internal static bool GetSelectedEveningHabitsDate()
+        {
+            try
+            {
+                var regData = ReadStr("SELECTEDEVENINGHABITSDATE");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.SelectedEveningHabitsDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSelectedEveningHabitsDate - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetSelectedEveningHabitsDate()
+        {
+            LogWriter.LogWrite("SetSelectedEveningHabitsDate()");
+
+            appSettings.SelectedEveningHabitsDate = DateTime.Now;
+            try
+            {
+                Write("SELECTEDEVENINGHABITSDATE", Global.ConvertToUnixTime(appSettings.SelectedEveningHabitsDate).ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetSelectedEveningHabitsDate - " + ex.Message);
+            }
+        }
+
 
         /// //////////////////////////////////////////////////////////////////////////////////////
         //Focus bear Time Tracker Related

@@ -1933,7 +1933,12 @@ namespace Focus_Bear.API
 
                     string properties = $"{{\"distinct_id\":\"{sID}\"," +
                     $"\"alias\":\"{sAliasID}\"," +
-                    $"\"$set\":{{\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)},\"mode\":\"{(appSettings.bIsGeekModeEnabled ? sGeekMode : sSimpleMode)}\" ,\"isPayingUser\":{JsonConvert.SerializeObject(appSettings.isPurchased)}}}}}"; 
+                    $"\"$set\":{{\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)}," +
+                                $"\"mode\":\"{(appSettings.bIsGeekModeEnabled ? sGeekMode : sSimpleMode)}\"," +
+                                $"\"occupation\":\"{appSettings.sSavedOccupationForPosthog}\"," +
+                                $"\"reason-for-using-focus-bear\":\"{appSettings.sCustomGoalSelected}\"," +
+                                $"\"care-factor-habits\":\"{appSettings.sCareFactorString}\"," +
+                                $"\"isPayingUser\":{JsonConvert.SerializeObject(appSettings.isPurchased)}}}}}"; 
                   
                     string sJsonString = $"{{\"api_key\":\"phc_Y6hD2dvO1zylm7CLij5CuNt6S5gTxe7EVXoxZcb2xUm\"," +
                         $"\"event\":\"$create_alias\"," +
@@ -2010,7 +2015,7 @@ namespace Focus_Bear.API
 
                     string properties = $"{{\"distinct_id\":\"{sID}\"," +
                     $"\"osVersion\":\"{sOSVersion}\"," +
-                    $"\"$set\":\"{(appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode")}\"," +
+                    $"\"$set\":{{\"mode\":\"{(appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode")}\"}}," +
                     $"\"appVersion\":\"{appSettings.AppVersion.ToString()}\"," +
                     $"\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)}";
 

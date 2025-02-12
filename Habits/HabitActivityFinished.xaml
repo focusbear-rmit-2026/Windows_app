@@ -52,9 +52,15 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <TextBlock x:Name="SkipThisHabitText" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0" HorizontalAlignment="Center">
+                <TextBlock x:Name="SkipThisHabitText"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
              <Hyperlink x:Name="btnSkipThisHabit"  Foreground="#000" Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
-        </TextBlock>
+            </TextBlock>
+                <TextBlock Margin="10,0,10,0" Name="Seperator">|</TextBlock>
+            <TextBlock x:Name="ChooseAnotherHabit"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+             <Hyperlink x:Name="btnChooseAnotherHabit"  Foreground="#000" Click="btnChooseAnotherHabit_Click"   TextDecorations="Underline" ><Run x:Name="ChooseAnotherHabitTXT" Text="xChoose another habit"/></Hyperlink>
+            </TextBlock>
+            </StackPanel>
         </StackPanel>
         <TextBlock  Grid.Row="4" Name="sTextCompletedDuration" Margin="40,20,40,80" TextWrapping="Wrap" Text="xxLooking forward!" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
     </Grid>

@@ -96,6 +96,8 @@ namespace Focus_Bear.Utils
         public string sSavedOccupationForFirstFocusSession = "";
         public string sSavedIntentionFirstFocusSession = "";
 
+        public string sSavedOccupationForPosthog = "";
+
         public FocusMode FocusModeNameToCreateWhileOnBoarding;
         public string OnboardingActivityName = "";
         public int OnboardingActivityDurationSeconds;
@@ -104,6 +106,7 @@ namespace Focus_Bear.Utils
 
         public bool bGoalHealthyHabits { get; set; }
         public bool bGoalStayFocused { get; set; }
+        public string sCareFactorString = "";
 
         public bool bAreBreaksEnabled = true; //default ON
 
@@ -116,6 +119,8 @@ namespace Focus_Bear.Utils
 
         public DateTime AppDeactivatedTillDate { get; set; }
 
+        public DateTime SelectedMorningHabitsDate { get; set; }
+        public DateTime SelectedEveningHabitsDate { get; set; }
         public string CurrentRunningSequenceID { get; set; }
 
         public string sLangCode = "en";
@@ -160,8 +165,13 @@ namespace Focus_Bear.Utils
         public List<habit> arrGLOBALAllMorningHabits;
         public List<habit> arrGLOBALAllEveningHabits;
 
+        public List<habit> arrAllMorningHabitsFiltered = new List<habit>(); //these will now be filtered with the Days Of week
+        public List<habit> arrAllEveningHabitsFiltered = new List<habit>();
+
         public List<habit> arrAllMorningHabits = new List<habit>(); //these will now be filtered with the Days Of week
         public List<habit> arrAllEveningHabits = new List<habit>();
+
+        public ObservableCollection<HabitListSelectable> _ObjHabitListSelectable = new ObservableCollection<HabitListSelectable>();
 
         public bool bShowReducedHabitsOnExpired = false;
 
@@ -918,6 +928,7 @@ namespace Focus_Bear.Utils
                         }
                         //copy to Global Array but do not reference
                         arrGLOBALAllMorningHabits = new List<habit>(arrAllMorningHabits);
+                        arrAllMorningHabitsFiltered = new List<habit>(arrAllMorningHabits);
                     }
                     if (arrayEveningActivities.Count() > 0)
                     {
@@ -1013,6 +1024,7 @@ namespace Focus_Bear.Utils
 
                         //copy to Global Array but do not reference
                         arrGLOBALAllEveningHabits = new List<habit>(arrAllEveningHabits);
+                        arrAllEveningHabitsFiltered = new List<habit>(arrAllEveningHabits);
                     }
                     if (arrayBreakActivities.Count() > 0)
                     {

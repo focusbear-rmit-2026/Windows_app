@@ -143,6 +143,12 @@ namespace Focus_Bear.Utils
                             appSettings.TemporarryBlockedURLsWithSetIntention.RemoveAll(i => i.ToLower() == sDomain.ToLower()); //We need to remove all instanes
                         }
 
+                        if(appSettings.bImmediatelyBlockDistractingSites)
+                        {
+                            //add a dummmy intention and allow for 12 hours
+                            appSettings.TemporaryAllowedURLsWithSetIntention.Add(new DistractingURLAllowedWithIntention(sDomain.ToLower(), " ", DateTime.Now.AddMinutes(60*12), "720", false));
+                        }
+
                         //Now fire the OLD url so that it will ask for intention again
                         appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = oldURLToOpen;
                         SetForegroundWindow(hwnd);
@@ -1099,9 +1105,47 @@ namespace Focus_Bear.Utils
                 {
                     if (appSettings.bImmediatelyBlockDistractingSites) //BLock immediately
                     {
-                        appSettings.nTotalDistractingSitesBlocked++; 
+                        string sDomain = "";
+                        /// //here we need to check the domain of the url in question
+                        try
+                        {
+                            Uri myUri = new Uri(val);
+                            string host = myUri.Host; //fails if ther eis no http://
+                            sDomain = host;
+                            Debug.WriteLine(sDomain);
+                        }
+                        catch (Exception ex)
+                        {
+                            /*
+                            This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                            If uri does not specify a scheme, the scheme defaults to "http:".
+                            */
+                            Uri myUri = new UriBuilder(val).Uri;
+                            sDomain = myUri.Host;
+                            Debug.WriteLine(ex.Message);
+                        }
 
-                        appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, val, (appSettings.nFocusBearMode == 1) ? "cuddly" : "grizzly", appSettings.AppVersion.ToString()); //1 is cuddly bear mode
+                        var allowedURLs = appSettings.TemporaryAllowedURLsWithSetIntention.Where(i => i.sURL.ToLower() == sDomain.ToLower());
+                        if (allowedURLs.Count() != 0)
+                        {
+                            //found in allowed url
+                            return;//allow the unblocked url
+                        }
+                        else
+                        {
+                            appSettings.nTotalDistractingSitesBlocked++;
+
+                            //For supporting unblock, we should add it to blocked array with dummy intention
+                            
+                            appSettings.TemporarryBlockedURLsWithSetIntention.Add(sDomain.ToLower()); //add the domain only
+                            ///
+
+
+
+                            appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, val, (appSettings.nFocusBearMode == 1) ? "cuddly" : "grizzly", appSettings.AppVersion.ToString()); //1 is cuddly bear mode
+                        }
+
+                        
                     }
                     else //show Set intention box
                     {

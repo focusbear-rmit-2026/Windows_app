@@ -249,6 +249,41 @@ namespace Focus_Bear.Utils
         }
     }
 
+    public class HabitListSelectable : INotifyPropertyChanged
+    {
+        private bool _bIsSelected;
+
+        public bool bIsSelected
+        {
+            get { return _bIsSelected; }
+            set
+            {
+                if (value != _bIsSelected)
+                {
+                    _bIsSelected = value;
+                    OnChanged("bIsSelected");
+                }
+            }
+        }
+        public string id { get; set; }
+        public string SNumber { get; set; }
+        public string ActivityName { get; set; }
+
+        public double nDuration { get; set; }
+        public HabitListSelectable()
+        {
+
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+    }
     public struct breakActivity
     {
         public string id;

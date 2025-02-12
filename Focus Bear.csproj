@@ -65,7 +65,7 @@
       <HintPath>packages\Auth0.Core.7.17.3\lib\net452\Auth0.Core.dll</HintPath>
     </Reference>
     <Reference Include="Interop.TaskScheduler">
-      <HintPath>..\..\..\Gaurav\Apps\System Care\src\SystemCare\obj\Release\Interop.TaskScheduler.dll</HintPath>
+      <HintPath>TaskSchedulerPackage\Interop.TaskScheduler.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Interop.UIAutomationClient, Version=10.0.19041.0, Culture=neutral, processorArchitecture=MSIL">
@@ -320,6 +320,12 @@
     </Compile>
     <Compile Include="Habits\BreakWarning\FadeInBreakWindow.xaml.cs">
       <DependentUpon>FadeInBreakWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\ChooseAnotherHabit.xaml.cs">
+      <DependentUpon>ChooseAnotherHabit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\ChooseHabits.xaml.cs">
+      <DependentUpon>ChooseHabits.xaml</DependentUpon>
     </Compile>
     <Compile Include="Habits\HabitsResumeInPopup.xaml.cs">
       <DependentUpon>HabitsResumeInPopup.xaml</DependentUpon>
@@ -687,6 +693,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Habits\BreakWarning\FadeInBreakWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\ChooseAnotherHabit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\ChooseHabits.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

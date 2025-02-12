@@ -89,24 +89,41 @@ namespace Focus_Bear.Onboarding
             {
                 isStudentSelected = true;
                 if (Study1.IsChecked.Value)
+                {
                     sJobs = "{\"University student\": \"High school\"}";
+                    appSettings.sSavedOccupationForPosthog = "universityStudent_highSchool";
+                }
                 else if (Study2.IsChecked.Value)
+                {
                     sJobs = "{\"University student\": \"Undergraduate\"}";
+                    appSettings.sSavedOccupationForPosthog = "universityStudent_Undergraduate";
+                }
                 else if (Study3.IsChecked.Value)
+                {
                     sJobs = "{\"University student\": \"Graduate\"}";
+                    appSettings.sSavedOccupationForPosthog = "universityStudent_Graduate";
+                }
                 else if (Study4.IsChecked.Value)
+                {
                     sJobs = "{\"University student\": \"Postgraduate\"}";
+                    appSettings.sSavedOccupationForPosthog = "universityStudent_Postgraduate";
+                }
                 if (sJobs.Length > 0)
+                {
                     sJobs = string.Format("\"occupation\": {0}", sJobs);
+                }
                 else
+                {
                     sJobs = "\"occupation\": \"University student\"";
+                    appSettings.sSavedOccupationForPosthog = "universityStudent";
+                }
 
                 appSettings.sSavedOccupationForFirstFocusSession = "University student";
             }
             if (RadioButton2.IsChecked.Value) // Business Owner
             {
                 sJobs = "\"occupation\": \"Business Owner\"";
-
+                appSettings.sSavedOccupationForPosthog = "businessOwner";
                 appSettings.sSavedOccupationForFirstFocusSession = "Business Owner";
             }
             if (RadioButton3.IsChecked.Value) //Employee
@@ -115,22 +132,26 @@ namespace Focus_Bear.Onboarding
                 {
                     sJobs = "{\"Employee\": \"Programmer\"}";
                     appSettings.sSavedOccupationForFirstFocusSession = "Programmer";
+                    appSettings.sSavedOccupationForPosthog = "employee_Programmer";
                 }
                 else if (Employee2.IsChecked.Value)
                 {
                     sJobs = "{\"Employee\": \"Graphic designer\"}";
                     appSettings.sSavedOccupationForFirstFocusSession = "Graphic designer";
+                    appSettings.sSavedOccupationForPosthog = "employee_GraphicDesigner";
                 }
                 else if (Employee3.IsChecked.Value)
                 {
                     sJobs = string.Format("{{\"Employee\": {{\"Other work from office\":\"{0}\"}}}}", TxtOtherOfficeWOrk.Text.ToString());
                     appSettings.sSavedOccupationForFirstFocusSession = "Other work from office";
+                    appSettings.sSavedOccupationForPosthog = "employee_OtherWorkFromOffice_" + TxtOtherOfficeWOrk.Text.ToString();
                 }
 
                 else if (Employee4.IsChecked.Value)
                 {
                     sJobs = string.Format("{{\"Employee\": {{\"Non desk based work\":\"{0}\"}}}}", TxtNonDeskBasedWork.Text.ToString());
                     appSettings.sSavedOccupationForFirstFocusSession = "Non desk based work";
+                    appSettings.sSavedOccupationForPosthog = "employee_NonDeskBasedWork_" + TxtNonDeskBasedWork.Text.ToString();
                 }
 
                 if (sJobs.Length > 0)
@@ -139,6 +160,7 @@ namespace Focus_Bear.Onboarding
                 {
                     sJobs = "\"occupation\": \"Employee\"";
                     appSettings.sSavedOccupationForFirstFocusSession = "Employee";
+                    appSettings.sSavedOccupationForPosthog = "employee";
                 }
             }
             if (RadioButton4.IsChecked.Value) //Freelancer
@@ -149,6 +171,7 @@ namespace Focus_Bear.Onboarding
                     sJobs = "\"occupation\": \"Freelancer\"";
 
                 appSettings.sSavedOccupationForFirstFocusSession = "Freelancer";
+                appSettings.sSavedOccupationForPosthog = "freelancer_" + TxtFreelancer.Text.ToString();
             }
             if (RadioButton5.IsChecked.Value) //Other
             {
@@ -158,6 +181,7 @@ namespace Focus_Bear.Onboarding
                     sJobs = "\"occupation\": \"Other\"";
 
                 appSettings.sSavedOccupationForFirstFocusSession = "Other";
+                appSettings.sSavedOccupationForPosthog = "other_" + TxtOtherJob.Text.ToString();
             }
 
             //Save the occupation
