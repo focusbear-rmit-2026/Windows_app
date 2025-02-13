@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Focus Bear"
-#define MyAppVersion "1.0.120"
+#define MyAppVersion "1.0.143"
 #define MyAppPublisher "Focus Bear Pty Ltd"
 #define MyAppURL "https://www.focusbear.io"
 #define MyAppExeName "Focus Bear.exe"
@@ -19,9 +19,11 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
+DefaultGroupName={#MyAppName}
 DefaultDirName={pf}\{#MyAppName}
 DisableDirPage=yes
 DisableProgramGroupPage=yes
+AlwaysUsePersonalGroup=yes
 OutputBaseFilename=FocusBearSetup{#MyAppVersion}
 Compression=lzma/ultra64
 InternalCompressLevel=ultra64
@@ -117,6 +119,7 @@ Source: "logo.svg"; DestDir: "{localappdata}\focus bear"; Flags: ignoreversion r
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: {uninstallexe}; 
 
 ;[Run]

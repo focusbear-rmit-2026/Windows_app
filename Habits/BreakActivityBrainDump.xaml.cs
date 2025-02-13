@@ -67,6 +67,32 @@ namespace Focus_Bear.Habits
             appSettings.sBrainDump = TxtDumpDown.Text;
             RegistryManager.SaveBrainDump();
 
+            if (appSettings.isExpired)
+            {
+                _parentWindow.GridShade.Visibility = Visibility.Visible;
+
+                appSettings.CapturePostHog("alert-limited-usage-shown");
+
+                string sTitle = appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["title"].ToString().Replace("<COUNT>", "3");
+                string sSubTitle = appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["subTitle"].ToString().Replace("<COUNT>", "3");
+                FBMessageBox ff = new FBMessageBox(sSubTitle, sTitle, MessageBoxButton.YesNo, appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["buttonUpgradeNowText"].ToString(), appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["buttonContinueText"].ToString());
+                ff.Owner = _parentWindow;
+                ff.ShowDialog();
+
+                _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                //if user has cancelled the update process
+                if (ff.btnClicked == MessageBoxResult.Yes)
+                {
+                    appSettings.CapturePostHog("alert-limited-usage-button-upgrade-clicked");
+                    ((App)(Application.Current)).ShowUpgradeToProNag("");
+                }
+                else
+                {
+                    appSettings.CapturePostHog("alert-limited-usage-button-continue-clicked");
+                }
+            }
+
             _parentWindow.ShowStartBreakActivityScreen();
 
         }

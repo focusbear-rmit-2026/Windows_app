@@ -41,7 +41,7 @@ namespace FocusBear.Utils
         public static readonly int UIA_EditControlTypeId = 50004;
         public static readonly int UIA_PATTERN_ID = 10002;
 
-        public static readonly List<string> BLOCKED_URLS = new List<string> { "*.google.com", "facebook.com", "twitter.com" };
+        public static readonly List<string> BLOCKED_URLS = new List<string> { "*.google.com", "facebook.com", "x.com" };
         public static readonly List<string> BLOCKED_APPS = new List<string> { "notepad", "regedit", "registry editor" };
 
         string sAlwaysBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type=always-blocked";
@@ -49,7 +49,7 @@ namespace FocusBear.Utils
         string sActivityBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
 
 
-        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "csrss", "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui", "searchhost" };
+        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "csrss", "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui", "searchhost", "applicationframehost" };
         public static readonly int SW_MINIMIZE = 6;
         public static readonly int SW_FORCEMINIMIZE = 11;
 
@@ -116,8 +116,14 @@ namespace FocusBear.Utils
 
 #if DEBUG
             ///BrowserTitleGrabber.GetTabTitles(BrowserTitleGrabber.EBrowser.Firefox) ;
-            
+
 #endif
+            //if its shutoff time, then we need to block all apps
+            if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF)
+            {
+                ProcessShutOffStateBlockAllApps(element);
+            }
+
 
             if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
             {
@@ -152,6 +158,31 @@ namespace FocusBear.Utils
 
         }
 
+        private void ProcessShutOffStateBlockAllApps(IUIAutomationElement element)
+        {
+            try
+            {
+                using (Process process = Process.GetProcessById(element.CurrentProcessId))
+                {
+                    if (element != null && process != null)
+                    {
+                        // block or Unblock apps
+                        if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName.ToLower()))
+                        {
+                            return;
+                        }
+
+                        LogWriter.LogWrite(process.ProcessName + " Not allowed app When in shutOff State -  BLOCK");
+                        ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
+                        appSettings.CapturePostHog("block-distracting-app");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ProcessShutOffStateBlockAllApps - " + ex.Message);
+            }
+        }
         private void ProcessAllowedAppAndURLsInActivity(IUIAutomationElement element)
         {
             try
@@ -818,6 +849,7 @@ namespace FocusBear.Utils
                         // block or Unblock apps
                         if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName.ToLower()))
                         {
+                            FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
                             return;
                         }
 
@@ -876,8 +908,8 @@ namespace FocusBear.Utils
                                     {
                                         LogWriter.LogWrite("processCurrentFocusElement GetWindowText ALLOWED URLS EX - " + ex.Message);
                                     }
-
                                 }
+
                                 if (!bAllowedAppFound)
                                 {
                                     if (appSettings.nFocusBearMode == 1)//Cuddly bearMode
@@ -885,6 +917,11 @@ namespace FocusBear.Utils
                                         var allowedApps = appSettings.TemporaryAllowedAppsGentleBlock.Where(i => i.sURL.ToLower() == process.ProcessName.ToLower());
                                         if (allowedApps.Count() != 0)
                                         {
+                                            //If the app is allowed and is not one of the browsers, we will OPEN is to calculate
+                                            if (!BROWSERS.Exists(ele => ele == process.ProcessName))
+                                            {
+                                                FocusAlignmentScoreManager.FocusModeOpenCurrentAppForAlignmentScore(process.ProcessName, appSettings.sRunningFocusModeName, 0, false, process.ProcessName);
+                                            }
                                             //found in allowed app
                                             bAllowedAppFound = true; //allow the app //If its a browser we will check the urls too
                                         }
@@ -897,17 +934,33 @@ namespace FocusBear.Utils
                                             }
                                             else
                                             {
+                                                //only open for non browser apps
+                                                //If the app is allowed and is not one of the browsers, we will OPEN is to calculate
+                                                if (!BROWSERS.Exists(ele => ele == process.ProcessName))
+                                                {
+                                                    FocusAlignmentScoreManager.FocusModeOpenCurrentAppForAlignmentScore(process.ProcessName, appSettings.sRunningFocusModeName, 0, false, process.ProcessName);
+                                                }
                                                 appSettings.ShowGentleBlockWindow(process.MainWindowHandle, process.ProcessName);
                                                 return;
                                             }
                                         }
                                     }
                                 }
+                                else //allowed app
+                                {
+                                    //If the app is allowed and is not one of the browsers, we will OPEN is to calculate
+                                    if (!BROWSERS.Exists(ele => ele == process.ProcessName))
+                                    {
+                                        FocusAlignmentScoreManager.FocusModeOpenCurrentAppForAlignmentScore(process.ProcessName, appSettings.sRunningFocusModeName, 1, true, process.ProcessName);
+                                    }
+                                }
+
                                 if (!bAllowedAppFound)
                                 {
                                     if (IsWindowVisible(process.MainWindowHandle))
                                         ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
 
+                                    LogWriter.LogWrite(process.ProcessName + " Not allowed app found in Focus Element activity - BLOCK");
                                     appSettings.CapturePostHog("block-distracting-app");
 
                                     return; //if not an allowed app, no need to check URLs
@@ -937,7 +990,7 @@ namespace FocusBear.Utils
                                 else
                                 {
                                     //First let's get the URL value
-
+                                    /**
                                     IUIAutomationElement elm = appSettings.automation.ElementFromHandle(process.MainWindowHandle);
                                     IUIAutomationCondition Cond = appSettings.automation.CreatePropertyCondition(UIA_ControlTypePropertyId, UIA_EditControlTypeId);
                                     IUIAutomationElementArray elm2 = elm.FindAll(TreeScope.TreeScope_Descendants, Cond);
@@ -952,7 +1005,7 @@ namespace FocusBear.Utils
                                                 ProcessURLForFocusModes(val.CurrentValue, focusType, process.MainWindowHandle, element, val);
                                             }
                                         }
-                                    }
+                                    }**/
                                     ///
                                 }
 

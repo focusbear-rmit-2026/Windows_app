@@ -46,19 +46,31 @@ namespace Focus_Bear.Preferences
 
             _ParentWindow = pp;
 
-            SetWebView();
-            webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
-            webView.NavigationCompleted += CoreWebView2NavigationCompleted;
+            SetWebViewGetSupport();
+            webViewGetSupport.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
+            webViewGetSupport.NavigationCompleted += CoreWebView2NavigationCompleted;
 
-    
+
+            SetWebViewTutorials();
+            webViewTutorials.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompletedTutorials;
+            webViewTutorials.NavigationCompleted += CoreWebView2NavigationCompletedTutorials;
+
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["preferencesInfo"]["helpText"].ToString();
                 btnExportLogsTXT.Text = appSettings.ConfigFileStrings["preferencesInfo"]["buttonExportLogsText"].ToString();
 
                 ReportProblemTab.Header = appSettings.ConfigFileStrings["preferencesInfo"]["tabReportProblemText"].ToString();
-                ChatTab.Header = appSettings.ConfigFileStrings["preferencesInfo"]["tabChatText"].ToString();
+                
+                Community.Header = appSettings.ConfigFileStrings["helpVcInfo"]["tabCommunity"].ToString();
 
+
+                CommunityHeading.Text = appSettings.ConfigFileStrings["helpVcInfo"]["titleCommunity"].ToString();
+                btnJoinDiscordTXT.Text = appSettings.ConfigFileStrings["helpVcInfo"]["buttonJoinDiscordText"].ToString();
+                BtnDontUseDiscordTxt.Text = appSettings.ConfigFileStrings["helpVcInfo"]["buttonDontUseDiscordText"].ToString();
+
+                GetSupport.Header = "Get Support"; //todo win texts
+                Tutorials.Header = "Tutorials";// todo win texts
             }
             catch (Exception ex)
             {
@@ -103,7 +115,7 @@ namespace Focus_Bear.Preferences
             }
         }
 
-        private async Task SetWebView()
+        private async Task SetWebViewGetSupport()
         {
             try
             {
@@ -111,16 +123,17 @@ namespace Focus_Bear.Preferences
 
                 var task = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
 
-                if (webView != null)
+                if (webViewGetSupport != null)
                 {
-                    await webView.EnsureCoreWebView2Async(task);
+                    await webViewGetSupport.EnsureCoreWebView2Async(task);
                 }
 
+                //webViewGetSupport.CoreWebView2.OpenDevToolsWindow();
 
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("HelpTab habits SetWebView() Ex - " + ex.Message);
+                LogWriter.LogWrite("HelpTab habits SetWebView get support () Ex - " + ex.Message);
             }
         }
         private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
@@ -128,10 +141,10 @@ namespace Focus_Bear.Preferences
             if (e.IsSuccess)
             {
                 Mouse.OverrideCursor = null;
-                LogWriter.LogWrite("Chat CoreWebView2NavigationCompleted() Success, Load Access token");
+                LogWriter.LogWrite("get support CoreWebView2NavigationCompleted() Success, Load Access token");
                 string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode);
-                string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForChat) {{ loadAccessTokenForChat({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
-                var ss = webView.ExecuteScriptAsync(settingsFunc);
+                string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataFoGetSupport) {{ loadMetaDataFoGetSupport({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+                var ss = webViewGetSupport.ExecuteScriptAsync(settingsFunc);
 
                 
             }
@@ -144,22 +157,116 @@ namespace Focus_Bear.Preferences
                 {
 
                     LogWriter.LogWrite("Chat CoreWebView2InitializationCompleted() Success, Load URL");
-                   
-                    webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
-                    webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
-                    webView.CoreWebView2.Settings.IsScriptEnabled = true;
-                    webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
 
-                    webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
-                    webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+                    webViewGetSupport.CoreWebView2.Settings.AreHostObjectsAllowed = true;
+                    webViewGetSupport.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
+                    webViewGetSupport.CoreWebView2.Settings.IsScriptEnabled = true;
+                    webViewGetSupport.CoreWebView2.Settings.IsWebMessageEnabled = true;
 
-                    webView.Source = new System.Uri("https://dashboard.focusbear.io/webview/chat");
+                    webViewGetSupport.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
+                    webViewGetSupport.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+
+                    webViewGetSupport.Source = new System.Uri("https://dashboard.focusbear.io/webview/get-support?bust_cache=" + DateTime.UtcNow.ToString());
 
                 }
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite("HelpTab CoreWebView2InitializationCompleted() ex - " + ex.Message);
                 }
+            }
+        }
+
+
+        private async Task SetWebViewTutorials()
+        {
+            try
+            {
+                var userDataFolder = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FBCustomWebView2");
+
+                var task = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
+
+                if (webViewTutorials != null)
+                {
+                    await webViewTutorials.EnsureCoreWebView2Async(task);
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("HelpTab webViewTutorials SetWebView get support () Ex - " + ex.Message);
+            }
+        }
+        private void CoreWebView2NavigationCompletedTutorials(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            if (e.IsSuccess)
+            {
+                Mouse.OverrideCursor = null;
+                LogWriter.LogWrite("tutorials CoreWebView2NavigationCompleted() Success, Load Access token");
+                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode);
+                string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForEnrolledCourses) {{ loadMetaDataForEnrolledCourses({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+                var ss = webViewTutorials.ExecuteScriptAsync(settingsFunc);
+
+
+            }
+        }
+        private void CoreWebView2InitializationCompletedTutorials(object sender, CoreWebView2InitializationCompletedEventArgs e)
+        {
+            if (e.IsSuccess)
+            {
+                try
+                {
+
+                    LogWriter.LogWrite("Chat CoreWebView2InitializationCompletedTutorials() Success, Load URL");
+
+                    webViewTutorials.CoreWebView2.Settings.AreHostObjectsAllowed = true;
+                    webViewTutorials.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
+                    webViewTutorials.CoreWebView2.Settings.IsScriptEnabled = true;
+                    webViewTutorials.CoreWebView2.Settings.IsWebMessageEnabled = true;
+
+                    webViewTutorials.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
+                    webViewTutorials.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+
+                    webViewTutorials.Source = new System.Uri("https://dashboard.focusbear.io/webview/enrolled-courses?bust_cache=" + DateTime.UtcNow.ToString());
+
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("HelpTab CoreWebView2InitializationCompletedTutorials() ex - " + ex.Message);
+                }
+            }
+        }
+
+        private void BtnDontUseDiscord_Click(object sender, RoutedEventArgs e)
+        {
+            appSettings.CapturePostHog("button-i-dont-use-discord-clicked");
+            //ask for preferred community
+            _ParentWindow.RepositionWindow();
+            _ParentWindow.GridShade.Visibility = Visibility.Visible;
+            CommunityPreference wndCommunityPref = new CommunityPreference();
+            wndCommunityPref.Owner = _ParentWindow;
+            wndCommunityPref.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            wndCommunityPref.Topmost = true;
+            bool? DialogResult = wndCommunityPref.ShowDialog();
+
+            _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+        }
+
+        private void btnJoinDiscord_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string sDiscordUrl = "https://discord.gg/VZdv3ZjhSq";//default
+                sDiscordUrl = appSettings.ConfigFileStrings["discordUrl"].ToString();
+                
+                System.Diagnostics.Process.Start(sDiscordUrl);
+
+                appSettings.CapturePostHog("button-join-discord-server-clicked");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnJoinDiscord_Click + " + ex.Message);
             }
         }
     }

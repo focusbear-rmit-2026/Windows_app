@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel    Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,0" >
-            <RadioButton x:Name="GeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"  />
+            <RadioButton x:Name="GeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"    />
             <RadioButton x:Name="SimpleMode" Content="xSimple Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Cursor="Hand"  />
         </StackPanel>
         
@@ -31,6 +31,7 @@
                     <Grid>
                         <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="Auto"/>
                         
@@ -77,6 +78,12 @@
                             </StackPanel>
                         </Grid>
                         <Grid Grid.Row="2" >
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Name="EnableBreaks" Margin="0,0,0,0"  Width="215" TextWrapping="Wrap"   Text="xBreaks"  Foreground="Black" FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
+                                <CheckBox Name="EnableBreaksCheckbox" Margin="40,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" Checked="EnableBreaksCheckbox_Checked" Unchecked="EnableBreaksCheckbox_Unchecked" Cursor="Hand" Padding="5,-2,0,0">xEnable Breaks</CheckBox>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Grid.Row="3" >
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="235"/>
                                 <ColumnDefinition Width="*"/>

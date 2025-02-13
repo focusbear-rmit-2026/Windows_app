@@ -260,21 +260,27 @@ namespace Focus_Bear.Focus
         {
             if (appSettings.DidCutOffTimePassed())
             {
-                AskPassword pwdWnd = new AskPassword();
-                pwdWnd.Owner = this;
-                GridShade.Visibility = Visibility.Visible;
-
-                bool? bResult = pwdWnd.ShowDialog();
-
-                GridShade.Visibility = Visibility.Collapsed;
-
-                if (bResult.Value)
+                if (appSettings.isPasswordSet)
                 {
-                    //Password is correct
-                }
-                else
-                {
-                    return;
+                    if (appSettings.bPasswordRequireToSkipEveningAfterCutOff)
+                    {
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = this;
+                        GridShade.Visibility = Visibility.Visible;
+
+                        bool? bResult = pwdWnd.ShowDialog();
+
+                        GridShade.Visibility = Visibility.Collapsed;
+
+                        if (bResult.Value)
+                        {
+                            //Password is correct
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
                 }
             }
 

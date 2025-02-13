@@ -73,9 +73,14 @@ namespace Focus_Bear.Onboarding.New
         {
             RegistryManager.SetWelcomeAboardingDoneStatus();
 
-            ///((App)(Application.Current)).ShowLoginWindow();
+            ((App)(Application.Current)).ShowLoginWindow();
             bShutdownApp = false;
             Close();
+        }
+        public void ShowBlockingScheduleScreen()
+        {
+            appSettings.CapturePostHog("onboarding-blocking-schedule-shown");
+            FrameSteps.Navigate(new OnboardingNewBlockingSchedule(this));
         }
         public void ShowPrivacyScreen()
         {

@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -83,14 +85,28 @@ namespace Focus_Bear.Upgrade
             {
                 UninstallText.Visibility = Visibility.Collapsed;
             }
+
+            appSettings.CapturePostHog("upgrade-nag-shown");
         }
 
         private void btnUpgradeNow_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnUpgradeNow_Click");
+            
+            appSettings.CapturePostHog("upgrade-nag-button-upgrade-clicked");
+
             try 
             {
-                Process.Start(appSettings.ConfigFileStrings["upgradeNowUrl"].ToString());
+                // Process.Start(appSettings.ConfigFileStrings["upgradeNowUrl"].ToString());
+                ManageSubscription wndManageSubs = new ManageSubscription();
+                wndManageSubs.Owner = this;
+                wndManageSubs.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                wndManageSubs.ShowDialog();
+
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnSyncPayment);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+
             }
             catch (Exception ex)
             {

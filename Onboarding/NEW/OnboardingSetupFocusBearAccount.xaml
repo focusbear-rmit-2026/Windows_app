@@ -27,7 +27,7 @@
 
         <Image Grid.Row="1" Height="140"  Width="140" Models:ImageBehavior.AnimatedSource="../../images/fbicon-256.png" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center" />
         <TextBlock  Grid.Row="2" Name="Description" Margin="40,18,40,0" TextWrapping="Wrap" Text="xHow about setting up an account so you can sync your block preferences across your devices?" Foreground="#000" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <Border Grid.Row="3" BorderBrush="#f9e98e" BorderThickness="2" Width="550" Height="60" Margin="0,10,0,0">
+        <Border Visibility="Collapsed" Grid.Row="3" BorderBrush="#f9e98e" BorderThickness="2" Width="550" Height="60" Margin="0,10,0,0">
             <Grid Background="#fefbec"    >
                 <StackPanel Orientation="Horizontal">
                     <Image Source="../../images/bulb_small.png" Width="31" Height="33" Margin="10,0,10,0"></Image>
@@ -37,7 +37,7 @@
         </Border>
          
         <StackPanel  Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button  Grid.ColumnSpan="2" x:Name="btnNotRightNow"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnNotRightNow_Click">
+            <Button Visibility="Collapsed" Grid.ColumnSpan="2" x:Name="btnNotRightNow"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnNotRightNow_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnNotRightNowText" Margin="8" Text="xNot right now"/>

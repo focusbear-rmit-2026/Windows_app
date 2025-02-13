@@ -47,6 +47,8 @@ namespace Focus_Bear.Habits
         DispatcherTimer dispatcherTimerShowDateTime = new DispatcherTimer(DispatcherPriority.Normal);
 
         DispatcherTimer dispatcherTimerAskSleepAndMood = new DispatcherTimer(DispatcherPriority.Normal);
+        
+        DispatcherTimer dispatcherTimerShowReducedHabitsMessage = new DispatcherTimer(DispatcherPriority.Normal);
 
         protected override async void OnContentRendered(EventArgs e)
         {
@@ -127,6 +129,13 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(this));");
                 AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(this));
 
+
+                if (appSettings.isExpired)
+                {
+                    if (((appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) && ((appSettings.arrActivitiesIncludeInEveryBreak.Count + appSettings.arrActivitiesExcludeInEveryBreak.Count) > 3))
+                       )
+                        ShowReducedHabitsMessageOnExpired();
+                }
             }
             else
             {
@@ -181,11 +190,64 @@ namespace Focus_Bear.Habits
                     AppFrameHabitScreens.Navigate(PageWelcomeList); //Normal process
 
                     AskToAnalyzeSleepAndMood();
+
+                    if (appSettings.isExpired)
+                    {
+                        if( ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) && appSettings.arrAllMorningHabits.Count > 3 ) ||
+                            ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) && appSettings.arrAllEveningHabits.Count > 3)
+                          )
+                        ShowReducedHabitsMessageOnExpired();
+                    }
                 }
             }
 
         }
       
+        public void ShowReducedHabitsMessageOnExpired()
+        {
+            dispatcherTimerShowReducedHabitsMessage.Tick += new EventHandler(dispatcherTimerShowReducedHabitsMessage_Tick);
+            dispatcherTimerShowReducedHabitsMessage.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimerShowReducedHabitsMessage.Start();
+        }
+
+        private void dispatcherTimerShowReducedHabitsMessage_Tick(object sender, EventArgs e)
+        {
+
+            try
+            {
+                dispatcherTimerShowReducedHabitsMessage.Stop();
+                CommandManager.InvalidateRequerySuggested();
+                GridShade.Visibility = Visibility.Visible;
+
+                appSettings.CapturePostHog("alert-limited-usage-shown");
+
+                string sTitle = appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["title"].ToString().Replace("<COUNT>", "3");
+                string sSubTitle = appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["subTitle"].ToString().Replace("<COUNT>", "3");
+                FBMessageBox ff = new FBMessageBox(sSubTitle, sTitle, MessageBoxButton.YesNo, appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["buttonUpgradeNowText"].ToString(), appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["buttonContinueText"].ToString());
+                ff.Owner = this;
+                ff.ShowDialog();
+
+                GridShade.Visibility = Visibility.Collapsed;
+
+                //if user has cancelled the update process
+                if (ff.btnClicked == MessageBoxResult.Yes)
+                {
+                    appSettings.CapturePostHog("alert-limited-usage-button-upgrade-clicked");
+                    ((App)(Application.Current)).ShowUpgradeToProNag("");
+                }
+                else
+                {
+                    appSettings.CapturePostHog("alert-limited-usage-button-continue-clicked");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("dispatcherTimerAskSleepAndMood_Tick ex = " + ex.Message);
+            }
+
+        }
+
         public void ShowStartBreakActivityScreen()
         {
             AppFrameHabitScreens.Navigate(new StartBreakActivity(this));
@@ -1393,7 +1455,6 @@ namespace Focus_Bear.Habits
         }
         private void dispatcherTimerAskSleepAndMood_Tick(object sender, EventArgs e)
         {
-
             try
             {
                 dispatcherTimerAskSleepAndMood.Stop();
@@ -1419,6 +1480,38 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("dispatcherTimerAskSleepAndMood_Tick ex = " + ex.Message);
             }
 
+        }
+
+        public void ShowChooseHabitsWindow()
+        {
+            GridShade.Visibility = Visibility.Visible;
+            ChooseHabits WndChooseHabits = new ChooseHabits(this);
+
+            bool? DialogResult = WndChooseHabits.ShowDialog();
+            GridShade.Visibility = Visibility.Collapsed;
+
+            if (DialogResult.Value == true) //means user wants to skip morning habits completely
+            {
+                Hide();
+                appSettings.RemoveSecondaryWindows();
+            }
+  
+        }
+
+        public bool ShowChooseAnotherHabitsWindow()
+        {
+            GridShade.Visibility = Visibility.Visible;
+            
+            ChooseAnotherHabit WndChooseAnotherHabit = new ChooseAnotherHabit(this);
+
+            bool? DialogResult = WndChooseAnotherHabit.ShowDialog();
+            GridShade.Visibility = Visibility.Collapsed;
+
+            if (DialogResult.Value) //True means user have selected another habit and that is to be done
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

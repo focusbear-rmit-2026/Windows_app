@@ -556,6 +556,7 @@ namespace Focus_Bear.API
                    $"\"isMeetings\":{JsonConvert.SerializeObject(FF.isMeetings)}," +
                    $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
                    $"\"isRelaxFocus\":{JsonConvert.SerializeObject(FF.isRelaxFocus)}," +
+                   $"\"isDeepWorkFocus\":{JsonConvert.SerializeObject(FF.isDeepWorkFocus)}," +
                    $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
                    $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
 
@@ -588,7 +589,7 @@ namespace Focus_Bear.API
                                 var responseCode = await response.Content.ReadAsStringAsync();
                                 JObject resJson = JObject.Parse(responseCode);
                                 string sErrorMessage = resJson["message"].ToString();
-                                LogWriter.LogWrite("AddFocusMode() FAILED" + sErrorMessage);
+                                LogWriter.LogWrite("AddFocusMode() FAILED - " + sErrorMessage);
                                 return 0;
                             }
                             return 0;
@@ -704,6 +705,7 @@ namespace Focus_Bear.API
                         $"\"isMeetings\":{JsonConvert.SerializeObject(FF.isMeetings)}," +
                         $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
                         $"\"isRelaxFocus\":{JsonConvert.SerializeObject(FF.isRelaxFocus)}," +
+                        $"\"isDeepWorkFocus\":{JsonConvert.SerializeObject(FF.isDeepWorkFocus)}," +
                         $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
                         $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
 
@@ -1028,11 +1030,7 @@ namespace Focus_Bear.API
 
                     if (appSettings.IsFirstInstall )
                     {
-                        if (appSettings.sHabitPackIdToInstall != null && appSettings.sHabitPackIdToInstall.Length > 0)
-                        {
-                            responsePath = string.Format("https://api.focusbear.io/habit-packs/default?pack_id={0}", appSettings.sHabitPackIdToInstall);
-                        }
-                        else //Focus Only habit pack
+                        if (appSettings.bGoalStayFocused) //Focus Only habit pack
                         {
                             responsePath = string.Format("https://api.focusbear.io/habit-packs/default?pack_id=4a5872f5-a8e5-48c2-a2e3-83c3830fce58");
                         }
@@ -1930,9 +1928,17 @@ namespace Focus_Bear.API
                                      $"\"osVersion\":\"{sOSVersion}\"," +
                                      $"\"appVersion\":\"{appSettings.AppVersion.ToString()}\"}}";
 
+                    string sGeekMode = "geek-mode";
+                    string sSimpleMode = "simple-mode";
+
                     string properties = $"{{\"distinct_id\":\"{sID}\"," +
                     $"\"alias\":\"{sAliasID}\"," +
-                    $"\"$set\":{{\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)},\"mode\":\"{(appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode")}\" ,\"isPayingUser\":{JsonConvert.SerializeObject(appSettings.isPurchased)}}}}}"; 
+                    $"\"$set\":{{\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)}," +
+                                $"\"mode\":\"{(appSettings.bIsGeekModeEnabled ? sGeekMode : sSimpleMode)}\"," +
+                                $"\"occupation\":\"{appSettings.sSavedOccupationForPosthog}\"," +
+                                $"\"reason-for-using-focus-bear\":\"{appSettings.sCustomGoalSelected}\"," +
+                                $"\"care-factor-habits\":\"{appSettings.sCareFactorString}\"," +
+                                $"\"isPayingUser\":{JsonConvert.SerializeObject(appSettings.isPurchased)}}}}}"; 
                   
                     string sJsonString = $"{{\"api_key\":\"phc_Y6hD2dvO1zylm7CLij5CuNt6S5gTxe7EVXoxZcb2xUm\"," +
                         $"\"event\":\"$create_alias\"," +
@@ -2009,7 +2015,7 @@ namespace Focus_Bear.API
 
                     string properties = $"{{\"distinct_id\":\"{sID}\"," +
                     $"\"osVersion\":\"{sOSVersion}\"," +
-                    $"\"$set\":\"{(appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode")}\"," +
+                    $"\"$set\":{{\"mode\":\"{(appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode")}\"}}," +
                     $"\"appVersion\":\"{appSettings.AppVersion.ToString()}\"," +
                     $"\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)}";
 
@@ -2159,7 +2165,7 @@ namespace Focus_Bear.API
             return 0;
         }
 
-        internal async Task<int> ChatGPTIsURLSafe(string url, string tab_title, string meta_description, string focus_mode, string intention, string language)
+        internal async Task<double> ChatGPTIsURLSafe(string url, string tab_title, string meta_description, string focus_mode, string intention, string language)
         {
             LogWriter.LogWrite("ChatGPTIsURLSafe() = " + url);
             try
@@ -2228,19 +2234,21 @@ namespace Focus_Bear.API
                                     double dProbability = double.Parse( resJson["allowed_probability"].ToString());
                                     appSettings.dProbablity = dProbability;
 
-                                    if (dProbability >= 0.80)
-                                    {
-                                        return 1; // Safe URL
-                                    }
-                                    else if(dProbability >= 0.50 && dProbability < 0.80)
-                                    {
-                                        //Ask user
-                                        return 2;//we will check with "2" if we need to ask user
-                                    }
-                                    else
-                                    {
-                                        return 0; //Unsafe url
-                                    }
+                                    return appSettings.dProbablity;
+
+                                    //if (dProbability >= 0.80)
+                                    //{
+                                    //    return 1; // Safe URL
+                                    //}
+                                    //else if(dProbability >= 0.50 && dProbability < 0.80)
+                                    //{
+                                    //    //Ask user
+                                    //    return 2;//we will check with "2" if we need to ask user
+                                    //}
+                                    //else
+                                    //{
+                                    //    return 0; //Unsafe url
+                                    //}
                                 }
                                
                                 return 1;
@@ -2493,6 +2501,147 @@ namespace Focus_Bear.API
             }
             return 0;
         }
+
+        internal async Task<int> SyncPlatformCourses() // OK
+        {
+            LogWriter.LogWrite("SyncPlatformCourses()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string addItemJsonString = $"{{\"platform\":\"win\"}}";
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        //Make the data for Focus Mode
+                        var response = await client.PostAsync("https://api.focusbear.io/course/sync-platform-courses", content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //200
+                        {
+                            if (response.Content != null)
+                            {
+                                LogWriter.LogWrite("SyncPlatformCourses() GOT Success");
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("SyncPlatformCourses() FAILED" + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("SyncPlatformCourses WebException - " + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SyncPlatformCourses Exception - " + ex.Message);
+
+            }
+            return 0;
+        }
+
+        internal async Task<int> EnrollForCourses() // OK
+        {
+            LogWriter.LogWrite("EnrollForCourses()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string addItemJsonString = $"{{\"course_id\":\"8c7e4d6e-b43a-496d-bb17-90de77d3b8ee\"}}";
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        //Make the data for Focus Mode
+                        var response = await client.PostAsync("https://api.focusbear.io/course/enrolled", content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //200
+                        {
+                            if (response.Content != null)
+                            {
+                                LogWriter.LogWrite("EnrollForCourses() GOT Success");
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("EnrollForCourses() FAILED" + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("EnrollForCourses WebException - " + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("EnrollForCourses Exception - " + ex.Message);
+
+            }
+            return 0;
+        }
+
 
         internal async Task<int> GetSavedWebsite() //OK
         {

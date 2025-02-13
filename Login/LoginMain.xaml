@@ -7,9 +7,9 @@
          xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
         Title="Focus Bear" Height="720" Width="945"  ResizeMode="NoResize" Closed="Window_Closed" Loaded="Window_Loaded" >
-    <local1:DpiDecorator>
+    <!--<local1:DpiDecorator>-->
     <Grid>
         <Frame x:Name="AppFrameLogin" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" />
     </Grid>
-        </local1:DpiDecorator>
+        <!--</local1:DpiDecorator>-->
 </Window>

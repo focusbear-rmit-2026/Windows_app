@@ -192,6 +192,12 @@ namespace Focus_Bear.Utils
             this.SKIP_ALREADY_DONE = SKIP_ALREADY_DONE;
         }
     }
+    public enum BLOCKINGSCHEDULE
+    {
+        UNTIL_I_FINISH_WORK = 0,
+        WHEN_STARTING_FOCUS_SESSION = 1,
+        CUSTOM_SCHEDULE = 2,
+    }
 
     public enum CurrentActivityType
     {
@@ -243,6 +249,41 @@ namespace Focus_Bear.Utils
         }
     }
 
+    public class HabitListSelectable : INotifyPropertyChanged
+    {
+        private bool _bIsSelected;
+
+        public bool bIsSelected
+        {
+            get { return _bIsSelected; }
+            set
+            {
+                if (value != _bIsSelected)
+                {
+                    _bIsSelected = value;
+                    OnChanged("bIsSelected");
+                }
+            }
+        }
+        public string id { get; set; }
+        public string SNumber { get; set; }
+        public string ActivityName { get; set; }
+
+        public double nDuration { get; set; }
+        public HabitListSelectable()
+        {
+
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+    }
     public struct breakActivity
     {
         public string id;
@@ -439,6 +480,7 @@ namespace Focus_Bear.Utils
         public bool isMeetings { get; set; }
         public bool isLockedFocus;
         public bool isRelaxFocus;
+        public bool isDeepWorkFocus;
 
         public bool isShowAbleInList
         {
@@ -492,7 +534,7 @@ namespace Focus_Bear.Utils
         {
 
         }
-        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, string sToolTip = "")
+        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, bool isDeepWorkFocus, string sToolTip = "")
         {
             this.id = id;
             this.name = name;
@@ -507,6 +549,7 @@ namespace Focus_Bear.Utils
             this.isMeetings = isMeetings;
             this.isLockedFocus = isLockedFocus;
             this.isRelaxFocus = isRelaxFocus;
+            this.isDeepWorkFocus = isDeepWorkFocus;
             this.sToolTip = sToolTip;
         }
 
@@ -524,7 +567,7 @@ namespace Focus_Bear.Utils
     public class DistractingURL
     {
         private bool isItemChecked;
-
+        private bool bAllowDomain;
         public string sURL { get; set; }  
         public bool IsItemChecked
         {
@@ -535,15 +578,24 @@ namespace Focus_Bear.Utils
                 OnChanged("IsItemChecked");
             }
         }
-
+        public bool BAllowDomain
+        {
+            get { return bAllowDomain; }
+            set
+            {
+                bAllowDomain = value;
+                OnChanged("BAllowDomain");
+            }
+        }
         public DistractingURL()
         {
            
         }
-        public DistractingURL(string sURL, bool bChecked)
+        public DistractingURL(string sURL, bool bChecked, bool bAllowDomain = false)
         {
             this.sURL = sURL;
             this.IsItemChecked = bChecked;
+            this.BAllowDomain = bAllowDomain;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

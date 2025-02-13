@@ -10,7 +10,7 @@
         mc:Ignorable="d"
         Title="Focus Bear" d:DesignHeight="1080" d:DesignWidth="1920" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" Closing="FullScreenParent_Closing">
 
-    <local1:DpiDecorator>
+    <!--<local1:DpiDecorator>-->
 
         <Grid x:Name="MainGrid">
 
@@ -101,5 +101,5 @@
             <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
 
         </Grid>
-    </local1:DpiDecorator>
+    <!--</local1:DpiDecorator>-->
 </src:FullScreenParent>

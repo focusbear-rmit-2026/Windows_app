@@ -96,15 +96,15 @@
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="27"/>
                     <RowDefinition Height="27"/>
-                    <RowDefinition Height="142"/>
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="1"/>
                     <RowDefinition Height="35"/>
                     
-                    <RowDefinition MinHeight="27"/>
-                    <RowDefinition MinHeight="27"/>
+                    <RowDefinition Height="27"/>
+                    <RowDefinition Height="27"/>
                     
                     <RowDefinition Height="1"/>
-                    <RowDefinition Height="142"/>
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="35"/>
                 </Grid.RowDefinitions>
 

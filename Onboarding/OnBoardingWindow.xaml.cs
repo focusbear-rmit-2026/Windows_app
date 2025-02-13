@@ -1,5 +1,8 @@
-﻿using Focus_Bear.Habits;
+﻿using Focus_Bear.API;
+using Focus_Bear.Habits;
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,11 +32,15 @@ namespace Focus_Bear.Onboarding
         AppSettings appSettings = AppSettings.GetInstance;
 
         OnboardingAskOccupation WndOnboardingAskOccupation = null;
+        OnboardingExplainDeepFocus WndOnboardingExplainDeepFocus = null;
+        OnboardingExplainHabits WndOnboardingExplainHabits = null;
+        OnboardingAchieveWithFocusBear WndOnboardingAchieveWithFocusBear = null;
         OnboardingGoals WndOnboardingGoals = null;
         OnboardingAdditionalGoals WndAdditionalGoals = null;
         OnboardingSetHabitsLaterInfo WndSetHabitsLaterInfo = null;
         OnboardingSelectHabitPacks WndOnboardingSelectHabitPacks = null;
         OnboardingAskWorkTime WndOnboardingAskWorkTime = null;
+        OnboardingConfirmBreaks WndOnboardingConfirmBreaks = null;
         OnboardingBreakReminder WndOnboardingBreaksReminder = null;
         OnboardingWelcome WndOnboardingWelcome = null;
         OnboardingMindfulBreathing WndOnboardingMindfulBreathing = null;
@@ -77,13 +84,75 @@ namespace Focus_Bear.Onboarding
             }
         }
 
+        public void ShowOnboardingExplainDeepFocusScreen()
+        {
+            LogWriter.LogWrite("ShowOnboardingExplainDeepFocusScreen()");
+            nScreenNumberWeAreOn = 1;
+            WndOnboardingExplainDeepFocus = new OnboardingExplainDeepFocus(this);
+            AppFrameOnboarding.Navigate(WndOnboardingExplainDeepFocus);
+
+            
+            if (appSettings.bExitFullScreenClickedWhileOnboarding)
+            {
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingExplainDeepFocus.btnGotIt);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
+            else
+            {
+                appSettings.CapturePostHog("focus-explain-screen-shown");
+            }
+        }
+
+        public void ShowOnboardingExplainHabits()
+        {
+            LogWriter.LogWrite("ShowOnboardingExplainHabits()");
+            nScreenNumberWeAreOn = 2;
+            WndOnboardingExplainHabits = new OnboardingExplainHabits(this);
+            AppFrameOnboarding.Navigate(WndOnboardingExplainHabits);
+
+            if (appSettings.bExitFullScreenClickedWhileOnboarding)
+            {
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingExplainHabits.btnGotIt);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
+            else
+            {
+                appSettings.CapturePostHog("routine-explain-screen-shown");
+            }
+        }
+        public void ShowOnboardingAchieveWithFocusBearScreen()
+        {
+            LogWriter.LogWrite("ShowOnboardingExplainHabits()");
+            nScreenNumberWeAreOn = 3;
+            WndOnboardingAchieveWithFocusBear = new OnboardingAchieveWithFocusBear(this);
+            AppFrameOnboarding.Navigate(WndOnboardingAchieveWithFocusBear);
+
+            if (appSettings.bExitFullScreenClickedWhileOnboarding)
+            {
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingAchieveWithFocusBear.btnContinue);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
+            else
+            {
+                //posthog only if the screen is actually being shown
+                appSettings.CapturePostHog("what-to-achieve-with-focus-bear-screen-shown");
+            }
+
+        }
+
         public void ShowOnboardingGoalsScreen()
         {
             LogWriter.LogWrite("ShowOnboardingGoalsScreen()");
 
-            nScreenNumberWeAreOn = 1;
+            nScreenNumberWeAreOn = 4;
             WndOnboardingGoals = new OnboardingGoals(this);
             AppFrameOnboarding.Navigate(WndOnboardingGoals);
+
+            //Creating it here when the goals screen is shown, so that the webview preloaded before the webview is shown..
+            WndOnboardingSelectHabitPacks = new OnboardingSelectHabitPacks(this);
 
             if (appSettings.bExitFullScreenClickedWhileOnboarding)
             {
@@ -97,13 +166,18 @@ namespace Focus_Bear.Onboarding
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
             }
+            else
+            {
+                appSettings.CapturePostHog("goals-screen-shown");
+            }
 
         }
-        public void ShowOnboardingAdditionalGoalsScreen()
+        public void ShowOnboardingAdditionalGoalsScreen() //removed showing v 1.0.130 onwards 18 sep 2024
         {
+            /**
             LogWriter.LogWrite("ShowOnboardingAdditionalGoalsScreen()");
 
-            nScreenNumberWeAreOn = 2;
+            nScreenNumberWeAreOn = 4;
             WndAdditionalGoals = new OnboardingAdditionalGoals(this);
             AppFrameOnboarding.Navigate(WndAdditionalGoals);
 
@@ -117,17 +191,16 @@ namespace Focus_Bear.Onboarding
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
             }
+            **/
         }
 
         public void ShowOnboardingSetHabitsLaterInfo()
         {
             LogWriter.LogWrite("ShowOnboardingSetHabitsLaterInfo()");
 
-            nScreenNumberWeAreOn = 2;
+            nScreenNumberWeAreOn = 5;
             WndSetHabitsLaterInfo = new OnboardingSetHabitsLaterInfo(this);
             AppFrameOnboarding.Navigate(WndSetHabitsLaterInfo);
-
-            appSettings.CapturePostHog("set-habits-later-info-screen-shown");
 
             if (appSettings.bExitFullScreenClickedWhileOnboarding)
             {
@@ -137,18 +210,20 @@ namespace Focus_Bear.Onboarding
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
             }
+            else
+            {
+                appSettings.CapturePostHog("set-habits-later-info-screen-shown");
+            }
         }
 
         public void ShowOnboardingSelectHabitPacksScreen()
         {
             LogWriter.LogWrite("ShowOnboardingSelectHabitPacksScreen()");
 
-            nScreenNumberWeAreOn = 3;
-            WndOnboardingSelectHabitPacks = new OnboardingSelectHabitPacks(this);
+            nScreenNumberWeAreOn = 5;
+            
             AppFrameOnboarding.Navigate(WndOnboardingSelectHabitPacks);
 
-            appSettings.CapturePostHog("habit-packs-shown");
-            
             if (appSettings.bExitFullScreenClickedWhileOnboarding)
             {
                 //Window is already hidden, simulate the continue button click so assign all variables.
@@ -157,16 +232,19 @@ namespace Focus_Bear.Onboarding
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
             }
+            else
+            {
+                appSettings.CapturePostHog("habit-packs-shown");
+            }
         }
 
         public void ShowOnboardingAskWorkTimeScreen()
         {
             
-            nScreenNumberWeAreOn = 4;
+            nScreenNumberWeAreOn = 6;
             if (WndOnboardingAskWorkTime == null)
             {
                 WndOnboardingAskWorkTime = new OnboardingAskWorkTime(this);
-                appSettings.CapturePostHog("ask-work-time-shown");
             }
             AppFrameOnboarding.Navigate(WndOnboardingAskWorkTime);
             
@@ -178,12 +256,16 @@ namespace Focus_Bear.Onboarding
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
             }
+            else
+            {
+                appSettings.CapturePostHog("ask-work-time-shown");
+            }
 
         }
 
         public void ShowOnbordingConfirmMorningRoutine()
         {
-            nScreenNumberWeAreOn = 5;
+            nScreenNumberWeAreOn = 7;
 
             if (WndOnboardingConfirmMorningRoutine == null)
             {
@@ -203,7 +285,7 @@ namespace Focus_Bear.Onboarding
         }
         public void ShowOnbordingConfirmEveningRoutine()
         {
-            nScreenNumberWeAreOn = 6;
+            nScreenNumberWeAreOn = 8;
             if (WndOnboardingConfirmEveningRoutine == null)
             {
                 WndOnboardingConfirmEveningRoutine = new OnboardingConfirmEveningRoutine(this);
@@ -220,9 +302,28 @@ namespace Focus_Bear.Onboarding
                 invokeProv.Invoke();
             }
         }
+
+        public void ShowOnboardingConfirmBreaksScreen()
+        {
+            nScreenNumberWeAreOn = 9;
+            WndOnboardingConfirmBreaks = new OnboardingConfirmBreaks(this);
+            AppFrameOnboarding.Navigate(WndOnboardingConfirmBreaks);
+            if (appSettings.bExitFullScreenClickedWhileOnboarding)
+            {
+                //Window is already hidden, simulate the continue button click so assign all variables.
+                //We need to click the continue button on the screen
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingConfirmBreaks.btnContinue);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
+            else
+            {
+                appSettings.CapturePostHog("take-breaks-info-screen-shown");
+            }
+        }
         public void ShowOnboardingBreakRemindersScreen()
         {
-            nScreenNumberWeAreOn = 7;
+            nScreenNumberWeAreOn = 10;
             WndOnboardingBreaksReminder = new OnboardingBreakReminder(this);
             AppFrameOnboarding.Navigate(WndOnboardingBreaksReminder);
 
@@ -237,9 +338,54 @@ namespace Focus_Bear.Onboarding
         }
         public void ShowOnboardingWelcomeScreen()
         {
-            nScreenNumberWeAreOn = 8;
+            nScreenNumberWeAreOn = 11;
             WndOnboardingWelcome = new OnboardingWelcome(this);
             AppFrameOnboarding.Navigate(WndOnboardingWelcome);
+
+            //Now we need to push the updated times to the backend
+            FocusBearAPIClient client = new FocusBearAPIClient();
+            //we will need to put the user settings back if the startup or shutoff time is changed
+            //if (appSettings.IsFirstInstall)
+            {
+                String jsonString = appSettings.sRawUserSettings;
+
+                JObject UserSettings = JObject.Parse(appSettings.sRawUserSettings);
+
+                if (UserSettings.ContainsKey("startup_time"))
+                {
+                    UserSettings.Remove("startup_time");
+                    UserSettings.Add("startup_time", appSettings.InitialStartupTimeValue.ToString("HH:mm"));
+                }
+                if (UserSettings.ContainsKey("shutdown_time"))
+                {
+                    UserSettings.Remove("shutdown_time");
+                    UserSettings.Add("shutdown_time", appSettings.InitialShutoffTimeValue.ToString("HH:mm"));
+                }
+                if (UserSettings.ContainsKey("sleep_time"))
+                {
+                    UserSettings.Remove("sleep_time");
+                    UserSettings.Add("sleep_time", appSettings.InitialSleepTimeValue.ToString("HH:mm"));
+                }
+                else
+                {
+                    UserSettings.Add("sleep_time", appSettings.InitialSleepTimeValue.ToString("HH:mm"));
+                }
+                if (UserSettings.ContainsKey("break_after_minutes"))
+                {
+                    UserSettings.Remove("break_after_minutes");
+                    UserSettings.Add("break_after_minutes", appSettings.BreaksTimeInterval);
+                }
+                appSettings.sDayStartTime = appSettings.InitialStartupTimeValue.ToString("HH:mm");
+                appSettings.sDayShutOffTime = appSettings.InitialShutoffTimeValue.ToString("HH:mm");
+
+                //Also save the udpated settings to Registry
+                appSettings.sRawUserSettings = UserSettings.ToString();
+                RegistryManager.SaveUserSettings();
+
+                //We will need to put the settings.
+                var y = client.PutUserSettings();
+            }
+
 
             if (appSettings.bExitFullScreenClickedWhileOnboarding)
             {
@@ -252,14 +398,14 @@ namespace Focus_Bear.Onboarding
       
         public void ShowMindFullBreathing()
         {
-            nScreenNumberWeAreOn = 9;
+            nScreenNumberWeAreOn = 12;
             WndOnboardingMindfulBreathing = new OnboardingMindfulBreathing(this);
             AppFrameOnboarding.Navigate(WndOnboardingMindfulBreathing);
         }
 
         public void ShowMindFullBreathingFinished()
         {
-            nScreenNumberWeAreOn = 10;
+            nScreenNumberWeAreOn = 13;
             AppFrameOnboarding.Navigate(new OnboardingWorkType(this)); //MindFullBreathingFinished screen
 
             //here we can hide the skip button
@@ -275,7 +421,9 @@ namespace Focus_Bear.Onboarding
 
         public void HideFrameAndClose()
         {
-            ((App)(Application.Current)).ShowLoginWindow();
+            //mj//((App)(Application.Current)).ShowLoginWindow();
+
+            ((App)(Application.Current)).ProceedAfterOnboardingDonePostLogin();
 
             //appSettings.RemoveSecondaryWindows();
 
@@ -302,7 +450,21 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (nScreenNumberWeAreOn == 1) //Goals Screen
+                else if (nScreenNumberWeAreOn == 1) //explain focus Screen
+                {
+                    //We need to click the got it button on the screen
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingExplainDeepFocus.btnGotIt);
+                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                    invokeProv.Invoke();
+                }
+                else if (nScreenNumberWeAreOn == 2) //explain habits/routine Screen
+                {
+                    //We need to click the got it button on the screen
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingExplainHabits.btnGotIt);
+                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                    invokeProv.Invoke();
+                }
+                else if (nScreenNumberWeAreOn == 3) //Goals Screen
                 {
                     //we need to check  the focus check box  and enable the continue button
                     WndOnboardingGoals.StayFocused.IsChecked = true;
@@ -313,7 +475,7 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (nScreenNumberWeAreOn == 2) //Additional Goals screen as well as edit habits later info screen
+                else if (nScreenNumberWeAreOn == 4) //Additional Goals screen as well as edit habits later info screen
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to click the continue button on the screen
@@ -339,7 +501,7 @@ namespace Focus_Bear.Onboarding
                         HideFrameAndClose();
                     }
                 }
-                else if (nScreenNumberWeAreOn == 3) //Select Habit Packs Screen
+                else if (nScreenNumberWeAreOn == 5) //Select Habit Packs Screen
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to click the continue button on the screen
@@ -347,7 +509,7 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (nScreenNumberWeAreOn == 4) //Ask startup/shutoff Time Screen
+                else if (nScreenNumberWeAreOn == 6) //Ask startup/shutoff Time Screen
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to click the continue button on the screen
@@ -355,7 +517,7 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (nScreenNumberWeAreOn == 5) //Confirm Morning Routine Screen
+                else if (nScreenNumberWeAreOn == 7) //Confirm Morning Routine Screen
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to click the continue button on the screen
@@ -363,7 +525,7 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (nScreenNumberWeAreOn == 6) //Confirm Evening Routine Screen
+                else if (nScreenNumberWeAreOn == 8) //Confirm Evening Routine Screen
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to click the continue button on the screen
@@ -371,7 +533,15 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (nScreenNumberWeAreOn == 7) //Welcome Screen before mindful breathing to sk breaks time
+                else if (nScreenNumberWeAreOn == 9) //confirm taking breaks
+                {
+                    //Window is already hidden, simulate the continue button click so assign all variables.
+                    //We need to click the continue button on the screen
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingConfirmBreaks.btnContinue);
+                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                    invokeProv.Invoke();
+                }
+                else if (nScreenNumberWeAreOn == 10) //Welcome Screen before mindful breathing to sk breaks time
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to click the continue button on the screen
@@ -379,20 +549,19 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-
-                else if (nScreenNumberWeAreOn == 8) //Welcome Screen before mindful breathing
+                else if (nScreenNumberWeAreOn == 11) //Welcome Screen before mindful breathing
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to finish here as we do not need to show the mindful breathing screen
                     HideFrameAndClose();
                 }
-                else if (nScreenNumberWeAreOn == 9) //mindful breathing Screen  
+                else if (nScreenNumberWeAreOn == 12) //mindful breathing Screen  
                 {
                     HyperlinkAutomationPeer peer = new HyperlinkAutomationPeer(WndOnboardingMindfulBreathing.btnSkipThisHabit);
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (nScreenNumberWeAreOn == 10) // mindful breathing finished screen
+                else if (nScreenNumberWeAreOn == 13) // mindful breathing finished screen
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to finish here as we do not need to show the mindful breathing screen

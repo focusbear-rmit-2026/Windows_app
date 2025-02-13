@@ -37,7 +37,8 @@ namespace Focus_Bear.Preferences
         FocusPage PageFocusModes;
         AccountTab PageAccountsTab;
         Stats PageStats;
-        AlwaysBlockedURLs PageBlockedList;
+        BlocksTab PageBlocks;
+        HelpTab PageHelp;
 
         double ScaleX = 1;
         double ScaleY = 1;
@@ -66,7 +67,7 @@ namespace Focus_Bear.Preferences
                 btnFocusTXT.Text = appSettings.ConfigFileStrings["common"]["tabFocusText"].ToString();
                 btnEditHabitsTXT.Text = appSettings.ConfigFileStrings["common"]["tabEditHabitsText"].ToString();
                 btnHelpTXT.Text = appSettings.ConfigFileStrings["common"]["tabHelpText"].ToString();
-                btnBlockedListTXT.Text = appSettings.ConfigFileStrings["common"]["tabBlockedListText"].ToString();
+                btnBlocksTXT.Text = appSettings.ConfigFileStrings["common"]["tabBlocksText"].ToString(); //Blocks
             }
             catch (Exception ex)
             {
@@ -82,13 +83,15 @@ namespace Focus_Bear.Preferences
             PageFocusModes = new FocusPage(this);
             FrameFocus.Navigate(PageFocusModes);
 
-            PageBlockedList = new AlwaysBlockedURLs(this);
-            FrameBlockedURLs.Navigate(PageBlockedList);
+            PageBlocks = new BlocksTab(this);
+            FrameBlocks.Navigate(PageBlocks);
 
             PageAccountsTab = new AccountTab();
             FrameAccountTab.Navigate(PageAccountsTab);
- 
-            FrameHelpTab.Navigate(new HelpTab(this));
+
+            PageHelp = new HelpTab(this);
+            FrameHelpTab.Navigate(PageHelp);
+
 
             PageStats = new Stats();
             FrameStats.Navigate(PageStats);
@@ -97,7 +100,7 @@ namespace Focus_Bear.Preferences
 
             SetFocusButtonState();
 
-            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnStats);
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnHelp);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
         }
@@ -107,12 +110,12 @@ namespace Focus_Bear.Preferences
             if (appSettings.bIsGeekModeEnabled)
             {
                 btnFocus.Visibility = Visibility.Visible;
-                btnBlockedList.Visibility = Visibility.Collapsed;
+                ///btnBlockedList.Visibility = Visibility.Collapsed;
             }
             else
             {
                 btnFocus.Visibility = Visibility.Collapsed;
-                btnBlockedList.Visibility = Visibility.Visible;
+                ///btnBlockedList.Visibility = Visibility.Visible;
             }
         }
         private void EnableAll()
@@ -122,20 +125,20 @@ namespace Focus_Bear.Preferences
             btnFocus.IsEnabled = true;
             btnEditHabits.IsEnabled = true;
             btnHelp.IsEnabled = true;
-            btnBlockedList.IsEnabled = true;
+            btnBlocks.IsEnabled = true;
 
             btnStats.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnSettings.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnFocus.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnEditHabits.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
             btnHelp.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-            btnBlockedList.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            btnBlocks.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
 
             FrameStats.Visibility = Visibility.Collapsed;
             FrameSettings.Visibility = Visibility.Collapsed;
             FrameEditHabits.Visibility = Visibility.Collapsed;
             FrameFocus.Visibility = Visibility.Collapsed;
-            FrameBlockedURLs.Visibility = Visibility.Collapsed;
+            FrameBlocks.Visibility = Visibility.Collapsed;
             FrameAccountTab.Visibility = Visibility.Collapsed;
             FrameUninstallTab.Visibility = Visibility.Collapsed;
             FrameHelpTab.Visibility = Visibility.Collapsed;
@@ -229,17 +232,17 @@ namespace Focus_Bear.Preferences
          
         }
 
-        private void btnBlockedURLs_Click(object sender, RoutedEventArgs e)
+        private void btnBlocks_Click(object sender, RoutedEventArgs e)
         {
-            LogWriter.LogWrite("Preferences tab - btnBlockedURLs_Click");
+            LogWriter.LogWrite("Preferences tab - btnBlocks_Click");
 
             EnableAll();
-            btnBlockedList.IsEnabled = false;
+            btnBlocks.IsEnabled = false;
 
             this.MinWidth = 680 * ScaleX;
-            this.MinHeight = 750 * ScaleY;
+            this.MinHeight = 780 * ScaleY;
             this.Width = 680 * ScaleX;
-            this.Height = 750 * ScaleY;
+            this.Height = 780 * ScaleY;
 
             if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
@@ -248,8 +251,8 @@ namespace Focus_Bear.Preferences
             }
 
 
-            FrameBlockedURLs.Visibility = Visibility.Visible;
-            PageBlockedList.ImmediatelyBlockDistractingURLs.IsChecked = appSettings.bImmediatelyBlockDistractingSites;
+            FrameBlocks.Visibility = Visibility.Visible;
+           
         }
 
         private void btnAccount_Click(object sender, RoutedEventArgs e)
@@ -285,34 +288,34 @@ namespace Focus_Bear.Preferences
                 e.Handled = true;
 
 
-            var source = PresentationSource.FromVisual(this);
+            //var source = PresentationSource.FromVisual(this);
 
-            if (null != source && null != source.CompositionTarget)
-            {
-                var matrix = source.CompositionTarget.TransformToDevice;
+            //if (null != source && null != source.CompositionTarget)
+            //{
+            //    var matrix = source.CompositionTarget.TransformToDevice;
 
-                var dpiTransform = new ScaleTransform(1 / matrix.M11, 1 / matrix.M22);
+            //    var dpiTransform = new ScaleTransform(1 / matrix.M11, 1 / matrix.M22);
 
-                if (dpiTransform.CanFreeze)
-                    dpiTransform.Freeze();
+            //    if (dpiTransform.CanFreeze)
+            //        dpiTransform.Freeze();
 
-                LayoutTransform = dpiTransform;
-                this.Width = this.Width * dpiTransform.ScaleX;
-                this.Height = this.Height * dpiTransform.ScaleY;
-                ScaleX = dpiTransform.ScaleX;
-                ScaleY = dpiTransform.ScaleY;
+            //    LayoutTransform = dpiTransform;
+            //    this.Width = this.Width * dpiTransform.ScaleX;
+            //    this.Height = this.Height * dpiTransform.ScaleY;
+            //    ScaleX = dpiTransform.ScaleX;
+            //    ScaleY = dpiTransform.ScaleY;
                 
-                LogWriter.LogWrite("dpiTransform.ScaleX - " + dpiTransform.ScaleX);
-                LogWriter.LogWrite("dpiTransform.ScaleY - " + dpiTransform.ScaleY);
-                LogWriter.LogWrite("matrix.M11 - " + matrix.M11.ToString());
-                LogWriter.LogWrite("matrix.M22 - " + matrix.M22.ToString());
+            //    LogWriter.LogWrite("dpiTransform.ScaleX - " + dpiTransform.ScaleX);
+            //    LogWriter.LogWrite("dpiTransform.ScaleY - " + dpiTransform.ScaleY);
+            //    LogWriter.LogWrite("matrix.M11 - " + matrix.M11.ToString());
+            //    LogWriter.LogWrite("matrix.M22 - " + matrix.M22.ToString());
 
-                var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-                this.Left = (desktopWorkingArea.Width - this.Width) / 2;
-                this.Top = (desktopWorkingArea.Height - this.Height) / 2;
+            //    var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            //    this.Left = (desktopWorkingArea.Width - this.Width) / 2;
+            //    this.Top = (desktopWorkingArea.Height - this.Height) / 2;
 
 
-            }
+            //}
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -373,7 +376,13 @@ namespace Focus_Bear.Preferences
             if(sFocusMode.Length > 0)
                 PageFocusModes.SelectFocusMode(sFocusMode);
         }
-
+        public void ShowBlocksTab()
+        {
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnBlocks);
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
+    
+        }
         private async void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (IsVisible)
@@ -393,6 +402,11 @@ namespace Focus_Bear.Preferences
                         {
                             PageStats.webView.Visibility = Visibility.Collapsed;
                         }
+                        //Hide show the help tabs views
+                        PageHelp.webViewGetSupport.Visibility = Visibility.Collapsed;
+                        PageHelp.webViewTutorials.Visibility = Visibility.Collapsed;
+                        PageBlocks.webViewBlockingSchedule.Visibility = Visibility.Collapsed;
+
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = this;
                         GridShade.Visibility = Visibility.Visible;
@@ -408,6 +422,11 @@ namespace Focus_Bear.Preferences
                         {
                             PageStats.webView.Visibility = Visibility.Visible;
                         }
+                        //Hide show the help tabs views
+                        PageHelp.webViewGetSupport.Visibility = Visibility.Visible;
+                        PageHelp.webViewTutorials.Visibility = Visibility.Visible;
+                        PageBlocks.webViewBlockingSchedule.Visibility = Visibility.Visible;
+
                         if (bResult.Value)
                         {
                              //Password is correct
@@ -433,6 +452,10 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnHelp.IsEnabled = false;
             btnHelp.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+
+            this.MinWidth = 680 * ScaleX;
+            this.MinHeight = 750 * ScaleY;
+
             this.Width = 680 * ScaleX;
             this.Height = 750 * ScaleY;
 

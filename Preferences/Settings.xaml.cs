@@ -70,10 +70,11 @@ namespace Focus_Bear.Preferences
 
                 GeneralTab.Header = appSettings.ConfigFileStrings["common"]["tabGeneralText"].ToString();
                 PasswordTab.Header = appSettings.ConfigFileStrings["common"]["tabPasswordText"].ToString();
-                BlockedURLTab.Header = appSettings.ConfigFileStrings["common"]["tabBlockedURLsText"].ToString();
+                BlockedURLTab.Header = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
                 AccountTab.Header = appSettings.ConfigFileStrings["common"]["tabAccountsText"].ToString();
 
-                PomodoroTab.Header = appSettings.ConfigFileStrings["common"]["tabPomodoroText"].ToString();
+                //todo win texts
+                PomodoroTab.Header = "Focus Sessions";//appSettings.ConfigFileStrings["common"]["tabPomodoroText"].ToString();
                 AdvancedTab.Header = appSettings.ConfigFileStrings["common"]["tabAdvancedText"].ToString();
                 AITab.Header = appSettings.ConfigFileStrings["common"]["tabAIText"].ToString();
                 UninstallTab.Header = appSettings.ConfigFileStrings["common"]["tabUninstallText"].ToString();
@@ -94,6 +95,11 @@ namespace Focus_Bear.Preferences
                 CheckQuittingApp.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonQuitAppText"].ToString();
                 CheckUseRelaxMode.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonUseRelaxFocusModeText"].ToString();
                 CheckSkipEveningAfterCutOff.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonSkipEveningHabitAfterCutOffText"].ToString();
+
+                //break
+                EnableBreaks.Text = appSettings.ConfigFileStrings["settingsNew"]["breaksNewSettingTitle"].ToString();
+                EnableBreaksCheckbox.Content = appSettings.ConfigFileStrings["microBreaksSettingsVcInfo"]["enableBreaksText"].ToString();
+                EnableBreaksCheckbox.IsChecked = appSettings.bAreBreaksEnabled;
 
                 SelectLanguage.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleSelectLanguage"].ToString();
 
@@ -505,11 +511,26 @@ namespace Focus_Bear.Preferences
 
         private void GeekMode_Checked(object sender, RoutedEventArgs e)
         {
+            if (appSettings.isExpired)
+            {
+                e.Handled = true;
+
+                SimpleMode.Checked -= SimpleMode_Checked;
+                SimpleMode.IsChecked = true;
+                SimpleMode.Checked += SimpleMode_Checked;
+
+                ((App)(Application.Current)).ShowUpgradeToProNag(appSettings.ConfigFileStrings["upgradeToProNagVcInfo"]["titleNoGeekMode"].ToString());
+                // Prevent the click event from being processed further
+                
+                return;
+            }
+
             FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString());
             ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             ff.ShowDialog();
             appSettings.bIsGeekModeEnabled = true;
             SetGeekModeStatus();
+            appSettings.CapturePostHog("switch-to-geek-mode");
         }
 
         private void SimpleMode_Checked(object sender, RoutedEventArgs e)
@@ -519,6 +540,7 @@ namespace Focus_Bear.Preferences
             ff.ShowDialog();
             appSettings.bIsGeekModeEnabled = false;
             SetGeekModeStatus();
+            appSettings.CapturePostHog("switch-to-simple-mode");
         }
 
         public void SetGeekModeStatus()
@@ -540,10 +562,53 @@ namespace Focus_Bear.Preferences
                 PasswordTab.Visibility = Visibility.Collapsed;
             }
 
+            if (_ParentWindow.PageEditHabits != null)
+            {
+                _ParentWindow.PageEditHabits.RefreshOnModeChange();
+            }
+
             _ParentWindow.SetFocusButtonState();//set the state of the main tab
+
+            //Save the local settings and upload to server
+            LocalSettingsManager.PutLocalSettings();
 
             GeekMode.Checked += GeekMode_Checked;
             SimpleMode.Checked += SimpleMode_Checked;
         }
+
+        private void EnableBreaksCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bAreBreaksEnabled = true;
+
+            //Only start the timer if the morning habits are shown
+            bool isMorningHabitsAlreadyShown = false;
+            if (RegistryManager.GetMorningHabitsShownTillDate())
+            {
+                if (DateTime.Now < appSettings.MorningHabitsShownTillDate)
+                {
+                    isMorningHabitsAlreadyShown = true;
+                }
+                else
+                {
+                    isMorningHabitsAlreadyShown = false;
+                }
+            }
+            else
+            {
+                isMorningHabitsAlreadyShown = false;
+            }
+            
+            if(isMorningHabitsAlreadyShown)
+                ((App)(Application.Current)).StartBreakActivityTimer();
+        }
+
+        private void EnableBreaksCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bAreBreaksEnabled = false;
+            ((App)(Application.Current)).StopBreakActivityTimer();
+        }
+
+        
+
     }
 }

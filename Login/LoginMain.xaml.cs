@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Focus_Bear.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,7 @@ namespace Focus_Bear.Login
     /// </summary>
     public partial class LoginMain : Window
     {
+        AppSettings appSettings = AppSettings.GetInstance;
         public bool bDoNotShutDown = false;
         public LoginMain()
         {
@@ -44,6 +46,9 @@ namespace Focus_Bear.Login
         {
             if (!bDoNotShutDown)
             {
+                appSettings.CapturePostHog("login-window-closed"); //might not trigger
+
+                Task.Delay(500);
                 Application.Current.Shutdown(0);
             }
         }
@@ -54,27 +59,27 @@ namespace Focus_Bear.Login
                 e.Handled = true;
 
 
-            var source = PresentationSource.FromVisual(this);
+            //var source = PresentationSource.FromVisual(this);
 
-            if (null != source && null != source.CompositionTarget)
-            {
-                var matrix = source.CompositionTarget.TransformToDevice;
+            //if (null != source && null != source.CompositionTarget)
+            //{
+            //    var matrix = source.CompositionTarget.TransformToDevice;
 
-                var dpiTransform = new ScaleTransform(1 / matrix.M11, 1 / matrix.M22);
+            //    var dpiTransform = new ScaleTransform(1 / matrix.M11, 1 / matrix.M22);
 
-                if (dpiTransform.CanFreeze)
-                    dpiTransform.Freeze();
+            //    if (dpiTransform.CanFreeze)
+            //        dpiTransform.Freeze();
 
-                LayoutTransform = dpiTransform;
-                this.Width = this.Width * dpiTransform.ScaleX;
-                this.Height = this.Height * dpiTransform.ScaleY;
+            //    LayoutTransform = dpiTransform;
+            //    this.Width = this.Width * dpiTransform.ScaleX;
+            //    this.Height = this.Height * dpiTransform.ScaleY;
 
-                var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-                this.Left = (desktopWorkingArea.Width - this.Width) / 2;
-                this.Top = (desktopWorkingArea.Height - this.Height) / 2;
+            //    var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            //    this.Left = (desktopWorkingArea.Width - this.Width) / 2;
+            //    this.Top = (desktopWorkingArea.Height - this.Height) / 2;
 
 
-            }
+            //}
         }
     }
 }

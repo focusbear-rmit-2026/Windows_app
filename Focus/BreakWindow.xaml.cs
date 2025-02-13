@@ -108,7 +108,9 @@ namespace Focus_Bear.Focus
 
             if (sTitle.Length > 0) //Set the activity title if thelength is > 0
                 Description.Text = sTitle;
- 
+            else
+                Description.Text = appSettings.ConfigFileStrings["common"]["focusBreakNotificationTitle"].ToString();// default your breaks ends in
+
             var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
             this.Left = (desktopWorkingArea.Right - this.Width);
             this.Top = (desktopWorkingArea.Top + 25);

@@ -52,7 +52,6 @@ namespace Focus_Bear.Focus
         }
 
         private string sFocusModeName = "";
-
         public string sActiveAppName = "";
         public string sActiveURL = "";
         public string sFullURLForBlockedPage = "";
@@ -102,7 +101,7 @@ namespace Focus_Bear.Focus
             if (sURL.Length > 0)
             {
                 btnSaveForRelax.Visibility = Visibility.Visible;
-
+                /**
                 try
                 {
                     Uri myUri = new Uri(sURL);
@@ -115,11 +114,11 @@ namespace Focus_Bear.Focus
                     /*
                     This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
                     If uri does not specify a scheme, the scheme defaults to "http:".
-                    */
+                    * /
                     Uri myUri = new UriBuilder(sURL).Uri;
                     sActiveURL = myUri.Host;
                     Debug.WriteLine(ex.Message);
-                }
+                }**/
 
                 if(appSettings.bAiCheckUrlEnabled)
                     sHeading = sHeading + "\n\n" + appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkingUrlText"].ToString();
@@ -133,13 +132,40 @@ namespace Focus_Bear.Focus
             btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
             btnSaveForRelaxText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockAndAddToRelaxModeText"].ToString();
 
+            
             if (sAppName.Length > 0)
             {
+                AllowThisDomainText.Visibility = Visibility.Collapsed;
+
                 sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
                 this.Show(); //Will show this window for apps
             }
             else
             {
+                ///////////////////////////////////////////////////////////////////
+                AllowThisDomainText.Visibility = Visibility.Visible;
+                string sHost = "";
+                try
+                {
+                    Uri myUri = new Uri(sActiveURL);
+                    sHost = myUri.Host; //fails if there is no http://
+                }
+                catch (Exception ex)
+                {
+                    /*
+                    This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                    If uri does not specify a scheme, the scheme defaults to "http:".
+                    */
+                    Uri myUri = new UriBuilder(sActiveURL).Uri;
+                    sHost = myUri.Host;
+                    Debug.WriteLine(ex.Message);
+                } 
+
+                string sDomain = appSettings.ConfigFileStrings["common"]["allowAllUrlsFromDomainText"].ToString();
+                sDomain = sDomain.Replace("<DOMAIN>", sHost);
+                AllowThisDomainText.Text = sDomain;
+                ////////////////////////////////////////////////////
+
                 sHeading = sHeading.Replace("<URL>", sActiveURL);
                 this.Hide(); //Will keep this window hidden will we get response from API
             }
@@ -203,15 +229,30 @@ namespace Focus_Bear.Focus
             {
                 try
                 {
+                    //Show thinking icon just before the API call
+                    await Dispatcher.BeginInvoke((Action)(() =>
+                    {
+                        if (((App)(Application.Current)).wndFocusProgress != null)
+                        {
+                            string imagePath = ("pack://application:,,,/Focus Bear;component/images/thinking_icon.png");
+                            var image = new BitmapImage();
+                            image.BeginInit();
+                            image.UriSource = new Uri(imagePath);
+                            image.EndInit();
+                            ((App)(Application.Current)).wndFocusProgress.TopIcon.Source = image;
+                        }
+                    }));
+
+
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var nResponse = await client.ChatGPTIsURLSafe(sActiveURL, sCurrentTabTitle, "", appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
-                    int xResponse = int.Parse(nResponse.ToString());
+                    double xProbability = double.Parse(nResponse.ToString());
 
                     await Task.Delay(20);
 
                     string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
 
-                    if (xResponse == -1)
+                    if (xProbability == -1)
                     {
                         //API failed. Nothing to do.
                        
@@ -227,66 +268,83 @@ namespace Focus_Bear.Focus
                             this.Show();
                         }));
                     }
-                    else if (xResponse == 1) //Safe URL
+                    else  //we have got the probability
                     {
                         await Dispatcher.BeginInvoke((Action)(() =>
                         {
+                           
+                            Console.WriteLine("*****CheckWithChatGPT****current URL:" + sFullURLForBlockedPage);
                             //Safe URL, need to allow.
-                            
-                            if (appSettings.sChatGPTReasonForCurrentURL.Length > 0) //add reason from chat gpt
+                            if (!FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.ContainsKey(sFullURLForBlockedPage))
                             {
-                                sHeading = sHeading + "\n\n" + appSettings.sChatGPTReasonForCurrentURL;
-                                sHeading = sHeading.Replace("<URL>", sActiveURL);
-                                sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
-                                Heading.Text = sHeading;
-                                CommandManager.InvalidateRequerySuggested();
+                                FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sFullURLForBlockedPage] = new Dictionary<string, object>
+                                {
+                                    { "probability", xProbability },
+                                    { "isVisibleUrl", true },
+                                    { "totalSeconds", 0 },
+                                    { "startedTime", DateTime.Now },
+                                    { "reason", appSettings.sChatGPTReasonForCurrentURL }
+                                };
+
+                                FocusAlignmentScoreManager.CustomToolTip = appSettings.sChatGPTReasonForCurrentURL;
+                                FocusAlignmentScoreManager.SetAppIconForFocusModeScore(xProbability);
+
+                                Console.WriteLine("*****CheckWithChatGPT****current URL tooltip:" + appSettings.sChatGPTReasonForCurrentURL);
+                                Console.WriteLine("*****CheckWithChatGPT****current URL xProbability:" + xProbability.ToString());
+                                //if (((App)(Application.Current)).wndFocusProgress != null)
+                                //{
+                                //    ((App)(Application.Current)).wndFocusProgress.TopIcon.ToolTip = sHeading; //reason
+                                //}
                             }
-                            
+
+                            double currentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
+
+                            Console.WriteLine("******currentFocusAlignmentScore: - " + currentFocusAlignmentScore.ToString());
+                           
                             Task.Delay(2000);
 
-                            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnJustThisTime);
-                            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                            invokeProv.Invoke();
-                
-                            if (appSettings.bAiAllowUrlShowAlertEnabled)
+                            if (xProbability >= 0.80)
                             {
-                                string heading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["titleUrlSafeText"].ToString();
-                                heading = heading.Replace("<PERCENTAGE>", (appSettings.dProbablity * 100).ToString());
-
-                                string sReason = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["reasonText"].ToString();
-                                sReason = sReason.Replace("<REASON>", appSettings.sChatGPTReasonForCurrentURL);
-                                FBMessageBox ff = new FBMessageBox(sReason, heading, MessageBoxButton.YesNo, appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString(), appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBadDecisionText"].ToString(),"",true);
-                                ff.ShowDialog();
-                                if (ff.btnClicked == MessageBoxResult.No) //
+                                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnJustThisTime);
+                                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                                invokeProv.Invoke();
+                            }
+                            else if (currentFocusAlignmentScore < 80 /*minFocusAlignmentScoreToShowDistractingPopUp*/)// Need to ASk USER if probability is < 0
+                            {
+                                if (appSettings.sChatGPTReasonForCurrentURL.Length > 0) //add reason from chat gpt
                                 {
-                                    //Bad Decision
-                                    string ss = string.Format("\"payload\":{0},\"response\":{1}", appSettings.sChatGPTPayLoad, appSettings.sChatGPTResponse);
-                                    appSettings.CapturePostHog("bad-decision-ai-allowed-url", ss);
+                                    sHeading = sHeading + "\n\n" + appSettings.sChatGPTReasonForCurrentURL;
+                                    sHeading = sHeading.Replace("<URL>", sActiveURL);
+                                    sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
+                                    Heading.Text = sHeading;
+                                    dispatcherTimer.Start();
+                                    CommandManager.InvalidateRequerySuggested();
+                                    this.Show();
                                 }
                             }
+                
+                            //if (appSettings.bAiAllowUrlShowAlertEnabled)
+                            //{
+                            //    string heading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["titleUrlSafeText"].ToString();
+                            //    heading = heading.Replace("<PERCENTAGE>", (appSettings.dProbablity * 100).ToString());
+
+                            //    string sReason = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["reasonText"].ToString();
+                            //    sReason = sReason.Replace("<REASON>", appSettings.sChatGPTReasonForCurrentURL);
+                            //    FBMessageBox ff = new FBMessageBox(sReason, heading, MessageBoxButton.YesNo, appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString(), appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBadDecisionText"].ToString(),"",true);
+                            //    ff.ShowDialog();
+                            //    if (ff.btnClicked == MessageBoxResult.No) //
+                            //    {
+                            //        //Bad Decision
+                            //        string ss = string.Format("\"payload\":{0},\"response\":{1}", appSettings.sChatGPTPayLoad, appSettings.sChatGPTResponse);
+                            //        appSettings.CapturePostHog("bad-decision-ai-allowed-url", ss);
+                            //    }
+                            //}
 
                         }));
                         
                         return;//allow the url
                     }
-                    else // Need to ASk USER if 2 or 0
-                    {
-                        await Dispatcher.BeginInvoke((Action)(() =>
-                        {
-                            if (appSettings.sChatGPTReasonForCurrentURL.Length > 0) //add reason from chat gpt
-                            {
-                                sHeading = sHeading + "\n\n" + appSettings.sChatGPTReasonForCurrentURL;
-                                sHeading = sHeading.Replace("<URL>", sActiveURL);
-                                sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
-                                Heading.Text = sHeading;
-
-                                dispatcherTimer.Start();
-                                CommandManager.InvalidateRequerySuggested();
-                                this.Show();
-                            }
-                        }));
-
-                    }
+                    
 
                    
                 }
@@ -343,7 +401,33 @@ namespace Focus_Bear.Focus
             }
             else
             {
-                appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
+                if(AllowThisDomain.IsChecked.Value)
+                {
+                    string sHost = "";
+                    try
+                    {
+                        Uri myUri = new Uri(sActiveURL);
+                        sHost = myUri.Host; //fails if there is no http://
+                    }
+                    catch (Exception ex)
+                    {
+                        /*
+                        This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                        If uri does not specify a scheme, the scheme defaults to "http:".
+                        */
+                        Uri myUri = new UriBuilder(sActiveURL).Uri;
+                        sHost = myUri.Host;
+                        Debug.WriteLine(ex.Message);
+                    }
+
+                    appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sHost.ToLower(), true, true));
+                }
+                else
+                {
+                    appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
+                }
+                
+                appSettings.CapturePostHog("block-popup-allow-automatically");
 
                 sCurrentTabTitle = sCurrentTabTitle.Replace(" - Google Chrome", "");
                 sCurrentTabTitle = sCurrentTabTitle.Replace(" — Mozilla Firefox", "");
@@ -390,5 +474,6 @@ namespace Focus_Bear.Focus
             FocusBearAPIClient client = new FocusBearAPIClient();
             var sResponse = client.PostSavedWebsite(sFullURLForBlockedPage); 
         }
+
     }
 }

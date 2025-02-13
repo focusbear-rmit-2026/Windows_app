@@ -8,6 +8,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -50,6 +52,10 @@ namespace Focus_Bear.SetIntention
 
         DispatcherTimer dispatcherTimerUnlock = new DispatcherTimer(DispatcherPriority.Normal);
         int nTimer = 5;
+
+        int nAutoBlockTimer = 30; //30 Seconds
+        DispatcherTimer dispatcherTimerAutoBlock = new DispatcherTimer(DispatcherPriority.Normal);
+
         public SetIntention()
         {
             InitializeComponent();
@@ -101,8 +107,17 @@ namespace Focus_Bear.SetIntention
             try
             {
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
-                nMinutesToUseSite = double.Parse(typeItem.Content.ToString());
-
+                string nSelectedMinutes = typeItem.Content.ToString();
+                if(nSelectedMinutes == "30s")
+                {
+                    nMinutesToUseSite = 0.5;
+                }
+                else
+                {
+                    nSelectedMinutes = nSelectedMinutes.Replace("m", ""); //remove m
+                    nMinutesToUseSite = double.Parse(nSelectedMinutes);
+                }
+               
                 LogWriter.LogWrite("nMinutesTouse - " + nMinutesToUseSite.ToString());
 
                 if (nMinutesToUseSite == 0.5)
@@ -262,7 +277,14 @@ namespace Focus_Bear.SetIntention
             //{
             //    Intention.Visibility = Visibility.Collapsed;
             //}
-  
+
+            //Start the 30 seconds automatic block timer if the user takes no action
+            TxtAutoBlockTimer.Text = "00:30";
+            nAutoBlockTimer = 30;
+            dispatcherTimerAutoBlock.Tick += new EventHandler(dispatcherTimer_AutoBlock);
+            dispatcherTimerAutoBlock.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimerAutoBlock.Start();
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void dispatcherTimer_Unlock(object sender, EventArgs e)
@@ -312,6 +334,52 @@ namespace Focus_Bear.SetIntention
 
         }
 
+        private void dispatcherTimer_AutoBlock(object sender, EventArgs e)
+        {
+            nAutoBlockTimer--;
+            try
+            {
+                TxtAutoBlockTimer.Text = appSettings.SecondsToTimerText(nAutoBlockTimer);
+                CommandManager.InvalidateRequerySuggested();
+                if (nAutoBlockTimer == 0)
+                {
+                    TxtAutoBlockTimer.Text = "00:00";
+                }
+                if (nAutoBlockTimer <= 0)
+                {
+                    CommandManager.InvalidateRequerySuggested();
+                    dispatcherTimerAutoBlock.Stop();
+
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(btnBlockIt);
+                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                    invokeProv.Invoke();
+
+                    //Remove the previous event handler so that new can be set
+                    try
+                    {
+                        var eventField = dispatcherTimerAutoBlock.GetType().GetField("Tick", BindingFlags.NonPublic | BindingFlags.Instance);
+                        var eventDelegate = (Delegate)eventField.GetValue(dispatcherTimerAutoBlock);
+                        if (eventDelegate != null)
+                        {
+                            var invocatationList = eventDelegate.GetInvocationList();
+
+                            foreach (var handler in invocatationList)
+                                dispatcherTimerAutoBlock.Tick -= ((EventHandler)handler);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("dispatcherTimerAutoBlock remove event ex = " + ex.Message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("dispatcherTimerAutoBlock ex-" + ex.Message);
+            }
+
+        }
+
         private void SetTotalTimeSpent()
         {
             TotalTimeSpent.Text = "Total time spent: " + appSettings.SecondsToTextHMS(appSettings.nTotalTimeForDistractingSitesToday); //todo win texts
@@ -325,6 +393,14 @@ namespace Focus_Bear.SetIntention
             else
             {
                 btnSetIntention.IsEnabled = false;
+            }
+        }
+
+        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(!IsVisible)
+            {
+                dispatcherTimerAutoBlock.Stop();
             }
         }
     }

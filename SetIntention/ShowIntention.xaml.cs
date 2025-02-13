@@ -93,6 +93,7 @@ namespace Focus_Bear.SetIntention
 
         private void btnBlockIt_Click(object sender, RoutedEventArgs e)
         {
+            //Add to blocked array
             appSettings.TemporarryBlockedURLsWithSetIntention.Add(sActiveURL.ToLower());
 
             //Remove it from allowed urls list

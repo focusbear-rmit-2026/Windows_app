@@ -10,6 +10,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -78,6 +80,8 @@ namespace Focus_Bear.Focus
                 }
             }
 
+            appSettings.CapturePostHog("completed-focus-session", string.Format("\"focus-type\":\"manual_focus\",\"focusDurationMinutes\":{0}", (nSeconds / 60)));
+
             //Call api top finish focus mode
             FocusBearAPIClient client = new FocusBearAPIClient();
             try
@@ -143,42 +147,45 @@ namespace Focus_Bear.Focus
                     }
                 }
 
-                AddTempAllowedToFocusModeWindow aa = new AddTempAllowedToFocusModeWindow();
-                aa.Topmost = true;
-                bool? bResult = aa.ShowDialog();
-                if(bResult.Value)
+                if (appSettings.bIsGeekModeEnabled) //only in Geek mode
                 {
-
-                    var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
-                    if (listItems.Count() != 0)
+                    AddTempAllowedToFocusModeWindow aa = new AddTempAllowedToFocusModeWindow();
+                    aa.Topmost = true;
+                    bool? bResult = aa.ShowDialog();
+                    if (bResult.Value)
                     {
-                        FocusMode ff = listItems.First();
 
-                        try
+                        var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
+                        if (listItems.Count() != 0)
                         {
-                            foreach (DistractingURL dd in appSettings.TemporaryAllowedAppsGentleBlock)
-                            {
-                                 if(dd.IsItemChecked)
-                                ff.arrAllowedAppsWin.Add(new AppDetails(dd.sURL, dd.sURL));
-                            }
-                            foreach (DistractingURL dd in appSettings.TemporaryAllowedURLsGentleBlock)
-                            {
-                                if(dd.IsItemChecked)
-                                    ff.arrAllowedUrls.Add(dd.sURL);
-                            }
-                            foreach (DistractingURL dd in appSettings.TemporaryAllowedKeywords)
-                            {
-                                if(dd.IsItemChecked && dd.sURL.Length > 0)
-                                    ff.arrAllowedUrls.Add(dd.sURL);
-                            }
-                            //we will call the API to update all the focus modes.
-                            LogWriter.LogWrite("attempt to UpdateAllFocusModes() API");
-                            var response = client.UpdateAllFocusModes();
+                            FocusMode ff = listItems.First();
 
-                        }
-                        catch (Exception ex)
-                        {
-                            LogWriter.LogWrite("btnAddDeleteAllowedURLs_Click EX = " + ex.Message);
+                            try
+                            {
+                                foreach (DistractingURL dd in appSettings.TemporaryAllowedAppsGentleBlock)
+                                {
+                                    if (dd.IsItemChecked)
+                                        ff.arrAllowedAppsWin.Add(new AppDetails(dd.sURL, dd.sURL));
+                                }
+                                foreach (DistractingURL dd in appSettings.TemporaryAllowedURLsGentleBlock)
+                                {
+                                    if (dd.IsItemChecked)
+                                        ff.arrAllowedUrls.Add(dd.sURL);
+                                }
+                                foreach (DistractingURL dd in appSettings.TemporaryAllowedKeywords)
+                                {
+                                    if (dd.IsItemChecked && dd.sURL.Length > 0)
+                                        ff.arrAllowedUrls.Add(dd.sURL);
+                                }
+                                //we will call the API to update all the focus modes.
+                                LogWriter.LogWrite("attempt to UpdateAllFocusModes() API");
+                                var response = client.UpdateAllFocusModes();
+
+                            }
+                            catch (Exception ex)
+                            {
+                                LogWriter.LogWrite("btnAddDeleteAllowedURLs_Click EX = " + ex.Message);
+                            }
                         }
                     }
                 }
@@ -258,6 +265,15 @@ namespace Focus_Bear.Focus
                         appSettings.isStartPomodoroWindowOpen = false;
                     }
 
+                    if(!appSettings.bIsGeekModeEnabled) //simple mode
+                    {
+                        btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        btnStartAnotherFocusMode.Visibility = Visibility.Visible;
+                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -279,24 +295,24 @@ namespace Focus_Bear.Focus
                 e.Handled = true;
 
 
-            var source = PresentationSource.FromVisual(this);
+            //var source = PresentationSource.FromVisual(this);
 
-            if (null != source && null != source.CompositionTarget)
-            {
-                var matrix = source.CompositionTarget.TransformToDevice;
+            //if (null != source && null != source.CompositionTarget)
+            //{
+            //    var matrix = source.CompositionTarget.TransformToDevice;
 
-                var dpiTransform = new ScaleTransform(1 / matrix.M11, 1 / matrix.M22);
+            //    var dpiTransform = new ScaleTransform(1 / matrix.M11, 1 / matrix.M22);
 
-                if (dpiTransform.CanFreeze)
-                    dpiTransform.Freeze();
+            //    if (dpiTransform.CanFreeze)
+            //        dpiTransform.Freeze();
 
-                LayoutTransform = dpiTransform;
-                this.Width = this.Width * dpiTransform.ScaleX;
-                this.Height = this.Height * dpiTransform.ScaleY;
-                var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-                this.Left = (desktopWorkingArea.Width - this.Width) / 2;
-                this.Top = (desktopWorkingArea.Height - this.Height) / 2;
-            }
+            //    LayoutTransform = dpiTransform;
+            //    this.Width = this.Width * dpiTransform.ScaleX;
+            //    this.Height = this.Height * dpiTransform.ScaleY;
+            //    var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            //    this.Left = (desktopWorkingArea.Width - this.Width) / 2;
+            //    this.Top = (desktopWorkingArea.Height - this.Height) / 2;
+            //}
         }
 
         private void btnStartAnotherFocusMode_Click(object sender, RoutedEventArgs e)
@@ -307,12 +323,16 @@ namespace Focus_Bear.Focus
 
             Hide();
 
-            var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
-            if (listItems.Count() != 0)
-            {
-                ((App)(Application.Current)).wndTrayMenu.ListFocusModes.SelectedItem = listItems.First();
-            }
-           
+            //var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
+            //if (listItems.Count() != 0)
+            //{
+            //    ((App)(Application.Current)).wndTrayMenu.ListFocusModes.SelectedItem = listItems.First();
+            //}
+
+            //fire the start focus session button again
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
         }
 
         public void ShowTasksEndWindow()

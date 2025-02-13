@@ -312,6 +312,8 @@ namespace Focus_Bear.Utils
                         ((App)(Application.Current)).wndTrayMenu.OnUntill.Content = "";
                         ((App)Application.Current).CloseFocusProgressWindow();
 
+                        ((App)(Application.Current)).HideToDoPlayer();
+
                         ((App)(Application.Current)).wndTrayMenu.OnUntill.Visibility = Visibility.Collapsed;
                         //Increase hearder height
                         ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 25; //Originally 25

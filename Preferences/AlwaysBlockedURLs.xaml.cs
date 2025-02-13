@@ -60,7 +60,14 @@ namespace Focus_Bear.Preferences
         {
             try
             {
-
+                if (appSettings.isExpired)
+                {
+                    if (appSettings.arrAlwaysBlockedURLs.Count >= 3)
+                    {
+                        ((App)(Application.Current)).ShowUpgradeToProNag(appSettings.ConfigFileStrings["upgradeToProNagVcInfo"]["titleLimitedBlockUrls"].ToString());
+                        return;
+                    }
+                }
 
                 _ParentWindow.GridShade.Visibility = Visibility.Visible;
                 AddWebUrl aa = new AddWebUrl(_ParentWindow, "", false, true);

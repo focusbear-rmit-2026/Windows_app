@@ -42,8 +42,8 @@ namespace Focus_Bear.Onboarding
                 ToBeClearDesc.Text = appSettings.ConfigFileStrings["confirmMorningRoutineTimeVcInfo"]["subTitle"].ToString();
 
                 string sStartTime = appSettings.ConfigFileStrings["confirmMorningRoutineTimeVcInfo"]["timeText"].ToString();
-                int nStartDiff = -1 * (((15 * 60) + int.Parse(appSettings.sMorningRoutineDuration)) / 60);
-                FromTime.Text = sStartTime.Replace("<TIME>", appSettings.InitialStartupTimeValue.AddMinutes(nStartDiff).ToString("hh:mm tt"));
+                int nStartDiff = -1 * (((15 * 60) + appSettings.nMorningRoutineDuration) / 60);
+                FromTime.Text = sStartTime.Replace("<TIME>", appSettings.InitialStartupTimeValue.ToString("hh:mm tt"));
 
                 Point1MorningTimeText.Text = appSettings.ConfigFileStrings["confirmMorningRoutineTimeVcInfo"]["pointFirstMorningTimeText"].ToString();
                 Point2MorningTimeText.Text = appSettings.ConfigFileStrings["confirmMorningRoutineTimeVcInfo"]["pointSecondMorningTimeText"].ToString();
@@ -60,7 +60,7 @@ namespace Focus_Bear.Onboarding
                 Heading.Text = "Confirm your morning routine";
                 ToBeClearDesc.Text = "To be super clear, here's what's going to happen in the morning.";
                 string sStartTime = "From <TIME>:";
-                int nStartDiff = -1 * (((15 * 60) + int.Parse(appSettings.sMorningRoutineDuration)) / 60);
+                int nStartDiff = -1 * (((15 * 60) + appSettings.nMorningRoutineDuration) / 60);
                 FromTime.Text = sStartTime.Replace("<TIME>", appSettings.InitialStartupTimeValue.AddMinutes(nStartDiff).ToString("hh:mm tt"));
 
                 Point1MorningTimeText.Text = "You'll do your \"Morning routine\".";

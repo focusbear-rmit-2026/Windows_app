@@ -56,9 +56,6 @@ namespace Focus_Bear.Pomodoro
                 BreakDuration.Text = appSettings.ConfigFileStrings["preferencesInfo"]["breakDurationText"].ToString();
                 MinutesBreakTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
 
-                btnSelectTasksTXT.Text = "Choose tasks to work on"; //todo win texts
-                btnWriteFreeFormIntentionTXT.Text = "Write a freeform intention instead";
-
                 WhatPlan.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["questionFirstText"].ToString();
 
                 SelectedTasksTitle.Text = "Selected Tasks:";
@@ -95,7 +92,7 @@ namespace Focus_Bear.Pomodoro
                 appSettings.sRawTasks = "";
                 List<string> arrTaskNames = new List<string>();
                 ListTasks.ItemsSource = arrTaskNames;
-                FreeFormIntention.Visibility = Visibility.Visible;
+                 
                 SelectedTasksTitle.Visibility = Visibility.Collapsed;
                 ListTasks.Visibility = Visibility.Collapsed;
                 ///
@@ -118,11 +115,13 @@ namespace Focus_Bear.Pomodoro
                 MinutesBreak.IsEnabled = !appSettings.bUseSuperPomodoroMode;
                 SkipMicroBreaks.IsEnabled = !appSettings.bUseSuperPomodoroMode;
 
+                SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
+
                 //set the previous values selected by user in case of Super Pomodoro by user
                 if (appSettings.bUseSuperPomodoroMode)
                 {
                     UseSuperPomodoroMode.IsChecked = true;
-                    SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
+                    
                     ComboBoxFocusModes.SelectedItem = appSettings.SuperPomodoroFocusedName;
                     ComboBoxNumberOfPomodoros.SelectedIndex = (appSettings.NumberOfSuperPomodorosToRun - 2);
                     Minutes.Text = appSettings.sMinutesSuperPomodoro;
@@ -235,55 +234,7 @@ namespace Focus_Bear.Pomodoro
             }
         }
 
-        private void btnSelectTasks_Click(object sender, RoutedEventArgs e)
-        {
-            GridShade.Visibility = Visibility.Visible;
-            WhatPlan.Visibility = Visibility.Collapsed;
-            TxtIntention.Visibility = Visibility.Collapsed;
-
-            SelectTasks wndSelectTasks = new SelectTasks(this);
-            wndSelectTasks.ShowDialog();
-
-            GridShade.Visibility = Visibility.Collapsed;
-
-            try
-            {
-                if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
-                {
-                    FreeFormIntention.Visibility = Visibility.Collapsed;
-                    SelectedTasksTitle.Visibility = Visibility.Visible;
-                    ListTasks.Visibility = Visibility.Visible;
-
-                    List<string> arrTaskNames = new List<string>();
-                    JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawTasks);
-
-                    for (int i = 0; i < array.Count(); i++)
-                    {
-                        JObject TodoItem = JObject.Parse(array[i].ToString());
-                        string sName = TodoItem.ContainsKey("title") ? TodoItem["title"].ToString() : "";
-                        arrTaskNames.Add(sName);
-                    }
-                    ListTasks.ItemsSource = arrTaskNames;
-                }
-                else
-                {
-                    FreeFormIntention.Visibility = Visibility.Visible;
-                    SelectedTasksTitle.Visibility = Visibility.Collapsed;
-                    ListTasks.Visibility = Visibility.Collapsed;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("btnSelectTasks_Click() sRawTasks Exception - " + ex.Message);
-            }
-        }
-
-        private void btnWriteFreeFormIntention_Click(object sender, RoutedEventArgs e)
-        {
-            WhatPlan.Visibility = Visibility.Visible;
-            TxtIntention.Visibility = Visibility.Visible;
-        }
-
+        
         private void SkipMicroBreaks_Checked(object sender, RoutedEventArgs e)
         {
             appSettings.bSkipMicroBreaksDuringFocus = true;
@@ -316,11 +267,11 @@ namespace Focus_Bear.Pomodoro
                     ComboBoxItem typeItem = (ComboBoxItem)ComboBoxNumberOfPomodoros.SelectedItem;
                     appSettings.NumberOfSuperPomodorosToRun = int.Parse(typeItem.Content.ToString());
 
-                    appSettings.CapturePostHog("start-pomodoro-mode-manually", string.Format("\"type\":\"super-pomodoro\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
+                    appSettings.CapturePostHog("start-focus-session-manually", string.Format("\"type\":\"super-focus\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
                 }
                 else
                 {
-                    appSettings.CapturePostHog("start-pomodoro-mode-manually", string.Format("\"type\":\"single-pomodoro\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
+                    appSettings.CapturePostHog("start-focus-session-manually", string.Format("\"type\":\"single-focus\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
                 }
                 
 

@@ -12,9 +12,9 @@
     </Window.Background>
      
     <Grid >
-        <Image Name="FBMenu" Grid.Row="0" Margin="0,0,20,35"   Source="../Images/fbmenu.png" Width="318"  VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+        <Image Name="FBMenu" Grid.Row="0" Margin="0,0,20,35"   Source="../Images/fb-tray.png" Width="318"  VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
 
-        <Grid x:Name="GridPopup" Width="250"  Margin="0,0,370,420" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+        <Grid x:Name="GridPopup" Width="250"  Margin="0,0,370,50" VerticalAlignment="Bottom" HorizontalAlignment="Right">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" MinHeight="70" />
                 <RowDefinition Height="Auto" MinHeight="30" />
@@ -26,7 +26,7 @@
             <Rectangle Grid.Row="0" Grid.RowSpan="6" Height="auto" Width="250"   Fill="#fff" HorizontalAlignment="Right"  RadiusX="7" RadiusY="7" Grid.ColumnSpan="2" />
             <Image Name="Logo" Grid.Row="0"   Width="40"  Margin="20,20,0,0"  Source="../Images/fbicon-64.png"   VerticalAlignment="Top" HorizontalAlignment="Left"/>
             <TextBlock Name="Heading" Grid.Row="0"   Margin="70,30,0,0"    VerticalAlignment="Top"  Foreground="Black" FontSize="14" FontWeight="Semibold" >xFocus Bear Menu</TextBlock>
-            <TextBlock Name="Title" Grid.Row="1"   Margin="20,20,0,0"     VerticalAlignment="Top"  Foreground="Black" FontSize="14" FontWeight="Semibold" >xFocus Bear </TextBlock>
+            <TextBlock Name="Title" Grid.Row="1"   Margin="20,20,0,0"     VerticalAlignment="Top"  Foreground="Black" FontSize="14" FontWeight="Semibold" >Focus Bear </TextBlock>
             <TextBlock Name="Description" Grid.Row="2" TextWrapping="Wrap"  Margin="20,20,20,0"  VerticalAlignment="Top"  Foreground="Black" FontSize="14" FontFamily="Segoe UI" >xLet's get you familiar with the Focus Bear Menu and we will have you up and running in no time!</TextBlock>
             <Grid Grid.Row="4" Background="LightGray" ></Grid>
             <Grid Grid.Row="5" >
@@ -43,7 +43,7 @@
         </Grid >
         <Path x:Name="Arrow" StrokeThickness="1" Stroke="White" Fill="White" VerticalAlignment="Bottom" 
               HorizontalAlignment="Right" 
-              Margin="0,0,350,540">
+              Margin="0,0,350,90">
             <Path.Data>
                 <PathGeometry>
                     <PathFigure StartPoint="20,0">

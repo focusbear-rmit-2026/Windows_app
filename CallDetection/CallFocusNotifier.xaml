@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.CallDetection"
         mc:Ignorable="d"
-        Title="CallFocusNotifier" Height="36" Width="180" WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" ShowInTaskbar="False" Background="{x:Null}" MouseDown="Window_MouseDown">
+        Title="CallFocusNotifier" Height="36" Width="200" WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" ShowInTaskbar="False" Background="{x:Null}" MouseDown="Window_MouseDown">
     <Grid>
         <Grid x:Name="MiniBar">
             <Border BorderThickness="1" CornerRadius="10" SnapsToDevicePixels="True" VerticalAlignment="Center" Background="#FF6E6873" Height="27" Margin="17,0,0,0">
@@ -13,11 +13,39 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="22"/>
                     </Grid.ColumnDefinitions>
 
                     <TextBlock x:Name="TxtCall" Grid.Column="0" FontWeight="Bold" TextWrapping="Wrap" Text="xCALL " Foreground="LightGreen" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                       
-                        <Button x:Name="btnExpand" Grid.Column="1" Content="xButton" Margin="0,0,5,0" Style="{DynamicResource BtnStyleExpend}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="16" VerticalAlignment="Center" Width="16" ToolTip="Expand" Click="btnExpand_Click" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
+
+                    <Button Grid.Column="1" Width="15" Height="15" Background="Transparent" BorderBrush="Transparent" x:Name="CloseButton" Cursor="Hand" Click="btnClose_Click" ToolTip="Close">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Grid>
+                                                <Ellipse Fill="LightSalmon" Width="15" Height="15"/>
+                                                <Path Data="M 4,4 L 11,11 M 11,4 L 4,11" Stroke="Gray" StrokeThickness="2">
+                                                    <Path.Style>
+                                                        <Style TargetType="Path">
+                                                            <Setter Property="Stroke" Value="DarkGray"/>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Stroke" Value="Red"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Path.Style>
+                                                </Path>
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button x:Name="btnExpand" Grid.Column="2" Content="xButton" Margin="0,0,5,0" Style="{DynamicResource BtnStyleExpend}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="16" VerticalAlignment="Center" Width="16" ToolTip="Expand" Click="btnExpand_Click" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
                         <Button.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>

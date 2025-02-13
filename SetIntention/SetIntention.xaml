@@ -5,14 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.SetIntention"
         mc:Ignorable="d"
-        Title="Focus Bear"   Height="auto" Width="360" ResizeMode="NoResize">
+        Title="Focus Bear"   Height="auto" Width="360" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged">
     <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center" />
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-                       
+            <RowDefinition Height="Auto" />          
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -52,19 +52,21 @@
         <TextBlock  Grid.Row="4" Name="SelectMinutes" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xSelect minutes to use this site?" Foreground="#272727" FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <ComboBox Grid.Row="5" Name="ComboBoxMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,10,0,0"  SelectedIndex="0">
-            <ComboBoxItem Content="0.5"></ComboBoxItem>
-            <ComboBoxItem Content="1"></ComboBoxItem>
-            <ComboBoxItem Content="2"></ComboBoxItem>
-            <ComboBoxItem Content="5"></ComboBoxItem>
-            <ComboBoxItem Content="10"></ComboBoxItem>
+            <ComboBoxItem Content="30s"></ComboBoxItem>
+            <ComboBoxItem Content="1m"></ComboBoxItem>
+            <ComboBoxItem Content="2m"></ComboBoxItem>
+            <ComboBoxItem Content="5m"></ComboBoxItem>
+            <ComboBoxItem Content="10m"></ComboBoxItem>
         </ComboBox>
 
-        <StackPanel Visibility="Visible" Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,20,10,0">
+        <TextBlock Grid.Row="6" Name="TxtAutoBlockTimer"  Margin="0,10,0,0" TextWrapping="Wrap" Text="x00:30" Foreground="#272727" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+        
+        <StackPanel Visibility="Visible" Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,15,10,0">
             <TextBlock   Name="TotalTimeSpent"  TextWrapping="Wrap" Text="xTotal time spent: "  FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center"   />
             <Image x:Name="InfoIcon" Source="../images/info.png" Width="20"  Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Center"></Image>
         </StackPanel>
-
-        <StackPanel Grid.Row="7" Orientation="Vertical" Margin="0,10,0,0">
+        
+        <StackPanel Grid.Row="8" Orientation="Vertical" Margin="0,10,0,0">
             <Button  x:Name="btnSetIntention"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSetIntention_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">

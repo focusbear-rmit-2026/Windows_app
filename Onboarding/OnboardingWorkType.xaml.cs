@@ -66,9 +66,17 @@ namespace Focus_Bear.Onboarding
                 Console.WriteLine(appSettings.InitialSleepTimeValue.ToString("HH:mm"));
 
             }
-            //"Now let's set up an account for you"
-            TypeOfWork.Text = appSettings.ConfigFileStrings["common"]["letsCreatAccountText"].ToString();
- 
+
+            if(appSettings.bAreBreaksEnabled)
+            {
+                Message.Text = appSettings.ConfigFileStrings["welcomeInfo"]["breaksEnabledText"].ToString();
+            }
+            else
+            {
+                Message.Text = appSettings.ConfigFileStrings["welcomeInfo"]["breaksDisabledText"].ToString();
+            }
+            MessageDetails.Text = appSettings.ConfigFileStrings["welcomeInfo"]["descriptionHabitsText"].ToString();
+
             btnContinueTxt.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["buttonContinueText"].ToString();
             btnContinue.IsEnabled = true;
 

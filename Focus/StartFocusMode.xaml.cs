@@ -88,7 +88,7 @@ namespace Focus_Bear.Focus
 
             if (!appSettings.bStartingAnotherFocusMode)
             {
-                appSettings.bSkipMicroBreaksDuringFocus = false;
+                appSettings.bSkipMicroBreaksDuringFocus = true; //default to true
                 SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
             }
         }
@@ -107,6 +107,8 @@ namespace Focus_Bear.Focus
         {
             try
             {
+                appSettings.CapturePostHog("start-focus-session-manually");
+
                 sIntention = TxtIntention.Text;
                 sHours = Hours.Text;
                 sMinutes = Minutes.Text;

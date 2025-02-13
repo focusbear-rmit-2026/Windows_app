@@ -24,6 +24,9 @@
 
         <TextBlock Grid.Row="3" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="00:15" Foreground="#000" Padding="0" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center"  VerticalAlignment="Center" />
         <StackPanel Grid.Row="4" Orientation="Vertical" Margin="0,0,0,50">
+            <CheckBox  x:Name="AllowThisDomain" FontSize="15" Margin="20,5,20,5"   Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0">
+                <TextBlock TextWrapping="Wrap" x:Name="AllowThisDomainText" FontSize="13"> xAllow all URLs from website.com for this Focus Session</TextBlock>
+            </CheckBox>
             <Button  x:Name="btnJustThisTime"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnJustThisTime_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">

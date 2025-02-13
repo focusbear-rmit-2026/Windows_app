@@ -59,7 +59,7 @@
         <Image Grid.Row="0" HorizontalAlignment="Center" Height="40"  Width="250" Margin="0,0,0,0" Source="Images/fb.png" Stretch="None" VerticalAlignment="Center" Grid.ColumnSpan="2"  />
 
         <StackPanel  Grid.Row="1" Orientation="Vertical" Grid.ColumnSpan="2">
-
+            <TextBlock   Name="AlignmentScoreText"  Margin="15,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Visibility="Collapsed">xFocus alignment score =</TextBlock>
             <StackPanel    Orientation="Horizontal" HorizontalAlignment="Center"  Margin="0,10,0,10" >
                 <RadioButton x:Name="GeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"  />
                 <RadioButton x:Name="SimpleMode" Content="xSimple Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Cursor="Hand"  />
@@ -96,13 +96,24 @@
                 <ToggleButton x:Name="btnOfficeMode"  Style="{DynamicResource MacStyleToggleSwitch}"    Height="20" Width="52" Margin="15,0,0,0" HorizontalAlignment="Right"  Click="OfficeModeButton_Click"  Cursor="Hand" Focusable="False"/>
 
             </StackPanel>-->
+            <StackPanel Orientation="Horizontal" Name="LimitedBlockingSection" Visibility="Collapsed">
+                <TextBlock   Name="LimitedBlocking"  Margin="20,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Visibility="Visible">xLimited Blocking</TextBlock>
+                <Image Name="LimitedBlockingInfo" Source="images/info.png" Width="20"  Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Cursor="Hand"></Image>
+                
+                <Button x:Name="btnLimitedBlockingEdit" Margin="10,6,0,0" Style="{StaticResource BtnStyleInfo}" Click="btnLimitedBlockingEdit_Click" MinWidth="18" Height="18" Cursor="Hand" >
+                    <StackPanel Orientation="Vertical">
+                        <Image Name="LimitedBlockingEdit" Source="images/edit.png" Margin="0,0,0,0" Height="18" Width="18" />
+                    </StackPanel>
+                </Button>
+                
+            </StackPanel>
             <StackPanel Name="OfficeModeSection"  Orientation="Horizontal" HorizontalAlignment="Center"  Margin="0,10,0,10" >
                 <RadioButton x:Name="OfficeMode" Content="xOffice Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Checked="OfficeMode_Checked" Cursor="Hand"  />
                 <RadioButton x:Name="WFHMode" Content="xWFH Mode" Style="{StaticResource SegmentRadioButtonStyle}"  Checked="WFHMode_Checked" Cursor="Hand"  />
             </StackPanel>
         </StackPanel>
 
-        <Grid Name="FocusSection"  Grid.Row="2"   Grid.ColumnSpan="2">
+        <Grid Name="FocusSection"  Grid.Row="2"   Grid.ColumnSpan="2" Visibility="Collapsed">
         <Rectangle  Grid.Row="2" Height="auto"   Margin="14,7"  Fill="#ffe4c6"  RadiusX="7" RadiusY="7" Grid.ColumnSpan="2" />
         <Border  Grid.Row="2" x:Name="OrangeHeader" BorderThickness="1"   VerticalAlignment="Top"  Margin="14,0" Height="25" CornerRadius="7,7,0,0" BorderBrush="#e88800" Background="#e88800" Grid.ColumnSpan="2"/>
         <StackPanel  Grid.Row="2" Orientation="Vertical" Grid.ColumnSpan="2">
@@ -162,49 +173,23 @@
                             </TextBlock>
                         </Grid>
                     </DataTemplate>
-
-                    <!--<DataTemplate>
-                    <Grid x:Name="ItemHeader" Height="35"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="80"/>
-                        </Grid.ColumnDefinitions>
-                        -->
-                    <!--<StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <CheckBox x:Name="ChkNavItemSelect" Cursor="Hand" IsChecked="{Binding Status}" Width="30" Margin="5,0,0,0" Style="{DynamicResource CheckBoxStyle}" Click="ChkNavItemSelect_Click" />
-                                    </StackPanel>-->
-                    <!--
-                        <Image Height="28" Width="28" Grid.Column="0" HorizontalAlignment="Left"  VerticalAlignment="Center" Margin="15,0,0,0" Source="images/fbicon-64.png"/>
-                        <TextBlock Grid.Column="1" Text="{Binding name, StringFormat=\{0\}}" Foreground="#000"  FontSize="13" Cursor="Hand" FontWeight="Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="2" Text="{Binding NavItemsFound, StringFormat=\{0\} items}" FontSize="12" Foreground="#FFA6A6A6" VerticalAlignment="Center" Margin="0,0,15,0" HorizontalAlignment="Right" >
-                            <TextBlock.Style>
-                                <Style TargetType="{x:Type TextBlock}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsBusy}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsBusy}" Value="False">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                         </Grid>
-                </DataTemplate>-->
+                   
                 </ListView.ItemTemplate>
             </ListView>
-            <Button   x:Name="btnSetupFocusMode"  Click="btnSetupFocusMode_Click"  Style="{StaticResource BtnStyleDarkOrangeBordered}" IsEnabled="True" Foreground="#fff" MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="25,0,25,20" FontSize="14" Cursor="Hand" FontWeight="Semibold" >
+            
+        </StackPanel>
+        </Grid>
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2">
+
+            <Button   x:Name="btnSetupFocusMode"  Click="btnSetupFocusMode_Click"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True" MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Margin="10" Name="btnSetupFocusModeText">xSetup Focus Modes</TextBlock>
                     </StackPanel>
                 </Button.Content>
             </Button>
-        </StackPanel>
-        </Grid>
-        <StackPanel Grid.Row="3" Grid.ColumnSpan="2">
+            
+            
             <Button   x:Name="btnBrainDump"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnBrainDump_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
@@ -213,6 +198,13 @@
                     </StackPanel>
                 </Button.Content>
 
+            </Button>
+            <Button   x:Name="btnToDoPlayer" Visibility="Collapsed"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnToDoPlayer_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Margin="8" Name="btnToDoPlayerTXT">xTo Do Player</TextBlock>
+                    </StackPanel>
+                </Button.Content>
             </Button>
             
             <Button   x:Name="btnStartPomodoroMode"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnStartPomodoroMode_Click">
@@ -234,7 +226,7 @@
 
             </Button>
 
-            <Button   x:Name="btnQuit" Click="btnQuit_Click"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" >
+            <Button   x:Name="btnQuit" Click="btnQuit_Click"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="23"  Height="23" Source="images/pausecircle.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
@@ -243,13 +235,13 @@
                     
                 </Button.Content>
             </Button>
-            <Button   x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   MinHeight="55" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnUpgradeNow_Click">
+            <Button   x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="55" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnUpgradeNow_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <Image Grid.ColumnSpan="2"  Margin="10,7,0,0" Width="23"  Height="23" Source="images/upgrade.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         <StackPanel  Orientation="Vertical">
                             <TextBlock Margin="8,8,2,8" Name="UpgradeNow">xUpgrade Now</TextBlock>
-                            <TextBlock Margin="8,-5,0,6" Name="TrialInfo"  FontSize="12" Cursor="Hand" TextWrapping="Wrap">xTrial Version - 27 of 31 days remaining</TextBlock>
+                            <TextBlock Margin="8,-5,0,6" Width="240" Name="TrialInfo"  FontSize="12" Cursor="Hand" TextWrapping="Wrap">xTrial Version - 27 of 31 days remaining</TextBlock>
                         </StackPanel>
                     </StackPanel>
                 </Button.Content>

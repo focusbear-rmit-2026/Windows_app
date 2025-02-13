@@ -7,7 +7,7 @@
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
         Title="Focus Bear" Height="740" Width="954" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged" Closing="Window_Closing" Loaded="Window_Loaded">
-    <local1:DpiDecorator>
+    <!--<local1:DpiDecorator>-->
         <Grid>
             <Grid.Background>
                 <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
@@ -115,5 +115,5 @@
             <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="10" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
 
         </Grid>
-    </local1:DpiDecorator>
+    <!--</local1:DpiDecorator>-->
 </Window>

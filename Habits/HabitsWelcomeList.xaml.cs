@@ -67,7 +67,7 @@ namespace Focus_Bear.Habits
 
 
             _parentWindow = parentWindow;
- 
+
             //if(appSettings.bHasUserEditedSettings)
             //{
             //    btnCustomizeHabits.IsEnabled = false;
@@ -75,7 +75,7 @@ namespace Focus_Bear.Habits
             //}
             //else
             {
-            
+
                 SetWebView();
 
                 webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
@@ -85,7 +85,7 @@ namespace Focus_Bear.Habits
 
             int nCount = 0;
             try
-            { 
+            {
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
                     Heading.Text = appSettings.ConfigFileStrings["activityInfo"]["startMorningHabitTitleText"].ToString();
@@ -105,30 +105,24 @@ namespace Focus_Bear.Habits
                     nCount = appSettings.arrAllEveningHabits.Count;
                 }
 
+                if (nCount < 2)
+                {
+                    //let's not show the I do not have time for all these habits button
+                    DoNoHaveTime.Visibility = Visibility.Collapsed;
+                }
+
+                ListActivities.ItemsSource = appSettings._ObjHabitListSelectable;
+
+                //InitializeHabitList();//Filling the visible list from the filtered morning/evening habits list
                
                 _ObjListActivityModel = new ObservableCollection<HabitList>();
                 ListActivities.ItemsSource = _ObjListActivityModel;
 
-                for(int i = 0; i < nCount; i++)
-                {
-                    string sActivityName = "";
-                    if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-                    {
-                        sActivityName = appSettings.arrAllMorningHabits[i].name;
-                    }
-                    else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                    {
-                        sActivityName = appSettings.arrAllEveningHabits[i].name;
-                    }
-
-                    string sNo = string.Format("{0}.", (i+1).ToString());
-                    var ActivityItem = new HabitList { SNumber = sNo, ActivityName = sActivityName };
-                    _ObjListActivityModel.Add(ActivityItem);
-                }
+                UpdateHabitsList();//habits to be shown in the list
 
                 btnBeginTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonBeginText"].ToString();
                 btnCustomizeHabitsTXT.Text = appSettings.ConfigFileStrings["welcomeInfo"]["buttonEditHabitsText"].ToString();
-
+                DoNoHaveTimeTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonSelectHabitsText"].ToString();
             }
             catch (Exception ex)
             {
@@ -136,12 +130,98 @@ namespace Focus_Bear.Habits
             }
             Sounds.PlayRoutineStartSound();
         }
+        private void InitializeHabitList()
+        {
+            appSettings._ObjHabitListSelectable.Clear(); //Remove all old and refill
 
+            int nCount = 0;
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+            {
+                nCount = appSettings.arrAllMorningHabits.Count;
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            {
+                nCount = appSettings.arrAllEveningHabits.Count;
+            }
+
+            for (int i = 0; i < nCount; i++)
+            {
+                string sActivityName = "";
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                {
+                    sActivityName = appSettings.arrAllMorningHabits[i].name;
+                }
+                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                {
+                    sActivityName = appSettings.arrAllEveningHabits[i].name;
+                }
+
+                string sNo = string.Format("{0}.", (i + 1).ToString());
+                var ActivityItem = new HabitListSelectable { SNumber = sNo, ActivityName = sActivityName };
+                appSettings._ObjHabitListSelectable.Add(ActivityItem);
+            }
+        }
+        private void  UpdateHabitsList()
+        {
+            //The choose habit window have already removed the unselected ones from the habits list to actually be done, so just refill
+            _ObjListActivityModel.Clear();
+
+            int nCount = 0;
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+            {
+                nCount = appSettings.arrAllMorningHabits.Count;
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            {
+                nCount = appSettings.arrAllEveningHabits.Count;
+            }
+
+            for (int i = 0; i < nCount; i++)
+            {
+                string sActivityName = "";
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                {
+                    sActivityName = appSettings.arrAllMorningHabits[i].name;
+                }
+                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                {
+                    sActivityName = appSettings.arrAllEveningHabits[i].name;
+                }
+
+                string sNo = string.Format("{0}.", (i + 1).ToString());
+                var ActivityItem = new HabitList{ SNumber = sNo, ActivityName = sActivityName };
+                _ObjListActivityModel.Add(ActivityItem);
+            }
+        }
         private void btnBegin_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Welcome Begin Clicked");
             try
             {
+                //To allow out of order habits, we will first need to check the Selected habit from the list if any.
+                // First, get the selected item from ListActivities
+                int selectedIndex = ListActivities.SelectedIndex;
+
+                if (selectedIndex != -1)  // Ensure an item is selected
+                {
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                    {
+                        habit itemToMove = appSettings.arrAllMorningHabits[selectedIndex];
+                        // Remove the item from arrAllMorningHabits
+                        appSettings.arrAllMorningHabits.Remove(itemToMove);
+                        // Insert it at the front (index 0) of arrAllMorningHabits
+                        appSettings.arrAllMorningHabits.Insert(0, itemToMove);
+                    }
+                    else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    {
+                        habit itemToMove = appSettings.arrAllEveningHabits[selectedIndex];
+                        // Remove the item from arrAllEveningHabits
+                        appSettings.arrAllEveningHabits.Remove(itemToMove);
+                        // Insert it at the front (index 0) of arrAllEveningHabits
+                        appSettings.arrAllEveningHabits.Insert(0, itemToMove);
+                    }
+                }
+                 
                 _parentWindow.ShowExtraPersonalFocus();
             }
             catch (Exception ex)
@@ -152,22 +232,25 @@ namespace Focus_Bear.Habits
 
         private void btnCustomizeHabits_Click(object sender, RoutedEventArgs e)
         {
-            if (appSettings.bPasswordRequireInChangeSettings)
+            if (appSettings.isPasswordSet)
             {
-                AskPassword pwdWnd = new AskPassword();
-                pwdWnd.Owner = _parentWindow;
-                _parentWindow.GridShade.Visibility = Visibility.Visible;
-
-                bool? bResult = pwdWnd.ShowDialog();
-
-                _parentWindow.GridShade.Visibility = Visibility.Collapsed;
-                if (bResult.Value)
+                if (appSettings.bPasswordRequireInChangeSettings)
                 {
-                    //Password is correct
-                }
-                else
-                {
-                    return;
+                    AskPassword pwdWnd = new AskPassword();
+                    pwdWnd.Owner = _parentWindow;
+                    _parentWindow.GridShade.Visibility = Visibility.Visible;
+
+                    bool? bResult = pwdWnd.ShowDialog();
+
+                    _parentWindow.GridShade.Visibility = Visibility.Collapsed;
+                    if (bResult.Value)
+                    {
+                        //Password is correct
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
             }
 
@@ -366,6 +449,12 @@ namespace Focus_Bear.Habits
             {
                 LogWriter.LogWrite("webView_WebMessageReceived()" + ex.Message);
             }
+        }
+
+        private void btnDoNoHaveTime_Click(object sender, RoutedEventArgs e)
+        {
+            _parentWindow.ShowChooseHabitsWindow();
+            UpdateHabitsList();
         }
     }
 }

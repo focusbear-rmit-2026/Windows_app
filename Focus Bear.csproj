@@ -65,7 +65,7 @@
       <HintPath>packages\Auth0.Core.7.17.3\lib\net452\Auth0.Core.dll</HintPath>
     </Reference>
     <Reference Include="Interop.TaskScheduler">
-      <HintPath>..\..\..\Gaurav\Apps\System Care\src\SystemCare\obj\Release\Interop.TaskScheduler.dll</HintPath>
+      <HintPath>TaskSchedulerPackage\Interop.TaskScheduler.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Interop.UIAutomationClient, Version=10.0.19041.0, Culture=neutral, processorArchitecture=MSIL">
@@ -284,6 +284,7 @@
     <Compile Include="Focus\FocusActivitySummary.xaml.cs">
       <DependentUpon>FocusActivitySummary.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\FocusAlignmentScoreManager.cs" />
     <Compile Include="Focus\FocusModeEnd.xaml.cs">
       <DependentUpon>FocusModeEnd.xaml</DependentUpon>
     </Compile>
@@ -302,6 +303,9 @@
     <Compile Include="Focus\StopFocusMode.xaml.cs">
       <DependentUpon>StopFocusMode.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\ToDoPlayer.xaml.cs">
+      <DependentUpon>ToDoPlayer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Habits\AnalyzeSleepMoodWindow.xaml.cs">
       <DependentUpon>AnalyzeSleepMoodWindow.xaml</DependentUpon>
     </Compile>
@@ -316,6 +320,12 @@
     </Compile>
     <Compile Include="Habits\BreakWarning\FadeInBreakWindow.xaml.cs">
       <DependentUpon>FadeInBreakWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\ChooseAnotherHabit.xaml.cs">
+      <DependentUpon>ChooseAnotherHabit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\ChooseHabits.xaml.cs">
+      <DependentUpon>ChooseHabits.xaml</DependentUpon>
     </Compile>
     <Compile Include="Habits\HabitsResumeInPopup.xaml.cs">
       <DependentUpon>HabitsResumeInPopup.xaml</DependentUpon>
@@ -372,6 +382,9 @@
     <Compile Include="Models\RegistryManager.cs" />
     <Compile Include="Models\UserAccount.cs" />
     <Compile Include="Models\WinSecurity.cs" />
+    <Compile Include="Onboarding\AfterLogin\OnboardingAskProcrastinatingWindow.xaml.cs">
+      <DependentUpon>OnboardingAskProcrastinatingWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Onboarding\AfterLogin\OnboardingNotesWindow.xaml.cs">
       <DependentUpon>OnboardingNotesWindow.xaml</DependentUpon>
     </Compile>
@@ -399,6 +412,9 @@
     <Compile Include="Onboarding\NEW\NewOnboardingStart.xaml.cs">
       <DependentUpon>NewOnboardingStart.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Onboarding\NEW\OnboardingNewBlockingSchedule.xaml.cs">
+      <DependentUpon>OnboardingNewBlockingSchedule.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Onboarding\NEW\OnboardingSetupFocusBearAccount.xaml.cs">
       <DependentUpon>OnboardingSetupFocusBearAccount.xaml</DependentUpon>
     </Compile>
@@ -417,6 +433,9 @@
     <Compile Include="Onboarding\NEW\OnboardingNewWelcome.xaml.cs">
       <DependentUpon>OnboardingNewWelcome.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Onboarding\OnboardingAchieveWithFocusBear.xaml.cs">
+      <DependentUpon>OnboardingAchieveWithFocusBear.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Onboarding\OnboardingAdditionalGoals.xaml.cs">
       <DependentUpon>OnboardingAdditionalGoals.xaml</DependentUpon>
     </Compile>
@@ -429,11 +448,20 @@
     <Compile Include="Onboarding\OnboardingAskWorkTime.xaml.cs">
       <DependentUpon>OnboardingAskWorkTime.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Onboarding\OnboardingConfirmBreaks.xaml.cs">
+      <DependentUpon>OnboardingConfirmBreaks.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Onboarding\OnboardingConfirmEveningRoutine.xaml.cs">
       <DependentUpon>OnboardingConfirmEveningRoutine.xaml</DependentUpon>
     </Compile>
     <Compile Include="Onboarding\OnboardingConfirmMorningRoutine.xaml.cs">
       <DependentUpon>OnboardingConfirmMorningRoutine.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\OnboardingExplainDeepFocus.xaml.cs">
+      <DependentUpon>OnboardingExplainDeepFocus.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Onboarding\OnboardingExplainHabits.xaml.cs">
+      <DependentUpon>OnboardingExplainHabits.xaml</DependentUpon>
     </Compile>
     <Compile Include="Onboarding\OnboardingGoals.xaml.cs">
       <DependentUpon>OnboardingGoals.xaml</DependentUpon>
@@ -455,6 +483,9 @@
     </Compile>
     <Compile Include="Onboarding\OnboardingWorkType.xaml.cs">
       <DependentUpon>OnboardingWorkType.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pomodoro\StartSimplePomodoro.xaml.cs">
+      <DependentUpon>StartSimplePomodoro.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pomodoro\StartPomodoro.xaml.cs">
       <DependentUpon>StartPomodoro.xaml</DependentUpon>
@@ -485,6 +516,12 @@
     </Compile>
     <Compile Include="Preferences\AskPassword.xaml.cs">
       <DependentUpon>AskPassword.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\BlocksTab.xaml.cs">
+      <DependentUpon>BlocksTab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\CommunityPreference.xaml.cs">
+      <DependentUpon>CommunityPreference.xaml</DependentUpon>
     </Compile>
     <Compile Include="Preferences\EditHabits.xaml.cs">
       <DependentUpon>EditHabits.xaml</DependentUpon>
@@ -549,8 +586,14 @@
     <Compile Include="UpdateWin.xaml.cs">
       <DependentUpon>UpdateWin.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Upgrade\ManageSubscription.xaml.cs">
+      <DependentUpon>ManageSubscription.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Upgrade\UpgradeNow.xaml.cs">
       <DependentUpon>UpgradeNow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Upgrade\UpgradeToPro.xaml.cs">
+      <DependentUpon>UpgradeToPro.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils\AppSettings.cs" />
     <Compile Include="Utils\CallDetection.cs" />
@@ -629,6 +672,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Focus\ToDoPlayer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Habits\AnalyzeSleepMoodWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -646,6 +693,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Habits\BreakWarning\FadeInBreakWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\ChooseAnotherHabit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\ChooseHabits.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -717,6 +772,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Onboarding\AfterLogin\OnboardingAskProcrastinatingWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Onboarding\AfterLogin\OnboardingNotesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -753,6 +812,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Onboarding\NEW\OnboardingNewBlockingSchedule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Onboarding\NEW\OnboardingSetupFocusBearAccount.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -777,6 +840,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Onboarding\OnboardingAchieveWithFocusBear.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Onboarding\OnboardingAdditionalGoals.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -793,11 +860,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Onboarding\OnboardingConfirmBreaks.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Onboarding\OnboardingConfirmEveningRoutine.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Onboarding\OnboardingConfirmMorningRoutine.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\OnboardingExplainDeepFocus.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Onboarding\OnboardingExplainHabits.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -828,6 +907,10 @@
     <Page Include="Onboarding\OnboardingWorkType.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pomodoro\StartSimplePomodoro.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Pomodoro\StartPomodoro.xaml">
       <SubType>Designer</SubType>
@@ -866,6 +949,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Preferences\AskPassword.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\BlocksTab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\CommunityPreference.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -961,7 +1052,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Upgrade\ManageSubscription.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Upgrade\UpgradeNow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Upgrade\UpgradeToPro.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1047,6 +1146,14 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\edit.png" />
+    <Resource Include="Images\thinking_icon.png" />
+    <Resource Include="Images\team.png" />
+    <Resource Include="Images\close.png" />
+    <Resource Include="Images\FocusBear-Geek.png" />
+    <Resource Include="Images\fb-tray.png" />
+    <Resource Include="Images\notProductive_icon.png" />
+    <Resource Include="Images\productive_icon.png" />
     <Resource Include="Images\blocked_list.png" />
     <Resource Include="Images\play_circle.png" />
     <Resource Include="Images\upgrade.png" />

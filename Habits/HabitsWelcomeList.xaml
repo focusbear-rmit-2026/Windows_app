@@ -16,6 +16,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="185" />
             <RowDefinition Height="Auto" MinHeight="70" />
+            <RowDefinition Height="50" />
             <RowDefinition Height="*" />
             <RowDefinition Height="50" />
             <RowDefinition Height="Auto" MinHeight="140" />
@@ -24,11 +25,14 @@
  
         <Image Grid.Row="0" Name="TopIcon" Height="160"  Width="160" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xGood Morning! Here are the habits to kick off an awesome day." Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-
-        <ListView Grid.Row="2" MaxHeight="360"  MaxWidth="400" Margin="13,25,16,10" x:Name="ListActivities" VerticalAlignment="Center"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" >
+            <TextBlock x:Name="DoNoHaveTime" Grid.Row="2" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+             <Hyperlink x:Name="btnDoNoHaveTime"  Foreground="#000" Click="btnDoNoHaveTime_Click"   TextDecorations="Underline" ><Run x:Name="DoNoHaveTimeTXT" Text="xI don't have time for all these habits"/></Hyperlink>
+            </TextBlock>
+            
+            <ListView Grid.Row="3" MaxHeight="360"  MaxWidth="400" Margin="13,5,16,10" x:Name="ListActivities" VerticalAlignment="Center"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" >
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem" >
-                    <Setter Property="Focusable" Value="false"/>
+                    <Setter Property="Focusable" Value="true"/>
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate >
@@ -49,14 +53,14 @@
             </ListView.ItemTemplate>
  
         </ListView>
-            <Button Grid.Row="3" IsDefault="True"  x:Name="btnBegin"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnBegin_Click" >
+            <Button Grid.Row="4" IsDefault="True"  x:Name="btnBegin"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnBegin_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnBeginTXT" Text="xBegin"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button Grid.Row="4" x:Name="btnCustomizeHabits"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCustomizeHabits_Click">
+            <Button Grid.Row="5" x:Name="btnCustomizeHabits"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCustomizeHabits_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnCustomizeHabitsTXT" Text="xCustomize my habits first"/>

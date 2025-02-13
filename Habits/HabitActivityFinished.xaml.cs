@@ -13,6 +13,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -222,6 +224,7 @@ namespace Focus_Bear.Habits
                 bBreakActivitiesFinished = false;
 
                 btnSkipThisHabitTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonSkipHabitText"].ToString();
+                ChooseAnotherHabitTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonChooseHabitText"].ToString();
 
                 string sHeading = "";
 
@@ -239,6 +242,8 @@ namespace Focus_Bear.Habits
 
                 //Show the skip this habit button initially, it will be handled below
                 SkipThisHabitText.Visibility = Visibility.Visible;
+                ChooseAnotherHabit.Visibility = Visibility.Visible;
+                Seperator.Visibility = Visibility.Visible;
 
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
@@ -269,6 +274,12 @@ namespace Focus_Bear.Habits
                     sCompleted = appSettings.SecondsToText(habitCompletedSeconds);
                     sRemaining = appSettings.SecondsToText(totalSecondsAllHabits - habitCompletedSeconds);
 
+                    if (appSettings.arrAllMorningHabits.Count == (appSettings.nHabitIndex + 2)) //Second Last Activity
+                    {
+                        //do not show the  ChooseAnotherHabit button
+                        ChooseAnotherHabit.Visibility = Visibility.Collapsed;
+                        Seperator.Visibility = Visibility.Collapsed;
+                    }
                     if (appSettings.arrAllMorningHabits.Count == (appSettings.nHabitIndex + 1)) //Last Activity
                     {
                         bLastActivity = true;
@@ -287,6 +298,7 @@ namespace Focus_Bear.Habits
 
                         //Hide the skip this habit button on last activity
                         SkipThisHabitText.Visibility = Visibility.Collapsed;
+                        ChooseAnotherHabit.Visibility = Visibility.Collapsed;
 
                         //We need to hide the Please SPare Me Button
                         _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
@@ -368,6 +380,13 @@ namespace Focus_Bear.Habits
                     bool isSequenceFinished = false;
                     int newHabitIndex = appSettings.nHabitIndex + 1;
 
+                    if (appSettings.arrAllEveningHabits.Count == (appSettings.nHabitIndex + 2)) //Second Last Activity
+                    {
+                        //do not show the  ChooseAnotherHabit button
+                        ChooseAnotherHabit.Visibility = Visibility.Collapsed;
+                        Seperator.Visibility = Visibility.Collapsed;
+                    }
+
                     if (appSettings.nHabitIndex < appSettings.arrAllEveningHabits.Count - 1)
                     {
                         if (appSettings.DidCutOffTimePassed())
@@ -412,6 +431,8 @@ namespace Focus_Bear.Habits
 
                         //Hide the skip this habit button on last activity
                         SkipThisHabitText.Visibility = Visibility.Collapsed;
+                        ChooseAnotherHabit.Visibility = Visibility.Collapsed;
+                        Seperator.Visibility = Visibility.Collapsed;
 
                         //We need to hide the Please SPare Me Button
                         _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
@@ -489,6 +510,8 @@ namespace Focus_Bear.Habits
 
                     //Hide the skip this habit button in breaks
                     SkipThisHabitText.Visibility = Visibility.Collapsed;
+                    ChooseAnotherHabit.Visibility = Visibility.Collapsed;
+                    Seperator.Visibility = Visibility.Collapsed;
 
                     if (appSettings.isAnyMandatoryActivityIncluded)
                     {
@@ -1673,6 +1696,21 @@ namespace Focus_Bear.Habits
         {
             nQuestionIndexToShowGraphs++;
             LoadGraphData();
+        }
+
+        private void btnChooseAnotherHabit_Click(object sender, RoutedEventArgs e)
+        {
+            webView.Visibility = Visibility.Collapsed;
+            webView1.Visibility = Visibility.Collapsed;
+            bool bStartHabitNow = _parentWindow.ShowChooseAnotherHabitsWindow();
+            webView.Visibility = Visibility.Visible;
+            webView1.Visibility = Visibility.Visible;
+            if (bStartHabitNow)
+            {
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnStartNextActivity);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
         }
     }
 }

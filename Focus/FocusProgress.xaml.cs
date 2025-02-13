@@ -22,7 +22,7 @@ namespace Focus_Bear.Focus
     public partial class FocusProgress : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        int nTimer = 300; //Five minutes
+        public int nTimer = 300; //Five minutes
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         string sRemaining = "";
 
@@ -30,12 +30,21 @@ namespace Focus_Bear.Focus
         {
             InitializeComponent();
 
+            if(appSettings.bAiCheckUrlEnabled)
+            {
+                this.Height = 130;
+                AlignmentScore.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                AlignmentScore.Visibility = Visibility.Collapsed;
+            }
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
                 this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
                 if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular" || appSettings.sSelectedAppFont == "Poppins")
                 {
-                    this.Height = 100;
+                    this.Height += 20;
                 }
             }
             else
@@ -87,6 +96,14 @@ namespace Focus_Bear.Focus
                     sTill = sTill.Replace("<TIME>", DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToString("HH:mm tt"));
                     OnUntill.Text = ss + " (" + sTill + ")";
 
+                    if (appSettings.bAiCheckUrlEnabled)
+                    {
+                        //Focus Alignment score
+                        double CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
+                        string sScore = appSettings.ConfigFileStrings["menuInfo"]["focusAlignmentScoreText"].ToString();
+                        sScore = sScore.Replace("<SCORE>", CurrentFocusAlignmentScore.ToString());
+                        AlignmentScore.Content = sScore + "%";
+                    }
                 }
                 catch (Exception ex)
                 {

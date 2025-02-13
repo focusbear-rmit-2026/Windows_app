@@ -87,7 +87,9 @@ namespace Focus_Bear
 
         private bool bScreenSaverStarted = false;
         private bool bSuggestMeetingsPopupShownForThisCallSession = false;
+        public  bool bUserManuallyClosedNotifierForThisCallSession = false;
 
+        bool bLoadURLAgainInToDoPlayer = false;
         public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             //Always get the last active app name when the menu is clicked and ignore Focus Bear
@@ -137,6 +139,10 @@ namespace Focus_Bear
                                             ProcessBrowserURLs.ProcessCurrentURL(hwnd);
                                         }
 
+                                    }
+                                    else
+                                    {
+                                        LogWriter.LogWrite("Mozilla's sName is null or other language then EN / ES- OR (sURL != null && sURL.Length > 0 FAILS" + sName + "URL =" + sURL);
                                     }
                                 }
                             }
@@ -192,7 +198,7 @@ namespace Focus_Bear
                 }
                 else
                 {
-                    Console.WriteLine("Hide_ShowIntentionWindow from else of exe check");
+                    //Console.WriteLine("Hide_ShowIntentionWindow from else of exe check");
                     appSettings.Hide_ShowIntentionWindow();
                 }
 
@@ -294,7 +300,11 @@ namespace Focus_Bear
 
         public StartPomodoro wndStartPomodoro = null;
 
+        public StartSimplePomodoro wndStartSimplePomodoro = null;
+
         public CallFocusNotifier wndCallFocusNotifier = null;
+
+        public ToDoPlayer wndToDoPlayer = null;
 
         bool bAppExtracted = false;
 
@@ -583,9 +593,20 @@ namespace Focus_Bear
             }
         }
 
+        public void StopBreakActivityTimer()
+        {
+            dispatcherTimerBreaks.Stop();
+        }
         public void StartBreakActivityTimer(bool bUserPostponed = false, int nMinutesToPostpone = 0)
         {
             LogWriter.LogWrite("StartBreakActivityTimer() invoked");
+
+            if (!appSettings.bAreBreaksEnabled)
+            {
+                dispatcherTimerBreaks.Stop(); //caution
+                LogWriter.LogWrite("breaks not enabled so returning from StartBreakActivityTimer()");
+                return;
+            }
 
             if (appSettings.IsShutOffTime())
             {
@@ -931,46 +952,85 @@ namespace Focus_Bear
             //Proceed Normal to show routines
             ProceedAfterLogin();
         }
+        public void ProceedAfterOnboardingDonePostLogin()
+        {
+            LogWriter.LogWrite("ProceedAfterOnboardingDonePostLogin ()");
+            RegistryManager.SetOnboardingAfterLoginDoneStatus();
+
+            ExecutePostLoginTasks();
+        }
         public async void ProceedAfterLogin()
         {
             LogWriter.LogWrite("ProceedAfterLogin");
 
             RegistryManager.GetApplicationFont();
 
+            //We also need to get the user settings to chck if the user was an old other device user and do nto show the distracting site screen
+            LogWriter.LogWrite("attempt to Get User Local Device Settings");
+            FocusBearAPIClient client = new FocusBearAPIClient();
+            var userLocalSettingsResponse = await client.GetUserLocalDeviceSettingsInfo();
+            int m = int.Parse(userLocalSettingsResponse.ToString());
+            if (m == 1)
+            {
+                LogWriter.LogWrite("GetUserLocalDeviceSettings Success");
+                //User Local Device retrieved Successfully, Process them.
+                appSettings.ReadAndParseUserLocalDeviceSettingsJson();
+            }
+            else
+            {
+                LogWriter.LogWrite("GetUserLocalDeviceSettings Failed");
+                appSettings.ReadAndParseUserLocalDeviceSettingsJson();
+            }
+
+
+            if (!RegistryManager.GetOnboardingAfterLoginDoneStatus())
+            {
+                //Check if the user is an old user and settings already exists, then do not take to onboarding
+                if(!appSettings.CheckIfLocalDeviceSettingsJsonExistsForOldUser())
+                {
+                    if (wndSplash != null)
+                    {
+                        LogWriter.LogWrite("hide SplashWindow() show Onboarding case");
+                        wndSplash.Close();
+                    }
+
+                    //Save the default settings
+                    //Save the local settings and upload to server
+                    LocalSettingsManager.PutLocalSettings();
+
+                    ShowOnBoradingFlow();
+
+                    return;
+                }
+                
+                
+            }
+
+            ExecutePostLoginTasks();
+        }
+
+        public async void ExecutePostLoginTasks()
+        {
             if (!RegistryManager.GetOnboardingVideoShownStatus())
             {
-                //We also need to get the user settings to chck if the user was an old other device user and do nto show the distracting site screen
-                LogWriter.LogWrite("attempt to Get User Local Device Settings");
+                ///await Task.Delay(1000); //Let the login window be closed
                 FocusBearAPIClient client = new FocusBearAPIClient();
-                var userLocalSettingsResponse = await client.GetUserLocalDeviceSettingsInfo();
-                int m = int.Parse(userLocalSettingsResponse.ToString());
-                if (m == 1)
-                {
-                    LogWriter.LogWrite("GetUserLocalDeviceSettings Success");
-                    //User Local Device retrieved Successfully, Process them.
-                    appSettings.ReadAndParseUserLocalDeviceSettingsJson();
-                }
-                else
-                {
-                    LogWriter.LogWrite("GetUserLocalDeviceSettings Failed");
-                    appSettings.ReadAndParseUserLocalDeviceSettingsJson();
-                }
-
-                await Task.Delay(1000); //Let the login window be closed
-
                 var userConsentTermsResponseUnused = await client.RecordUserConsent("terms_of_service");
 
                 var userConsentPPResponseUnused = await client.RecordUserConsent("privacy_policy");
 
+                var SyncPlatformCoursesResponseUnused = await client.SyncPlatformCourses();
 
-                if(appSettings.sAdditionalGoals.Length > 0)
-                {
-                    var ResponseUnused = client.PutAdditionalGoals();
-                }
+                var EnrolForCoursesUnused = await client.EnrollForCourses(); //Enroll for courses 
+           
+                //if (appSettings.sAdditionalGoals.Length > 0)
+                //{
+                //    var ResponseUnused = client.PutAdditionalGoals();
+                //}
 
                 if (wndSplash != null)
                 {
-                    LogWriter.LogWrite("hide SplashWindow() show Onboarding case");
+                    LogWriter.LogWrite("hide SplashWindow() ExecutePostLoginTasks case");
                     wndSplash.Close();
                 }
 
@@ -1005,21 +1065,28 @@ namespace Focus_Bear
 
                 appSettings.CapturePostHog("menu_tour_setup_complete");
 
+                OnboardingAskProcrastinatingWindow wndOnboardingAskProcrastinatingWindow = new OnboardingAskProcrastinatingWindow();
+                wndOnboardingAskProcrastinatingWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                wndOnboardingAskProcrastinatingWindow.Topmost = true;
+                wndOnboardingAskProcrastinatingWindow.ShowDialog();
+                wndOnboardingAskProcrastinatingWindow.Activate();
+                wndOnboardingAskProcrastinatingWindow.Focus();
+
                 /*  "titleAlertSetupComplete":"Setup complete!",
                     "subTitleAlertSetupComplete":"To get up and running quickly, have a read of our quick start guide.",
-                     "buttonOkText":"Enlighten me"*/  
-                FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["menuTourVcInfo"]["subTitleAlertSetupComplete"].ToString(), appSettings.ConfigFileStrings["menuTourVcInfo"]["titleAlertSetupComplete"].ToString(), MessageBoxButton.OK, appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonOkText"].ToString());
-                msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                msg.ShowDialog();
+                     "buttonOkText":"Enlighten me"*/
+                //FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["menuTourVcInfo"]["subTitleAlertSetupComplete"].ToString(), appSettings.ConfigFileStrings["menuTourVcInfo"]["titleAlertSetupComplete"].ToString(), MessageBoxButton.OK, appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonOkText"].ToString());
+                //msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                //msg.ShowDialog();
 
-                try
-                {
-                    Process.Start("https://www.focusbear.io/en/post-install-windows");
-                }
-                catch (Exception ex)
-                {
-                    LogWriter.LogWrite("Post install url failed to load + " + ex.Message);
-                }
+                //try
+                //{
+                //    Process.Start("https://www.focusbear.io/en/post-install-windows");
+                //}
+                //catch (Exception ex)
+                //{
+                //    LogWriter.LogWrite("Post install url failed to load + " + ex.Message);
+                //}
 
             }
 
@@ -1052,9 +1119,7 @@ namespace Focus_Bear
                 }
 
             }
-
         }
-
         public async void ProeedAfterGettingDeviceID()
         {
             LogWriter.LogWrite("ProeedAfterGettingDeviceID");
@@ -1094,7 +1159,10 @@ namespace Focus_Bear
                     wndSplash.Close();
                 }
 
-                ShowExpiredNag(true);
+                //ShowExpiredNag(true);
+                //WE need to make sure that the app is running in the SIMPLE MODE and NOT THE GEEK MODE
+                appSettings.bIsGeekModeEnabled = false;
+                ShowUpgradeToProNag("");
             }
             //Get local settings
 
@@ -1224,7 +1292,7 @@ namespace Focus_Bear
 
                 if (!RegistryManager.GetFocusModeSetupDone())
                 {
-                    if (appSettings.arrFocusModes.Count <= 4)
+                    if (appSettings.arrFocusModes.Count <= 5)
                     {
                         //Get focus mode templates
 
@@ -1274,6 +1342,11 @@ namespace Focus_Bear
 #if DEBUG
             //Write any routines or functionality to test in DEBUG mode here
             ///ShowCallFocusNotifier();
+            ///
+
+           // FocusBearMenuTour wndFocusBearMenuTour = new FocusBearMenuTour();
+            //wndFocusBearMenuTour.ShowDialog();
+
 
 #endif
 
@@ -1285,6 +1358,11 @@ namespace Focus_Bear
                 RegistryManager.SetMorningHabitsShownTillDate();
             }
 
+            //Right after the procastinating screen have been shown and the tray menu window have been created, we will show the start simple pomodoro window
+            if (!RegistryManager.GetSimplePomodoroTourShownStatus()) //can use this to detect the first pomodoro session
+            {
+                ((App)(Application.Current)).ShowSimplePomodoroWindow();
+            }
 
             //Do clear the Postponed variables
             RegistryManager.RemovePostponedHabitData();
@@ -1430,11 +1508,13 @@ namespace Focus_Bear
                 {
                     if (AudioUtilities.IsUserOnaAudioCall() || CameraUtilities.IsUserOnVideoCall())
                     {
-                        ShowCallFocusNotifier();
+                        if(!bUserManuallyClosedNotifierForThisCallSession)
+                            ShowCallFocusNotifier();
                         appSettings.bIsUserOnCall = true;
                     }
                     else
                     {
+                        bUserManuallyClosedNotifierForThisCallSession = false;
                         appSettings.bIsUserOnCall = false;
                         HideCallFocusNotifier();
                     }
@@ -1522,10 +1602,10 @@ namespace Focus_Bear
                 }
                 if (appSettings.IsShutOffTime())
                 {
-                    if(!bShowEveningRoutine)
+                    if (!bShowEveningRoutine)
                     {
                         //Looks like app is deactivated and evening password is not set, so we do not need to show evening routine 
-                        LogWriter.LogWrite("App is deactivated and skip evening password is not set / or cutoff one, so we do not need to show evening routine, return"); 
+                        LogWriter.LogWrite("App is deactivated and skip evening password is not set / or cutoff one, so we do not need to show evening routine, return");
                         return;
                     }
                     if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF)
@@ -1559,13 +1639,13 @@ namespace Focus_Bear
                                     wndFocusSummary = null;
                                 }
                                 //Only if evening routine have not started
-                               
+
                                 if (wndHabits != null) //close evening routine window
                                 {
                                     wndHabits.Close();
                                     wndHabits = null;
                                 }
-                               
+
 
                                 ShowShutOffScreen();
                                 return;
@@ -1574,7 +1654,7 @@ namespace Focus_Bear
 
                         if (appSettings.DidCutOffTimePassed())
                         {
-                            if(appSettings.bFocusSummaryPostponedState)
+                            if (appSettings.bFocusSummaryPostponedState)
                             {
                                 //((App)(Application.Current)).wndFocusSummary.ResumeFocusSummary();
                             }
@@ -2084,7 +2164,7 @@ namespace Focus_Bear
 
                                                                         if (i != 0)
                                                                         {
-                                                                            appSettings.nHabitIndex = i - 1; //We will assign the habit index from the previous actiity and show the finish screen for that activity
+                                                                            appSettings.nHabitIndex = i - 1; //We will assign the habit index from the previous activity and show the finish screen for that activity
 
                                                                             //Now we do not need to start normal but need to show the finish screen of this
                                                                             appSettings.bShowActivitiesFromMid = true;
@@ -2218,6 +2298,66 @@ namespace Focus_Bear
             catch (Exception ex)
             {
                 LogWriter.LogWrite("Props block ex- " + ex.Message);
+            }
+
+            //Check if we the user have selected some activities for today, first check date, then get the habits , complicated logic
+            appSettings.arrAllMorningHabitsFiltered = new List<habit>(appSettings.arrAllMorningHabits);
+
+            if (RegistryManager.GetSelectedMorningHabitsDate())
+            {
+                TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+
+                DateTime now = DateTime.Now;
+
+                DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+                Console.WriteLine("{0}", myStartTime.ToString());
+
+                DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
+                Console.WriteLine("{0}", myShutOffTime.ToString());
+
+                if (appSettings.SelectedMorningHabitsDate > myStartTime && appSettings.SelectedMorningHabitsDate < myShutOffTime)
+                {
+                    //So user selectd habits for today.
+                    //Now extract the saved habits list
+                    RegistryManager.GetSelectedMorningHabitsForToday(); //These will come in the arrAllMorningHabits array
+                                                                        
+                    //Now filter the arrAllMorningHabits so that if any habit was done, it should not be there in the Filtered array and thus should be removed from arrAllMorningHabits too
+                    //run a loof for the arrAllMorningHabitsFiltered
+                    for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
+                    {
+                        string sID = appSettings.arrAllMorningHabits[i].id;
+                        bool bFound = false;
+                        for (int j = 0; j < appSettings.arrAllMorningHabitsFiltered.Count; j++)
+                        {
+                            if (sID == appSettings.arrAllMorningHabitsFiltered[j].id)
+                            {
+                                bFound = true;
+                                break;
+                            }
+                        }
+                        if(!bFound)
+                        {
+                            appSettings.arrAllMorningHabits.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                }
+            }
+
+            //If its the expired version, then we need to show top 3 activities only
+            if (appSettings.isExpired)
+            {
+                appSettings.bShowReducedHabitsOnExpired = false;
+                for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
+                {
+                    if (i > 2)
+                    {
+                        appSettings.arrAllMorningHabits.RemoveAt(i);
+                        i--;
+                        appSettings.bShowReducedHabitsOnExpired = true;
+                    }
+                }
             }
 
             try
@@ -2742,6 +2882,66 @@ namespace Focus_Bear
                 //We could not get last activity info so we will start the routine for sure
             }
 
+            //Check if we the user have selected some activities for today, first check date, then get the Evening habits , complicated logic
+            appSettings.arrAllEveningHabitsFiltered = new List<habit>(appSettings.arrAllEveningHabits);
+
+            if (RegistryManager.GetSelectedEveningHabitsDate())
+            {
+                TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+
+                DateTime now = DateTime.Now;
+
+                DateTime myStartTimeNextDay = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+                myStartTimeNextDay = myStartTimeNextDay.AddDays(1); //next day
+                Console.WriteLine("{0}", myStartTimeNextDay.ToString());
+
+                DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
+                Console.WriteLine("{0}", myShutOffTime.ToString());
+
+                if (appSettings.SelectedEveningHabitsDate > myShutOffTime && appSettings.SelectedEveningHabitsDate < myStartTimeNextDay)
+                {
+                    //So user selectd habits for today.
+                    //Now extract the saved habits list
+                    RegistryManager.GetSelectedEveningHabitsForToday(); //These will come in the arrAllEveningHabits array
+
+                    //Now filter the arrAllEveningHabits so that if any habit was done, it should not be there in the Filtered array and thus should be removed from arrAllMorningHabits too
+                    //run a loof for the arrAllEveningHabitsFiltered
+                    for (int i = 0; i < appSettings.arrAllEveningHabits.Count; i++)
+                    {
+                        string sID = appSettings.arrAllEveningHabits[i].id;
+                        bool bFound = false;
+                        for (int j = 0; j < appSettings.arrAllEveningHabitsFiltered.Count; j++)
+                        {
+                            if (sID == appSettings.arrAllEveningHabitsFiltered[j].id)
+                            {
+                                bFound = true;
+                                break;
+                            }
+                        }
+                        if (!bFound)
+                        {
+                            appSettings.arrAllEveningHabits.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                }
+            }
+            //If its the expired version, then we need to show top 3 activities only
+            if (appSettings.isExpired)
+            {
+                appSettings.bShowReducedHabitsOnExpired = false;
+                for (int i = 0; i < appSettings.arrAllEveningHabits.Count; i++)
+                {
+                    if (i > 2)
+                    {
+                        appSettings.arrAllEveningHabits.RemoveAt(i);
+                        i--;
+                        appSettings.bShowReducedHabitsOnExpired = true;
+                    }
+                }
+            }
+
 
             LogWriter.LogWrite("ShowEveningRoutine() - show evening habits screen now");
 
@@ -2802,6 +3002,24 @@ namespace Focus_Bear
             }
         }
 
+        public void ShowUpgradeToProNag(string sTitleContext)
+        {
+            LogWriter.LogWrite("ShowUpgradeToProNag()");
+
+            UpgradeToPro up = new UpgradeToPro(sTitleContext);
+            bool? bResult = up.ShowDialog();
+
+            //if (bShowingOnAppStartedExpired)
+            //{
+            //    if (bResult.Value == false)
+            //    {
+            //        LogWriter.LogWrite("Upgrade Nag Closed at very beginning, Terminate application");
+            //        Application.Current.Shutdown(0);
+            //    }
+            //}
+        }
+
+
         public void ShowPreferencesWindow()
         {
             if (wndPreferences == null)
@@ -2828,6 +3046,8 @@ namespace Focus_Bear
             {
                 wndFocusModeEnd.ShowTasksEndWindow();
             }
+
+            ((App)(Application.Current)).HideToDoPlayer();
         }
         public void ShowBreakWindow()
         {
@@ -3265,6 +3485,7 @@ namespace Focus_Bear
                 {
                     wndFocusProgress = new FocusProgress();
                 }
+                wndFocusProgress.nTimer = (int.Parse(appSettings.sRunningFocusModeMinutes) * 60);
                 wndFocusProgress.Show();
                 wndFocusProgress.BringIntoView();
             }
@@ -3322,6 +3543,16 @@ namespace Focus_Bear
 
                 // Unsubscribe from the events when you're done
                 SystemEvents.PowerModeChanged -= OnPowerChange;
+
+                try
+                {
+                    if(wndToDoPlayer != null)
+                        wndToDoPlayer.webView.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("Todo Player webView.Dispose(); - " + ex.Message);
+                }
 
                 LogWriter.LogWrite("Application_Exit() done");
 
@@ -3445,6 +3676,11 @@ namespace Focus_Bear
 
         public void EnterPomodoroModeAfterMorningRoutine()
         {
+            if (!appSettings.bIsGeekModeEnabled)
+            {
+                return; //return in Simple mode
+            }
+            
             LogWriter.LogWrite("EnterPomodoroModeAfterMorningRoutine()");
             //WE will first need to check if automatic hardcode pomodoro is on and then the days are valid
             if (appSettings.bAutomaticUseSuperPomodoroModeSetting)
@@ -3543,6 +3779,32 @@ namespace Focus_Bear
             wndStartPomodoro.Show();
             wndStartPomodoro.BringIntoView();
             wndStartPomodoro.UpdateValues(bEnterSuperPomodoroModeAfterMorningRoutine);
+        }
+
+        public void ShowSimplePomodoroWindow()
+        {
+            LogWriter.LogWrite("ShowSimplePomodoroWindow()");
+
+            //Check here if the Breaks window is visible, we will hide it.
+            if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
+            {
+                ((App)(Application.Current)).wndTakeABreak.Close();
+                ((App)(Application.Current)).wndTakeABreak = null;
+            }
+
+            if (((App)(Application.Current)).wndFocusModeEnd != null)
+            {
+                ((App)(Application.Current)).wndFocusModeEnd.Hide(); //If focus mode end window is visible, hide it
+            }
+
+            appSettings.isStartPomodoroWindowOpen = true;
+            if (wndStartSimplePomodoro == null)
+            {
+                wndStartSimplePomodoro = new StartSimplePomodoro();
+            }
+            wndStartSimplePomodoro.Show();
+            wndStartSimplePomodoro.BringIntoView();
+            wndStartSimplePomodoro.UpdateValues();
         }
 
         private async void CheckRunningFocusModeAndFinishIt()
@@ -3863,6 +4125,30 @@ namespace Focus_Bear
 
            
             return false;
+        }
+
+        public void ShowToDoPlayer()
+        {
+            if(wndToDoPlayer == null)
+            {
+                wndToDoPlayer = new ToDoPlayer();
+            }
+            wndToDoPlayer.Show();
+
+            if(bLoadURLAgainInToDoPlayer)
+            {
+                wndToDoPlayer.LoadURL();
+                bLoadURLAgainInToDoPlayer = false;
+            }
+        }
+        public void HideToDoPlayer()
+        {
+            //Called when focus mode ends
+            if (wndToDoPlayer != null)
+            {
+                bLoadURLAgainInToDoPlayer = true;
+                wndToDoPlayer.Close();
+            }
         }
     }
 }
