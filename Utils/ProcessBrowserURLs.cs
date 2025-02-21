@@ -264,7 +264,17 @@ namespace Focus_Bear.Utils
                 }
                 return;
             }
-            
+            if (sURL.Contains("file://"))
+            {
+                if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
+                {
+                    FocusAlignmentScoreManager.FocusModeCloseCurrentUrlForAlignmentScore();
+                    FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                }
+
+                return;
+            }
+
             if (appSettings.nFocusBearMode == 1)
             {
                 if (sURL.Contains("focus_bear_temporarily_allow=true"))//If user have clicked I need this URL from blocked page, ignore it
