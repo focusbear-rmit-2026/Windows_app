@@ -155,6 +155,7 @@ namespace Focus_Bear.Utils
         public string sDayStartTime;
         public string sDayShutOffTime;
         public string sDayCutOffTime;
+        public bool bSomeHabitsRemovedDueToCutOffTime = false;
 
         //Habits Realted
         public int currentHabitIndex = -1;
@@ -924,7 +925,7 @@ namespace Focus_Bear.Utils
                                 arrDaysOfWeek = arrTempDays.ToObject<List<string>>();
                             }
 
-                            arrAllMorningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek));
+                            arrAllMorningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, ""));
                         }
                         //copy to Global Array but do not reference
                         arrGLOBALAllMorningHabits = new List<habit>(arrAllMorningHabits);
@@ -1018,8 +1019,17 @@ namespace Focus_Bear.Utils
                                 JArray arrTempDays = (JArray)item.GetValue("days_of_week");
                                 arrDaysOfWeek = arrTempDays.ToObject<List<string>>();
                             }
+                            string sCutOffTime = "";
+                            if (item.ContainsKey("cutoff_time_for_doing_activity"))
+                            {
+                                string sTime = item.GetValue("cutoff_time_for_doing_activity").ToString();
+                                if(sTime != null && sTime != "")
+                                {
+                                    sCutOffTime = sTime;//We have a cutoff time for this habit
+                                }
+                            }
 
-                            arrAllEveningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek));
+                            arrAllEveningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, sCutOffTime));
                         }
 
                         //copy to Global Array but do not reference

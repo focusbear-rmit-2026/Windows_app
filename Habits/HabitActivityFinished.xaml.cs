@@ -299,6 +299,7 @@ namespace Focus_Bear.Habits
                         //Hide the skip this habit button on last activity
                         SkipThisHabitText.Visibility = Visibility.Collapsed;
                         ChooseAnotherHabit.Visibility = Visibility.Collapsed;
+                        Seperator.Visibility = Visibility.Collapsed;
 
                         //We need to hide the Please SPare Me Button
                         _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;

@@ -17,9 +17,11 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Focus_Bear.Habits
 {
@@ -46,7 +48,7 @@ namespace Focus_Bear.Habits
                 }
             }
         }
-
+        private DispatcherTimer popupTimer;
         private ObservableCollection<HabitList> _ObjListActivityModel = null;
         AppSettings appSettings = AppSettings.GetInstance;
         private HabitWindow _parentWindow;
@@ -103,6 +105,17 @@ namespace Focus_Bear.Habits
                 {
                     Heading.Text = appSettings.ConfigFileStrings["activityInfo"]["startEveningHabitTitleText"].ToString();
                     nCount = appSettings.arrAllEveningHabits.Count;
+                    if(appSettings.bSomeHabitsRemovedDueToCutOffTime)
+                    {
+                        PopupTitle.Text = "Some habits which are past the cutoff time you set have been removed from the list."; //todo win texts
+                        MyPopup.IsOpen = true;
+                        // Create and start a timer to trigger fade-out after 5 seconds.
+                        popupTimer = new DispatcherTimer();
+                        popupTimer.Interval = TimeSpan.FromSeconds(5);
+                        popupTimer.Tick += PopupTimer_Tick;
+                        popupTimer.Start();
+
+                    }
                 }
 
                 if (nCount < 2)
@@ -455,6 +468,25 @@ namespace Focus_Bear.Habits
         {
             _parentWindow.ShowChooseHabitsWindow();
             UpdateHabitsList();
+        }
+
+        private void PopupTimer_Tick(object sender, EventArgs e)
+        {
+            popupTimer.Stop();
+            popupTimer.Tick -= PopupTimer_Tick;
+
+            // Create a fade out animation.
+            DoubleAnimation fadeOut = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromSeconds(2)
+            };
+
+            fadeOut.Completed += (s, a) => { MyPopup.IsOpen = false; };
+
+            // Start the animation on the border containing the popup content.
+            PopupBorder.BeginAnimation(OpacityProperty, fadeOut);
         }
     }
 }

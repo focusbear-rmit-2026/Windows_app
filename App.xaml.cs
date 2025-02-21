@@ -1707,9 +1707,65 @@ namespace Focus_Bear
 
 
                                     }
-
-
                                 }
+                                else
+                                {
+                                    //If its a high priority habit, we will need to check if its cutoff time have passed then stop and act accordingly
+                                    //cutOffTimePassedForHabitText
+                                    //since a high priority activity is running, we need to skip it and show the finish screen 
+                                    //and allow starting next high priority activity or show unlock button
+                                    //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
+                                    if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].sCutOffTime != "")
+                                    {
+                                        DateTime now1 = DateTime.Now;
+                                        TimeSpan tsTime = TimeSpan.Parse(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].sCutOffTime);
+                                        DateTime myAvtivityCutoffTime = new DateTime(now1.Year, now1.Month, now1.Day, tsTime.Hours, tsTime.Minutes, 00);
+                                        if (now > myAvtivityCutoffTime)
+                                        {
+                                            //Skip this habit and move to next
+                                            if (wndHabits != null)
+                                            {
+                                                if (wndHabits.PageHabitActivityOnGoing != null)
+                                                {
+                                                    if (wndHabits.PageHabitActivityOnGoing.bTimerRunning)
+                                                    {
+                                                        wndHabits.PageHabitActivityOnGoing.StopTimerOfRunningActivity(); //Stop the timer
+                                                                                                                         //we need to call the Activity Skipped API here to skip the current activity
+
+                                                        //it may be relax activity window visible
+                                                        if (wndRelaxMode != null && wndRelaxMode.IsVisible)
+                                                        {
+                                                            wndRelaxMode.bForceClose = true;
+                                                            wndRelaxMode.Close();
+                                                            wndHabits.WindowState = WindowState.Maximized;
+                                                        }
+                                                        //If the above is null, finish screen may be visible, as ShowACtivityFinishedScreen() make is null
+                                                        LogWriter.LogWrite("wndHabits.Hide()");
+                                                        wndHabits.Hide();
+                                                        appSettings.RemoveSecondaryWindows();
+
+                                                        LogWriter.LogWrite("EVENING_HABITS STATE - now > myCutoffTime of Individual habit - Show Alert");
+                                                        FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["common"]["cutOffTimePassedForHabitText"].ToString());
+                                                        msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                                                        msg.ShowDialog();
+
+                                                        wndHabits.Show();
+                                                        appSettings.bSkipCurrentActivityCantDoItToday = true;
+                                                        LogWriter.LogWrite("appSettings.bSkipCurrentActivityCantDoItToday = true; - After cutoff time of individual habit - " + appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name);
+                                                        wndHabits.ShowACtivityFinishedScreen(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        //It may be the activity finish screen already
+                                                        //Or activity may be in postponed state
+                                                        //Once the user clicks ok, we need to show the High Priority activities only.
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
                             }
                         }
 
@@ -2510,6 +2566,8 @@ namespace Focus_Bear
             //Here we will filter the array to just have the current days activity
             //It might be possible that the app is contineously running since many days 
             //SO we always need to first fetch from the GLobal array and then filer it per days
+            appSettings.bSomeHabitsRemovedDueToCutOffTime = false; //Initialte Again
+
             appSettings.arrAllEveningHabits.Clear();
             DayOfWeek Today = DateTime.Now.DayOfWeek;
             for (int i = 0; i < appSettings.arrGLOBALAllEveningHabits.Count; i++)
@@ -2518,7 +2576,31 @@ namespace Focus_Bear
                 {
                     if (appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek[m].ToLower() == "all")
                     {
-                        appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
+                        //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
+                        if (appSettings.DidCutOffTimePassed())
+                        {
+                            if (appSettings.arrGLOBALAllEveningHabits[i].bHighPriorityActivity)
+                            {
+                                if (appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime != "")
+                                {
+                                    DateTime now = DateTime.Now;
+                                    TimeSpan tsTime = TimeSpan.Parse(appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime);
+                                    DateTime myAvtivityStartTime = new DateTime(now.Year, now.Month, now.Day, tsTime.Hours, tsTime.Minutes, 00);
+                                    if (now < myAvtivityStartTime)
+                                    {
+                                        appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
+                                    }
+                                    else
+                                    {
+                                        appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
+                                    }
+                                }
+                                else
+                                {
+                                    appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]); //Add if there is no 
+                                }
+                            }
+                        }
                         break;
                     }
                     else
@@ -2585,6 +2667,34 @@ namespace Focus_Bear
                                 }
 
                         }
+
+                        if (bfound)
+                        {
+                            //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
+                            if (appSettings.DidCutOffTimePassed())
+                            {
+                                if (appSettings.arrGLOBALAllEveningHabits[i].bHighPriorityActivity)
+                                {
+                                    if (appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime != "")
+                                    {
+                                        DateTime now = DateTime.Now;
+                                        TimeSpan tsTime = TimeSpan.Parse(appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime);
+                                        DateTime myAvtivityStartTime = new DateTime(now.Year, now.Month, now.Day, tsTime.Hours, tsTime.Minutes, 00);
+                                        if (now > myAvtivityStartTime)
+                                        {
+                                            bfound = false;
+                                            appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    bfound = false;
+                                    appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
+                                }
+                            }
+                        }
+
                         if (bfound)
                         {
                             appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);

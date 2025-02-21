@@ -187,13 +187,13 @@ namespace Focus_Bear.Onboarding
             appSettings.InitialSleepTimeValue = Convert.ToDateTime(sSleepTimeHours + ":" + sSleepTimeMinutes + " " + sSleepTimeAMPM);
             Console.WriteLine(appSettings.InitialSleepTimeValue.ToString("HH:mm"));
 
-            if(appSettings.InitialSleepTimeValue < appSettings.InitialShutoffTimeValue)
-            {
-                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["sleepTimeAlertText"].ToString(), "Focus Bear"); //"Sleep time cannot be less than finish work time." 
-                ff.Owner = this._parentWindow;
-                ff.ShowDialog();
-                return;
-            }
+            //if(appSettings.InitialSleepTimeValue < appSettings.InitialShutoffTimeValue)
+            //{
+            //    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["sleepTimeAlertText"].ToString(), "Focus Bear"); //"Sleep time cannot be less than finish work time." 
+            //    ff.Owner = this._parentWindow;
+            //    ff.ShowDialog();
+            //    return;
+            //}
             ///_parentWindow.ShowOnboardingBreakRemindersScreen();
             _parentWindow.ShowOnbordingConfirmMorningRoutine();
         }
