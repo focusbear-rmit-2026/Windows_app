@@ -303,6 +303,9 @@
     <Compile Include="Focus\StopFocusMode.xaml.cs">
       <DependentUpon>StopFocusMode.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\ToDoList.xaml.cs">
+      <DependentUpon>ToDoList.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\ToDoPlayer.xaml.cs">
       <DependentUpon>ToDoPlayer.xaml</DependentUpon>
     </Compile>
@@ -669,6 +672,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\StopFocusMode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\ToDoList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

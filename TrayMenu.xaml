@@ -199,7 +199,7 @@
                 </Button.Content>
 
             </Button>
-            <Button   x:Name="btnToDoPlayer" Visibility="Collapsed"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnToDoPlayer_Click">
+            <Button   x:Name="btnToDoPlayer" Visibility="Visible"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnToDoPlayer_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Margin="8" Name="btnToDoPlayerTXT">xTo Do Player</TextBlock>

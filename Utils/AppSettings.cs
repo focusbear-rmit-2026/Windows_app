@@ -125,6 +125,8 @@ namespace Focus_Bear.Utils
 
         public string sLangCode = "en";
 
+        public bool bBlockWhileOnbording = true; //keeping it true just to override user preference for blocking while onboarding
+
         public bool bBlockingWorkedWhileOnboarding = false;
         //API infos Related
         public string sDeviceID = "";
@@ -186,6 +188,7 @@ namespace Focus_Bear.Utils
 
         public bool bHabitsPostponedState = false; //variable to handle the Resume Habits menu item
         public bool bFocusSummaryPostponedState = false; //variable to handle the Resume Habits menu item in case of focus summary postponed
+        public bool bEveningHabitsPostponedAfterCutoffTime = false;
 
         public string sRawTasks = "";
         public string sRawTasksDone = ""; //used to get a list of tasks done from focus mode end window.
@@ -2185,6 +2188,18 @@ namespace Focus_Bear.Utils
             }));
         }
 
+        public void HideGentleBlockWindow()
+        {
+            ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
+            {
+                if (wndGentleBlock != null)
+                {
+                    wndGentleBlock.StopTimer();
+                    wndGentleBlock.Hide();
+                }
+            }));
+        }
+
         public bool DidCutOffTimePassed()
         {
             try
@@ -2252,8 +2267,7 @@ namespace Focus_Bear.Utils
                 {
                     wndShowIntention = new ShowIntention();
                 }
-                //wndGentleBlock.Show();
-
+               
                 if (bHabitwithUseFocusModeRunning)//if an activity with use focus mode is running, we need to show the activity name
                 {
                     wndShowIntention.Show_ShowIntentionWindow(hWnd, sURL, sIntention);

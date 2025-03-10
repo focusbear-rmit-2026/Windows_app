@@ -60,7 +60,9 @@ namespace Focus_Bear.Onboarding.NEW
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
-            if(RadioButton1.IsChecked.Value)
+            appSettings.bBlockWhileOnbording = true;
+
+            if (RadioButton1.IsChecked.Value)
             {
                 appSettings.nBlockingSchedule = BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK;
                 appSettings.CapturePostHog("choose-focus-schedule", "\"schedule-type\":\"until_i_finish_work\"");

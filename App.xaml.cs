@@ -140,9 +140,26 @@ namespace Focus_Bear
                                         }
 
                                     }
+                                    else if (sName != null && (sName.Contains("Focus Bear/focus-block.html")) && (sURL != null && sURL.Length > 0 && sURL.Contains("&unblock_it=true")) ) 
+                                    {
+                                        if (int.Parse(accWindow.accState[objChild].ToString()) == 1074791424) //I just found this to be appropriate and not editable state
+                                        {
+                                            Debug.WriteLine("accName = " + sName);
+                                            Debug.WriteLine("accValue = " + sURL);
+                                            Debug.WriteLine("accChild = " + accWindow.accChild[objChild].ToString());
+                                            Debug.WriteLine("accState = " + accWindow.accState[objChild].ToString());
+
+                                            appSettings.FirefoxLastAccWindow = accWindow;
+                                            appSettings.sLastActiveURLInFirefox = sURL;
+                                            appSettings.objChild = objChild;
+
+                                            ProcessBrowserURLs.ProcessCurrentURL(hwnd);
+                                        }
+
+                                    }
                                     else
                                     {
-                                        LogWriter.LogWrite("Mozilla's sName is null or other language then EN / ES- OR (sURL != null && sURL.Length > 0 FAILS" + sName + "URL =" + sURL);
+                                        LogWriter.LogWrite("Mozilla's sName is null or other language then EN / ES- OR (sURL != null && sURL.Length > 0 FAILS" + sName + "URL = " + sURL);
                                     }
                                 }
                             }
@@ -305,6 +322,7 @@ namespace Focus_Bear
         public CallFocusNotifier wndCallFocusNotifier = null;
 
         public ToDoPlayer wndToDoPlayer = null;
+        public ToDoList wndToDoList = null;
 
         bool bAppExtracted = false;
 
@@ -1344,9 +1362,8 @@ namespace Focus_Bear
             ///ShowCallFocusNotifier();
             ///
 
-           // FocusBearMenuTour wndFocusBearMenuTour = new FocusBearMenuTour();
+            // FocusBearMenuTour wndFocusBearMenuTour = new FocusBearMenuTour();
             //wndFocusBearMenuTour.ShowDialog();
-
 
 #endif
 
@@ -1654,6 +1671,14 @@ namespace Focus_Bear
 
                         if (appSettings.DidCutOffTimePassed())
                         {
+                            if (appSettings.bHabitsPostponedState && !appSettings.bEveningHabitsPostponedAfterCutoffTime)
+                            {
+                                //Kick the user off at the cutoff time
+                                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                                LogWriter.LogWrite("Kick the user off at the cutoff time as it was postponed before cutoff time elapsed");
+                                return;
+                            }
+
                             if (appSettings.bFocusSummaryPostponedState)
                             {
                                 //((App)(Application.Current)).wndFocusSummary.ResumeFocusSummary();
@@ -1664,7 +1689,7 @@ namespace Focus_Bear
                                 if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].bHighPriorityActivity)
                                 {
 
-                                    //since a high priority activity is running, we need to skip it and show the finish screen 
+                                    //since a high priority activity is not running, we need to skip it and show the finish screen 
                                     //and allow starting next high priority activity or show unlock button
                                     if (wndHabits != null)
                                     {
@@ -1946,6 +1971,7 @@ namespace Focus_Bear
             //Let's also reset the Postponed and Fous Summary Postponed states
             appSettings.bFocusSummaryPostponedState = false;
             appSettings.bHabitsPostponedState = false;
+            appSettings.bEveningHabitsPostponedAfterCutoffTime = false; //reset
 
             appSettings.bShowActivitiesFromMid = false;
             LogWriter.LogWrite("appSettings.bShowActivitiesFromMid = false;");
@@ -2535,6 +2561,7 @@ namespace Focus_Bear
             //Let's also reset the Postponed and Fous Summary Postponed states
             appSettings.bFocusSummaryPostponedState = false;
             appSettings.bHabitsPostponedState = false;
+            appSettings.bEveningHabitsPostponedAfterCutoffTime = false; //reset
 
             appSettings.bShowActivitiesFromMid = false;
             LogWriter.LogWrite("appSettings.bShowActivitiesFromMid = false;");
@@ -2600,6 +2627,10 @@ namespace Focus_Bear
                                     appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]); //Add if there is no 
                                 }
                             }
+                        }
+                        else
+                        {
+                            appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
                         }
                         break;
                     }
@@ -3284,6 +3315,15 @@ namespace Focus_Bear
                     dispatcherTimerPostponeHabits.Start();
 
                     appSettings.bHabitsPostponedState = true;
+
+                    if(appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    {
+                        if(appSettings.DidCutOffTimePassed())
+                        {
+                            appSettings.bEveningHabitsPostponedAfterCutoffTime = true;
+                        }
+                    }
+
                     LogWriter.LogWrite("appSettings.bHabitsPostponedState = true;");
 
                     CommandManager.InvalidateRequerySuggested();
@@ -3299,7 +3339,7 @@ namespace Focus_Bear
                 LogWriter.LogWrite("PostponeHabitWork - " + ex.Message);
             }
 
-            if (nMinutesToPostpone > 2) //If the piostpone time is more than 2 minutes, we need to show a popup bfore the postpone time is over and the habits are resumed.
+            if (nMinutesToPostpone > 2) //If the postpone time is more than 2 minutes, we need to show a popup bfore the postpone time is over and the habits are resumed.
             {
                 SetShowingYourHabitsResumeInPopup(nMinutesToPostpone - 2);
             }
@@ -3411,6 +3451,7 @@ namespace Focus_Bear
                 CommandManager.InvalidateRequerySuggested();
 
                 appSettings.bHabitsPostponedState = false;
+                appSettings.bEveningHabitsPostponedAfterCutoffTime = false; //reset
                 LogWriter.LogWrite(" appSettings.bHabitsPostponedState = false;");
 
                 //Simply set the activity type to NONE and the background thread will take care.
@@ -4250,6 +4291,17 @@ namespace Focus_Bear
                 wndToDoPlayer.LoadURL();
                 bLoadURLAgainInToDoPlayer = false;
             }
+        }
+
+        public void ShowToDoList()
+        {
+            if (wndToDoList == null)
+            {
+                wndToDoList = new ToDoList();
+            }
+            wndToDoList.Show();
+
+            wndToDoList.LoadURL();
         }
         public void HideToDoPlayer()
         {
