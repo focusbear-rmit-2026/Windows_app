@@ -125,6 +125,8 @@ namespace Focus_Bear.Utils
 
         public string sLangCode = "en";
 
+        public bool bBlockWhileOnbording = true; //keeping it true just to override user preference for blocking while onboarding
+
         public bool bBlockingWorkedWhileOnboarding = false;
         //API infos Related
         public string sDeviceID = "";
@@ -155,6 +157,7 @@ namespace Focus_Bear.Utils
         public string sDayStartTime;
         public string sDayShutOffTime;
         public string sDayCutOffTime;
+        public bool bSomeHabitsRemovedDueToCutOffTime = false;
 
         //Habits Realted
         public int currentHabitIndex = -1;
@@ -185,6 +188,7 @@ namespace Focus_Bear.Utils
 
         public bool bHabitsPostponedState = false; //variable to handle the Resume Habits menu item
         public bool bFocusSummaryPostponedState = false; //variable to handle the Resume Habits menu item in case of focus summary postponed
+        public bool bEveningHabitsPostponedAfterCutoffTime = false;
 
         public string sRawTasks = "";
         public string sRawTasksDone = ""; //used to get a list of tasks done from focus mode end window.
@@ -924,7 +928,7 @@ namespace Focus_Bear.Utils
                                 arrDaysOfWeek = arrTempDays.ToObject<List<string>>();
                             }
 
-                            arrAllMorningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek));
+                            arrAllMorningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, ""));
                         }
                         //copy to Global Array but do not reference
                         arrGLOBALAllMorningHabits = new List<habit>(arrAllMorningHabits);
@@ -1018,8 +1022,17 @@ namespace Focus_Bear.Utils
                                 JArray arrTempDays = (JArray)item.GetValue("days_of_week");
                                 arrDaysOfWeek = arrTempDays.ToObject<List<string>>();
                             }
+                            string sCutOffTime = "";
+                            if (item.ContainsKey("cutoff_time_for_doing_activity"))
+                            {
+                                string sTime = item.GetValue("cutoff_time_for_doing_activity").ToString();
+                                if(sTime != null && sTime != "")
+                                {
+                                    sCutOffTime = sTime;//We have a cutoff time for this habit
+                                }
+                            }
 
-                            arrAllEveningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek));
+                            arrAllEveningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, sCutOffTime));
                         }
 
                         //copy to Global Array but do not reference
@@ -2175,6 +2188,18 @@ namespace Focus_Bear.Utils
             }));
         }
 
+        public void HideGentleBlockWindow()
+        {
+            ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
+            {
+                if (wndGentleBlock != null)
+                {
+                    wndGentleBlock.StopTimer();
+                    wndGentleBlock.Hide();
+                }
+            }));
+        }
+
         public bool DidCutOffTimePassed()
         {
             try
@@ -2242,8 +2267,7 @@ namespace Focus_Bear.Utils
                 {
                     wndShowIntention = new ShowIntention();
                 }
-                //wndGentleBlock.Show();
-
+               
                 if (bHabitwithUseFocusModeRunning)//if an activity with use focus mode is running, we need to show the activity name
                 {
                     wndShowIntention.Show_ShowIntentionWindow(hWnd, sURL, sIntention);

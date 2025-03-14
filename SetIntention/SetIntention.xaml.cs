@@ -252,6 +252,24 @@ namespace Focus_Bear.SetIntention
                     DoubleConfirm.Visibility = Visibility.Visible;
 
                     //Start the 5 second timer
+                    dispatcherTimerUnlock.Stop();
+                    //Remove the previous event handler so that new can be set
+                    try
+                    {
+                        var eventField = dispatcherTimerUnlock.GetType().GetField("Tick", BindingFlags.NonPublic | BindingFlags.Instance);
+                        var eventDelegate = (Delegate)eventField.GetValue(dispatcherTimerUnlock);
+                        if (eventDelegate != null)
+                        {
+                            var invocatationList = eventDelegate.GetInvocationList();
+
+                            foreach (var handler in invocatationList)
+                                dispatcherTimerUnlock.Tick -= ((EventHandler)handler);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("ShowSetIntentionWindow resetting timer dispatcherTimerUnlock ex - " + ex.Message);
+                    }
                     nTimer = 5;
                     TxtTimer.Text = appSettings.SecondsToTimerText(nTimer);
                     dispatcherTimerUnlock.Tick += new EventHandler(dispatcherTimer_Unlock);
@@ -279,6 +297,25 @@ namespace Focus_Bear.SetIntention
             //}
 
             //Start the 30 seconds automatic block timer if the user takes no action
+            dispatcherTimerAutoBlock.Stop();
+            //Remove the previous event handler so that new can be set
+            try
+            {
+                var eventField = dispatcherTimerAutoBlock.GetType().GetField("Tick", BindingFlags.NonPublic | BindingFlags.Instance);
+                var eventDelegate = (Delegate)eventField.GetValue(dispatcherTimerAutoBlock);
+                if (eventDelegate != null)
+                {
+                    var invocatationList = eventDelegate.GetInvocationList();
+
+                    foreach (var handler in invocatationList)
+                        dispatcherTimerAutoBlock.Tick -= ((EventHandler)handler);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShowSetIntentionWindow resetting timer ex - " + ex.Message);
+            }
+
             TxtAutoBlockTimer.Text = "00:30";
             nAutoBlockTimer = 30;
             dispatcherTimerAutoBlock.Tick += new EventHandler(dispatcherTimer_AutoBlock);
@@ -340,6 +377,7 @@ namespace Focus_Bear.SetIntention
             try
             {
                 TxtAutoBlockTimer.Text = appSettings.SecondsToTimerText(nAutoBlockTimer);
+                Console.WriteLine(TxtAutoBlockTimer.Text);
                 CommandManager.InvalidateRequerySuggested();
                 if (nAutoBlockTimer == 0)
                 {
@@ -401,6 +439,7 @@ namespace Focus_Bear.SetIntention
             if(!IsVisible)
             {
                 dispatcherTimerAutoBlock.Stop();
+                dispatcherTimerUnlock.Stop();
             }
         }
     }

@@ -107,6 +107,12 @@ namespace Focus_Bear.Onboarding
         public void ShowOnboardingExplainHabits()
         {
             LogWriter.LogWrite("ShowOnboardingExplainHabits()");
+            //We need to destroy the webview from the previous screen so that if the video was played, it stops
+            if (WndOnboardingExplainDeepFocus != null)
+            {
+                WndOnboardingExplainDeepFocus.webView.Dispose();
+            }
+            
             nScreenNumberWeAreOn = 2;
             WndOnboardingExplainHabits = new OnboardingExplainHabits(this);
             AppFrameOnboarding.Navigate(WndOnboardingExplainHabits);
@@ -125,6 +131,12 @@ namespace Focus_Bear.Onboarding
         public void ShowOnboardingAchieveWithFocusBearScreen()
         {
             LogWriter.LogWrite("ShowOnboardingExplainHabits()");
+            //We need to destroy the webview from the previous screen so that if the video was played, it stops
+            if (WndOnboardingExplainHabits != null)
+            {
+                WndOnboardingExplainHabits.webView.Dispose();
+            }
+
             nScreenNumberWeAreOn = 3;
             WndOnboardingAchieveWithFocusBear = new OnboardingAchieveWithFocusBear(this);
             AppFrameOnboarding.Navigate(WndOnboardingAchieveWithFocusBear);

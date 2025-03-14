@@ -7,22 +7,19 @@
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
         Title="SplashWindow" Height="330" Width="550" ResizeMode="NoResize" WindowStyle="None" Loaded="Window_Loaded">
-    <local1:DpiDecorator>
         <Grid>
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="160" />
-            <RowDefinition Height="Auto" MinHeight="100" />
-            <RowDefinition Height="Auto" />
-
+            <RowDefinition Height="150" />
+            <RowDefinition Height="90" />
+            <RowDefinition Height="90" />
         </Grid.RowDefinitions>
 
-        <Image Grid.Row="0" Height="auto"  Width="auto" Margin="72,0,72,0" Source="Images/fb_big.png" Stretch="UniformToFill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <Image Grid.Row="0" Height="100" Width="auto" Margin="63,0,63,0" Source="Images/fb_big.png" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
        
-        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xLoading..." Foreground="#e88800" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <ProgressBar Grid.Row="2"    x:Name="Progress"   Height="15" Width="200" IsIndeterminate = "True"  Foreground="DodgerBlue" />
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xLoading..." Foreground="#e88800" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <ProgressBar Grid.Row="2"    x:Name="Progress"   Height="15" Width="200" IsIndeterminate = "True"  Foreground="DodgerBlue" VerticalAlignment="Top" />
     </Grid>
-        </local1:DpiDecorator>
 </Window>

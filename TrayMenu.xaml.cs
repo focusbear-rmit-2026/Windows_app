@@ -386,11 +386,11 @@ namespace Focus_Bear
 
                 if (appSettings.isFocusModeRunning)
                 {
-                    btnToDoPlayer.Visibility = Visibility.Visible;
+                    btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
                 }
                 else
                 {
-                    btnToDoPlayer.Visibility = Visibility.Collapsed;
+                    btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString(); //Todo List
                 }
             }
             catch (Exception ex)
@@ -1265,7 +1265,15 @@ namespace Focus_Bear
 
         private void btnToDoPlayer_Click(object sender, RoutedEventArgs e)
         {
-            ((App)(Application.Current)).ShowToDoPlayer();
+            if(appSettings.isFocusModeRunning)
+            {
+                ((App)(Application.Current)).ShowToDoPlayer();
+            }
+            else
+            {
+                ((App)(Application.Current)).ShowToDoList();
+            }
+            
         }
 
         private void btnLimitedBlockingEdit_Click(object sender, RoutedEventArgs e)

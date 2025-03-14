@@ -955,6 +955,9 @@ namespace FocusBear.Utils
                                     }
                                 }
 
+                                //We must here hide the GEntle block window if its shown for any other app.
+                                appSettings.HideGentleBlockWindow();
+
                                 if (!bAllowedAppFound)
                                 {
                                     if (IsWindowVisible(process.MainWindowHandle))
