@@ -110,8 +110,6 @@ namespace Focus_Bear.Habits
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
                 nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
 
-                btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString().Replace("5", nMinutesToPostpone.ToString());
-
                 wndFadeInBreakWindow = new FadeInBreakWindow();
                 wndFadeInBreakWindow.Show();
             }
@@ -252,8 +250,6 @@ namespace Focus_Bear.Habits
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
                 nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
 
-                btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString().Replace("5", nMinutesToPostpone.ToString());
-
             }
             catch (Exception ex)
             {
@@ -270,6 +266,11 @@ namespace Focus_Bear.Habits
 
             wndFadeInBreakWindow.Close();
             Close();
+        }
+
+        private void ComboBoxMinutes_Loaded(object sender, RoutedEventArgs e)
+        {
+            btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString().Replace("5", nMinutesToPostpone.ToString());
         }
     }
 }

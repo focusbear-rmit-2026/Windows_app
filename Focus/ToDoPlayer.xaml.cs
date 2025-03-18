@@ -134,10 +134,7 @@ namespace Focus_Bear.Focus
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
-            Hide();
-            string LoadTokenFunc = string.Format("getToDosFromPlayer()");
-            var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
-            
+            this.Hide();
         }
 
         private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)

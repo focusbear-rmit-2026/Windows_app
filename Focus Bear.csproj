@@ -1102,6 +1102,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include=".gitignore" />
     <None Include="app.manifest" />
     <None Include="config-es.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
