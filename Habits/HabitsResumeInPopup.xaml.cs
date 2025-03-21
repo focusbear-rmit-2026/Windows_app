@@ -130,7 +130,7 @@ namespace Focus_Bear.Habits
 
         private void btnPostpone_Click(object sender, RoutedEventArgs e)
         {
-            if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && appSettings.isPasswordSet)
             {
                 if (appSettings.bPasswordRequireInSkipEvening || (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff))
                 {
@@ -148,10 +148,29 @@ namespace Focus_Bear.Habits
                         return;
                     }
                 }
-
-                if (appSettings.bHabitsPostponedState) //It might be possible that the habits window have appeared till the user enter the password, so we will not show the easy postpone here.
-                    ((App)(Application.Current)).ShowEasyPostponeWindow();
             }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS && appSettings.isPasswordSet)
+            {
+                if (appSettings.bPasswordRequireInSkipMorning)
+                {
+                    AskPassword pwdWnd = new AskPassword();
+                    pwdWnd.Owner = this;
+
+                    bool? bResult = pwdWnd.ShowDialog();
+
+                    if (bResult.Value)
+                    {
+                        //Password is correct
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
+            
+            if (appSettings.bHabitsPostponedState) //It might be possible that the habits window have appeared till the user enter the password, so we will not show the easy postpone here.
+                ((App)(Application.Current)).ShowEasyPostponeWindow();
 
             Hide();
         }

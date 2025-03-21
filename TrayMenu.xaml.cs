@@ -260,19 +260,30 @@ namespace Focus_Bear
                     }
                     else
                     {
-                        btnStartPomodoroMode.Visibility = Visibility.Visible;
-                        btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                        //if focus session is not running, possible a super pomodoro break time
+                        if(appSettings.bUseSuperPomodoroMode)
+                        {
+                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                            btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                            btnStopPomodoroMode.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            btnStartPomodoroMode.Visibility = Visibility.Visible;
+                            btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                        }
                     }
                     if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
                        appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
                        appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
-                       !appSettings.bHabitsPostponedState))
+                       !appSettings.bHabitsPostponedState &&
+                       !appSettings.bFocusSummaryPostponedState))
                     {
                         btnStartPomodoroMode.Visibility = Visibility.Collapsed;
                     }
                     else
                     {
-                        if (!appSettings.isFocusModeRunning)
+                        if (!appSettings.isFocusModeRunning && !appSettings.bUseSuperPomodoroMode)
                         {
                             btnStartPomodoroMode.Visibility = Visibility.Visible; //both start and stop
                         }

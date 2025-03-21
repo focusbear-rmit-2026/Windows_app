@@ -20,6 +20,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Focus_Bear.Focus
 {
@@ -29,11 +30,15 @@ namespace Focus_Bear.Focus
     public partial class FocusModeEnd : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
- 
-        public FocusModeEnd()
+        DispatcherTimer dispatcherTimerShowTasksEndWindow = new DispatcherTimer(DispatcherPriority.Normal);
+        bool bForceClosingFocusMode = false;
+        public FocusModeEnd(bool bForceClosingFocusModeLocal = false)
         {
             InitializeComponent();
             LogWriter.LogWrite("FocusModeEnd()");
+
+            
+            bForceClosingFocusMode = bForceClosingFocusModeLocal;
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
@@ -48,8 +53,30 @@ namespace Focus_Bear.Focus
            
             this.Topmost = true;
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-        }
 
+            
+            if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
+            {
+                //Set a timer after 2 seconds to show the task end window
+                dispatcherTimerShowTasksEndWindow.Tick += new EventHandler(dispatcherTimer_Tick);
+                dispatcherTimerShowTasksEndWindow.Interval = new TimeSpan(0, 0, 2);
+                dispatcherTimerShowTasksEndWindow.Start();
+                CommandManager.InvalidateRequerySuggested();
+            }
+
+        }
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                dispatcherTimerShowTasksEndWindow.Stop();
+                ShowTasksEndWindow();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("FocusModeEndWindow dispatcherTimerShowTasksEndWindow ex" + ex.Message);
+            }
+        }
         private void btnTakeBreak_Click(object sender, RoutedEventArgs e)
         {
             Take5MinsBreak();
@@ -90,7 +117,13 @@ namespace Focus_Bear.Focus
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("client.FinishFocusMode API EX - " + ex.Message);
+                LogWriter.LogWrite("Focus Mode end window client.FinishFocusMode API EX - " + ex.Message);
+            }
+
+            if(bForceClosingFocusMode)
+            {
+                Close();
+                return;
             }
 
             if (appSettings.bStartingAnotherFocusMode)
@@ -199,7 +232,7 @@ namespace Focus_Bear.Focus
 
                 try
                 {
-
+                    btnContinueText.Text = appSettings.ConfigFileStrings["common"]["buttonContinueText"].ToString();
                     Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["title"].ToString();
 
                     string sDescription = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["subTitle"].ToString();
@@ -243,14 +276,6 @@ namespace Focus_Bear.Focus
 
                     btnStartAnotherFocusModeText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonStartFocusText"].ToString();
 
-                    if (appSettings.bUseSuperPomodoroMode)
-                    {
-                        btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        btnStartAnotherFocusMode.Visibility = Visibility.Visible;
-                    }
                     //Empty the boxes
                     TxtAchieve.Text = "";
                     TxtDistractions.Text = "";
@@ -271,9 +296,22 @@ namespace Focus_Bear.Focus
                     }
                     else
                     {
-                        btnStartAnotherFocusMode.Visibility = Visibility.Visible;
+                        if (appSettings.bUseSuperPomodoroMode)
+                        {
+                            btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
+                        }
+                        else
+                        {
+                            btnStartAnotherFocusMode.Visibility = Visibility.Visible;
+                        }
                     }
 
+                    if (bForceClosingFocusMode)//Only show continue
+                    {
+                        btnContinue.Visibility = Visibility.Visible;
+                        btnTakeBreak.Visibility = Visibility.Collapsed;
+                        btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -284,6 +322,11 @@ namespace Focus_Bear.Focus
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if(bForceClosingFocusMode)
+            {
+                return;
+            }
+            
             e.Cancel = true;
             if(!appSettings.bStartingAnotherFocusMode)
                 Take5MinsBreak();
@@ -381,6 +424,11 @@ namespace Focus_Bear.Focus
                 return "Not Started";
             }
             return "";
+        }
+
+        private void btnContinue_Click(object sender, RoutedEventArgs e)
+        {
+            Take5MinsBreak();
         }
     }
 }
