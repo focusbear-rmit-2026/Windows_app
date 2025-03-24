@@ -182,7 +182,9 @@ namespace Focus_Bear.Focus
             {
                 e.Cancel = true;
                 Hide();
+                return;
             }
+            ((App)(Application.Current)).wndTakeABreak = null;
         }
 
         private void btnIAmDone_Click(object sender, RoutedEventArgs e)
@@ -190,9 +192,7 @@ namespace Focus_Bear.Focus
             dispatcherTimer.Stop();
             if (((App)(Application.Current)).wndHabits != null )
             {
-                //show the habit window
-                ((App)(Application.Current)).wndHabits.Show();
-                //CLick the I am done button on the main window
+                     //CLick the I am done button on the main window
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.btnIAmDone);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();

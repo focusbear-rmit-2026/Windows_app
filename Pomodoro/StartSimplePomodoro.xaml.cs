@@ -224,7 +224,7 @@ namespace Focus_Bear.Pomodoro
   
         private void btnStartSession_Click(object sender, RoutedEventArgs e)
         {
-            LogWriter.LogWrite("btnStartSession_Click - Simple pomodoro");
+            LogWriter.LogWrite("btnStartSession_Click - Simple pomodoro Window");
 
             appSettings.CapturePostHog("start-focus-session-manually", string.Format("\"type\":\"simple-focus\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
 

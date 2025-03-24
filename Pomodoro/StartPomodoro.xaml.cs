@@ -247,7 +247,7 @@ namespace Focus_Bear.Pomodoro
 
         private void btnStartSession_Click(object sender, RoutedEventArgs e)
         {
-            LogWriter.LogWrite("btnStartSession_Click");
+            LogWriter.LogWrite("btnStartSession_Click - Start Pomodoro Window");
 
             if(appSettings.bUseSuperPomodoroMode)
             {
@@ -266,7 +266,7 @@ namespace Focus_Bear.Pomodoro
                     appSettings.bUseSuperPomodoroMode = true;
                     ComboBoxItem typeItem = (ComboBoxItem)ComboBoxNumberOfPomodoros.SelectedItem;
                     appSettings.NumberOfSuperPomodorosToRun = int.Parse(typeItem.Content.ToString());
-
+                    appSettings.nSuperPomodoroCountCompleted = 0; //Initialize
                     appSettings.CapturePostHog("start-focus-session-manually", string.Format("\"type\":\"super-focus\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
                 }
                 else

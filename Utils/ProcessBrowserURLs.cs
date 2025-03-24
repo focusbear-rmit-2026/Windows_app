@@ -290,23 +290,6 @@ namespace Focus_Bear.Utils
 
                 if (oldURLToOpen != null && oldURLToOpen.Length > 0)
                 {
-                    //string sDomain = "";
-                    //try
-                    //{
-                    //    Uri myUri = new Uri(oldURLToOpen);
-                    //    string host = myUri.Host; //fails if there is no http://
-                    //    sDomain = host;
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    /*
-                    //    This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
-                    //    If uri does not specify a scheme, the scheme defaults to "http:".
-                    //    */
-                    //    Uri myUri = new UriBuilder(oldURLToOpen).Uri;
-                    //    sDomain = myUri.Host;
-                    //}
-
                     //Open the url and also add it to temporary allowed URL list
                     var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == oldURLToOpen.ToLower());
 
@@ -478,7 +461,6 @@ namespace Focus_Bear.Utils
                                         {
                                             LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of focus mode - ALLOW");
                                             bAllowedURLFound = true;
-                                            ///return;
                                         }
                                         else
                                         {
@@ -488,7 +470,6 @@ namespace Focus_Bear.Utils
                                                 LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
 
                                                 bAllowedURLFound = true;
-                                                ///return;
                                             }
                                             else
                                             {
@@ -504,7 +485,6 @@ namespace Focus_Bear.Utils
                                                         {
                                                             LogWriter.LogWrite(sTitle + "title found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
                                                             bAllowedURLFound = true;
-                                                            ///return;
                                                         }
                                                     }
                                                 }
@@ -709,7 +689,6 @@ namespace Focus_Bear.Utils
                                 {
                                     LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of MORNING_HABITS - ALLOW");
                                     bAllowedURLFound = true;
-                                    //break;
                                     return;
                                 }
                                 else
@@ -719,7 +698,6 @@ namespace Focus_Bear.Utils
                                     {
                                         LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of MORNING_HABITS - ALLOW");
                                         bAllowedURLFound = true;
-                                        //break;
                                         return;
                                     }
                                     else
@@ -772,7 +750,6 @@ namespace Focus_Bear.Utils
                                 {
                                     LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of EVENING_HABITS - ALLOW");
                                     bAllowedURLFound = true;
-                                    // break;
                                     return;
                                 }
                                 else
@@ -783,7 +760,6 @@ namespace Focus_Bear.Utils
                                         LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of EVENING_HABITS - ALLOW");
 
                                         bAllowedURLFound = true;
-                                        //break;
                                         return;
                                     }
                                     else
@@ -839,7 +815,6 @@ namespace Focus_Bear.Utils
                                     {
                                         LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of BREAK_ACTIVITY - ALLOW");
                                         bAllowedURLFound = true;
-                                        // break;
                                         return;
                                     }
                                     else
@@ -849,7 +824,6 @@ namespace Focus_Bear.Utils
                                         {
                                             LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of BREAK_ACTIVITY - ALLOW");
                                             bAllowedURLFound = true;
-                                            //break;
                                             return;
                                         }
                                         else
@@ -900,7 +874,6 @@ namespace Focus_Bear.Utils
                                     {
                                         LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of BREAK_ACTIVITY - ALLOW");
                                         bAllowedURLFound = true;
-                                        // break;
                                         return;
                                     }
                                     else
@@ -910,7 +883,6 @@ namespace Focus_Bear.Utils
                                         {
                                             LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS MatchWildcardString of BREAK_ACTIVITY - ALLOW");
                                             bAllowedURLFound = true;
-                                            //break;
                                             return;
                                         }
                                         else
@@ -1197,11 +1169,7 @@ namespace Focus_Bear.Utils
                             appSettings.nTotalDistractingSitesBlocked++;
 
                             //For supporting unblock, we should add it to blocked array with dummy intention
-                            
                             appSettings.TemporarryBlockedURLsWithSetIntention.Add(sDomain.ToLower()); //add the domain only
-                            ///
-
-
 
                             appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, HttpUtility.UrlEncode(val), (appSettings.nFocusBearMode == 1) ? "cuddly" : "grizzly", appSettings.AppVersion.ToString()); //1 is cuddly bear mode
                         }

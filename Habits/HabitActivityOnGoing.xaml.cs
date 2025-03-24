@@ -545,6 +545,8 @@ namespace Focus_Bear.Habits
 
                     if (nAllowedApps > 0 || nAllowedURLs > 0 || appSettings.sUseFocusModeIDInActivity.Length > 0)
                     {
+                        LogWriter.LogWrite("nAllowedApps > 0 || nAllowedURLs > 0 || appSettings.sUseFocusModeIDInActivity.Length > 0 = means there is a focus mode in activity");
+
                         if (appSettings.sUseFocusModeIDInActivity.Length > 0)//means there is a focus mode in activity
                         {
                             appSettings.bHabitwithUseFocusModeRunning = false;

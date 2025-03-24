@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Focus_Bear.Utils
 {
@@ -23,10 +24,12 @@ namespace Focus_Bear.Utils
 
         public MessageBoxResult btnClicked = MessageBoxResult.Yes;
         public bool bSuggestMeetingsFocusModeView = false;
+        DispatcherTimer dispatcherTimerAutoClose = new DispatcherTimer(DispatcherPriority.Normal);
+
         public FBMessageBox()
         {
         }
-        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false, string sDontShowCheckboxText = "")
+        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false, string sDontShowCheckboxText = "", bool bAutoClose = false)
         {
             InitializeComponent();
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
@@ -109,9 +112,32 @@ namespace Focus_Bear.Utils
                     btnOKTxt.Text = btnYesText;
                 }
             }
+
+            if(bAutoClose)
+            {
+                //Set a timer after 5 seconds to auto close
+                dispatcherTimerAutoClose.Tick += new EventHandler(dispatcherTimer_Tick);
+                dispatcherTimerAutoClose.Interval = new TimeSpan(0, 0, 5);
+                dispatcherTimerAutoClose.Start();
+                CommandManager.InvalidateRequerySuggested();
+
+            }
         }
 
-        private void btnOK_Click(object sender, RoutedEventArgs e)
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                dispatcherTimerAutoClose.Stop();
+                CommandManager.InvalidateRequerySuggested();
+                Close();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("FBMessage box dispatcherTimer_Tick ex" + ex.Message);
+            }
+        }
+        public void btnOK_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }

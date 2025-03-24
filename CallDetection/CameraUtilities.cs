@@ -42,14 +42,14 @@ namespace Focus_Bear.CallDetection
                             {
                                 foreach (var nonpackagedSubKeyName in nonpackagedkey.GetSubKeyNames())
                                 {
-                                    LogWriter.LogWrite("LM nonpackagedSubKeyName " + nonpackagedSubKeyName);
+                                    Console.WriteLine("LM nonpackagedSubKeyName " + nonpackagedSubKeyName);
 
                                     using (var subKey = nonpackagedkey.OpenSubKey(nonpackagedSubKeyName))
                                     {
                                         if (subKey.GetValueNames().Contains("LastUsedTimeStop"))
                                         {
                                             var endTime = subKey.GetValue("LastUsedTimeStop") is long ? (long)subKey.GetValue("LastUsedTimeStop") : -1;
-                                            LogWriter.LogWrite("lm nonpackagedSubKeyName endTime" + endTime.ToString());
+                                            Console.WriteLine("lm nonpackagedSubKeyName endTime" + endTime.ToString());
                                             if (endTime <= 0)
                                             {
                                                 return IsEXEAllowedInMeetingsFocusMode(subKey.ToString());
@@ -63,7 +63,7 @@ namespace Focus_Bear.CallDetection
                         {
                             using (var subKey = key.OpenSubKey(subKeyName))
                             {
-                                LogWriter.LogWrite("lm subKeyName" + subKeyName.ToString());
+                                Console.WriteLine("lm subKeyName" + subKeyName.ToString());
                                 if (subKey.GetValueNames().Contains("LastUsedTimeStop"))
                                 {
                                     var endTime = subKey.GetValue("LastUsedTimeStop") is long ? (long)subKey.GetValue("LastUsedTimeStop") : -1;
@@ -79,7 +79,7 @@ namespace Focus_Bear.CallDetection
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("IsWebCamInUse() localmachine Exception" + ex.Message);
+                LogWriter.LogWrite("IsWebCamInUse() localmachine Possibly key not found Exception" + ex.Message);
             }
 
             try
@@ -96,13 +96,13 @@ namespace Focus_Bear.CallDetection
                             {
                                 foreach (var nonpackagedSubKeyName in nonpackagedkey.GetSubKeyNames())
                                 {
-                                    LogWriter.LogWrite("cu nonpackagedSubKeyName " + nonpackagedSubKeyName);
+                                    Console.WriteLine("cu nonpackagedSubKeyName " + nonpackagedSubKeyName);
                                     using (var subKey = nonpackagedkey.OpenSubKey(nonpackagedSubKeyName))
                                     {
                                         if (subKey.GetValueNames().Contains("LastUsedTimeStop"))
                                         {
                                             var endTime = subKey.GetValue("LastUsedTimeStop") is long ? (long)subKey.GetValue("LastUsedTimeStop") : -1;
-                                            LogWriter.LogWrite("cu nonpackagedSubKeyName endTime" + endTime.ToString());
+                                            Console.WriteLine("cu nonpackagedSubKeyName endTime" + endTime.ToString());
                                             if (endTime <= 0)
                                             {
                                                 return IsEXEAllowedInMeetingsFocusMode(subKey.ToString());
@@ -116,7 +116,7 @@ namespace Focus_Bear.CallDetection
                         {
                             using (var subKey = key.OpenSubKey(subKeyName))
                             {
-                                LogWriter.LogWrite("cu subKeyName" + subKeyName.ToString());
+                                Console.WriteLine("cu subKeyName" + subKeyName.ToString());
                                 if (subKey.GetValueNames().Contains("LastUsedTimeStop"))
                                 {
                                     var endTime = subKey.GetValue("LastUsedTimeStop") is long ? (long)subKey.GetValue("LastUsedTimeStop") : -1;
