@@ -91,7 +91,7 @@ namespace Focus_Bear.CallDetection
                 LogWriter.LogWrite("No Audio device found");
             }
 
-            LogWriter.LogWrite("return false;");
+            LogWriter.LogWrite("IsUserOnaAudioCall() - return false;");
             return false;
         }
         private static IAudioSessionManager2 GetAudioSessionManager()

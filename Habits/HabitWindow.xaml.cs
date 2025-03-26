@@ -1401,6 +1401,7 @@ namespace Focus_Bear.Habits
                 btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
                 Time.Visibility = Visibility.Visible;
 
+                this.WindowState = WindowState.Normal;
                 this.WindowState = WindowState.Maximized;
                 this.WindowStyle = WindowStyle.None;
             }

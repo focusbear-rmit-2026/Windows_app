@@ -159,7 +159,7 @@ namespace Focus_Bear
                                     }
                                     else
                                     {
-                                        LogWriter.LogWrite("Mozilla's sName is null or other language then EN / ES- OR (sURL != null && sURL.Length > 0 FAILS" + sName + "URL = " + sURL);
+                                        LogWriter.LogWrite("Mozilla's sName is null or other language then EN / ES- OR (sURL != null && sURL.Length > 0 FAILS. TITLE = " + sName + "URL = " + sURL);
                                     }
                                 }
                             }
@@ -300,6 +300,7 @@ namespace Focus_Bear
         public TrayMenu wndTrayMenu = null;
 
         public FocusModeEnd wndFocusModeEnd = null;
+        public FocusModeEnd wndFocusModeEndForced = null;
 
         public BreakWindow wndTakeABreak = null;
 
@@ -1771,7 +1772,8 @@ namespace Focus_Bear
                                                         appSettings.RemoveSecondaryWindows();
 
                                                         LogWriter.LogWrite("EVENING_HABITS STATE - now > myCutoffTime of Individual habit - Show Alert");
-                                                        FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["common"]["cutOffTimePassedForHabitText"].ToString());
+                                                        
+                                                        FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["common"]["cutOffTimePassedForHabitText"].ToString(), "", MessageBoxButton.OK, "", "", "", false, "", true);
                                                         msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                                                         msg.ShowDialog();
 
@@ -2459,8 +2461,28 @@ namespace Focus_Bear
                 wndHabits.Show();
                 wndHabits.Activate();
                 wndHabits.Focus();
-
                 ShowBlankWindowOnOtherScreens();
+
+                //If by chance the start pomodoro window is open, we need to close it.
+                if(appSettings.isStartPomodoroWindowOpen)
+                {
+                    //Let's close the start pomodoro window 
+                    if (((App)(Application.Current)).wndStartPomodoro != null)
+                    {
+                        ((App)(Application.Current)).wndStartPomodoro.Hide();
+                    }
+                    appSettings.isStartPomodoroWindowOpen = false;
+                }
+
+
+                if (appSettings.isFocusModeRunning)
+                {
+                    ForceStopFocusSessionOnHabitsTime();
+                }
+
+                //Make the global variable false
+                appSettings.isFocusModeRunning = false;
+                appSettings.bUseSuperPomodoroMode = false;
             }
             catch (Exception ex)
             {
@@ -3095,6 +3117,27 @@ namespace Focus_Bear
                 wndHabits.Activate();
                 wndHabits.Focus();
                 ShowBlankWindowOnOtherScreens();
+
+                //If by chance the start pomodoro window is open, we need to close it.
+                if (appSettings.isStartPomodoroWindowOpen)
+                {
+                    //Let's close the start pomodoro window 
+                    if (((App)(Application.Current)).wndStartPomodoro != null)
+                    {
+                        ((App)(Application.Current)).wndStartPomodoro.Hide();
+                    }
+                    appSettings.isStartPomodoroWindowOpen = false;
+                }
+
+
+                if (appSettings.isFocusModeRunning)
+                {
+                    ForceStopFocusSessionOnHabitsTime();
+                }
+
+                //Make the global variable false
+                appSettings.isFocusModeRunning = false;
+                appSettings.bUseSuperPomodoroMode = false;
             }
             catch (Exception ex)
             {
@@ -3183,13 +3226,15 @@ namespace Focus_Bear
 
             appSettings.bStartingAnotherFocusMode = false; //Resetting
 
+            ((App)(Application.Current)).HideToDoPlayer();
+
             wndFocusModeEnd.Show();
             wndFocusModeEnd.BringIntoView();
 
-            if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
-            {
-                wndFocusModeEnd.ShowTasksEndWindow();
-            }
+            //if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
+            //{
+            //    wndFocusModeEnd.ShowTasksEndWindow();
+            //}
 
           
         }
@@ -3311,7 +3356,7 @@ namespace Focus_Bear
                 {
                     dispatcherTimerPostponeHabits.Tick += new EventHandler(dispatcherTimer_Postpone);
 #if DEBUG
-                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 0, nMinutesToPostpone);
+                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 0, nMinutesToPostpone*2);
 #else
                     dispatcherTimerPostponeHabits.Interval = new TimeSpan(0,  nMinutesToPostpone, 0);
 #endif
@@ -3546,11 +3591,31 @@ namespace Focus_Bear
                 }
 
                 wndFocusSummary = new FocusActivitySummary();
-
+                
+                appSettings.RemoveSecondaryWindows();
                 ShowBlankWindowOnOtherScreens();
                 wndFocusSummary.Show();
 
-                appSettings.RemoveSecondaryWindows();
+                //If by chance the start pomodoro window is open, we need to close it.
+                if (appSettings.isStartPomodoroWindowOpen)
+                {
+                    //Let's close the start pomodoro window 
+                    if (((App)(Application.Current)).wndStartPomodoro != null)
+                    {
+                        ((App)(Application.Current)).wndStartPomodoro.Hide();
+                    }
+                    appSettings.isStartPomodoroWindowOpen = false;
+                }
+
+                if (appSettings.isFocusModeRunning)
+                {
+                    ForceStopFocusSessionOnHabitsTime();
+                }
+
+                //Make the global variable false
+                appSettings.isFocusModeRunning = false;
+                appSettings.bUseSuperPomodoroMode = false;
+
             }
             catch (Exception ex)
             {
@@ -4318,6 +4383,60 @@ namespace Focus_Bear
             }
         }
 
+        public void ForceStopFocusSessionOnHabitsTime()
+        {
+            LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime() - Stop the Focus Mode as Habits time had arrieved.");
+            try
+            {
+                //Double check
+                var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
+                if (listItems.Count() != 0)
+                {
+                    try
+                    {
+                        Sounds.PlayFocusModeEndSound();
+
+                        FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                        FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
+
+                        //Stop the focus mode
+                        listItems.First<FocusMode>().isOn = false;
+
+                        //Make the global variable false
+                        appSettings.isFocusModeRunning = false;
+                        appSettings.bUseSuperPomodoroMode = false;
+
+                        ((App)Application.Current).CloseFocusProgressWindow();
+
+                        //Clear the Gentle block temp arrays
+                        appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                        appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+                        ((App)(Application.Current)).HideToDoPlayer();
+
+                        appSettings.bStartingAnotherFocusMode = false; //Resetting
+
+                        //Show the Focusmode end dialog
+                        wndFocusModeEndForced = new FocusModeEnd(true);
+                        if(appSettings.bPlayActivitiesInFullScreenMode)
+                        {
+                            wndFocusModeEndForced.WindowState = WindowState.Maximized;
+                        }
+                        wndFocusModeEndForced.ShowDialog();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime ex - " + ex.Message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime ex - " + ex.Message);
+            }
+             
+        }
+
         /* Invoke Window_Closing to retrieve the latest to-do tasks from the player and store them in appSettings.sRawTasks. 
            This redundancy helps ensure consistency between the to-do list in the player 
            and the task list displayed in the focus and end WebViews.
@@ -4327,5 +4446,6 @@ namespace Focus_Bear
             var tasksArray = await wndToDoPlayer.webView.ExecuteScriptAsync("getToDosFromPlayer()");
             appSettings.sRawTasks = tasksArray?.ToString() ?? "[]";
         }
+
     }
 }
