@@ -6,8 +6,15 @@
         xmlns:local="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
         Title="Focus Bear" Height="Auto"   Width="250" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStyle="None" Topmost="True" >
-    <Border  Grid.Row="1"  BorderBrush="LightGray" BorderThickness="1" Background="White">
+    <Border  Grid.Row="1"  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}">
         <Grid>
+            <Grid.Resources>
+                <ResourceDictionary>
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </Grid.Resources>
             <Grid.RowDefinitions>
                 <RowDefinition Height="100"/>
                 <RowDefinition Height="Auto"/>
@@ -24,28 +31,28 @@
                 <Button  x:Name="btnOK"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="30" MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="20,20,20,20" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
-                            <TextBlock Name="btnOKTxt" Text="xOK"/>
+                            <TextBlock Name="btnOKTxt" Text="xOK" Foreground="Black"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
                 <Button   x:Name="btnYes"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="30" MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="20,0,20,20" FontSize="15" Cursor="Hand" FontWeight="Semibold" Visibility="Collapsed" Click="btnYes_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
-                            <TextBlock Name="btnYesTxt" Text="xYes"  Padding="15,0,15,0"/>
+                            <TextBlock Name="btnYesTxt" Text="xYes"  Padding="15,0,15,0" Foreground="Black"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
                 <Button    x:Name="btnNo"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="30" MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="20,0,20,20" FontSize="15" Cursor="Hand" FontWeight="Semibold" Visibility="Collapsed" Click="btnNo_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
-                            <TextBlock Name="btnNoTxt" Text="xNo" Padding="15,0,15,0"/>
+                            <TextBlock Name="btnNoTxt" Text="xNo" Padding="15,0,15,0" Foreground="Black"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
                 <Button    x:Name="btnCancel"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="30" MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="20,0,20,20" FontSize="15" Cursor="Hand" FontWeight="Semibold" Visibility="Collapsed" Click="btnCancel_Click"  >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
-                            <TextBlock Name="btnCancelTxt" Text="xCancel"  Padding="15,0,15,0"/>
+                            <TextBlock Name="btnCancelTxt" Text="xCancel"  Padding="15,0,15,0" Foreground="Black"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>

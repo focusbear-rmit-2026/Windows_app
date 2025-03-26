@@ -8,14 +8,21 @@
         mc:Ignorable="d"
         Title="Focus Bear" Height="645" Width="531" ResizeMode="NoResize">
 
-    <Grid Background="#eee" x:Name="GridMain" >
+    <Grid x:Name="GridMain" >
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"   />
             <RowDefinition Height="129" />
         </Grid.RowDefinitions>
         <Grid>
             <Grid.Background >
-                <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center" />
+                <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center" />
             </Grid.Background>
             <Grid.RowDefinitions>
                 <RowDefinition Height="150" />
@@ -35,23 +42,23 @@
             </Grid.RowDefinitions>
 
             <Image Grid.Row="0" Height="140"  Width="140" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-            <TextBlock  Grid.Row="1" Margin="0,0,0,0" TextWrapping="Wrap" Text="Focus Bear" Foreground="#000" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Center" />
+            <TextBlock  Grid.Row="1" Margin="0,0,0,0" TextWrapping="Wrap" Text="Focus Bear" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Center" />
 
             <StackPanel Grid.Row="3" Orientation="Horizontal" >
                 <Image Grid.Row="0" Height="22"  Width="22"   Margin="150,0,0,0" Source="../Images/checkmark.png" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                <TextBlock   Name="Point1" Margin="10,0,0,0" TextWrapping="Wrap" Text="xxPersonalized habit routines" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock   Name="Point1" Margin="10,0,0,0" TextWrapping="Wrap" Text="xxPersonalized habit routines" Foreground="{DynamicResource ForegroundGrey}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>
             <StackPanel Grid.Row="4" Orientation="Horizontal" >
                 <Image Grid.Row="0" Height="22"  Width="22"  Margin="150,0,0,0" Source="../Images/checkmark.png" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                <TextBlock   Name="Point2" Margin="10,0,0,0" TextWrapping="Wrap" Text="xxProductivity-boosting breaks" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock   Name="Point2" Margin="10,0,0,0" TextWrapping="Wrap" Text="xxProductivity-boosting breaks" Foreground="{DynamicResource ForegroundGrey}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>
             <StackPanel Grid.Row="5" Orientation="Horizontal" >
                 <Image Grid.Row="0" Height="22"  Width="22"  Margin="150,0,0,0" Source="../Images/checkmark.png" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                <TextBlock   Name="Point3" Margin="10,0,0,0" TextWrapping="Wrap" Text="xxCustomizable focus modes" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock   Name="Point3" Margin="10,0,0,0" TextWrapping="Wrap" Text="xxCustomizable focus modes" Foreground="{DynamicResource ForegroundGrey}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>
             <StackPanel Grid.Row="6" Orientation="Horizontal" >
                 <Image Grid.Row="0" Height="22"  Width="22"  Margin="150,0,0,0" Source="../Images/checkmark.png" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                <TextBlock   Name="Point4" Margin="10,0,0,0" TextWrapping="Wrap" Text="xxAutomatic goal tracking" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock   Name="Point4" Margin="10,0,0,0" TextWrapping="Wrap" Text="xxAutomatic goal tracking" Foreground="{DynamicResource ForegroundGrey}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>
 
             <TextBlock  Grid.Row="7" Visibility="Collapsed" TextWrapping="NoWrap" Name="Subscription"  Foreground="Red" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center">xYour Subscription has expired!</TextBlock>
@@ -59,14 +66,14 @@
             <Button Grid.Row="8" Grid.ColumnSpan="2" x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="18" Cursor="Hand"  VerticalAlignment="Bottom" Click="btnUpgradeNow_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnUpgradeNowTXT" Padding="10,0,10,0" Text="xUpgrade Now"/>
+                        <TextBlock Name="btnUpgradeNowTXT" Padding="10,0,10,0" Text="xUpgrade Now" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <TextBlock Grid.Row="9"  Name="MoneyBack" Margin="0,0,0,0" TextWrapping="NoWrap" Text="xx30 Days Money Back.." Foreground="#272727" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Row="9"  Name="MoneyBack" Margin="0,0,0,0" TextWrapping="NoWrap" Text="xx30 Days Money Back.." Foreground="{DynamicResource ForegroundGrey}" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
             <StackPanel Grid.Row="10" Orientation="Horizontal" HorizontalAlignment="Center">
 
-                <TextBlock   Name="YourUserId" Margin="0,0,10,0" TextWrapping="Wrap" Text="xYour user Id:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock   Name="YourUserId" Margin="0,0,10,0" TextWrapping="Wrap" Text="xYour user Id:" Foreground="{DynamicResource ForegroundGrey}" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
                 <TextBox TabIndex="0" x:Name="TxtUserId" IsReadOnly="True" Margin="0" Width="270" MinHeight="22" TextWrapping="NoWrap" Background="#FFF" BorderBrush="#999" Foreground="#000" Padding="1,2,1,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" VerticalContentAlignment="Center" >
 
                 </TextBox>
@@ -85,7 +92,7 @@
                 <RowDefinition Height="25" />
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0"  Name="AfterPay" Margin="20,0,20,5" TextWrapping="Wrap" Text="xxAfter you pay, click the Sync Payment Status button below" Foreground="#272727" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Grid.ColumnSpan="3"/>
+            <TextBlock Grid.Row="0"  Name="AfterPay" Margin="20,0,20,5" TextWrapping="Wrap" Text="xxAfter you pay, click the Sync Payment Status button below" Foreground="{DynamicResource ForegroundGrey}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Grid.ColumnSpan="3"/>
             <Button Grid.Row="1"   x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,2,20,0" FontSize="18" Cursor="Hand"    Click="btnSyncPayment_Click" Grid.Column="2">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
@@ -96,7 +103,7 @@
             <Image Grid.Row="2" x:Name="ImgUpdateAppProgress"   Models:ImageBehavior.AnimatedSource="../Images/progress.gif" HorizontalAlignment="Center" Margin="0,2,0,2" VerticalAlignment="Center" Visibility="Collapsed" Grid.Column="2"/>
 
             <TextBlock x:Name="UninstallText" Grid.Row="3" Margin="20,2,20,2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="13" Height="22" Cursor="Hand" Grid.Column="2">
-             <Hyperlink x:Name="btnUninstall"  Foreground="#000" Click="btnUninstall_Click"   TextDecorations="Underline" ><Run x:Name="btnUninstallTXT" Text="xUninstall"/></Hyperlink>
+             <Hyperlink x:Name="btnUninstall" Click="btnUninstall_Click"   TextDecorations="Underline" ><Run x:Name="btnUninstallTXT" Text="xUninstall"/></Hyperlink>
             </TextBlock>
 
         </Grid>

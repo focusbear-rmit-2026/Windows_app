@@ -84,6 +84,11 @@ namespace Focus_Bear.Focus
 
         private async void Take5MinsBreak()
         {
+            
+            
+            
+            
+            
             if (appSettings.bStartingAnotherFocusMode)
                 LogWriter.LogWrite("Take5MinsBreak() called from bStartingAnotherFocusMode");
             else
@@ -280,6 +285,7 @@ namespace Focus_Bear.Focus
                     TxtAchieve.Text = "";
                     TxtDistractions.Text = "";
 
+                    
                     if (appSettings.isStartPomodoroWindowOpen)
                     {
                         //Let's close the start pomodoro window 

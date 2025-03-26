@@ -142,7 +142,8 @@ namespace Focus_Bear.Preferences
             {
                 Mouse.OverrideCursor = null;
                 LogWriter.LogWrite("get support CoreWebView2NavigationCompleted() Success, Load Access token");
-                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode);
+                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",theme:\"{3}\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme);
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataFoGetSupport) {{ loadMetaDataFoGetSupport({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                 var ss = webViewGetSupport.ExecuteScriptAsync(settingsFunc);
 
@@ -203,7 +204,8 @@ namespace Focus_Bear.Preferences
             {
                 Mouse.OverrideCursor = null;
                 LogWriter.LogWrite("tutorials CoreWebView2NavigationCompleted() Success, Load Access token");
-                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode);
+                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme);
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForEnrolledCourses) {{ loadMetaDataForEnrolledCourses({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                 var ss = webViewTutorials.ExecuteScriptAsync(settingsFunc);
 

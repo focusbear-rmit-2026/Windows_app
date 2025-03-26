@@ -7,11 +7,11 @@
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
      d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="HabitsWelcomeList" Background="#fff" IsVisibleChanged="Page_IsVisibleChanged">
+      Title="HabitsWelcomeList" Background="{DynamicResource BackgroundColor}" IsVisibleChanged="Page_IsVisibleChanged">
     <Grid>
         <Grid x:Name="Normal">
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center" />
+                <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center" />
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="185" />
@@ -26,7 +26,7 @@
         <Image Grid.Row="0" Name="TopIcon" Height="160"  Width="160" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xGood Morning! Here are the habits to kick off an awesome day." Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             <TextBlock x:Name="DoNoHaveTime" Grid.Row="2" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-             <Hyperlink x:Name="btnDoNoHaveTime"  Foreground="#000" Click="btnDoNoHaveTime_Click"   TextDecorations="Underline" ><Run x:Name="DoNoHaveTimeTXT" Text="xI don't have time for all these habits"/></Hyperlink>
+             <Hyperlink x:Name="btnDoNoHaveTime" Click="btnDoNoHaveTime_Click"   TextDecorations="Underline" ><Run x:Name="DoNoHaveTimeTXT" Text="xI don't have time for all these habits"/></Hyperlink>
             </TextBlock>
             
             <ListView Grid.Row="3" MaxHeight="360"  MaxWidth="400" Margin="13,5,16,10" x:Name="ListActivities" VerticalAlignment="Center"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" >
@@ -44,8 +44,8 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" Text="{Binding SNumber, StringFormat=\{0\}}" Foreground="#000"  FontSize="23"   FontWeight="Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="1" Text="{Binding ActivityName, StringFormat=\{0\}}" FontSize="23" Foreground="#000" VerticalAlignment="Center" Margin="0,0,15,0" HorizontalAlignment="Left" >
+                            <TextBlock Grid.Column="0" Text="{Binding SNumber, StringFormat=\{0\}}"   FontSize="23" FontWeight="Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ActivityName, StringFormat=\{0\}}" FontSize="23" VerticalAlignment="Center" Margin="0,0,15,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}">
                              
                         </TextBlock>
                     </Grid>
@@ -56,14 +56,14 @@
             <Button Grid.Row="4" IsDefault="True"  x:Name="btnBegin"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnBegin_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnBeginTXT" Text="xBegin"/>
+                        <TextBlock x:Name="btnBeginTXT" Text="xBegin" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
             <Button Grid.Row="5" x:Name="btnCustomizeHabits"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCustomizeHabits_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnCustomizeHabitsTXT" Text="xCustomize my habits first"/>
+                        <TextBlock x:Name="btnCustomizeHabitsTXT" Text="xCustomize my habits first" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
             </Button>

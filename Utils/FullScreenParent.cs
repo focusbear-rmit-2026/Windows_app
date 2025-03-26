@@ -10,12 +10,23 @@ using System.Windows.Interop;
 
 using System.Runtime.InteropServices;
 using WinForms = System.Windows.Forms;
+using Microsoft.Win32;
+using Focus_Bear.Models;
+using System.Data;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 
 namespace Focus_Bear.Habits
 {
     public class FullScreenParent : Window
     {
-       
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+        private const int WM_SETTINGCHANGE = 0x001A;
+
         internal class InterceptKeys
         {
             #region Delegates
@@ -143,8 +154,76 @@ namespace Focus_Bear.Habits
         {
             this.Closed += MainWindow_Closed;
             this.IsVisibleChanged += MainWindow_VisibleChanged;
+            this.Loaded += MainWindow_Loaded;
         }
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Hook into Windows messages
+            var hwndSource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            if (hwndSource != null)
+            {
+                hwndSource.AddHook(WndProctheme);
+            }
 
+            // Apply the correct theme at startup
+            ChangeThemeByWindows();
+        }
+        private IntPtr WndProctheme(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            int WM_SETTINGCHANGE = 0x1A;
+            if (msg == WM_SETTINGCHANGE)
+            {
+                // Apply theme when system settings change
+                ChangeThemeByWindows();
+            }
+            return IntPtr.Zero;
+        }
+        private void ChangeThemeByWindows()
+        {
+            bool bLightTheme = IsLightTheme();
+            string theme = bLightTheme ? "Light" : "Dark";
+            LogWriter.LogWrite("FullscreenParent detect theme changed WndProctheme " + theme);
+            string selectedTheme = appSettings.sTheme;
+
+            if (bLightTheme == true)
+            {
+                selectedTheme = "Light";
+                appSettings.sTheme = "Light";
+            }
+            else if (bLightTheme == false)
+            {
+                selectedTheme = "Dark";
+                appSettings.sTheme = "Dark";
+            }
+            RegistryManager.SetThemeMode();
+            ((App)Application.Current).ChangeTheme(selectedTheme);
+        }
+        
+        private static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
+        }
+        private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = DWMWA_USE_IMMERSIVE_DARK_MODE;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+
+            return false;
+        }
         private void MainWindow_VisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
 
@@ -184,8 +263,12 @@ namespace Focus_Bear.Habits
 
             source.AddHook(this.WndProc);
 
+            var isLightTheme = IsLightTheme();
+            UseImmersiveDarkMode(source.Handle, !isLightTheme);
+
             DeviceNotification.RegisterUsbDeviceNotification(source.Handle);
             DeviceNotification.RegisterMonitorDeviceNotification(source.Handle);
+
 
             //commenting it from here as moved to isvisible
             //try
@@ -203,7 +286,7 @@ namespace Focus_Bear.Habits
         {
             if (msg != DeviceNotification.WmDeviceChange)
                 return IntPtr.Zero;
-
+            
             LogWriter.LogWrite("WM_DEVICE_CHANGE TRIGGERED");
             LogWriter.LogWrite("wParam = " + wParam.ToString());
             switch ((int)wParam)

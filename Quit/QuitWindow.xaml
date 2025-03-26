@@ -6,10 +6,18 @@
         xmlns:Models="clr-namespace:Focus_Bear.Models"
         xmlns:local="clr-namespace:Focus_Bear.Quit"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="650" Width="1165" ResizeMode="NoResize">
+        Title="Focus Bear" Height="650" Width="1165" ResizeMode="NoResize"
+        Background="{DynamicResource BackgroundColor}">
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="155" />
@@ -19,16 +27,16 @@
         <Image Name="TopIcon"  Margin="0,0,0,0" Height="150" Width="150" Models:ImageBehavior.AnimatedSource="../Images/gifs/Crying_small.gif"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
         <TextBlock Name="Heading" Margin="30,0,0,0" TextWrapping="Wrap" Text="xQuitting..." Foreground="#e88800" FontSize="35" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         </StackPanel>
-        <Grid Grid.Row="1"  x:Name="GridQuitCompletely" >
+        <Grid Grid.Row="1"  x:Name="GridQuitCompletely" Background="Transparent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50" />
                 <RowDefinition Height="100"  />
                 <RowDefinition Height="100" />
                 <RowDefinition Height="100" />
             </Grid.RowDefinitions>
-            <TextBlock   Grid.Row="0"  Name="DoYouWantToQuitCompletely" Margin="30,0,0,0" TextWrapping="Wrap" Text="xDo you want to quit the app completely or just take a break for a few hours?..." Foreground="#000" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock   Grid.Row="0"  Name="DoYouWantToQuitCompletely" Margin="30,0,0,0" TextWrapping="Wrap" Text="xDo you want to quit the app completely or just take a break for a few hours?..." FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             <StackPanel  Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-                <TextBlock  Margin="0,0,0,0" Name="TurnOffMinsText" TextWrapping="Wrap" Text="xChoose how long to turn it off for:" Foreground="#000" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock  Margin="0,0,0,0" Name="TurnOffMinsText" TextWrapping="Wrap" Text="xChoose how long to turn it off for:" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
                 <ComboBox Name="ComboBoxMinutes" Width="125" MinHeight="30" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" SelectionChanged="ComboBoxMinutes_SelectionChanged" FontSize="16" >
                      
@@ -39,14 +47,14 @@
             <Button Grid.Row="2" IsDefault="True" x:Name="btnGiveMeABreak"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnGiveMeABreak_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
-                        <TextBlock x:Name="btnGiveMeABreakTXT" Text="xGive me a break for 4hrs"/>
+                        <TextBlock x:Name="btnGiveMeABreakTXT" Text="xGive me a break for 4hrs" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
             <Button Grid.Row="3" IsDefault="True" x:Name="btnTurnOfCompletely"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold"  Click="btnTurnOfCompletely_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
-                        <TextBlock x:Name="btnTurnOfCompletelyTXT" Text="xTurn it off completely - I'll turn it back on when I'm ready"/>
+                        <TextBlock x:Name="btnTurnOfCompletelyTXT" Text="xTurn it off completely - I'll turn it back on when I'm ready" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
@@ -62,10 +70,10 @@
                 <RowDefinition Height="*" />
                 
             </Grid.RowDefinitions>
-            <TextBlock   Grid.Row="0"  Name="AreYouSureToQuit" Margin="50,0,50,0" TextWrapping="Wrap" Text="xAre you sure you want to Quit? Please take 10 seconds to reflect on whether you are serious about quitting." Foreground="#000" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock   Grid.Row="1"  Name="TxtTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="x00:10" Foreground="#000" FontSize="23" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock   Grid.Row="2"  Name="WhileYouWait" Margin="50,0,50,0" TextWrapping="Wrap" Text="xWhile you wait, reflect on why you're doing this. If it was because your morning routine was too ambitious, perhaps scale it back to only be a few minutes long so that it's easier to do it than not do it. If you're deactivating because the app is broken, really sorry!!" Foreground="#000" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock   Grid.Row="3"  Name="PleaseEmail" Margin="50,0,50,0" TextWrapping="Wrap" Text="xPlease email" Foreground="#000" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock   Grid.Row="0"  Name="AreYouSureToQuit" Margin="50,0,50,0" TextWrapping="Wrap" Text="xAre you sure you want to Quit? Please take 10 seconds to reflect on whether you are serious about quitting." FontSize="21" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock   Grid.Row="1"  Name="TxtTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="x00:10"  FontSize="23" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock   Grid.Row="2"  Name="WhileYouWait" Margin="50,0,50,0" TextWrapping="Wrap" Text="xWhile you wait, reflect on why you're doing this. If it was because your morning routine was too ambitious, perhaps scale it back to only be a few minutes long so that it's easier to do it than not do it. If you're deactivating because the app is broken, really sorry!!" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock   Grid.Row="3"  Name="PleaseEmail" Margin="50,0,50,0" TextWrapping="Wrap" Text="xPlease email"  FontSize="19" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
 
             <Button Grid.Row="4" IsDefault="True" x:Name="btnLetMeDoMyHabits"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnLetMeDoMyHabits_Click"  >
                 <Button.Content>
@@ -84,12 +92,12 @@
                 <RowDefinition Height="*" />
 
             </Grid.RowDefinitions>
-            <TextBlock   Grid.Row="0"  Name="ShareWhyQuit" Margin="50,0,50,0" TextWrapping="Wrap" Text="xCan you share why you're quitting?" Foreground="#000" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock   Grid.Row="0"  Name="ShareWhyQuit" Margin="50,0,50,0" TextWrapping="Wrap" Text="xCan you share why you're quitting?" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
             <ComboBox  Grid.Row="1" Name="ComboBoxReason" Width="350" MinHeight="30" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,0,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxReason_SelectionChanged">
             </ComboBox>
-            <TextBlock   Grid.Row="2"  Name="ReasonTitle" Margin="0,0,0,0" TextWrapping="Wrap" Text="xCan you tell us why you want to stop getting habit + break notifications?﹡" Foreground="#000" FontSize="19" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
+            <TextBlock   Grid.Row="2"  Name="ReasonTitle" Margin="0,0,0,0" TextWrapping="Wrap" Text="xCan you tell us why you want to stop getting habit + break notifications?﹡"  FontSize="19" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
             
-            <TextBlock   Grid.Row="3"  Name="TxtFinalTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="x00:05" Foreground="#000" FontSize="23" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
+            <TextBlock   Grid.Row="3"  Name="TxtFinalTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="x00:05"  FontSize="23" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
             <TextBox  Grid.Row="3" Name="TxtExplanation" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"  VerticalAlignment="Center"  FontSize="15" TextChanged="TxtExplanation_TextChanged" Visibility="Collapsed">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
@@ -114,7 +122,7 @@
             <Button Grid.Row="4" IsDefault="True" x:Name="btnQuit"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold"  Click="btnQuit_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
-                        <TextBlock x:Name="btnQuitTXT" Text="xQuit"/>
+                        <TextBlock x:Name="btnQuitTXT" Text="xQuit" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

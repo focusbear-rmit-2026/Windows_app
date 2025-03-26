@@ -6,57 +6,64 @@
       xmlns:local="clr-namespace:Focus_Bear.Preferences"
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800" Background="#fff" 
+      d:DesignHeight="450" d:DesignWidth="800" 
       Title="HelpTab">
 
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
 
-        <TabControl Background="#fcf8f0" BorderBrush="LightGray" Margin="20,25,20,20">
+        <TabControl Margin="20,25,20,20">
             <TabControl.Resources>
                 <Style TargetType="{x:Type TabPanel}">
                     <Setter Property="HorizontalAlignment" Value="Center" />
                 </Style>
             </TabControl.Resources>
 
-            <TabItem Name="GetSupport" Header="xGetSupport" >
+            <TabItem Name="GetSupport" Header="xGetSupport" Style="{DynamicResource TabItemStyle}">
                 <wv2:WebView2 Name="webViewGetSupport" />
             </TabItem>
-            <TabItem Name="Tutorials" Header="xTutorials" >
+            <TabItem Name="Tutorials" Header="xTutorials" Style="{DynamicResource TabItemStyle}">
                 <wv2:WebView2 Name="webViewTutorials" />
             </TabItem>
-            
-            <TabItem Name="Community" Header="xCommunity" >
-                <Grid Background="#fcf8f0" Margin="20">
+
+            <TabItem Name="Community" Header="xCommunity" Style="{DynamicResource TabItemStyle}">
+                <Grid Margin="20" Background="{DynamicResource SoftCreamColor}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="120"/>
                         <RowDefinition Height="100"/>
                         <RowDefinition Height="40"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock  Grid.Row="0" Name="CommunityHeading" Margin="20,20,20,0"   Text="xJoin the Focus Bear discord server to share ideas, set up co-working/body doubling sessions and get help with the app." Foreground="#181818" TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+                    <TextBlock  Grid.Row="0" Name="CommunityHeading" Margin="20,20,20,0"   Text="xJoin the Focus Bear discord server to share ideas, set up co-working/body doubling sessions and get help with the app." TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
                     <Button   Grid.Row="1"  x:Name="btnJoinDiscord"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="200" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnJoinDiscord_Click" >
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
-                                <TextBlock x:Name="btnJoinDiscordTXT" Text="xJoin Discord Server"/>
+                                <TextBlock x:Name="btnJoinDiscordTXT" Text="xJoin Discord Server" Style="{DynamicResource ButtonTextBlockStyle}"/>
                             </StackPanel>
                         </Button.Content>
                     </Button>
                     <TextBlock Grid.Row="2" x:Name="DontUseDiscord" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15"  Cursor="Hand">
-                         <Hyperlink x:Name="BtnDontUseDiscord"  Foreground="#000" Click="BtnDontUseDiscord_Click"   TextDecorations="Underline"  ><Run x:Name="BtnDontUseDiscordTxt" Text="xI don't use Discord"/></Hyperlink>
+                         <Hyperlink x:Name="BtnDontUseDiscord"  Click="BtnDontUseDiscord_Click"   TextDecorations="Underline"  ><Run x:Name="BtnDontUseDiscordTxt" Text="xI don't use Discord"/></Hyperlink>
                     </TextBlock>
                 </Grid>
             </TabItem>
-            
-         
-            <TabItem Name="ReportProblemTab" Header="xReport Problem" >
-                <Grid Background="#fcf8f0" Margin="20">
+
+
+            <TabItem Name="ReportProblemTab" Header="xReport Problem" Style="{DynamicResource TabItemStyle}">
+                <Grid Margin="20" Background="{DynamicResource SoftCreamColor}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
-                    <TextBlock  Grid.Row="0" Name="Heading" Margin="20,20,20,0"   Text="xFocus Bear is still a new app and you might encounter issues (or have great ideas on how to make it better). We'd really appreciate your feedback. You can email us at team@focusbear.io. Screenshots are really helpful to let us understand the problem. Also if you had a problem, please export your logs (use the link below) and attach it to the email." Foreground="#181818" TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+                    <TextBlock  Grid.Row="0" Name="Heading" Margin="20,20,20,0"   Text="xFocus Bear is still a new app and you might encounter issues (or have great ideas on how to make it better). We'd really appreciate your feedback. You can email us at team@focusbear.io. Screenshots are really helpful to let us understand the problem. Also if you had a problem, please export your logs (use the link below) and attach it to the email." TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
                     <TextBlock Grid.Row="1" x:Name="ExportLogs" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15"  Cursor="Hand">
-                         <Hyperlink x:Name="btnExportLogs"  Foreground="#000" Click="btnExportLogs_Click"   TextDecorations="Underline"  ><Run x:Name="btnExportLogsTXT" Text="xClick here to export logs to share with Support Team."/></Hyperlink>
+                         <Hyperlink x:Name="btnExportLogs" Click="btnExportLogs_Click"   TextDecorations="Underline"  ><Run x:Name="btnExportLogsTXT" Text="xClick here to export logs to share with Support Team."/></Hyperlink>
                     </TextBlock>
                 </Grid>
             </TabItem>

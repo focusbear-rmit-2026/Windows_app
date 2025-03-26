@@ -6,10 +6,17 @@
       xmlns:local="clr-namespace:Focus_Bear.Preferences"
       mc:Ignorable="d" 
       d:DesignHeight="670" d:DesignWidth="670"
-       Background="#fff">
+       >
 
-    <Grid>
-        <Grid Background="#fcf8f0" Margin="20">
+    <Grid Background="{DynamicResource SoftCreamColor}">
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <Grid Margin="20" Background="{DynamicResource SoftCreamColor}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
                 <RowDefinition Height="1"/>
@@ -27,23 +34,23 @@
 
             <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0"   Text="xYour Account Information"  Foreground="#e88800" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
             <Grid Grid.Row="1" Background="LightGray" ></Grid>
-            
-            <Grid Grid.Row="2"   >
+
+            <Grid Grid.Row="2"   Background="{DynamicResource SoftCreamColor}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock   Name="LblName" Margin="20,0,10,0"   Text="xName:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
-                    <TextBlock    Name="LblNameValue" Margin="0,0,20,0"   Text="xFocusBear"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+                    <TextBlock   Name="LblName" Margin="20,0,10,0"   Text="xName:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
+                    <TextBlock    Name="LblNameValue" Margin="0,0,20,0"   Text="xFocusBear"  FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
                 </StackPanel>
             </Grid>
-            <Grid Grid.Row="3"   >
+            <Grid Grid.Row="3"   Background="{DynamicResource SoftCreamColor}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Name="LblEmail" Margin="20,0,10,0"   Text="xEmail:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
-                    <TextBlock Name="LblEmailValue" Margin="0,0,20,0"   Text="xFocusBear Mail"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+                    <TextBlock Name="LblEmail" Margin="20,0,10,0"   Text="xEmail:"   FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
+                    <TextBlock Name="LblEmailValue" Margin="0,0,20,0"   Text="xFocusBear Mail"   FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
                 </StackPanel>
             </Grid>
-            <Grid Grid.Row="4"   >
+            <Grid Grid.Row="4"   Background="{DynamicResource SoftCreamColor}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock   Name="LblUserId" Margin="20,0,10,0"   Text="xEmail:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
-                    <TextBox   Name="LblUserIdValue" IsReadOnly="True" Margin="0,0,0,0" Width="auto"  Text="xuser id"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+                    <TextBlock   Name="LblUserId" Margin="20,0,10,0"   Text="xEmail:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
+                    <TextBox   Name="LblUserIdValue" IsReadOnly="True" Margin="0,0,0,0" Width="auto"  Text="xuser id" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
                     <Button  x:Name="btnCopyUserId"  IsEnabled="True"   Margin="10,0,0,0" Width="22" Height="22" HorizontalContentAlignment="Center" Padding="0"  FontSize="15" Cursor="Hand"   VerticalAlignment="Center" BorderBrush="#eee" Background="#eee" Click="btnCopyUserId_Click" ToolTip="xCopy">
                         <Button.Content>
                             <Image Grid.Row="0" Height="20"  Width="20"  Margin="0,0,0,0" Source="../Images/copy.png" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -54,21 +61,21 @@
             <Button  Grid.Row="5" x:Name="btnLogout"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="135" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnLogout_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnLogoutTXT" Text="xLogout"/>
+                        <TextBlock x:Name="btnLogoutTXT" Text="xLogout" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
 
             <Grid Grid.Row="6" Background="LightGray" ></Grid>
 
-            <TextBlock  Grid.Row="7"  Name="LblTrialInfo" Margin="20,0,20,0"   Text="xTrial Version:"  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
+            <TextBlock  Grid.Row="7"  Name="LblTrialInfo" Margin="20,0,20,0"   Text="xTrial Version:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
 
-            <TextBlock  Grid.Row="8" Width="500" Name="LblPurchase" Margin="20,0,20,0"  TextWrapping="Wrap" Text="xIf you've already purchased Focus Bear subscription, you can restore that purchase."  Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
+            <TextBlock  Grid.Row="8" Width="500" Name="LblPurchase" Margin="20,0,20,0"  TextWrapping="Wrap" Text="xIf you've already purchased Focus Bear subscription, you can restore that purchase."  FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
 
             <Button  Grid.Row="9" x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="200" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnSyncPayment_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnSyncPaymentTXT" Text="xSync Payment Status"/>
+                        <TextBlock x:Name="btnSyncPaymentTXT" Text="xSync Payment Status" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

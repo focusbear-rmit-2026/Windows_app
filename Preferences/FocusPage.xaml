@@ -6,13 +6,14 @@
       xmlns:local="clr-namespace:Focus_Bear.Preferences"
       mc:Ignorable="d" 
       d:DesignHeight="670" d:DesignWidth="670"
-      Title="FocusPage" Background="#fff" >
+      Title="FocusPage">
 
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
-        
+
         <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
             <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -44,28 +45,41 @@
             <Setter Property="Visibility" Value="{Binding isShowAbleInList, Converter={StaticResource BoolToVis}}" />
         </Style>
     </Page.Resources>
-    
-    <Grid>
+
+    <Grid Background="{DynamicResource SoftCreamColor}">
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition/>
             <RowDefinition Height="45"/>
         </Grid.RowDefinitions>
 
-        <TextBlock  Grid.Row="0" Name="Heading" Margin="32,0,0,5" Width="600" TextWrapping="Wrap" Text="xFocus Type" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+        <TextBlock  Grid.Row="0" Name="Heading" Margin="32,0,0,5" Width="600" TextWrapping="Wrap" Text="xFocus Type" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-        <Grid  Grid.Row="1" Margin="30,0,30,0">
+        <Grid  Grid.Row="1" Margin="30,0,30,0" Background="{DynamicResource SoftCreamColor}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="315"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0" Background="#fcf8f0" Margin="0,0,0,0">
+            <Grid Grid.Column="0"  Margin="0,0,0,0" Background="{DynamicResource SoftCreamColor}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="33*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="35"/>
                 </Grid.RowDefinitions>
 
-                <ListView   Grid.Row="0"   x:Name="ListFocusModes"  SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="White" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" SelectionChanged="ListFocusModes_SelectionChanged" >
+                <ListView   Grid.Row="0"   x:Name="ListFocusModes"  SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" SelectionChanged="ListFocusModes_SelectionChanged" Grid.ColumnSpan="2" d:ItemsSource="{d:SampleData ItemCount=5}" >
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid x:Name="ItemHeader"  Height="40"  Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -75,23 +89,23 @@
                                     <ColumnDefinition Width="25"/>
                                 </Grid.ColumnDefinitions>
                                 <Rectangle Fill="{Binding color, StringFormat=\{0\}}" Width="25" Height="25"  RadiusX="4" RadiusY="4"></Rectangle>
-                                <TextBlock Grid.Column="1" Text="{Binding name, StringFormat=\{0\}}" Foreground="#000"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                                <Image x:Name="InfoImageMeetings" Grid.Column="2" Source="../images/info.png" Width="18"  Margin="0,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{Binding Path=isMeetings, Converter={StaticResource BoolToVis}}" ToolTip="{Binding sToolTip, StringFormat=\{0\}}"></Image>
+                                <TextBlock Grid.Column="1" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                <Image x:Name="InfoImageMeetings" Grid.Column="2" Source="{DynamicResource InfoImage}" Width="18"  Margin="0,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{Binding Path=isMeetings, Converter={StaticResource BoolToVis}}" ToolTip="{Binding sToolTip, StringFormat=\{0\}}"></Image>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                
-                <Button Grid.Row="1" x:Name="btnAddFocusMode"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26"  VerticalAlignment="Center" Padding="0" Margin="10,0,10,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAddFocusMode_Click" >
+
+                <Button Grid.Row="1" x:Name="btnAddFocusMode"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26"  VerticalAlignment="Center" Padding="0" Margin="10,0,10,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAddFocusMode_Click" Grid.ColumnSpan="2" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
-                            <TextBlock x:Name="btnAddFocusModeTXT" Text="xAdd Focus Mode"/>
+                            <TextBlock x:Name="btnAddFocusModeTXT" Text="xAdd Focus Mode" Style="{DynamicResource ButtonTextBlockStyle}"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
 
             </Grid>
-            <Grid Grid.Column="1" Background="#fcf8f0" Margin="10,0,0,0">
+            <Grid Grid.Column="1" Margin="10,0,0,0" Background="{DynamicResource SoftCreamColor}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="27"/>
@@ -99,49 +113,49 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="1"/>
                     <RowDefinition Height="35"/>
-                    
+
                     <RowDefinition Height="27"/>
                     <RowDefinition Height="27"/>
-                    
+
                     <RowDefinition Height="1"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="35"/>
                 </Grid.RowDefinitions>
 
-                <TextBox Grid.Row="0" TabIndex="0" x:Name="TxtFocusName" Margin="20,10,10,10" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="25" LostFocus="TxtFocusName_LostFocus" KeyDown="TxtFocusName_KeyDown" VerticalContentAlignment="Center">
+                <TextBox Grid.Row="0" TabIndex="0" x:Name="TxtFocusName" Margin="20,10,10,10" TextWrapping="Wrap" BorderBrush="#000"  Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="25" LostFocus="TxtFocusName_LostFocus" KeyDown="TxtFocusName_KeyDown" VerticalContentAlignment="Center">
                 </TextBox>
 
-                <RadioButton Grid.Row="1"  Name="AllowAllApps" Margin="20,5,0,0" GroupName="allowApps"  FontSize="13" Checked="AllowAllApps_Checked">
-                   xAllow all apps
+                <RadioButton Grid.Row="1"  Name="AllowAllApps" Margin="20,5,0,0" GroupName="allowApps"  FontSize="13" Checked="AllowAllApps_Checked" Foreground="{DynamicResource ForegroundColor}">
+                    xAllow all apps
                 </RadioButton>
-                <RadioButton Grid.Row="2" Name="AllowSelectedApps" Margin="20,5,0,0" GroupName="allowApps"  FontSize="13" Checked="AllowSelectedApps_Checked">
+                <RadioButton Grid.Row="2" Name="AllowSelectedApps" Margin="20,5,0,0" GroupName="allowApps"  FontSize="13" Checked="AllowSelectedApps_Checked" Foreground="{DynamicResource ForegroundColor}">
                     xAllow Selected apps
                 </RadioButton>
-                <Grid Grid.Row="3" x:Name="SelectedAppsListBG" Background="#fff" Margin="20,5,20,15">
+                <Grid Grid.Row="3" x:Name="SelectedAppsListBG" Margin="20,5,20,15" >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="1"/>
                         <RowDefinition Height="25"/>
                     </Grid.RowDefinitions>
-                    <ListView   Grid.Row="0"   x:Name="ListApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}"  >
+                    <ListView   Grid.Row="0" Background="{DynamicResource BackgroundColor}"  x:Name="ListApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}" BorderThickness="0" d:ItemsSource="{d:SampleData ItemCount=5}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding AppName, StringFormat=\{0\}}" Foreground="#000"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                    <TextBlock Grid.Column="0" Text="{Binding AppName, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
                     <Grid Grid.Row="1"  x:Name="SelectedAppsListBGSeperator" Background="LightGray" ></Grid>
-                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" >
                         <Button   x:Name="btnAddAllowedApp"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddAllowedApp_Click" >
-                            
+
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
-                                    <Image Name="btnAddAllowedAppTXT" Height="16"  Width="16" Source="../Images/plus.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
+                                    <Image Name="btnAddImg" Height="16"  Width="16" Source="{DynamicResource PlusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -149,7 +163,7 @@
 
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
-                                    <Image Name="btnAddDeleteAppTXT" Height="16"  Width="16" Source="../Images/minus.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
+                                    <Image Name="btnMinusImg" Height="16"  Width="16" Source="{DynamicResource MinusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -165,31 +179,31 @@
                     xAllow everything except certain distracting sites
                 </RadioButton>
 
-                <Grid Grid.Row="9" x:Name="SelectedURLsListBG" Background="#fff" Margin="20,5,20,8">
+                <Grid Grid.Row="9" x:Name="SelectedURLsListBG" Margin="20,5,20,8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="1"/>
                         <RowDefinition Height="25"/>
                     </Grid.RowDefinitions>
-                    <ListView   Grid.Row="0"   x:Name="ListURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" MouseDoubleClick="ListURLs_MouseDoubleClick" >
+                    <ListView   Grid.Row="0" Background="{DynamicResource BackgroundColor}" x:Name="ListURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"   BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" MouseDoubleClick="ListURLs_MouseDoubleClick" >
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding ., StringFormat=\{0\}}" Foreground="#000"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                    <TextBlock Grid.Column="0" Text="{Binding ., StringFormat=\{0\}}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
                     <Grid Grid.Row="1"  x:Name="SelectedURLsListBGSeperator" Background="LightGray" ></Grid>
-                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" >
                         <Button   x:Name="btnAddAllowedURLs"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddAllowedURLs_Click">
 
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
-                                    <Image Name="btnAddAllowedURLsTXT" Height="16"  Width="16" Source="../Images/plus.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
+                                    <Image Name="btnAddAllowedURLsTXT" Height="16"  Width="16" Source="{DynamicResource PlusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -197,7 +211,7 @@
 
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
-                                    <Image Name="btnAddDeleteURLsTXT" Height="16"  Width="16" Source="../Images/minus.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
+                                    <Image Name="btnAddDeleteURLsTXT" Height="16"  Width="16" Source="{DynamicResource MinusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -207,26 +221,26 @@
                 <Button Grid.Row="10" x:Name="btnAdvanced"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnadvanced_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
-                            <TextBlock x:Name="btnAdvancedTXT" Text="xAdvanced"/>
+                            <TextBlock x:Name="btnAdvancedTXT" Text="xAdvanced" Style="{DynamicResource ButtonTextBlockStyle}"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                
+
             </Grid>
         </Grid>
-        
+
         <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,5,30,0">
             <Button  x:Name="btnDeleteFocusMode" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnDeleteFocusMode_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnDeleteFocusModeTXT" Text="xDelete"/>
+                        <TextBlock x:Name="btnDeleteFocusModeTXT" Text="xDelete" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
             <Button  x:Name="btnDuplicateFocusMode"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="15,0,0,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnDuplicateFocusMode_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnDuplicateFocusModeTXT" Text="xDuplicate"/>
+                        <TextBlock x:Name="btnDuplicateFocusModeTXT" Text="xDuplicate" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

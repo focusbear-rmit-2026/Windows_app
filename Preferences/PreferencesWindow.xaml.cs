@@ -1,5 +1,7 @@
 ﻿using Focus_Bear.API;
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,10 +16,15 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Runtime.InteropServices;
+using Microsoft.Win32;
+using System.Windows.Interop;
 
 namespace Focus_Bear.Preferences
 {
@@ -42,6 +49,12 @@ namespace Focus_Bear.Preferences
 
         double ScaleX = 1;
         double ScaleY = 1;
+
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
         public PreferencesWindow()
         {
             InitializeComponent();
@@ -55,6 +68,7 @@ namespace Focus_Bear.Preferences
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
+            App.ThemeChanged += btnThemeChange;
 
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
  
@@ -127,12 +141,12 @@ namespace Focus_Bear.Preferences
             btnHelp.IsEnabled = true;
             btnBlocks.IsEnabled = true;
 
-            btnStats.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-            btnSettings.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-            btnFocus.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-            btnEditHabits.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-            btnHelp.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-            btnBlocks.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            btnStatsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            btnSettingsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            btnFocusTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            btnEditHabitsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            btnHelpTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            btnBlocksTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
 
             FrameStats.Visibility = Visibility.Collapsed;
             FrameSettings.Visibility = Visibility.Collapsed;
@@ -143,14 +157,136 @@ namespace Focus_Bear.Preferences
             FrameUninstallTab.Visibility = Visibility.Collapsed;
             FrameHelpTab.Visibility = Visibility.Collapsed;
         }
+        private static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
+        }
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            //when the window is created we will check the theme and apply the dark mode if needed
+            base.OnSourceInitialized(e);
 
+            var isLightTheme = IsLightTheme();
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, !isLightTheme);
+            }
+        }
+        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = DWMWA_USE_IMMERSIVE_DARK_MODE;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+            return false;
+        }
+
+        private void btnThemeChange()
+        {
+            HwndSource source = (HwndSource)PresentationSource.FromVisual(this);
+            if (appSettings.sTheme == "Light")
+            {
+                Debug.WriteLine("PreferencesWindow btnThemeChange Light");
+
+                PreferenceButtonNormalColor = "#000";
+                PreferenceButtonSelectedColor = "#0066EB";//blue
+                if (source != null)
+                {
+                    UseImmersiveDarkMode(source.Handle, false);//false for Light
+                }
+            }
+            else if (appSettings.sTheme == "Dark")
+            {
+                Debug.WriteLine("PreferencesWindow btnThemeChange Dark");
+
+                PreferenceButtonNormalColor = "#fff";
+                PreferenceButtonSelectedColor = "#0066EB";
+
+                if (source != null)
+                {
+                    UseImmersiveDarkMode(source.Handle, true);//true for dark  
+                }
+            }
+                //Status
+                if (btnStats.IsEnabled == true)
+                {
+                    btnStatsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+                }
+                else
+                {
+                    btnStatsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+                }
+                //Settings
+                if (btnSettings.IsEnabled == true)
+                {
+                    btnSettingsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+                }
+                else
+                {
+                    btnSettingsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+                }
+                //Focus
+                if (btnFocus.IsEnabled == true)
+                {
+                    btnFocusTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+                }
+                else
+                {
+                    btnFocusTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+                }
+                //EditHabits
+                if (btnEditHabits.IsEnabled == true)
+                {
+                    btnEditHabitsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+                }
+                else
+                {
+                    btnEditHabitsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+                }
+                //EditHabits
+                if (btnHelp.IsEnabled == true)
+                {
+                    btnHelpTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+                }
+                else
+                {
+                    btnHelpTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+                }
+                //EditHabits
+                if (btnBlocks.IsEnabled == true)
+                {
+                    btnBlocksTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+                }
+                else
+                {
+                    btnBlocksTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+                }
+
+
+        }
+        
         private void btnStats_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Preferences tab - btnStats_Click");
 
             EnableAll();
             btnStats.IsEnabled = false;
-            btnStats.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            btnStatsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            //btnThemeChange(btnStats);
+            
             this.MinWidth = 999;
             this.MinHeight = 750;
             this.Width = 999;
@@ -164,7 +300,7 @@ namespace Focus_Bear.Preferences
 
             EnableAll();
             btnSettings.IsEnabled = false;
-            btnSettings.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            btnSettingsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
 
             this.MinWidth = 680 * ScaleX;
             this.MinHeight = 750 * ScaleY;
@@ -187,7 +323,7 @@ namespace Focus_Bear.Preferences
 
             EnableAll();
             btnFocus.IsEnabled = false;
-            btnFocus.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            btnFocusTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
             
             this.MinWidth = 775 * ScaleX;
             this.MinHeight = 750 * ScaleY;
@@ -211,7 +347,7 @@ namespace Focus_Bear.Preferences
 
             EnableAll();
             btnEditHabits.IsEnabled = false;
-            btnEditHabits.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            btnEditHabitsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
             this.Width = 999 /** ScaleX*/; 
             this.Height = 750 /** ScaleY*/;
             //not applying scaling in 150% dpi for edit habits as this ruins the webview
@@ -238,6 +374,8 @@ namespace Focus_Bear.Preferences
 
             EnableAll();
             btnBlocks.IsEnabled = false;
+            btnBlocksTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+
 
             this.MinWidth = 680 * ScaleX;
             this.MinHeight = 780 * ScaleY;
@@ -287,7 +425,7 @@ namespace Focus_Bear.Preferences
             if (null != e)
                 e.Handled = true;
 
-
+            
             //var source = PresentationSource.FromVisual(this);
 
             //if (null != source && null != source.CompositionTarget)
@@ -304,7 +442,7 @@ namespace Focus_Bear.Preferences
             //    this.Height = this.Height * dpiTransform.ScaleY;
             //    ScaleX = dpiTransform.ScaleX;
             //    ScaleY = dpiTransform.ScaleY;
-                
+
             //    LogWriter.LogWrite("dpiTransform.ScaleX - " + dpiTransform.ScaleX);
             //    LogWriter.LogWrite("dpiTransform.ScaleY - " + dpiTransform.ScaleY);
             //    LogWriter.LogWrite("matrix.M11 - " + matrix.M11.ToString());
@@ -451,7 +589,7 @@ namespace Focus_Bear.Preferences
 
             EnableAll();
             btnHelp.IsEnabled = false;
-            btnHelp.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            btnHelpTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
 
             this.MinWidth = 680 * ScaleX;
             this.MinHeight = 750 * ScaleY;
@@ -462,6 +600,6 @@ namespace Focus_Bear.Preferences
             FrameHelpTab.Visibility = Visibility.Visible;
         }
 
-      
+
     }
 }

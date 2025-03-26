@@ -7,6 +7,13 @@
         mc:Ignorable="d"
         Title="AddWebUrl" Height="220" Width="450" ResizeMode="NoResize" >
     <Grid>
+        <Grid.Resources>
+    <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+        </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+</Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="45"/>
             <RowDefinition Height="*"/>

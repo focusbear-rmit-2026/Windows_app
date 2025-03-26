@@ -7,8 +7,15 @@
         mc:Ignorable="d"
         Title="Focus Bear" Height="121" Width="323" ResizeMode="NoResize" Closing="Window_Closing">
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center" />
+            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource Background}" AlignmentY="Top" AlignmentX="Center" />
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -26,7 +33,7 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xYour break ends in:"  Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-                <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="05:00" Foreground="#000" Padding="0" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Top" />
+                <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="05:00"  Padding="0" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Top" />
 
             </Grid>
             <Grid Grid.Column="1" x:Name="DoNotUseTimerRelated" Visibility="Visible">
@@ -34,12 +41,12 @@
                     <RowDefinition MinHeight="48" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock  Grid.Row="0" Name="DescriptionNoTimer" Margin="10,0,10,0" TextWrapping="Wrap" Text="xDo xx Activity: " Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock  Grid.Row="0" Name="DescriptionNoTimer" Margin="10,0,10,0" TextWrapping="Wrap" Text="xDo xx Activity: " FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
                 
                 <Button Grid.Row="1"  x:Name="btnIAmDone"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="25"  Width="180" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnIAmDone_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
-                            <TextBlock x:Name="btnIAmDoneTXT" Text="xI'm Done!"/>
+                            <TextBlock x:Name="btnIAmDoneTXT" Text="xI'm Done!" Style="{DynamicResource ButtonTextBlockStyle}"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>

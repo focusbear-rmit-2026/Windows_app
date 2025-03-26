@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.SessionState;
 using System.Windows;
 
 namespace Focus_Bear.Models
@@ -1035,7 +1036,7 @@ namespace Focus_Bear.Models
 
                 if (regData == null)
                     return false;
-
+                Console.WriteLine("regData applang: " + regData.ToString());
                 appSettings.sLangCode = regData.ToString();
 
                 return true;
@@ -1056,6 +1057,64 @@ namespace Focus_Bear.Models
             catch (Exception ex)
             {
                 LogWriter.LogWrite("SetLangCode()" + ex.Message);
+            }
+        }
+        internal static bool GetThemeMode()
+        {
+            try
+            {
+                var regData = ReadStrGlobal("APP_THEME");
+                if (regData == null)
+                    return false;
+                Console.WriteLine("regData apptheme: " + regData.ToString());
+
+                appSettings.sTheme = regData.ToString();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetThemeMode - " + ex.Message);
+                return false;
+            }
+        }
+        internal static void SetThemeMode()
+        {
+            try
+            {
+                WriteStrGlobal("APP_THEME", appSettings.sTheme);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetDarkMode()" + ex.Message);
+            }
+        }
+        internal static bool GetAutoThemeMode()
+        {
+            try
+            {
+                var regData = ReadStrGlobal("APP_AUTOTHEME");
+                if (regData == null)
+                    return false;
+                Console.WriteLine("regData apptheme: " + regData.ToString());
+
+                bool.TryParse(regData.ToString(), out appSettings.bAutoTheme);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetAutoThemeMode - " + ex.Message);
+                return false;
+            }
+        }
+        internal static void SetAutoThemeMode()
+        {
+            try
+            {
+                WriteStrGlobal("APP_AUTOTHEME", appSettings.bAutoTheme.ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetDarkMode()" + ex.Message);
             }
         }
         internal static void SetWelcomeAboardingDoneStatus()

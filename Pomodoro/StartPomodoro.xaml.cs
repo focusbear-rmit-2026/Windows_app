@@ -68,7 +68,11 @@ namespace Focus_Bear.Pomodoro
                 for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
                 {
                     if (!(appSettings.arrFocusModes[i].isMeetings || appSettings.arrFocusModes[i].isLockedFocus))
-                        ComboBoxFocusModes.Items.Add(appSettings.arrFocusModes[i].name);
+                    {
+                        ComboBoxItem itemFree = new ComboBoxItem { Content = appSettings.arrFocusModes[i].name, ToolTip = appSettings.arrFocusModes[i].sToolTip };
+                        ComboBoxFocusModes.Items.Add(itemFree);
+                        //ComboBoxFocusModes.Items.Add(appSettings.arrFocusModes[i].name);//default add item without tooltip
+                    }
                 }
 
             }
