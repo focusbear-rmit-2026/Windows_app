@@ -31,13 +31,13 @@
                 <StackPanel Orientation="Horizontal" Width="300"  Margin="0,0,0,0">
                     <CheckBox x:Name="HealthyHabits" FontSize="18" Checked="HealthyHabits_Checked" Unchecked="HealthyHabits_Unchecked" Cursor="Hand"></CheckBox>
                     <TextBlock  Name="TXTCheckBoxHealthyHabits" Margin="15,-6,0,0" Height="60"  TextWrapping="Wrap" Text="xBuild healthy habits" Foreground="#000" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <Image x:Name="InfoHealthyHabits"   Source="../images/info.png" Width="18"  Margin="10,-2,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"   ></Image>
+                    <Image x:Name="InfoHealthyHabits" Source="../images/info.png" Width="18" Margin="10,-2,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" ToolTip="Focus Bear helps you avoid distractions and build healthy habits." ></Image>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Width="300" Margin="0,0,0,0">
                     <CheckBox x:Name="StayFocused" FontSize="18" Checked="StayFocused_Checked" Unchecked="StayFocused_Unchecked" Cursor="Hand"></CheckBox>
                     <TextBlock  Name="TXTCheckBoxFocused" Margin="15,-6,0,0" Height="60"   TextWrapping="Wrap" Text="xStay focused at work " Foreground="#000" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <Image x:Name="InfoStayFocused"   Source="../images/info.png" Width="18" Margin="10,-2,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"   ></Image>
+                    <Image x:Name="InfoStayFocused" Source="../images/info.png" Width="18" Margin="10,-2,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" ToolTip="Focus Bear can help block distracting websites and apps while you're working to help you get more done." ></Image>
                 </StackPanel>
 
             </StackPanel>

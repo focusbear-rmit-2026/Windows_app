@@ -81,6 +81,7 @@ namespace Focus_Bear
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         private const int SW_SHOW = 5;
 
+
         private const uint WINEVENT_OUTOFCONTEXT = 0;
         private const uint EVENT_SYSTEM_FOREGROUND = 3;
         private const uint WINEVENT_SKIPOWNPROCESS = 0x0002;
@@ -327,6 +328,7 @@ namespace Focus_Bear
 
         bool bAppExtracted = false;
 
+        public static event Action ThemeChanged;
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             SentrySdk.ConfigureScope(scope => {
@@ -434,6 +436,10 @@ namespace Focus_Bear
             Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--autoplay-policy=no-user-gesture-required");
 
             RegistryManager.GetLangCode();
+
+            RegistryManager.GetThemeMode();
+
+            RegistryManager.GetAutoThemeMode();
 
             appSettings.CheckAndGetGlobalUUID();
 
@@ -4430,5 +4436,31 @@ namespace Focus_Bear
              
         }
 
+        public void ChangeTheme(string theme)
+        {
+            ResourceDictionary newTheme = new ResourceDictionary();
+            //ResourceDictionary themeStyle = new ResourceDictionary();
+            //themeStyle.Source = new Uri("Theme/PreferencesStyle.xaml", UriKind.Relative);
+            if (theme == "Dark")
+            {
+                newTheme.Source = new Uri("Theme/DarkTheme.xaml", UriKind.Relative);
+
+            }
+            else if (theme == "Light")
+            {
+                newTheme.Source = new Uri("Theme/LightTheme.xaml", UriKind.Relative);
+            }
+            ThemeChanged?.Invoke();
+
+
+            // Clear old theme and apply new theme
+            Application.Current.Resources.MergedDictionaries.Clear();
+            //Application.Current.Resources.MergedDictionaries.Add(themeStyle);
+
+            Application.Current.Resources.MergedDictionaries.Add(newTheme);
+            // Save theme setting
+            appSettings.sTheme = theme;
+
+        }
     }
 }

@@ -7,6 +7,17 @@
         mc:Ignorable="d"
         Title="PomodoroTabAdvanced" Height="540" Width="549" ResizeMode="NoResize" WindowStyle="None" >
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+                <Style TargetType="Grid">
+                    <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
+                </Style>
+            </ResourceDictionary>
+        </Grid.Resources>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="40"/>
@@ -25,18 +36,18 @@
         <CheckBox Name="UseSuperPomodoroCheck" Margin="20,30,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14" Checked="UseSuperPomodoroCheck_Checked" Unchecked="UseSuperPomodoroCheck_Unchecked" Cursor="Hand" Padding="5,-2,0,0" >
             <TextBlock Width="340" TextWrapping="Wrap" Name="UseSuperPomodoroCheckTxt">xUse super pomodoro mode</TextBlock>
         </CheckBox>
-        <TextBlock Grid.Row="1" Name="LockIn" Margin="41,5,0,0"  TextWrapping="Wrap"    Text="x(Lock in the focus mode for multiple pomodoros)"  Foreground="Gray" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+        <TextBlock Grid.Row="1" Name="LockIn" Margin="41,5,0,0"  TextWrapping="Wrap"    Text="x(Lock in the focus mode for multiple pomodoros)"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
         <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <TextBlock  Name="ChooseFocusMode" Margin="41,0,0,5" TextWrapping="Wrap" Text="xChoose the focus mode" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock  Name="ChooseFocusMode" Margin="41,0,0,5" TextWrapping="Wrap" Text="xChoose the focus mode" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
             <ComboBox  Name="ComboBoxFocusModes"   Width="250" Height="27" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="20,0,0,0"  SelectedIndex="0" FontSize="14">
             </ComboBox>
         </StackPanel>
         <StackPanel Grid.Row="3" Orientation="Vertical" Margin="41,0,20,0">
-            <TextBlock  Name="YouWontBeAbleToChange" Margin="0,10,0,0" TextWrapping="Wrap" Text="xYou won't be able to change the focus mode until the time is up" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
-            <TextBlock  Name="YouWillBeAbleToUseSite" Margin="0,5,0,0" TextWrapping="Wrap" Text="x(you still get to use any app/website during the 5 minute break)" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock  Name="YouWontBeAbleToChange" Margin="0,10,0,0" TextWrapping="Wrap" Text="xYou won't be able to change the focus mode until the time is up"  FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock  Name="YouWillBeAbleToUseSite" Margin="0,5,0,0" TextWrapping="Wrap" Text="x(you still get to use any app/website during the 5 minute break)"  FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
         </StackPanel>
         <StackPanel  Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Left" Margin="41,0,20,0" VerticalAlignment="Bottom">
-            <TextBlock Margin="0,0,0,0" Name="PomodoroCountText" TextWrapping="Wrap" Text="xHow many pomodoros you want to focus for:" Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock Margin="0,0,0,0" Name="PomodoroCountText" TextWrapping="Wrap" Text="xHow many pomodoros you want to focus for:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
             <ComboBox Name="ComboBoxNumberOfPomodoros" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  FontSize="14"  >
                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -61,7 +72,7 @@
             </ComboBox>
         </StackPanel>
 
-        <TextBlock Grid.Row="5" Name="ScheduleDays" Margin="41,0,20,0" TextWrapping="Wrap" Text="xSchedule specific days you want to run the super pomodoro mode after Morning Routine:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+        <TextBlock Grid.Row="5" Name="ScheduleDays" Margin="41,0,20,0" TextWrapping="Wrap" Text="xSchedule specific days you want to run the super pomodoro mode after Morning Routine:" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
 
 
         <CheckBox Grid.Row="6" Name="Monday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14" Cursor="Hand" Padding="5,-2,0,0" >
@@ -95,14 +106,14 @@
         <Button  Grid.Row="11" x:Name="btnCancel"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="41,0,0,20" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnCancelTXT" Text="xCancel"/>
+                    <TextBlock x:Name="btnCancelTXT" Text="xCancel" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>
         <Button  Grid.Row="11" x:Name="btnApply"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" IsDefault="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,30,20" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnApply_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnApplyTXT" Text="xApply"/>
+                    <TextBlock x:Name="btnApplyTXT" Text="xApply" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>

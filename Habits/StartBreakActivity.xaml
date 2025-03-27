@@ -6,11 +6,11 @@
       xmlns:local="clr-namespace:Focus_Bear.Habits"
       mc:Ignorable="d" 
        d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="StartBreakActivity"  Background="#fff">
+      Title="StartBreakActivity"  Background="{DynamicResource BackgroundColor}">
 
     <Grid>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="100" />

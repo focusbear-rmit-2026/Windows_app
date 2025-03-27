@@ -7,6 +7,14 @@
         mc:Ignorable="d"
         Title="AddFocusType" Height="180" Width="450" ResizeMode="NoResize" >
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
             <RowDefinition Height="45"/>
@@ -27,8 +35,8 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="btnCancel" Grid.Column="0" Height="23" Width="100" Margin="20,0,0,0" HorizontalAlignment="Left" Click="btnCancel_Click">xCancel</Button>
-            <Button x:Name="btnAdd"  Grid.Column="1" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right" Click="btnAdd_Click">xAdd</Button>
+            <Button x:Name="btnCancel" Grid.Column="0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" Height="23" Width="100" Margin="20,0,0,0" HorizontalAlignment="Left" FontWeight="Semibold" Click="btnCancel_Click">xCancel</Button>
+            <Button x:Name="btnAdd"  Grid.Column="1" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right"  FontWeight="Semibold" Click="btnAdd_Click">xAdd</Button>
 
         </Grid>
     </Grid>

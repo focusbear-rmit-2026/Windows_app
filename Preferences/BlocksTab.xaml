@@ -7,18 +7,28 @@
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
       d:DesignHeight="750" d:DesignWidth="800"
-      Title="BlocksTab"  Background="#fff" >
+      Title="BlocksTab">
 
     <Grid>
-        <TabControl Background="#fcf8f0" BorderBrush="LightGray" Margin="20,25,20,20">
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        
+        <TabControl  BorderBrush="LightGray" Margin="20,25,20,20">
             <TabControl.Resources>
                 <Style TargetType="{x:Type TabPanel}">
                     <Setter Property="HorizontalAlignment" Value="Center" />
+                    <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
+
                 </Style>
             </TabControl.Resources>
 
-            <TabItem Name="BlockingSchedule" Header="xBlocking Schedule" >
-                <Grid>
+            <TabItem Name="BlockingSchedule" Header="xBlocking Schedule" Style="{DynamicResource TabItemStyle}">
+                <Grid Background="{DynamicResource SoftCreamColor}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="1"/>
@@ -28,20 +38,20 @@
                     <Grid Grid.Row="1" Background="LightGray" Height="1"></Grid>
                     <StackPanel  Grid.Row="2" Orientation="Vertical" Margin="30,0,10,0" >
                         
-                        <TextBlock  Name="Welcome" Margin="8,10" TextWrapping="Wrap" Text="xWhen do you want to block distracting sites?" Foreground="#000" FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                        <TextBlock  Name="Welcome" Margin="8,10" TextWrapping="Wrap" Text="xWhen do you want to block distracting sites?" FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
                         <RadioButton x:Name="RadioButton1" GroupName="Occupation1"  Margin="10,10,0,5" Content="xUntil I finish work" FontSize="14" FontWeight="Bold"    Checked="RadioButton1_Checked" Cursor="Hand" Padding="5,-5,0,0"  />
-                        <TextBlock   Name="Description1" Margin="30,0,40,10" TextWrapping="Wrap" Text="xFocus Bear will block the distracting sites for most of the day until you finish work. You'll get some free time before it's time for bed and then distractions will be blocked again while you're sleeping." Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                        <TextBlock   Name="Description1" Margin="30,0,40,10" TextWrapping="Wrap" Text="xFocus Bear will block the distracting sites for most of the day until you finish work. You'll get some free time before it's time for bed and then distractions will be blocked again while you're sleeping." FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
                         <RadioButton x:Name="RadioButton2" GroupName="Occupation1"   Margin="10,10,0,5"  Content="xWhen I tell you to" FontSize="14"  FontWeight="Bold"  Checked="RadioButton2_Checked" Cursor="Hand" Padding="5,-5,0,0" />
-                        <TextBlock    Name="Description2" Margin="30,0,40,10" TextWrapping="Wrap" Text="xFocus Bear will only block distracting sites when you start a focus session" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                        <TextBlock    Name="Description2" Margin="30,0,40,10" TextWrapping="Wrap" Text="xFocus Bear will only block distracting sites when you start a focus session"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
                         <RadioButton x:Name="RadioButton3" IsEnabled="False" GroupName="Occupation1"  Margin="10,10,0,5" Content="xOn a custom schedule" FontSize="14"  FontWeight="Bold" Cursor="Hand" Padding="5,-5,0,0" />
-                        <TextBlock    Name="Description3" IsEnabled="False" Margin="30,0,40,0" TextWrapping="Wrap" Text="xComing soon" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                        <TextBlock    Name="Description3" IsEnabled="False" Margin="30,0,40,0" TextWrapping="Wrap" Text="xComing soon"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
 
                     </StackPanel>
                 </Grid>
                 
                 
             </TabItem>
-            <TabItem Name="DistractingSites" Header="xSuper Distracting Sites" >
+            <TabItem Name="DistractingSites" Header="xSuper Distracting Sites" Style="{DynamicResource TabItemStyle}">
                                 
             </TabItem>
         </TabControl>

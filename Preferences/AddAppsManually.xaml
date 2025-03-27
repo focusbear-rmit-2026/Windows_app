@@ -7,6 +7,13 @@
         mc:Ignorable="d"
          Title="Focus Bear" Height="210" Width="450" ResizeMode="NoResize" >
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
             <RowDefinition Height="40"/>
@@ -18,7 +25,7 @@
         <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap"  Text="xEnter apps manually:"   FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
         
         
-        <TextBox Grid.Row="1" TabIndex="0" x:Name="TxtApps" Margin="20,5,20,10" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Height="25" TextChanged="TxtApps_TextChanged">
+        <TextBox Grid.Row="1" TabIndex="0" x:Name="TxtApps" Margin="20,5,20,10" TextWrapping="Wrap"  BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Height="25" TextChanged="TxtApps_TextChanged">
 
         </TextBox>
 

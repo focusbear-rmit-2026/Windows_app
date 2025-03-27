@@ -7,8 +7,15 @@
         mc:Ignorable="d"
         Title="Focus Bear" Height="670" Width="720"  ResizeMode="NoResize" Loaded="Window_Loaded">
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="100" />
@@ -23,10 +30,10 @@
 
 
         <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xStarting Focus type - FOCUSTYPE" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock Grid.Row="1" Visibility="Collapsed" Name="sLockedText" Margin="10,0,10,0" TextWrapping="NoWrap" Text="xxYou will only be able to use.." Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Row="1" Visibility="Collapsed" Name="sLockedText" Margin="10,0,10,0" TextWrapping="NoWrap" Text="xxYou will only be able to use.." FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <StackPanel Grid.Row="2"  Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
-            <TextBlock  Name="HowMuchTime" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxHow much time do you want to focus for?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Name="HowMuchTime" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxHow much time do you want to focus for?" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
             <TextBox    TabIndex="0" x:Name="Hours"  MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap" MaxLength="2"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Hours_PreviewTextInput" PreviewKeyDown="Hours_PreviewKeyDown" PreviewKeyUp="Hours_PreviewKeyUp" TextChanged="Hours_TextChanged">
                 <TextBox.Effect>
@@ -47,7 +54,7 @@
                     </Style>
                 </TextBox.FocusVisualStyle>
             </TextBox>
-            <TextBlock  Name="HoursTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxhours" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Name="HoursTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxhours" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             <TextBox    TabIndex="1" x:Name="Minutes"  MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="Minutes_TextChanged">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
@@ -67,19 +74,19 @@
                     </Style>
                 </TextBox.FocusVisualStyle>
             </TextBox>
-            <TextBlock  Name="MinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Name="MinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         </StackPanel>
         <StackPanel Grid.Row="3" Orientation="Vertical" VerticalAlignment="Top" Margin="0,20,0,0">
             <Button    x:Name="btnSelectTasks" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="30" Width="230" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSelectTasks_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnSelectTasksTXT" Padding="10,0,10,0" Text="xChoose tasks to work on"/>
+                        <TextBlock x:Name="btnSelectTasksTXT" Padding="10,0,10,0" Text="xChoose tasks to work on" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
             <TextBlock x:Name="FreeFormIntention" Grid.Row="4" Margin="0,10,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-             <Hyperlink x:Name="btnWriteFreeFormIntention"  Foreground="#000" Click="btnWriteFreeFormIntention_Click"   TextDecorations="Underline" ><Run x:Name="btnWriteFreeFormIntentionTXT" Text="xWrite a freeform intention instead"/></Hyperlink>
+             <Hyperlink x:Name="btnWriteFreeFormIntention" Click="btnWriteFreeFormIntention_Click"   TextDecorations="Underline" ><Run x:Name="btnWriteFreeFormIntentionTXT" Text="xWrite a freeform intention instead"/></Hyperlink>
             </TextBlock>
 
             <TextBlock  Name="WhatPlan" Visibility="Collapsed"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
@@ -104,9 +111,9 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
 
-            <TextBlock   Name="Description" Visibility="Collapsed"  Width="500" Margin="5,-5,0,0" TextWrapping="Wrap" Text="xxSetting an intention for the focus block helps prime your brain to accomplish that task. To edit the intention after starting the focus mode, click Brain Dump in the menu bar." Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <TextBlock   Name="Description" Visibility="Collapsed"  Width="500" Margin="5,-5,0,0" TextWrapping="Wrap" Text="xxSetting an intention for the focus block helps prime your brain to accomplish that task. To edit the intention after starting the focus mode, click Brain Dump in the menu bar." FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
 
-            <TextBlock   Name="SelectedTasksTitle" Visibility="Collapsed" Width="300" Margin="5,25,0,5" TextWrapping="Wrap" Text="xxSelected Tasks:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <TextBlock   Name="SelectedTasksTitle" Visibility="Collapsed" Width="300" Margin="5,25,0,5" TextWrapping="Wrap" Text="xxSelected Tasks:" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
 
             <ListView    x:Name="ListTasks" Visibility="Collapsed" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"   Height="120" Width="300" VerticalAlignment="Top">
                 <ListView.ItemContainerStyle>
@@ -121,7 +128,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Grid.Column="0" Text="{Binding ., StringFormat=\{0\}}" Foreground="#000"  FontSize="15"   VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
+                                <TextBlock Grid.Column="0" Text="{Binding ., StringFormat=\{0\}}" FontSize="15"   VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
@@ -133,7 +140,7 @@
         <Button  Grid.Row="5" x:Name="btnStartFocus"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" MinHeight="43" MaxHeight="55" HorizontalContentAlignment="Center" Padding="0" Margin="7,20" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartFocus_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock Name="btnStartFocusText" Margin="8" Text="xStart Focus"/>
+                    <TextBlock Name="btnStartFocusText" Margin="8" Text="xStart Focus" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>

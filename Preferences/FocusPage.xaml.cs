@@ -32,6 +32,8 @@ namespace Focus_Bear.Preferences
         AppSettings appSettings = AppSettings.GetInstance;
 
         PreferencesWindow _ParentWindow = null;
+        SolidColorBrush BackgroundColor = null;
+
         public FocusPage()
         {
         }
@@ -73,7 +75,33 @@ namespace Focus_Bear.Preferences
             ListFocusModes.ItemsSource = appSettings.arrFocusModes;
 
             ListFocusModes.SelectedIndex = 0;
+
+            //changeTheme();
         }
+
+        // Use dynamic resource source = {dynamic plusImg} instead.
+        //private void changeTheme()
+        //{
+        //    // Dynamic background color for dark mode in .cs
+        //    BackgroundColor = (SolidColorBrush)FindResource("BackgroundColor");
+        //    LogWriter.LogWrite("Current theme focus " + appSettings.sTheme);
+
+        //    if (appSettings.sTheme == "Light")
+        //    {
+        //        btnAddImg.Source = new BitmapImage(new Uri("../Images/plus.png", UriKind.Relative));
+        //        btnMinusImg.Source = new BitmapImage(new Uri("../Images/minus.png", UriKind.Relative));
+        //        //btnAddUrlImg.Source = new BitmapImage(new Uri("../Images/plus.png", UriKind.Relative));
+        //        //btnMinusUrlImg.Source = new BitmapImage(new Uri("../Images/minus.png", UriKind.Relative));
+        //    }
+        //    else if (appSettings.sTheme == "Dark")
+        //    {
+        //        btnAddImg.Source = new BitmapImage(new Uri("../Images/plus_dark.png", UriKind.Relative));
+        //        btnMinusImg.Source = new BitmapImage(new Uri("../Images/minus_dark.png", UriKind.Relative));
+        //        //btnAddUrlImg.Source = new BitmapImage(new Uri("../Images/plus_dark.png", UriKind.Relative));
+        //        //btnMinusUrlImg.Source = new BitmapImage(new Uri("../Images/minus_dark.png", UriKind.Relative));
+
+        //    }
+        //}
 
         private void btnDeleteFocusMode_Click(object sender, RoutedEventArgs e)
         {
@@ -190,9 +218,9 @@ namespace Focus_Bear.Preferences
             btnAddAllowedApp.Visibility = Visibility.Hidden;
             btnAddDeleteAllowedApp.Visibility = Visibility.Hidden;
 
-            SelectedAppsListBG.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fcf8f0");
-            SelectedAppsListBGSeperator.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fcf8f0");
 
+            SelectedAppsListBG.Background = BackgroundColor;
+            SelectedAppsListBGSeperator.Background = BackgroundColor;
             var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
             if (selectedFocusMode != null)
             {
@@ -211,8 +239,9 @@ namespace Focus_Bear.Preferences
             ListApps.Visibility = Visibility.Visible;
             btnAddAllowedApp.Visibility = Visibility.Visible;
             btnAddDeleteAllowedApp.Visibility = Visibility.Visible;
-            SelectedAppsListBG.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fff");
-            SelectedAppsListBGSeperator.Background = new SolidColorBrush(Colors.LightGray);
+
+            SelectedAppsListBG.Background = BackgroundColor;
+            SelectedAppsListBGSeperator.Background = BackgroundColor;
 
             var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
             if (selectedFocusMode != null)
@@ -241,8 +270,9 @@ namespace Focus_Bear.Preferences
                     btnAddAllowedURLs.Visibility = Visibility.Visible;
                     btnAddDeleteAllowedURLs.Visibility = Visibility.Visible;
 
-                    SelectedURLsListBG.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fff");
-                    SelectedURLsListBGSeperator.Background = new SolidColorBrush(Colors.LightGray);
+
+                    SelectedURLsListBG.Background = BackgroundColor;
+                    SelectedURLsListBGSeperator.Background = BackgroundColor;
                 }
 
                 selectedFocusMode.isAllowedListApproach = true;
@@ -275,16 +305,18 @@ namespace Focus_Bear.Preferences
                         btnAddAllowedURLs.Visibility = Visibility.Visible;
                         btnAddDeleteAllowedURLs.Visibility = Visibility.Visible;
 
-                        SelectedURLsListBG.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fff");
-                        SelectedURLsListBGSeperator.Background = new SolidColorBrush(Colors.LightGray);
+
+                        SelectedURLsListBG.Background = BackgroundColor;
+                        SelectedURLsListBGSeperator.Background = BackgroundColor;
 
                     }
                     else
                     {
                         HowDoYouWant.Text = "All websites are allowed";//todo win texts // appSettings.ConfigFileStrings["WindowsSpecific"]["allWebsitesAllowed"].ToString();
 
-                        SelectedURLsListBG.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fcf8f0");
-                        SelectedURLsListBGSeperator.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#fcf8f0");
+
+                        SelectedURLsListBG.Background = BackgroundColor;
+                        SelectedURLsListBGSeperator.Background = BackgroundColor;
                     }
                 }
 
