@@ -42,7 +42,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
+    <Grid Background="{DynamicResource TrayBackgroundColour}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="14*"/>
             <ColumnDefinition Width="9*"/>
@@ -54,12 +54,12 @@
             <RowDefinition Height="Auto" MinHeight="30" />
 
         </Grid.RowDefinitions>
-
+        
         <Rectangle  Grid.Row="0" Height="70" Margin="14,8,14,7"  Fill="#ffe4c6"  RadiusX="7" RadiusY="7" Grid.ColumnSpan="2" />
         <Image Grid.Row="0" HorizontalAlignment="Center" Height="40"  Width="250" Margin="0,0,0,0" Source="Images/fb.png" Stretch="None" VerticalAlignment="Center" Grid.ColumnSpan="2"  />
 
         <StackPanel  Grid.Row="1" Orientation="Vertical" Grid.ColumnSpan="2">
-            <TextBlock   Name="AlignmentScoreText"  Margin="15,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Visibility="Collapsed">xFocus alignment score =</TextBlock>
+            <TextBlock   Name="AlignmentScoreText"  Margin="15,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Visibility="Collapsed" Foreground="#e88800">xFocus alignment score =</TextBlock>
             <StackPanel    Orientation="Horizontal" HorizontalAlignment="Center"  Margin="0,10,0,10" >
                 <RadioButton x:Name="GeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"  />
                 <RadioButton x:Name="SimpleMode" Content="xSimple Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Cursor="Hand"  />
@@ -199,7 +199,7 @@
                 </Button.Content>
 
             </Button>
-            <Button   x:Name="btnToDoPlayer" Visibility="Collapsed"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnToDoPlayer_Click">
+            <Button   x:Name="btnToDoPlayer" Visibility="Visible"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnToDoPlayer_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Margin="8" Name="btnToDoPlayerTXT">xTo Do Player</TextBlock>

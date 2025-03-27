@@ -81,6 +81,7 @@ namespace Focus_Bear
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         private const int SW_SHOW = 5;
 
+
         private const uint WINEVENT_OUTOFCONTEXT = 0;
         private const uint EVENT_SYSTEM_FOREGROUND = 3;
         private const uint WINEVENT_SKIPOWNPROCESS = 0x0002;
@@ -140,9 +141,26 @@ namespace Focus_Bear
                                         }
 
                                     }
+                                    else if (sName != null && (sName.Contains("Focus Bear/focus-block.html")) && (sURL != null && sURL.Length > 0 && sURL.Contains("&unblock_it=true")) ) 
+                                    {
+                                        if (int.Parse(accWindow.accState[objChild].ToString()) == 1074791424) //I just found this to be appropriate and not editable state
+                                        {
+                                            Debug.WriteLine("accName = " + sName);
+                                            Debug.WriteLine("accValue = " + sURL);
+                                            Debug.WriteLine("accChild = " + accWindow.accChild[objChild].ToString());
+                                            Debug.WriteLine("accState = " + accWindow.accState[objChild].ToString());
+
+                                            appSettings.FirefoxLastAccWindow = accWindow;
+                                            appSettings.sLastActiveURLInFirefox = sURL;
+                                            appSettings.objChild = objChild;
+
+                                            ProcessBrowserURLs.ProcessCurrentURL(hwnd);
+                                        }
+
+                                    }
                                     else
                                     {
-                                        LogWriter.LogWrite("Mozilla's sName is null or other language then EN / ES- OR (sURL != null && sURL.Length > 0 FAILS" + sName + "URL =" + sURL);
+                                        LogWriter.LogWrite("Mozilla's sName is null or other language then EN / ES- OR (sURL != null && sURL.Length > 0 FAILS. TITLE = " + sName + "URL = " + sURL);
                                     }
                                 }
                             }
@@ -283,6 +301,7 @@ namespace Focus_Bear
         public TrayMenu wndTrayMenu = null;
 
         public FocusModeEnd wndFocusModeEnd = null;
+        public FocusModeEnd wndFocusModeEndForced = null;
 
         public BreakWindow wndTakeABreak = null;
 
@@ -305,10 +324,12 @@ namespace Focus_Bear
         public CallFocusNotifier wndCallFocusNotifier = null;
 
         public ToDoPlayer wndToDoPlayer = null;
+        public ToDoList wndToDoList = null;
 
         bool bAppExtracted = false;
         public static event Action FocusModeAddedEvent;
 
+        public static event Action ThemeChanged;
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             SentrySdk.ConfigureScope(scope => {
@@ -416,6 +437,10 @@ namespace Focus_Bear
             Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--autoplay-policy=no-user-gesture-required");
 
             RegistryManager.GetLangCode();
+
+            RegistryManager.GetThemeMode();
+
+            RegistryManager.GetAutoThemeMode();
 
             appSettings.CheckAndGetGlobalUUID();
 
@@ -1345,9 +1370,8 @@ namespace Focus_Bear
             ///ShowCallFocusNotifier();
             ///
 
-           // FocusBearMenuTour wndFocusBearMenuTour = new FocusBearMenuTour();
+            // FocusBearMenuTour wndFocusBearMenuTour = new FocusBearMenuTour();
             //wndFocusBearMenuTour.ShowDialog();
-
 
 #endif
 
@@ -1655,6 +1679,14 @@ namespace Focus_Bear
 
                         if (appSettings.DidCutOffTimePassed())
                         {
+                            if (appSettings.bHabitsPostponedState && !appSettings.bEveningHabitsPostponedAfterCutoffTime)
+                            {
+                                //Kick the user off at the cutoff time
+                                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                                LogWriter.LogWrite("Kick the user off at the cutoff time as it was postponed before cutoff time elapsed");
+                                return;
+                            }
+
                             if (appSettings.bFocusSummaryPostponedState)
                             {
                                 //((App)(Application.Current)).wndFocusSummary.ResumeFocusSummary();
@@ -1665,7 +1697,7 @@ namespace Focus_Bear
                                 if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].bHighPriorityActivity)
                                 {
 
-                                    //since a high priority activity is running, we need to skip it and show the finish screen 
+                                    //since a high priority activity is not running, we need to skip it and show the finish screen 
                                     //and allow starting next high priority activity or show unlock button
                                     if (wndHabits != null)
                                     {
@@ -1708,9 +1740,66 @@ namespace Focus_Bear
 
 
                                     }
-
-
                                 }
+                                else
+                                {
+                                    //If its a high priority habit, we will need to check if its cutoff time have passed then stop and act accordingly
+                                    //cutOffTimePassedForHabitText
+                                    //since a high priority activity is running, we need to skip it and show the finish screen 
+                                    //and allow starting next high priority activity or show unlock button
+                                    //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
+                                    if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].sCutOffTime != "")
+                                    {
+                                        DateTime now1 = DateTime.Now;
+                                        TimeSpan tsTime = TimeSpan.Parse(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].sCutOffTime);
+                                        DateTime myAvtivityCutoffTime = new DateTime(now1.Year, now1.Month, now1.Day, tsTime.Hours, tsTime.Minutes, 00);
+                                        if (now > myAvtivityCutoffTime)
+                                        {
+                                            //Skip this habit and move to next
+                                            if (wndHabits != null)
+                                            {
+                                                if (wndHabits.PageHabitActivityOnGoing != null)
+                                                {
+                                                    if (wndHabits.PageHabitActivityOnGoing.bTimerRunning)
+                                                    {
+                                                        wndHabits.PageHabitActivityOnGoing.StopTimerOfRunningActivity(); //Stop the timer
+                                                                                                                         //we need to call the Activity Skipped API here to skip the current activity
+
+                                                        //it may be relax activity window visible
+                                                        if (wndRelaxMode != null && wndRelaxMode.IsVisible)
+                                                        {
+                                                            wndRelaxMode.bForceClose = true;
+                                                            wndRelaxMode.Close();
+                                                            wndHabits.WindowState = WindowState.Maximized;
+                                                        }
+                                                        //If the above is null, finish screen may be visible, as ShowACtivityFinishedScreen() make is null
+                                                        LogWriter.LogWrite("wndHabits.Hide()");
+                                                        wndHabits.Hide();
+                                                        appSettings.RemoveSecondaryWindows();
+
+                                                        LogWriter.LogWrite("EVENING_HABITS STATE - now > myCutoffTime of Individual habit - Show Alert");
+                                                        
+                                                        FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["common"]["cutOffTimePassedForHabitText"].ToString(), "", MessageBoxButton.OK, "", "", "", false, "", true);
+                                                        msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                                                        msg.ShowDialog();
+
+                                                        wndHabits.Show();
+                                                        appSettings.bSkipCurrentActivityCantDoItToday = true;
+                                                        LogWriter.LogWrite("appSettings.bSkipCurrentActivityCantDoItToday = true; - After cutoff time of individual habit - " + appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name);
+                                                        wndHabits.ShowACtivityFinishedScreen(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        //It may be the activity finish screen already
+                                                        //Or activity may be in postponed state
+                                                        //Once the user clicks ok, we need to show the High Priority activities only.
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
                             }
                         }
 
@@ -1891,6 +1980,7 @@ namespace Focus_Bear
             //Let's also reset the Postponed and Fous Summary Postponed states
             appSettings.bFocusSummaryPostponedState = false;
             appSettings.bHabitsPostponedState = false;
+            appSettings.bEveningHabitsPostponedAfterCutoffTime = false; //reset
 
             appSettings.bShowActivitiesFromMid = false;
             LogWriter.LogWrite("appSettings.bShowActivitiesFromMid = false;");
@@ -2377,8 +2467,28 @@ namespace Focus_Bear
                 wndHabits.Show();
                 wndHabits.Activate();
                 wndHabits.Focus();
-
                 ShowBlankWindowOnOtherScreens();
+
+                //If by chance the start pomodoro window is open, we need to close it.
+                if(appSettings.isStartPomodoroWindowOpen)
+                {
+                    //Let's close the start pomodoro window 
+                    if (((App)(Application.Current)).wndStartPomodoro != null)
+                    {
+                        ((App)(Application.Current)).wndStartPomodoro.Hide();
+                    }
+                    appSettings.isStartPomodoroWindowOpen = false;
+                }
+
+
+                if (appSettings.isFocusModeRunning)
+                {
+                    ForceStopFocusSessionOnHabitsTime();
+                }
+
+                //Make the global variable false
+                appSettings.isFocusModeRunning = false;
+                appSettings.bUseSuperPomodoroMode = false;
             }
             catch (Exception ex)
             {
@@ -2480,6 +2590,7 @@ namespace Focus_Bear
             //Let's also reset the Postponed and Fous Summary Postponed states
             appSettings.bFocusSummaryPostponedState = false;
             appSettings.bHabitsPostponedState = false;
+            appSettings.bEveningHabitsPostponedAfterCutoffTime = false; //reset
 
             appSettings.bShowActivitiesFromMid = false;
             LogWriter.LogWrite("appSettings.bShowActivitiesFromMid = false;");
@@ -2511,6 +2622,8 @@ namespace Focus_Bear
             //Here we will filter the array to just have the current days activity
             //It might be possible that the app is contineously running since many days 
             //SO we always need to first fetch from the GLobal array and then filer it per days
+            appSettings.bSomeHabitsRemovedDueToCutOffTime = false; //Initialte Again
+
             appSettings.arrAllEveningHabits.Clear();
             DayOfWeek Today = DateTime.Now.DayOfWeek;
             for (int i = 0; i < appSettings.arrGLOBALAllEveningHabits.Count; i++)
@@ -2519,7 +2632,35 @@ namespace Focus_Bear
                 {
                     if (appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek[m].ToLower() == "all")
                     {
-                        appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
+                        //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
+                        if (appSettings.DidCutOffTimePassed())
+                        {
+                            if (appSettings.arrGLOBALAllEveningHabits[i].bHighPriorityActivity)
+                            {
+                                if (appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime != "")
+                                {
+                                    DateTime now = DateTime.Now;
+                                    TimeSpan tsTime = TimeSpan.Parse(appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime);
+                                    DateTime myAvtivityStartTime = new DateTime(now.Year, now.Month, now.Day, tsTime.Hours, tsTime.Minutes, 00);
+                                    if (now < myAvtivityStartTime)
+                                    {
+                                        appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
+                                    }
+                                    else
+                                    {
+                                        appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
+                                    }
+                                }
+                                else
+                                {
+                                    appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]); //Add if there is no 
+                                }
+                            }
+                        }
+                        else
+                        {
+                            appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
+                        }
                         break;
                     }
                     else
@@ -2586,6 +2727,34 @@ namespace Focus_Bear
                                 }
 
                         }
+
+                        if (bfound)
+                        {
+                            //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
+                            if (appSettings.DidCutOffTimePassed())
+                            {
+                                if (appSettings.arrGLOBALAllEveningHabits[i].bHighPriorityActivity)
+                                {
+                                    if (appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime != "")
+                                    {
+                                        DateTime now = DateTime.Now;
+                                        TimeSpan tsTime = TimeSpan.Parse(appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime);
+                                        DateTime myAvtivityStartTime = new DateTime(now.Year, now.Month, now.Day, tsTime.Hours, tsTime.Minutes, 00);
+                                        if (now > myAvtivityStartTime)
+                                        {
+                                            bfound = false;
+                                            appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    bfound = false;
+                                    appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
+                                }
+                            }
+                        }
+
                         if (bfound)
                         {
                             appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
@@ -2954,6 +3123,27 @@ namespace Focus_Bear
                 wndHabits.Activate();
                 wndHabits.Focus();
                 ShowBlankWindowOnOtherScreens();
+
+                //If by chance the start pomodoro window is open, we need to close it.
+                if (appSettings.isStartPomodoroWindowOpen)
+                {
+                    //Let's close the start pomodoro window 
+                    if (((App)(Application.Current)).wndStartPomodoro != null)
+                    {
+                        ((App)(Application.Current)).wndStartPomodoro.Hide();
+                    }
+                    appSettings.isStartPomodoroWindowOpen = false;
+                }
+
+
+                if (appSettings.isFocusModeRunning)
+                {
+                    ForceStopFocusSessionOnHabitsTime();
+                }
+
+                //Make the global variable false
+                appSettings.isFocusModeRunning = false;
+                appSettings.bUseSuperPomodoroMode = false;
             }
             catch (Exception ex)
             {
@@ -3040,15 +3230,15 @@ namespace Focus_Bear
 
             appSettings.bStartingAnotherFocusMode = false; //Resetting
 
+            ((App)(Application.Current)).HideToDoPlayer();
+
             wndFocusModeEnd.Show();
             wndFocusModeEnd.BringIntoView();
 
-            if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
-            {
-                wndFocusModeEnd.ShowTasksEndWindow();
-            }
-
-            ((App)(Application.Current)).HideToDoPlayer();
+            //if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
+            //{
+            //    wndFocusModeEnd.ShowTasksEndWindow();
+            //}
         }
         public void ShowBreakWindow()
         {
@@ -3168,13 +3358,22 @@ namespace Focus_Bear
                 {
                     dispatcherTimerPostponeHabits.Tick += new EventHandler(dispatcherTimer_Postpone);
 #if DEBUG
-                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 0, nMinutesToPostpone);
+                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 0, nMinutesToPostpone*2);
 #else
                     dispatcherTimerPostponeHabits.Interval = new TimeSpan(0,  nMinutesToPostpone, 0);
 #endif
                     dispatcherTimerPostponeHabits.Start();
 
                     appSettings.bHabitsPostponedState = true;
+
+                    if(appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    {
+                        if(appSettings.DidCutOffTimePassed())
+                        {
+                            appSettings.bEveningHabitsPostponedAfterCutoffTime = true;
+                        }
+                    }
+
                     LogWriter.LogWrite("appSettings.bHabitsPostponedState = true;");
 
                     CommandManager.InvalidateRequerySuggested();
@@ -3190,7 +3389,7 @@ namespace Focus_Bear
                 LogWriter.LogWrite("PostponeHabitWork - " + ex.Message);
             }
 
-            if (nMinutesToPostpone > 2) //If the piostpone time is more than 2 minutes, we need to show a popup bfore the postpone time is over and the habits are resumed.
+            if (nMinutesToPostpone > 2) //If the postpone time is more than 2 minutes, we need to show a popup bfore the postpone time is over and the habits are resumed.
             {
                 SetShowingYourHabitsResumeInPopup(nMinutesToPostpone - 2);
             }
@@ -3302,6 +3501,7 @@ namespace Focus_Bear
                 CommandManager.InvalidateRequerySuggested();
 
                 appSettings.bHabitsPostponedState = false;
+                appSettings.bEveningHabitsPostponedAfterCutoffTime = false; //reset
                 LogWriter.LogWrite(" appSettings.bHabitsPostponedState = false;");
 
                 //Simply set the activity type to NONE and the background thread will take care.
@@ -3393,11 +3593,31 @@ namespace Focus_Bear
                 }
 
                 wndFocusSummary = new FocusActivitySummary();
-
+                
+                appSettings.RemoveSecondaryWindows();
                 ShowBlankWindowOnOtherScreens();
                 wndFocusSummary.Show();
 
-                appSettings.RemoveSecondaryWindows();
+                //If by chance the start pomodoro window is open, we need to close it.
+                if (appSettings.isStartPomodoroWindowOpen)
+                {
+                    //Let's close the start pomodoro window 
+                    if (((App)(Application.Current)).wndStartPomodoro != null)
+                    {
+                        ((App)(Application.Current)).wndStartPomodoro.Hide();
+                    }
+                    appSettings.isStartPomodoroWindowOpen = false;
+                }
+
+                if (appSettings.isFocusModeRunning)
+                {
+                    ForceStopFocusSessionOnHabitsTime();
+                }
+
+                //Make the global variable false
+                appSettings.isFocusModeRunning = false;
+                appSettings.bUseSuperPomodoroMode = false;
+
             }
             catch (Exception ex)
             {
@@ -4142,6 +4362,17 @@ namespace Focus_Bear
                 bLoadURLAgainInToDoPlayer = false;
             }
         }
+
+        public void ShowToDoList()
+        {
+            if (wndToDoList == null)
+            {
+                wndToDoList = new ToDoList();
+            }
+            wndToDoList.Show();
+
+            wndToDoList.LoadURL();
+        }
         public void HideToDoPlayer()
         {
             //Called when focus mode ends
@@ -4151,9 +4382,91 @@ namespace Focus_Bear
                 wndToDoPlayer.Close();
             }
         }
+        
         public void FocusModeAdded()
         {
             FocusModeAddedEvent?.Invoke();
         } 
+
+        public void ForceStopFocusSessionOnHabitsTime()
+        {
+            LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime() - Stop the Focus Mode as Habits time had arrieved.");
+            try
+            {
+                //Double check
+                var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
+                if (listItems.Count() != 0)
+                {
+                    try
+                    {
+                        Sounds.PlayFocusModeEndSound();
+
+                        FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                        FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
+
+                        //Stop the focus mode
+                        listItems.First<FocusMode>().isOn = false;
+
+                        //Make the global variable false
+                        appSettings.isFocusModeRunning = false;
+                        appSettings.bUseSuperPomodoroMode = false;
+
+                        ((App)Application.Current).CloseFocusProgressWindow();
+
+                        //Clear the Gentle block temp arrays
+                        appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                        appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+                        ((App)(Application.Current)).HideToDoPlayer();
+
+                        appSettings.bStartingAnotherFocusMode = false; //Resetting
+
+                        //Show the Focusmode end dialog
+                        wndFocusModeEndForced = new FocusModeEnd(true);
+                        if(appSettings.bPlayActivitiesInFullScreenMode)
+                        {
+                            wndFocusModeEndForced.WindowState = WindowState.Maximized;
+                        }
+                        wndFocusModeEndForced.ShowDialog();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime ex - " + ex.Message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime ex - " + ex.Message);
+            }
+             
+        }
+
+        public void ChangeTheme(string theme)
+        {
+            ResourceDictionary newTheme = new ResourceDictionary();
+            //ResourceDictionary themeStyle = new ResourceDictionary();
+            //themeStyle.Source = new Uri("Theme/PreferencesStyle.xaml", UriKind.Relative);
+            if (theme == "Dark")
+            {
+                newTheme.Source = new Uri("Theme/DarkTheme.xaml", UriKind.Relative);
+
+            }
+            else if (theme == "Light")
+            {
+                newTheme.Source = new Uri("Theme/LightTheme.xaml", UriKind.Relative);
+            }
+            ThemeChanged?.Invoke();
+
+
+            // Clear old theme and apply new theme
+            Application.Current.Resources.MergedDictionaries.Clear();
+            //Application.Current.Resources.MergedDictionaries.Add(themeStyle);
+
+            Application.Current.Resources.MergedDictionaries.Add(newTheme);
+            // Save theme setting
+            appSettings.sTheme = theme;
+
+        }
     }
 }

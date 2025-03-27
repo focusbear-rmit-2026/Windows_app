@@ -1162,8 +1162,6 @@ namespace Focus_Bear.API
             catch (WebException ex)
             {
                 LogWriter.LogWrite("PutUserSettings WebException - " + ex.Message);
-
- 
             }
             catch (Exception ex)
             {

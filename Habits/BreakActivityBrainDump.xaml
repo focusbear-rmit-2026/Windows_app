@@ -7,12 +7,19 @@
       xmlns:local1="clr-namespace:Focus_Bear.Utils"
       mc:Ignorable="d" 
        d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="Focus Bear" Background="#fff">
+      Title="Focus Bear" Background="{DynamicResource BackgroundColor}">
     <!--<local1:DpiDecorator>-->
-        <Grid>
+    <Grid>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="70" />
             <RowDefinition Height="100"   />
@@ -22,10 +29,10 @@
 
         </Grid.RowDefinitions>
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,30,0,0" TextWrapping="Wrap" Text="xCapture your thoughts before starting your break" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-       
-                <TextBlock Grid.Row="2" Margin="80,30,80,20"  Name="Description"  TextWrapping="Wrap" Text="xTaking regular breaks (every 20 minutes is recommended) is crucial for avoiding eye strain and postural issues. You might be worried that it will take you out of your flow and disrupt your productivity. Let's capture what you were just working on so that you won't lose your train of thought after the break. BTW you'll often find that when you take a break and give your brain some time in the default mode network , you'll come up with novel solutions to a problem you'd been struggling with. Not necessarily a productivity killer at all 😉" Foreground="#272727" FontSize="21" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            
-            <TextBox Grid.Row="3" Margin="200,0,200,20"   Name="TxtDumpDown" TextWrapping="Wrap" AcceptsReturn="True"   FontSize="14" VerticalAlignment="Stretch"  VerticalScrollBarVisibility="Auto" >
+
+        <TextBlock Grid.Row="2" Margin="80,30,80,20"  Name="Description"  TextWrapping="Wrap" Text="xTaking regular breaks (every 20 minutes is recommended) is crucial for avoiding eye strain and postural issues. You might be worried that it will take you out of your flow and disrupt your productivity. Let's capture what you were just working on so that you won't lose your train of thought after the break. BTW you'll often find that when you take a break and give your brain some time in the default mode network , you'll come up with novel solutions to a problem you'd been struggling with. Not necessarily a productivity killer at all 😉"  FontSize="21" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+        <TextBox Grid.Row="3" Margin="200,0,200,20"   Name="TxtDumpDown" TextWrapping="Wrap" AcceptsReturn="True"   FontSize="14" VerticalAlignment="Stretch"  VerticalScrollBarVisibility="Auto" >
             <TextBox.Effect>
                 <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -47,12 +54,12 @@
         <Button Grid.Row="4" IsDefault="True" x:Name="btnStartBreak"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" VerticalAlignment="Top" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStartBreak_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
-                    <TextBlock x:Name="btnStartBreakTXT" Text="xstart Break"/>
+                    <TextBlock x:Name="btnStartBreakTXT" Text="xstart Break" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>
 
 
     </Grid>
-        <!--</local1:DpiDecorator>-->
+    <!--</local1:DpiDecorator>-->
 </Page>

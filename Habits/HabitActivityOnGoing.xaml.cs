@@ -490,7 +490,7 @@ namespace Focus_Bear.Habits
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer -= 10;
+            int val = nTimer -= 1;
 #else
             int val = nTimer--;
 #endif
@@ -545,6 +545,8 @@ namespace Focus_Bear.Habits
 
                     if (nAllowedApps > 0 || nAllowedURLs > 0 || appSettings.sUseFocusModeIDInActivity.Length > 0)
                     {
+                        LogWriter.LogWrite("nAllowedApps > 0 || nAllowedURLs > 0 || appSettings.sUseFocusModeIDInActivity.Length > 0 = means there is a focus mode in activity");
+
                         if (appSettings.sUseFocusModeIDInActivity.Length > 0)//means there is a focus mode in activity
                         {
                             appSettings.bHabitwithUseFocusModeRunning = false;

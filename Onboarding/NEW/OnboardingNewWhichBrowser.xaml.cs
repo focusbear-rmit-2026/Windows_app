@@ -49,6 +49,8 @@ namespace Focus_Bear.Onboarding.NEW
    
         private void btnDidntBlocked_Click(object sender, RoutedEventArgs e) //still not working!
         {
+            appSettings.bBlockWhileOnbording = false;
+
             FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["tryBlockUrlVcInfo"]["emailUsText"].ToString());
             ff.Owner = _parentWindow;
             _parentWindow.GridShade.Visibility = Visibility.Visible;
@@ -63,6 +65,8 @@ namespace Focus_Bear.Onboarding.NEW
 
         private void btnItWorked_Click(object sender, RoutedEventArgs e)
         {
+            appSettings.bBlockWhileOnbording = false;
+
             appSettings.bBlockingWorkedWhileOnboarding = true;
             _parentWindow.ShowBuildingHabitsScreen();
 

@@ -27,6 +27,9 @@ using Focus_Bear.Onboarding.AfterLogin;
 using Focus_Bear.Preferences;
 using Focus_Bear.Pomodoro;
 using System.Threading;
+using System.Runtime.InteropServices;
+using Microsoft.Win32;
+using System.Windows.Interop;
 
 namespace Focus_Bear
 {
@@ -42,7 +45,12 @@ namespace Focus_Bear
 
         DispatcherTimer dispatcherTimerFocus = new DispatcherTimer(DispatcherPriority.Normal);
 
-      
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+        private const int WM_SETTINGCHANGE = 0x001A;
         public TrayMenu()
         {
             InitializeComponent();
@@ -59,6 +67,8 @@ namespace Focus_Bear
             InitializeSettings();
             SetTrayMenuPosition();
             ShowInTaskbar = false;
+            this.Loaded += MainWindow_Loaded;
+
         }
 
         public void SetTrayMenuPosition()
@@ -121,6 +131,15 @@ namespace Focus_Bear
                 else
                 {
                     SimpleMode.IsChecked = true;
+                }
+
+                if (appSettings.sTheme == "Light" && appSettings.bAutoTheme == false)
+                {
+                    ((App)Application.Current).ChangeTheme("Light");
+                }
+                else if (appSettings.sTheme == "Dark" && appSettings.bAutoTheme == false)
+                {
+                    ((App)Application.Current).ChangeTheme("Dark");
                 }
 
                 GeekMode.Checked += GeekMode_Checked;
@@ -260,19 +279,30 @@ namespace Focus_Bear
                     }
                     else
                     {
-                        btnStartPomodoroMode.Visibility = Visibility.Visible;
-                        btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                        //if focus session is not running, possible a super pomodoro break time
+                        if(appSettings.bUseSuperPomodoroMode)
+                        {
+                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                            btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                            btnStopPomodoroMode.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            btnStartPomodoroMode.Visibility = Visibility.Visible;
+                            btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                        }
                     }
                     if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
                        appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
                        appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
-                       !appSettings.bHabitsPostponedState))
+                       !appSettings.bHabitsPostponedState &&
+                       !appSettings.bFocusSummaryPostponedState))
                     {
                         btnStartPomodoroMode.Visibility = Visibility.Collapsed;
                     }
                     else
                     {
-                        if (!appSettings.isFocusModeRunning)
+                        if (!appSettings.isFocusModeRunning && !appSettings.bUseSuperPomodoroMode)
                         {
                             btnStartPomodoroMode.Visibility = Visibility.Visible; //both start and stop
                         }
@@ -386,11 +416,11 @@ namespace Focus_Bear
 
                 if (appSettings.isFocusModeRunning)
                 {
-                    btnToDoPlayer.Visibility = Visibility.Visible;
+                    btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
                 }
                 else
                 {
-                    btnToDoPlayer.Visibility = Visibility.Collapsed;
+                    btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString(); //Todo List
                 }
             }
             catch (Exception ex)
@@ -1265,13 +1295,91 @@ namespace Focus_Bear
 
         private void btnToDoPlayer_Click(object sender, RoutedEventArgs e)
         {
-            ((App)(Application.Current)).ShowToDoPlayer();
+            if(appSettings.isFocusModeRunning)
+            {
+                ((App)(Application.Current)).ShowToDoPlayer();
+            }
+            else
+            {
+                ((App)(Application.Current)).ShowToDoList();
+            }
+            
         }
 
         private void btnLimitedBlockingEdit_Click(object sender, RoutedEventArgs e)
         {
             ((App)(Application.Current)).ShowPreferencesWindow();
             ((App)(Application.Current)).wndPreferences.ShowBlocksTab();
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Hook into Windows messages
+            var hwndSource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            if (hwndSource != null)
+            {
+                hwndSource.AddHook(WndProctheme);
+            }
+
+            // Apply the correct theme at startup
+            ChangeThemeByWindows();
+            var isLightTheme = IsLightTheme();
+            UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
+        }
+        private void ChangeThemeByWindows()
+        {
+            bool isDarkMode = IsLightTheme();
+            string theme = isDarkMode ? "Light" : "Dark";
+            LogWriter.LogWrite("TrayMenu detect theme changed WndProctheme" + theme);
+            string selectedTheme = appSettings.sTheme;
+            LogWriter.LogWrite("TrayMenu report autotheme status" + appSettings.bAutoTheme);
+            if (isDarkMode == true && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Light";
+                appSettings.sTheme = "Light";
+            }
+            else if (isDarkMode == false && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Dark";
+                appSettings.sTheme = "Dark";
+            }
+            RegistryManager.SetThemeMode();
+            ((App)Application.Current).ChangeTheme(selectedTheme);
+        }
+        private IntPtr WndProctheme(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            int WM_SETTINGCHANGE = 0x1A;
+            if (msg == WM_SETTINGCHANGE)
+            {
+                // Apply theme when system settings change
+                ChangeThemeByWindows();
+            }
+            return IntPtr.Zero;
+        }
+        private static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
+        }
+        private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = DWMWA_USE_IMMERSIVE_DARK_MODE;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+
+            return false;
         }
     }
 }

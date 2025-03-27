@@ -39,6 +39,9 @@ namespace Focus_Bear.SetIntention
         private const uint SC_CLOSE = 0xF060;
         private const int WM_SHOWWINDOW = 0x00000018;
 
+        private const int TypingDelay = 500; // Delay in milliseconds after user stops typing
+        private DateTime _lastKeyPressTime;
+
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -69,28 +72,27 @@ namespace Focus_Bear.SetIntention
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
-            // Manually alter window height and width
-            this.SizeToContent = SizeToContent.Manual;
-
-            // Automatically resize height relative to content
-            this.SizeToContent = SizeToContent.Height;
-
             ShowInTaskbar = false;
             Topmost = true;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
             try
             {
-                string sHeading = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["title"].ToString();
+                string sHeading = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["titleDistracting"].ToString();
                 sHeading = sHeading.Replace("<SITE>", sActiveURL);
                 Heading.Text = sHeading;
 
-                SelectMinutes.Text = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["selectMinutesText"].ToString();
-                btnSetIntentionText.Text = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["buttonSetIntentionText"].ToString();
+                btnAllowTemporarilyText.Text = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["buttonAllowText"].ToString();
                 btnBlockItText.Text = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["buttonBlockText"].ToString();
                 DoNotAskAnymoreText.Text = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["buttonDontShowAgainForBlockAppText"].ToString();
-
                 InfoIcon.ToolTip = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["privacyNoteText"].ToString();
+
+                //Inner popup
+                HeadingAchieve.Text = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["titleSetIntention"].ToString();
+                btnCancelText.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
+                SelectMinutes.Text = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["selectMinutesText"].ToString();
+                btnSetIntentionText.Text = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["buttonSetIntentionText"].ToString();
+
             }
             catch (Exception ex)
             {
@@ -100,6 +102,9 @@ namespace Focus_Bear.SetIntention
 
         private void btnSetIntention_Click(object sender, RoutedEventArgs e)
         {
+            dispatcherTimerAutoBlock.Stop();
+            dispatcherTimerUnlock.Stop();
+
             double nMinutesToUseSite = 0; //treat this as 30 seconds or half a minute
 
             appSettings.GetTotalTimeForDistractingSitesToday();//we get this is to make sure if the app is contineously running, date changes.
@@ -155,6 +160,9 @@ namespace Focus_Bear.SetIntention
 
         private void btnBlockIt_Click(object sender, RoutedEventArgs e)
         {
+            dispatcherTimerAutoBlock.Stop();
+            dispatcherTimerUnlock.Stop();
+
             //if its in the allowed urls, remove it
             var allowedURLs = appSettings.TemporaryAllowedURLsWithSetIntention.Where(i => i.sURL.ToLower() == sActiveURL.ToLower());
             if (allowedURLs.Count() != 0)
@@ -191,15 +199,17 @@ namespace Focus_Bear.SetIntention
             btnSetIntention.IsEnabled = false;
             TxtIntention.Text = "";
 
+            GridShade.Visibility = Visibility.Collapsed;
+            GridAskIntentionPopup.Visibility = Visibility.Collapsed;
+
             SetTotalTimeSpent();
 
-            //sActiveAppName = sAppName;
             sFullURLForBlockedPage = sURL;
             sActiveURL = sURL;
             
             HWND = hWnd;
            
-            string sHeading = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["title"].ToString();
+            string sHeading = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["titleDistracting"].ToString();
 
             if (sURL.Length > 0)
             {    
@@ -220,16 +230,9 @@ namespace Focus_Bear.SetIntention
                 }
             }
 
-            //if (sAppName.Length > 0)
-            //{
-            //    sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
-            //    this.Show(); //Will show this window for apps
-            //}
-            //else
-            {
-                sHeading = sHeading.Replace("<SITE>", sActiveURL);
-                this.Show(); //Will keep this window hidden will we get response from API
-            }
+            sHeading = sHeading.Replace("<SITE>", sActiveURL);
+            this.Show(); //Will keep this window hidden will we get response from API
+           
            
             Heading.Text = sHeading;
 
@@ -244,14 +247,30 @@ namespace Focus_Bear.SetIntention
 
                     TxtTimer.Text = "00:05";
                     //disable buttons, set intention box and combo box
-                    TxtIntention.IsEnabled = false;
-                    ComboBoxMinutes.IsEnabled = false;
-                    btnSetIntention.IsEnabled = false;
-                    btnBlockIt.IsEnabled = false;
+                    ButtonsSection.Visibility = Visibility.Hidden;
+                    TxtAutoBlockTimer.Visibility = Visibility.Hidden;
 
                     DoubleConfirm.Visibility = Visibility.Visible;
 
                     //Start the 5 second timer
+                    dispatcherTimerUnlock.Stop();
+                    //Remove the previous event handler so that new can be set
+                    try
+                    {
+                        var eventField = dispatcherTimerUnlock.GetType().GetField("Tick", BindingFlags.NonPublic | BindingFlags.Instance);
+                        var eventDelegate = (Delegate)eventField.GetValue(dispatcherTimerUnlock);
+                        if (eventDelegate != null)
+                        {
+                            var invocatationList = eventDelegate.GetInvocationList();
+
+                            foreach (var handler in invocatationList)
+                                dispatcherTimerUnlock.Tick -= ((EventHandler)handler);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("ShowSetIntentionWindow resetting timer dispatcherTimerUnlock ex - " + ex.Message);
+                    }
                     nTimer = 5;
                     TxtTimer.Text = appSettings.SecondsToTimerText(nTimer);
                     dispatcherTimerUnlock.Tick += new EventHandler(dispatcherTimer_Unlock);
@@ -265,21 +284,38 @@ namespace Focus_Bear.SetIntention
             else
             {
                 DoubleConfirm.Visibility = Visibility.Collapsed;
+                ButtonsSection.Visibility = Visibility.Visible;
+                TxtAutoBlockTimer.Visibility = Visibility.Visible;
             }
-            //if (sIntention.Length > 0) //Set the activity title if thelength is > 0
-            //{
-            //    string sInt = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["intentionText"].ToString();
-            //    sInt = sInt.Replace("<INTENTION>", sIntention);
-            //    Intention.Text = sInt;
-            //    Intention.Visibility = Visibility.Visible;
-            //}
-            //else
-            //{
-            //    Intention.Visibility = Visibility.Collapsed;
-            //}
+
+            // Manually alter window height and width
+            this.SizeToContent = SizeToContent.Manual;
+
+            // Automatically resize height relative to content
+            this.SizeToContent = SizeToContent.Height;
 
             //Start the 30 seconds automatic block timer if the user takes no action
+            dispatcherTimerAutoBlock.Stop();
+            //Remove the previous event handler so that new can be set
+            try
+            {
+                var eventField = dispatcherTimerAutoBlock.GetType().GetField("Tick", BindingFlags.NonPublic | BindingFlags.Instance);
+                var eventDelegate = (Delegate)eventField.GetValue(dispatcherTimerAutoBlock);
+                if (eventDelegate != null)
+                {
+                    var invocatationList = eventDelegate.GetInvocationList();
+
+                    foreach (var handler in invocatationList)
+                        dispatcherTimerAutoBlock.Tick -= ((EventHandler)handler);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShowSetIntentionWindow resetting timer ex - " + ex.Message);
+            }
+
             TxtAutoBlockTimer.Text = "00:30";
+            TxtAutoBlockTimer1.Text = "00:30";
             nAutoBlockTimer = 30;
             dispatcherTimerAutoBlock.Tick += new EventHandler(dispatcherTimer_AutoBlock);
             dispatcherTimerAutoBlock.Interval = new TimeSpan(0, 0, 1);
@@ -298,12 +334,15 @@ namespace Focus_Bear.SetIntention
                 {
                     TxtTimer.Text = "00:00";
                     DoubleConfirm.Visibility = Visibility.Collapsed;
+                    ButtonsSection.Visibility = Visibility.Visible; //Show the buttons section to allow or block
+                    TxtAutoBlockTimer.Visibility = Visibility.Visible;
                 }
                 else if (nTimer <= 0)
                 {
                     CommandManager.InvalidateRequerySuggested();
                     dispatcherTimerUnlock.Stop();
                     TxtIntention.IsEnabled = true;
+                    TxtIntention.Visibility = Visibility.Visible;
                     ComboBoxMinutes.IsEnabled = true;
                     btnSetIntention.IsEnabled = true;
                     btnBlockIt.IsEnabled = true;
@@ -340,10 +379,13 @@ namespace Focus_Bear.SetIntention
             try
             {
                 TxtAutoBlockTimer.Text = appSettings.SecondsToTimerText(nAutoBlockTimer);
+                TxtAutoBlockTimer1.Text = appSettings.SecondsToTimerText(nAutoBlockTimer);
+                Console.WriteLine(TxtAutoBlockTimer.Text);
                 CommandManager.InvalidateRequerySuggested();
                 if (nAutoBlockTimer == 0)
                 {
                     TxtAutoBlockTimer.Text = "00:00";
+                    TxtAutoBlockTimer1.Text = "00:00";
                 }
                 if (nAutoBlockTimer <= 0)
                 {
@@ -394,6 +436,27 @@ namespace Focus_Bear.SetIntention
             {
                 btnSetIntention.IsEnabled = false;
             }
+
+            // Pause the timer when the user is typing
+            dispatcherTimerAutoBlock.Stop();
+            _lastKeyPressTime = DateTime.Now;
+
+            // Restart the timer after a delay if no typing happens
+            DispatcherTimer restartTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(TypingDelay)
+            };
+            restartTimer.Tick += (s, args) =>
+            {
+                if ((DateTime.Now - _lastKeyPressTime).TotalMilliseconds >= TypingDelay)
+                {
+                    // Resume the timer after typing delay
+                    dispatcherTimerAutoBlock.Start();
+                    restartTimer.Stop();
+                }
+            };
+            restartTimer.Start();
+
         }
 
         private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -401,7 +464,20 @@ namespace Focus_Bear.SetIntention
             if(!IsVisible)
             {
                 dispatcherTimerAutoBlock.Stop();
+                dispatcherTimerUnlock.Stop();
             }
+        }
+
+        private void btnAllowTemporarily_Click(object sender, RoutedEventArgs e)
+        {
+            GridShade.Visibility = Visibility.Visible;
+            GridAskIntentionPopup.Visibility = Visibility.Visible;
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            GridShade.Visibility = Visibility.Collapsed;
+            GridAskIntentionPopup.Visibility = Visibility.Collapsed;
         }
     }
 }

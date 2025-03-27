@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="121" Width="323" ResizeMode="NoResize" Closing="Window_Closing">
+        Title="Focus Bear" Height="121" Width="323" ResizeMode="NoResize" Closing="Window_Closing" Background="{DynamicResource BackgroundColor}">
     <Grid  >
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center" />
+            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center" />
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -26,10 +26,10 @@
                     <RowDefinition Height="30" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xHabit resumes in:" Foreground="#272727" FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-                <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="02:00" Foreground="#000" Padding="0" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Top" />
-                <TextBlock Grid.Row="2" x:Name="PostponeText"   Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-             <Hyperlink x:Name="btnPostpone"  Foreground="#000" Click="btnPostpone_Click"   TextDecorations="Underline" ><Run x:Name="btnPostponeTXT" Text="xPostpone"/></Hyperlink>
+                <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xHabit resumes in:" Foreground="{DynamicResource ForegroundColor}" FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="02:00" Padding="0" Foreground="{DynamicResource ForegroundColor}" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Top" />
+                <TextBlock Grid.Row="2" x:Name="PostponeText"   Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}" Foreground="{DynamicResource ForegroundColor}"  FontSize="15" MinHeight="22" Cursor="Hand">
+             <Hyperlink x:Name="btnPostpone" Click="btnPostpone_Click"   TextDecorations="Underline" ><Run x:Name="btnPostponeTXT" Text="xPostpone" Foreground="{DynamicResource ForegroundColor}"/></Hyperlink>
                 </TextBlock>
             </Grid>
         </Grid>

@@ -61,6 +61,8 @@ namespace Focus_Bear.Onboarding.NEW
         {
             appSettings.CapturePostHog("button-blocked-clicked");
 
+            appSettings.bBlockWhileOnbording = false;
+
             appSettings.bBlockingWorkedWhileOnboarding = true;
             _parentWindow.ShowBuildingHabitsScreen();
         }

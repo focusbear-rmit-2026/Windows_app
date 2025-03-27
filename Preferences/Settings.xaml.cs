@@ -1,10 +1,12 @@
 ﻿using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,6 +17,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -31,6 +34,16 @@ namespace Focus_Bear.Preferences
     {
         AppSettings appSettings = AppSettings.GetInstance;
         PreferencesWindow _ParentWindow = null;
+
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+        private const int WM_SETTINGCHANGE = 0x001A;
+
+        //toggle
+        private bool bDarkModeVisible = true;
         public Settings()
         {
         }
@@ -113,6 +126,29 @@ namespace Focus_Bear.Preferences
                 else if(appSettings.sLangCode == "es")
                 {
                     Language.SelectedIndex = 1;
+                }
+
+                //Dark mode
+                // Toggle for visibility
+                DarkMode.Visibility = bDarkModeVisible ? Visibility.Visible : Visibility.Collapsed;
+                SelectDarkMode.Visibility = bDarkModeVisible ? Visibility.Visible : Visibility.Collapsed;
+
+                SelectDarkMode.Text = "Dark Mode";
+
+                DarkMode.Items.Add("Light");
+                DarkMode.Items.Add("Dark");
+                DarkMode.Items.Add("Device");
+
+                if (appSettings.sTheme == "Light" && appSettings.bAutoTheme == false)
+                {
+                    DarkMode.SelectedIndex = 0;
+                }
+                else if (appSettings.sTheme == "Dark" && appSettings.bAutoTheme == false)
+                {
+                    DarkMode.SelectedIndex = 1;
+                }else if (appSettings.bAutoTheme == true)
+                {
+                    DarkMode.SelectedIndex = 2;
                 }
 
                 FullScreenCheckbox.Content = appSettings.ConfigFileStrings["preferencesInfo"]["checkBoxFullScreenEnabledText"].ToString();
@@ -436,7 +472,49 @@ namespace Focus_Bear.Preferences
 
             }
         }
-  
+
+        private void DarkMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            ////ResourceDictionary newTheme = new ResourceDictionary();
+
+
+            if (DarkMode.SelectedItem != null)
+            {
+                string selectedTheme = appSettings.sTheme;
+
+                if (DarkMode.SelectedIndex == 0)
+                {
+                    selectedTheme = "Light";
+                    appSettings.sTheme = "Light";
+                    appSettings.bAutoTheme = false;
+                }
+                else if (DarkMode.SelectedIndex == 1)
+                {
+                    selectedTheme = "Dark";
+                    appSettings.sTheme = "Dark";
+                    appSettings.bAutoTheme = false;
+                }
+                else if(DarkMode.SelectedIndex == 2)
+                {
+                    ////auto theme
+                    bool isLightTheme = IsLightTheme();
+                    selectedTheme = isLightTheme ? "Light" : "Dark";
+                    appSettings.sTheme = selectedTheme;
+                    appSettings.bAutoTheme = true;
+                }
+                RegistryManager.SetThemeMode();
+                RegistryManager.SetAutoThemeMode();
+                ((App)Application.Current).ChangeTheme(selectedTheme);
+            }
+        }
+
+        private static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
+        }
         private void PasswordTab_Selected(object sender, RoutedEventArgs e)
         {
             if (appSettings.isPasswordSet)

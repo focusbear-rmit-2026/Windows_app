@@ -303,6 +303,9 @@
     <Compile Include="Focus\StopFocusMode.xaml.cs">
       <DependentUpon>StopFocusMode.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\ToDoList.xaml.cs">
+      <DependentUpon>ToDoList.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\ToDoPlayer.xaml.cs">
       <DependentUpon>ToDoPlayer.xaml</DependentUpon>
     </Compile>
@@ -672,6 +675,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Focus\ToDoList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Focus\ToDoPlayer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1032,6 +1039,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Theme\DarkTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Theme\LightTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Theme\PreferencesStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Tour\FocusBearMenuTour.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1146,6 +1165,19 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\fb_big_dark.png" />
+    <Resource Include="Images\eye-dark.png" />
+    <Resource Include="Images\info-dark.png" />
+    <Resource Include="Images\gear_alt-dark.png" />
+    <Resource Include="Images\blocked_list-dark.png" />
+    <Resource Include="Images\checkmark_rectangle-dark.png" />
+    <Resource Include="Images\person-dark.png" />
+    <Resource Include="Images\play_icon_dark.png" />
+    <Resource Include="Images\pause_icon_dark.png" />
+    <Resource Include="Images\background_dark.png" />
+    <Resource Include="Images\plus_dark.png" />
+    <Resource Include="Images\minus_dark.png" />
+    <Resource Include="Images\minus .png" />
     <Resource Include="Images\edit.png" />
     <Resource Include="Images\thinking_icon.png" />
     <Resource Include="Images\team.png" />

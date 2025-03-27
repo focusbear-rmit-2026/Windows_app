@@ -7,10 +7,20 @@
              mc:Ignorable="d" 
               d:DesignHeight="670" d:DesignWidth="670" Background="#fff" IsVisibleChanged="UserControl_IsVisibleChanged">
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+                <Style TargetType="Grid">
+                    <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
+                </Style>
+            </ResourceDictionary>
+        </Grid.Resources>
 
-        <Border BorderThickness="1" Margin="20"   VerticalAlignment="Top" CornerRadius="10" BorderBrush="LightGray" Background="#fff">
+        <Border BorderThickness="1" Margin="20"   VerticalAlignment="Top" CornerRadius="10" BorderBrush="LightGray">
 
-        <Grid Background="#fff" Margin="5">
+        <Grid Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="1"/>

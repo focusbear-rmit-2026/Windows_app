@@ -332,6 +332,26 @@ namespace Focus_Bear.Focus
                 ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
                 Show();
                 appSettings.bFocusSummaryPostponedState = false;
+
+                //If by chance the start pomodoro window is open, we need to close it.
+                if (appSettings.isStartPomodoroWindowOpen)
+                {
+                    //Let's close the start pomodoro window 
+                    if (((App)(Application.Current)).wndStartPomodoro != null)
+                    {
+                        ((App)(Application.Current)).wndStartPomodoro.Hide();
+                    }
+                    appSettings.isStartPomodoroWindowOpen = false;
+                }
+
+                if (appSettings.isFocusModeRunning)
+                {
+                    ((App)(Application.Current)).ForceStopFocusSessionOnHabitsTime();
+                }
+
+                //Make the global variable false
+                appSettings.isFocusModeRunning = false;
+                appSettings.bUseSuperPomodoroMode = false;
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Preferences;
+using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -129,7 +130,48 @@ namespace Focus_Bear.Habits
 
         private void btnPostpone_Click(object sender, RoutedEventArgs e)
         {
-            ((App)(Application.Current)).ShowEasyPostponeWindow();
+            if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && appSettings.isPasswordSet)
+            {
+                if (appSettings.bPasswordRequireInSkipEvening || (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff))
+                {
+                    AskPassword pwdWnd = new AskPassword();
+                    pwdWnd.Owner = this;
+                    
+                    bool? bResult = pwdWnd.ShowDialog();
+                                       
+                    if (bResult.Value)
+                    {
+                        //Password is correct
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS && appSettings.isPasswordSet)
+            {
+                if (appSettings.bPasswordRequireInSkipMorning)
+                {
+                    AskPassword pwdWnd = new AskPassword();
+                    pwdWnd.Owner = this;
+
+                    bool? bResult = pwdWnd.ShowDialog();
+
+                    if (bResult.Value)
+                    {
+                        //Password is correct
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
+            
+            if (appSettings.bHabitsPostponedState) //It might be possible that the habits window have appeared till the user enter the password, so we will not show the easy postpone here.
+                ((App)(Application.Current)).ShowEasyPostponeWindow();
+
             Hide();
         }
     }

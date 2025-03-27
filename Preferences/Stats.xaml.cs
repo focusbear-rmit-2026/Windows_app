@@ -31,6 +31,15 @@ namespace Focus_Bear.Preferences
 
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
+            App.ThemeChanged += ReloadWebView;
+
+        }        
+        private void ReloadWebView()
+        {
+            if (webView != null && webView.CoreWebView2 != null)
+            {
+                webView.Reload();
+            }
         }
 
         private async Task SetWebView()
@@ -60,7 +69,9 @@ namespace Focus_Bear.Preferences
                 LogWriter.LogWrite("stats CoreWebView2NavigationCompleted() Success, Load Access token");
                 Mouse.OverrideCursor = null;
 
-                string Settings = string.Format("{{\"access_token\":\"{0}\",\"type\":\"win\",\"lang\":\"{1}\",\"font\":\"{2}\"}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont));
+                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+
+                string Settings = string.Format("{{\"access_token\":\"{0}\",\"type\":\"win\",\"lang\":\"{1}\",\"font\":\"{2}\",\"theme\":{3}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont),sTheme);
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForStats) {{ loadAccessTokenForStats({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
 
                 var ss = webView.ExecuteScriptAsync(settingsFunc);

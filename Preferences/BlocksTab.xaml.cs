@@ -30,7 +30,6 @@ namespace Focus_Bear.Preferences
         public BlocksTab()
         {
         }
-
         public BlocksTab(PreferencesWindow ParentWindow)
         {
             _ParentWindow = ParentWindow;
@@ -51,7 +50,7 @@ namespace Focus_Bear.Preferences
                 Description1.Text = appSettings.ConfigFileStrings["onboardingBlockingScheduleVcInfo"]["descriptionFirstText"].ToString();
                 Description2.Text = appSettings.ConfigFileStrings["onboardingBlockingScheduleVcInfo"]["descriptionSecondText"].ToString();
                 Description3.Text = appSettings.ConfigFileStrings["onboardingBlockingScheduleVcInfo"]["descriptionThirdText"].ToString();
-
+                App.ThemeChanged += LoadURL;
             }
             catch (Exception ex)
             {
@@ -99,7 +98,9 @@ namespace Focus_Bear.Preferences
         {
             if (e.IsSuccess)
             {
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont));
+                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+
+                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\",\"theme\":{2}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), sTheme);
 
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
 

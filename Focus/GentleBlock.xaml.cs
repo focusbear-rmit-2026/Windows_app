@@ -135,6 +135,7 @@ namespace Focus_Bear.Focus
             
             if (sAppName.Length > 0)
             {
+                AllowThisDomain.Visibility = Visibility.Collapsed;
                 AllowThisDomainText.Visibility = Visibility.Collapsed;
 
                 sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
@@ -143,6 +144,7 @@ namespace Focus_Bear.Focus
             else
             {
                 ///////////////////////////////////////////////////////////////////
+                AllowThisDomain.Visibility = Visibility.Visible;
                 AllowThisDomainText.Visibility = Visibility.Visible;
                 string sHost = "";
                 try
@@ -170,6 +172,8 @@ namespace Focus_Bear.Focus
                 this.Hide(); //Will keep this window hidden will we get response from API
             }
             sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeTitle);
+            
+            sHeading = sHeading.Length > 108 ? sHeading.Substring(0, 108) : sHeading; //If there are more characters, take only first 100 approx
             Heading.Text = sHeading;
 
             if (sIntention.Length > 0) //Set the activity title if thelength is > 0
@@ -473,6 +477,11 @@ namespace Focus_Bear.Focus
 
             FocusBearAPIClient client = new FocusBearAPIClient();
             var sResponse = client.PostSavedWebsite(sFullURLForBlockedPage); 
+        }
+
+        public void StopTimer()
+        {
+            dispatcherTimer.Stop();
         }
 
     }

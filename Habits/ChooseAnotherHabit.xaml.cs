@@ -89,13 +89,54 @@ namespace Focus_Bear.Habits
                 int nSerialNo = 1;
                 for (int i = appSettings.nHabitIndex + 1; i < appSettings.arrAllEveningHabits.Count; i++)
                 {
-                    string sActivityName = appSettings.arrAllEveningHabits[i].name;
-                    string sID = appSettings.arrAllEveningHabits[i].id;
-                    string sNo = string.Format("{0}.", (nSerialNo).ToString());
-                    double nDurationSeconds = appSettings.arrAllMorningHabits[i].durationSeconds;
-                    var ActivityItem = new HabitListSelectable { id = sID, SNumber = sNo, ActivityName = sActivityName, nDuration = nDurationSeconds };
-                    FilteredList.Add(ActivityItem);
-                    nSerialNo++;
+                    bool bAddItem = false;
+                    //We will also need to check the cutoff time and remove habits past cutoff time
+                    if (appSettings.DidCutOffTimePassed())
+                    {
+                        if (appSettings.arrAllEveningHabits[i].bHighPriorityActivity)
+                        {
+                            if (appSettings.arrAllEveningHabits[i].sCutOffTime != "")
+                            {
+                                DateTime now = DateTime.Now;
+                                TimeSpan tsTime = TimeSpan.Parse(appSettings.arrAllEveningHabits[i].sCutOffTime);
+                                DateTime myAvtivityCutoffTime = new DateTime(now.Year, now.Month, now.Day, tsTime.Hours, tsTime.Minutes, 00);
+                                if (now > myAvtivityCutoffTime)
+                                {
+                                    appSettings.arrAllEveningHabits.RemoveAt(i);
+                                    i--;
+                                }
+                                else
+                                {
+                                    bAddItem = true;
+                                }
+                            }
+                            else
+                            {
+                                bAddItem = true;
+                            }
+                        }
+                        else
+                        {
+                            //remove from list of evening habits
+                            appSettings.arrAllEveningHabits.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                    else
+                    {
+                        bAddItem = true;
+                    }
+                    if(bAddItem)
+                    {
+                        string sActivityName = appSettings.arrAllEveningHabits[i].name;
+                        string sID = appSettings.arrAllEveningHabits[i].id;
+                        string sNo = string.Format("{0}.", (nSerialNo).ToString());
+                        double nDurationSeconds = appSettings.arrAllEveningHabits[i].durationSeconds;
+                        var ActivityItem = new HabitListSelectable { id = sID, SNumber = sNo, ActivityName = sActivityName, nDuration = nDurationSeconds };
+                        FilteredList.Add(ActivityItem);
+                        nSerialNo++;
+                    }
+                    
                 }
             }
         }
