@@ -163,6 +163,7 @@ namespace Focus_Bear.Preferences
             {
                 //add to focus modes  array
                 appSettings.arrFocusModes.Add(ff);
+                ((App)Application.Current).FocusModeAdded();
 
                 //Select the new item in the FOcus list.
                 ListFocusModes.SelectedIndex = appSettings.arrFocusModes.Count() - 1;

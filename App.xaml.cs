@@ -307,6 +307,7 @@ namespace Focus_Bear
         public ToDoPlayer wndToDoPlayer = null;
 
         bool bAppExtracted = false;
+        public static event Action FocusModeAddedEvent;
 
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
@@ -324,7 +325,7 @@ namespace Focus_Bear
             SentrySdk.Init(o =>
             {
                 // Tells which project in Sentry to send events to:
-                o.Dsn = "https://ba858528b20c467139890456a0c3ffa4@sentry.focusbear.io/8";
+                o.Dsn = "https://994c1df7d9dcced04975c9bbdf2ca829@sentry.aws.focusbear.io/6";
 
                 // When configuring for the first time, to see what the SDK is doing:
                 o.Debug = true;
@@ -4150,5 +4151,9 @@ namespace Focus_Bear
                 wndToDoPlayer.Close();
             }
         }
+        public void FocusModeAdded()
+        {
+            FocusModeAddedEvent?.Invoke();
+        } 
     }
 }
