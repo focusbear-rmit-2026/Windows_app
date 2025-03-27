@@ -31,6 +31,7 @@ namespace Focus_Bear.Pomodoro
             InitializeComponent();
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             this.Topmost = true;
+            App.FocusModeAddedEvent += AddFocusModesToComboBox;
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
@@ -63,13 +64,9 @@ namespace Focus_Bear.Pomodoro
                 SkipMicroBreaks.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonSkipMicrobreaksText"].ToString();
 
                 btnStartSessionText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonLetsDoItText"].ToString();
+        
+                AddFocusModesToComboBox();
 
-                //Load the combox box with focus mode name
-                for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
-                {
-                    if (!(appSettings.arrFocusModes[i].isMeetings || appSettings.arrFocusModes[i].isLockedFocus))
-                        ComboBoxFocusModes.Items.Add(appSettings.arrFocusModes[i].name);
-                }
 
             }
             catch (Exception ex)
@@ -78,6 +75,21 @@ namespace Focus_Bear.Pomodoro
             }
 
             UpdateValues();
+        }
+
+        public void AddFocusModesToComboBox()
+        {
+            //Load the combox box with focus mode name, trigged by event when new mode added
+            ComboBoxFocusModes.Items.Clear();
+            for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
+            {
+                if (!(appSettings.arrFocusModes[i].isMeetings || appSettings.arrFocusModes[i].isLockedFocus))
+                    ComboBoxFocusModes.Items.Add(appSettings.arrFocusModes[i].name);
+            }
+            if (ComboBoxFocusModes.Items.Count > 0)
+            {
+                ComboBoxFocusModes.SelectedIndex = 0;
+            }
         }
 
         public void UpdateValues(bool bEnterSuperPomodoroModeAfterMorningRoutine = false)

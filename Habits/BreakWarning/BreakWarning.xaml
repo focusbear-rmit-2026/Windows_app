@@ -5,10 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="350" Width="390" ResizeMode="NoResize">
+        Title="Focus Bear" Height="350" Width="390" ResizeMode="NoResize" Background="{DynamicResource BackgroundColor}">
     <Grid x:Name="Grid1">
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
@@ -20,11 +27,11 @@
             <RowDefinition Height="45" />
         </Grid.RowDefinitions>
 
-        <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xYour break starts in:" Foreground="#272727" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
-        <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="00:30" Foreground="#000" Padding="0" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Center" />
+        <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xYour break starts in:" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
+        <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="00:30" Padding="0" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Center" />
         <ProgressBar Grid.Row="2" x:Name="Progress" Value="30"  Maximum="30" Height="10" Width="200" IsIndeterminate = "False"  Foreground="DodgerBlue"/>
         <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-            <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" MaxWidth="220" Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" MaxWidth="220" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
             <ComboBox Name="ComboBoxMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="5" SelectionChanged="ComboBoxMinutes_SelectionChanged" Loaded="ComboBoxMinutes_Loaded">
                 <ComboBoxItem Content="5"></ComboBoxItem>
@@ -43,15 +50,15 @@
         <Button Grid.Row="4"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnActionTXT" Text="xPostpone for 5 Minutes"/>
+                    <TextBlock x:Name="btnActionTXT" Text="xPostpone for 5 Minutes" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>
-        <TextBlock Grid.Row="5" Margin="0,0,0,0" Name="BreakDescText" TextWrapping="Wrap" Text="xMicro breaks help keep your energy + alertness levels consistent throughout the day and have positive impacts on your posture (no more screen headaches)." MaxWidth="320" Foreground="#000" FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Row="5" Margin="0,0,0,0" Name="BreakDescText" TextWrapping="Wrap" Text="xMicro breaks help keep your energy + alertness levels consistent throughout the day and have positive impacts on your posture (no more screen headaches)." MaxWidth="320" FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Button Grid.Row="6"  x:Name="btnStartBreakNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnStartBreakNow_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnStartBreakNowTXT" Text="xStart micro break now"/>
+                    <TextBlock x:Name="btnStartBreakNowTXT" Text="xStart micro break now" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>

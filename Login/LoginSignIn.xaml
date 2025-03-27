@@ -8,14 +8,22 @@
 
       mc:Ignorable="d" 
      d:DesignHeight="680" d:DesignWidth="945"
-      Title="LoginSignIn"  Background="#fff">
+      Title="LoginSignIn"  Background="{DynamicResource BackgroundColor}">
 
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="100"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
@@ -24,14 +32,13 @@
         </Grid.RowDefinitions>
 
 
-        <Button x:Name="btnBack" Grid.Column="0" Content="Button" Style="{DynamicResource BtnStyleBack}" SnapsToDevicePixels="True" HorizontalAlignment="Center" Height="34" VerticalAlignment="Center" Width="34" ToolTip="xBack" Cursor="Hand" Click="btnBack_Click"/>
-
+        <Button x:Name="btnBack" Grid.Column="0" Content="Button" Style="{DynamicResource BtnStyleBack}" SnapsToDevicePixels="True" HorizontalAlignment="Center" Height="64" VerticalAlignment="Center" Width="68" ToolTip="xBack" Cursor="Hand" Click="btnBack_Click"/>
         <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center" Width="300">
-            <TextBlock  Name="Heading" Margin="0,100,0,0" TextWrapping="Wrap" Text="xSign In" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock   Name="Description" Margin="40,20,40,0" TextWrapping="Wrap" Text="xCreate an account" Foreground="#272727" FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-
-            <TextBlock  Name="lblEmail" Margin="0,40,40,10" TextWrapping="Wrap" Text="xEmail Address" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
-            <TextBox TabIndex="0" x:Name="TxtEmailAddress" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" >
+            <Image Source="../Images/FBicon-256.png" Width="50" HorizontalAlignment="Center" Margin="10,50,10,0" VerticalAlignment="Bottom"/>
+            <TextBlock  Name="Heading" Margin="0,10,0,0" TextWrapping="Wrap" Text="xSign In" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock   Name="Description" Margin="40,20,40,0" TextWrapping="Wrap" Text="xCreate an account" Foreground="#e88800" FontSize="17" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Name="lblEmail" Margin="0,40,40,10" TextWrapping="Wrap" Text="xEmail Address" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+            <TextBox TabIndex="0" x:Name="TxtEmailAddress" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" >
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -51,7 +58,7 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
 
-            <TextBlock   Name="lblPassword" Margin="0,20,40,10" TextWrapping="Wrap" Text="xPassword" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+            <TextBlock   Name="lblPassword" Margin="0,20,40,10" TextWrapping="Wrap" Text="xPassword" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
             <PasswordBox TabIndex="1" x:Name="TxtPassword" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15"     >
                 <PasswordBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
@@ -81,13 +88,13 @@
             </Button>
             
             <TextBlock x:Name="ForgetPassword"  Margin="0,20,0,30" TextWrapping="NoWrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}" FontSize="15" Height="22" Cursor="Hand">
-                <Hyperlink x:Name="btnForgetPassword"  Foreground="#000" Click="btnForgetPassword_Click"   TextDecorations="Underline" ><Run x:Name="ForgetPasswordTXT" Text="xForgot Password"/></Hyperlink>
+                <Hyperlink x:Name="btnForgetPassword" Click="btnForgetPassword_Click"   TextDecorations="Underline" ><Run x:Name="ForgetPasswordTXT" Text="xForgot Password"/></Hyperlink>
             </TextBlock>
             
             <Button TabIndex="3"  x:Name="btnCreatAccount"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreatAccount_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnCreateAccountText" Text="xCreate an account"/>
+                        <TextBlock Name="btnCreateAccountText" Text="xCreate an account" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

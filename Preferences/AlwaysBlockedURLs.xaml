@@ -6,10 +6,17 @@
       xmlns:local="clr-namespace:Focus_Bear.Preferences"
       mc:Ignorable="d" 
        d:DesignHeight="670" d:DesignWidth="670"
-       Background="#fff" >
+        >
 
     <Grid>
-        <Grid Background="#fcf8f0"  >
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <Grid Background="{DynamicResource SoftCreamColor}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="35"/>
                 <RowDefinition Height="100"/>
@@ -17,10 +24,10 @@
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
 
-            <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0"   Text="xAlways Blocked URLs" Foreground="#181818" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
-            <TextBlock  Grid.Row="1" Name="Description" Margin="20,0,20,0"   Text="xBlock these URLs even if you're not in a focus block. You might want to put social media or news sites that you would rather not use at any time. You can always set up an evening routine activity where you explicitly allow access to Facebook so that you can still stay connected - just not during your morning routine/work day." Foreground="#000" FontSize="12" TextWrapping="Wrap" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+            <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0"  Text="xAlways Blocked URLs" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+            <TextBlock  Grid.Row="1" Name="Description" Margin="20,0,20,0"   Text="xBlock these URLs even if you're not in a focus block. You might want to put social media or news sites that you would rather not use at any time. You can always set up an evening routine activity where you explicitly allow access to Facebook so that you can still stay connected - just not during your morning routine/work day." FontSize="12" TextWrapping="Wrap" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-            <Grid Grid.Row="2" Background="#fff" Margin="20,0,20,20">
+            <Grid Grid.Row="2"  Margin="20,0,20,20">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="1"/>
@@ -33,7 +40,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding ., StringFormat=\{0\}}" Foreground="#000"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                <TextBlock Grid.Column="0" Text="{Binding ., StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -44,7 +51,7 @@
 
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
-                                <Image Name="btnAddURLTXT" Height="16"  Width="16" Source="../Images/plus.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
+                                <Image Name="btnAddURLTXT" Height="16"  Width="16" Source="{DynamicResource PlusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
                             </StackPanel>
                         </Button.Content>
                     </Button>
@@ -52,7 +59,7 @@
 
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
-                                <Image Name="btnDeleteURLTXT" Height="16"  Width="16" Source="../Images/minus.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
+                                <Image Name="btnDeleteURLTXT" Height="16"  Width="16" Source="{DynamicResource MinusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
                             </StackPanel>
                         </Button.Content>
                     </Button>

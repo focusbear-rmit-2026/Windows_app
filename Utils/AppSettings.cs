@@ -125,6 +125,9 @@ namespace Focus_Bear.Utils
 
         public string sLangCode = "en";
 
+        public string sTheme = "Light";
+        public bool bAutoTheme = false;
+
         public bool bBlockWhileOnbording = true; //keeping it true just to override user preference for blocking while onboarding
 
         public bool bBlockingWorkedWhileOnboarding = false;
@@ -1262,6 +1265,19 @@ namespace Focus_Bear.Utils
                                     bool isLockedFocus = false;
                                     bool isRelaxFocus = false;
                                     bool isDeepWorkFocus = false;
+                                    string sTooltip = "";
+                                    if (name == "Free time - block nothing")
+                                    {
+                                        sTooltip = ConfigFileStrings["focusPreferencesInfo"]["allWebsitesAllowedText"].ToString();
+                                    }
+                                    if (name == "Block super distracting sites/apps")
+                                    {
+                                        sTooltip = ConfigFileStrings["focusPreferencesInfo"]["infoAlwaysBlockedUrlsText"].ToString();
+                                    }
+                                    if (name == "Deep Work")
+                                    {
+                                        sTooltip = ConfigFileStrings["focusPreferencesInfo"]["titleAllowUrlListApproch"].ToString();
+                                    }
 
                                     if (item.ContainsKey("allowed_urls"))
                                     {
@@ -1303,7 +1319,8 @@ namespace Focus_Bear.Utils
                                         isDeepWorkFocus = metadata.ContainsKey("isDeepWorkFocus") ? Convert.ToBoolean(metadata.GetValue("isDeepWorkFocus")) : false;
                                     }
 
-                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : "")));
+
+                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : sTooltip)));
                                 }
 
                                 catch (Exception ex)

@@ -6,14 +6,25 @@
       xmlns:local="clr-namespace:Focus_Bear.Preferences"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="640"
-       Background="#fff">
+       >
 
     <Grid>
-        <Grid Background="#fcf8f0" >
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+                <Style TargetType="Grid">
+                    <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
+                </Style>
+            </ResourceDictionary>
+        </Grid.Resources>
+        
+        <Grid>
             <Button    x:Name="btnUninstall"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnUninstall_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnUninstallTXT" Text="xUninstall Focus Bear"/>
+                        <TextBlock x:Name="btnUninstallTXT" Text="xUninstall Focus Bear" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

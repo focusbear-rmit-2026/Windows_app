@@ -5,10 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="450" Width="720"  ResizeMode="NoResize" >
+        Title="Focus Bear" Height="450" Width="720"  ResizeMode="NoResize" Background="{DynamicResource BackgroundColor}" >
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="100" />
@@ -25,11 +32,11 @@
 
         <TextBlock  Grid.Row="0"  Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap" Text="xDeactivating Focus type - FOCUSTYPE" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
        
-        <TextBlock Grid.Row="2"  Name="Timer" Margin="10,0,10,0" TextWrapping="Wrap" Text="xx00:05" Foreground="#272727" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Row="2"  Name="Timer" Margin="10,0,10,0" TextWrapping="Wrap" Text="xx00:05" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
      
 
-        <TextBlock  Grid.Row="3" Name="WhyDeactivating" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxCan you share why you are deactivating?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="3" Name="WhyDeactivating" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxCan you share why you are deactivating?" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <ComboBox Name="ComboBoxReason"  Grid.Row="4" Width="360" MinHeight="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxReason_SelectionChanged" >
         </ComboBox>
@@ -38,14 +45,14 @@
             <Button  x:Name="btnCancel"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="130" MinHeight="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,10,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnCancelText" Margin="8" Text="xCancel"/>
+                        <TextBlock Name="btnCancelText" Margin="8" Text="xCancel" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
             <Button  x:Name="btnStopFocus"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   MinHeight="43" HorizontalContentAlignment="Center" Padding="0" Margin="15,10,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStopFocus_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock Name="btnStopFocusText" Margin="15,0,15,0" Text="xDeactivate Focus Block"/>
+                        <TextBlock Name="btnStopFocusText" Margin="15,0,15,0" Text="xDeactivate Focus Block" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>

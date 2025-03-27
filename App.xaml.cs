@@ -81,6 +81,7 @@ namespace Focus_Bear
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         private const int SW_SHOW = 5;
 
+
         private const uint WINEVENT_OUTOFCONTEXT = 0;
         private const uint EVENT_SYSTEM_FOREGROUND = 3;
         private const uint WINEVENT_SKIPOWNPROCESS = 0x0002;
@@ -326,7 +327,9 @@ namespace Focus_Bear
         public ToDoList wndToDoList = null;
 
         bool bAppExtracted = false;
+        public static event Action FocusModeAddedEvent;
 
+        public static event Action ThemeChanged;
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             SentrySdk.ConfigureScope(scope =>
@@ -344,7 +347,7 @@ namespace Focus_Bear
             SentrySdk.Init(o =>
             {
                 // Tells which project in Sentry to send events to:
-                o.Dsn = "https://ba858528b20c467139890456a0c3ffa4@sentry.focusbear.io/8";
+                o.Dsn = "https://994c1df7d9dcced04975c9bbdf2ca829@sentry.aws.focusbear.io/6";
 
                 // When configuring for the first time, to see what the SDK is doing:
                 o.Debug = true;
@@ -435,6 +438,10 @@ namespace Focus_Bear
             Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--autoplay-policy=no-user-gesture-required");
 
             RegistryManager.GetLangCode();
+
+            RegistryManager.GetThemeMode();
+
+            RegistryManager.GetAutoThemeMode();
 
             appSettings.CheckAndGetGlobalUUID();
 
@@ -4382,6 +4389,11 @@ namespace Focus_Bear
                 wndToDoPlayer.Close();
             }
         }
+        
+        public void FocusModeAdded()
+        {
+            FocusModeAddedEvent?.Invoke();
+        } 
 
         public void ForceStopFocusSessionOnHabitsTime()
         {
@@ -4447,5 +4459,31 @@ namespace Focus_Bear
             appSettings.sRawTasks = tasksArray?.ToString() ?? "[]";
         }
 
+        public void ChangeTheme(string theme)
+        {
+            ResourceDictionary newTheme = new ResourceDictionary();
+            //ResourceDictionary themeStyle = new ResourceDictionary();
+            //themeStyle.Source = new Uri("Theme/PreferencesStyle.xaml", UriKind.Relative);
+            if (theme == "Dark")
+            {
+                newTheme.Source = new Uri("Theme/DarkTheme.xaml", UriKind.Relative);
+
+            }
+            else if (theme == "Light")
+            {
+                newTheme.Source = new Uri("Theme/LightTheme.xaml", UriKind.Relative);
+            }
+            ThemeChanged?.Invoke();
+
+
+            // Clear old theme and apply new theme
+            Application.Current.Resources.MergedDictionaries.Clear();
+            //Application.Current.Resources.MergedDictionaries.Add(themeStyle);
+
+            Application.Current.Resources.MergedDictionaries.Add(newTheme);
+            // Save theme setting
+            appSettings.sTheme = theme;
+
+        }
     }
 }

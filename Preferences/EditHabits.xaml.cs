@@ -41,7 +41,9 @@ namespace Focus_Bear.Preferences
 
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
+            App.ThemeChanged += LoadURL;
         }
+
 
         private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
@@ -99,7 +101,7 @@ namespace Focus_Bear.Preferences
             sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString("o");
             webView.Source = new System.Uri(sSettingsURL);
         }
- 
+
         public async void LoadSettings()
         {
             try
@@ -114,9 +116,11 @@ namespace Focus_Bear.Preferences
                         LogWriter.LogWrite("attempt to LoadSettings()");
 
                         string sFlags = string.Format("[\"{0}\"]", appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode");
-        
-                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\",\"lang\":\"{2}\",\"flags\":{3}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sFlags);
-                        
+
+                        string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+
+                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\",\"lang\":\"{2}\",\"flags\":{3},\"theme\":{4} }}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sFlags, sTheme);
+
                         string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                         var ss1 =  webView.ExecuteScriptAsync(settingsFunc);
                         LogWriter.LogWrite("attempt to LoadSettings() done res:" + ss1.ToString());

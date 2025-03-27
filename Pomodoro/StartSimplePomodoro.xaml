@@ -5,10 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Pomodoro"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="540" Width="744"  ResizeMode="NoResize" Closing="Window_Closing" LocationChanged="Window_LocationChanged">
+        Title="Focus Bear" Height="540" Width="744"  ResizeMode="NoResize" Closing="Window_Closing" LocationChanged="Window_LocationChanged"
+        Background="{DynamicResource BackgroundColor}">
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="50" />
@@ -25,7 +33,7 @@
         <TextBlock Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xPomodoro Time" Foreground="#e88800" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <TextBlock  x:Name="BlockingStyle" Visibility="Visible" Width="300"  Margin="0,0,0,0" TextWrapping="Wrap" Text="xBlocking Style:" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"/>
+            <TextBlock  x:Name="BlockingStyle" Visibility="Visible" Width="300"  Margin="0,0,0,0" TextWrapping="Wrap" Text="xBlocking Style:" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"/>
             <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" VerticalAlignment="Top"  >
                 <RadioButton  Name="RadioAI" Margin="10,5,0,0" GroupName="BlockingStyle"  FontSize="15"  FontWeight="Normal" Padding="5,-5,0,0" Cursor="Hand" Checked="RadioAI_Checked"  >
                     xAI powered blocking (recommended)
@@ -37,7 +45,7 @@
         </StackPanel>
 
         <StackPanel Grid.Row="3"  Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-            <TextBlock  Name="HowMuchTime" Margin="10,0,10,0" TextWrapping="Wrap" Width="351" Text="xPomodoro Mode duration:" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" />
+            <TextBlock  Name="HowMuchTime" Margin="10,0,10,0" TextWrapping="Wrap" Width="351" Text="xPomodoro Mode duration:" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" />
              <TextBox      x:Name="Minutes"  MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="Minutes_TextChanged">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
@@ -57,12 +65,12 @@
                     </Style>
                 </TextBox.FocusVisualStyle>
             </TextBox>
-            <TextBlock  Name="MinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Name="MinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         </StackPanel>
 
         <StackPanel Grid.Row="4" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-            <TextBlock  Name="BreakDuration" Margin="10,0,10,0" TextWrapping="Wrap" Width="351" Text="xBreak duration:" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Center"/>
+            <TextBlock  Name="BreakDuration" Margin="10,0,10,0" TextWrapping="Wrap" Width="351" Text="xBreak duration:" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Center"/>
 
             <TextBox    x:Name="MinutesBreak"  MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="Minutes_TextChanged">
                 <TextBox.Effect>
@@ -83,13 +91,13 @@
                     </Style>
                 </TextBox.FocusVisualStyle>
             </TextBox>
-            <TextBlock  Name="MinutesBreakTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Name="MinutesBreakTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         </StackPanel>
 
         <StackPanel Grid.Row="5" Orientation="Vertical" VerticalAlignment="Top" Margin="0,20,0,0">
-              
-            <TextBlock  Name="WhatPlan" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?" Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+            <TextBlock  Name="WhatPlan" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
             <TextBox   Name="TxtIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"  Width="500" Height="80" Margin="15" VerticalAlignment="Top"  FontSize="15" TextChanged="TxtIntention_TextChanged">
                 <TextBox.Effect>
@@ -122,7 +130,7 @@
             </Button.Content>
         </Button>
         
-        <Border x:Name="GridShade" Grid.RowSpan="13"   CornerRadius="0"  Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
+        <Border x:Name="GridShade" Grid.RowSpan="13"   CornerRadius="0"  Margin="0,0,0,0" Background="#060606" Opacity="0.65"   Visibility="Collapsed" />
 
         <!-- Define the Popup -->
         <Popup x:Name="MyPopup" 
