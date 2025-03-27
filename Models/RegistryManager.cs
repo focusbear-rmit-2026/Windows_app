@@ -370,7 +370,7 @@ namespace Focus_Bear.Models
 
                 if (rootKey != null)
                 {
-                    return rootKey.GetValue(value).ToString();
+                    return rootKey.GetValue(value)?.ToString();
                 }
             }
             catch (UnauthorizedAccessException ex)

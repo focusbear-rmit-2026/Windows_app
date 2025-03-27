@@ -541,7 +541,7 @@ namespace Focus_Bear.Utils
                     return 404;
                 }
 
-                if (sSubscriptionInfo.Length > 0)
+                if (sSubscriptionInfo?.Length > 0)
                 {
                     LogWriter.LogWrite("subscriptionStatus - " + sSubscriptionInfo);
 
