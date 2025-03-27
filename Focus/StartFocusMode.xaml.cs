@@ -88,7 +88,7 @@ namespace Focus_Bear.Focus
 
             if (!appSettings.bStartingAnotherFocusMode)
             {
-                appSettings.bSkipMicroBreaksDuringFocus = true; //default to true
+                //appSettings.bSkipMicroBreaksDuringFocus = true; //default to true
                 SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
             }
         }
