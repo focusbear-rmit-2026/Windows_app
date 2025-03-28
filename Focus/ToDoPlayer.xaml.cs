@@ -1,9 +1,11 @@
 ﻿using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,6 +26,8 @@ namespace Focus_Bear.Focus
     public partial class ToDoPlayer : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
         private void OnSourceInitialized(object sender, EventArgs e)
         {
@@ -57,6 +61,7 @@ namespace Focus_Bear.Focus
 
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
+            App.ThemeChanged += TitleBarThemeChange;
         }
 
         private async Task SetWebView()
@@ -87,7 +92,7 @@ namespace Focus_Bear.Focus
                 double durationMinutes = difference.TotalMinutes;
                 string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
 
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"total_duration\":{1},lang:\"{2}\",\"font\":\"{3}\",\"theme\":{6}\"intention\":\"{4}\",\"brain_dump\":\"{5}\"}}", appSettings.userAccount.accessToken, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump,sTheme);
+                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"total_duration\":{1},lang:\"{2}\",\"font\":\"{3}\",\"theme\":{6},\"intention\":\"{4}\",\"brain_dump\":\"{5}\"}}", appSettings.userAccount.accessToken, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump,sTheme);
 
                 if (appSettings.sRawTasks.Length > 0)
                 {
@@ -166,6 +171,39 @@ namespace Focus_Bear.Focus
             catch (Exception ex)
             {
                 LogWriter.LogWrite("SelectTasks webView_WebMessageReceived()" + ex.Message);
+            }
+        }
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+        }
+        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+            return false;
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
         }
 

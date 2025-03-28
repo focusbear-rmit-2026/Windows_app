@@ -42,7 +42,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid Background="{DynamicResource TrayBackgroundColour}">
+    <Grid Background="{DynamicResource BackgroundColor}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="14*"/>
             <ColumnDefinition Width="9*"/>

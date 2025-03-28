@@ -47,7 +47,7 @@
         <Frame x:Name="AppFrameHabitScreens" Margin="0" NavigationUIVisibility="Hidden"   Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed"  />
         <Frame x:Name="AppFrameLogQuantity" Margin="0" NavigationUIVisibility="Hidden"  Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed" Opacity="0.5" />
 
-        <TextBlock Name="Time" Margin="0,18,173,0" Width="400" TextWrapping="Wrap" Text="x10:10 AM" Foreground="#000" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"/>
+        <TextBlock Name="Time" Margin="0,18,173,0" Width="400" TextWrapping="Wrap" Text="x10:10 AM" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"/>
         <Button x:Name="btnPleaseSpareMe" IsDefault="False" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" MinWidth="120" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnPleaseSpareMe_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal" Margin="5,2,0,0" VerticalAlignment="Center">

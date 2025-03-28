@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,13 +37,25 @@ namespace Focus_Bear.Habits
         private const uint SC_CLOSE = 0xF060;
         private const int WM_SHOWWINDOW = 0x00000018;
 
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
             var hWnd = new WindowInteropHelper(this);
             var sysMenu = GetSystemMenu(hWnd.Handle, false);
             EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+            
+            if (appSettings.sTheme == "Light")
+            {
+                ChangeTheme("Light");
+            }
+            else
+            {
+                ChangeTheme("Dark");
+            }
         }
+       
 
         public EasySkipPostpone()
         {
@@ -187,5 +200,48 @@ namespace Focus_Bear.Habits
             ((App)(Application.Current)).EasyPostponeCancelled();
             Close();
         }
+
+        private void ChangeTheme(string theme)
+        {
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (theme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                EasySkipPostponeBackground.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+
+
+            }
+            else if (theme == "Dark")
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                EasySkipPostponeBackground.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+
+            }
+        }
+        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+            return false;
+        }
+        
     }
 }

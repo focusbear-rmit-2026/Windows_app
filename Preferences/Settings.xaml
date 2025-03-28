@@ -116,7 +116,7 @@
                                     <RowDefinition MinHeight="27"/>
                                     <RowDefinition MinHeight="27"/>
                                 </Grid.RowDefinitions>
-                                <ComboBox  Grid.Row="0" Name="Fonts"    Width="200" HorizontalAlignment="Left" Margin="20,0,0,0"  SelectionChanged="Fonts_SelectionChanged"></ComboBox>
+                                <ComboBox  Grid.Row="0" Name="Fonts"    Width="200" HorizontalAlignment="Left" Margin="20,5,0,0"  SelectionChanged="Fonts_SelectionChanged"></ComboBox>
                                 <ComboBox  Grid.Row="1" Name="Language" Width="200" HorizontalAlignment="Left" Margin="20,20,0,0" SelectionChanged="Language_SelectionChanged"></ComboBox>
                                 <ComboBox  Grid.Row="2" Name="DarkMode" Width="200" HorizontalAlignment="Left" Margin="20,15,0,0" SelectionChanged="DarkMode_SelectionChanged"></ComboBox>
                             </Grid>
