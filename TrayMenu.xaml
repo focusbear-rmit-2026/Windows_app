@@ -97,8 +97,8 @@
 
             </StackPanel>-->
             <StackPanel Orientation="Horizontal" Name="LimitedBlockingSection" Visibility="Collapsed">
-                <TextBlock   Name="LimitedBlocking"  Margin="20,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Visibility="Visible">xLimited Blocking</TextBlock>
-                <Image Name="LimitedBlockingInfo" Source="images/info.png" Width="20"  Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Cursor="Hand"></Image>
+                <TextBlock   Name="LimitedBlocking"  Margin="20,10,0,5" FontSize="14" Cursor="Hand" Foreground="{DynamicResource ForegroundColor}" FontWeight="Semibold" Visibility="Visible">xLimited Blocking</TextBlock>
+                <Image Name="LimitedBlockingInfo" Source="{DynamicResource InfoImage}" Width="20"  Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Cursor="Hand"></Image>
                 
                 <Button x:Name="btnLimitedBlockingEdit" Margin="10,6,0,0" Style="{StaticResource BtnStyleInfo}" Click="btnLimitedBlockingEdit_Click" MinWidth="18" Height="18" Cursor="Hand" >
                     <StackPanel Orientation="Vertical">

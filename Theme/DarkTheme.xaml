@@ -14,7 +14,7 @@
     <SolidColorBrush x:Key="PreferenceButtonColor" Color="#383838"/>
     <SolidColorBrush x:Key="PreferenceTitleButtonColor" Color="#383838"/>
     <SolidColorBrush x:Key="PreferenceTitleButtonPressedColor" Color="#383838"/>
-
+    <SolidColorBrush x:Key="PreferenceFocusListItemForegroundColor" Color="White"/>
 
     <BitmapImage x:Key="PlusImage" UriSource="../Images/plus_dark.png" />
     <BitmapImage x:Key="MinusImage" UriSource="../Images/minus_dark.png" />
