@@ -311,7 +311,7 @@ namespace Focus_Bear.Focus
 
             try
             {
-                if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
+                if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 2)
                 {
                     FreeFormIntention.Visibility = Visibility.Collapsed;
                     SelectedTasksTitle.Visibility = Visibility.Visible;

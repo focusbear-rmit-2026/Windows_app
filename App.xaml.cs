@@ -1686,9 +1686,11 @@ namespace Focus_Bear
                                 return;
                             }
 
-                            if (appSettings.bFocusSummaryPostponedState)
+                            if (appSettings.bFocusSummaryPostponedState && !appSettings.bEveningHabitsPostponedAfterCutoffTime)
                             {
-                                //((App)(Application.Current)).wndFocusSummary.ResumeFocusSummary();
+                                ((App)(Application.Current)).wndFocusSummary.ResumeFocusSummary();
+                                LogWriter.LogWrite("Kick the user off at the cutoff time as Focus Summary was postponed before cutoff time elapsed");
+                                return;
                             }
                             //Check if the current habit index is of High Priority or not, show only if not
                             else if (appSettings.nHabitIndex != -1) //habit index is -1 if focus summary is visible
@@ -3229,7 +3231,7 @@ namespace Focus_Bear
 
             appSettings.bStartingAnotherFocusMode = false; //Resetting
 
-            ((App)(Application.Current)).HideToDoPlayer();
+            //((App)(Application.Current)).HideToDoPlayer();
 
             wndFocusModeEnd.Show();
             wndFocusModeEnd.BringIntoView();
@@ -3802,6 +3804,7 @@ namespace Focus_Bear
             if (appSettings.nCurrentActivityType == CurrentActivityType.NONE)
             {
                 LogWriter.LogWrite("return from ShowBlankWindowOnOtherScreens() as appSettings.nCurrentActivityType == CurrentActivityType.NONE");
+                appSettings.RemoveSecondaryWindows();
                 return;
             }
 

@@ -104,7 +104,13 @@ namespace Focus_Bear.Focus
         {
             try
             {
+<<<<<<< Updated upstream
                 if(!appSettings.bIsGeekModeEnabled)//Simple mode
+=======
+                await ((App)(Application.Current)).SyncTodoTasksFromPlayer(); // sync todo tasks
+
+                if (!appSettings.bIsGeekModeEnabled)//Simple mode
+>>>>>>> Stashed changes
                 {
                     appSettings.bAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabledLastValueBeforeSimplePomodoro; //resetting the AI value
                 }
@@ -112,14 +118,22 @@ namespace Focus_Bear.Focus
                 appSettings.bUseSuperPomodoroMode = false;
 
                 string sOption = ComboBoxReason.SelectedValue.ToString();
+<<<<<<< Updated upstream
                 if (sOption == appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString())
+=======
+                if (sOption == appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString()) //"reasonsFirstText": "I achieved what I wanted to.",
+>>>>>>> Stashed changes
                 {
                     //Show the Focusmode end dialog
                     ((App)(Application.Current)).ShowFocusEndWindow();
                 }
                 else
                 {
+<<<<<<< Updated upstream
                     if(appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
+=======
+                    if(appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 2) //Now the empty array [] is retuned
+>>>>>>> Stashed changes
                     {
                         //Show the Focusmode end dialog
                         ((App)(Application.Current)).ShowFocusEndWindow();
