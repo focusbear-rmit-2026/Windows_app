@@ -46,8 +46,8 @@ namespace Focus_Bear.Focus
                 this.Topmost = true;
                 this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 string sHeading = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["title"].ToString();
-                
-                Heading.Text = sHeading.Replace("<FOCUSTYPE>", appSettings.sRunningFocusModeName); 
+
+                Heading.Text = sHeading.Replace("<FOCUSTYPE>", appSettings.sRunningFocusModeName);
                 WhyDeactivating.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["questionText"].ToString();
 
                 //Force user to actively make a choice from dropdown : 26 June 2023
@@ -57,13 +57,13 @@ namespace Focus_Bear.Focus
                 //We still need random items in the combox box everytime
                 Random rnd = new Random();
                 int nRandom = rnd.Next(1, 3);
-                if(nRandom == 1)
+                if (nRandom == 1)
                 {
                     ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString());
                     ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsSecondText"].ToString());
                     ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsThirdText"].ToString());
                 }
-                else if(nRandom == 2)
+                else if (nRandom == 2)
                 {
                     ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsThirdText"].ToString());
                     ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString());
@@ -100,17 +100,13 @@ namespace Focus_Bear.Focus
             Close();
         }
 
-        private void btnStopFocus_Click(object sender, RoutedEventArgs e)
+        private async void btnStopFocus_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-<<<<<<< Updated upstream
-                if(!appSettings.bIsGeekModeEnabled)//Simple mode
-=======
                 await ((App)(Application.Current)).SyncTodoTasksFromPlayer(); // sync todo tasks
 
                 if (!appSettings.bIsGeekModeEnabled)//Simple mode
->>>>>>> Stashed changes
                 {
                     appSettings.bAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabledLastValueBeforeSimplePomodoro; //resetting the AI value
                 }
@@ -118,22 +114,14 @@ namespace Focus_Bear.Focus
                 appSettings.bUseSuperPomodoroMode = false;
 
                 string sOption = ComboBoxReason.SelectedValue.ToString();
-<<<<<<< Updated upstream
-                if (sOption == appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString())
-=======
                 if (sOption == appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString()) //"reasonsFirstText": "I achieved what I wanted to.",
->>>>>>> Stashed changes
                 {
                     //Show the Focusmode end dialog
                     ((App)(Application.Current)).ShowFocusEndWindow();
                 }
                 else
                 {
-<<<<<<< Updated upstream
-                    if(appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
-=======
                     if(appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 2) //Now the empty array [] is retuned
->>>>>>> Stashed changes
                     {
                         //Show the Focusmode end dialog
                         ((App)(Application.Current)).ShowFocusEndWindow();
@@ -196,7 +184,7 @@ namespace Focus_Bear.Focus
                 }
 
                 CommandManager.InvalidateRequerySuggested();
-              
+
             }
             catch (Exception ex)
             {
@@ -206,7 +194,7 @@ namespace Focus_Bear.Focus
 
         private void ComboBoxReason_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ComboBoxReason.SelectedIndex != 0 )
+            if (ComboBoxReason.SelectedIndex != 0)
                 btnStopFocus.IsEnabled = true;
             else
                 btnStopFocus.IsEnabled = false;

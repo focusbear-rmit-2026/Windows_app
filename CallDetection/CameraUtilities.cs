@@ -31,7 +31,7 @@ namespace Focus_Bear.CallDetection
             {
                 using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam"))
                 {
-                    foreach (var subKeyName in key.GetSubKeyNames())
+                    foreach (var subKeyName in key?.GetSubKeyNames() ?? Array.Empty<string>())
                     {
                         // NonPackaged has multiple subkeys
                         if (subKeyName == "NonPackaged")

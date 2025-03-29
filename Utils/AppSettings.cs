@@ -541,7 +541,7 @@ namespace Focus_Bear.Utils
                     return 404;
                 }
 
-                if (sSubscriptionInfo.Length > 0)
+                if (sSubscriptionInfo?.Length > 0)
                 {
                     LogWriter.LogWrite("subscriptionStatus - " + sSubscriptionInfo);
 
@@ -1325,7 +1325,6 @@ namespace Focus_Bear.Utils
                                         isRelaxFocus = metadata.ContainsKey("isRelaxFocus") ? Convert.ToBoolean(metadata.GetValue("isRelaxFocus")) : false;
                                         isDeepWorkFocus = metadata.ContainsKey("isDeepWorkFocus") ? Convert.ToBoolean(metadata.GetValue("isDeepWorkFocus")) : false;
                                     }
-
 
                                     arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : sTooltip), lastTaskUsed));
                                 }

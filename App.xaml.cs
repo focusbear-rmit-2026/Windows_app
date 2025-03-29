@@ -88,7 +88,7 @@ namespace Focus_Bear
 
         private bool bScreenSaverStarted = false;
         private bool bSuggestMeetingsPopupShownForThisCallSession = false;
-        public  bool bUserManuallyClosedNotifierForThisCallSession = false;
+        public bool bUserManuallyClosedNotifierForThisCallSession = false;
 
         bool bLoadURLAgainInToDoPlayer = false;
         public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
@@ -141,7 +141,7 @@ namespace Focus_Bear
                                         }
 
                                     }
-                                    else if (sName != null && (sName.Contains("Focus Bear/focus-block.html")) && (sURL != null && sURL.Length > 0 && sURL.Contains("&unblock_it=true")) ) 
+                                    else if (sName != null && (sName.Contains("Focus Bear/focus-block.html")) && (sURL != null && sURL.Length > 0 && sURL.Contains("&unblock_it=true")))
                                     {
                                         if (int.Parse(accWindow.accState[objChild].ToString()) == 1074791424) //I just found this to be appropriate and not editable state
                                         {
@@ -327,11 +327,13 @@ namespace Focus_Bear
         public ToDoList wndToDoList = null;
 
         bool bAppExtracted = false;
+        public static event Action FocusModeAddedEvent;
 
         public static event Action ThemeChanged;
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            SentrySdk.ConfigureScope(scope => {
+            SentrySdk.ConfigureScope(scope =>
+            {
                 scope.User = new Sentry.User() { Id = appSettings.userAccount.userID };
             });
 
@@ -345,7 +347,7 @@ namespace Focus_Bear
             SentrySdk.Init(o =>
             {
                 // Tells which project in Sentry to send events to:
-                o.Dsn = "https://ba858528b20c467139890456a0c3ffa4@sentry.focusbear.io/8";
+                o.Dsn = "https://994c1df7d9dcced04975c9bbdf2ca829@sentry.aws.focusbear.io/6";
 
                 // When configuring for the first time, to see what the SDK is doing:
                 o.Debug = true;
@@ -417,7 +419,7 @@ namespace Focus_Bear
                         thread.IsBackground = true;
                         thread.Start();
                     }
-                    
+
 
                     #endregion
                 }
@@ -639,7 +641,7 @@ namespace Focus_Bear
                 return;
             }
 
-            if(appSettings.arrAllbreakActivities.Count == 0)
+            if (appSettings.arrAllbreakActivities.Count == 0)
             {
                 LogWriter.LogWrite("No activities in break activities array so returning from StartBreakActivityTimer()");
                 return;
@@ -908,7 +910,7 @@ namespace Focus_Bear
             windWelcome.Focus();
 
             appSettings.CapturePostHog("welcome-aboard-shown");
-            
+
         }
 
         public void ShowOnBoradingFlow(bool bSimulateFlowHidden = false)
@@ -973,7 +975,7 @@ namespace Focus_Bear
 
             //Here we will connect the Mac ID and the Global GUID with the Distinct User ID
             ConnectGlobalAndMacIDWithDistinctUserID();
-            
+
             //Proceed Normal to show routines
             ProceedAfterLogin();
         }
@@ -1011,7 +1013,7 @@ namespace Focus_Bear
             if (!RegistryManager.GetOnboardingAfterLoginDoneStatus())
             {
                 //Check if the user is an old user and settings already exists, then do not take to onboarding
-                if(!appSettings.CheckIfLocalDeviceSettingsJsonExistsForOldUser())
+                if (!appSettings.CheckIfLocalDeviceSettingsJsonExistsForOldUser())
                 {
                     if (wndSplash != null)
                     {
@@ -1027,8 +1029,8 @@ namespace Focus_Bear
 
                     return;
                 }
-                
-                
+
+
             }
 
             ExecutePostLoginTasks();
@@ -1047,7 +1049,7 @@ namespace Focus_Bear
                 var SyncPlatformCoursesResponseUnused = await client.SyncPlatformCourses();
 
                 var EnrolForCoursesUnused = await client.EnrollForCourses(); //Enroll for courses 
-           
+
                 //if (appSettings.sAdditionalGoals.Length > 0)
                 //{
                 //    var ResponseUnused = client.PutAdditionalGoals();
@@ -1516,7 +1518,7 @@ namespace Focus_Bear
             {
                 CommandManager.InvalidateRequerySuggested();
 
-                if(appSettings.IsAppDeactivated())
+                if (appSettings.IsAppDeactivated())
                 {
                     //Calculate total time while app is deactivated
                     appSettings.nTimeSpentBlockingDeactivated += 5;
@@ -1532,7 +1534,7 @@ namespace Focus_Bear
                 {
                     if (AudioUtilities.IsUserOnaAudioCall() || CameraUtilities.IsUserOnVideoCall())
                     {
-                        if(!bUserManuallyClosedNotifierForThisCallSession)
+                        if (!bUserManuallyClosedNotifierForThisCallSession)
                             ShowCallFocusNotifier();
                         appSettings.bIsUserOnCall = true;
                     }
@@ -1594,7 +1596,7 @@ namespace Focus_Bear
                 bool bShowEveningRoutine = true;
                 //If app is deactivated, then do not show FOcus Summary, evening habits screen and the notification that comes 5 minutes before the evening routine starts
                 //Only show evening routine if a password is set for Postponing evening routine
-                if ((appSettings.IsShutOffTime()) && (appSettings.IsAppDeactivated()) )
+                if ((appSettings.IsShutOffTime()) && (appSettings.IsAppDeactivated()))
                 {
                     //If cut off time elapsed and password is set of cut off time
                     if (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff)
@@ -1602,12 +1604,12 @@ namespace Focus_Bear
                         //Proceed to Show evening routine
                         bShowEveningRoutine = true;
                     }
-                    else if(appSettings.bPasswordRequireInSkipEvening)
+                    else if (appSettings.bPasswordRequireInSkipEvening)
                     {
                         //Proceed to Show evening routine
                         bShowEveningRoutine = true;
                     }
-                    else 
+                    else
                     {
                         bShowEveningRoutine = false;
                         return;
@@ -2413,7 +2415,7 @@ namespace Focus_Bear
                     //So user selectd habits for today.
                     //Now extract the saved habits list
                     RegistryManager.GetSelectedMorningHabitsForToday(); //These will come in the arrAllMorningHabits array
-                                                                        
+
                     //Now filter the arrAllMorningHabits so that if any habit was done, it should not be there in the Filtered array and thus should be removed from arrAllMorningHabits too
                     //run a loof for the arrAllMorningHabitsFiltered
                     for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
@@ -2428,7 +2430,7 @@ namespace Focus_Bear
                                 break;
                             }
                         }
-                        if(!bFound)
+                        if (!bFound)
                         {
                             appSettings.arrAllMorningHabits.RemoveAt(i);
                             i--;
@@ -2514,10 +2516,10 @@ namespace Focus_Bear
 
                 //if focus summary screen is visible OR if evening state and habits not started, check if its 4 hours before the next morning time, show the shutoff window.
                 //This way we will show shut ioff screen before 4 hours of morning routine so that user can start morning routine or focus sessions.
-                if(CheckIf4HoursBeforeNextMorningRoutine())
+                if (CheckIf4HoursBeforeNextMorningRoutine())
                 {
                     //if focus summary is there, remove that
-                    if (wndFocusSummary != null )
+                    if (wndFocusSummary != null)
                     {
                         wndFocusSummary.Close();
                         wndFocusSummary = null;
@@ -3224,6 +3226,8 @@ namespace Focus_Bear
         }
         public void ShowFocusEndWindow()
         {
+            ((App)(Application.Current)).HideToDoPlayer();
+
             if (wndFocusModeEnd == null)
             {
                 wndFocusModeEnd = new FocusModeEnd();
@@ -3240,6 +3244,8 @@ namespace Focus_Bear
             //{
             //    wndFocusModeEnd.ShowTasksEndWindow();
             //}
+
+          
         }
         public void ShowBreakWindow()
         {
@@ -3309,7 +3315,7 @@ namespace Focus_Bear
                 LogWriter.LogWrite("ShowBreakWindowForAllowedAppsActivity() ex - " + ex.Message);
 
                 wndTakeABreak = new BreakWindow();
-                
+
                 wndTakeABreak.bShowingForNonTimerActivities = true;
                 wndTakeABreak.Show();
                 wndTakeABreak.BringIntoView();
@@ -3367,9 +3373,9 @@ namespace Focus_Bear
 
                     appSettings.bHabitsPostponedState = true;
 
-                    if(appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                     {
-                        if(appSettings.DidCutOffTimePassed())
+                        if (appSettings.DidCutOffTimePassed())
                         {
                             appSettings.bEveningHabitsPostponedAfterCutoffTime = true;
                         }
@@ -3751,7 +3757,7 @@ namespace Focus_Bear
                 LogWriter.LogWrite("Application_Exit() 2");
 
                 appMutex.ReleaseMutex();
-               // appMutex.Dispose();
+                // appMutex.Dispose();
                 //Remove the focus handler
                 //Commented in 1.0.50 as this was taking full 1 minute and was slowing down the exit and restart process after saving settings
                 /**if (appSettings.handler != null)
@@ -3768,7 +3774,7 @@ namespace Focus_Bear
 
                 try
                 {
-                    if(wndToDoPlayer != null)
+                    if (wndToDoPlayer != null)
                         wndToDoPlayer.webView.Dispose();
                 }
                 catch (Exception ex)
@@ -3903,7 +3909,7 @@ namespace Focus_Bear
             {
                 return; //return in Simple mode
             }
-            
+
             LogWriter.LogWrite("EnterPomodoroModeAfterMorningRoutine()");
             //WE will first need to check if automatic hardcode pomodoro is on and then the days are valid
             if (appSettings.bAutomaticUseSuperPomodoroModeSetting)
@@ -3919,7 +3925,7 @@ namespace Focus_Bear
                         switch (sName)
                         {
                             case "Monday":
-                                if(Today == DayOfWeek.Monday)
+                                if (Today == DayOfWeek.Monday)
                                 {
                                     bFound = true;
                                 }
@@ -4050,7 +4056,7 @@ namespace Focus_Bear
                         if (sLastActivityDone.ContainsKey("current_focus_mode"))
                         {
                             string sCurrentFocusMode = sLastActivityDone["current_focus_mode"].ToString();
-                            if(sCurrentFocusMode != null && sCurrentFocusMode.Length > 0)
+                            if (sCurrentFocusMode != null && sCurrentFocusMode.Length > 0)
                             {
                                 JObject CurrentFocusModeObj = JObject.Parse(sCurrentFocusMode);
                                 string sCurrentFocusModeId = CurrentFocusModeObj["id"].ToString();
@@ -4088,9 +4094,9 @@ namespace Focus_Bear
 
         private async void ConnectGlobalAndMacIDWithDistinctUserID()
         {
-            
+
             //If UUID is already connected with this user, write and proceed
-            if(!RegistryManager.GetGlobalUUIDLinked()) //Specific for each user
+            if (!RegistryManager.GetGlobalUUIDLinked()) //Specific for each user
             {
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var sResponse = await client.PostHogIdentify(appSettings.sGlobalUUID);
@@ -4127,13 +4133,13 @@ namespace Focus_Bear
                 //If we are in an activity state or focus mode already running, do not suggest to start meetings focus mode
                 return;
             }
-                //suggest the meetings focus mode check
+            //suggest the meetings focus mode check
             if (appSettings.bAutomaticallySuggestStartingMeetingsFocus)
             {
-                if(!bSuggestMeetingsPopupShownForThisCallSession) //flag to show popup only once
+                if (!bSuggestMeetingsPopupShownForThisCallSession) //flag to show popup only once
                 {
                     bSuggestMeetingsPopupShownForThisCallSession = true;
-                    FBMessageBox msg = new FBMessageBox( appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["title"].ToString() + "\n\n" + appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["subTitle"].ToString(), appSettings.ConfigFileStrings["common"]["notificationVideoCallText"].ToString(), MessageBoxButton.YesNoCancel, appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["buttonBlockText"].ToString(), appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["buttonCancelText"].ToString(), appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["buttonFalseDetectionText"].ToString(), true , appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["buttonCheckBoxText"].ToString());
+                    FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["title"].ToString() + "\n\n" + appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["subTitle"].ToString(), appSettings.ConfigFileStrings["common"]["notificationVideoCallText"].ToString(), MessageBoxButton.YesNoCancel, appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["buttonBlockText"].ToString(), appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["buttonCancelText"].ToString(), appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["buttonFalseDetectionText"].ToString(), true, appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["buttonCheckBoxText"].ToString());
                     msg.bSuggestMeetingsFocusModeView = true;
                     msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     msg.ShowDialog();
@@ -4143,7 +4149,7 @@ namespace Focus_Bear
                         // start the meetings focus mode
                         StartMeetingsFocusMode();
                     }
-                    else if(msg.btnClicked == MessageBoxResult.Cancel)
+                    else if (msg.btnClicked == MessageBoxResult.Cancel)
                     {
                         //wrong, not in meeting, ask to disable meetings detection
                         FBMessageBox msg1 = new FBMessageBox(appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["titleFalseDetection"].ToString(), "", MessageBoxButton.YesNo, appSettings.ConfigFileStrings["focusInfo"]["suggestFocusInfo"]["buttonDisableText"].ToString(), appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString());
@@ -4170,14 +4176,14 @@ namespace Focus_Bear
             }
         }
 
-        
+
         private void StartMeetingsFocusMode()
         {
             LogWriter.LogWrite("StartMeetingsFocusMode()");
 
             for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
             {
-                if (appSettings.arrFocusModes[i].isMeetings )
+                if (appSettings.arrFocusModes[i].isMeetings)
                 {
                     int TotalMinutes = 25;
                     int nHours = TotalMinutes / 60;
@@ -4189,7 +4195,7 @@ namespace Focus_Bear
 
                     appSettings.sMinutesBreakPomodoro = "5";
                     appSettings.sMinutesSuperPomodoro = "5";
-                    
+
 
                     try
                     {
@@ -4254,15 +4260,15 @@ namespace Focus_Bear
                 }
             }
         }
-         
-            
+
+
 
         public static List<string> GetTabs()
         {
             System.Windows.Automation.Condition TabItemCondition = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.TabItem);
 
 
-        List<String> result = new List<string>();
+            List<String> result = new List<string>();
 
             Process[] allChromeProcesses = Process.GetProcessesByName("chrome");
 
@@ -4274,10 +4280,10 @@ namespace Focus_Bear
             if (mainChromes.Length == 0)
                 return result;
 
-           /// var uiaClassObject = new Automation();
+            /// var uiaClassObject = new Automation();
 
-           /// var rootElement = AutomationElement.FromHandle(handle);
-           // if (rootElement == null) return new List<string>();
+            /// var rootElement = AutomationElement.FromHandle(handle);
+            // if (rootElement == null) return new List<string>();
             //var tabControl = rootElement.FindFirst(System.Windows.Automation.TreeScope.Descendants, TabControlCondition);
 
 
@@ -4286,7 +4292,7 @@ namespace Focus_Bear
                 AutomationElement chromeMainUIAElement = AutomationElement.FromHandle(mainChromes[c].MainWindowHandle);
 
                 //UIA_ControlTypePropertyId =30003, UIA_TabItemControlTypeId = 50019
-               // AutomationElement chromeTabCondition = AutomationElement.CreatePropertyCondition(30003, 50019);
+                // AutomationElement chromeTabCondition = AutomationElement.CreatePropertyCondition(30003, 50019);
                 var chromeTabCollection = chromeMainUIAElement.FindAll(System.Windows.Automation.TreeScope.Descendants, TabItemCondition);
 
                 for (int i = 0; i < chromeTabCollection.Count; i++)
@@ -4308,8 +4314,8 @@ namespace Focus_Bear
 
         public bool CheckIf4HoursBeforeNextMorningRoutine()
         {
-            
-            if(appSettings.bCompleteYourEveningRoutineClicked)
+
+            if (appSettings.bCompleteYourEveningRoutineClicked)
             {
                 return false;
             }
@@ -4336,7 +4342,7 @@ namespace Focus_Bear
                     LogWriter.LogWrite(myStartTime.ToString());
                 }
 
-                if(now > MorningHabitsDateTimeNextDay.AddHours(-4))
+                if (now > MorningHabitsDateTimeNextDay.AddHours(-4))
                 {
                     return true;
                 }
@@ -4346,19 +4352,19 @@ namespace Focus_Bear
                 LogWriter.LogWrite("CheckIf4HoursBeforeNextMorningRoutine ex - " + ex.Message);
             }///
 
-           
+
             return false;
         }
 
         public void ShowToDoPlayer()
         {
-            if(wndToDoPlayer == null)
+            if (wndToDoPlayer == null)
             {
                 wndToDoPlayer = new ToDoPlayer();
             }
             wndToDoPlayer.Show();
 
-            if(bLoadURLAgainInToDoPlayer)
+            if (bLoadURLAgainInToDoPlayer)
             {
                 wndToDoPlayer.LoadURL();
                 bLoadURLAgainInToDoPlayer = false;
@@ -4377,6 +4383,8 @@ namespace Focus_Bear
         }
         public void HideToDoPlayer()
         {
+            wndToDoPlayer?.webView?.Reload(); // Refresh webview to stop background execution  
+
             //Called when focus mode ends
             if (wndToDoPlayer != null)
             {
@@ -4384,6 +4392,11 @@ namespace Focus_Bear
                 wndToDoPlayer.Close();
             }
         }
+        
+        public void FocusModeAdded()
+        {
+            FocusModeAddedEvent?.Invoke();
+        } 
 
         public void ForceStopFocusSessionOnHabitsTime()
         {
@@ -4437,6 +4450,16 @@ namespace Focus_Bear
                 LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime ex - " + ex.Message);
             }
              
+        }
+
+        /* Invoke Window_Closing to retrieve the latest to-do tasks from the player and store them in appSettings.sRawTasks. 
+           This redundancy helps ensure consistency between the to-do list in the player 
+           and the task list displayed in the focus and end WebViews.
+        */
+        public async Task SyncTodoTasksFromPlayer()
+        {
+            var tasksArray = await wndToDoPlayer.webView.ExecuteScriptAsync("getToDosFromPlayer()");
+            appSettings.sRawTasks = tasksArray?.ToString() ?? "[]";
         }
 
         public void ChangeTheme(string theme)

@@ -21,6 +21,7 @@
         </Grid.RowDefinitions>
 
         <Image Grid.Row="0" Height="140"  Width="140" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap" Text="xWin your habits.&#10;Amp up your productivity." Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <StackPanel  Grid.Row="2"  Orientation="Horizontal" HorizontalAlignment="Center">
