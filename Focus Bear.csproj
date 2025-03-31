@@ -1299,4 +1299,9 @@
   </Target>
   <Import Project="packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets" Condition="Exists('packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets')" />
   <Import Project="packages\Sentry.3.29.1\build\Sentry.targets" Condition="Exists('packages\Sentry.3.29.1\build\Sentry.targets')" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties config_1json__JsonSchema="Completed" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

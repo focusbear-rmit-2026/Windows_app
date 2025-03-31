@@ -1266,6 +1266,8 @@ namespace Focus_Bear.Utils
                                     bool isRelaxFocus = false;
                                     bool isDeepWorkFocus = false;
                                     string sTooltip = "";
+                                    string lastTaskUsed = "";
+
                                     if (name == "Free time - block nothing")
                                     {
                                         sTooltip = ConfigFileStrings["focusPreferencesInfo"]["allWebsitesAllowedText"].ToString();
@@ -1308,6 +1310,11 @@ namespace Focus_Bear.Utils
                                             blcokedURLs = tempblockedUrls.ToObject<ObservableCollection<string>>();
                                         }
 
+                                        if (metadata.ContainsKey("lastTaskUsed"))
+                                        {
+                                            lastTaskUsed = metadata.GetValue("lastTaskUsed").ToString();
+                                        }
+
                                         color = metadata.ContainsKey("color") ? "#" + metadata.GetValue("color").ToString() : "";
                                         isOn = false; // we will keep it hardcoded false as we are also finishing any focus mode that is running.
                                         isAllowedAllApps = metadata.ContainsKey("isAllowedAllApps") ? Convert.ToBoolean(metadata.GetValue("isAllowedAllApps")) : false;
@@ -1319,8 +1326,7 @@ namespace Focus_Bear.Utils
                                         isDeepWorkFocus = metadata.ContainsKey("isDeepWorkFocus") ? Convert.ToBoolean(metadata.GetValue("isDeepWorkFocus")) : false;
                                     }
 
-
-                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : sTooltip)));
+                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : sTooltip), lastTaskUsed));
                                 }
 
                                 catch (Exception ex)
@@ -2175,6 +2181,7 @@ namespace Focus_Bear.Utils
                     {
                         bw.Close();
                     }
+                    SecondaryWindows.Clear(); //Let's also empty the array
                 }
             }
             catch (Exception ex)

@@ -372,6 +372,11 @@ namespace Focus_Bear.Focus
 #endif
             appSettings.bFocusSummaryPostponedState = true;
 
+            if (appSettings.DidCutOffTimePassed())
+            {
+                appSettings.bEveningHabitsPostponedAfterCutoffTime = true;
+            }
+
             dispatcherTimer.Start();
 
             Hide();
@@ -396,10 +401,10 @@ namespace Focus_Bear.Focus
             ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
             Show();
             appSettings.bFocusSummaryPostponedState = false;
+            appSettings.bEveningHabitsPostponedAfterCutoffTime = false;
         }
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
-
             //The window end only on pressing Continue, need to proceed to evening routine after setting focus summary shown date
             //Today's Focus Summary is done
             LogWriter.LogWrite("Focus Summary shown for today - Update Date");

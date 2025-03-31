@@ -89,7 +89,7 @@ namespace Focus_Bear.Focus
 
                 string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"total_duration\":{1},lang:\"{2}\",\"font\":\"{3}\",\"theme\":{6}\"intention\":\"{4}\",\"brain_dump\":\"{5}\"}}", appSettings.userAccount.accessToken, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump,sTheme);
 
-                if (appSettings.sRawTasks.Length > 0)
+                if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 2)
                 {
                     LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{3}\",\"font\":\"{4}\",\"theme\":{7},\"intention\":\"{5}\",\"brain_dump\":\"{6}\"}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump, sTheme);
                 }
@@ -157,6 +157,12 @@ namespace Focus_Bear.Focus
                     {
                         appSettings.sRawTasks = "";//empty it
                     }
+
+                    //We need to add it back to the focus mode
+                    var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
+                    FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
+                    CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
+
                 }
                 if (sContentJson.ContainsKey("intention"))
                 {
