@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,17 +57,8 @@ namespace Focus_Bear.Focus
            
             this.Topmost = true;
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
             App.ThemeChanged += TitleBarThemeChange;
-
-            if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
-            {
-                //Set a timer after 2 seconds to show the task end window
-                dispatcherTimerShowTasksEndWindow.Tick += new EventHandler(dispatcherTimer_Tick);
-                dispatcherTimerShowTasksEndWindow.Interval = new TimeSpan(0, 0, 2);
-                dispatcherTimerShowTasksEndWindow.Start();
-                CommandManager.InvalidateRequerySuggested();
-            }
-
         }
 
 
@@ -119,11 +111,18 @@ namespace Focus_Bear.Focus
 
             appSettings.CapturePostHog("completed-focus-session", string.Format("\"focus-type\":\"manual_focus\",\"focusDurationMinutes\":{0}", (nSeconds / 60)));
 
+            //We need to add it back to the focus mode
+            var FocusModeRunning = appSettings.arrFocusModes.Where(i => i.id == appSettings.sRunningFocusModeID);
+            FocusMode CurrentRunningFocusMode = FocusModeRunning.First<FocusMode>();
+            CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
+           
             //Call api top finish focus mode
             FocusBearAPIClient client = new FocusBearAPIClient();
             try
             { 
                 var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
+
+                var response = client.UpdateAllFocusModes();
             }
             catch (Exception ex)
             {
@@ -263,8 +262,28 @@ namespace Focus_Bear.Focus
                                                                                 //
                     try
                     {
-                        if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
+                        if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 2) //Now the empty array [] is returned
                         {
+
+                            dispatcherTimerShowTasksEndWindow.Stop();
+
+                            //Remove the previous event handler so that new can be set
+                            var eventField = dispatcherTimerShowTasksEndWindow.GetType().GetField("Tick", BindingFlags.NonPublic | BindingFlags.Instance);
+                            var eventDelegate = (Delegate)eventField.GetValue(dispatcherTimerShowTasksEndWindow);
+                            if (eventDelegate != null)
+                            {
+                                var invocatationList = eventDelegate.GetInvocationList();
+
+                                foreach (var handler in invocatationList)
+                                    dispatcherTimerShowTasksEndWindow.Tick -= ((EventHandler)handler);
+                            }
+       
+                            //Set a timer after 2 seconds to show the task end window
+                            dispatcherTimerShowTasksEndWindow.Tick += new EventHandler(dispatcherTimer_Tick);
+                            dispatcherTimerShowTasksEndWindow.Interval = new TimeSpan(0, 0, 2);
+                            dispatcherTimerShowTasksEndWindow.Start();
+                            CommandManager.InvalidateRequerySuggested();
+                       
                             string arrTaskNames = "";
                             JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawTasks);
 
@@ -347,26 +366,6 @@ namespace Focus_Bear.Focus
         {
             if (null != e)
                 e.Handled = true;
-
-
-            //var source = PresentationSource.FromVisual(this);
-
-            //if (null != source && null != source.CompositionTarget)
-            //{
-            //    var matrix = source.CompositionTarget.TransformToDevice;
-
-            //    var dpiTransform = new ScaleTransform(1 / matrix.M11, 1 / matrix.M22);
-
-            //    if (dpiTransform.CanFreeze)
-            //        dpiTransform.Freeze();
-
-            //    LayoutTransform = dpiTransform;
-            //    this.Width = this.Width * dpiTransform.ScaleX;
-            //    this.Height = this.Height * dpiTransform.ScaleY;
-            //    var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-            //    this.Left = (desktopWorkingArea.Width - this.Width) / 2;
-            //    this.Top = (desktopWorkingArea.Height - this.Height) / 2;
-            //}
         }
 
         private void btnStartAnotherFocusMode_Click(object sender, RoutedEventArgs e)
@@ -377,12 +376,6 @@ namespace Focus_Bear.Focus
 
             Hide();
 
-            //var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
-            //if (listItems.Count() != 0)
-            //{
-            //    ((App)(Application.Current)).wndTrayMenu.ListFocusModes.SelectedItem = listItems.First();
-            //}
-
             //fire the start focus session button again
             ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
@@ -392,13 +385,14 @@ namespace Focus_Bear.Focus
         public void ShowTasksEndWindow()
         {
             GridShade.Visibility = Visibility.Visible;
+            appSettings.sRawTasksDone = ""; //Reinitialize
             SelectTasks wndSelectTasks = new SelectTasks(this);
             wndSelectTasks.ShowDialog();
             GridShade.Visibility = Visibility.Collapsed;
 
             try
             {
-                if (appSettings.sRawTasksDone != null && appSettings.sRawTasksDone.Length > 0)
+                if (appSettings.sRawTasksDone != null && appSettings.sRawTasksDone.Length > 2)
                 {
                     string arrTaskNames = "";
                     JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawTasksDone);
@@ -412,7 +406,21 @@ namespace Focus_Bear.Focus
                         arrTaskNames += " (" + GetStatusText(sStatus) + ")" + "\n";                        
                     }
                     TxtAchieve.Text = arrTaskNames;
+
+                    //Now we need to remove the completed ones from the RawTasks
+                    for (int i = 0; i < array.Count(); i++)
+                    {
+                        JObject TodoItem = JObject.Parse(array[i].ToString());
+                        string sStatus = TodoItem.ContainsKey("status") ? TodoItem["status"].ToString() : "";
+                        if (sStatus == "COMPLETED")
+                        {
+                            array.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                    appSettings.sRawTasks = JsonConvert.SerializeObject(array);//Now copy to Raw Tasks and save back to focus mode
                 }
+              
             }
             catch (Exception ex)
             {
@@ -422,17 +430,17 @@ namespace Focus_Bear.Focus
 
         private string GetStatusText(string sStatusConstant)
         {
-            if(sStatusConstant == "COMPLETED")
+            if (sStatusConstant == "COMPLETED")
             {
-                return "Completed"; //Todo win texts
+                return appSettings.ConfigFileStrings["common"]["completedText"].ToString();//"Completed"; 
             }
             else if(sStatusConstant == "IN_PROGRESS")
             {
-                return "In Progress";
+                return appSettings.ConfigFileStrings["common"]["inProgressText"].ToString(); //"In Progress";
             }
             else if (sStatusConstant == "NOT_STARTED")
             {
-                return "Not Started";
+                return appSettings.ConfigFileStrings["common"]["notStartedText"].ToString(); //"Not Started";
             }
             return "";
         }

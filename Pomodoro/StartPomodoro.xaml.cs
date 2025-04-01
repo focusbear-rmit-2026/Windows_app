@@ -72,7 +72,6 @@ namespace Focus_Bear.Pomodoro
         
                 AddFocusModesToComboBox();
 
-
             }
             catch (Exception ex)
             {
@@ -328,6 +327,9 @@ namespace Focus_Bear.Pomodoro
                         //Change the play icon for this to STOP icon
                         appSettings.arrFocusModes[i].isOn = true;
 
+                        //Check if there are Last Task list saved, add it to raw tasks
+                        appSettings.sRawTasks = appSettings.arrFocusModes[i].lastTaskUsed;
+
                         //Make the global variable true
                         appSettings.isFocusModeRunning = true;
 
@@ -381,6 +383,8 @@ namespace Focus_Bear.Pomodoro
                     {
                         LogWriter.LogWrite("Start focus mode from pomodoro window Exception - " + ex.Message);
                     }
+
+                    break; //we found the need one, so stop
                 }
             }
         }

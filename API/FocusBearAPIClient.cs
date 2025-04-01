@@ -699,6 +699,7 @@ namespace Focus_Bear.API
                         string metadata = $"{{\"blockUrlsArray\":{JsonConvert.SerializeObject(FF.arrBlockedUrls.ToArray<string>())}," +
                         $"\"allowed_apps_win\":{JsonConvert.SerializeObject(FF.arrAllowedAppsWin.ToArray<AppDetails>())}," +
                         $"\"color\":\"{color}\"," +
+                        $"\"lastTaskUsed\":{JsonConvert.SerializeObject(FF.lastTaskUsed)}," +
                         $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
                         $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}," +
                         $"\"isDefault\":{JsonConvert.SerializeObject(FF.isDefault)}," +

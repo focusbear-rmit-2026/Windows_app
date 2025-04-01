@@ -532,11 +532,12 @@ namespace Focus_Bear.Utils
        
         public string sToolTip { get; set; }
 
+        public string lastTaskUsed { get; set; }
         public FocusMode()
         {
 
         }
-        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, bool isDeepWorkFocus, string sToolTip = "")
+        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, bool isDeepWorkFocus, string sToolTip = "", string lastTaskUsed = "")
         {
             this.id = id;
             this.name = name;
@@ -553,6 +554,7 @@ namespace Focus_Bear.Utils
             this.isRelaxFocus = isRelaxFocus;
             this.isDeepWorkFocus = isDeepWorkFocus;
             this.sToolTip = sToolTip;
+            this.lastTaskUsed = lastTaskUsed;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
