@@ -351,9 +351,10 @@ namespace Focus_Bear.Habits
                     if (appSettings.userAccount.accessToken.Length > 0)
                     {
                         LogWriter.LogWrite("attempt to LoadSettings()");
-                        
+
                         //New format 03 July 2023
-                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont));
+                        string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\",\"theme\":{2}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont),sTheme);
 
                         string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                         var ss1 = await webView.ExecuteScriptAsync(settingsFunc);

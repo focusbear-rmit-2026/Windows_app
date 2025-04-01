@@ -55,7 +55,8 @@ namespace Focus_Bear.Upgrade
         {
             if (e.IsSuccess)
             {
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"type\":\"win\",lang:\"{1}\",\"font\":\"{2}\"}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont);
+                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"type\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":{3}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont,sTheme);
 
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForSubscription) {{ loadMetaDataForSubscription({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
 

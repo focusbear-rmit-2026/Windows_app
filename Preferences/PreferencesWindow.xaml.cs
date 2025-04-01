@@ -170,8 +170,11 @@ namespace Focus_Bear.Preferences
 
             var isLightTheme = IsLightTheme();
             var source = (HwndSource)PresentationSource.FromVisual(this);
+            
+
             if (source != null)
             {
+                LogWriter.LogWrite("preference setting change title bars");
                 UseImmersiveDarkMode(source.Handle, !isLightTheme);
             }
         }
@@ -213,7 +216,7 @@ namespace Focus_Bear.Preferences
                 Debug.WriteLine("PreferencesWindow btnThemeChange Dark");
 
                 PreferenceButtonNormalColor = "#fff";
-                PreferenceButtonSelectedColor = "#0066EB";
+                PreferenceButtonSelectedColor = "White";
 
                 if (source != null)
                 {

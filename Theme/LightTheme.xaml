@@ -1,29 +1,21 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <SolidColorBrush x:Key="WindowBackground" Color="LightGray"/>
-
-    <SolidColorBrush x:Key="TitleBackgroundColor" Color="#faf9f6"/>
     <SolidColorBrush x:Key="BackgroundColor" Color="White"/>
-    <SolidColorBrush x:Key="TabControlBackgroundColor" Color="#fcf8f0"/>
     <SolidColorBrush x:Key="SoftCreamColor" Color="#fcf8f0"/>
     <SolidColorBrush x:Key="FocusActivitySummaryBackgroundColor" Color="#eeeeee"/>
-
-    
     <SolidColorBrush x:Key="ForegroundColor" Color="Black"/>
     <SolidColorBrush x:Key="ForegroundGrey" Color="#272727"/>
-
     <SolidColorBrush x:Key="TabChosenColor" Color="#DADADA"/>
-
-    <SolidColorBrush x:Key="TrayBackgroundColour" Color="White"/>
-    <SolidColorBrush x:Key="OrangeBackground" Color="#fcf8f0"/>
-
-    <SolidColorBrush x:Key="BoundaryLine" Color="#fcf8f0"/>
-
     <SolidColorBrush x:Key="UpdateNowPageColor" Color="#eee"/>
 
-    <SolidColorBrush x:Key="PauseIconBackgroundColor" Color="Gray"/>
-    <SolidColorBrush x:Key="TabButtonColor" Color="#edece9"/>
+    <SolidColorBrush x:Key="PrefenenceTitleBackgroundColor" Color="#faf9f6"/>
+    <SolidColorBrush x:Key="PrefenenceButton" Color="#fcf8f0"/>
+    <SolidColorBrush x:Key="PreferenceButtonColor" Color="#fcf8f0"/>
+    <SolidColorBrush x:Key="PreferenceTitleButtonColor" Color="#faf9f6"/>
+    <SolidColorBrush x:Key="PreferenceTitleButtonPressedColor" Color="#edece9"/>
+    <SolidColorBrush x:Key="PreferenceFocusListItemForegroundColor" Color="Black"/>
+
 
     <BitmapImage x:Key="PlusImage" UriSource="../Images/plus.png" />
     <BitmapImage x:Key="MinusImage" UriSource="../Images/minus.png" />
@@ -31,9 +23,7 @@
     <BitmapImage x:Key="PauseImage" UriSource="../Images/pause_icon.png" />
     <BitmapImage x:Key="PlayIcon" UriSource="../Images/play_icon.png" />
     <BitmapImage x:Key="FocusBearLogo" UriSource="../Images/fb_big.png" />
-
-
-    <SolidColorBrush x:Key="PrefenenceButton" Color="#fcf8f0"/>
+    <BitmapImage x:Key="CheckMark" UriSource="../Images/checkmark.png" />
 
     <BitmapImage x:Key="InfoImage" UriSource="../Images/info.png" />
     <BitmapImage x:Key="FocusImage" UriSource="../Images/eye.png" />
@@ -41,11 +31,6 @@
     <BitmapImage x:Key="SettingImage" UriSource="../Images/gear_alt.png" />
     <BitmapImage x:Key="HabitImage" UriSource="../Images/checkmark_rectangle.png" />
     <BitmapImage x:Key="StatsImage" UriSource="../Images/person.png" />
-
-    <SolidColorBrush x:Key="PreferenceButtonColor" Color="#fcf8f0"/>
-    
-    <SolidColorBrush x:Key="PreferenceTitleButtonColor" Color="#faf9f6"/>
-    <SolidColorBrush x:Key="PreferenceTitleButtonPressedColor" Color="#edece9"/>
 
 
     <Style x:Key="BtnStylePreferencesDynamic" TargetType="{x:Type Button}">

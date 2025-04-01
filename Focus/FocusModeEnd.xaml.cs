@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -33,6 +34,8 @@ namespace Focus_Bear.Focus
         AppSettings appSettings = AppSettings.GetInstance;
         DispatcherTimer dispatcherTimerShowTasksEndWindow = new DispatcherTimer(DispatcherPriority.Normal);
         bool bForceClosingFocusMode = false;
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         public FocusModeEnd(bool bForceClosingFocusModeLocal = false)
         {
             InitializeComponent();
@@ -54,7 +57,11 @@ namespace Focus_Bear.Focus
            
             this.Topmost = true;
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
+            App.ThemeChanged += TitleBarThemeChange;
         }
+
+
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             try
@@ -441,6 +448,39 @@ namespace Focus_Bear.Focus
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
             Take5MinsBreak();
+        }
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+        }
+        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+            return false;
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
         }
     }
 }

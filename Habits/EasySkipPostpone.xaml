@@ -14,7 +14,9 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        
+        <Grid.Background>
+            <ImageBrush x:Name="EasySkipPostponeBackground" Stretch="UniformToFill" ImageSource="/Images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="10"/>
             <RowDefinition Height="85"/>

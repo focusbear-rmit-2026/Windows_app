@@ -1,4 +1,5 @@
 ﻿using Focus_Bear.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -35,6 +36,8 @@ namespace Focus_Bear.Focus
 
         [DllImport("user32.dll")]
         public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
         protected override void OnSourceInitialized(EventArgs e)
         {
@@ -43,6 +46,13 @@ namespace Focus_Bear.Focus
             //Set the window style to noactivate.
             var helper = new WindowInteropHelper(this);
             SetWindowLong(helper.Handle, GWL_EXSTYLE, GetWindowLong(helper.Handle, GWL_EXSTYLE) | WS_EX_NOACTIVATE);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            
         }
 
 
@@ -82,6 +92,15 @@ namespace Focus_Bear.Focus
             }
             ShowInTaskbar = false;
             this.Topmost = true;
+            App.ThemeChanged += TitleBarThemeChange;
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
         }
         public void ShowBreakWindowAndStartTimer(int nSeconds, string sTitle = "")
         {
@@ -201,6 +220,25 @@ namespace Focus_Bear.Focus
             bShowingForNonTimerActivities = false;
             Close(); //Best to close here and open new when we have the activity with completion requirement.
             ((App)(Application.Current)).wndTakeABreak = null;
+        }
+
+        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+            return false;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Focus_Bear.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -50,6 +51,9 @@ namespace Focus_Bear.Habits
 
         [DllImport("user32.dll")]
         public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
 
         int nMinutesToPostpone = 5;
 
@@ -64,8 +68,25 @@ namespace Focus_Bear.Habits
             //Set the window style to noactivate.
             var helper = new WindowInteropHelper(this);
             SetWindowLong(helper.Handle, GWL_EXSTYLE, GetWindowLong(helper.Handle, GWL_EXSTYLE) | WS_EX_NOACTIVATE);
-        }
 
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (appSettings.sTheme == "Light")
+            {
+                ChangeTheme("Light");
+            }
+            else
+            {
+                ChangeTheme("Dark");
+            }
+            
+            
+           
+        }
         public BreakWarning()
         {
             InitializeComponent();
@@ -97,6 +118,7 @@ namespace Focus_Bear.Habits
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
             CommandManager.InvalidateRequerySuggested();
+            App.ThemeChanged += TitleBarThemeChange;
 
             try
             {
@@ -163,6 +185,43 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("BreakWarning = " + ex.Message);
             }
 
+        }
+        public void ChangeTheme(string theme)
+        {
+            if (theme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                Description.Foreground = new SolidColorBrush(Colors.Black);
+                TxtTimer.Foreground = new SolidColorBrush(Colors.Black);
+                PostponeMinsText.Foreground = new SolidColorBrush(Colors.Black);
+                BreakDescText.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            else if (theme == "Dark")
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                Description.Foreground = new SolidColorBrush(Colors.LightGray);
+                TxtTimer.Foreground = new SolidColorBrush(Colors.LightGray);
+                PostponeMinsText.Foreground = new SolidColorBrush(Colors.LightGray);
+                BreakDescText.Foreground = new SolidColorBrush(Colors.LightGray);
+            }
+        }
+        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+            return false;
         }
 
         private void btnAction_Click(object sender, RoutedEventArgs e)
@@ -271,6 +330,14 @@ namespace Focus_Bear.Habits
         private void ComboBoxMinutes_Loaded(object sender, RoutedEventArgs e)
         {
             btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString().Replace("5", nMinutesToPostpone.ToString());
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
         }
     }
 }

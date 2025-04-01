@@ -1,9 +1,11 @@
 ﻿using Focus_Bear.Pomodoro;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,6 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -24,6 +27,9 @@ namespace Focus_Bear.Focus
     {
         AppSettings appSettings = AppSettings.GetInstance;
         bool bFocusModeEndWindow = false;
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
         public SelectTasks(StartFocusMode ParentWindow)
         {
             InitializeComponent();
@@ -84,7 +90,8 @@ namespace Focus_Bear.Focus
         {
             if (e.IsSuccess)
             {
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\"}}", appSettings.userAccount.accessToken);
+                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"theme\":{1}}}", appSettings.userAccount.accessToken, sTheme);
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForToDo) {{ loadAccessTokenForToDo({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
 
                 if (bFocusModeEndWindow)
@@ -93,8 +100,7 @@ namespace Focus_Bear.Focus
                     DateTime end = DateTime.UtcNow;
                     TimeSpan difference = end.Subtract(start); // could also write `now - otherTime`
                     double durationMinutes = difference.TotalMinutes;
-
-                    LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{2}\"}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode);
+                    LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{3}\",\"theme\":{4}}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode,sTheme);
                     LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadTasks) {{ loadTasks({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
                 }
 
@@ -184,6 +190,55 @@ namespace Focus_Bear.Focus
             {
                 LogWriter.LogWrite("SelectTasks webView.Dispose(); - " + ex.Message);
             }
+        }
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            var isLightTheme = IsLightTheme();
+            if (appSettings.bAutoTheme)
+            {
+                if (source != null)
+                {
+                    UseImmersiveDarkMode(source.Handle, !isLightTheme);
+                }
+            }
+            else
+            {
+                if (appSettings.sTheme == "Light")
+                {
+                    UseImmersiveDarkMode(source.Handle, false);
+                }
+                else if (appSettings.sTheme == "Dark")
+                {
+                    UseImmersiveDarkMode(source.Handle, true);
+                }
+            }
+        }
+        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+            return false;
+        }
+        private static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
         }
     }
 }

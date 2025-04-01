@@ -24,7 +24,7 @@
 
     </src:FullScreenParent.Resources>
 
-    <Grid Background="{DynamicResource TabControlBackgroundColor}" x:Name="MainGrid">
+    <Grid Background="{DynamicResource SoftCreamColor}" x:Name="MainGrid">
 
         <Grid.Resources>
             <ResourceDictionary>

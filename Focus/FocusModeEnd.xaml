@@ -37,9 +37,9 @@
 
             <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0"  Width="755" TextWrapping="Wrap" Text="xYou Did it!" Foreground="#e88800" FontSize="35" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <TextBlock  Grid.Row="1" Name="Description" Margin="0,0,0,0"  Width="755" TextWrapping="Wrap" Text="xxYou have successfully completed the focus block - FOCUSTYPE" Foreground="{DynamicResource ForegroundGrey}" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1" Name="Description" Margin="0,0,0,0"  Width="755" TextWrapping="Wrap" Text="xxYou have successfully completed the focus block - FOCUSTYPE"  FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <TextBlock  Grid.Row="2" Name="YourIntention" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxYour intention was" Foreground="{DynamicResource ForegroundGrey}" FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="2" Name="YourIntention" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxYour intention was"  FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
             <TextBox  Grid.Row="3" Name="TxtIntention" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"   VerticalAlignment="Center"  FontSize="15" IsEnabled="False">
                 <TextBox.Effect>
@@ -61,7 +61,7 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
 
-        <TextBlock  Grid.Row="4" Name="Achieve" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxWhat did you achieve during this time?" Foreground="{DynamicResource ForegroundGrey}" FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="4" Name="Achieve" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxWhat did you achieve during this time?"  FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
             <TextBox  Grid.Row="5" Name="TxtAchieve" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"   VerticalAlignment="Center"  FontSize="15">
                 <TextBox.Effect>

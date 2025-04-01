@@ -21,7 +21,7 @@
                 </ResourceDictionary>
             </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="ShutOffWindowBackground" Stretch="UniformToFill" ImageSource="/Images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" MinHeight="80" />
@@ -42,10 +42,10 @@
             </StackPanel>
             <TextBlock  Grid.Row="2" Name="Description" Width="800" Margin="20,10,20,10" TextWrapping="Wrap" Text="xYou told me you wanted to stay off your computer from SHUTOFFTIME to STARTTIME. Enjoy your evening and sleep well. Look forward to helping you with your morning routine tomorrow."  FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
 
-            <TextBlock  Grid.Row="3" Name="Txtunlocking" Width="900" Margin="0,0,0,0" TextWrapping="Wrap" Text="xunlocking in." Foreground="#272727" FontSize="23" FontWeight="Normal" TextAlignment="Center" HorizontalAlignment="Center" />
-            <TextBlock  Grid.Row="3" Name="TxtTimer" Width="900"  Margin="0,35,0,0" TextWrapping="Wrap" Text="x00:30" Foreground="#272727" FontSize="23" FontWeight="Bold"  TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock  Grid.Row="3" Name="Txtunlocking" Width="900" Margin="0,0,0,0" TextWrapping="Wrap" Text="xunlocking in."  FontSize="23" FontWeight="Normal" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock  Grid.Row="3" Name="TxtTimer" Width="900"  Margin="0,35,0,0" TextWrapping="Wrap" Text="x00:30"  FontSize="23" FontWeight="Bold"  TextAlignment="Center" HorizontalAlignment="Center" />
 
-            <TextBlock  Grid.Row="4" Name="TxtExplain" Width="900"  TextWrapping="Wrap" Text="xFeel free to write an explanation here:" Foreground="#272727" FontSize="17" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock  Grid.Row="4" Name="TxtExplain" Width="900"  TextWrapping="Wrap" Text="xFeel free to write an explanation here:" FontSize="17" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
             <TextBox  Grid.Row="5" Name="TxtExplaination" TextWrapping="Wrap" AcceptsReturn="True"  Width="650" Height="120" Margin="15" VerticalAlignment="Top"  FontSize="15">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
