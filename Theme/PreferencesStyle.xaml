@@ -11,7 +11,7 @@
             <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
         </Style>
         <Style TargetType="TabControl">
-            <Setter Property="Background" Value="{DynamicResource TabControlBackgroundColor}"/>
+        <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
         </Style>
         <Style TargetType="Hyperlink">
         <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>

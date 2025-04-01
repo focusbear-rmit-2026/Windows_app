@@ -68,7 +68,6 @@ namespace Focus_Bear
             SetTrayMenuPosition();
             ShowInTaskbar = false;
             this.Loaded += MainWindow_Loaded;
-
         }
 
         public void SetTrayMenuPosition()
@@ -1336,15 +1335,14 @@ namespace Focus_Bear
             if (isDarkMode == true && appSettings.bAutoTheme == true)
             {
                 selectedTheme = "Light";
-                appSettings.sTheme = "Light";
             }
             else if (isDarkMode == false && appSettings.bAutoTheme == true)
             {
                 selectedTheme = "Dark";
-                appSettings.sTheme = "Dark";
             }
-            RegistryManager.SetThemeMode();
             ((App)Application.Current).ChangeTheme(selectedTheme);
+            RegistryManager.SetThemeMode();
+
         }
         private IntPtr WndProctheme(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {

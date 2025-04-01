@@ -993,7 +993,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource TitleBackgroundColor}"/>
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrefenenceTitleBackgroundColor}"/>
                                 <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
