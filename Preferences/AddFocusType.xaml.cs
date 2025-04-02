@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -21,7 +22,7 @@ namespace Focus_Bear.Preferences
     public partial class AddFocusType : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         public string sFocusNameToAdd;
         public AddFocusType()
         {
@@ -38,7 +39,7 @@ namespace Focus_Bear.Preferences
             btnAdd.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddText"].ToString();
             btnCancel.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonCancelText"].ToString();
             TxtFocusName.Focus();
-
+            App.ThemeChanged += TitleBarThemeChange;
         }
 
         private void TxtFocusName_TextChanged(object sender, TextChangedEventArgs e)
@@ -72,6 +73,21 @@ namespace Focus_Bear.Preferences
             DialogResult = true;
             Close();
 
+        }
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
         }
     }
 }

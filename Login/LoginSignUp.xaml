@@ -7,13 +7,13 @@
       xmlns:Models="clr-namespace:Focus_Bear.Models"
       mc:Ignorable="d" 
      d:DesignHeight="680" d:DesignWidth="945"
-      Title="LoginSignUp"  Background="{DynamicResource BackgroundColor}">
+      Title="LoginSignUp" >
     <Grid>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="/Images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="100"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
@@ -24,13 +24,13 @@
         </Grid.RowDefinitions>
 
 
-        <Button x:Name="btnBack" Grid.RowSpan="3" Grid.Column="0" Content="Button" Style="{DynamicResource BtnStyleBack}" SnapsToDevicePixels="True" HorizontalAlignment="Center" Height="68" VerticalAlignment="Center" Width="68" ToolTip="xBack" Cursor="Hand" Click="btnBack_Click"/>
+        <Button x:Name="btnBack" Grid.RowSpan="3" Grid.Column="0" Content="Button" Style="{StaticResource BtnStyleBack}" SnapsToDevicePixels="True" HorizontalAlignment="Center" Height="82" VerticalAlignment="Center" Width="90" ToolTip="xBack" Cursor="Hand" Click="btnBack_Click"/>
         <TextBlock Width="300" Grid.Row="0" Grid.Column="1" Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xSign Up" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1" Grid.Column="1"  Name="Description" Margin="0,20,0,0" TextWrapping="Wrap" Text="xCreate an account to sync your habit + block settings across all your devices." Foreground="{DynamicResource}" FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1" Grid.Column="1"  Name="Description" Margin="0,20,0,0" TextWrapping="Wrap" Text="xCreate an account to sync your habit + block settings across all your devices."  FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center" Width="420">
 
-            <TextBlock Width="300"  Name="lblEmail" Margin="60,20,40,10" TextWrapping="Wrap" Text="xEmail Address" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock Width="300"  Name="lblEmail" Margin="60,20,40,10" TextWrapping="Wrap" Text="xEmail Address"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
             <TextBox Width="300" TabIndex="1" x:Name="TxtEmailAddress" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"   BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" >
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
@@ -53,10 +53,10 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
                 <RadioButton x:Name="GeneratePassword" Content="xGenerate Password" Style="{StaticResource SegmentRadioButtonStyle}"  Checked="GeneratePassword_Checked" Cursor="Hand"/>
                 <RadioButton x:Name="OwnPassword" Content="xUse own password" Style="{StaticResource SegmentRadioButtonStyle}" Checked="OwnPassword_Checked" Cursor="Hand"/>
-                 </StackPanel>
-            <TextBlock Width="300"  Name="WeGeneratedPassword" Margin="60,10,40,0" Padding="0,3,0,3" TextWrapping="Wrap" Text="xWe generated a password for you" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
-            <TextBlock Width="300"  Name="lblPassword" Margin="60,10,40,10" TextWrapping="Wrap" Text="xPassword" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
-            
+            </StackPanel>
+            <TextBlock Width="300"  Name="WeGeneratedPassword" Margin="60,10,40,0" Padding="0,3,0,3" TextWrapping="Wrap" Text="xWe generated a password for you"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock Width="300"  Name="lblPassword" Margin="60,10,40,10" TextWrapping="Wrap" Text="xPassword"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+
             <Grid>
                 <PasswordBox Width="300" TabIndex="2" x:Name="TxtPassword" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15"  PasswordChanged="TxtPassword_PasswordChanged"   >
                     <PasswordBox.Effect>
@@ -100,7 +100,7 @@
                 <Image  Name="ImgPasswordValid" Source="../images/validIcon.png" Width="20" Height="20" Margin="390,0,0,0" Visibility="Collapsed"></Image>
             </Grid>
 
-            <TextBlock Visibility="Collapsed" Width="300"  Name="lblConfirmPassword" Margin="60,20,40,10" TextWrapping="Wrap" Text="xConfirm Password" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock Visibility="Collapsed" Width="300"  Name="lblConfirmPassword" Margin="60,20,40,10" TextWrapping="Wrap" Text="xConfirm Password"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
             <Grid Visibility="Collapsed">
                 <PasswordBox Width="300" TabIndex="3" x:Name="TxtConfirmPassword" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"   BorderThickness="1" FontSize="15"  PasswordChanged="TxtConfirmPassword_PasswordChanged"  >
                     <PasswordBox.Effect>
@@ -139,7 +139,7 @@
                             </Setter>
                         </Style>
                     </TextBox.FocusVisualStyle>
-                 </TextBox>
+                </TextBox>
                 <Image x:Name="EyeConfirmPassword" Source="../images/eye-gray.png" Width="20" Height="20" Margin="340,0,0,0" Cursor="Hand" MouseUp="EyeConfirmPassword_MouseUp"></Image>
                 <Image Name="ImgConfirmPasswordValid" Source="../images/validIcon.png" Width="20" Height="20" Margin="390,0,0,0"  Visibility="Collapsed"></Image>
             </Grid>
@@ -188,11 +188,11 @@
                 <Image Grid.Row="6" Grid.Column="1" Name="ImgPasswordSpecialChars" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
 
             </Grid>
-            
+
             <Button Width="300" TabIndex="4" x:Name="btnCreatAccount"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,47,0,20" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreatAccount_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnCreateAccountText" Text="xCreate an account"/>
+                        <TextBlock Name="btnCreateAccountText" Text="xCreate an account" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

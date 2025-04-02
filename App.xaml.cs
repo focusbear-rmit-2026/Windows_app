@@ -81,6 +81,9 @@ namespace Focus_Bear
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         private const int SW_SHOW = 5;
 
+        [DllImport("dwmapi.dll")]
+        public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
 
         private const uint WINEVENT_OUTOFCONTEXT = 0;
         private const uint EVENT_SYSTEM_FOREGROUND = 3;
@@ -1370,9 +1373,10 @@ namespace Focus_Bear
             //Write any routines or functionality to test in DEBUG mode here
             ///ShowCallFocusNotifier();
             ///
-
-             ShutOffWindow wndFocusBearMenuTour = new ShutOffWindow();
-            wndFocusBearMenuTour.ShowDialog();
+            //PreferencesWindow parentwindow = new PreferencesWindow();
+            //parentwindow.ShowDialog();
+            //AddWebUrl wnd = new AddWebUrl();
+            //wnd.ShowDialog();
 
 #endif
 
@@ -4488,5 +4492,24 @@ namespace Focus_Bear
             appSettings.sTheme = theme;
 
         }
+        public bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+            return false;
+        }
+        
     }
 }

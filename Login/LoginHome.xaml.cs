@@ -1,6 +1,8 @@
 ﻿using Focus_Bear.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -23,6 +26,7 @@ namespace Focus_Bear.Login
     {
         private LoginMain _parentWindow;
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         public LoginHome()
         {
         }
@@ -46,6 +50,8 @@ namespace Focus_Bear.Login
             {
                 LogWriter.LogWrite("LoginHome set texts ex - " + ex.Message);
             }
+            TitleBarThemeChange();
+            App.ThemeChanged += TitleBarThemeChange;
         }
        
         private void btnSignIn_Click(object sender, RoutedEventArgs e)
@@ -69,6 +75,35 @@ namespace Focus_Bear.Login
             appSettings.CapturePostHog("pre-signin-view-info-icon-clicked");  
         }
 
-        
+        private void TitleBarThemeChange()
+        {
+            bool bDarkMode = IsLightTheme();
+            string theme = bDarkMode ? "Light" : "Dark";
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (theme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+                Suggest.Foreground = new SolidColorBrush(Colors.Black);
+                Descriptiopn.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            else if (theme == "Dark")
+            {
+                this.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+                Suggest.Foreground = new SolidColorBrush(Colors.LightGray);
+                Descriptiopn.Foreground = new SolidColorBrush(Colors.LightGray);
+            }
+        }
+        private static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
+        }
     }
 }

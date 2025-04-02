@@ -9,6 +9,9 @@
         Title="Focus Bear" Height="720" Width="945"  ResizeMode="NoResize" Closed="Window_Closed" Loaded="Window_Loaded" >
     <!--<local1:DpiDecorator>-->
     <Grid>
+        <Grid.Background>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="/Images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
         <Frame x:Name="AppFrameLogin" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" />
     </Grid>
         <!--</local1:DpiDecorator>-->

@@ -13,6 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -27,7 +28,7 @@ namespace Focus_Bear.Habits
     public partial class ChooseHabits : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         public ObservableCollection<HabitListSelectable> FilteredList = new ObservableCollection<HabitListSelectable>();
         public ChooseHabits()
         {
@@ -74,6 +75,7 @@ namespace Focus_Bear.Habits
             InitializeHabitsList();
             FilteredList = appSettings._ObjHabitListSelectable;
             ListHabits.ItemsSource = FilteredList;
+            App.ThemeChanged += TitleBarThemeChange;
         }
 
         public void InitializeHabitsList()
@@ -311,6 +313,21 @@ namespace Focus_Bear.Habits
             RegistryManager.SetMorningHabitsShownTillDate();
             DialogResult = false;
             Close();
+        }
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
         }
     }
 }
