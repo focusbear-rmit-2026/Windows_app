@@ -1371,8 +1371,6 @@ namespace Focus_Bear
             ///ShowCallFocusNotifier();
             ///
 
-             ShutOffWindow wndFocusBearMenuTour = new ShutOffWindow();
-            wndFocusBearMenuTour.ShowDialog();
 
 #endif
 
