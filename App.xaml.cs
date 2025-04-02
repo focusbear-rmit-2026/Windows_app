@@ -1373,10 +1373,11 @@ namespace Focus_Bear
             //Write any routines or functionality to test in DEBUG mode here
             ///ShowCallFocusNotifier();
             ///
-            //PreferencesWindow parentwindow = new PreferencesWindow();
-            //parentwindow.ShowDialog();
-            //AddWebUrl wnd = new AddWebUrl();
-            //wnd.ShowDialog();
+            OnBoardingWindow parentwindow = new OnBoardingWindow();
+            parentwindow.ShowDialog();
+            //OnboardingAchieveWithFocusBear wnd = new OnboardingAchieveWithFocusBear(parentwindow);
+            //wnd.();
+
 
 #endif
 
