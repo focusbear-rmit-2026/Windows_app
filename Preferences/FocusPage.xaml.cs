@@ -30,6 +30,7 @@ namespace Focus_Bear.Preferences
     public partial class FocusPage : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
 
         PreferencesWindow _ParentWindow = null;
         SolidColorBrush BackgroundColor = null;
@@ -768,6 +769,7 @@ namespace Focus_Bear.Preferences
                     selectedItem.name = sNewName;
 
                     appSettings.CapturePostHog("change-focus-mode-name");
+                    app.FocusModeAdded();
                 }
                 else
                 {
@@ -775,6 +777,7 @@ namespace Focus_Bear.Preferences
                     ff.Owner = _ParentWindow;
                     ff.ShowDialog();
                     TxtFocusName.Text = selectedItem.name;
+                    app.FocusModeAdded();
                 }
             }
 

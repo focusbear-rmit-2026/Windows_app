@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -27,9 +29,9 @@ namespace Focus_Bear.Pomodoro
     public partial class StartSimplePomodoro : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
         int nStep = 1;
-
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         public StartSimplePomodoro()
         {
             InitializeComponent();
@@ -95,6 +97,9 @@ namespace Focus_Bear.Pomodoro
                 TxtIntention.Text = appSettings.sSavedIntentionFirstFocusSession;
                 ShowTourPopup();
             }
+            TitleBarThemeChange();
+            App.ThemeChanged += TitleBarThemeChange;
+
         }
         private void ShowTourPopup()
         {
@@ -411,6 +416,53 @@ namespace Focus_Bear.Pomodoro
         {   
             nStep++;
             UpdateTourPopupTexts();
+        }
+
+        private void TitleBarThemeChange()
+        {
+            LogWriter.LogWrite("simple podomo TitleBarThemeChange appsetting.stheme: "+appSettings.sTheme);
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (appSettings.sTheme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+            }
+            else
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+            }
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+
+            UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+        }
+        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+            return false;
         }
     }
 }

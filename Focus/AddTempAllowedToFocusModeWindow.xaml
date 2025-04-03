@@ -37,7 +37,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal">
                                 <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
-                                <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}"  FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
+                                <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}"  FontSize="15" Cursor="Hand" Foreground="{DynamicResource ForegroundColor}" VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
                             </StackPanel>
 
 
@@ -57,7 +57,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
-                            <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
                         </StackPanel>
 
 
@@ -75,13 +75,13 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
-                            <TextBox x:Name="ItemText" Grid.Column="0" MinWidth="250" Text="{Binding sURL, StringFormat=\{0\}}"   FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
+                            <TextBox x:Name="ItemText" Grid.Column="0" MinWidth="250" Text="{Binding sURL, StringFormat=\{0\}}" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left" BorderThickness="0"/>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Grid Grid.Row="4" Margin="20,0,20,10" Background="LightGray" >
+        <Grid Grid.Row="4" Margin="20,0,20,10" >
             <Button   x:Name="btnAddKeyword"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800" Background="LightGray" Height="20" Width="20" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Padding="0" Margin="5,2,0,1"  Cursor="Hand" FontWeight="Semibold" Click="btnAddKeyword_Click"  >
 
                 <Button.Content>

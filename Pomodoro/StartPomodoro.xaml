@@ -122,7 +122,7 @@
         <StackPanel Grid.Row="8" Orientation="Vertical" VerticalAlignment="Top" Margin="0,20,0,0">
 
 
-            <TextBlock  Name="WhatPlan" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?" Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Name="WhatPlan" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?"  FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
             <TextBox   Name="TxtIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"  Width="500" Height="80" Margin="15" VerticalAlignment="Top"  FontSize="15">
                 <TextBox.Effect>
@@ -144,7 +144,7 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
 
-            <TextBlock   Name="SelectedTasksTitle" Visibility="Collapsed" Width="300" Margin="5,25,0,5" TextWrapping="Wrap" Text="xxSelected Tasks:" Foreground="{DynamicResource ForegroundGrey}" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <TextBlock   Name="SelectedTasksTitle" Visibility="Collapsed" Width="300" Margin="5,25,0,5" TextWrapping="Wrap" Text="xxSelected Tasks:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
 
             <ListView    x:Name="ListTasks" Visibility="Collapsed" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"   Height="118" Width="300" VerticalAlignment="Top">
                 <ListView.ItemContainerStyle>
