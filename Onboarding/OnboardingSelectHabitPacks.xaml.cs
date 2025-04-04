@@ -20,6 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
+using System.Windows.Interop;
 
 namespace Focus_Bear.Onboarding
 {
@@ -29,6 +30,7 @@ namespace Focus_Bear.Onboarding
     public partial class OnboardingSelectHabitPacks : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         private OnBoardingWindow _parentWindow;
 
         public OnboardingSelectHabitPacks()
@@ -59,7 +61,8 @@ namespace Focus_Bear.Onboarding
             {
                 LogWriter.LogWrite("OnboardingSelectHabitPacks()" + ex.Message);
             }
-             
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
 
         private async void SetWebView()
@@ -190,7 +193,10 @@ namespace Focus_Bear.Onboarding
                 LogWriter.LogWrite("select habit packs webView_WebMessageReceived()" + ex.Message);
             }
         }
-
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
+        }
 
     }
 }

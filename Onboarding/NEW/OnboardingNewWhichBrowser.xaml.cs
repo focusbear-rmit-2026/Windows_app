@@ -1,10 +1,12 @@
 ﻿using Focus_Bear.Onboarding.New;
 using Focus_Bear.Utils;
+using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -20,10 +22,11 @@ namespace Focus_Bear.Onboarding.NEW
     /// <summary>
     /// Interaction logic for OnboardingNewWhichBrowser.xaml
     /// </summary>
-    public partial class OnboardingNewWhichBrowser : Page
+    public partial class OnboardingNewWhichBrowser : System.Windows.Controls.Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
         private NewOnboardingStart _parentWindow;
+        App app = (App)Application.Current;
         public OnboardingNewWhichBrowser()
         {
         }
@@ -44,6 +47,8 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 LogWriter.LogWrite("OnboardingNewWhichBrowser()k EX -" + ex.Message);
             }
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
 
         }
    
@@ -71,6 +76,10 @@ namespace Focus_Bear.Onboarding.NEW
             _parentWindow.ShowBuildingHabitsScreen();
 
             appSettings.CapturePostHog("button-just-tried-those-browsers-clicked");
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

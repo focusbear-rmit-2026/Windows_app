@@ -34,7 +34,7 @@ namespace Focus_Bear.Preferences
     public partial class PreferencesWindow : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         private string PreferenceButtonSelectedColor = "#0066EB";
         private string PreferenceButtonNormalColor = "#000";
 
@@ -175,28 +175,9 @@ namespace Focus_Bear.Preferences
             if (source != null)
             {
                 LogWriter.LogWrite("preference setting change title bars");
-                UseImmersiveDarkMode(source.Handle, !isLightTheme);
+                app.UseImmersiveDarkMode(source.Handle, !isLightTheme);
             }
         }
-        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
-        {
-            Version osVersion = Environment.OSVersion.Version;
-            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
-
-            if (isWindows10OrGreater)
-            {
-                var attribute = DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1;
-                if (osVersion.Build >= 18985)
-                {
-                    attribute = DWMWA_USE_IMMERSIVE_DARK_MODE;
-                }
-
-                int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
-            return false;
-        }
-
         private void btnThemeChange()
         {
             HwndSource source = (HwndSource)PresentationSource.FromVisual(this);
@@ -208,7 +189,7 @@ namespace Focus_Bear.Preferences
                 PreferenceButtonSelectedColor = "#0066EB";//blue
                 if (source != null)
                 {
-                    UseImmersiveDarkMode(source.Handle, false);//false for Light
+                    app.UseImmersiveDarkMode(source.Handle, false);//false for Light
                 }
             }
             else if (appSettings.sTheme == "Dark")
@@ -220,7 +201,7 @@ namespace Focus_Bear.Preferences
 
                 if (source != null)
                 {
-                    UseImmersiveDarkMode(source.Handle, true);//true for dark  
+                    app.UseImmersiveDarkMode(source.Handle, true);//true for dark  
                 }
             }
                 //Status

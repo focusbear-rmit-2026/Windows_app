@@ -240,7 +240,7 @@ namespace Focus_Bear.Login
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {
-                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
             if (appSettings.sTheme == "Light")
             {
@@ -257,23 +257,26 @@ namespace Focus_Bear.Login
                 lblPassword.Foreground = new SolidColorBrush(Colors.LightGray);
             }
         }
-        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        private void ShowPasswordToggleButton_Checked(object sender, RoutedEventArgs e)
         {
-            Version osVersion = Environment.OSVersion.Version;
-            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
-
-            if (isWindows10OrGreater)
-            {
-                var attribute = 19;
-                if (osVersion.Build >= 18985)
-                {
-                    attribute = 20;
-                }
-
-                int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
-            return false;
+            TxtShowPassword.Text = TxtPassword.Password;
+            TxtShowPassword.Visibility = Visibility.Visible;
+            TxtPassword.Visibility = Visibility.Collapsed;
         }
+        private void ShowPasswordToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            TxtPassword.Password = TxtShowPassword.Text;
+            TxtShowPassword.Visibility = Visibility.Collapsed;
+            TxtPassword.Visibility = Visibility.Visible;
+        }
+        private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            TxtShowPassword.Text = TxtPassword.Password;
+        }
+        private void Textbox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+             TxtPassword.Password = TxtShowPassword.Text;
+        }
+        
     }
 }

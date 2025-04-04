@@ -7,11 +7,13 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -23,9 +25,10 @@ namespace Focus_Bear.Onboarding.NEW
     /// <summary>
     /// Interaction logic for OnboardingDistractingSites.xaml
     /// </summary>
-    public partial class OnboardingDistractingSites : Page
+    public partial class OnboardingDistractingSites : System.Windows.Controls.Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         private NewOnboardingStart _parentWindow;
 
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
@@ -78,7 +81,8 @@ namespace Focus_Bear.Onboarding.NEW
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
             CommandManager.InvalidateRequerySuggested();
-
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
@@ -149,6 +153,10 @@ namespace Focus_Bear.Onboarding.NEW
             }
             
             _parentWindow.ShowBlockingScheduleScreen();
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

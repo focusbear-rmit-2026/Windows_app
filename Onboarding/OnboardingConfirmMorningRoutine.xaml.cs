@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -23,6 +24,7 @@ namespace Focus_Bear.Onboarding
     {
         private OnBoardingWindow _parentWindow;
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         public OnboardingConfirmMorningRoutine()
         {
         }
@@ -32,6 +34,8 @@ namespace Focus_Bear.Onboarding
             _parentWindow = parentWindow;
 
             LoadTexts();
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
 
         public void LoadTexts()
@@ -81,6 +85,10 @@ namespace Focus_Bear.Onboarding
         {
             appSettings.CapturePostHog("continue-confirm-morning-routine");
             _parentWindow.ShowOnbordingConfirmEveningRoutine();
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

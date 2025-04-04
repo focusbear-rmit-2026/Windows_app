@@ -7,6 +7,16 @@
         mc:Ignorable="d"
         Title="WelcomeAbordPostpone" Height="300" Width="498" WindowStyle="None" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" ShowInTaskbar="False" PreviewKeyDown="Window_PreviewKeyDown"  >
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <Grid.Background>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="100"/>
@@ -15,9 +25,9 @@
         </Grid.RowDefinitions>
 
         <Button  Grid.Row="0" x:Name="btnClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="34" VerticalAlignment="Top" Width="34" ToolTip="Close" Click="btnClose_Click" Grid.Column="1" Cursor="Hand"/>
-        <TextBlock  Grid.Row="1" Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="If you have something urgent, you can postpone the Onboarding process for few Minutes." Foreground="#000" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1" Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="If you have something urgent, you can postpone the Onboarding process for few Minutes." FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <StackPanel  Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-            <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" Foreground="#000" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
             <ComboBox Name="ComboBoxMinutes" Width="50" Height="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">
                 <ComboBoxItem Content="5"></ComboBoxItem>
@@ -37,7 +47,7 @@
         <Button Grid.Row="3" Grid.ColumnSpan="2" x:Name="btnPostponeOnboarding"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnPostponeOnboarding_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock Name="btnPostponeText" Margin="8" Text="xPostpone Onboarding"/>
+                    <TextBlock Name="btnPostponeText" Margin="8" Text="xPostpone Onboarding" Foreground="Black"/>
                 </StackPanel>
             </Button.Content>
         </Button>

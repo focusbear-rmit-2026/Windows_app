@@ -6,12 +6,19 @@
       xmlns:local="clr-namespace:Focus_Bear.Onboarding.NEW"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800" Height="660" Width="750"
-      Title="OnboardingNewWelcome" Background="#fff">
+      Title="OnboardingNewWelcome">
 
 
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
@@ -23,19 +30,19 @@
             <RowDefinition Height="100" />
             
         </Grid.RowDefinitions>
-        <TextBlock  Grid.Row="0" Margin="0,10,0,0" Name="Heading" TextWrapping="Wrap" Text="xPrivacy and Security" Foreground="#000" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="0" Margin="0,10,0,0" Name="Heading" TextWrapping="Wrap" Text="xPrivacy and Security" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
 
-        <Image Grid.Row="1" Height="120"  Width="120" Source="../../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
-        <TextBlock  Grid.Row="2" Name="Welcome" Margin="40,18,40,0" TextWrapping="Wrap" Text="xWe take your privacy and security very seriously and will never share your data ever." Foreground="#000" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="3" Name="Descriptiopn1" Margin="40,20,40,0" TextWrapping="Wrap" Text="xx🙈 We do not log which websites or apps you use.\n\n🔄 We do sync your habit data to our server but this is only to support cross device distraction blocking.\n\n🔒 Your data is encrypted and we don't let anyone else see it." Foreground="#272727" FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
+        <Image Grid.Row="1" Height="120"  Width="120" Source="../../Imafoges/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
+        <TextBlock  Grid.Row="2" Name="Welcome" Margin="40,18,40,0" TextWrapping="Wrap" Text="xWe take your privacy and security very seriously and will never share your data ever."  FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="3" Name="Descriptiopn1" Margin="40,20,40,0" TextWrapping="Wrap" Text="xx🙈 We do not log which websites or apps you use.\n\n🔄 We do sync your habit data to our server but this is only to support cross device distraction blocking.\n\n🔒 Your data is encrypted and we don't let anyone else see it." FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
         <TextBlock x:Name="ViewPrivacy"  Grid.Row="4"  TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
-             <Hyperlink x:Name="btnViewPrivacy"  Foreground="#000" Click="btnViewPrivacy_Click"   TextDecorations="Underline" ><Run x:Name="btnViewPrivacyText" Text="xClick here to view Privacy Policy"/></Hyperlink>
+             <Hyperlink x:Name="btnViewPrivacy"  Click="btnViewPrivacy_Click"   TextDecorations="Underline" ><Run x:Name="btnViewPrivacyText" Text="xClick here to view Privacy Policy"/></Hyperlink>
         </TextBlock>
         <CheckBox  Grid.Row="5" x:Name="AcceptPrivacyPolicy" FontSize="15" Checked="AcceptPrivacyPolicy_Checked" Unchecked="AcceptPrivacyPolicy_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Top" Padding="5,-3,0,0">xI accept the Privacy Policy</CheckBox>
         <Button Grid.Row="6"   x:Name="btnLetsDoIt"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Top" Padding="0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnLetsDoIt_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="buttonLetsDoItText" Margin="8" Text="xContinue"/>
+                        <TextBlock Name="buttonLetsDoItText" Margin="8" Text="xContinue" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

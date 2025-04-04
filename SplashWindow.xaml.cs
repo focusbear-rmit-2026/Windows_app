@@ -24,6 +24,7 @@ namespace Focus_Bear
     public partial class SplashWindow : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         public SplashWindow()
@@ -80,7 +81,7 @@ namespace Focus_Bear
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {
-                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
 
             if (appSettings.sTheme == "Light")
@@ -95,25 +96,6 @@ namespace Focus_Bear
                 FocusBearLogo.Source = new BitmapImage(new Uri("pack://application:,,,/Images/fb_big_dark.png"));
                 SplahwindowBackground.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
             }
-        }
-
-        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
-        {
-            Version osVersion = Environment.OSVersion.Version;
-            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
-
-            if (isWindows10OrGreater)
-            {
-                var attribute = 19;
-                if (osVersion.Build >= 18985)
-                {
-                    attribute = 20;
-                }
-
-                int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
-            return false;
         }
     }
 }

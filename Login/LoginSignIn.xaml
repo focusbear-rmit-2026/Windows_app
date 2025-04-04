@@ -58,26 +58,54 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
 
-            <TextBlock   Name="lblPassword" Margin="0,20,40,10" TextWrapping="Wrap" Text="xPassword" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
-            <PasswordBox TabIndex="1" x:Name="TxtPassword" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15"     >
-                <PasswordBox.Effect>
-                    <DropShadowEffect ShadowDepth="3"
-                          Direction="330"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="6"
-                           />
-                </PasswordBox.Effect>
-                <PasswordBox.FocusVisualStyle>
-                    <Style>
-                        <Setter Property="Control.Template">
-                            <Setter.Value>
-                                <ControlTemplate/>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </PasswordBox.FocusVisualStyle>
-            </PasswordBox>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Name="lblPassword" Margin="0,20,0,10" TextWrapping="Wrap" Text="xPassword" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+                    <PasswordBox TabIndex="1" x:Name="TxtPassword" Margin="0" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" PasswordChanged="TxtPassword_PasswordChanged">
+                        <PasswordBox.Effect>
+                            <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6" />
+                        </PasswordBox.Effect>
+                        <PasswordBox.FocusVisualStyle>
+                            <Style>
+                                <Setter Property="Control.Template">
+                                    <Setter.Value>
+                                        <ControlTemplate/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </PasswordBox.FocusVisualStyle>
+                    </PasswordBox>
+                    <TextBox x:Name="TxtShowPassword" Visibility="Collapsed" Margin="0" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" TextChanged="Textbox_PasswordChanged"/>
+                </StackPanel>
+
+                <ToggleButton x:Name="ShowPasswordToggleButton" Grid.Column="1" Width="29" Height="29" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,0"
+                               Checked="ShowPasswordToggleButton_Checked" Unchecked="ShowPasswordToggleButton_Unchecked">
+                    <ToggleButton.Style>
+                        <Style TargetType="ToggleButton">
+                            <Setter Property="Content">
+                                <Setter.Value>
+                                    <Image Source="/Images/eye-orange.png" />
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter Property="Content">
+                                        <Setter.Value>
+                                            <Image Source="/Images/eye-gray.png" />
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ToggleButton.Style>
+                </ToggleButton>
+            </Grid>
+
 
             <Button TabIndex="2"  x:Name="btnSignIn"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,47,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnSignIn_Click" IsDefault="True" >
                 <Button.Content>

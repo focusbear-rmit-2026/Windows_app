@@ -7,8 +7,15 @@
         mc:Ignorable="d"
         Title="Focus Bear" Height="660" Width="750" ResizeMode="NoResize" Topmost="True">
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
 
         <Grid   Name="GridHowDidYouHearAboutFocusBear"  Visibility="Visible">
@@ -21,10 +28,10 @@
             </Grid.RowDefinitions>
 
             <Image Grid.Row="1" Height="140"  Width="140" Source="../../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="191,0,191,5"/>
-            <TextBlock  Grid.Row="2" x:Name="HeadingHear" Margin="0,0,0,0" TextWrapping="Wrap" Text="xHow did you hear about Focus Bear?" Foreground="#000" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="2" x:Name="HeadingHear" Margin="0,0,0,0" TextWrapping="Wrap" Text="xHow did you hear about Focus Bear?"  FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
             <StackPanel  Grid.Row="3"  Orientation="Vertical"  HorizontalAlignment="Center">
               
-                <TextBox    Height="130" x:Name="TxtSomewhereElse"    Margin="0,30" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" Width="450" Visibility="Visible" TextChanged="TxtSomewhereElse_TextChanged">
+                <TextBox    Height="130" x:Name="TxtSomewhereElse"    Margin="0,30" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="Black" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" Width="450" Visibility="Visible" TextChanged="TxtSomewhereElse_TextChanged">
                     <TextBox.Effect>
                         <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -64,12 +71,12 @@
             </Grid.RowDefinitions>
 
             <Image Grid.Row="1" Height="150"  Width="218" Source="../../Images/team.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="191,0,191,5"/>
-            <TextBlock  Grid.Row="2" x:Name="HeadingWantFeedback" Margin="50,0,50,0" TextWrapping="Wrap" Text="xWe want your feedback" Foreground="#000" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
-            <TextBlock  Grid.Row="3" x:Name="DescriptionWantFeedback" Margin="50,0,50,0" TextWrapping="Wrap" Text="xWe're a small independent team, not a faceless mega-corporation. Focus Bear is still a new app and we really want your feedback. If you have suggestions, please email support@focusbear.io." Foreground="#000" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="2" x:Name="HeadingWantFeedback" Margin="50,0,50,0" TextWrapping="Wrap" Text="xWe want your feedback"  FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="3" x:Name="DescriptionWantFeedback" Margin="50,0,50,0" TextWrapping="Wrap" Text="xWe're a small independent team, not a faceless mega-corporation. Focus Bear is still a new app and we really want your feedback. If you have suggestions, please email support@focusbear.io." FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             <Button Grid.Row="5"  x:Name="btnContinueFeedback"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinueFeedback_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnContinueFeedbackTxt" Text="xContinue"/>
+                        <TextBlock Name="btnContinueFeedbackTxt" Text="xContinue" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
@@ -84,19 +91,19 @@
                 <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
 
-            <TextBlock  Grid.Row="0" x:Name="AccountReady" Margin="0,0,0,0" TextWrapping="Wrap" Text="xYour account's ready to go!" Foreground="#000" FontSize="24" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Center"/>
-            <TextBlock  Grid.Row="1" x:Name="Desc" Margin="0,10,0,0" TextWrapping="Wrap" Text="xHere's a short video that explains how to use Focus Bear." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="0" x:Name="AccountReady" Margin="0,0,0,0" TextWrapping="Wrap" Text="xYour account's ready to go!"  FontSize="24" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="1" x:Name="Desc" Margin="0,10,0,0" TextWrapping="Wrap" Text="xHere's a short video that explains how to use Focus Bear." FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
             <Image Grid.Row="2" Source="../../images/img_videoScreenshot.png"></Image>
             <Button Grid.Row="3"  x:Name="btnPlayVideo"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="300" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnPlayVideo_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnPlayVideoTxt" Text="xPlay the Video"/>
+                        <TextBlock Name="btnPlayVideoTxt" Text="xPlay the Video" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
 
             <TextBlock x:Name="NoThanksTxt"  Grid.Row="4"  TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="17" Height="30" Cursor="Hand">
-             <Hyperlink x:Name="btnNoThanks"  Foreground="#000" Click="btnNoThanks_Click"   TextDecorations="Underline" ><Run x:Name="btnNoThanksText" Text="xNo Thanks"/></Hyperlink>
+             <Hyperlink x:Name="btnNoThanks"  Click="btnNoThanks_Click"   TextDecorations="Underline" ><Run x:Name="btnNoThanksText" Text="xNo Thanks"/></Hyperlink>
             </TextBlock>
         </Grid>
     </Grid>

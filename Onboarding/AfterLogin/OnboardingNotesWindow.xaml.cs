@@ -1,4 +1,6 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Models;
+using Focus_Bear.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -27,6 +30,8 @@ namespace Focus_Bear.Onboarding.AfterLogin
         private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
         [DllImport("user32.dll")]
         private static extern bool EnableMenuItem(IntPtr hMenu, uint uIDEnableItem, uint uEnable);
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
         private const uint MF_BYCOMMAND = 0x00000000;
         private const uint MF_GRAYED = 0x00000001;
@@ -42,6 +47,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
         }
 
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
 
         int nStep = 1;
         public OnboardingNotesWindow()
@@ -72,6 +78,8 @@ namespace Focus_Bear.Onboarding.AfterLogin
             {
                 LogWriter.LogWrite("OnboardingNotesWindow() EX + " + ex.Message);
             }
+            this.Loaded += MainWindow_Loaded;
+            App.ThemeChanged += TitleBarThemeChange;
         }
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
@@ -110,6 +118,93 @@ namespace Focus_Bear.Onboarding.AfterLogin
         private void btnContinueFeedback_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (appSettings.sTheme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+            }
+            else if (appSettings.sTheme == "Dark")
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+            }
+        }
+        private IntPtr WndProctheme(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            int WM_SETTINGCHANGE = 0x1A;
+            if (msg == WM_SETTINGCHANGE)
+            {
+                // Apply theme when system settings change
+                ChangeThemeByWindows();
+            }
+            return IntPtr.Zero;
+        }
+        private void ChangeThemeByWindows()
+        {
+            bool isDarkMode = IsLightTheme();
+            string theme = isDarkMode ? "Light" : "Dark";
+            LogWriter.LogWrite("NewOnboarding detect theme changed WndProctheme" + theme);
+            string selectedTheme = appSettings.sTheme;
+            LogWriter.LogWrite("NewOnboarding report autotheme status" + appSettings.bAutoTheme);
+            if (isDarkMode == true && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Light";
+            }
+            else if (isDarkMode == false && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Dark";
+            }
+            TitleBarThemeChange();
+            ((App)Application.Current).ChangeTheme(selectedTheme);
+            RegistryManager.SetThemeMode();
+
+        }
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Hook into Windows messages
+            var hwndSource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            if (hwndSource != null)
+            {
+                hwndSource.AddHook(WndProctheme);
+            }
+
+            // Apply the correct theme at startup
+            ChangeThemeByWindows();
+            var isLightTheme = IsLightTheme();
+            UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
+        }
+        private static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
+        }
+        private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 20;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 19;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+
+            return false;
         }
     }
 }

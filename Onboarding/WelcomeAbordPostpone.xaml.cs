@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.Onboarding.New;
 using Focus_Bear.Utils;
+using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -23,17 +25,19 @@ namespace Focus_Bear.Onboarding
     public partial class WelcomeAbordPostpone : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         private NewOnboardingStart parentWin = null;
         public WelcomeAbordPostpone()
         {
         }
-            public WelcomeAbordPostpone(NewOnboardingStart _parentWin)
+        public WelcomeAbordPostpone(NewOnboardingStart _parentWin)
         {
             parentWin = _parentWin;
             InitializeComponent();
             InitializeSettings();
+            TitleBarThemeChange();
+            App.ThemeChanged += TitleBarThemeChange;
 
-          
         }
         void InitializeSettings()
         {
@@ -76,6 +80,28 @@ namespace Focus_Bear.Onboarding
             catch (Exception ex)
             {
                 LogWriter.LogWrite("btnPostponeOnboarding_Click - " + ex.Message);
+            }
+
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (appSettings.sTheme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+
+
+            }
+            else if (appSettings.sTheme == "Dark")
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+
             }
 
         }

@@ -96,7 +96,7 @@
                         </Style>
                     </TextBox.FocusVisualStyle>
                 </TextBox>
-                <Image x:Name="EyePassword" Source="../images/eye-gray.png" Width="20" Height="20" Margin="340,0,0,0" Cursor="Hand" MouseUp="EyePassword_MouseUp"></Image>
+                <Image x:Name="EyePassword" Source="../images/eye-orange.png" Width="20" Height="20" Margin="340,0,0,0" Cursor="Hand" MouseUp="EyePassword_MouseUp"></Image>
                 <Image  Name="ImgPasswordValid" Source="../images/validIcon.png" Width="20" Height="20" Margin="390,0,0,0" Visibility="Collapsed"></Image>
             </Grid>
 

@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -25,7 +26,7 @@ namespace Focus_Bear.Onboarding
     {
         private OnBoardingWindow _parentWindow;
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         public OnboardingGoals()
         {
         }
@@ -65,7 +66,8 @@ namespace Focus_Bear.Onboarding
             StayFocused.IsChecked = false;
             btnContinue.IsEnabled = false;
             CareDesc.Text = "";
-
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
 
         private void HealthyHabits_Checked(object sender, RoutedEventArgs e)
@@ -254,7 +256,9 @@ namespace Focus_Bear.Onboarding
             CareDesc.Text = "Cool. We'll let you set up your habits right away"; //todo win texts
             btnContinue.IsEnabled = true;
         }
-
-  
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
+        }
     }
 }

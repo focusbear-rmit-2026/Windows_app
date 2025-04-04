@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -24,9 +25,11 @@ namespace Focus_Bear.Onboarding.AfterLogin
     /// <summary>
     /// Interaction logic for OnboardingSetWorkType.xaml
     /// </summary>
-    public partial class OnboardingSetWorkType : Page
+    public partial class OnboardingSetWorkType : System.Windows.Controls.Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
+
         private OnboardingSetupAndTipsWindow _parentWindow;
         public OnboardingSetWorkType()
         {
@@ -91,8 +94,13 @@ namespace Focus_Bear.Onboarding.AfterLogin
             {
                 LogWriter.LogWrite("Onboarding set work type () EX -" + ex.Message);
             }
-          
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
             SetupFocusMode.Visibility = Visibility.Collapsed;
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
 
         private void ComboBoxWorkType_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -6,12 +6,19 @@
       xmlns:local="clr-namespace:Focus_Bear.Onboarding.NEW"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800" Height="660" Width="750"
-      Title="OnboardingNewWelcome" Background="#fff">
+      Title="OnboardingNewWelcome">
 
 
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="150" />
@@ -27,26 +34,26 @@
         </Grid.RowDefinitions>
 
         <Image Grid.Row="0" Height="120"  Width="120" Source="../../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="191,0,191,5"/>
-        <TextBlock  Grid.Row="1" Margin="0,0,0,0" TextWrapping="Wrap" Text="Focus Bear" Foreground="#000" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="2" Name="Welcome" Margin="0,18,0,0" TextWrapping="Wrap" Text="xWelcome Abord!" Foreground="#000" FontSize="23" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="3" Name="Descriptiopn1" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxFocus Bear helps you avoid distractions and build healthy habits." Foreground="#272727" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="4" Name="Descriptiopn2" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxLet's start out by blocking distractions." Foreground="#272727" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1" Margin="0,0,0,0" TextWrapping="Wrap" Text="Focus Bear" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="2" Name="Welcome" Margin="0,18,0,0" TextWrapping="Wrap" Text="xWelcome Abord!"  FontSize="23" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="3" Name="Descriptiopn1" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxFocus Bear helps you avoid distractions and build healthy habits."  FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="4" Name="Descriptiopn2" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxLet's start out by blocking distractions."  FontSize="20" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
 
 
         <Button Grid.Row="6"   x:Name="btnLetsDoIt"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="7,7" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnLetsDoIt_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="buttonLetsDoItText" Margin="8" Text="xLet's do it"/>
+                        <TextBlock Name="buttonLetsDoItText" Margin="8" Text="xLet's do it" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
 
         <TextBlock x:Name="HaveAccount"  Grid.Row="7"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
-             <Hyperlink x:Name="btnHaveAccount"  Foreground="#000" Click="btnHaveAccount_Click"   TextDecorations="Underline" ><Run x:Name="btnHaveAccountText" Text="xI already have a Focus Bear account"/></Hyperlink>
+             <Hyperlink x:Name="btnHaveAccount"   Click="btnHaveAccount_Click"   TextDecorations="Underline" ><Run x:Name="btnHaveAccountText" Text="xI already have a Focus Bear account"/></Hyperlink>
         </TextBlock>
         <Separator Grid.Row="8" Margin="0,0,0,0"/>
 
-        <TextBlock  Grid.Row="9" Name="Copyright"   TextWrapping="Wrap" Text="xx© 2022-2024 Focus Bear, All Rights Reserved." Foreground="#272727" FontSize="12" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="9" Name="Copyright"   TextWrapping="Wrap" Text="xx© 2022-2024 Focus Bear, All Rights Reserved." FontSize="12" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="9" Margin="0,0,0,-10" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
     </Grid>

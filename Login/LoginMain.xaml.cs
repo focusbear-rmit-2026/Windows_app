@@ -27,6 +27,7 @@ namespace Focus_Bear.Login
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         public bool bDoNotShutDown = false;
         public LoginMain()
         {
@@ -96,8 +97,8 @@ namespace Focus_Bear.Login
 
             // Apply the correct theme at startup
             ChangeThemeByWindows();
-            var isLightTheme = IsLightTheme();
-            UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
+            var isLightTheme = app.IsLightTheme();
+            app.UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
         }
         private IntPtr WndProctheme(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
@@ -111,7 +112,7 @@ namespace Focus_Bear.Login
         }
         private void ChangeThemeByWindows()
         {
-            bool bDarkMode = IsLightTheme();
+            bool bDarkMode = app.IsLightTheme();
             string theme = bDarkMode ? "Light" : "Dark";
             ((App)Application.Current).ChangeTheme(theme);
             RegistryManager.SetThemeMode();
@@ -121,7 +122,7 @@ namespace Focus_Bear.Login
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {
-                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
             if(appSettings.sTheme == "Light")
             {
@@ -134,29 +135,7 @@ namespace Focus_Bear.Login
                 BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
             }
         }
-        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
-        {
-            Version osVersion = Environment.OSVersion.Version;
-            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
 
-            if (isWindows10OrGreater)
-            {
-                var attribute = 19;
-                if (osVersion.Build >= 18985)
-                {
-                    attribute = 20;
-                }
 
-                int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
-            return false;
-        }
-        private static bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i > 0;
-        }
     }
 }
