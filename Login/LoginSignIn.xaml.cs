@@ -31,6 +31,7 @@ namespace Focus_Bear.Login
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
         private LoginMain _parentWindow;
+        public bool bEyeOnPasswordBox = false;
         public LoginSignIn()
         {
             
@@ -257,18 +258,7 @@ namespace Focus_Bear.Login
                 lblPassword.Foreground = new SolidColorBrush(Colors.LightGray);
             }
         }
-        private void ShowPasswordToggleButton_Checked(object sender, RoutedEventArgs e)
-        {
-            TxtShowPassword.Text = TxtPassword.Password;
-            TxtShowPassword.Visibility = Visibility.Visible;
-            TxtPassword.Visibility = Visibility.Collapsed;
-        }
-        private void ShowPasswordToggleButton_Unchecked(object sender, RoutedEventArgs e)
-        {
-            TxtPassword.Password = TxtShowPassword.Text;
-            TxtShowPassword.Visibility = Visibility.Collapsed;
-            TxtPassword.Visibility = Visibility.Visible;
-        }
+
         private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
             TxtShowPassword.Text = TxtPassword.Password;
@@ -277,6 +267,45 @@ namespace Focus_Bear.Login
         {
              TxtPassword.Password = TxtShowPassword.Text;
         }
-        
+        private void EyePassword_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            bEyeOnPasswordBox = !bEyeOnPasswordBox;
+            if (bEyeOnPasswordBox)
+            {
+                EyePassword.Source = new BitmapImage(new Uri("pack://application:,,,/Images/eye-gray.png"));
+
+                TxtShowPassword.Visibility = Visibility.Visible;
+                TxtPassword.Visibility = Visibility.Collapsed;
+                TxtShowPassword.Text = TxtPassword.Password;
+
+                try
+                {
+                    EyePassword.ToolTip = appSettings.ConfigFileStrings["customLoginVcInfo"]["tooltipHidePassword"].ToString();
+                }
+                catch (Exception ex)
+                {
+                    EyePassword.ToolTip = "Hide Password"; //Fore Time Being
+                    LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
+                }
+            }
+            else
+            {
+                EyePassword.Source = new BitmapImage(new Uri("pack://application:,,,/Images/eye-orange.png"));
+
+                TxtShowPassword.Visibility = Visibility.Collapsed;
+                TxtPassword.Visibility = Visibility.Visible;
+                TxtPassword.Password = TxtShowPassword.Text;
+                try
+                {
+                    EyePassword.ToolTip = appSettings.ConfigFileStrings["customLoginVcInfo"]["tooltipShowPassword"].ToString();
+                }
+                catch (Exception ex)
+                {
+                    EyePassword.ToolTip = "Show Password"; //for time being
+                    LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
+                }
+            }
+        }
+
     }
 }

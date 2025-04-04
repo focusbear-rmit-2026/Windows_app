@@ -25,6 +25,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100"/>
             <ColumnDefinition/>
+            <ColumnDefinition Width="100"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -82,28 +83,9 @@
                     </PasswordBox>
                     <TextBox x:Name="TxtShowPassword" Visibility="Collapsed" Margin="0" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" TextChanged="Textbox_PasswordChanged"/>
                 </StackPanel>
-
-                <ToggleButton x:Name="ShowPasswordToggleButton" Grid.Column="1" Width="29" Height="29" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,0"
-                               Checked="ShowPasswordToggleButton_Checked" Unchecked="ShowPasswordToggleButton_Unchecked">
-                    <ToggleButton.Style>
-                        <Style TargetType="ToggleButton">
-                            <Setter Property="Content">
-                                <Setter.Value>
-                                    <Image Source="/Images/eye-orange.png" />
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsChecked" Value="True">
-                                    <Setter Property="Content">
-                                        <Setter.Value>
-                                            <Image Source="/Images/eye-gray.png" />
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ToggleButton.Style>
-                </ToggleButton>
+                <Image x:Name="EyePassword" Grid.Column="1" Source="../images/eye-orange.png" Width="20" Height="20" Margin="0,0,0,5" Cursor="Hand" MouseUp="EyePassword_MouseUp" VerticalAlignment="Bottom"></Image>
+                <Image  Name="ImgPasswordValid"  Grid.Column="1" Source="../images/validIcon.png" Width="20" Height="20" Margin="0,0,0,5" Visibility="Collapsed" VerticalAlignment="Bottom"></Image>
+                
             </Grid>
 
 
