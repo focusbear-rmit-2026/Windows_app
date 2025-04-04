@@ -26,7 +26,8 @@
 
         <Button x:Name="btnBack" Grid.RowSpan="3" Grid.Column="0" Content="Button" Style="{StaticResource BtnStyleBack}" SnapsToDevicePixels="True" HorizontalAlignment="Center" Height="82" VerticalAlignment="Center" Width="90" ToolTip="xBack" Cursor="Hand" Click="btnBack_Click"/>
         <TextBlock Width="300" Grid.Row="0" Grid.Column="1" Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xSign Up" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1" Grid.Column="1"  Name="Description" Margin="0,20,0,0" TextWrapping="Wrap" Text="xCreate an account to sync your habit + block settings across all your devices."  FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+        <TextBlock  Grid.Row="1" Grid.Column="1"  Name="Description" Margin="0,20,0,0" TextWrapping="Wrap" Text="xCreate an account to sync your habit + block settings across all your devices." Foreground="{DynamicResource ForegroundColor}" FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center" Width="420">
 
