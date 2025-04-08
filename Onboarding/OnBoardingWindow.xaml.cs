@@ -482,14 +482,14 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (nScreenNumberWeAreOn == 3) //Goals Screen
+                else if (nScreenNumberWeAreOn == 3) //Goals Screen - What do you want to achieve with Focus Bear
                 {
                     //we need to check  the focus check box  and enable the continue button
-                    WndOnboardingGoals.StayFocused.IsChecked = true;
+                   /// WndOnboardingGoals.StayFocused.IsChecked = true;
 
-                    WndOnboardingGoals.btnContinue.IsEnabled = true;
+                   /// WndOnboardingGoals.btnContinue.IsEnabled = true;
                     //We need to click the continue button on the screen
-                    ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingGoals.btnContinue);
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingAchieveWithFocusBear.btnContinue);
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }

@@ -40,7 +40,7 @@ namespace Focus_Bear.Onboarding
             Heading.Text = appSettings.ConfigFileStrings["achieveWithFocusBearVcInfo"]["title"].ToString(); //"What do you want to achieve with Focus Bear?"
             Description.Text = appSettings.ConfigFileStrings["achieveWithFocusBearVcInfo"]["subTitle"].ToString(); //"How do you want your life to change from using Focus Bear?";
             btnContinueTXT.Text = appSettings.ConfigFileStrings["achieveWithFocusBearVcInfo"]["buttonContinueText"].ToString(); //"Continue";
-            InfoChange.ToolTip = "We’ll save this as a long term goal for you - it will also help us understand what you’re expecting so we can improve the app"; //todo win texts
+            InfoChange.ToolTip = appSettings.ConfigFileStrings["achieveWithFocusBearVcInfo"]["infoText"].ToString(); // "We’ll save this as a long term goal for you - it will also help us understand what you’re expecting so we can improve the app"; //todo win texts
             Page_Theme();
             App.ThemeChanged += Page_Theme;
         }

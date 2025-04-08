@@ -311,7 +311,7 @@ namespace Focus_Bear.Habits
         {
             //WE will set the morning habits shown date for today
             RegistryManager.SetMorningHabitsShownTillDate();
-            DialogResult = false;
+            DialogResult = true;
             Close();
         }
         protected override void OnSourceInitialized(EventArgs e)
