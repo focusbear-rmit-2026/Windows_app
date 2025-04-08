@@ -15,6 +15,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -27,7 +28,7 @@ namespace Focus_Bear.Upgrade
     public partial class UpgradeNow : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         public UpgradeNow()
         {
             InitializeComponent();
@@ -85,7 +86,7 @@ namespace Focus_Bear.Upgrade
             {
                 UninstallText.Visibility = Visibility.Collapsed;
             }
-
+            App.ThemeChanged += TitleBarThemeChange;
             appSettings.CapturePostHog("upgrade-nag-shown");
         }
 
@@ -235,6 +236,14 @@ namespace Focus_Bear.Upgrade
                 {
                     Process.Start(appPath);
                 }
+            }
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
         }
     }

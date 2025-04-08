@@ -6,11 +6,18 @@
       xmlns:local="clr-namespace:Focus_Bear.Onboarding"
       mc:Ignorable="d" 
       d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="OnboardingWelcome" Background="#fff">
+      Title="OnboardingWelcome">
 
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="175" />
@@ -22,15 +29,15 @@
 
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="x finished!✅ You've earned your screen time. 💪" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <StackPanel  Grid.Row="2"  Orientation="Vertical" HorizontalAlignment="Center">
-        <TextBlock    Name="Message" Margin="0,100,0,0" TextWrapping="Wrap" Text="xWhat type of work do you mainly do?." Foreground="#272727" FontSize="25" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-            <TextBlock    Name="MessageDetails" Margin="0,20,0,0" TextWrapping="Wrap" Text="x." Foreground="#272727" FontSize="21" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+        <TextBlock    Name="Message" Margin="0,100,0,0" TextWrapping="Wrap" Text="xWhat type of work do you mainly do?."  FontSize="25" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock    Name="MessageDetails" Margin="0,20,0,0" TextWrapping="Wrap" Text="x."  FontSize="21" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
 
 
         </StackPanel>
         <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock Name="btnContinueTxt" Text="xContinue"/>
+                    <TextBlock Name="btnContinueTxt" Text="xContinue" Foreground="Black"/>
                 </StackPanel>
             </Button.Content>
         </Button>

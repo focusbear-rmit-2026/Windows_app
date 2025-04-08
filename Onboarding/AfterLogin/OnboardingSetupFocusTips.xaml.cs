@@ -1,9 +1,11 @@
 ﻿using Focus_Bear.Utils;
+using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -19,9 +21,10 @@ namespace Focus_Bear.Onboarding.AfterLogin
     /// <summary>
     /// Interaction logic for OnboardingSetupFocusTips.xaml
     /// </summary>
-    public partial class OnboardingSetupFocusTips : Page
+    public partial class OnboardingSetupFocusTips : System.Windows.Controls.Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         OnboardingSetupAndTipsWindow _parentWindow;
         int nStep = 0;
         public OnboardingSetupFocusTips()
@@ -65,6 +68,12 @@ namespace Focus_Bear.Onboarding.AfterLogin
             {
                 LogWriter.LogWrite("OnboardingSetupFocusTips Init EX + " + ex.Message);
             }
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
         private void btnBack_Click(object sender, RoutedEventArgs e)
         {

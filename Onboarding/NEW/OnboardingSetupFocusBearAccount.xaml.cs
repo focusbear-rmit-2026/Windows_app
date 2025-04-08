@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI;
 using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
@@ -24,9 +25,10 @@ namespace Focus_Bear.Onboarding.NEW
     /// <summary>
     /// Interaction logic for OnboardingSetupFocusBearAccount.xaml
     /// </summary>
-    public partial class OnboardingSetupFocusBearAccount : Page
+    public partial class OnboardingSetupFocusBearAccount : System.Windows.Controls.Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         private NewOnboardingStart _parentWindow;
 
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
@@ -55,6 +57,8 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 LogWriter.LogWrite("OnboardingSetupFocusBearAccount()k EX -" + ex.Message);
             }
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
          
  
@@ -87,5 +91,10 @@ namespace Focus_Bear.Onboarding.NEW
             _parentWindow.bShutdownApp = false;
             _parentWindow.Close();
         }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
+        }
+
     }
 }

@@ -6,10 +6,17 @@
       xmlns:local="clr-namespace:Focus_Bear.Onboarding"
       mc:Ignorable="d" 
       d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="OnboardingConfirmMorningRoutine" Background="White">
+      Title="OnboardingConfirmMorningRoutine" >
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="105" />
@@ -20,21 +27,21 @@
         </Grid.RowDefinitions>
 
         <Image Grid.Row="0" Height="99"  Width="99" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xConfirm your evening routine" Foreground="#000" FontSize="27" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xConfirm your evening routine" FontSize="27" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <StackPanel  Grid.Row="2"  Orientation="Vertical" VerticalAlignment="Center" Width="1000" HorizontalAlignment="Center"  Height="auto"  Margin="0,0,0,0">
 
-            <TextBlock  Name="ToBeClearDesc" Margin="0,0,0,0"  TextWrapping="Wrap" Text="xTo be super clear, here's what's going to happen in the evening." Foreground="#000" FontSize="22" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+            <TextBlock  Name="ToBeClearDesc" Margin="0,0,0,0"  TextWrapping="Wrap" Text="xTo be super clear, here's what's going to happen in the evening." FontSize="22" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
 
             <Grid  Margin="0,20,0,0" VerticalAlignment="Top">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="230"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Name="AtTime1" Margin="0,0,0,0"    TextWrapping="Wrap" Text="xAt 08:30 PM:" Foreground="#000" FontSize="20" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                <TextBlock Grid.Column="0" Name="AtTime1" Margin="0,0,0,0"    TextWrapping="Wrap" Text="xAt 08:30 PM:" FontSize="20" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
                 <StackPanel Grid.Column="1" Orientation="Vertical">
-                    <TextBlock  Name="pointFirstRelaxTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xYou'll enter Relax mode." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <TextBlock  Name="pointSecondRelaxTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xYou can use any app (including websites that are normally blocked)." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <TextBlock  Name="pointThirdRelaxTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xGood for playing games or unrestricted browsing. You've earned it after a hard day of focusing." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <TextBlock  Name="pointFirstRelaxTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xYou'll enter Relax mode." FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <TextBlock  Name="pointSecondRelaxTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xYou can use any app (including websites that are normally blocked)." FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <TextBlock  Name="pointThirdRelaxTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xGood for playing games or unrestricted browsing. You've earned it after a hard day of focusing." FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
                 </StackPanel>
             </Grid>
 
@@ -43,13 +50,13 @@
                     <ColumnDefinition Width="230"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Name="AtTime2" Margin="0,0,0,0"    TextWrapping="Wrap" Text="xAt 08:30 PM:" Foreground="#000" FontSize="20" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                <TextBlock Grid.Column="0" Name="AtTime2" Margin="0,0,0,0"    TextWrapping="Wrap" Text="xAt 08:30 PM:" FontSize="20" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
                 <StackPanel Grid.Column="1" Orientation="Vertical">
                     
-                    <TextBlock  Name="pointFirstEveningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xYou'll enter Wind Down mode." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <TextBlock  Name="pointSecondEveningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xIt's time to do your evening habits and get ready to sleep." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <TextBlock  Name="pointThirdEveningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xGames and other websites are blocked." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <TextBlock  Name="pointFourthEveningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xIf you really need to keep using your computer, you can unlock it but we recommend sticking to your routine." Foreground="#000" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <TextBlock  Name="pointFirstEveningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xYou'll enter Wind Down mode." FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <TextBlock  Name="pointSecondEveningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xIt's time to do your evening habits and get ready to sleep." FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <TextBlock  Name="pointThirdEveningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xGames and other websites are blocked." FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <TextBlock  Name="pointFourthEveningTimeText" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xIf you really need to keep using your computer, you can unlock it but we recommend sticking to your routine." FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
                 </StackPanel>
             </Grid>
         </StackPanel>
@@ -58,14 +65,14 @@
             <Button x:Name="btnChangeThis"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnChangeThis_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnChangeThisTXT" Text="xChange this"/>
+                        <TextBlock x:Name="btnChangeThisTXT" Text="xChange this" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
             <Button x:Name="btnSoundsGood"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnSoundsGood_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnSoundsGoodTXT" Text="xSounds Good"/>
+                        <TextBlock x:Name="btnSoundsGoodTXT" Text="xSounds Good" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

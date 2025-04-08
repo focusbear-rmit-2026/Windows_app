@@ -16,6 +16,8 @@ using Focus_Bear.Utils;
 using Focus_Bear.API;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
+using System.Windows.Interop;
+using System.Runtime.InteropServices;
 
 namespace Focus_Bear.Login
 {
@@ -24,9 +26,12 @@ namespace Focus_Bear.Login
     /// </summary>
     public partial class LoginSignIn : Page
     {
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         private LoginMain _parentWindow;
+        public bool bEyeOnPasswordBox = false;
         public LoginSignIn()
         {
             
@@ -54,7 +59,8 @@ namespace Focus_Bear.Login
             Loaded += (sender, e) => TxtEmailAddress.Focus();
 
             appSettings.CapturePostHog("view-signin-shown");
-
+            TitleBarThemeChange();
+            App.ThemeChanged += TitleBarThemeChange;
         }
 
         private void btnCreatAccount_Click(object sender, RoutedEventArgs e)
@@ -230,5 +236,76 @@ namespace Focus_Bear.Login
                 EnablControls(true);
             }
         }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (appSettings.sTheme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+                lblEmail.Foreground = new SolidColorBrush(Colors.Black);
+                lblPassword.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            else
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+                lblEmail.Foreground = new SolidColorBrush(Colors.LightGray);
+                lblPassword.Foreground = new SolidColorBrush(Colors.LightGray);
+            }
+        }
+
+        private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            TxtShowPassword.Text = TxtPassword.Password;
+        }
+        private void Textbox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+             TxtPassword.Password = TxtShowPassword.Text;
+        }
+        private void EyePassword_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            bEyeOnPasswordBox = !bEyeOnPasswordBox;
+            if (bEyeOnPasswordBox)
+            {
+                EyePassword.Source = new BitmapImage(new Uri("pack://application:,,,/Images/eye-gray.png"));
+
+                TxtShowPassword.Visibility = Visibility.Visible;
+                TxtPassword.Visibility = Visibility.Collapsed;
+                TxtShowPassword.Text = TxtPassword.Password;
+
+                try
+                {
+                    EyePassword.ToolTip = appSettings.ConfigFileStrings["customLoginVcInfo"]["tooltipHidePassword"].ToString();
+                }
+                catch (Exception ex)
+                {
+                    EyePassword.ToolTip = "Hide Password"; //Fore Time Being
+                    LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
+                }
+            }
+            else
+            {
+                EyePassword.Source = new BitmapImage(new Uri("pack://application:,,,/Images/eye-orange.png"));
+
+                TxtShowPassword.Visibility = Visibility.Collapsed;
+                TxtPassword.Visibility = Visibility.Visible;
+                TxtPassword.Password = TxtShowPassword.Text;
+                try
+                {
+                    EyePassword.ToolTip = appSettings.ConfigFileStrings["customLoginVcInfo"]["tooltipShowPassword"].ToString();
+                }
+                catch (Exception ex)
+                {
+                    EyePassword.ToolTip = "Show Password"; //for time being
+                    LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
+                }
+            }
+        }
+
     }
 }

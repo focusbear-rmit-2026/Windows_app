@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Utils;
+using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,7 +30,7 @@ namespace Focus_Bear.Focus
     public partial class GentleBlock : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         int nTimer = 15; //15 Seconds
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
@@ -49,6 +50,9 @@ namespace Focus_Bear.Focus
             var hWnd = new WindowInteropHelper(this);
             var sysMenu = GetSystemMenu(hWnd.Handle, false);
             EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+
         }
 
         private string sFocusModeName = "";
@@ -81,7 +85,9 @@ namespace Focus_Bear.Focus
             ShowInTaskbar = false;
             Topmost = true;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
-    }
+            TitleBarThemeChange();
+            App.ThemeChanged += TitleBarThemeChange;
+        }
 
         public void ShowGentleBlockWindowAndStartTimer(IntPtr hWnd, string sFocusModeTitle, string sAppName, string sURL = "", string sIntention = "", string sTabTitle = "")
         {
@@ -168,12 +174,12 @@ namespace Focus_Bear.Focus
                 AllowThisDomainText.Text = sDomain;
                 ////////////////////////////////////////////////////
 
-                sHeading = sHeading.Replace("<URL>", sActiveURL);
+                sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
                 this.Hide(); //Will keep this window hidden will we get response from API
             }
             sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeTitle);
             
-            sHeading = sHeading.Length > 108 ? sHeading.Substring(0, 108) : sHeading; //If there are more characters, take only first 100 approx
+            //sHeading = sHeading.Length > 108 ? sHeading.Substring(0, 108) : sHeading; //If there are more characters, take only first 100 approx
             Heading.Text = sHeading;
 
             if (sIntention.Length > 0) //Set the activity title if thelength is > 0
@@ -263,7 +269,7 @@ namespace Focus_Bear.Focus
                         await Dispatcher.BeginInvoke((Action)(() =>
                         {
                             sHeading = sHeading + "\n\n" + "The status of this url could not be verified.";
-                            sHeading = sHeading.Replace("<URL>", sActiveURL);
+                            sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
                             sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
                             Heading.Text = sHeading;
 
@@ -318,7 +324,7 @@ namespace Focus_Bear.Focus
                                 if (appSettings.sChatGPTReasonForCurrentURL.Length > 0) //add reason from chat gpt
                                 {
                                     sHeading = sHeading + "\n\n" + appSettings.sChatGPTReasonForCurrentURL;
-                                    sHeading = sHeading.Replace("<URL>", sActiveURL);
+                                    sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
                                     sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
                                     Heading.Text = sHeading;
                                     dispatcherTimer.Start();
@@ -483,6 +489,26 @@ namespace Focus_Bear.Focus
         {
             dispatcherTimer.Stop();
         }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (appSettings.sTheme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
 
+
+            }
+            else if (appSettings.sTheme == "Dark")
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+
+            }
+        }
     }
 }

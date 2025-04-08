@@ -1,7 +1,10 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Models;
+using Focus_Bear.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -20,12 +24,17 @@ namespace Focus_Bear.Login
     /// </summary>
     public partial class LoginMain : Window
     {
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         public bool bDoNotShutDown = false;
         public LoginMain()
         {
             InitializeComponent();
             ShowLoginHomeWindow();
+            TitleBarThemeChange();
+            App.ThemeChanged += TitleBarThemeChange;
         }
         public void ShowLoginHomeWindow()
         {
@@ -80,6 +89,53 @@ namespace Focus_Bear.Login
 
 
             //}
+            var hwndSource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            if (hwndSource != null)
+            {
+                hwndSource.AddHook(WndProctheme);
+            }
+
+            // Apply the correct theme at startup
+            ChangeThemeByWindows();
+            var isLightTheme = app.IsLightTheme();
+            app.UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
         }
+        private IntPtr WndProctheme(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            int WM_SETTINGCHANGE = 0x1A;
+            if (msg == WM_SETTINGCHANGE)
+            {
+                // Apply theme when system settings change
+                ChangeThemeByWindows();
+            }
+            return IntPtr.Zero;
+        }
+        private void ChangeThemeByWindows()
+        {
+            bool bDarkMode = app.IsLightTheme();
+            string theme = bDarkMode ? "Light" : "Dark";
+            ((App)Application.Current).ChangeTheme(theme);
+            RegistryManager.SetThemeMode();
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if(appSettings.sTheme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+            }
+            else
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+            }
+        }
+
+
     }
 }

@@ -6,11 +6,19 @@
       xmlns:local="clr-namespace:Focus_Bear.Onboarding.AfterLogin"
       mc:Ignorable="d" 
       Height="660" Width="750"
-      Title="OnboardingSetupFocusTips" Background="#fff">
+      Title="OnboardingSetupFocusTips">
 
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
 
        
@@ -32,10 +40,10 @@
 
 
             </Grid.RowDefinitions>
-            <TextBlock  Grid.Row="0" x:Name="HeadingAllSetup" Margin="0,0,0,0" TextWrapping="Wrap" Text="xAll Setup" Foreground="#000" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="0" x:Name="HeadingAllSetup" Margin="0,0,0,0" TextWrapping="Wrap" Text="xAll Setup"  FontSize="22" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
             <Image Grid.Row="1" Margin="40,0,40,0" Height="auto" x:Name="TipImage" Source="../../Images/focustips/focustip_1.png" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center"  />
-            <TextBlock  Grid.Row="2" x:Name="TipTitle" Margin="0,0,0,0" TextWrapping="Wrap" Text="xTip 1:" Foreground="#000" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
-                <TextBlock  Grid.Row="3" Name="TipDescription" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxYou can try it out now by clicking the Play icon next to your new focus mode in the list that appears on clicking the Focus Bear menu icon in the System Tray." Foreground="#272727" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="2" x:Name="TipTitle" Margin="0,0,0,0" TextWrapping="Wrap" Text="xTip 1:"  FontSize="22" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
+                <TextBlock  Grid.Row="3" Name="TipDescription" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxYou can try it out now by clicking the Play icon next to your new focus mode in the list that appears on clicking the Focus Bear menu icon in the System Tray."  FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             
         </Grid>
 
@@ -50,7 +58,7 @@
         <Button Grid.Row="2" x:Name="btnBack"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="30" Width="133" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnBack_Click" Visibility="Collapsed">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnBackTXT" Text="xBack"/>
+                    <TextBlock x:Name="btnBackTXT" Text="xBack" Foreground="Black"/>
                 </StackPanel>
             </Button.Content>
         </Button>
@@ -58,7 +66,7 @@
         <Button Grid.Row="2" x:Name="btnNext"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="30" Width="133" HorizontalAlignment="Right" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnNext_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnNextTXT" Text="xNext"/>
+                    <TextBlock x:Name="btnNextTXT" Text="xNext" Foreground="Black"/>
                 </StackPanel>
             </Button.Content>
         </Button>

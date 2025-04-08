@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -23,6 +25,8 @@ namespace Focus_Bear.Focus
     public partial class AddTempAllowedToFocusModeWindow : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
+
         public AddTempAllowedToFocusModeWindow()
         {
             LogWriter.LogWrite("AddTempAllowedToFocusModeWindow() shown ");
@@ -82,7 +86,8 @@ namespace Focus_Bear.Focus
 
             // Automatically resize height and width relative to content
             this.SizeToContent = SizeToContent.WidthAndHeight;
-
+            TitleBarThemeChange();
+            App.ThemeChanged += TitleBarThemeChange;
         }
 
         private void btnAdd_Click(object sender, RoutedEventArgs e)
@@ -103,6 +108,21 @@ namespace Focus_Bear.Focus
             appSettings.TemporaryAllowedKeywords.Add(new DistractingURL("",true));
             ListKeywords.SelectedItem = (appSettings.TemporaryAllowedKeywords.Count() - 1);
         }
- 
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+        }
+        
     }
 }

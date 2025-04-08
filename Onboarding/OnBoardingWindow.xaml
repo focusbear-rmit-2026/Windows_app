@@ -11,7 +11,7 @@
     <!--<local1:DpiDecorator>-->
     <Grid>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <TextBlock Visibility="Collapsed" Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xNow let's set up an account for you." Foreground="#e88800" FontSize="40" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Frame x:Name="AppFrameOnboarding" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed" />

@@ -46,6 +46,7 @@ namespace Focus_Bear.Onboarding
         }
 
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         int nPostponeTime;
         bool bShutdownApp = true;
@@ -62,6 +63,8 @@ namespace Focus_Bear.Onboarding
             btnABitLaterPleaseText.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonLaterText"].ToString(); //A bit later please",
             buttonLetsDoItText.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["buttonLetsDoItText"].ToString();// "Let's do it",
             Copyright.Text = appSettings.ConfigFileStrings["welcomeOnboardingVcInfo"]["allRightsReservedText"].ToString();// "© 2022 Focus Bear, All Rights Reserved."
+            TitleBarThemeChange();
+            App.ThemeChanged += TitleBarThemeChange;
         }
 
         private void btnLetsDoIt_Click(object sender, RoutedEventArgs e)
@@ -137,6 +140,28 @@ namespace Focus_Bear.Onboarding
         {
             if(bShutdownApp)
                 Application.Current.Shutdown(0);
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (appSettings.sTheme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+
+
+            }
+            else if (appSettings.sTheme == "Dark")
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+
+            }
+
         }
 
     }

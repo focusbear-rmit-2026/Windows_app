@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -20,9 +21,11 @@ namespace Focus_Bear.Onboarding.AfterLogin
     /// <summary>
     /// Interaction logic for OnboardingSetupFocusUrls.xaml
     /// </summary>
-    public partial class OnboardingSetupFocusUrls : Page
+    public partial class OnboardingSetupFocusUrls : System.Windows.Controls.Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
+
         OnboardingSetupAndTipsWindow _parentWindow;
         public OnboardingSetupFocusUrls()
         {
@@ -52,6 +55,12 @@ namespace Focus_Bear.Onboarding.AfterLogin
             btnContinueTXT.Text = appSettings.ConfigFileStrings["onboardingBlockedUrlsInfo"]["buttonContinueText"].ToString();
 
             ListAllowedURLs.ItemsSource = appSettings.FocusModeNameToCreateWhileOnBoarding.arrAllowedUrls;
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
 
         private void btnAddURL_Click(object sender, RoutedEventArgs e)

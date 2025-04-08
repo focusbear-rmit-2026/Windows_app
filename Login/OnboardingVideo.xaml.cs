@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.ComponentModel;
 using Microsoft.Web.WebView2.Core;
 using System.Diagnostics;
+using System.Windows.Interop;
 
 namespace Focus_Bear.Login
 {
@@ -24,6 +25,7 @@ namespace Focus_Bear.Login
     public partial class OnboardingVideo : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         public OnboardingVideo()
         {
             InitializeComponent();
@@ -45,8 +47,9 @@ namespace Focus_Bear.Login
             {
                 LogWriter.LogWrite("OnboardingVideo  EX - " + ex.Message);
             }
+            TitleBarThemeChange();
+            App.ThemeChanged += TitleBarThemeChange;
 
-           
 
         }
 
@@ -170,6 +173,28 @@ namespace Focus_Bear.Login
 
 
             //}
+        }
+        private void TitleBarThemeChange()
+        {
+            var theme = appSettings.sTheme;
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (theme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+
+
+            }
+            else if (theme == "Dark")
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+
+            }
         }
     }
 }

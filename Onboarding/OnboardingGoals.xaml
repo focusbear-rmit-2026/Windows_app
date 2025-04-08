@@ -6,11 +6,18 @@
       xmlns:local="clr-namespace:Focus_Bear.Onboarding"
       mc:Ignorable="d" 
       d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="Focus Bear" Background="#fff">
+      Title="Focus Bear">
 
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="105" />
@@ -26,37 +33,37 @@
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,10,0,0" TextWrapping="Wrap" Text="xWelcome to Focus Bear" Foreground="#e88800" FontSize="27" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Viewbox Grid.Row="2" Stretch="Uniform" Margin="0,10,0,0" Height="200" >
             <StackPanel  Grid.Row="2"  Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Center"  Margin="0,0,0,0">
-                <TextBlock  Name="SetGoals" Margin="0,10,0,10" TextWrapping="Wrap" Text="xSet your Goals and Preferences " Foreground="#272727" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-                <TextBlock  Name="WhatGoals" Margin="0,10,0,40" TextWrapping="Wrap" Text="xWhat are your Goals?" Foreground="#272727" FontSize="23" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock  Name="SetGoals" Margin="0,10,0,10" TextWrapping="Wrap" Text="xSet your Goals and Preferences "  FontSize="20" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock  Name="WhatGoals" Margin="0,10,0,40" TextWrapping="Wrap" Text="xWhat are your Goals?"  FontSize="23" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" Width="300"  Margin="0,0,0,0">
                     <CheckBox x:Name="HealthyHabits" FontSize="18" Checked="HealthyHabits_Checked" Unchecked="HealthyHabits_Unchecked" Cursor="Hand"></CheckBox>
-                    <TextBlock  Name="TXTCheckBoxHealthyHabits" Margin="15,-6,0,0" Height="60"  TextWrapping="Wrap" Text="xBuild healthy habits" Foreground="#000" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <Image x:Name="InfoHealthyHabits" Source="../images/info.png" Width="18" Margin="10,-2,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" ToolTip="Focus Bear helps you avoid distractions and build healthy habits." ></Image>
+                    <TextBlock  Name="TXTCheckBoxHealthyHabits" Margin="15,-6,0,0" Height="60"  TextWrapping="Wrap" Text="xBuild healthy habits"  FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <Image x:Name="InfoHealthyHabits" Source="{DynamicResource InfoImage}" Width="18" Margin="10,-2,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" ToolTip="Focus Bear helps you avoid distractions and build healthy habits." ></Image>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Width="300" Margin="0,0,0,0">
                     <CheckBox x:Name="StayFocused" FontSize="18" Checked="StayFocused_Checked" Unchecked="StayFocused_Unchecked" Cursor="Hand"></CheckBox>
-                    <TextBlock  Name="TXTCheckBoxFocused" Margin="15,-6,0,0" Height="60"   TextWrapping="Wrap" Text="xStay focused at work " Foreground="#000" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <Image x:Name="InfoStayFocused" Source="../images/info.png" Width="18" Margin="10,-2,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" ToolTip="Focus Bear can help block distracting websites and apps while you're working to help you get more done." ></Image>
+                    <TextBlock  Name="TXTCheckBoxFocused" Margin="15,-6,0,0" Height="60"   TextWrapping="Wrap" Text="xStay focused at work " FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
+                    <Image x:Name="InfoStayFocused" Source="{DynamicResource InfoImage}" Width="18" Margin="10,-2,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" ToolTip="Focus Bear can help block distracting websites and apps while you're working to help you get more done." ></Image>
                 </StackPanel>
 
             </StackPanel>
         </Viewbox>
         <Viewbox Grid.Row="3" Stretch="Uniform" Margin="0,10,0,0"  >
             <StackPanel   Name="HabitsCare"  Visibility="Collapsed" Orientation="Vertical" HorizontalAlignment="Center"  Margin="0,0,0,10" >
-                <TextBlock  Name="CareAboutHabits" Margin="0,10,0,0" TextWrapping="Wrap" Text="xHow much do you care about building habits?" Foreground="#272727" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-                <TextBlock  Name="SelectOne" Margin="0,5,0,10" TextWrapping="Wrap" Text="xSelect one that apply" Foreground="#272727" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock  Name="CareAboutHabits" Margin="0,10,0,0" TextWrapping="Wrap" Text="xHow much do you care about building habits?" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock  Name="SelectOne" Margin="0,5,0,10" TextWrapping="Wrap" Text="xSelect one that apply" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
 
                 <RadioButton x:Name="DoNotCare"   Margin="0,20,0,10" Content="xMeh - don't really care" FontSize="18" Style="{StaticResource HabitsCareRadioButtonStyle}"   Checked="DoNotCare_Checked" Cursor="Hand"  />
                 <RadioButton x:Name="NotCommitted"  Margin="0,10,0,10"  Content="xI probably should do habits but am not that committed" FontSize="18" Style="{StaticResource HabitsCareRadioButtonStyle}"  Checked="NotCommitted_Checked" Cursor="Hand"  />
                 <RadioButton x:Name="Committed"  Margin="0,10,0,10"  Content="xSuper committed - this is the main reason I want to use Focus Bear" FontSize="18" Style="{StaticResource HabitsCareRadioButtonStyle}"  Checked="Committed_Checked" Cursor="Hand"  />
-                <TextBlock  Name="CareDesc" Margin="0,10,0,0" TextWrapping="Wrap" Text="xOk no worries. We'll let you focus on focusing!" FontSize="18" Foreground="#272727"  FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock  Name="CareDesc" Margin="0,10,0,0" TextWrapping="Wrap" Text="xOk no worries. We'll let you focus on focusing!" FontSize="18" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
             </StackPanel>
         </Viewbox>
         <Button Grid.Row="5"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnContinueTXT" Text="xContinue"/>
+                    <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>
                 </StackPanel>
             </Button.Content>
         </Button>

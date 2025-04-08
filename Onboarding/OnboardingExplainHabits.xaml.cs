@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -25,6 +26,7 @@ namespace Focus_Bear.Onboarding
         private OnBoardingWindow _parentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         public OnboardingExplainHabits()
         {
              
@@ -44,7 +46,8 @@ namespace Focus_Bear.Onboarding
             btnGotItTXT.Text = appSettings.ConfigFileStrings["onboardingHabitExplainVcInfo"]["buttonContinueText"].ToString();
             Heading.Text = appSettings.ConfigFileStrings["onboardingHabitExplainVcInfo"]["title"].ToString();
             Description.Text = appSettings.ConfigFileStrings["onboardingHabitExplainVcInfo"]["subTitle"].ToString();
-
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
 
         private void btnGotIt_Click(object sender, RoutedEventArgs e)
@@ -112,6 +115,10 @@ namespace Focus_Bear.Onboarding
                     LogWriter.LogWrite("CoreWebView2InitializationCompleted()" + ex.Message);
                 }
             }
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

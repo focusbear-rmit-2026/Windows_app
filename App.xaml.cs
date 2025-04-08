@@ -43,6 +43,10 @@ using Focus_Bear.Tour;
 using Focus_Bear.Survey;
 using Focus_Bear.Pomodoro;
 using Focus_Bear.CallDetection;
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
+using System.Web.UI;
+using System.Windows.Controls;
 
 namespace Focus_Bear
 {
@@ -80,6 +84,9 @@ namespace Focus_Bear
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         private const int SW_SHOW = 5;
+
+        [DllImport("dwmapi.dll")]
+        public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
 
         private const uint WINEVENT_OUTOFCONTEXT = 0;
@@ -1370,6 +1377,8 @@ namespace Focus_Bear
             //Write any routines or functionality to test in DEBUG mode here
             ///ShowCallFocusNotifier();
             ///
+            //OnboardingAchieveWithFocusBear wnd = new OnboardingAchieveWithFocusBear();
+            //wnd.Show();
 
 
 #endif
@@ -4485,6 +4494,51 @@ namespace Focus_Bear
             // Save theme setting
             appSettings.sTheme = theme;
 
+        }
+        public bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+            return false;
+        }
+        public bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
+        }
+
+        public void ApplyThemeToPage(System.Windows.Controls.Page page, System.Windows.Media.ImageBrush BackgroundImage)
+        {
+            LogWriter.LogWrite("app xaml ApplyThemeToPage: " +appSettings.sTheme );
+
+            var source = (HwndSource)PresentationSource.FromVisual(page);
+            if(source != null)
+            {
+                ((App)Current).UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (appSettings.sTheme == "Light")
+            {
+                page.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+            }
+            else if (appSettings.sTheme == "Dark")
+            {
+                page.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+            }
         }
     }
 }

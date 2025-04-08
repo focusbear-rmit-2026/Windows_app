@@ -27,7 +27,7 @@ namespace Focus_Bear.Habits
     public partial class BreakWarning : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         bool bSecondTime15SecTimerRunning;
         int nTimer = 30;
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
@@ -73,7 +73,7 @@ namespace Focus_Bear.Habits
             
             if (source != null)
             {
-                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
             if (appSettings.sTheme == "Light")
             {
@@ -205,24 +205,6 @@ namespace Focus_Bear.Habits
                 BreakDescText.Foreground = new SolidColorBrush(Colors.LightGray);
             }
         }
-        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
-        {
-            Version osVersion = Environment.OSVersion.Version;
-            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
-
-            if (isWindows10OrGreater)
-            {
-                var attribute = 19;
-                if (osVersion.Build >= 18985)
-                {
-                    attribute = 20;
-                }
-
-                int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
-            return false;
-        }
 
         private void btnAction_Click(object sender, RoutedEventArgs e)
         {
@@ -336,7 +318,7 @@ namespace Focus_Bear.Habits
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {
-                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
         }
     }

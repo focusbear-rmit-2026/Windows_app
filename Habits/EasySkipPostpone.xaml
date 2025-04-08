@@ -69,7 +69,7 @@
         </TextBlock>
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center"   Height="50" Visibility="Collapsed">
             <Image Source="{DynamicResource InfoImage}" Width="24"  Margin="30,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Center"></Image>
-            <TextBlock   Name="FrictionLevel" Margin="10,0,20,0" Width="450" TextWrapping="Wrap" Text="xIf you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab." Foreground="#727272" FontSize="12" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left"   />
+            <TextBlock   Name="FrictionLevel" Margin="10,0,20,0" Width="450" TextWrapping="Wrap" Text="xIf you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab." FontSize="12" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left"   />
 
         </StackPanel>
 

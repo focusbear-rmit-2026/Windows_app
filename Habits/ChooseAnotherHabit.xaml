@@ -23,7 +23,7 @@
         
         <TextBlock Grid.Row="0" Margin="20,0,20,0" Name="Heading" TextWrapping="Wrap" Text="xChoose the next habit to do from the following options:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
         
-        <ListView Grid.Row="1" Margin="15,0,20,0" x:Name="ListHabits" VerticalAlignment="Top"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" Cursor="Hand" SelectionChanged="ListHabits_SelectionChanged">
+        <ListView Grid.Row="1" Margin="15,0,20,0" x:Name="ListHabits" VerticalAlignment="Top"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Cursor="Hand" SelectionChanged="ListHabits_SelectionChanged">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem" >
                     <Setter Property="Focusable" Value="True" />
@@ -37,8 +37,8 @@
                             <ColumnDefinition Width="25"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding SNumber, StringFormat=\{0\}}" FontSize="15"   FontWeight="Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="1" Text="{Binding ActivityName, StringFormat=\{0\}}" VerticalAlignment="Center" Margin="0,0,15,0" HorizontalAlignment="Left" >
+                        <TextBlock Grid.Column="0" Text="{Binding SNumber, StringFormat=\{0\}}" FontSize="15"   FontWeight="Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ActivityName, StringFormat=\{0\}}" VerticalAlignment="Center" Margin="0,0,15,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}" >
 
                         </TextBlock>
                     </Grid>

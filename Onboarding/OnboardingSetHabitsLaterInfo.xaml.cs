@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -23,6 +24,7 @@ namespace Focus_Bear.Onboarding
     {
         private OnBoardingWindow _parentWindow;
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         public OnboardingSetHabitsLaterInfo()
         {
             
@@ -52,11 +54,17 @@ namespace Focus_Bear.Onboarding
             {
                 LogWriter.LogWrite("OnboardingSetHabitsLaterInfo() ex - " + ex.Message);
             }
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
             //mj//_parentWindow.ShowMindFullBreathingFinished();//this will handle to show only setting account info
             _parentWindow.HideFrameAndClose();
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

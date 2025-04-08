@@ -7,11 +7,18 @@
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
       d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="OnboardingWelcome" Background="#fff">
+      Title="OnboardingWelcome">
 
     <Grid VerticalAlignment="Center">
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -53,7 +60,7 @@
 
                     <!-- Any content -->
 
-                    <TextBlock x:Name="TxtTimer" Margin="0,22,60,0" TextWrapping="Wrap" Text="00:10" Foreground="#000" Padding="0" FontSize="27" FontWeight="SemiBold" HorizontalAlignment="Right" Height="30" VerticalAlignment="Center" />
+                    <TextBlock x:Name="TxtTimer" Margin="0,22,60,0" TextWrapping="Wrap" Text="00:10"  Padding="0" FontSize="27" FontWeight="SemiBold" HorizontalAlignment="Right" Height="30" VerticalAlignment="Center" />
 
                 </StackPanel>
 
@@ -79,7 +86,7 @@
         </Button>
 
         <TextBlock  Grid.Row="5"  x:Name="SkipThisHabitText" Margin="0,3,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="22" Cursor="Hand" Visibility="Collapsed"  >
-             <Hyperlink x:Name="btnSkipThisHabit"  Foreground="#000" Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
+             <Hyperlink x:Name="btnSkipThisHabit"  Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
         </TextBlock>
     </Grid>
 </Page>
