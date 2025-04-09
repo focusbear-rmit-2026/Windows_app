@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -73,6 +74,8 @@ namespace Focus_Bear.Focus
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
             CommandManager.InvalidateRequerySuggested();
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
@@ -149,6 +152,20 @@ namespace Focus_Bear.Focus
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             ((App)(Application.Current)).CloseFocusProgressWindow();
+        }
+      
+        private void Page_Theme()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (appSettings.sTheme == "Light")
+            {
+                WindowBorder.Background = new SolidColorBrush(Color.FromRgb(232, 136, 0));
+            }
+            else if (appSettings.sTheme == "Dark")
+            {
+                WindowBorder.Background = new SolidColorBrush(Color.FromRgb(32, 32, 32));
+            }
+
         }
     }
 }

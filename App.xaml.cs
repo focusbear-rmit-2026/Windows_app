@@ -1377,9 +1377,9 @@ namespace Focus_Bear
             //Write any routines or functionality to test in DEBUG mode here
             ///ShowCallFocusNotifier();
             ///
-            //OnboardingAchieveWithFocusBear wnd = new OnboardingAchieveWithFocusBear();
-            //wnd.Show();
 
+            //HabitWindow wnd = new HabitWindow();
+            //wnd.Show();
 
 #endif
 
@@ -3235,7 +3235,8 @@ namespace Focus_Bear
         {
             ((App)(Application.Current)).HideToDoPlayer();
 
-            if (wndFocusModeEnd == null)
+            LogWriter.LogWrite("appSettings.bShowFocusModeEnd"+ appSettings.bShowFocusModeEnd);
+            if (wndFocusModeEnd == null && appSettings.bShowFocusModeEnd)
             {
                 wndFocusModeEnd = new FocusModeEnd();
             }
@@ -3243,9 +3244,12 @@ namespace Focus_Bear
             appSettings.bStartingAnotherFocusMode = false; //Resetting
 
             //((App)(Application.Current)).HideToDoPlayer();
-
-            wndFocusModeEnd.Show();
-            wndFocusModeEnd.BringIntoView();
+            if (appSettings.bShowFocusModeEnd)
+            {
+                wndFocusModeEnd.Show();
+                wndFocusModeEnd.BringIntoView();
+            }
+            
 
             //if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
             //{

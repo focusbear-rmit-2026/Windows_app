@@ -54,12 +54,12 @@ namespace Focus_Bear.Focus
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
-            appSettings.bStartingAnotherFocusMode = false;
+                appSettings.bStartingAnotherFocusMode = false;
            
             this.Topmost = true;
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
-            App.ThemeChanged += TitleBarThemeChange;
+            App.ThemeChanged += TitleBarThemeChange;       
         }
 
 

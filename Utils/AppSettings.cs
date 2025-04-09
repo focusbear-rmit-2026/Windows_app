@@ -257,7 +257,9 @@ namespace Focus_Bear.Utils
         public string sRunningFocusModeStartTime = "";
         public string sRunningFocusModeEndTime = "";
         public string sRunningFocusModeIntention = "";
-        public bool bSkipMicroBreaksDuringFocus = true; //default to true
+        public bool bSkipMicroBreaksDuringFocus;
+        public bool bShowFocusModeEnd; 
+        public bool bDontShowModeChangeFB = false;
         public string sChatGPTReasonForCurrentURL = "";
         public double dProbablity = 0;
         public string sChatGPTPayLoad = "";
