@@ -47,6 +47,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Web.UI;
 using System.Windows.Controls;
+using Focus_Bear.Onboarding.NEW;
 
 namespace Focus_Bear
 {
@@ -1378,8 +1379,10 @@ namespace Focus_Bear
             ///ShowCallFocusNotifier();
             ///
 
-            //HabitWindow wnd = new HabitWindow();
+            //NewOnboardingStart wnd = new NewOnboardingStart();
             //wnd.Show();
+            //OnboardingNewWelcome wnd2 = new OnboardingNewWelcome(wnd);
+            ////wnd2.();
 
 #endif
 

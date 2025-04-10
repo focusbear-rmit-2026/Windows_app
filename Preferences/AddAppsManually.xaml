@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Preferences"
         mc:Ignorable="d"
-         Title="Focus Bear" Height="210" Width="450" ResizeMode="NoResize" >
-    <Grid>
+         Title="Focus Bear" Height="210" Width="450" ResizeMode="NoResize">
+    <Grid Background="{DynamicResource SoftCreamColor}">
         <Grid.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.MergedDictionaries>
@@ -37,8 +37,8 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="btnCancel" Grid.Column="0" Height="23" Width="100" Margin="20,0,0,0" HorizontalAlignment="Left" Click="btnCancel_Click">xCancel</Button>
-            <Button x:Name="btnAdd"  Grid.Column="1" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right" Click="btnAdd_Click">xAdd</Button>
+            <Button x:Name="btnCancel" Grid.Column="0" Height="23" Width="100" Margin="20,0,0,0" HorizontalAlignment="Left" Click="btnCancel_Click" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}">xCancel</Button>
+            <Button x:Name="btnAdd"  Grid.Column="1" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right" Click="btnAdd_Click" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}">xAdd</Button>
 
         </Grid>
 

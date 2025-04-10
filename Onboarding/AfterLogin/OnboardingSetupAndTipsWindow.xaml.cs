@@ -100,9 +100,10 @@ namespace Focus_Bear.Onboarding.AfterLogin
             {
                 selectedTheme = "Dark";
             }
-            TitleBarThemeChange();
+            
             ((App)Application.Current).ChangeTheme(selectedTheme);
             RegistryManager.SetThemeMode();
+            TitleBarThemeChange();
 
         }
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
