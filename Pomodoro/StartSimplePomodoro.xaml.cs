@@ -246,6 +246,8 @@ namespace Focus_Bear.Pomodoro
 
             appSettings.bAiCheckUrlEnabledLastValueBeforeSimplePomodoro = appSettings.bAiCheckUrlEnabled;
 
+            appSettings.sRunningFocusModeIntention = TxtIntention.Text;
+
             if (RadioAI.IsChecked.Value)
             {
                 appSettings.bAiCheckUrlEnabled = true;
@@ -340,7 +342,6 @@ namespace Focus_Bear.Pomodoro
                         appSettings.sRunningFocusModeID = appSettings.arrFocusModes[i].id;
                         appSettings.sRunningFocusModeName = appSettings.arrFocusModes[i].name;
                         appSettings.sRunningFocusModeEndTime = dTill.ToString();
-                        appSettings.sRunningFocusModeIntention = TxtIntention.Text;
 
                         //Clear any old stuff for gentle blocking
                         appSettings.TemporaryAllowedAppsGentleBlock.Clear();
