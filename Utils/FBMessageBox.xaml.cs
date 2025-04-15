@@ -25,7 +25,7 @@ namespace Focus_Bear.Utils
         public MessageBoxResult btnClicked = MessageBoxResult.Yes;
         public bool bSuggestMeetingsFocusModeView = false;
         DispatcherTimer dispatcherTimerAutoClose = new DispatcherTimer(DispatcherPriority.Normal);
-
+        private bool bIsModeChangeFB= false;
         public FBMessageBox()
         {
         }
@@ -40,8 +40,24 @@ namespace Focus_Bear.Utils
             {
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
+            string sGeekMode = appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString();
+            string sSimpleMode = appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString();
+            // if this FB is for mode change in traybar, if clicked show don't show it again, it will close
+            // GeekMode -> SimpleMode and SimpleMode->GeekMode
+            LogWriter.LogWrite("sGeekMode"+ sGeekMode);
+            LogWriter.LogWrite("sSimpleMode"+ sSimpleMode);
+            LogWriter.LogWrite("sMessage" + sMessage);
+            if((sMessage == sGeekMode) || (sMessage == sSimpleMode))
+            {
+                bIsModeChangeFB = true;
+                if (appSettings.bDontShowModeChangeFB)
+                {
+                    LogWriter.LogWrite("FBMessageBox close");
+                    Hide();
+                }
+            }
 
-
+    
             this.Topmost = true;
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             
@@ -166,6 +182,11 @@ namespace Focus_Bear.Utils
                 appSettings.bAutomaticallySuggestStartingMeetingsFocus = false;
             else
                 appSettings.bAiAllowUrlShowAlertEnabled = false;
+            if (bIsModeChangeFB)
+            {
+                LogWriter.LogWrite("DoNotShowAnymore_Checked true");
+                appSettings.bDontShowModeChangeFB = true;
+            }
         }
 
         private void DoNotShowAnymore_Unchecked(object sender, RoutedEventArgs e)

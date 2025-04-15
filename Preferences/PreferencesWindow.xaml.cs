@@ -25,6 +25,7 @@ using System.Windows.Threading;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.Windows.Interop;
+using System.Web.UI;
 
 namespace Focus_Bear.Preferences
 {
@@ -117,6 +118,8 @@ namespace Focus_Bear.Preferences
             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnHelp);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
+            App.ThemeChanged += TitleBarThemeChange;
+            TitleBarThemeChange();
         }
 
         public void SetFocusButtonState()
@@ -584,6 +587,13 @@ namespace Focus_Bear.Preferences
             FrameHelpTab.Visibility = Visibility.Visible;
         }
 
-
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+        }
     }
 }

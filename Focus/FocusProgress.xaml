@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
         Title="FocusProgress" Height="80" Width="330" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" WindowStyle="None" Opacity="0.5" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseDown="Window_MouseDown" Closing="Window_Closing">
-    <Border CornerRadius="15" BorderBrush="Black" BorderThickness="2" Padding="6" Background="#e88800">
+    <Border  x:Name="WindowBorder" CornerRadius="15" BorderBrush="Black" BorderThickness="2" Padding="6" Background="#e88800">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="30"></RowDefinition>

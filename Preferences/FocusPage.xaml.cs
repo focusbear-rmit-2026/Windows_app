@@ -15,6 +15,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -77,32 +78,10 @@ namespace Focus_Bear.Preferences
 
             ListFocusModes.SelectedIndex = 0;
 
-            //changeTheme();
+            App.ThemeChanged += TitleBarThemeChange;
+            TitleBarThemeChange();
         }
 
-        // Use dynamic resource source = {dynamic plusImg} instead.
-        //private void changeTheme()
-        //{
-        //    // Dynamic background color for dark mode in .cs
-        //    BackgroundColor = (SolidColorBrush)FindResource("BackgroundColor");
-        //    LogWriter.LogWrite("Current theme focus " + appSettings.sTheme);
-
-        //    if (appSettings.sTheme == "Light")
-        //    {
-        //        btnAddImg.Source = new BitmapImage(new Uri("../Images/plus.png", UriKind.Relative));
-        //        btnMinusImg.Source = new BitmapImage(new Uri("../Images/minus.png", UriKind.Relative));
-        //        //btnAddUrlImg.Source = new BitmapImage(new Uri("../Images/plus.png", UriKind.Relative));
-        //        //btnMinusUrlImg.Source = new BitmapImage(new Uri("../Images/minus.png", UriKind.Relative));
-        //    }
-        //    else if (appSettings.sTheme == "Dark")
-        //    {
-        //        btnAddImg.Source = new BitmapImage(new Uri("../Images/plus_dark.png", UriKind.Relative));
-        //        btnMinusImg.Source = new BitmapImage(new Uri("../Images/minus_dark.png", UriKind.Relative));
-        //        //btnAddUrlImg.Source = new BitmapImage(new Uri("../Images/plus_dark.png", UriKind.Relative));
-        //        //btnMinusUrlImg.Source = new BitmapImage(new Uri("../Images/minus_dark.png", UriKind.Relative));
-
-        //    }
-        //}
 
         private void btnDeleteFocusMode_Click(object sender, RoutedEventArgs e)
         {
@@ -916,6 +895,15 @@ namespace Focus_Bear.Preferences
             {
                 ListFocusModes.SelectedItem = listItems.First();
             }
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+           
         }
     }
 }

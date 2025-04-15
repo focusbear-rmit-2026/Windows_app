@@ -29,6 +29,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Forms;
 using Focus_Bear.Utils;
+using System.Windows.Interop;
+using Focus_Bear.Models;
+using Microsoft.Win32;
+using System.Runtime.InteropServices;
 
 namespace Focus_Bear
 {
@@ -40,6 +44,9 @@ namespace Focus_Bear
         private bool isClosed = true;
 
         AppSettings appSettings = AppSettings.GetInstance;
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
         public TrayBalloon()
         {
         }
@@ -59,6 +66,8 @@ namespace Focus_Bear
                 this.Top = (desktopWorkingArea.Bottom - this.Height) - 15;
 
             this.Topmost = true;
+            this.Loaded += MainWindow_Loaded;
+
         }
 
         Timer TooltipTimer = null;
@@ -127,6 +136,73 @@ namespace Focus_Bear
             }
         }
 
-      
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Hook into Windows messages
+            var hwndSource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            if (hwndSource != null)
+            {
+                hwndSource.AddHook(WndProctheme);
+            }
+
+            // Apply the correct theme at startup
+            ChangeThemeByWindows();
+            var isLightTheme = IsLightTheme();
+            UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
+        }
+        private IntPtr WndProctheme(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            int WM_SETTINGCHANGE = 0x1A;
+            if (msg == WM_SETTINGCHANGE)
+            {
+                // Apply theme when system settings change
+                ChangeThemeByWindows();
+            }
+            return IntPtr.Zero;
+        }
+        private void ChangeThemeByWindows()
+        {
+            bool isDarkMode = IsLightTheme();
+            string theme = isDarkMode ? "Light" : "Dark";
+            LogWriter.LogWrite("TrayMenu detect theme changed WndProctheme" + theme);
+            string selectedTheme = appSettings.sTheme;
+            LogWriter.LogWrite("TrayMenu report autotheme status" + appSettings.bAutoTheme);
+            if (isDarkMode == true && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Light";
+            }
+            else if (isDarkMode == false && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Dark";
+            }
+            ((App)System.Windows.Application.Current).ChangeTheme(selectedTheme);
+            RegistryManager.SetThemeMode();
+
+        }
+        private static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
+        }
+        private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+
+            return false;
+        }
     }
 }

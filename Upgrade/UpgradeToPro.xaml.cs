@@ -1,8 +1,11 @@
 ﻿using Focus_Bear.API;
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -10,6 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -22,8 +26,9 @@ namespace Focus_Bear.Upgrade
     public partial class UpgradeToPro : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        
- 
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
         public UpgradeToPro(string sTitleContext)
         {
             InitializeComponent();
@@ -33,7 +38,7 @@ namespace Focus_Bear.Upgrade
                 this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 this.Topmost = true;
 
-                Title.Text = sTitleContext + " " + appSettings.ConfigFileStrings["upgradeToProNagVcInfo"]["title"].ToString();
+                TitleText.Text = sTitleContext + " " + appSettings.ConfigFileStrings["upgradeToProNagVcInfo"]["title"].ToString();
                 basicVersionTitle.Text = appSettings.ConfigFileStrings["upgradeToProNagVcInfo"]["basicVersionTitle"].ToString();
                 proVersionTitle.Text = appSettings.ConfigFileStrings["upgradeToProNagVcInfo"]["proVersionTitle"].ToString();  // "Pro",
                 keepRunningText.Text = appSettings.ConfigFileStrings["upgradeToProNagVcInfo"]["keepRunningText"].ToString();  // "To keep you running",
@@ -66,6 +71,9 @@ namespace Focus_Bear.Upgrade
             {
                 LogWriter.LogWrite("UpgradeToPro() text set ex -" + ex.Message);
             }
+            LogWriter.LogWrite("upgradetopro before loaded");
+            this.Loaded += MainWindow_Loaded;
+            App.ThemeChanged += TitleBarThemeChange;
 
         }
 
@@ -164,7 +172,92 @@ namespace Focus_Bear.Upgrade
             catch (Exception ex)
             {
                 LogWriter.LogWrite("btnUpgradeNow_Click + " + ex.Message);
+                }
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
+            LogWriter.LogWrite("upgrade now TitleBarThemeChange");
+            if (appSettings.sTheme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.FloralWhite);
+                TitleText.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            else if (appSettings.sTheme == "Dark")
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                TitleText.Foreground = new SolidColorBrush(Colors.LightGray);
+            }
+        }
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Hook into Windows messages
+            var hwndSource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            if (hwndSource != null)
+            {
+                hwndSource.AddHook(WndProctheme);
+            }
+
+            // Apply the correct theme at startup
+            ChangeThemeByWindows();
+            var isLightTheme = IsLightTheme();
+            UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
+        }
+        private void ChangeThemeByWindows()
+        {
+            bool isDarkMode = IsLightTheme();
+            string theme = isDarkMode ? "Light" : "Dark";
+            string selectedTheme = appSettings.sTheme;
+            if (isDarkMode == true && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Light";
+            }
+            else if (isDarkMode == false && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Dark";
+            }
+            ((App)Application.Current).ChangeTheme(selectedTheme);
+            RegistryManager.SetThemeMode();
+
+        }
+        private IntPtr WndProctheme(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            int WM_SETTINGCHANGE = 0x1A;
+            if (msg == WM_SETTINGCHANGE)
+            {
+                // Apply theme when system settings change
+                ChangeThemeByWindows();
+            }
+            return IntPtr.Zero;
+        }
+        private static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
+        }
+        private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+
+            return false;
         }
     }
 }
