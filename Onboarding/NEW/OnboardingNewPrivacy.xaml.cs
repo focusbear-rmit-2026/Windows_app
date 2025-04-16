@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -23,6 +24,7 @@ namespace Focus_Bear.Onboarding.NEW
     public partial class OnboardingNewPrivacy : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         private NewOnboardingStart _parentWindow;
         public OnboardingNewPrivacy()
         {
@@ -51,6 +53,8 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 LogWriter.LogWrite("OnboardingNewPrivacy()k EX -" + ex.Message);
             }
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
 
         }
 
@@ -91,6 +95,10 @@ namespace Focus_Bear.Onboarding.NEW
         private void AcceptPrivacyPolicy_Unchecked(object sender, RoutedEventArgs e)
         {
             SetContinueButtonState();
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

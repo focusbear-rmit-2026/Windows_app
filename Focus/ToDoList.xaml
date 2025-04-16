@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
-        Title="Focus Bear"  Height="650" Width="680" MinHeight="120" MinWidth="270" Topmost="True" Closing="Window_Closing">
+        Title="Focus Bear"  Height="650" Width="680" MinHeight="120" MinWidth="270" Topmost="True" Closing="Window_Closing" Background="{DynamicResource BackgroundColor}">
     <Grid>
         <wv2:WebView2 Name="webView" />
     </Grid>

@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -22,7 +23,7 @@ namespace Focus_Bear.Preferences
     public partial class AddWebUrl : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         public string sURLToAdd;
         bool _bEditURLMode = false;
         string _sURLToEdit = "";
@@ -37,6 +38,7 @@ namespace Focus_Bear.Preferences
             {
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
+            App.ThemeChanged += TitleBarThemeChange;
         }
         public AddWebUrl(OnboardingSetupAndTipsWindow _ParentWindow) :this()
         {
@@ -131,6 +133,21 @@ namespace Focus_Bear.Preferences
             else
             {
                 btnAdd.IsEnabled = false;
+            }
+        }
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
         }
     }

@@ -1255,6 +1255,19 @@ namespace Focus_Bear.Utils
             catch (Exception ex)
             {
                 LogWriter.LogWrite("suppressURLForFirefox EX -" + ex.Message);
+
+                //Fallback for Opera
+                //if (appSettings.sLastActiveAppName == "opera.exe")
+                //{    // Focus Opera
+                //    SetForegroundWindow(hWnd);
+
+                //    // Ctrl+L to focus the address bar
+                //    SendKeys.SendWait("^{l}");
+
+                //    // Replace with your URL
+                //    string sTemp = string.Format(sActivityBlockedWebUrl, val, type, appSettings.AppVersion.ToString()) + "{ENTER}";
+                //    SendKeys.SendWait(sTemp);
+                //}
             }
 
 

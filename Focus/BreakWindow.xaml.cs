@@ -30,6 +30,7 @@ namespace Focus_Bear.Focus
     {   
         private const int GWL_EXSTYLE = -20;
         private const int WS_EX_NOACTIVATE = 0x08000000;
+        App app = (App)Application.Current;
 
         [DllImport("user32.dll")]
         public static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
@@ -50,7 +51,7 @@ namespace Focus_Bear.Focus
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {
-                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
             
         }
@@ -99,7 +100,7 @@ namespace Focus_Bear.Focus
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {
-                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
         }
         public void ShowBreakWindowAndStartTimer(int nSeconds, string sTitle = "")
@@ -222,23 +223,5 @@ namespace Focus_Bear.Focus
             ((App)(Application.Current)).wndTakeABreak = null;
         }
 
-        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
-        {
-            Version osVersion = Environment.OSVersion.Version;
-            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
-
-            if (isWindows10OrGreater)
-            {
-                var attribute = 19;
-                if (osVersion.Build >= 18985)
-                {
-                    attribute = 20;
-                }
-
-                int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
-            return false;
-        }
     }
 }

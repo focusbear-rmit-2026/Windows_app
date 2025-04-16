@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -25,7 +26,7 @@ namespace Focus_Bear.Onboarding
         private OnBoardingWindow _parentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         public OnboardingWorkType()
         {
 
@@ -79,7 +80,8 @@ namespace Focus_Bear.Onboarding
 
             btnContinueTxt.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["buttonContinueText"].ToString();
             btnContinue.IsEnabled = true;
-
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
 
       
@@ -94,6 +96,10 @@ namespace Focus_Bear.Onboarding
                 LogWriter.LogWrite(ex.Message);
                 Debug.WriteLine(ex.Message);
             }
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

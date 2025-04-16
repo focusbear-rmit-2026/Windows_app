@@ -6,10 +6,17 @@
       xmlns:local="clr-namespace:Focus_Bear.Onboarding"
       mc:Ignorable="d" 
        Height="660" Width="750"
-      Title="OnboardingDistractingSites" Background="#fff">
+      Title="OnboardingDistractingSites">
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="130" />
@@ -20,11 +27,11 @@
         </Grid.RowDefinitions>
 
         <StackPanel  Grid.Row="0"  Orientation="Vertical" VerticalAlignment="Bottom"  Margin="0,0,0,0">
-            <TextBlock  Name="WhatSitesHeading" Margin="20,0,20,10" TextWrapping="Wrap" Text="xWhich sites doy ou find distracting?" Foreground="#272727" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-            <TextBlock  Name="BlockCertainSites" Margin="20,10,20,0"    TextWrapping="Wrap" Text="xYou can block certain sites by default to avoid going down rabbit holes." Foreground="#000" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock  Name="WhatSitesHeading" Margin="20,0,20,10" TextWrapping="Wrap" Text="xWhich sites doy ou find distracting?"  FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock  Name="BlockCertainSites" Margin="20,10,20,0"    TextWrapping="Wrap" Text="xYou can block certain sites by default to avoid going down rabbit holes." FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
         </StackPanel>
         <StackPanel  Grid.Row="1"  Orientation="Vertical" VerticalAlignment="Top"  Margin="0,20,0,0">
-            <ListView    x:Name="ListBLockedURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"  Width="450" Height="175" VerticalAlignment="Top">
+            <ListView    x:Name="ListBLockedURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1"  Width="450" Height="175" VerticalAlignment="Top">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -33,7 +40,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal">
                                 <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
-                                <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="#000"  FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
+                                <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}"  FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
                             </StackPanel>
                             
                            
@@ -49,7 +56,7 @@
                 <Button    x:Name="btnAddUrl"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="150" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnAddUrl_Click"   >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
-                            <TextBlock x:Name="btnAddUrlTXT" Text="xAdd URL"/>
+                            <TextBlock x:Name="btnAddUrlTXT" Text="xAdd URL" Foreground="Black"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
@@ -61,17 +68,17 @@
                 <Grid Background="#fefbec"    >
                     <StackPanel Orientation="Horizontal">
                         <Image Source="../../images/bulb_small.png" Width="31" Height="33" Margin="10,0,10,0"></Image>
-                        <TextBlock x:Name="Privacy" VerticalAlignment="Center" TextWrapping="Wrap" Width="400" FontSize="13"> xIn case you're worried - we don't track which websites you're using.</TextBlock>
+                        <TextBlock x:Name="Privacy" VerticalAlignment="Center" TextWrapping="Wrap" Width="400" FontSize="13" Foreground="Black"> xIn case you're worried - we don't track which websites you're using.</TextBlock>
                     </StackPanel>
                 </Grid>
             </Border>
-            <TextBlock  Name="PreferencesDesc" Margin="20,15,20,0"  TextWrapping="Wrap" Text="xIf you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab." Foreground="#000" FontSize="17" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock  Name="PreferencesDesc" Margin="20,15,20,0"  TextWrapping="Wrap" Text="xIf you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab." FontSize="17" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
 
         </StackPanel>
         <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="300" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,20,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnContinueTXT" Text="xContinue"/>
+                    <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>
                 </StackPanel>
             </Button.Content>
         </Button>

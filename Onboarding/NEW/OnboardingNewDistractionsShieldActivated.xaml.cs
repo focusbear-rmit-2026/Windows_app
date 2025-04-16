@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -23,6 +24,8 @@ namespace Focus_Bear.Onboarding.NEW
     public partial class OnboardingNewDistractionsShieldActivated : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
+
         private NewOnboardingStart _parentWindow;
         public OnboardingNewDistractionsShieldActivated()
         {
@@ -47,9 +50,11 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 LogWriter.LogWrite("OnboardingNewDistractionsShieldActivated()k EX -" + ex.Message);
             }
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
 
         }
-   
+
         private void btnDidntBlocked_Click(object sender, RoutedEventArgs e)
         {
             appSettings.CapturePostHog("button-didnt-clicked");
@@ -65,6 +70,10 @@ namespace Focus_Bear.Onboarding.NEW
 
             appSettings.bBlockingWorkedWhileOnboarding = true;
             _parentWindow.ShowBuildingHabitsScreen();
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

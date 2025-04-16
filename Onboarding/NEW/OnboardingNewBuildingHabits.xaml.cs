@@ -13,6 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -27,6 +28,7 @@ namespace Focus_Bear.Onboarding.NEW
     public partial class OnboardingNewBuildingHabits : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         private NewOnboardingStart _parentWindow;
 
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
@@ -66,6 +68,8 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 LogWriter.LogWrite("OnboardingNewBuildingHabits()k EX -" + ex.Message);
             }
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
 
         }
 
@@ -178,6 +182,10 @@ namespace Focus_Bear.Onboarding.NEW
             btnInfo.Visibility = Visibility.Collapsed;
 
             Descriptiopn1.Visibility = Visibility.Visible;
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

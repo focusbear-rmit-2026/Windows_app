@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -28,13 +29,15 @@ namespace Focus_Bear.Onboarding
         private OnBoardingWindow _parentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         int nTimer = 30;
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         bool bTimerRunning;
         public OnboardingMindfulBreathing()
         {
             bTimerRunning = false;
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
         public OnboardingMindfulBreathing(OnBoardingWindow parentWindow) : this()
         {
@@ -53,6 +56,8 @@ namespace Focus_Bear.Onboarding
             nTimer = appSettings.OnboardingActivityDurationSeconds;
 
             appSettings.CapturePostHog("ongoing-onboarding-activity-shown");
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
 
         private async void SetWebView()
@@ -213,6 +218,10 @@ namespace Focus_Bear.Onboarding
             {
                 LogWriter.LogWrite("OnboardingMindfulBreathing btnSkipThisHabit_Click ex" + ex.Message);
             }
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

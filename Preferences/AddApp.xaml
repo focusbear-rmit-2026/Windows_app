@@ -11,7 +11,7 @@
         <Models:IconExtractConverter x:Key="IconExtractConverter"/>
     </Window.Resources>
 
-    <Grid>
+    <Grid Background="{DynamicResource SoftCreamColor}">
         <Grid.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.MergedDictionaries>
@@ -19,7 +19,7 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
@@ -43,9 +43,10 @@
                 <ColumnDefinition Width="66*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="81*"/>
+                <RowDefinition Height="394*"/>
             </Grid.RowDefinitions>
-            <ListView   Grid.Row="0"   x:Name="ListInstalledApps" SelectionMode="Multiple"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" Grid.ColumnSpan="4"  >
+            <ListView   Grid.Row="0"   x:Name="ListInstalledApps" SelectionMode="Multiple"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" Grid.ColumnSpan="4" Grid.RowSpan="2"  >
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="IsSelected" Value="{Binding IsSelected}" />
@@ -59,7 +60,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Image Grid.Column="0" Height="20" Width="20" HorizontalAlignment="Left"  VerticalAlignment="Center" Margin="0,0,0,0" Source="{Binding DisplayIcon, Converter={StaticResource IconExtractConverter}}"/>
-                            <TextBlock Grid.Column="1" Text="{Binding AppName, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="1" Text="{Binding AppName, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

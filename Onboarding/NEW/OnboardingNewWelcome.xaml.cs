@@ -23,6 +23,7 @@ namespace Focus_Bear.Onboarding.NEW
     public partial class OnboardingNewWelcome : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         private NewOnboardingStart _parentWindow;
         public OnboardingNewWelcome()
         {
@@ -47,9 +48,11 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 LogWriter.LogWrite("OnboardingNewWelcome()k EX -" + ex.Message);
             }
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
 
         }
- 
+
 
         private void btnHaveAccount_Click(object sender, RoutedEventArgs e)
         {
@@ -64,6 +67,10 @@ namespace Focus_Bear.Onboarding.NEW
             appSettings.CapturePostHog("onboarding-blocked-urls-shown");
            
             _parentWindow.ShowDistractionsScreen();
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

@@ -38,7 +38,7 @@
             <StackPanel  Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
                 <TextBlock  Margin="0,0,0,0" Name="TurnOffMinsText" TextWrapping="Wrap" Text="xChoose how long to turn it off for:" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-                <ComboBox Name="ComboBoxMinutes" Width="125" MinHeight="30" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" SelectionChanged="ComboBoxMinutes_SelectionChanged" FontSize="16" >
+                <ComboBox Name="ComboBoxMinutes" Width="125" MinHeight="30" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" SelectionChanged="ComboBoxMinutes_SelectionChanged" FontSize="16" AutomationProperties.AutomationId="ComboBoxMinutes">
                      
                 </ComboBox>
 
@@ -93,7 +93,7 @@
 
             </Grid.RowDefinitions>
             <TextBlock   Grid.Row="0"  Name="ShareWhyQuit" Margin="50,0,50,0" TextWrapping="Wrap" Text="xCan you share why you're quitting?" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <ComboBox  Grid.Row="1" Name="ComboBoxReason" Width="350" MinHeight="30" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,0,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxReason_SelectionChanged">
+            <ComboBox  Grid.Row="1" Name="ComboBoxReason" Width="350" MinHeight="30" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,0,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxReason_SelectionChanged" AutomationProperties.AutomationId="ComboBoxReason">
             </ComboBox>
             <TextBlock   Grid.Row="2"  Name="ReasonTitle" Margin="0,0,0,0" TextWrapping="Wrap" Text="xCan you tell us why you want to stop getting habit + break notifications?﹡"  FontSize="19" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
             

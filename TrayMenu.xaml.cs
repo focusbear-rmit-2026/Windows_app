@@ -1274,21 +1274,37 @@ namespace Focus_Bear
                 ((App)(Application.Current)).ShowUpgradeToProNag(appSettings.ConfigFileStrings["upgradeToProNagVcInfo"]["titleNoGeekMode"].ToString());
                 return;
             }
-            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString());
-            ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            ff.ShowDialog();
+            if (!appSettings.bDontShowModeChangeFB)
+            {
+                MessageBoxButton mb = new MessageBoxButton();
+                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString(), "", mb, "", "", "", true, "Don't show this again thanks.",false);
+                ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                ff.ShowDialog();
+            }
             appSettings.bIsGeekModeEnabled = true;
-            ((App)(Application.Current)).wndPreferences.PageSettings.SetGeekModeStatus();
+            if(((App)(Application.Current)).wndPreferences != null)
+            {
+                ((App)(Application.Current)).wndPreferences.PageSettings.SetGeekModeStatus();
+
+            }
             appSettings.CapturePostHog("switch-to-geek-mode");
         }
 
         private void SimpleMode_Checked(object sender, RoutedEventArgs e)
         {
-            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString());
-            ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            ff.ShowDialog();
+            MessageBoxButton mb = new MessageBoxButton();
+            if (!appSettings.bDontShowModeChangeFB)
+            {
+                FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString(), "", mb, "", "", "", true, "Don't show this again thanks.", false);
+                ff1.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                ff1.ShowDialog();
+            }
             appSettings.bIsGeekModeEnabled = false;
-            ((App)(Application.Current)).wndPreferences.PageSettings.SetGeekModeStatus();
+            if (((App)(Application.Current)).wndPreferences != null)
+            {
+                ((App)(Application.Current)).wndPreferences.PageSettings.SetGeekModeStatus();
+
+            }
             appSettings.CapturePostHog("switch-to-simple-mode");
         }
 

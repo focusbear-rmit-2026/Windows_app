@@ -43,6 +43,11 @@ using Focus_Bear.Tour;
 using Focus_Bear.Survey;
 using Focus_Bear.Pomodoro;
 using Focus_Bear.CallDetection;
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
+using System.Web.UI;
+using System.Windows.Controls;
+using Focus_Bear.Onboarding.NEW;
 
 namespace Focus_Bear
 {
@@ -59,6 +64,7 @@ namespace Focus_Bear
         private EventWaitHandle appWaitHandle;
 
         private Mutex appMutex;
+        bool createdNew;
 
         [DllImport("oleacc.dll")]
         public static extern uint AccessibleObjectFromEvent(IntPtr hwnd, uint dwObjectID, uint dwChildID, out IAccessible ppacc, [MarshalAs(UnmanagedType.Struct)] out object pvarChild);
@@ -80,6 +86,9 @@ namespace Focus_Bear
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         private const int SW_SHOW = 5;
+
+        [DllImport("dwmapi.dll")]
+        public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
 
         private const uint WINEVENT_OUTOFCONTEXT = 0;
@@ -347,7 +356,7 @@ namespace Focus_Bear
             SentrySdk.Init(o =>
             {
                 // Tells which project in Sentry to send events to:
-                o.Dsn = "https://994c1df7d9dcced04975c9bbdf2ca829@sentry.aws.focusbear.io/6";
+                o.Dsn = "https://6f9de528660aea5d587013fec00ff5d7@o4509122919006208.ingest.us.sentry.io/4509123825696768";
 
                 // When configuring for the first time, to see what the SDK is doing:
                 o.Debug = true;
@@ -389,7 +398,7 @@ namespace Focus_Bear
                 {
                     #region Managing Instances
                     //Handling running instances
-                    bool createdNew;
+                    
                     appMutex = new Mutex(true, MutexGUID, out createdNew);
                     appWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, EventMutex);
 
@@ -411,7 +420,15 @@ namespace Focus_Bear
                                     if (Current.MainWindow is TrayMenu)
                                     {
                                         var alreadyRunningMainWin = (TrayMenu)Current.MainWindow;
+                                        alreadyRunningMainWin.Topmost = true;
+                                        alreadyRunningMainWin.UpdateTrayMenu();
                                         alreadyRunningMainWin.Show();
+                                        alreadyRunningMainWin.BringIntoView();
+                                        alreadyRunningMainWin.Activate();
+                                        alreadyRunningMainWin.Focus();
+                                        alreadyRunningMainWin.SetTrayMenuPosition();
+
+                                        //alreadyRunningMainWin.Show();
                                     }
                                 }));
                             }
@@ -644,6 +661,10 @@ namespace Focus_Bear
             if (appSettings.arrAllbreakActivities.Count == 0)
             {
                 LogWriter.LogWrite("No activities in break activities array so returning from StartBreakActivityTimer()");
+                return;
+            }
+            if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+            {
                 return;
             }
             //Remove the previous event handler so that new can be set
@@ -1371,6 +1392,10 @@ namespace Focus_Bear
             ///ShowCallFocusNotifier();
             ///
 
+            //NewOnboardingStart wnd = new NewOnboardingStart();
+            //wnd.Show();
+            //OnboardingNewWelcome wnd2 = new OnboardingNewWelcome(wnd);
+            ////wnd2.();
 
 #endif
 
@@ -1506,6 +1531,8 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("StartWorkFlow()" + ex.Message);
             }
+
+            appSettings.CheckLogFileRotation();
 
             //Get total time for distracting sites for today
             appSettings.GetTotalTimeForDistractingSitesToday();
@@ -3226,7 +3253,8 @@ namespace Focus_Bear
         {
             ((App)(Application.Current)).HideToDoPlayer();
 
-            if (wndFocusModeEnd == null)
+            LogWriter.LogWrite("appSettings.bShowFocusModeEnd"+ appSettings.bShowFocusModeEnd);
+            if (wndFocusModeEnd == null && appSettings.bShowFocusModeEnd)
             {
                 wndFocusModeEnd = new FocusModeEnd();
             }
@@ -3234,9 +3262,12 @@ namespace Focus_Bear
             appSettings.bStartingAnotherFocusMode = false; //Resetting
 
             //((App)(Application.Current)).HideToDoPlayer();
-
-            wndFocusModeEnd.Show();
-            wndFocusModeEnd.BringIntoView();
+            if (appSettings.bShowFocusModeEnd)
+            {
+                wndFocusModeEnd.Show();
+                wndFocusModeEnd.BringIntoView();
+            }
+            
 
             //if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
             //{
@@ -3754,7 +3785,8 @@ namespace Focus_Bear
                 }
                 LogWriter.LogWrite("Application_Exit() 2");
 
-                appMutex.ReleaseMutex();
+                if(createdNew && appMutex != null)
+                    appMutex.ReleaseMutex();
                 // appMutex.Dispose();
                 //Remove the focus handler
                 //Commented in 1.0.50 as this was taking full 1 minute and was slowing down the exit and restart process after saving settings
@@ -4485,6 +4517,51 @@ namespace Focus_Bear
             // Save theme setting
             appSettings.sTheme = theme;
 
+        }
+        public bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 19;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 20;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+            return false;
+        }
+        public bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
+        }
+
+        public void ApplyThemeToPage(System.Windows.Controls.Page page, System.Windows.Media.ImageBrush BackgroundImage)
+        {
+            LogWriter.LogWrite("app xaml ApplyThemeToPage: " +appSettings.sTheme );
+
+            var source = (HwndSource)PresentationSource.FromVisual(page);
+            if(source != null)
+            {
+                ((App)Current).UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (appSettings.sTheme == "Light")
+            {
+                page.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+            }
+            else if (appSettings.sTheme == "Dark")
+            {
+                page.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+            }
         }
     }
 }

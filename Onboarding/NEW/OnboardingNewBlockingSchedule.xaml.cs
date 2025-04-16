@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -23,6 +24,7 @@ namespace Focus_Bear.Onboarding.NEW
     public partial class OnboardingNewBlockingSchedule : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         private NewOnboardingStart _parentWindow;
 
         public OnboardingNewBlockingSchedule()
@@ -55,7 +57,8 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 LogWriter.LogWrite("OnboardingNewBlockingSchedule() text EX -" + ex.Message);
             }
-
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
@@ -91,6 +94,10 @@ namespace Focus_Bear.Onboarding.NEW
             
             Description3.Visibility = Visibility.Visible;
             btnContinue.IsEnabled = false;
+        }
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
         }
     }
 }

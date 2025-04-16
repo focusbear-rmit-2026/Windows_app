@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -25,7 +26,7 @@ namespace Focus_Bear.Habits
     public partial class HabitsResumeInPopup : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         int nTimer = 120; //TWO minutes
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
@@ -51,6 +52,7 @@ namespace Focus_Bear.Habits
             btnPostponeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
             ShowInTaskbar = false;  
             this.Topmost = true;
+            App.ThemeChanged += TitleBarThemeChange;
         }
         public void ShowHabitsResumeInPopupAndStartTimer(int nSeconds, string sTitle = "")
         {
@@ -174,5 +176,14 @@ namespace Focus_Bear.Habits
 
             Hide();
         }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+        }
+
     }
 }

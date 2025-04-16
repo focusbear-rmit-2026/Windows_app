@@ -29,7 +29,7 @@ namespace Focus_Bear.Quit
     public partial class QuitWindow : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         int nTimer = 2;  
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
@@ -37,7 +37,11 @@ namespace Focus_Bear.Quit
         string[] stringarr;
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
-
+        //public class ComboBoxItemForTest
+        //{
+        //    public string Id { get; set; }
+        //    public string Name { get; set; }
+        //}
         public QuitWindow()
         {
             InitializeComponent();
@@ -70,6 +74,18 @@ namespace Focus_Bear.Quit
 
                 ShareWhyQuit.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["subTitle"].ToString();
 
+                //List<ComboBoxItemForTest> ComboBoxReasonItem = new List<ComboBoxItemForTest>()
+                //{
+                //    new ComboBoxItemForTest(){Id="selectReason", Name=appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_0"]["title"].ToString()},
+                //    new ComboBoxItemForTest(){Id="gotEmergency", Name=appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_1"]["title"].ToString()},
+                //    new ComboBoxItemForTest(){Id="appBroken", Name=appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_2"]["title"].ToString()},
+                //    new ComboBoxItemForTest(){Id="haveMeeting", Name=appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownMeeting"]["title"].ToString()},
+                //    new ComboBoxItemForTest(){Id="someoneElseUsingPC", Name=appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownSomeOneElse"]["title"].ToString()},
+                //    new ComboBoxItemForTest(){Id="findFBAnnoying", Name=appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownAnnoying"]["title"].ToString()},
+                //    new ComboBoxItemForTest(){Id="relaxAWhile", Name=appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownRelax"]["title"].ToString()},
+                //    new ComboBoxItemForTest(){Id="SthElse", Name=appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_3"]["title"].ToString()}
+                //};
+
                 ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_0"]["title"].ToString());
                 ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_1"]["title"].ToString());
                 ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_2"]["title"].ToString());
@@ -80,7 +96,8 @@ namespace Focus_Bear.Quit
                 ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownRelax"]["title"].ToString());
 
                 ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_3"]["title"].ToString());
-
+                //ComboBoxReason.ItemsSource = ComboBoxReasonItem;
+                //ComboBoxReason.DisplayMemberPath = "Name";
                 ComboBoxReason.SelectedIndex = 0;
 
                 btnQuitTXT.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["buttonQuitText"].ToString();
@@ -102,6 +119,21 @@ namespace Focus_Bear.Quit
                 };
 
                 ComboBoxMinutes.ItemsSource = stringarr;
+                ComboBoxMinutes.SelectedIndex = 3;
+                // For Windows Automation ID Audit
+                //List<ComboBoxItemForTest> list = new List<ComboBoxItemForTest>()
+                //{
+                //    new ComboBoxItemForTest(){Id="5mins", Name=string.Format("5 {0}", sMinutes)},
+                //    new ComboBoxItemForTest(){Id="15mins", Name=string.Format("15 {0}", sMinutes)},
+                //    new ComboBoxItemForTest(){Id="30mins", Name=string.Format("30 {0}", sMinutes)},
+                //    new ComboBoxItemForTest(){Id="1hrs", Name=string.Format("1 {0}", sHour)},
+                //    new ComboBoxItemForTest(){Id="2hrs", Name=string.Format("2 {0}", sHour)},
+                //    new ComboBoxItemForTest(){Id="4hrs", Name=string.Format("4 {0}", sHour)},
+                //    new ComboBoxItemForTest(){Id="12hrs", Name=string.Format("12 {0}", sHour)},
+                //    new ComboBoxItemForTest(){Id="24hrs", Name=string.Format("24 {0}", sHour)},
+                //};
+                //ComboBoxMinutes.ItemsSource = list;
+                //ComboBoxMinutes.DisplayMemberPath = "Name";
                 ComboBoxMinutes.SelectedIndex = 3;
 
                 //default is one hour
@@ -460,33 +492,16 @@ namespace Focus_Bear.Quit
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {
-                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
         }
-        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
-        {
-            Version osVersion = Environment.OSVersion.Version;
-            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
 
-            if (isWindows10OrGreater)
-            {
-                var attribute = 19;
-                if (osVersion.Build >= 18985)
-                {
-                    attribute = 20;
-                }
-
-                int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
-            return false;
-        }
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
 
             var source = (HwndSource)PresentationSource.FromVisual(this);
-            UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
         }
     }
 }

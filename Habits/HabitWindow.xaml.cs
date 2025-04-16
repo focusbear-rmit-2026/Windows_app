@@ -1393,6 +1393,21 @@ namespace Focus_Bear.Habits
                 this.WindowStyle = WindowStyle.ToolWindow;
                 this.Width = 1300;
                 this.Height = 750;
+                var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+                if (this.Width > desktopWorkingArea.Width)
+                {
+                    this.Width = desktopWorkingArea.Width;
+                    this.MinWidth = desktopWorkingArea.Width;
+                }
+                if (this.Height > desktopWorkingArea.Height)
+                {
+                    this.Height = desktopWorkingArea.Height - 30;
+                    this.MinHeight = desktopWorkingArea.Height - 30;
+                }
+                this.Left = (desktopWorkingArea.Width - this.Width) / 2;
+                this.Top = (desktopWorkingArea.Height - this.Height) / 2;
+
+
                 btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
                 Time.Visibility = Visibility.Collapsed;
             }

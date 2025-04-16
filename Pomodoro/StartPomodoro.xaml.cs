@@ -29,6 +29,7 @@ namespace Focus_Bear.Pomodoro
     public partial class StartPomodoro : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         public StartPomodoro()
@@ -67,7 +68,8 @@ namespace Focus_Bear.Pomodoro
                 SelectedTasksTitle.Text = "Selected Tasks:";
                 
                 SkipMicroBreaks.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonSkipMicrobreaksText"].ToString();
-
+                //ShowFocusModeEnd.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonShowFocusProgressText"].ToString();// need to add ES in config
+                ShowFocusModeEnd.Content = "Show focus status when session end";
                 btnStartSessionText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonLetsDoItText"].ToString();
         
                 AddFocusModesToComboBox();
@@ -120,7 +122,7 @@ namespace Focus_Bear.Pomodoro
                     appSettings.sMinutesBreakPomodoro = MinutesBreak.Text;
                     appSettings.SuperPomodoroFocusedName = appSettings.AutomaticSuperPomodoroFocusedName;
                     appSettings.NumberOfSuperPomodorosToRun = appSettings.AutomaticNumberOfSuperPomodorosToRun;
-                    appSettings.bSkipMicroBreaksDuringFocus = appSettings.bAutomaticSuperPomodoroSkipMicroBreaks;
+                    //appSettings.bSkipMicroBreaksDuringFocus = appSettings.bAutomaticSuperPomodoroSkipMicroBreaks;//save preference of skip microbreaks
                 }
 
                 UseSuperPomodoroMode.IsEnabled = !appSettings.bUseSuperPomodoroMode;
@@ -131,7 +133,7 @@ namespace Focus_Bear.Pomodoro
                 MinutesBreak.IsEnabled = !appSettings.bUseSuperPomodoroMode;
                 SkipMicroBreaks.IsEnabled = !appSettings.bUseSuperPomodoroMode;
 
-                SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
+                //SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
 
                 //set the previous values selected by user in case of Super Pomodoro by user
                 if (appSettings.bUseSuperPomodoroMode)
@@ -162,6 +164,14 @@ namespace Focus_Bear.Pomodoro
                 else
                 {
                     PomodoroCompleted.Text = "";
+                }
+                if (appSettings.bShowFocusModeEnd)
+                {
+                    ShowFocusModeEnd.IsChecked = true;
+                }
+                else
+                {
+                    ShowFocusModeEnd.IsChecked = false;
                 }
 
             }
@@ -260,6 +270,16 @@ namespace Focus_Bear.Pomodoro
         {
             appSettings.bSkipMicroBreaksDuringFocus = false;
         }
+        private void ShowFocusModeEnd_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bShowFocusModeEnd = true;
+        }
+
+        private void ShowFocusModeEnd_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bShowFocusModeEnd = false;
+        }
+
 
         private void btnStartSession_Click(object sender, RoutedEventArgs e)
         {
@@ -406,33 +426,16 @@ namespace Focus_Bear.Pomodoro
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {
-                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             } 
         }
-        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
-        {
-            Version osVersion = Environment.OSVersion.Version;
-            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
-
-            if (isWindows10OrGreater)
-            {
-                var attribute = 19;
-                if (osVersion.Build >= 18985)
-                {
-                    attribute = 20;
-                }
-
-                int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
-            return false;
-        }
+        
         private void TitleBarThemeChange()
         {
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {
-                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
         }
     }

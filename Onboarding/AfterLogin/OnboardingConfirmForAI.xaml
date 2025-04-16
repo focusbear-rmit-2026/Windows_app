@@ -6,11 +6,18 @@
       xmlns:local="clr-namespace:Focus_Bear.Onboarding.AfterLogin"
       mc:Ignorable="d" 
       Height="660" Width="750"
-      Title="OnboardingSetWorkType" Background="#fff"  >
+      Title="OnboardingSetWorkType"  >
 
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="540" />
@@ -19,22 +26,22 @@
         </Grid.RowDefinitions>
         
         <StackPanel  Grid.Row="0"  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock    Name="Heading" Margin="40,0,40,0" TextWrapping="Wrap" Text="xDo you want to use AI to decide if websites should be allowed?" Foreground="#272727" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock    Name="Heading" Margin="40,0,40,0" TextWrapping="Wrap" Text="xDo you want to use AI to decide if websites should be allowed?"  FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             <Image  Source="../../images/FocusTips/ai-block.png" Width="300"></Image>
-            <TextBlock    Name="Description" Margin="40,10,40,0" TextWrapping="Wrap" Text="xWe'll use Open AI to decide if the site is valid based on your current focus mode, intention, the URL, the website title and the first 100 characters of the content. This is anonymous - no identifying details are shared." Foreground="#272727" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock    Name="Description" Margin="40,10,40,0" TextWrapping="Wrap" Text="xWe'll use Open AI to decide if the site is valid based on your current focus mode, intention, the URL, the website title and the first 100 characters of the content. This is anonymous - no identifying details are shared." FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
          </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button  x:Name="btnNoThanks"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" Width="236" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,10,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNoThanks_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnNoThanksTXT" Text="xNo Thanks"/>
+                    <TextBlock x:Name="btnNoThanksTXT" Text="xNo Thanks" Foreground="Black"/>
                 </StackPanel>
             </Button.Content>
         </Button>
             <Button   x:Name="btnOK"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="236" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="10,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnOKTXT" Text="xOK"/>
+                        <TextBlock x:Name="btnOKTXT" Text="xOK" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

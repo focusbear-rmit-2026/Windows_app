@@ -82,6 +82,7 @@ namespace Focus_Bear.Habits
 
                 webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
                 webView.NavigationCompleted += CoreWebView2NavigationCompleted;
+                App.ThemeChanged += LoadUrl;
             }
 
 
@@ -307,20 +308,22 @@ namespace Focus_Bear.Habits
 
                     webView.WebMessageReceived += webView_WebMessageReceived;
 
-                    string sSettingsURL = appSettings.ConfigFileStrings["settings"]["settingUrl"].ToString();
+                    //string sSettingsURL = appSettings.ConfigFileStrings["settings"]["settingUrl"].ToString();
 
-                    string routine = null;
-                    if(appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-                    {
-                        routine = "morning";
-                    }
-                    else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                    {
-                        routine = "evening";
-                    }
+                    //string routine = null;
+                    //if(appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                    //{
+                    //    routine = "morning";
+                    //}
+                    //else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    //{
+                    //    routine = "evening";
+                    //}
 
-                    sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString("o") + "&edit_specific_routine=" + routine;
-                    webView.Source = new System.Uri(sSettingsURL);
+                    //sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString("o") + "&edit_specific_routine=" + routine;
+
+                    //webView.Source = new System.Uri(sSettingsURL);
+                    LoadUrl();
 
                     CommandManager.InvalidateRequerySuggested();
 
@@ -330,6 +333,24 @@ namespace Focus_Bear.Habits
                     LogWriter.LogWrite("Habit WelcomeList CoreWebView2InitializationCompleted() EX=" + ex.Message);
                 }
             }
+        }
+        private void LoadUrl()
+        {
+            string sSettingsURL = appSettings.ConfigFileStrings["settings"]["settingUrl"].ToString();
+
+            string routine = null;
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+            {
+                routine = "morning";
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            {
+                routine = "evening";
+            }
+
+            sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString("o") + "&edit_specific_routine=" + routine;
+
+            webView.Source = new System.Uri(sSettingsURL);
         }
 
         private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)

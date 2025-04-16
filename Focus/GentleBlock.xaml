@@ -15,7 +15,7 @@
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center" />
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="/Images/background.png" AlignmentY="Top" AlignmentX="Center" />
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -26,8 +26,8 @@
         </Grid.RowDefinitions>
 
         <Image Name="TopIcon" Grid.Column="0"  Margin="0,10,0,10" Height="64" Width="64" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1" Name="Heading"  Margin="10,0,10,0" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="xDo you need to use URL when you're focusing on FOCUSTYPE ?:" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-        <TextBlock  Grid.Row="2" Name="Intention" Margin="10,20,10,10" TextWrapping="Wrap" Text="xYour intention was:" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
+        <TextBlock  Grid.Row="1" Name="Heading"  Margin="10,0,10,0" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="xDo you need to use URL when you're focusing on FOCUSTYPE ?:"  FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+        <TextBlock  Grid.Row="2" Name="Intention" Margin="10,20,10,10" TextWrapping="Wrap" Text="xYour intention was:"  FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
 
         <TextBlock Grid.Row="3" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="00:15" Padding="0" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center"  VerticalAlignment="Center" />
         <StackPanel Grid.Row="4" Orientation="Vertical" Margin="0,0,0,50">
@@ -37,21 +37,21 @@
             <Button  x:Name="btnJustThisTime"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnJustThisTime_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnJustThisTimeText" Margin="1" Text="xYes, Just this time" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                        <TextBlock Name="btnJustThisTimeText" Margin="1" Text="xYes, Just this time" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
             <Button   x:Name="btnGettingDistracted"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnGettingDistracted_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnGettingDistractedText" Margin="1" Text="xNo - I was getting distracted" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                        <TextBlock Name="btnGettingDistractedText" Margin="1" Text="xNo - I was getting distracted"  Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
             <Button   x:Name="btnSaveForRelax"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSaveForRelax_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnSaveForRelaxText" Margin="1" Text="xBlock and save for Relax mode" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                        <TextBlock Name="btnSaveForRelaxText" Margin="1" Text="xBlock and save for Relax mode"  Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

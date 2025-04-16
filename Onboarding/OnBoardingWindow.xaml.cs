@@ -3,6 +3,7 @@ using Focus_Bear.Habits;
 using Focus_Bear.Models;
 using Focus_Bear.Utils;
 using Newtonsoft.Json.Linq;
+using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,6 +17,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -49,6 +51,8 @@ namespace Focus_Bear.Onboarding
         OnboardingConfirmEveningRoutine WndOnboardingConfirmEveningRoutine = null;
 
         int nScreenNumberWeAreOn = 0;
+        App app = (App)Application.Current;
+
         public OnBoardingWindow(bool bSimulateFlowHidden = false)
         {
             InitializeComponent();
@@ -82,6 +86,8 @@ namespace Focus_Bear.Onboarding
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
             }
+            TitleBarThemeChange();
+            App.ThemeChanged += TitleBarThemeChange;
         }
 
         public void ShowOnboardingExplainDeepFocusScreen()
@@ -476,14 +482,14 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (nScreenNumberWeAreOn == 3) //Goals Screen
+                else if (nScreenNumberWeAreOn == 3) //Goals Screen - What do you want to achieve with Focus Bear
                 {
                     //we need to check  the focus check box  and enable the continue button
-                    WndOnboardingGoals.StayFocused.IsChecked = true;
+                   /// WndOnboardingGoals.StayFocused.IsChecked = true;
 
-                    WndOnboardingGoals.btnContinue.IsEnabled = true;
+                   /// WndOnboardingGoals.btnContinue.IsEnabled = true;
                     //We need to click the continue button on the screen
-                    ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingGoals.btnContinue);
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingAchieveWithFocusBear.btnContinue);
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
@@ -605,6 +611,27 @@ namespace Focus_Bear.Onboarding
                 invokeProv.Invoke();
             }
 
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (appSettings.sTheme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+
+
+            }
+            else if (appSettings.sTheme == "Dark")
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+
+            }
 
         }
     }

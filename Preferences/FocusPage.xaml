@@ -79,7 +79,7 @@
                     <RowDefinition Height="35"/>
                 </Grid.RowDefinitions>
 
-                <ListView   Grid.Row="0"   x:Name="ListFocusModes"  SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" SelectionChanged="ListFocusModes_SelectionChanged" Grid.ColumnSpan="2" d:ItemsSource="{d:SampleData ItemCount=5}" >
+                <ListView   Grid.Row="0"   x:Name="ListFocusModes"  SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" SelectionChanged="ListFocusModes_SelectionChanged" Grid.ColumnSpan="2">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid x:Name="ItemHeader"  Height="40"  Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >

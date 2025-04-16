@@ -6,11 +6,11 @@
       xmlns:local="clr-namespace:Focus_Bear.Login"
       mc:Ignorable="d" 
       d:DesignHeight="680" d:DesignWidth="945"
-      Title="LoginHome" Background="{DynamicResource BackgroundColor}" >
+      Title="LoginHome" >
 
     <Grid>
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
+            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="/Images/background.png" AlignmentY="Top" AlignmentX="Center"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="188" />
@@ -25,10 +25,10 @@
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap" Text="xWin your habits.&#10;Amp up your productivity." Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <StackPanel  Grid.Row="2"  Orientation="Horizontal" HorizontalAlignment="Center">
-            <TextBlock Name="Suggest" Margin="0,0,0,0" TextWrapping="Wrap" Text="xNearly done! Let's grab a few details to save your habits." FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <TextBlock Name="Suggest" Margin="0,0,10,0" TextWrapping="Wrap" Text="xNearly done! Let's grab a few details to save your habits." FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
             <Button x:Name="btnInfo" Style="{StaticResource BtnStyleInfo}" Click="btnInfo_Click" MinWidth="35" Height="35" Cursor="Hand" >
                 <StackPanel Orientation="Vertical">
-                    <Image Source="{DynamicResource InfoImage}" Margin="0,0,0,0" Height="24" Width="24" />
+                    <Image Source="/Images/info.png" Margin="0,0,0,0" Height="24" Width="24" />
                 </StackPanel>
             </Button>
         </StackPanel>
@@ -38,7 +38,7 @@
             <Button  Grid.ColumnSpan="2" x:Name="btnSignUp"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="306" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,17" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnSignUp_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnSignUpText" Margin="8" Text="xSign Up" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                        <TextBlock Name="btnSignUpText" Margin="8" Text="xSign Up" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

@@ -133,11 +133,11 @@ namespace Focus_Bear.Preferences
                 DarkMode.Visibility = bDarkModeVisible ? Visibility.Visible : Visibility.Collapsed;
                 SelectDarkMode.Visibility = bDarkModeVisible ? Visibility.Visible : Visibility.Collapsed;
 
-                SelectDarkMode.Text = "Dark Mode";
+                SelectDarkMode.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleDarkMode"].ToString();
 
-                DarkMode.Items.Add("Light");
-                DarkMode.Items.Add("Dark");
-                DarkMode.Items.Add("Device");
+                DarkMode.Items.Add(appSettings.ConfigFileStrings["preferencesInfo"]["appAppearanceOptions"][2].ToString());
+                DarkMode.Items.Add(appSettings.ConfigFileStrings["preferencesInfo"]["appAppearanceOptions"][1].ToString());
+                DarkMode.Items.Add(appSettings.ConfigFileStrings["preferencesInfo"]["appAppearanceOptions"][0].ToString());
 
                 if (appSettings.sTheme == "Light" && appSettings.bAutoTheme == false)
                 {

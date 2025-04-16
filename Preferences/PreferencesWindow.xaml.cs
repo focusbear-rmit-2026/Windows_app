@@ -25,6 +25,7 @@ using System.Windows.Threading;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.Windows.Interop;
+using System.Web.UI;
 
 namespace Focus_Bear.Preferences
 {
@@ -34,7 +35,7 @@ namespace Focus_Bear.Preferences
     public partial class PreferencesWindow : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         private string PreferenceButtonSelectedColor = "#0066EB";
         private string PreferenceButtonNormalColor = "#000";
 
@@ -117,6 +118,8 @@ namespace Focus_Bear.Preferences
             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnHelp);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
+            App.ThemeChanged += TitleBarThemeChange;
+            TitleBarThemeChange();
         }
 
         public void SetFocusButtonState()
@@ -175,28 +178,9 @@ namespace Focus_Bear.Preferences
             if (source != null)
             {
                 LogWriter.LogWrite("preference setting change title bars");
-                UseImmersiveDarkMode(source.Handle, !isLightTheme);
+                app.UseImmersiveDarkMode(source.Handle, !isLightTheme);
             }
         }
-        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
-        {
-            Version osVersion = Environment.OSVersion.Version;
-            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
-
-            if (isWindows10OrGreater)
-            {
-                var attribute = DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1;
-                if (osVersion.Build >= 18985)
-                {
-                    attribute = DWMWA_USE_IMMERSIVE_DARK_MODE;
-                }
-
-                int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
-            return false;
-        }
-
         private void btnThemeChange()
         {
             HwndSource source = (HwndSource)PresentationSource.FromVisual(this);
@@ -208,7 +192,7 @@ namespace Focus_Bear.Preferences
                 PreferenceButtonSelectedColor = "#0066EB";//blue
                 if (source != null)
                 {
-                    UseImmersiveDarkMode(source.Handle, false);//false for Light
+                    app.UseImmersiveDarkMode(source.Handle, false);//false for Light
                 }
             }
             else if (appSettings.sTheme == "Dark")
@@ -220,7 +204,7 @@ namespace Focus_Bear.Preferences
 
                 if (source != null)
                 {
-                    UseImmersiveDarkMode(source.Handle, true);//true for dark  
+                    app.UseImmersiveDarkMode(source.Handle, true);//true for dark  
                 }
             }
                 //Status
@@ -295,6 +279,21 @@ namespace Focus_Bear.Preferences
             this.Width = 999;
             this.Height = 750;
 
+            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            if(this.Width > desktopWorkingArea.Width)
+            {
+                this.Width = desktopWorkingArea.Width;
+                this.MinWidth = desktopWorkingArea.Width;
+            }
+            if (this.Height > desktopWorkingArea.Height)
+            {
+                this.Height = desktopWorkingArea.Height-30;
+                this.MinHeight = desktopWorkingArea.Height-30;
+            }
+            this.Left = (desktopWorkingArea.Width - this.Width) / 2;
+            this.Top = (desktopWorkingArea.Height - this.Height) / 2;
+
+
             FrameStats.Visibility = Visibility.Visible;
         }
         private void btnSettings_Click(object sender, RoutedEventArgs e)
@@ -314,6 +313,18 @@ namespace Focus_Bear.Preferences
             {
                 this.Width = 735 * ScaleX;
                 this.MinWidth = 735 * ScaleX;
+            }
+
+            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            if (this.Width > desktopWorkingArea.Width)
+            {
+                this.Width = desktopWorkingArea.Width;
+                this.MinWidth = desktopWorkingArea.Width;
+            }
+            if (this.Height > desktopWorkingArea.Height)
+            {
+                this.Height = desktopWorkingArea.Height-30;
+                this.MinHeight = desktopWorkingArea.Height-30;
             }
 
 
@@ -356,7 +367,20 @@ namespace Focus_Bear.Preferences
             //not applying scaling in 150% dpi for edit habits as this ruins the webview
             this.MinWidth = 999;
             this.MinHeight = 750;
-
+            
+            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            if (this.Width > desktopWorkingArea.Width)
+            {
+                this.Width = desktopWorkingArea.Width;
+                this.MinWidth = desktopWorkingArea.Width;
+            }
+            if (this.Height > desktopWorkingArea.Height)
+            {
+                this.Height = desktopWorkingArea.Height-30;
+                this.MinHeight = desktopWorkingArea.Height-30;
+            }
+            this.Left = (desktopWorkingArea.Width - this.Width) / 2;
+            this.Top = (desktopWorkingArea.Height - this.Height) / 2;
             FrameEditHabits.Visibility = Visibility.Visible;
 
             appSettings.CapturePostHog("edit-habits");
@@ -603,6 +627,13 @@ namespace Focus_Bear.Preferences
             FrameHelpTab.Visibility = Visibility.Visible;
         }
 
-
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+        }
     }
 }

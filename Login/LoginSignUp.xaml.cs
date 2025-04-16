@@ -22,6 +22,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Windows.Interop;
 
 namespace Focus_Bear.Login
 {
@@ -35,6 +36,7 @@ namespace Focus_Bear.Login
         private LoginMain _parentWindow;
         AppSettings appSettings = AppSettings.GetInstance;
         bool bEyeOnPasswordBox = false;
+        App app = (App)Application.Current;
         public LoginSignUp()
         {
         }
@@ -78,12 +80,15 @@ namespace Focus_Bear.Login
 
                 EyePassword.ToolTip = appSettings.ConfigFileStrings["customLoginVcInfo"]["tooltipShowPassword"].ToString();
                 WeGeneratedPassword.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordGenerateText"].ToString();
+                btnBack.ToolTip = appSettings.ConfigFileStrings["activationNagInfo"]["buttonBackText"].ToString();
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("LoginSignUp Texts Exception - " + ex.Message);
             }
             appSettings.CapturePostHog("view-signup-shown");
+            TitleBarThemeChange();
+            App.ThemeChanged += TitleBarThemeChange;
         }
 
         private async void btnCreatAccount_Click(object sender, RoutedEventArgs e)
@@ -561,5 +566,36 @@ namespace Focus_Bear.Login
 
             return password;
         }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+            if (appSettings.sTheme == "Light")
+            {
+                this.Background = new SolidColorBrush(Colors.White);
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+                Description.Foreground = new SolidColorBrush(Colors.Black);
+                lblEmail.Foreground = new SolidColorBrush(Colors.Black);
+                lblPassword.Foreground = new SolidColorBrush(Colors.Black);
+                SavedPassword.Foreground = new SolidColorBrush(Colors.Black);
+                WeGeneratedPassword.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            else
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+                Description.Foreground = new SolidColorBrush(Colors.LightGray);
+                lblEmail.Foreground = new SolidColorBrush(Colors.LightGray);
+                lblPassword.Foreground = new SolidColorBrush(Colors.LightGray);
+                SavedPassword.Foreground = new SolidColorBrush(Colors.LightGray);
+                WeGeneratedPassword.Foreground = new SolidColorBrush(Colors.LightGray);
+
+            }
+        }
+        
+
     }
 }

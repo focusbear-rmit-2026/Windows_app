@@ -1,4 +1,6 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Models;
+using Focus_Bear.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +24,8 @@ namespace Focus_Bear.Onboarding.AfterLogin
     /// </summary>
     public partial class OnboardingSetupAndTipsWindow : Window
     {
-         
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         AppSettings appSettings = AppSettings.GetInstance;
         
         public OnboardingSetupAndTipsWindow()
@@ -39,6 +42,8 @@ namespace Focus_Bear.Onboarding.AfterLogin
             }
 
             ShowTypeOfWorkScreen();
+            this.Loaded += MainWindow_Loaded;
+            App.ThemeChanged += TitleBarThemeChange;
         }
 
         public void ShowTypeOfWorkScreen()
@@ -60,6 +65,85 @@ namespace Focus_Bear.Onboarding.AfterLogin
         public void ShowAIConfirmScreen()
         {
             FrameSteps.Navigate(new OnboardingConfirmForAI(this));
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+           
+        }
+        private IntPtr WndProctheme(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            int WM_SETTINGCHANGE = 0x1A;
+            if (msg == WM_SETTINGCHANGE)
+            {
+                // Apply theme when system settings change
+                ChangeThemeByWindows();
+            }
+            return IntPtr.Zero;
+        }
+        private void ChangeThemeByWindows()
+        {
+            bool isDarkMode = IsLightTheme();
+            string theme = isDarkMode ? "Light" : "Dark";
+            LogWriter.LogWrite("NewOnboarding detect theme changed WndProctheme" + theme);
+            string selectedTheme = appSettings.sTheme;
+            LogWriter.LogWrite("NewOnboarding report autotheme status" + appSettings.bAutoTheme);
+            if (isDarkMode == true && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Light";
+            }
+            else if (isDarkMode == false && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Dark";
+            }
+            
+            ((App)Application.Current).ChangeTheme(selectedTheme);
+            RegistryManager.SetThemeMode();
+            TitleBarThemeChange();
+
+        }
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Hook into Windows messages
+            var hwndSource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            if (hwndSource != null)
+            {
+                hwndSource.AddHook(WndProctheme);
+            }
+
+            // Apply the correct theme at startup
+            ChangeThemeByWindows();
+            var isLightTheme = IsLightTheme();
+            UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
+        }
+        private static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
+        }
+        private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        {
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+
+            if (isWindows10OrGreater)
+            {
+                var attribute = 20;
+                if (osVersion.Build >= 18985)
+                {
+                    attribute = 19;
+                }
+
+                int useImmersiveDarkMode = enabled ? 1 : 0;
+                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+            }
+
+            return false;
         }
     }
 }

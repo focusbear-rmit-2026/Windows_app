@@ -20,6 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
+using System.Windows.Interop;
 
 namespace Focus_Bear.Onboarding
 {
@@ -29,6 +30,7 @@ namespace Focus_Bear.Onboarding
     public partial class OnboardingSelectHabitPacks : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         private OnBoardingWindow _parentWindow;
 
         public OnboardingSelectHabitPacks()
@@ -59,7 +61,8 @@ namespace Focus_Bear.Onboarding
             {
                 LogWriter.LogWrite("OnboardingSelectHabitPacks()" + ex.Message);
             }
-             
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
         }
 
         private async void SetWebView()
@@ -110,7 +113,13 @@ namespace Focus_Bear.Onboarding
         {
             if (e.IsSuccess)
             {
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"long_term_goals\":[\"{3}\"]}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected);
+                string sTheme = appSettings.sTheme == "Light" ? "LIGHT" : "DARK";
+                string sStayFoucs = appSettings.bGoalStayFocused == true ? "Stay focused at work" : "";
+                LogWriter.LogWrite("appSettings.sCustomGoalSelected: " + appSettings.sCustomGoalSelected);
+                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":\"{4}\",\"long_term_goals\":[\"{3}\"]}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected, sTheme);
+                //string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":\"{4}\",\"long_term_goals\":[\"{3}\"]}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected + sStayFoucs, sTheme);
+
+                LogWriter.LogWrite("LoadToken: " + LoadToken);
 
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForRoutineSuggestion) {{ loadMetaDataForRoutineSuggestion({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
 
@@ -190,7 +199,10 @@ namespace Focus_Bear.Onboarding
                 LogWriter.LogWrite("select habit packs webView_WebMessageReceived()" + ex.Message);
             }
         }
-
+        private void Page_Theme()
+        {
+            app.ApplyThemeToPage(this, BackgroundImage);
+        }
 
     }
 }

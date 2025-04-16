@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="Auto"   Width="250" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStyle="None" Topmost="True" >
-    <Border  Grid.Row="1"  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}">
+        Title="Focus Bear" Height="Auto"   Width="250" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStyle="None" Topmost="True" Background="{DynamicResource BackgroundColor}">
+    <Border  Grid.Row="1" BorderBrush="LightGray" BorderThickness="1">
         <Grid>
             <Grid.Resources>
                 <ResourceDictionary>
@@ -27,7 +27,7 @@
             <TextBlock Grid.Row="1" x:Name="Caption" TextWrapping="Wrap" Text="xxThis is a simple caption  else."  VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,10,20,0" MaxWidth="360" FontWeight="Bold"  TextAlignment="Center" Visibility="Collapsed" />
 
             <TextBlock Grid.Row="2" x:Name="MessageText" TextWrapping="Wrap" FontSize="14" Text="xxThis is a simple text for testing and nothing else. This is a simple text for testing and nothing else." MaxWidth="360" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,20,20,0"   TextAlignment="Center" />
-            <StackPanel Grid.Row="3"  Orientation="Vertical" Margin="0,20,0,10">
+            <StackPanel Grid.Row="3"  Orientation="Vertical" Margin="0,20,0,10" >
                 <Button  x:Name="btnOK"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="30" MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="20,20,20,20" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">

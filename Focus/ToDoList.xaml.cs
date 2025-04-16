@@ -25,6 +25,7 @@ namespace Focus_Bear.Focus
     public partial class ToDoList : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
@@ -112,49 +113,27 @@ namespace Focus_Bear.Focus
             base.OnSourceInitialized(e);
 
             var source = (HwndSource)PresentationSource.FromVisual(this);
-            var isLightTheme = IsLightTheme();
+            var isLightTheme = app.IsLightTheme();
             if (appSettings.bAutoTheme)
             {
                 if (source != null)
                 {
-                    UseImmersiveDarkMode(source.Handle, !isLightTheme);
+                    app.UseImmersiveDarkMode(source.Handle, !isLightTheme);
                 }
             }
             else
             {
                 if (appSettings.sTheme == "Light")
                 {
-                    UseImmersiveDarkMode(source.Handle, false);
+                    app.UseImmersiveDarkMode(source.Handle, false);
                 }
                 else if (appSettings.sTheme == "Dark")
                 {
-                    UseImmersiveDarkMode(source.Handle, true);
+                    app.UseImmersiveDarkMode(source.Handle, true);
                 }
             }
         }
-        private bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
-        {
-            Version osVersion = Environment.OSVersion.Version;
-            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
 
-            if (isWindows10OrGreater)
-            {
-                var attribute = DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1;
-                if (osVersion.Build >= 18985)
-                {
-                    attribute = DWMWA_USE_IMMERSIVE_DARK_MODE;
-                }
 
-                int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
-            return false;
-        }
-        private static bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i > 0;
-        }
     }
 }
