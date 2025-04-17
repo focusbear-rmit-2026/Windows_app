@@ -246,5 +246,12 @@ namespace Focus_Bear.Upgrade
                 app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
         }
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+        }
     }
 }

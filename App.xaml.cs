@@ -451,6 +451,8 @@ namespace Focus_Bear
 
             RegistryManager.GetAutoThemeMode();
 
+            RegistryManager.GetTrayModeChangeFB();
+
             appSettings.CheckAndGetGlobalUUID();
 
             appSettings.DownloadAndLoadConfigFile();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Focus_Bear.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -186,6 +187,7 @@ namespace Focus_Bear.Utils
             {
                 LogWriter.LogWrite("DoNotShowAnymore_Checked true");
                 appSettings.bDontShowModeChangeFB = true;
+                RegistryManager.SetTrayModeChangeFB();
             }
         }
 

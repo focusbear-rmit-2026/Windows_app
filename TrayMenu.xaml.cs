@@ -1288,6 +1288,8 @@ namespace Focus_Bear
 
             }
             appSettings.CapturePostHog("switch-to-geek-mode");
+            UpdateTrayMenu();
+            SetTrayMenuPosition();
         }
 
         private void SimpleMode_Checked(object sender, RoutedEventArgs e)
@@ -1306,6 +1308,8 @@ namespace Focus_Bear
 
             }
             appSettings.CapturePostHog("switch-to-simple-mode");
+            UpdateTrayMenu();
+            SetTrayMenuPosition();
         }
 
         private void btnToDoPlayer_Click(object sender, RoutedEventArgs e)

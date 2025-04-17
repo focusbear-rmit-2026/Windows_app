@@ -298,6 +298,8 @@ namespace Focus_Bear.Preferences
             {
                 this.Width = 735 * ScaleX;
                 this.MinWidth = 735 * ScaleX;
+                this.Height = 900 * ScaleY;
+                this.MinHeight = 900 * ScaleY;
             }
 
 
@@ -322,6 +324,8 @@ namespace Focus_Bear.Preferences
             {
                 this.Width = 835 * ScaleX;
                 this.MinWidth = 835 * ScaleX;
+                this.Height = 900 * ScaleY;
+                this.MinHeight = 900 * ScaleY;
             }
             
 
@@ -373,6 +377,8 @@ namespace Focus_Bear.Preferences
             {
                 this.Width = 735 * ScaleX;
                 this.MinWidth = 735 * ScaleX;
+                this.Height = 900 * ScaleY;
+                this.MinHeight = 900 * ScaleY;
             }
 
 
