@@ -159,11 +159,13 @@ namespace Focus_Bear.Onboarding
                     if (DoNotCare.IsChecked.Value) //still no habits and just focus
                     {
                         appSettings.bGoalStayFocused = true;
+                        appSettings.bGoalStayFocused = true;
                         appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"do_not_care\"");
                         appSettings.sCareFactorString = "do_not_care";
                     }
                     else if (NotCommitted.IsChecked.Value) //still no habits and just focus
                     {
+                        appSettings.bGoalStayFocused = true;
                         appSettings.bGoalStayFocused = true;
                         appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"not_committed\"");
                         appSettings.sCareFactorString = "not_committed";
@@ -171,6 +173,7 @@ namespace Focus_Bear.Onboarding
                     else if (Committed.IsChecked.Value) // ALL habits
                     {
                         appSettings.bGoalHealthyHabits = true;
+                        appSettings.bGoalStayFocused = true;
                         appSettings.CapturePostHog("cares-about-habits", "\"care-factor\":\"committed\"");
                         appSettings.CapturePostHog("activate-all-features");
                         appSettings.sCareFactorString = "committed";
@@ -230,8 +233,8 @@ namespace Focus_Bear.Onboarding
                 {
                     _parentWindow.ShowOnboardingSetHabitsLaterInfo();
                 }
-                
-               
+
+
             
             }
             catch (Exception ex)

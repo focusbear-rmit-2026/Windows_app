@@ -607,7 +607,7 @@ namespace Focus_Bear.Habits
                 {
                     SkipThisHabitText.Visibility = Visibility.Visible;//Only show in paused mode
                 }
-
+                
                 appSettings.CapturePostHog("pause-activity");
             }
             else
