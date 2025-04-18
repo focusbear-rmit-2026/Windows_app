@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Models;
+﻿using Focus_Bear.API;
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
@@ -311,6 +312,10 @@ namespace Focus_Bear.Habits
         {
             //WE will set the morning habits shown date for today
             RegistryManager.SetMorningHabitsShownTillDate();
+
+            FocusBearAPIClient client = new FocusBearAPIClient();
+            var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
+
             DialogResult = true;
             Close();
         }

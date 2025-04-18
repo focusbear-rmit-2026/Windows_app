@@ -279,6 +279,21 @@ namespace Focus_Bear.Preferences
             this.Width = 999;
             this.Height = 750;
 
+            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            if(this.Width > desktopWorkingArea.Width)
+            {
+                this.Width = desktopWorkingArea.Width;
+                this.MinWidth = desktopWorkingArea.Width;
+            }
+            if (this.Height > desktopWorkingArea.Height)
+            {
+                this.Height = desktopWorkingArea.Height-30;
+                this.MinHeight = desktopWorkingArea.Height-30;
+            }
+            this.Left = (desktopWorkingArea.Width - this.Width) / 2;
+            this.Top = (desktopWorkingArea.Height - this.Height) / 2;
+
+
             FrameStats.Visibility = Visibility.Visible;
         }
         private void btnSettings_Click(object sender, RoutedEventArgs e)
@@ -298,6 +313,18 @@ namespace Focus_Bear.Preferences
             {
                 this.Width = 735 * ScaleX;
                 this.MinWidth = 735 * ScaleX;
+            }
+
+            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            if (this.Width > desktopWorkingArea.Width)
+            {
+                this.Width = desktopWorkingArea.Width;
+                this.MinWidth = desktopWorkingArea.Width;
+            }
+            if (this.Height > desktopWorkingArea.Height)
+            {
+                this.Height = desktopWorkingArea.Height-30;
+                this.MinHeight = desktopWorkingArea.Height-30;
             }
 
 
@@ -340,7 +367,20 @@ namespace Focus_Bear.Preferences
             //not applying scaling in 150% dpi for edit habits as this ruins the webview
             this.MinWidth = 999;
             this.MinHeight = 750;
-
+            
+            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            if (this.Width > desktopWorkingArea.Width)
+            {
+                this.Width = desktopWorkingArea.Width;
+                this.MinWidth = desktopWorkingArea.Width;
+            }
+            if (this.Height > desktopWorkingArea.Height)
+            {
+                this.Height = desktopWorkingArea.Height-30;
+                this.MinHeight = desktopWorkingArea.Height-30;
+            }
+            this.Left = (desktopWorkingArea.Width - this.Width) / 2;
+            this.Top = (desktopWorkingArea.Height - this.Height) / 2;
             FrameEditHabits.Visibility = Visibility.Visible;
 
             appSettings.CapturePostHog("edit-habits");

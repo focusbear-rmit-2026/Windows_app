@@ -64,6 +64,7 @@ namespace Focus_Bear
         private EventWaitHandle appWaitHandle;
 
         private Mutex appMutex;
+        bool createdNew;
 
         [DllImport("oleacc.dll")]
         public static extern uint AccessibleObjectFromEvent(IntPtr hwnd, uint dwObjectID, uint dwChildID, out IAccessible ppacc, [MarshalAs(UnmanagedType.Struct)] out object pvarChild);
@@ -355,7 +356,7 @@ namespace Focus_Bear
             SentrySdk.Init(o =>
             {
                 // Tells which project in Sentry to send events to:
-                o.Dsn = "https://994c1df7d9dcced04975c9bbdf2ca829@sentry.aws.focusbear.io/6";
+                o.Dsn = "https://6f9de528660aea5d587013fec00ff5d7@o4509122919006208.ingest.us.sentry.io/4509123825696768";
 
                 // When configuring for the first time, to see what the SDK is doing:
                 o.Debug = true;
@@ -397,7 +398,7 @@ namespace Focus_Bear
                 {
                     #region Managing Instances
                     //Handling running instances
-                    bool createdNew;
+                    
                     appMutex = new Mutex(true, MutexGUID, out createdNew);
                     appWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, EventMutex);
 
@@ -419,7 +420,15 @@ namespace Focus_Bear
                                     if (Current.MainWindow is TrayMenu)
                                     {
                                         var alreadyRunningMainWin = (TrayMenu)Current.MainWindow;
+                                        alreadyRunningMainWin.Topmost = true;
+                                        alreadyRunningMainWin.UpdateTrayMenu();
                                         alreadyRunningMainWin.Show();
+                                        alreadyRunningMainWin.BringIntoView();
+                                        alreadyRunningMainWin.Activate();
+                                        alreadyRunningMainWin.Focus();
+                                        alreadyRunningMainWin.SetTrayMenuPosition();
+
+                                        //alreadyRunningMainWin.Show();
                                     }
                                 }));
                             }
@@ -652,6 +661,10 @@ namespace Focus_Bear
             if (appSettings.arrAllbreakActivities.Count == 0)
             {
                 LogWriter.LogWrite("No activities in break activities array so returning from StartBreakActivityTimer()");
+                return;
+            }
+            if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+            {
                 return;
             }
             //Remove the previous event handler so that new can be set
@@ -1518,6 +1531,8 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("StartWorkFlow()" + ex.Message);
             }
+
+            appSettings.CheckLogFileRotation();
 
             //Get total time for distracting sites for today
             appSettings.GetTotalTimeForDistractingSitesToday();
@@ -3770,7 +3785,8 @@ namespace Focus_Bear
                 }
                 LogWriter.LogWrite("Application_Exit() 2");
 
-                appMutex.ReleaseMutex();
+                if(createdNew && appMutex != null)
+                    appMutex.ReleaseMutex();
                 // appMutex.Dispose();
                 //Remove the focus handler
                 //Commented in 1.0.50 as this was taking full 1 minute and was slowing down the exit and restart process after saving settings

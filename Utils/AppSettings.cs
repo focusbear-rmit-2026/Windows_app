@@ -2397,6 +2397,88 @@ namespace Focus_Bear.Utils
                 var y = client.PutUserSettings();
             });
         }
+
+        public void CheckLogFileRotation()
+        {
+
+            LogWriter.LogWrite("CheckLogFileRotation() ");
+           
+            var DebugLogsFilePath = Path.Combine(AppSettings.AppDataDirLogsPath, "Debug_Logs.txt");
+
+            DateTime? creationDate = FileCreationDate(DebugLogsFilePath);
+            if (creationDate != null)
+            {
+                Console.WriteLine(creationDate);
+                TimeSpan diff = DateTime.Now - creationDate.Value;
+                Console.WriteLine(diff.TotalDays);
+
+                if (diff.TotalDays > 3)
+                {
+                    string timestamp = DateTime.Now.ToString("yyyy-MM-dd");
+                    string oldLogPath = Path.Combine(AppSettings.AppDataDirLogsPath, $"Debug_Logs-{timestamp}.txt");
+
+                    LogWriter.LogWrite("CheckLogFileRotation:- move log files");
+                    try
+                    {
+                        File.Move(DebugLogsFilePath, oldLogPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+                }
+            }
+
+            try
+            {
+                var logFiles = Directory.GetFiles(AppSettings.AppDataDirLogsPath, "*.txt")
+                    .Select(f => new FileInfo(f))
+                    .ToList();
+
+                var logFileInfos = new List<Dictionary<string, object>>();
+
+                foreach (var fileInfo in logFiles)
+                {
+                    logFileInfos.Add(new Dictionary<string, object>
+                {
+                    { "path", fileInfo.FullName },
+                    { "date", fileInfo.CreationTime }
+                });
+                }
+
+                if (logFileInfos.Count > 5)
+                {
+                    var sorted = logFileInfos.OrderByDescending(x => (DateTime)x["date"]).ToList();
+
+                    while (sorted.Count > 5)
+                    {
+                        try
+                        {
+                            File.Delete((string)sorted[5]["path"]);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                        }
+                        sorted.RemoveAt(5);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        private DateTime? FileCreationDate(string path)
+        {
+            if (File.Exists(path))
+            {
+                return File.GetCreationTime(path);
+            }
+            return null;
+        }
+
     }
 }
 
