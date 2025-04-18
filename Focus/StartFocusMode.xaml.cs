@@ -95,7 +95,7 @@ namespace Focus_Bear.Focus
 
         public void SetTextsIfStartingAnotherFocuModeBlock()
         {
-            TxtIntention.Text = "";  // Clear previous intention when entering new focus mode
+            TxtIntention.Text = appSettings.sRunningFocusModeIntention;
             SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
             Hours.Text = appSettings.sRunningFocusModeHours;
             Minutes.Text = appSettings.sRunningFocusModeMinutes;
