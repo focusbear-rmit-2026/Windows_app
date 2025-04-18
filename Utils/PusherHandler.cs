@@ -166,6 +166,7 @@ namespace Focus_Bear.Utils
             string sFinishTime = ObjData.ContainsKey("scheduled_finish_time") ? ObjData["scheduled_finish_time"].ToString() : "";
             string sFocusModeId = ObjData.ContainsKey("focus_mode_id") ? ObjData["focus_mode_id"].ToString() : "";
             string sIntention = ObjData.ContainsKey("intention") ? ObjData["intention"].ToString() : "";
+            appSettings.sRunningFocusModeIntention = sIntention;
 
             DateTime StartTimeLocal = DateTime.Parse(sStartTime).ToLocalTime(); //Convert the UTC time to Local time
             DateTime FinishTimeLocal = DateTime.Parse(sFinishTime).ToLocalTime(); //Convert the UTC time to Local time
@@ -254,7 +255,6 @@ namespace Focus_Bear.Utils
 
                             appSettings.sRunningFocusModeID = appSettings.arrFocusModes[i].id;
                             appSettings.sRunningFocusModeName = appSettings.arrFocusModes[i].name;
-                            appSettings.sRunningFocusModeIntention = sIntention;
 
                             //Clear any old stuff for gentle blocking
                             appSettings.TemporaryAllowedAppsGentleBlock.Clear();
