@@ -8,5 +8,8 @@ namespace Focus_Bear.Models
     {
         [JsonProperty("event")]
         public string Event { get; set; }
+
+        [JsonProperty("hasUserModifiedSettings")]
+        public bool HasUserModifiedSettings { get; set; }
     }
 }

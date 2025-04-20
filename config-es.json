@@ -380,7 +380,11 @@
     "settingsEditedButNotSavedText": "Has hecho cambios en tus hábitos/descansos pero aún no los has guardado. Se recomienda revisar y guardar los cambios (la aplicación se reiniciará)",
     "buttonReviewSettingsText": "Revisaré y Guardaré",
     "downloadReportText": "Visita el panel de control de Focus Bear en tu navegador web para descargar el informe.",
-    "buttonVisitDashboardText": "Haz clic aquí para visitar el panel de control"
+    "buttonVisitDashboardText": "Haz clic aquí para visitar el panel de control",
+    "youAreAboutCloseTheEditHabitsMenu":"You are about to close the Edit habits menu. If you have made any changes, please tap the \"Save Habits\" button.",
+    "warning":"Warning",
+    "continue":"Continue",
+    "cancel":"Cancel"
   },
   "trialNagInfo": {
     "title": "Focus Bear",

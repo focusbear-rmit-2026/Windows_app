@@ -490,12 +490,23 @@ namespace Focus_Bear.Preferences
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
-            if (FrameSettings.Visibility == Visibility.Visible)
+            if (FrameEditHabits.Visibility == Visibility.Visible)
             {
                 string userSettingsUpdateScript = $@"
                 (function() {{
-                    const data = window?.hasUserModifiedSettings();
-                    window.chrome.webview.postMessage(JSON.stringify({{ ""event"": ""{Events.WindowClosing}"" }}));
+                    try {{
+                        const data = window?.hasUserModifiedSettings?.();
+                        const message = {{
+                            event: '{Events.WindowClosing}',
+                            hasUserModifiedSettings:data?.isUserSettingsModified ?? false
+                        }};
+                        window.chrome?.webview?.postMessage(message);
+                    }} catch (e) {{
+                        window.chrome?.webview?.postMessage({{
+                            event: '{Events.WindowClosing}',
+                            hasUserModifiedSettings: false
+                        }});
+                    }}
                 }})();";
 
                 PageEditHabits.webView.ExecuteScriptAsync(userSettingsUpdateScript);
