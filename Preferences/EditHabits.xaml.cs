@@ -33,7 +33,6 @@ namespace Focus_Bear.Preferences
         AppSettings appSettings = AppSettings.GetInstance;
         PreferencesWindow _ParentWindow = null;
         FBMessageBox messageBox;
-        JObject settingsSection;
 
         public EditHabits()
         {
@@ -47,7 +46,6 @@ namespace Focus_Bear.Preferences
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
             App.ThemeChanged += LoadURL;
-            settingsSection = appSettings.ConfigFileStrings["settings"] as JObject;
         }
 
 
@@ -62,7 +60,7 @@ namespace Focus_Bear.Preferences
                 {
                     if (webMessageEvent.HasUserModifiedSettings)
                     {
-                        messageBox = new FBMessageBox(settingsSection["youAreAboutCloseTheEditHabitsMenu"].ToString(), settingsSection["warning"].ToString(), MessageBoxButton.YesNo, settingsSection["continue"].ToString(), settingsSection["cancel"].ToString());
+                        messageBox = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["youAreAboutCloseTheEditHabitsMenu"].ToString(), appSettings.ConfigFileStrings["settings"]["warning"].ToString(), MessageBoxButton.YesNo, appSettings.ConfigFileStrings["settings"]["continue"].ToString(), settingsSection["cancel"].ToString());
                         messageBox.Owner = _ParentWindow;
                         messageBox.ShowDialog();
 
@@ -93,7 +91,7 @@ namespace Focus_Bear.Preferences
 
         public void LoadURL()
         {
-            string sSettingsURL = settingsSection["settingUrl"].ToString();
+            string sSettingsURL = appSettings.ConfigFileStrings["settings"] ["settingUrl"].ToString();
             sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString("o");
             webView.Source = new System.Uri(sSettingsURL);
         }
@@ -250,7 +248,7 @@ namespace Focus_Bear.Preferences
 
             if (xResponse == 1) //valid settings
             {
-                messageBox = new FBMessageBox(settingsSection["settingIsValidText"].ToString(), "Focus Bear");
+                messageBox = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear");
                 messageBox.Owner = _ParentWindow;
                 messageBox.ShowDialog();
                 appSettings.CapturePostHog("save-edited-habits");
@@ -276,7 +274,7 @@ namespace Focus_Bear.Preferences
             {
                 // TODO: The value of xRenwTokenStatus should not be zero. If it is, prompt the user to sign in again or initiate a token refresh.
                 LogWriter.LogWrite("Settings cannot be validated from API.");
-                FBMessageBox ff = new FBMessageBox(settingsSection["settingIsNotValidText"].ToString(), "Focus Bear");
+                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear");
                 ff.Owner = _ParentWindow;
                 ff.ShowDialog();
             }
