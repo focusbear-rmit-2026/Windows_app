@@ -17,10 +17,6 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="258*"/>
-            <ColumnDefinition Width="413*"/>
-        </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="81" MinHeight="81" />
@@ -28,15 +24,11 @@
         </Grid.RowDefinitions>
 
 
-        <Border BorderThickness="0,0,0,1" BorderBrush="DarkGray" VerticalAlignment="Center" Grid.ColumnSpan="2"  >
+        <Border  Grid.Row="0" BorderThickness="0,0,0,1" BorderBrush="DarkGray"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  >
             <Grid Margin="0" Grid.Row="0" Background="{DynamicResource PrefenenceTitleBackgroundColor}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="587*"/>
-                    <ColumnDefinition Width="84*"/>
-                </Grid.ColumnDefinitions>
                 <!-- Grid Margin="0" Grid.Row="0" Background="#faf9f6" -->
 
-                <StackPanel Orientation="Horizontal" Margin="139,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"  >
+                <StackPanel Orientation="Horizontal" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center"  >
                     <Button x:Name="btnHelp" Style="{DynamicResource BtnStylePreferencesDynamic}" Click="btnHelp_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
                         <StackPanel Orientation="Vertical">
                             <Image Source="{DynamicResource InfoImage}" Margin="0,5,0,0" Height="24" Width="24" />
@@ -113,17 +105,17 @@
             </Grid>
         </Border>
 
-        <Frame x:Name="FrameStats" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible" Grid.ColumnSpan="2"   />
-        <Frame x:Name="FrameSettings" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible" Grid.ColumnSpan="2"   />
+        <Frame x:Name="FrameStats" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
+        <Frame x:Name="FrameSettings" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
 
-        <Frame x:Name="FrameEditHabits" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible" Grid.ColumnSpan="2"   />
-        <Frame x:Name="FrameFocus" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"  IsVisibleChanged="FrameFocus_IsVisibleChanged" Grid.ColumnSpan="2" />
-        <Frame x:Name="FrameBlocks" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible" Grid.ColumnSpan="2"   />
-        <Frame x:Name="FrameAccountTab" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible" Grid.ColumnSpan="2"   />
-        <Frame x:Name="FrameUninstallTab" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible" Grid.ColumnSpan="2"   />
-        <Frame x:Name="FrameHelpTab" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible" Grid.ColumnSpan="2"   />
+        <Frame x:Name="FrameEditHabits" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
+        <Frame x:Name="FrameFocus" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"  IsVisibleChanged="FrameFocus_IsVisibleChanged" />
+        <Frame x:Name="FrameBlocks" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
+        <Frame x:Name="FrameAccountTab" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
+        <Frame x:Name="FrameUninstallTab" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
+        <Frame x:Name="FrameHelpTab" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1"  Foreground="{x:Null}" Visibility="Visible"   />
 
-        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="2" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" Grid.ColumnSpan="2" />
+        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
 
     </Grid>
     <!--</local1:DpiDecorator>-->
