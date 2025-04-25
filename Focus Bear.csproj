@@ -1125,6 +1125,7 @@
     <Resource Include="Fonts\IntelOneMono-Regular.ttf" />
     <Resource Include="Fonts\OpenDyslexic.ttf" />
     <Resource Include="Fonts\Poppins.ttf" />
+    <None Include="README.md" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
