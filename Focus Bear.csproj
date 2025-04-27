@@ -273,6 +273,7 @@
       <DependentUpon>CallFocusNotifier.xaml</DependentUpon>
     </Compile>
     <Compile Include="CallDetection\CameraUtilities.cs" />
+    <Compile Include="Constants\Events.cs" />
     <Compile Include="Focus\AddTempAllowedToFocusModeWindow.xaml.cs">
       <DependentUpon>AddTempAllowedToFocusModeWindow.xaml</DependentUpon>
     </Compile>
@@ -385,6 +386,7 @@
     <Compile Include="Models\NativeFileDelete.cs" />
     <Compile Include="Models\RegistryManager.cs" />
     <Compile Include="Models\UserAccount.cs" />
+    <Compile Include="Models\WebMessageEvent.cs" />
     <Compile Include="Models\WinSecurity.cs" />
     <Compile Include="Onboarding\AfterLogin\OnboardingAskProcrastinatingWindow.xaml.cs">
       <DependentUpon>OnboardingAskProcrastinatingWindow.xaml</DependentUpon>

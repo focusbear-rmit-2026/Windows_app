@@ -380,7 +380,11 @@
     "settingsEditedButNotSavedText": "You've made changes to your habits/breaks but haven't saved them yet. It is recommended to review and save the changes (the app will restart)?",
     "buttonReviewSettingsText": "I'll review and Save",
     "downloadReportText": "Please visit Focus Bear dashboard in your web browser to download the report.",
-    "buttonVisitDashboardText": "Click here to visit dashboard now"
+    "buttonVisitDashboardText": "Click here to visit dashboard now",
+    "youAreAboutCloseTheEditHabitsMenu":"You are about to close the Edit habits menu. If you have made any changes, please tap the \"Save Habits\" button.",
+    "warning":"Warning",
+    "continue":"Continue",
+    "cancel":"Cancel"
   },
   "trialNagInfo": {
     "title": "Focus Bear",
