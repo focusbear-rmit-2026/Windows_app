@@ -18,6 +18,7 @@ using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace Focus_Bear.Login
 {
@@ -261,12 +262,16 @@ namespace Focus_Bear.Login
 
         private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            TxtShowPassword.Text = TxtPassword.Password;
+            TxtPasswordVisible.Text = TxtPassword.Password;
+            TxtPassword.GetType().GetMethod("Select", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(TxtPassword, new object[] { TxtPassword.Password.Length, TxtPassword.Password.Length });
+            TxtPassword.Focus();
         }
-        private void Textbox_PasswordChanged(object sender, RoutedEventArgs e)
+        private void TxtPasswordVisible_TextChanged(object sender, TextChangedEventArgs e)
         {
-             TxtPassword.Password = TxtShowPassword.Text;
+            TxtPassword.Password = TxtPasswordVisible.Text;
+            TxtPasswordVisible.Focus();
         }
+        
         private void EyePassword_MouseUp(object sender, MouseButtonEventArgs e)
         {
             bEyeOnPasswordBox = !bEyeOnPasswordBox;
@@ -274,9 +279,8 @@ namespace Focus_Bear.Login
             {
                 EyePassword.Source = new BitmapImage(new Uri("pack://application:,,,/Images/eye-gray.png"));
 
-                TxtShowPassword.Visibility = Visibility.Visible;
+                TxtPasswordVisible.Visibility = Visibility.Visible;
                 TxtPassword.Visibility = Visibility.Collapsed;
-                TxtShowPassword.Text = TxtPassword.Password;
 
                 try
                 {
@@ -292,9 +296,8 @@ namespace Focus_Bear.Login
             {
                 EyePassword.Source = new BitmapImage(new Uri("pack://application:,,,/Images/eye-orange.png"));
 
-                TxtShowPassword.Visibility = Visibility.Collapsed;
+                TxtPasswordVisible.Visibility = Visibility.Collapsed;
                 TxtPassword.Visibility = Visibility.Visible;
-                TxtPassword.Password = TxtShowPassword.Text;
                 try
                 {
                     EyePassword.ToolTip = appSettings.ConfigFileStrings["customLoginVcInfo"]["tooltipShowPassword"].ToString();

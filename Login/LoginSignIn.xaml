@@ -69,7 +69,12 @@
                     <TextBlock Name="lblPassword" Margin="0,20,0,10" TextWrapping="Wrap" Text="xPassword" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
                     <PasswordBox TabIndex="1" x:Name="TxtPassword" Margin="0" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" PasswordChanged="TxtPassword_PasswordChanged">
                         <PasswordBox.Effect>
-                            <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6" />
+                            <DropShadowEffect ShadowDepth="3"
+                                  Direction="330"
+                                  Color="Gray"
+                                  Opacity="0.5"
+                                  BlurRadius="6"
+                                   />
                         </PasswordBox.Effect>
                         <PasswordBox.FocusVisualStyle>
                             <Style>
@@ -81,7 +86,25 @@
                             </Style>
                         </PasswordBox.FocusVisualStyle>
                     </PasswordBox>
-                    <TextBox x:Name="TxtShowPassword" Visibility="Collapsed" Margin="0" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" TextChanged="Textbox_PasswordChanged"/>
+                    <TextBox Width="300" x:Name="TxtPasswordVisible" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" TextChanged="TxtPasswordVisible_TextChanged" Visibility="Collapsed">
+                        <TextBox.Effect>
+                            <DropShadowEffect ShadowDepth="3"
+                                  Direction="330"
+                                  Color="Gray"
+                                  Opacity="0.5"
+                                  BlurRadius="6"
+                                   />
+                        </TextBox.Effect>
+                        <TextBox.FocusVisualStyle>
+                            <Style>
+                                <Setter Property="Control.Template">
+                                    <Setter.Value>
+                                        <ControlTemplate/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </TextBox.FocusVisualStyle>
+                    </TextBox>
                 </StackPanel>
                 <Image x:Name="EyePassword" Grid.Column="1" Source="../images/eye-orange.png" Width="20" Height="20" Margin="0,0,0,5" Cursor="Hand" MouseUp="EyePassword_MouseUp" VerticalAlignment="Bottom"></Image>
                 <Image  Name="ImgPasswordValid"  Grid.Column="1" Source="../images/validIcon.png" Width="20" Height="20" Margin="0,0,0,5" Visibility="Collapsed" VerticalAlignment="Bottom"></Image>

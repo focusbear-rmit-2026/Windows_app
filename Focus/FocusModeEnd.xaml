@@ -121,7 +121,7 @@
             <Button Visibility="Collapsed"  x:Name="btnContinue" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnContinueText" Margin="8" Text="xContinue"/>
+                        <TextBlock Name="btnContinueText" Margin="8" Text="xContinue" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

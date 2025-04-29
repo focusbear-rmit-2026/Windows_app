@@ -1117,6 +1117,36 @@ namespace Focus_Bear.Models
                 LogWriter.LogWrite("SetDarkMode()" + ex.Message);
             }
         }
+        internal static void SetTrayModeChangeFB()
+        {
+            try
+            {
+                WriteStrGlobal("APP_TRAYMODECHANGEFB", appSettings.bDontShowModeChangeFB.ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetDarkMode()" + ex.Message);
+            }
+        }
+
+        internal static bool GetTrayModeChangeFB()
+        {
+            try
+            {
+                var regData = ReadStrGlobal("APP_TRAYMODECHANGEFB");
+                if (regData == null)
+                    return false;
+                Console.WriteLine("regData APP_TRAYMODECHANGEFB: " + regData.ToString());
+
+                bool.TryParse(regData.ToString(), out appSettings.bDontShowModeChangeFB);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetAutoThemeMode - " + ex.Message);
+                return false;
+            }
+        }
         internal static void SetWelcomeAboardingDoneStatus()
         {
             try
