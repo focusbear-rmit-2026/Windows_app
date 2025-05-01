@@ -1388,7 +1388,7 @@ namespace Focus_Bear.Utils
                     //Read previously saved in registry
                     RegistryManager.GetLocalDeviceSettings();
                 }
-                if (sUserLocalDeviceSettings.Length > 0)
+                if (sUserLocalDeviceSettings != null && sUserLocalDeviceSettings.Length > 0)
                 {
 
                     //Parse the JSON string
@@ -1833,7 +1833,7 @@ namespace Focus_Bear.Utils
 
                 using (System.IO.StreamWriter sw = System.IO.File.AppendText(sLogQuantityCSVPath))
                 {
-                    string csv = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}", sLogType, sTimeStamp, sActivityName, sDurationInSeconds, sLogQuantityQuestion, sQuantityLogged, sStartTime, sWorkAchieved, sDistractionsEncountered, sAbortReason, sFeedback);
+                    string csv = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}", sLogType, sTimeStamp, sActivityName, sDurationInSeconds, sLogQuantityQuestion, sQuantityLogged, sStartTime, EscapeForCsv(sWorkAchieved), EscapeForCsv(sDistractionsEncountered), EscapeForCsv(sAbortReason), EscapeForCsv(sFeedback));
                     sw.WriteLine(csv);
                     sw.Flush();
                 }
@@ -1844,6 +1844,20 @@ namespace Focus_Bear.Utils
             }
 
         }
+        string EscapeForCsv(string value)
+        {
+            // Remove or replace line breaks
+            value = value.Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
+
+            if (value.Contains("\""))
+                value = value.Replace("\"", "\"\""); // Escape quotes
+
+            if (value.Contains(","))
+                return $"\"{value}\""; // Still wrap in quotes if it has a comma
+
+            return value;
+        }
+
 
         public void ReplaceLastEntryInCSV()
         {

@@ -460,9 +460,11 @@ namespace Focus_Bear
 
             RegistryManager.GetAutoThemeMode();
 
+            RegistryManager.GetTrayModeChangeFB();
+
             appSettings.CheckAndGetGlobalUUID();
 
-            appSettings.DownloadAndLoadConfigFile();
+            appSettings.DownloadAndLoadConfigFile(); // TODO: Only allow download in production mode by checking the current environment
 
             //System sleep / wake up event
             SystemEvents.PowerModeChanged += OnPowerChange;

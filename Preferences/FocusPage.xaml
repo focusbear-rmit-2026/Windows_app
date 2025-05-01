@@ -137,7 +137,7 @@
                         <RowDefinition Height="1"/>
                         <RowDefinition Height="25"/>
                     </Grid.RowDefinitions>
-                    <ListView   Grid.Row="0" Background="{DynamicResource BackgroundColor}"  x:Name="ListApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}" BorderThickness="0" d:ItemsSource="{d:SampleData ItemCount=5}">
+                    <ListView   Grid.Row="0" Background="{DynamicResource BackgroundColor}"  x:Name="ListApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}" BorderThickness="0" >
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >

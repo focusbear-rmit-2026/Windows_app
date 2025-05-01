@@ -1,20 +1,101 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using Auth0.AuthenticationApi;
 using Auth0.AuthenticationApi.Models;
+using Auth0.OidcClient;
+using Duende.IdentityModel.OidcClient;
+using Duende.IdentityModel.OidcClient.Browser;
+using Focus_Bear.Login;
 using Focus_Bear.Utils;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Wpf;
 using Newtonsoft.Json.Linq;
 
 namespace Focus_Bear.API
 {
+    public class CustomWebView2Browser : IBrowser
+    {
+        private readonly string _userDataFolder;
+        private readonly Window _owner;
+        public CustomWebView2Browser(string userDataFolder, Window wndOwner = null)
+        {
+            _userDataFolder = userDataFolder;
+            _owner = wndOwner;
+        }
+
+        public async Task<BrowserResult> InvokeAsync(BrowserOptions options, System.Threading.CancellationToken cancellationToken = default)
+        {
+            var tcs = new TaskCompletionSource<BrowserResult>();
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var window = new Window
+                {
+                    Width = 900,
+                    Height = 630,
+                    Title = "Focus Bear - Sign in with Google",
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen
+                };
+                if (_owner != null)
+                {
+                    window.Owner = _owner;
+                }
+                var webView = new WebView2();
+                window.Content = webView;
+
+                window.Closed += (s, e) =>
+                {
+                    if (!tcs.Task.IsCompleted)
+                    {
+                        tcs.TrySetResult(new BrowserResult
+                        {
+                            ResultType = BrowserResultType.UserCancel
+                        });
+                    }
+                };
+
+                webView.NavigationStarting += (s, e) =>
+                {
+                    if (e.Uri.StartsWith(options.EndUrl, StringComparison.OrdinalIgnoreCase))
+                    {
+                        e.Cancel = true;
+                        tcs.TrySetResult(new BrowserResult
+                        {
+                            ResultType = BrowserResultType.Success,
+                            Response = e.Uri
+                        });
+                        window.Close();
+                    }
+                };
+
+                async void InitWebView()
+                {
+                    var env = await CoreWebView2Environment.CreateAsync(null, _userDataFolder);
+                    await webView.EnsureCoreWebView2Async(env);
+                    webView.CoreWebView2.Navigate(options.StartUrl);
+                }
+
+                InitWebView();
+                window.ShowDialog();
+            });
+
+            return await tcs.Task;
+        }
+    }
+
     public class Authentication
     {
        
@@ -254,6 +335,65 @@ namespace Focus_Bear.API
             }
 
         }
+
+        public async Task<bool> LoginWithGoogle(LoginMain ParentWindow)
+        {
+            LogWriter.LogWrite("async Task<bool> LoginWithGoogle()");
+
+            var userDataFolder = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FBCustomWebView2");
+
+            try
+            {
+                var client = new Auth0Client(new Auth0ClientOptions
+                {
+                    Domain = "dev-2hidr8ad.us.auth0.com",
+                    ClientId = sClientId,
+                    Scope = "openid profile email offline_access",
+                    LoadProfile = true,
+                    Browser = new CustomWebView2Browser(userDataFolder, ParentWindow)
+                });
+
+                var loginResult = await client.LoginAsync(new Dictionary<string, string>
+                {
+                    { "connection", "google-oauth2" },
+                    { "audience", "https://auth.focusbear.io/api/v2/" }
+                });
+
+                if (!loginResult.IsError)
+                {
+                    appSettings.userAccount.email = loginResult.User.FindFirst("email")?.Value;
+                    appSettings.userAccount.accessToken = loginResult.AccessToken;
+                    appSettings.userAccount.refreshToken = loginResult.RefreshToken;
+                    string strTopLevelClaim = getJWTTokenClaim(appSettings.userAccount.accessToken, "https://eyst-backend-prod-8th3.onrender.com/user");
+
+                    if (strTopLevelClaim.Length > 0)
+                    {
+                        JObject strTopLevelClaimsParsed = JObject.Parse(strTopLevelClaim);
+                        string sUserId = strTopLevelClaimsParsed["id"].ToString();
+
+                        appSettings.userAccount.userID = sUserId;
+                        LogWriter.LogWrite("USER ID is:" + sUserId);
+                    }
+
+                    appSettings.SaveTokens();
+                    appSettings.SaveLoggedInUserInfo();
+
+                    LogWriter.LogWrite("LoginWithGoogle() Successful");
+                    return true; 
+                }
+                else
+                {
+                    LogWriter.LogWrite("LoginWithGoogle() FAILED");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("Google login error: " + ex.ToString());
+            }
+            return false;
+        }
+
 
     }
 }

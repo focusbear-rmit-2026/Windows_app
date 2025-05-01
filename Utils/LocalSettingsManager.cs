@@ -24,7 +24,7 @@ namespace Focus_Bear.Utils
             string sJson = appSettings.sUserLocalDeviceSettings;
             
 
-            if (appSettings.sUserLocalDeviceSettings.Length > 0 && appSettings.sUserLocalDeviceSettings != null)
+            if (appSettings.sUserLocalDeviceSettings != null && appSettings.sUserLocalDeviceSettings.Length > 0 )
             {
 
                 //Parse the JSON string

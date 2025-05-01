@@ -128,6 +128,21 @@
             Gets the collection of 'id_token_signing_alg_values_supported'.
             </summary>
         </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.IntrospectionEndpoint">
+            <summary>
+            Gets or sets the 'introspection_endpoint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.IntrospectionEndpointAuthMethodsSupported">
+            <summary>
+            Gets the collection of 'introspection_endpoint_auth_methods_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.IntrospectionEndpointAuthSigningAlgValuesSupported">
+            <summary>
+            Gets the collection of 'introspection_endpoint_auth_signing_alg_values_supported'.
+            </summary>
+        </member>
         <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.Issuer">
             <summary>
             Gets or sets the 'issuer'.
@@ -228,6 +243,11 @@
             Gets or sets the 'token_endpoint'.
             </summary>
         </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ActiveTokenEndpoint">
+            <summary>
+            This base class property is not used in OpenIdConnect. 
+            </summary>
+        </member>
         <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.TokenEndpointAuthMethodsSupported">
             <summary>
             Gets the collection of 'token_endpoint_auth_methods_supported'.
@@ -325,6 +345,20 @@
             This is used by Json.NET in order to conditionally serialize properties.
             </summary>
             <return>true if 'id_token_signing_alg_values_supported' (IdTokenSigningAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeIntrospectionEndpointAuthMethodsSupported">
+            <summary>
+            Gets a bool that determines if the 'introspection_endpoint_auth_methods_supported' (IntrospectionEndpointAuthMethodsSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'introspection_endpoint_auth_methods_supported' (IntrospectionEndpointAuthMethodsSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeIntrospectionEndpointAuthSigningAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'introspection_endpoint_auth_signing_alg_values_supported' (IntrospectionEndpointAuthSigningAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'introspection_endpoint_auth_signing_alg_values_supported' (IntrospectionEndpointAuthSigningAlgValuesSupported) is not empty; otherwise, false.</return>
         </member>
         <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeRequestObjectEncryptionAlgValuesSupported">
             <summary>
@@ -454,6 +488,28 @@
             <param name="retriever">the <see cref="T:Microsoft.IdentityModel.Protocols.IDocumentRetriever"/> to use to read the discovery document</param>
             <param name="cancel"><see cref="T:System.Threading.CancellationToken"/>.</param>
             <returns>A populated <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> instance.</returns>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.Configuration.OpenIdConnectConfigurationValidator">
+            <summary>
+            Defines a class for validating the OpenIdConnectConfiguration by using default policy.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.Configuration.OpenIdConnectConfigurationValidator.DefaultMinimumNumberOfKeys">
+            <summary>
+            1 is the default minimum number of keys.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.Configuration.OpenIdConnectConfigurationValidator.Validate(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration)">
+            <summary>
+            Validates a OpenIdConnectConfiguration by using current policy.
+            </summary>
+            <param name="openIdConnectConfiguration">The OpenIdConnectConfiguration to validate.</param>
+            <returns>A <see cref="T:Microsoft.IdentityModel.Protocols.ConfigurationValidationResult"/> that contains validation result.</returns>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.Configuration.OpenIdConnectConfigurationValidator.MinimumNumberOfKeys">
+            <summary>
+            The minimum number of keys.
+            </summary>
         </member>
         <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException">
             <summary>
@@ -612,7 +668,7 @@
         </member>
         <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectGrantTypes">
             <summary>
-            Grant types for token requests. See http://tools.ietf.org/html/rfc6749.
+            Grant types for token requests. See https://datatracker.ietf.org/doc/html/rfc6749.
             </summary>
         </member>
         <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage">
@@ -1017,7 +1073,7 @@
         <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.HashAlgorithmMap">
             <summary>
             Gets the algorithm mapping between OpenIdConnect and .Net for Hash algorithms.
-            a <see cref="T:System.Collections.Generic.IDictionary`2"/> that contains mappings from the JWT namespace http://tools.ietf.org/html/rfc7518 to .Net.
+            a <see cref="T:System.Collections.Generic.IDictionary`2"/> that contains mappings from the JWT namespace https://datatracker.ietf.org/doc/html/rfc7518 to .Net.
             </summary>
         </member>
         <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.NonceLifetime">
@@ -1284,40 +1340,50 @@
         <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseType.Token">
             <summary>
             Defined in OAuth 2.0 spec, included for completion.
-            See: https://tools.ietf.org/html/rfc6749#section-11.3.2.
+            See: https://datatracker.ietf.org/doc/html/rfc6749#section-11.3.2.
             </summary>
         </member>
         <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope">
             <summary>
-            Specific scope values that are interesting to OpenID Connect.  See http://openid.net/specs/openid-connect-messages-1_0.html#scopes
+            Specific scope values that are interesting to OpenID Connect.  See https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims
             </summary>
             <remarks>Can be used to determine the scope by consumers of an <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/>.
             For example: OpenIdConnectMessageTests.Publics() sets <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Scope"/>
             to <see cref="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.OpenIdProfile"/>.</remarks>
         </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.Address">
+            <summary>
+            Indicates <c>address</c> scope see: https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims.
+            </summary>
+        </member>
         <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.Email">
             <summary>
-            Indicates email scope see: http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims.
+            Indicates <c>email</c> scope see: https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims.
             </summary>
         </member>
         <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.OfflineAccess">
             <summary>
-            Indicates offline_access scope see: http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims.
+            Indicates <c>offline_access</c> scope see: https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims.
             </summary>
         </member>
         <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.OpenId">
             <summary>
-            Indicates openid scope see: http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims.
+            Indicates <c>openid</c> scope see: https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims.
             </summary>
         </member>
         <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.OpenIdProfile">
             <summary>
-            Indicates openid profile scope see: http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims.
+            Indicates <c>openid</c> and <c>profile</c> scope see: https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.Phone">
+            <summary>
+            Indicates <c>phone</c> profile scope see: https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims.
             </summary>
         </member>
         <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.UserImpersonation">
             <summary>
-            Indicates user_impersonation scope see: http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims.
+            Indicates <c>user_impersonation</c> scope for Azure Active Directory.
             </summary>
         </member>
         <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectSessionProperties">

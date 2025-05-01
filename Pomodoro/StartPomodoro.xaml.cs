@@ -100,7 +100,7 @@ namespace Focus_Bear.Pomodoro
 
         public void UpdateValues(bool bEnterSuperPomodoroModeAfterMorningRoutine = false)
         {
-            LogWriter.LogWrite("Pomodoro window UpdateValues()" );
+            LogWriter.LogWrite("Start Pomodoro - Pomodoro window UpdateValues()" );
             try
             {
                 Minutes.Text = appSettings.PomodoroMinutes;
@@ -284,12 +284,11 @@ namespace Focus_Bear.Pomodoro
         private void btnStartSession_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnStartSession_Click - Start Pomodoro Window");
+            appSettings.sRunningFocusModeIntention = TxtIntention.Text;
 
-            if(appSettings.bUseSuperPomodoroMode)
+            if (appSettings.bUseSuperPomodoroMode)
             {
                 LogWriter.LogWrite("appSettings.bUseSuperPomodoroMode, set intention return; ");
-
-                appSettings.sRunningFocusModeIntention = TxtIntention.Text; //Update
 
                 Hide();
                 appSettings.isStartPomodoroWindowOpen = false;
@@ -309,7 +308,6 @@ namespace Focus_Bear.Pomodoro
                 {
                     appSettings.CapturePostHog("start-focus-session-manually", string.Format("\"type\":\"single-focus\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
                 }
-                
 
             }
 
@@ -383,7 +381,6 @@ namespace Focus_Bear.Pomodoro
                         appSettings.sRunningFocusModeID = appSettings.arrFocusModes[i].id;
                         appSettings.sRunningFocusModeName = appSettings.arrFocusModes[i].name;
                         appSettings.sRunningFocusModeEndTime = dTill.ToString();
-                        appSettings.sRunningFocusModeIntention = TxtIntention.Text;
 
                         //Clear any old stuff for gentle blocking
                         appSettings.TemporaryAllowedAppsGentleBlock.Clear();
@@ -408,6 +405,7 @@ namespace Focus_Bear.Pomodoro
                 }
             }
         }
+        
         private void MinutesBreak_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
 

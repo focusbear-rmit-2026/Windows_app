@@ -170,7 +170,7 @@ namespace Focus_Bear.Pomodoro
       
         public void UpdateValues()
         {
-            LogWriter.LogWrite("Pomodoro window UpdateValues()" );
+            LogWriter.LogWrite("Start Simple Pomodoro - Pomodoro window UpdateValues()" );
             try
             {
                 if (appSettings.isExpired)
@@ -245,6 +245,8 @@ namespace Focus_Bear.Pomodoro
             appSettings.CapturePostHog("start-focus-session-manually", string.Format("\"type\":\"simple-focus\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
 
             appSettings.bAiCheckUrlEnabledLastValueBeforeSimplePomodoro = appSettings.bAiCheckUrlEnabled;
+
+            appSettings.sRunningFocusModeIntention = TxtIntention.Text;
 
             if (RadioAI.IsChecked.Value)
             {
@@ -340,7 +342,6 @@ namespace Focus_Bear.Pomodoro
                         appSettings.sRunningFocusModeID = appSettings.arrFocusModes[i].id;
                         appSettings.sRunningFocusModeName = appSettings.arrFocusModes[i].name;
                         appSettings.sRunningFocusModeEndTime = dTill.ToString();
-                        appSettings.sRunningFocusModeIntention = TxtIntention.Text;
 
                         //Clear any old stuff for gentle blocking
                         appSettings.TemporaryAllowedAppsGentleBlock.Clear();

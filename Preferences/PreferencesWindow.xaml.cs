@@ -26,13 +26,16 @@ using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.Windows.Interop;
 using System.Web.UI;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Windows.Markup;
+using Focus_Bear.Constants;
 
 namespace Focus_Bear.Preferences
 {
     /// <summary>
     /// Interaction logic for PreferencesWindow.xaml
     /// </summary>
-    public partial class PreferencesWindow : Window
+    public partial class PreferencesWindow : System.Windows.Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
@@ -56,6 +59,7 @@ namespace Focus_Bear.Preferences
 
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
         public PreferencesWindow()
         {
             InitializeComponent();
@@ -313,6 +317,8 @@ namespace Focus_Bear.Preferences
             {
                 this.Width = 735 * ScaleX;
                 this.MinWidth = 735 * ScaleX;
+                this.Height = 900 * ScaleY;
+                this.MinHeight = 900 * ScaleY;
             }
 
             var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
@@ -349,6 +355,8 @@ namespace Focus_Bear.Preferences
             {
                 this.Width = 835 * ScaleX;
                 this.MinWidth = 835 * ScaleX;
+                this.Height = 900 * ScaleY;
+                this.MinHeight = 900 * ScaleY;
             }
             
 
@@ -413,6 +421,8 @@ namespace Focus_Bear.Preferences
             {
                 this.Width = 735 * ScaleX;
                 this.MinWidth = 735 * ScaleX;
+                this.Height = 900 * ScaleY;
+                this.MinHeight = 900 * ScaleY;
             }
 
 
@@ -486,12 +496,35 @@ namespace Focus_Bear.Preferences
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
-            
-            //Do whatever you want here..
-            //SAve thelocal settings and upload to server
-            LocalSettingsManager.PutLocalSettings();
+            if (FrameEditHabits.Visibility == Visibility.Visible)
+            {
+                string userSettingsUpdateScript = $@"
+                (function() {{
+                    try {{
+                        const data = window?.hasUserModifiedSettings?.();
+                        const message = {{
+                            event: '{Events.WindowClosing}',
+                            hasUserModifiedSettings:data?.isUserSettingsModified ?? false
+                        }};
+                        window.chrome?.webview?.postMessage(message);
+                    }} catch (e) {{
+                        window.chrome?.webview?.postMessage({{
+                            event: '{Events.WindowClosing}',
+                            hasUserModifiedSettings: false
+                        }});
+                    }}
+                }})();";
 
-            Hide();
+                PageEditHabits.webView.ExecuteScriptAsync(userSettingsUpdateScript);
+            }
+            else
+            {
+                //Do whatever you want here..
+                //SAve thelocal settings and upload to server
+                LocalSettingsManager.PutLocalSettings();
+
+                Hide();
+            }
         }
 
         public void RepositionWindow()
