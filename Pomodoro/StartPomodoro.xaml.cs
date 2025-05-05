@@ -100,7 +100,7 @@ namespace Focus_Bear.Pomodoro
 
         public void UpdateValues(bool bEnterSuperPomodoroModeAfterMorningRoutine = false)
         {
-            LogWriter.LogWrite("Pomodoro window UpdateValues()" );
+            LogWriter.LogWrite("Start Pomodoro - Pomodoro window UpdateValues()" );
             try
             {
                 Minutes.Text = appSettings.PomodoroMinutes;

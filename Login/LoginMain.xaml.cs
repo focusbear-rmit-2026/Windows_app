@@ -135,7 +135,5 @@ namespace Focus_Bear.Login
                 BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
             }
         }
-
-
     }
 }

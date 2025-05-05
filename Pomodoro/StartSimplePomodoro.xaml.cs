@@ -170,7 +170,7 @@ namespace Focus_Bear.Pomodoro
       
         public void UpdateValues()
         {
-            LogWriter.LogWrite("Pomodoro window UpdateValues()" );
+            LogWriter.LogWrite("Start Simple Pomodoro - Pomodoro window UpdateValues()" );
             try
             {
                 if (appSettings.isExpired)

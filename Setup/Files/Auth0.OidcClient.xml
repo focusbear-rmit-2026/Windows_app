@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Auth0.OidcClient</name>
+    </assembly>
+    <members>
+        <member name="T:Auth0.OidcClient.Auth0Client">
+            <summary>
+            Primary class for performing authentication and authorization operations with Auth0 using the
+            underlying <see cref="T:Duende.IdentityModel.OidcClient.OidcClient"/>.
+            </summary>
+        </member>
+        <member name="M:Auth0.OidcClient.Auth0Client.#ctor(Auth0.OidcClient.Auth0ClientOptions)">
+            <summary>
+            Creates a new instance of the Auth0 OIDC Client.
+            </summary>
+            <param name="options">The <see cref="T:Auth0.OidcClient.Auth0ClientOptions"/> specifying the configuration for the Auth0 OIDC Client.</param>
+        </member>
+        <member name="T:Auth0.OidcClient.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Auth0.OidcClient.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Auth0.OidcClient.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="T:Auth0.OidcClient.WebBrowserBrowser">
+            <summary>
+            Implements the <see cref="T:Duende.IdentityModel.OidcClient.Browser.IBrowser"/> interface using <see cref="T:System.Windows.Controls.WebBrowser"/>.
+            </summary>
+        </member>
+        <member name="M:Auth0.OidcClient.WebBrowserBrowser.#ctor(System.Func{System.Windows.Window},System.Boolean)">
+            <summary>
+            Create a new instance of <see cref="T:Auth0.OidcClient.WebBrowserBrowser"/> with a custom Window factory and optional flag to indicate if the window should be closed.
+            </summary>
+            <param name="windowFactory">A function that returns a <see cref="T:System.Windows.Window"/> to be used for hosting the browser.</param>
+            <param name="shouldCloseWindow"> Whether the Window should be closed or not after completion.</param>
+            <example> 
+            This sample shows how to call the <see cref="M:Auth0.OidcClient.WebBrowserBrowser.#ctor(System.Func{System.Windows.Window},System.Boolean)"/> constructor.
+            <code>
+            Window ReturnWindow()
+            {
+                return window; // your WPF application window where you want the login to pop up
+            }
+            var browser = new WebBrowserBrowser(ReturnWindow, shouldCloseWindow: false); // specify false if you want the window to remain open
+            </code>
+            </example>
+        </member>
+        <member name="M:Auth0.OidcClient.WebBrowserBrowser.#ctor(System.String,System.Int32,System.Int32)">
+            <summary>
+            Create a new instance of <see cref="T:Auth0.OidcClient.WebBrowserBrowser"/> that will create a customized <see cref="T:System.Windows.Window"/> as needed.
+            </summary>
+            <param name="title">An optional <see cref="T:System.String"/> specifying the title of the form. Defaults to "Authenticating...".</param>
+            <param name="width">An optional <see cref="T:System.Int32"/> specifying the width of the form. Defaults to 1024.</param>
+            <param name="height">An optional <see cref="T:System.Int32"/> specifying the height of the form. Defaults to 768.</param>
+        </member>
+        <member name="M:Auth0.OidcClient.WebBrowserBrowser.InvokeAsync(Duende.IdentityModel.OidcClient.Browser.BrowserOptions,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Auth0.OidcClient.WebViewBrowser">
+            <summary>
+            Implements the <see cref="T:Duende.IdentityModel.OidcClient.Browser.IBrowser"/> interface using the <see cref="!:WebViewCompatible"/> control.
+            </summary>
+        </member>
+        <member name="M:Auth0.OidcClient.WebViewBrowser.#ctor(System.Func{System.Windows.Window},System.Boolean)">
+            <summary>
+            Create a new instance of <see cref="T:Auth0.OidcClient.WebViewBrowser"/> with a custom windowFactory and optional window close flag.
+            </summary>
+            <param name="windowFactory">A function that returns a <see cref="T:System.Windows.Window"/> to be used for hosting the browser.</param>
+            <param name="shouldCloseWindow"> Whether the Window should be closed or not after completion.</param>
+        </member>
+        <member name="M:Auth0.OidcClient.WebViewBrowser.#ctor(System.String,System.Int32,System.Int32)">
+            <summary>
+            Create a new instance of <see cref="T:Auth0.OidcClient.WebViewBrowser"/> allowing parts of the <see cref="T:System.Windows.Window"/> container to be set.
+            </summary>
+            <param name="title">Optional title for the form - defaults to 'Authenticating...'.</param>
+            <param name="width">Optional width for the form in pixels. Defaults to 1024.</param>
+            <param name="height">Optional height for the form in pixels. Defaults to 768.</param>
+        </member>
+        <member name="M:Auth0.OidcClient.WebViewBrowser.InvokeAsync(Duende.IdentityModel.OidcClient.Browser.BrowserOptions,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

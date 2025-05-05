@@ -145,7 +145,7 @@
                                     <ColumnDefinition Width="240"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left"/>
+                                <TextBlock Grid.Column="0" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
 
                                 <TextBlock Grid.Column="1" Text="{Binding start_time, StringFormat=\{0\}}"   FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
                                 <TextBlock Grid.Column="2" Text="{Binding duration, StringFormat=\{0\}}"     FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>

@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.API;
+using Focus_Bear.Utils;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -40,7 +41,10 @@ namespace Focus_Bear.Login
             {
                 Heading.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["title"].ToString();
                 Descriptiopn.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["messageText"].ToString();
-                btnSignInText.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonSignInText"].ToString();
+                
+                btnSignInText.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonSignInEmailText"].ToString();
+                btnSignInWithGoogleText.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonSignInGoogleText"].ToString();
+
                 btnSignUpText.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCreateAccountText"].ToString();
 
                 Suggest.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["descriptionText"].ToString();
@@ -104,6 +108,35 @@ namespace Focus_Bear.Login
             var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
             var value = key?.GetValue("AppsUseLightTheme");
             return value is int i && i > 0;
+        }
+
+        private async void btnSignInWithGoogle_Click(object sender, RoutedEventArgs e)
+        {
+            _parentWindow.IsEnabled = false;
+            appSettings.CapturePostHog("button-signin-with-google-click");
+
+            try
+            {
+                var authenticator = new Authentication();
+                if (await authenticator.LoginWithGoogle(_parentWindow))
+                {
+                    //Login Success
+                    appSettings.GetLoginAndTokenValidSettings();
+                    appSettings.CapturePostHog("login-homemade");
+
+                    _parentWindow.IsEnabled = true;
+                    _parentWindow.bDoNotShutDown = true;
+                    _parentWindow.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnSignIn_Click EX - " + ex.Message);
+            }
+            finally
+            {
+                _parentWindow.IsEnabled = true;
+            }
         }
     }
 }

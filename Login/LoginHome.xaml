@@ -43,11 +43,28 @@
                 </Button.Content>
             </Button>
 
-            <TextBlock x:Name="DeactivateText"  Margin="7,17" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="22" Height="30" Cursor="Hand">
-             <Hyperlink x:Name="btnSignIn" Click="btnSignIn_Click"   TextDecorations="Underline" ><Run x:Name="btnSignInText" Text="xSign In"/></Hyperlink>
-            </TextBlock>
-           
-            
+            <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
+
+                <Border BorderThickness="1" Background="LightGray" CornerRadius="50" Height="40" Width="40">
+                    <Image Source="/Images/email.png" Margin="0,0,0,0" Height="24" Width="24" />
+                </Border>
+                <TextBlock x:Name="SignIn"  Margin="7,17" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="22" Height="30" Cursor="Hand">
+                 <Hyperlink x:Name="btnSignIn" Click="btnSignIn_Click"   TextDecorations="Underline" Foreground="Orange" ><Run x:Name="btnSignInText" Text="xSign In"/></Hyperlink>
+                </TextBlock>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal"  Margin="30,0,0,0">
+
+                <Border BorderThickness="1" Background="LightGray" CornerRadius="50" Height="40" Width="40">
+                    <Image Source="/Images/logo_google.png" Margin="0,0,0,0" Height="24" Width="24" />
+                </Border>
+                <TextBlock x:Name="SignInGoogle"  Margin="7,10" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="22" Height="30" Cursor="Hand">
+                 <Hyperlink x:Name="btnSignInWithGoogle" Click="btnSignInWithGoogle_Click"   TextDecorations="Underline" Foreground="Orange" ><Run x:Name="btnSignInWithGoogleText" Text="xSign In With Google"/></Hyperlink>
+                </TextBlock>
+            </StackPanel>
+
+
+
         </StackPanel>
       
 

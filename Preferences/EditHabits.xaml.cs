@@ -32,7 +32,6 @@ namespace Focus_Bear.Preferences
     {
         AppSettings appSettings = AppSettings.GetInstance;
         PreferencesWindow _ParentWindow = null;
-        FBMessageBox messageBox;
 
         public EditHabits()
         {
@@ -60,7 +59,13 @@ namespace Focus_Bear.Preferences
                 {
                     if (webMessageEvent.HasUserModifiedSettings)
                     {
-                        messageBox = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["youAreAboutCloseTheEditHabitsMenu"].ToString(), appSettings.ConfigFileStrings["settings"]["warning"].ToString(), MessageBoxButton.YesNo, appSettings.ConfigFileStrings["settings"]["continue"].ToString(), settingsSection["cancel"].ToString());
+
+                        /* "youAreAboutCloseTheEditHabitsMenu":"You are about to close the Edit habits menu. If you have made any changes, please tap the \"Save Habits\" button.",
+                        "warning":"Warning",
+                        "continue":"Continue",
+                        "cancel":"Cancel"*/ 
+                        //todo win texts
+                        FBMessageBox messageBox = new FBMessageBox("You are about to close the Edit habits menu. If you have made any changes, please tap the \"Save Habits\" button.", "Warning", MessageBoxButton.YesNo, appSettings.ConfigFileStrings["common"]["buttonContinueText"].ToString(), appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString());
                         messageBox.Owner = _ParentWindow;
                         messageBox.ShowDialog();
 
@@ -70,7 +75,7 @@ namespace Focus_Bear.Preferences
                         }
                         else
                         {
-                            messageBox.Close();
+                            messageBox.Close(); //WRONG implementation with ShowDialog()
                         }
                     }
                     else
@@ -248,7 +253,8 @@ namespace Focus_Bear.Preferences
 
             if (xResponse == 1) //valid settings
             {
-                messageBox = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear");
+                FBMessageBox messageBox = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear");
+
                 messageBox.Owner = _ParentWindow;
                 messageBox.ShowDialog();
                 appSettings.CapturePostHog("save-edited-habits");
