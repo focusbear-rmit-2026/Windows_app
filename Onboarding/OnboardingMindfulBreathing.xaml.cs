@@ -36,8 +36,6 @@ namespace Focus_Bear.Onboarding
         public OnboardingMindfulBreathing()
         {
             bTimerRunning = false;
-            Page_Theme();
-            App.ThemeChanged += Page_Theme;
         }
         public OnboardingMindfulBreathing(OnBoardingWindow parentWindow) : this()
         {

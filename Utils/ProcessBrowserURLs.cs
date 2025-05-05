@@ -54,18 +54,17 @@ namespace Focus_Bear.Utils
             //In case the set intention window is open, we should hide it
             appSettings.Hide_SetIntentionWindow();
 
+            //If its evening routine and the relax activity is on, no need to check anhything or block anything
+            if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            {
+                if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].show_saved_distracting_websites)
+                {
+                    return;
+                }
+            }
+
             if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
             {
-                
-                //If its evening routine and the relax activity is on, no need to check anhything or block anything
-                if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                {
-                    if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].show_saved_distracting_websites)
-                    {
-                        return;
-                    }
-                }
-                
                 ProcessAlloweURLsInActivity(hwnd);
             }
 
@@ -298,17 +297,60 @@ namespace Focus_Bear.Utils
                         appSettings.TemporarryBlockedURLsGentleBlock.RemoveAll(i => i.ToLower() == oldURLToOpen.ToLower()); //We need to remove all instanes
                     }
 
-                    
                     appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(oldURLToOpen.ToLower(), true));
-                   
+
+                    /////////////////////////////////////////////////////////////////////////
+                    //Might be possible that it was an always blocked URL
+                    string sActiveURL = "";
+                    if (oldURLToOpen.Length > 0)
+                    {
+                        try
+                        {
+                            Uri myUri = new Uri(oldURLToOpen);
+                            string host = myUri.Host; //fails if there is no http://
+                            sActiveURL = host;
+                        }
+                        catch (Exception ex)
+                        {
+                            /*
+                            This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                            If uri does not specify a scheme, the scheme defaults to "http:".
+                            */
+                            Uri myUri = new UriBuilder(sURL).Uri;
+                            sActiveURL = myUri.Host;
+                        }
+                    }
+
+                    var AlwaysBlockedURLsAllowed = appSettings.TemporarryBlockedURLsWithSetIntention.Where(i => i.ToLower() == sActiveURL.ToLower());
+                    if (AlwaysBlockedURLsAllowed.Count() != 0)
+                    {
+                        appSettings.TemporarryBlockedURLsWithSetIntention.RemoveAll(i => i.ToLower() == sActiveURL.ToLower()); //We need to remove all instanes
+                    }
+                    //For supporting unblock, we should add it to blocked array with dummy intention
+                    // appSettings.TemporaryAllowedURLsWithSetIntention.Add(new DistractingURLAllowedWithIntention(sActiveURL.ToLower(), " ", DateTime.Now.AddMinutes(60 * 12), "720", false));
+                    //Ask for intention flow
+                    //Check the URL in Always BLocked URL List
+                    {
+                        if (appSettings.arrAlwaysBlockedURLs.Count() > 0)
+                        {
+                            if (ProcessCurrentAlwaysBlockedURL(hWnd))//For always Blocked URLS
+                            {
+                                return; //return as this is handled byy always blocked url
+                            }
+                        }
+                    }
+                    /////////////////////////////////////////////////////////////////////////
+                    ///
+
                     //Now fire the OLD url so that it will ask for intention again
-                    appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = oldURLToOpen;
+                    appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = sActiveURL;
                     SetForegroundWindow(hWnd);
                     Task.Delay(1);
                     appSettings.FirefoxLastAccWindow.accSelect(0x1, appSettings.objChild);//take selection
 
                     SendKeys.SendWait("{ENTER}");
 
+                    return;
                 }
             }
             else if (appSettings.sLastActiveURLInFirefox.Contains("focus-block.html"))
