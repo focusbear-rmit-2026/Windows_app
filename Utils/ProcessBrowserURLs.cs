@@ -54,18 +54,17 @@ namespace Focus_Bear.Utils
             //In case the set intention window is open, we should hide it
             appSettings.Hide_SetIntentionWindow();
 
+            //If its evening routine and the relax activity is on, no need to check anhything or block anything
+            if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            {
+                if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].show_saved_distracting_websites)
+                {
+                    return;
+                }
+            }
+
             if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
             {
-                
-                //If its evening routine and the relax activity is on, no need to check anhything or block anything
-                if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                {
-                    if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].show_saved_distracting_websites)
-                    {
-                        return;
-                    }
-                }
-                
                 ProcessAlloweURLsInActivity(hwnd);
             }
 

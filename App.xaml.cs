@@ -1399,6 +1399,7 @@ namespace Focus_Bear
             //OnboardingNewWelcome wnd2 = new OnboardingNewWelcome(wnd);
             ////wnd2.();
 
+
 #endif
 
             if (appSettings.IsFirstInstall)
