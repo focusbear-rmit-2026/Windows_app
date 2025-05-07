@@ -88,8 +88,8 @@
             </Button.Effect>
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                        <Image Name="pause" Height="24"  Width="24" Source="{DynamicResource PauseImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Collapsed"/>
-                        <Image Name="play" Height="24"  Width="24" Source="{DynamicResource PlayIcon}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Collapsed"/>
+                        <Image Name="pause" Height="24"  Width="24" Source="../Images/pause_icon.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Collapsed"/>
+                        <Image Name="play" Height="24"  Width="24" Source="../Images/play_icon.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Collapsed"/>
                 </StackPanel>
             </Button.Content>
         </Button>

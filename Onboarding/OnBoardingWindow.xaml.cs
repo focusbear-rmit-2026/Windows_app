@@ -330,6 +330,7 @@ namespace Focus_Bear.Onboarding
             {
                 //Window is already hidden, simulate the continue button click so assign all variables.
                 //We need to click the continue button on the screen
+                WndOnboardingConfirmBreaks.btnContinue.IsEnabled = true;
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingConfirmBreaks.btnContinue);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
@@ -349,6 +350,7 @@ namespace Focus_Bear.Onboarding
             {
                 //Window is already hidden, simulate the continue button click so assign all variables.
                 //We need to click the continue button on the screen
+                WndOnboardingBreaksReminder.btnContinue.IsEnabled = true;
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingBreaksReminder.btnContinue);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
@@ -531,6 +533,9 @@ namespace Focus_Bear.Onboarding
                 {
                     //Window is already hidden, simulate the continue button click so assign all variables.
                     //We need to click the continue button on the screen
+                    
+                    WndOnboardingAskWorkTime.btnContinue.IsEnabled = true; //should be enabled
+
                     ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingAskWorkTime.btnContinue);
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();

@@ -36,7 +36,7 @@ namespace FocusBear.Utils
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         //  private readonly MenuOptions listener;
 
-        public static readonly List<string> BROWSERS = new List<string> { "chrome", "firefox", "opera", "msedge" };
+        public static readonly List<string> BROWSERS = new List<string> { "chrome", "firefox", "msedge" };
         public static readonly int UIA_ControlTypePropertyId = 30003;
         public static readonly int UIA_EditControlTypeId = 50004;
         public static readonly int UIA_PATTERN_ID = 10002;
@@ -962,6 +962,11 @@ namespace FocusBear.Utils
                                 {
                                     if (IsWindowVisible(process.MainWindowHandle))
                                         ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
+
+                                    string sTemp = appSettings.ConfigFileStrings["common"]["appBlockNotificationTitle"].ToString();
+                                    sTemp = sTemp.Replace("<APP_NAME>", process.ProcessName);
+                                    sTemp = sTemp.Replace("<FOCUS_NAME>", appSettings.sRunningFocusModeName);
+                                    appSettings.ShowBaloonTip(sTemp);
 
                                     LogWriter.LogWrite(process.ProcessName + " Not allowed app found in Focus Element activity - BLOCK");
                                     appSettings.CapturePostHog("block-distracting-app");
