@@ -31,7 +31,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="1"/>
-                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="35"/>
                 </Grid.RowDefinitions>
                 <ListView   Grid.Row="0"   x:Name="ListBLockedURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" MouseDoubleClick="ListBLockedURLs_MouseDoubleClick" >
                     <ListView.ItemTemplate>
@@ -46,26 +46,31 @@
                     </ListView.ItemTemplate>
                 </ListView>
                 <Grid Grid.Row="1" Background="LightGray" ></Grid>
-                <StackPanel Grid.Row="2" Orientation="Horizontal">
-                    <Button   x:Name="btnAddURL"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddURL_Click"  >
+                <DockPanel Grid.Row="2" LastChildFill="False">
+                    <Button   x:Name="btnDeleteURL"  MaxWidth="100" Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="27" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="10,0,0,2" FontSize="12" Cursor="Hand" FontWeight="Normal" Click="btnDeleteURL_Click" >
 
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
+                                <TextBlock x:Name="btnDeleteURLTXT" Cursor="Hand"  Text="xRemove" Style="{DynamicResource ButtonTextBlockStyle}" Margin="10,0,10,0"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    
+                    <Button   x:Name="btnAddURL" MaxWidth="100"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="27"  VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,10,2" FontSize="12" Cursor="Hand" FontWeight="Normal" Click="btnAddURL_Click" DockPanel.Dock="Right" >
+
+                        <Button.Content>
+                            <!--<StackPanel  Orientation="Horizontal">
                                 <Image Name="btnAddURLTXT" Height="16"  Width="16" Source="{DynamicResource PlusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
-                    <Button   x:Name="btnDeleteURL"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnDeleteURL_Click" >
-
-                        <Button.Content>
+                            </StackPanel>-->
                             <StackPanel  Orientation="Horizontal">
-                                <Image Name="btnDeleteURLTXT" Height="16"  Width="16" Source="{DynamicResource MinusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
+                                <TextBlock x:Name="btnAddSiteTXT" Cursor="Hand"  Text="xAdd Site" Style="{DynamicResource ButtonTextBlockStyle}" Margin="10,0,10,0"/>
                             </StackPanel>
                         </Button.Content>
                     </Button>
-                </StackPanel>
+                   
+                </DockPanel>
             </Grid>
-            <CheckBox Grid.Row="3" x:Name="ImmediatelyBlockDistractingURLs" Margin="20,0,20,0" FontSize="13"    Checked="ImmediatelyBlockDistractingURLs_Checked" Unchecked="ImmediatelyBlockDistractingURLs_Unchecked" Visibility="Visible">
+            <CheckBox Grid.Row="3" x:Name="ImmediatelyBlockDistractingURLs" Cursor="Hand" Margin="20,0,20,0" FontSize="13"    Checked="ImmediatelyBlockDistractingURLs_Checked" Unchecked="ImmediatelyBlockDistractingURLs_Unchecked" Visibility="Visible">
                 <TextBlock x:Name="ImmediatelyBlockDistractingURLsText" TextWrapping="Wrap" Padding="3,0">xImmediately block super distracting sites</TextBlock>
             </CheckBox>
             

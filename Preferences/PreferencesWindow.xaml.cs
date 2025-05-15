@@ -77,7 +77,7 @@ namespace Focus_Bear.Preferences
 
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
  
-            this.Topmost = true;
+            ///this.Topmost = true;
 
             try
             {

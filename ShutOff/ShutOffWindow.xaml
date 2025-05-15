@@ -20,9 +20,6 @@
                     </ResourceDictionary.MergedDictionaries>
                 </ResourceDictionary>
             </Grid.Resources>
-        <Grid.Background>
-            <ImageBrush x:Name="ShutOffWindowBackground" Stretch="UniformToFill" ImageSource="/Images/background.png" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
         <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" MinHeight="80" />
                 <RowDefinition Height="Auto" MinHeight="70" />

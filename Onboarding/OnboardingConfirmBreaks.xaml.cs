@@ -50,7 +50,7 @@ namespace Focus_Bear.Onboarding
                 MostlyCommitted.Content = appSettings.ConfigFileStrings["takeBreaksInfoVcInfo"]["buttonMostlyCommittedText"].ToString();
                 
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
-                InfoWarn.ToolTip = "Focus Bear will detect when you are less active (based on not typing or moving your mouse) and suggest a break at that time. You can skip/postpone the breaks but your eyes and body will really appreciate it if you do take breaks!";// "appSettings.ConfigFileStrings["askAppWorkVcInfo"]["infoText"].ToString();
+                InfoWarn.ToolTip = "Focus Bear will detect when you are less active (based on not typing or moving your mouse) and suggest a break at that time. You can skip/postpone the breaks but your eyes and body will really appreciate it if you do take breaks!";// "appSettings.ConfigFileStrings["askAppWorkVcInfo"]["infoText"].ToString(); //todo win texts
             }
             catch (Exception ex)
             {
@@ -139,7 +139,7 @@ namespace Focus_Bear.Onboarding
         }
         private void Page_Theme()
         {
-            app.ApplyThemeToPage(this, BackgroundImage);
+            app.ApplyThemeToPage(this);
         }
     }
 }

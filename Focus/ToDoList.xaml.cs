@@ -34,6 +34,7 @@ namespace Focus_Bear.Focus
         public ToDoList()
         {
             InitializeComponent();
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
             SetWebView();
 
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;

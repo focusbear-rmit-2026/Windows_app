@@ -11,9 +11,6 @@
 
 
     <Grid>
-        <Grid.Background>
-            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
         <Grid.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.MergedDictionaries>

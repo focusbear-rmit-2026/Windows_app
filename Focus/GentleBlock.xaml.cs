@@ -499,15 +499,10 @@ namespace Focus_Bear.Focus
             if (appSettings.sTheme == "Light")
             {
                 this.Background = new SolidColorBrush(Colors.White);
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
-
-
             }
             else if (appSettings.sTheme == "Dark")
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
-
             }
         }
     }

@@ -91,14 +91,14 @@ namespace Focus_Bear.Login
             if (theme == "Light")
             {
                 this.Background = new SolidColorBrush(Colors.White);
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+
                 Suggest.Foreground = new SolidColorBrush(Colors.Black);
                 Descriptiopn.Foreground = new SolidColorBrush(Colors.Black);
             }
             else if (theme == "Dark")
             {
                 this.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(40, 40, 40));
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+
                 Suggest.Foreground = new SolidColorBrush(Colors.LightGray);
                 Descriptiopn.Foreground = new SolidColorBrush(Colors.LightGray);
             }

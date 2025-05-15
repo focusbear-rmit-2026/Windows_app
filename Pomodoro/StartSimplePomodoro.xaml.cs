@@ -431,12 +431,10 @@ namespace Focus_Bear.Pomodoro
             if (appSettings.sTheme == "Light")
             {
                 this.Background = new SolidColorBrush(Colors.White);
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
             }
             else
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
             }
         }
 

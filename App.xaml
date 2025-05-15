@@ -379,7 +379,7 @@
                                     </VisualState>
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
-                            <Rectangle x:Name="rectangle" Fill="#ffe4c6" Stroke="#e88800" StrokeThickness="1" RadiusX="4" RadiusY="4"/>
+                            <Rectangle x:Name="rectangle" Fill="#ffe4c6" Stroke="#e88800" StrokeThickness="1" RadiusX="7" RadiusY="7"/>
                             <ContentPresenter x:Name="contentPresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="Auto" Margin="0,-2,0,0"/>
                         </Grid>
                         <ControlTemplate.Triggers>
@@ -983,8 +983,8 @@
                         Background="{TemplateBinding Background}"
                         BorderBrush="DarkGray"
                         BorderThickness="1"
-                        CornerRadius="2"
-                        Padding="8,4">
+                        CornerRadius="3,3,0,0"
+                        Padding="8,4" Cursor="Hand">
                             <ContentPresenter x:Name="ContentSite"
                                       ContentSource="Header"
                                       HorizontalAlignment="Center"
@@ -993,7 +993,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrefenenceTitleBackgroundColor}"/>
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource TabChosenColor}"/>
                                 <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -1009,8 +1009,45 @@
             </Setter>
         </Style>
 
-        
+        <!-- Auto-switching based on system theme -->
+        <SolidColorBrush x:Key="TooltipBackground" Color="{DynamicResource TooltipBackgroundLight}" />
+        <SolidColorBrush x:Key="TooltipForeground" Color="{DynamicResource TooltipForegroundLight}" />
+        <SolidColorBrush x:Key="TooltipBorderBrush" Color="{DynamicResource TooltipBorderLight}" />
 
+        <Style TargetType="ToolTip">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Background" Value="{DynamicResource TooltipBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TooltipForeground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource TooltipBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="8"
+                        Padding="{TemplateBinding Padding}"
+                        SnapsToDevicePixels="True"
+                        >
+                            <ContentPresenter>
+                                <ContentPresenter.ContentTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" 
+                                           FontSize="13"
+                                           TextWrapping="Wrap" 
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxWidth="300"
+                                           Foreground="{DynamicResource TooltipForeground}"/>
+                                    </DataTemplate>
+                                </ContentPresenter.ContentTemplate>
+                            </ContentPresenter>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
     </Application.Resources>
 </Application>

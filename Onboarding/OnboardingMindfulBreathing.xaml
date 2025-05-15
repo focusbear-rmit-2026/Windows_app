@@ -17,9 +17,7 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        <Grid.Background>
-            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="50"   />
@@ -41,14 +39,7 @@
 
         <Border  Grid.Row="3" BorderThickness="0" BorderBrush="#edeeee" CornerRadius="17" Padding="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Width="190" Height="85">
             <Grid>
-                <Grid.Effect>
-                    <DropShadowEffect ShadowDepth="3"
-                          Direction="320"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="8"
-                           />
-                </Grid.Effect>
+                
                 <!-- Rounded mask (stretches to fill Grid) -->
                 <Border Name="mask" Background="#edeeee" CornerRadius="17" Height="81" VerticalAlignment="Top"/>
                 <!-- Main content container -->

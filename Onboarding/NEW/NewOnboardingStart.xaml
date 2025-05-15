@@ -7,9 +7,6 @@
         mc:Ignorable="d"
         Title="Focus Bear" Height="660" Width="770" ResizeMode="NoResize" Topmost="True" ShowInTaskbar="True" Closed="Window_Closed">
     <Grid>
-        <Grid.Background>
-            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"  /> 
 

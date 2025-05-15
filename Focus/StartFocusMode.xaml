@@ -14,9 +14,7 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="100" />
             <RowDefinition Height="Auto" MinHeight="40" />

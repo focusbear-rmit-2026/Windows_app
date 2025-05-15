@@ -54,7 +54,7 @@ namespace Focus_Bear.Onboarding
         }
         private void Page_Theme()
         {
-            app.ApplyThemeToPage(this, BackgroundImage);
+            app.ApplyThemeToPage(this);
         }
     }
 }

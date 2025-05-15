@@ -73,6 +73,8 @@ namespace Focus_Bear.Login
                 btnCopyTXT.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCopyPasswordText"].ToString();
                 SavedPassword.Content = appSettings.ConfigFileStrings["customLoginVcInfo"]["checkBoxPasswordSavedText"].ToString();
 
+                MakeSureSave.Text = "Make sure you save it somewhere safe"; //todo win texts
+
                 //initially button will be disabled
                 btnCreatAccount.IsEnabled = false;
 
@@ -280,16 +282,16 @@ namespace Focus_Bear.Login
 
         private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            TxtPasswordVisible.Text = TxtPassword.Password;
+            //TxtPasswordVisible.Text = TxtPassword.Password;
   
-            TxtPassword.GetType().GetMethod("Select", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(TxtPassword, new object[] { TxtPassword.Password.Length, TxtPassword.Password.Length });
-            TxtPassword.Focus();
+            //TxtPassword.GetType().GetMethod("Select", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(TxtPassword, new object[] { TxtPassword.Password.Length, TxtPassword.Password.Length });
+            //TxtPassword.Focus();
             if(IsPasswordValid())
             {
                 //check confirm password
                 if (GeneratePassword.IsChecked.Value )
                 {
-                    if(SavedPassword.IsChecked.Value)
+                    //if(SavedPassword.IsChecked.Value)
                         btnCreatAccount.IsEnabled = true;
                 }
                 else
@@ -412,7 +414,7 @@ namespace Focus_Bear.Login
                 image.UriSource = new Uri(imagePath);
                 image.EndInit();
                 EyePassword.Source = image;
-
+                TxtPasswordVisible.Text = TxtPassword.Password;
                 TxtPasswordVisible.Visibility = Visibility.Visible;
                 TxtPassword.Visibility = Visibility.Collapsed;
 
@@ -422,13 +424,13 @@ namespace Focus_Bear.Login
                 }
                 catch (Exception ex)
                 {
-                    EyePassword.ToolTip = "Hide Password"; //Fore Time Being
+                    EyePassword.ToolTip = "Hide Password"; //Fore Time Being todo win texts
                     LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
                 }
             }
             else
             {
-                string imagePath = ("pack://application:,,,/Focus Bear;component/images/eye-gray.png");
+                string imagePath = ("pack://application:,,,/Focus Bear;component/images/eye-dark.png");
                 var image = new BitmapImage();
                 image.BeginInit();
                 image.UriSource = new Uri(imagePath);
@@ -483,6 +485,10 @@ namespace Focus_Bear.Login
                     WeGeneratedPassword.Background = System.Windows.Media.Brushes.Transparent;
                     await Task.Delay(500);
                 }
+            }
+            if (GeneratePassword.IsChecked.Value) //Only if it is still checked
+            {
+                btnCreatAccount.IsEnabled = true; //now we enable it by default and just let user know tro save password
             }
         }
 
@@ -576,7 +582,6 @@ namespace Focus_Bear.Login
             if (appSettings.sTheme == "Light")
             {
                 this.Background = new SolidColorBrush(Colors.White);
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
                 Description.Foreground = new SolidColorBrush(Colors.Black);
                 lblEmail.Foreground = new SolidColorBrush(Colors.Black);
                 lblPassword.Foreground = new SolidColorBrush(Colors.Black);
@@ -586,7 +591,6 @@ namespace Focus_Bear.Login
             else
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
                 Description.Foreground = new SolidColorBrush(Colors.LightGray);
                 lblEmail.Foreground = new SolidColorBrush(Colors.LightGray);
                 lblPassword.Foreground = new SolidColorBrush(Colors.LightGray);

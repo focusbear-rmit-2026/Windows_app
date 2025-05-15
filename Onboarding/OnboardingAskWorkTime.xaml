@@ -18,9 +18,7 @@
                     </ResourceDictionary.MergedDictionaries>
                 </ResourceDictionary>
             </Grid.Resources>
-            <Grid.Background>
-            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="105"   />
             <RowDefinition Height="Auto" MinHeight="70" />
@@ -47,7 +45,7 @@
                             </Button.Content>
                         </Button>
                     </StackPanel>
-                    <StackPanel x:Name="StartupTimeSection" Opacity="0" Orientation="Horizontal"   Margin="20,30,0,0">
+                    <StackPanel x:Name="StartupTimeSection" IsEnabled="False" IsHitTestVisible="False" Opacity="0" Orientation="Horizontal"   Margin="20,30,0,0">
                  
                     <TextBlock Name="StartupTime" Margin="-20,0,0,0"     TextWrapping="Wrap" Text="xWhat time do you start work?" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
                     <localView:HourControl x:Name="StartupTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0"  ValueChanged="StartupTimePicker_ValueChanged"/>
@@ -59,8 +57,8 @@
                         </Button.Content>
                     </Button>
             </StackPanel>
-                
-            <StackPanel x:Name="FinishWorkSection" Opacity="0"  Orientation="Horizontal"  Margin="20,30,0,0" >
+
+                    <StackPanel x:Name="FinishWorkSection" IsEnabled="False" IsHitTestVisible="False" Opacity="0"  Orientation="Horizontal"  Margin="20,30,0,0" >
                     <TextBlock  Name="ShutdownTime" Margin="-20,0,0,0"    TextWrapping="Wrap" Text="xWhat time do you finish work?" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
                     <localView:HourControl x:Name="ShutdownTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0" ValueChanged="ShutdownTimePicker_ValueChanged" />
                     <Button x:Name="btnNextFinishWork"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextFinishWork_Click">
@@ -72,7 +70,7 @@
                     </Button>
 
                 </StackPanel>
-                <StackPanel x:Name="SleepTimeSection" Opacity="0" Orientation="Horizontal"  Margin="20,30,0,0">
+                    <StackPanel x:Name="SleepTimeSection" IsEnabled="False" IsHitTestVisible="False" Opacity="0" Orientation="Horizontal"  Margin="20,30,0,0">
                     <TextBlock  Name="SleepTime" Margin="-20,0,0,0"    TextWrapping="Wrap" Text="xWhat time do you want to go to sleep?"  FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
                     <localView:HourControl x:Name="SleepTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0" ValueChanged="SleepTimePicker_ValueChanged" />
                     <Button x:Name="btnNextSleep"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextSleep_Click">

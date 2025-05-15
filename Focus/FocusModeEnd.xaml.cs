@@ -54,7 +54,7 @@ namespace Focus_Bear.Focus
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
-                appSettings.bStartingAnotherFocusMode = false;
+            appSettings.bStartingAnotherFocusMode = false;
            
             this.Topmost = true;
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -82,11 +82,6 @@ namespace Focus_Bear.Focus
 
         private async void Take5MinsBreak()
         {
-            
-            
-            
-            
-            
             if (appSettings.bStartingAnotherFocusMode)
                 LogWriter.LogWrite("Take5MinsBreak() called from bStartingAnotherFocusMode");
             else
@@ -389,6 +384,11 @@ namespace Focus_Bear.Focus
 
         public void ShowTasksEndWindow()
         {
+            //14 May 2025 - Jeremy wants not to show the taks end window for now,
+            //So, just returning from here, the timers are intact, when needed back, remove this return statement.
+            return;
+
+
             GridShade.Visibility = Visibility.Visible;
             appSettings.sRawTasksDone = ""; //Reinitialize
             SelectTasks wndSelectTasks = new SelectTasks(this);

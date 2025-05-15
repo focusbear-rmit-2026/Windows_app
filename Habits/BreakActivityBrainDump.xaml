@@ -10,9 +10,7 @@
       Title="Focus Bear" Background="{DynamicResource BackgroundColor}">
     <!--<local1:DpiDecorator>-->
     <Grid>
-        <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
+
         <Grid.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.MergedDictionaries>

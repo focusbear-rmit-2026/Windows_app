@@ -10,9 +10,7 @@
       Title="HabitsWelcomeList" Background="{DynamicResource BackgroundColor}" IsVisibleChanged="Page_IsVisibleChanged">
     <Grid>
         <Grid x:Name="Normal">
-        <Grid.Background>
-                <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center" />
-        </Grid.Background>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="185" />
             <RowDefinition Height="Auto" MinHeight="70" />

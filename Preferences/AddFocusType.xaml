@@ -35,8 +35,8 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="btnCancel" Grid.Column="0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" Height="23" Width="100" Margin="20,0,0,0" HorizontalAlignment="Left" FontWeight="Semibold" Click="btnCancel_Click">xCancel</Button>
-            <Button x:Name="btnAdd"  Grid.Column="1" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right"  FontWeight="Semibold" Click="btnAdd_Click">xAdd</Button>
+            <Button x:Name="btnCancel" Grid.Column="0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" Cursor="Hand" Height="23" Width="100" Margin="20,0,0,0" HorizontalAlignment="Left" FontWeight="Semibold" Click="btnCancel_Click">xCancel</Button>
+            <Button x:Name="btnAdd"  Grid.Column="1" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" Cursor="Hand" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right"  FontWeight="Semibold" Click="btnAdd_Click">xAdd</Button>
 
         </Grid>
     </Grid>

@@ -118,40 +118,75 @@ namespace Focus_Bear.Focus
                 //If super pomodoro was running and user manually stopped the focus mode, we will reset the variable
                 appSettings.bUseSuperPomodoroMode = false;
 
+                ((App)(Application.Current)).HideToDoPlayer();
+
+                bool bCallFocusEndAPI = false;
+
+                FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
+
+                DateTime now = DateTime.Now;
+                TimeSpan difference = now.Subtract(DateTime.Parse(appSettings.sRunningFocusModeStartTime)); // could also write `now - otherTime`
+                var durationSeconds = difference.TotalSeconds;
+                int nSeconds = Convert.ToInt32(durationSeconds);
+
+
                 string sOption = ComboBoxReason.SelectedValue.ToString();
                 if (sOption == appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString()) //"reasonsFirstText": "I achieved what I wanted to.",
                 {
-                    //Show the Focusmode end dialog
-                    ((App)(Application.Current)).ShowFocusEndWindow();
-                }
-                else
-                {
-                    if(appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 2) //Now the empty array [] is retuned
+                    if(appSettings.bShowFocusModeEnd) //Only if the user have selected the setting to show Focus mode end window
                     {
                         //Show the Focusmode end dialog
                         ((App)(Application.Current)).ShowFocusEndWindow();
                     }
                     else
                     {
-                        LogWriter.LogWrite("Focuse mode Aborted()");
-
-                        DateTime now = DateTime.Now;
-                        TimeSpan difference = now.Subtract(DateTime.Parse(appSettings.sRunningFocusModeStartTime)); // could also write `now - otherTime`
-                        var durationSeconds = difference.TotalSeconds;
-
-                        int nSeconds = Convert.ToInt32(durationSeconds);
-                        appSettings.AddEntryInCSV("focus mode abort", "focus block - " + appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, "", "", sOption, "");
-
-                        ((App)(Application.Current)).HideToDoPlayer();
-
-                        FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
-                        FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
+                        //Call the API to finish focus mode here:
+                        bCallFocusEndAPI = true;
+                        
+                        appSettings.AddEntryInCSV("focus block", appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, "", "", "", "");
 
                         appSettings.CapturePostHog("completed-focus-session", string.Format("\"focus-type\":\"manual_focus\",\"focusDurationMinutes\":{0}", (nSeconds / 60)));
-                        
-                        //Call api top finish focus mode
-                        FocusBearAPIClient client = new FocusBearAPIClient();
+                    }
+                }
+                else
+                {
+                    //14 May 2025 - Jeremy wants not to show the taks end window for now, so commenting this out
+                    //if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 2) //Now the empty array [] is retuned
+                    //{
+                    //    //Show the Focusmode end dialog
+                    //    ((App)(Application.Current)).ShowFocusEndWindow();
+                    //}
+                    //else
+                    {
+                        LogWriter.LogWrite("Focus mode Aborted()");
+
+                        bCallFocusEndAPI = true;
+
+                        appSettings.AddEntryInCSV("focus mode abort", "focus block - " + appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, "", "", sOption, "");
+                        appSettings.CapturePostHog("completed-focus-session", string.Format("\"focus-type\":\"manual_focus\",\"focusDurationMinutes\":{0}", (nSeconds / 60)));
+                    }
+                }
+
+                if (bCallFocusEndAPI)
+                {
+                    //We need to add it back to the focus mode
+                    var FocusModeRunning = appSettings.arrFocusModes.Where(i => i.id == appSettings.sRunningFocusModeID);
+                    FocusMode CurrentRunningFocusMode = FocusModeRunning.First<FocusMode>();
+                    CurrentRunningFocusMode.lastTaskUsed = (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0) ? appSettings.sRawTasks : "[]";
+
+
+                    //Call api top finish focus mode
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    try
+                    {
                         var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
+
+                        var response = client.UpdateAllFocusModes();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("Focus Mode stop focus mode widow FinishFocusMode API EX - " + ex.Message);
                     }
                 }
 

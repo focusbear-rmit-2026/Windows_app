@@ -247,14 +247,12 @@ namespace Focus_Bear.Login
             if (appSettings.sTheme == "Light")
             {
                 this.Background = new SolidColorBrush(Colors.White);
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
                 lblEmail.Foreground = new SolidColorBrush(Colors.Black);
                 lblPassword.Foreground = new SolidColorBrush(Colors.Black);
             }
             else
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
                 lblEmail.Foreground = new SolidColorBrush(Colors.LightGray);
                 lblPassword.Foreground = new SolidColorBrush(Colors.LightGray);
             }
@@ -262,9 +260,9 @@ namespace Focus_Bear.Login
 
         private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            TxtPasswordVisible.Text = TxtPassword.Password;
-            TxtPassword.GetType().GetMethod("Select", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(TxtPassword, new object[] { TxtPassword.Password.Length, TxtPassword.Password.Length });
-            TxtPassword.Focus();
+            //TxtPasswordVisible.Text = TxtPassword.Password;
+            //TxtPassword.GetType().GetMethod("Select", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(TxtPassword, new object[] { TxtPassword.Password.Length, TxtPassword.Password.Length });
+            //TxtPassword.Focus();
         }
         private void TxtPasswordVisible_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -277,8 +275,8 @@ namespace Focus_Bear.Login
             bEyeOnPasswordBox = !bEyeOnPasswordBox;
             if (bEyeOnPasswordBox)
             {
-                EyePassword.Source = new BitmapImage(new Uri("pack://application:,,,/Images/eye-gray.png"));
-
+                EyePassword.Source = new BitmapImage(new Uri("pack://application:,,,/Images/eye-orange.png"));
+                TxtPasswordVisible.Text = TxtPassword.Password;
                 TxtPasswordVisible.Visibility = Visibility.Visible;
                 TxtPassword.Visibility = Visibility.Collapsed;
 
@@ -294,7 +292,7 @@ namespace Focus_Bear.Login
             }
             else
             {
-                EyePassword.Source = new BitmapImage(new Uri("pack://application:,,,/Images/eye-orange.png"));
+                EyePassword.Source = new BitmapImage(new Uri("pack://application:,,,/Images/eye-dark.png"));
 
                 TxtPasswordVisible.Visibility = Visibility.Collapsed;
                 TxtPassword.Visibility = Visibility.Visible;

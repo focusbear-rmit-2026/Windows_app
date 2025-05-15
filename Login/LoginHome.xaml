@@ -9,9 +9,14 @@
       Title="LoginHome" >
 
     <Grid>
-        <Grid.Background>
-            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="/Images/background.png" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="188" />
             <RowDefinition Height="Auto" MinHeight="100" />
