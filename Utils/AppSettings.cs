@@ -2493,6 +2493,15 @@ namespace Focus_Bear.Utils
             return null;
         }
 
+
+        public void ShowBaloonTip(string sBaloonTip)
+        {
+            ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
+            {
+                TrayBalloon tt = new TrayBalloon(1, sBaloonTip);
+                tt.Show();
+            }));
+        }
     }
 }
 

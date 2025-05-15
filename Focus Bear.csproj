@@ -657,6 +657,7 @@
     <Compile Include="Utils\HourControl.xaml.cs">
       <DependentUpon>HourControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\IdleWaiter.cs" />
     <Compile Include="Utils\LocalSettingsManager.cs" />
     <Compile Include="Utils\LogWriter.cs" />
     <Compile Include="Utils\OfflineActivities.cs" />

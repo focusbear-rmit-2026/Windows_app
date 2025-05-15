@@ -1133,6 +1133,13 @@ namespace Focus_Bear.Habits
                                 PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
                         }
 
+                        if (PageHabitActivityOnGoing != null)
+                        {
+                            if (PageHabitActivityOnGoing.webView.IsVisible)
+                            {
+                                PageHabitActivityOnGoing.webView.Visibility = Visibility.Collapsed;
+                            }
+                        }
 
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = this;
@@ -1148,7 +1155,13 @@ namespace Focus_Bear.Habits
                             if (!nScreenHabitActivityFinished.webView1.IsVisible)
                                 nScreenHabitActivityFinished.webView1.Visibility = Visibility.Visible;
                         }
-
+                        if (PageHabitActivityOnGoing != null)
+                        {
+                            if (!PageHabitActivityOnGoing.webView.IsVisible)
+                            {
+                                PageHabitActivityOnGoing.webView.Visibility = Visibility.Visible;
+                            }
+                        }
                         //If edits habits is open in welcome list, hide it
                         if (PageWelcomeList != null)
                         {

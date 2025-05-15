@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Focus Bear"
-#define MyAppVersion "1.0.154"
+#define MyAppVersion "1.0.155"
 #define MyAppPublisher "Focus Bear Pty Ltd"
 #define MyAppURL "https://www.focusbear.io"
 #define MyAppExeName "Focus Bear.exe"

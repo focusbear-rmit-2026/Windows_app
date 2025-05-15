@@ -721,14 +721,26 @@ namespace Focus_Bear
 
         }
 
-        private void dispatcherTimer_Breaks(object sender, EventArgs e)
+        private async void dispatcherTimer_Breaks(object sender, EventArgs e)
         {
             LogWriter.LogWrite("dispatcherTimer_Breaks()");
 
+            dispatcherTimerBreaks.Stop(); //Tick Once only
 
             try
             {
-                dispatcherTimerBreaks.Stop(); //Tick Once only
+                //Preferred approach is to detect keyboard / mouse activity and wait for 5 seconds of idle time.
+                await IdleWaiter.WaitForIdleAsync(TimeSpan.FromSeconds(5));
+            }
+            catch (Exception ex)
+            {
+                // Log or handle errors 
+                LogWriter.LogWrite("dispatcherTimer_Breaks() WaitForIdleAsync Error: " + ex.Message);
+            }
+
+            try
+            {
+                
 
                 CommandManager.InvalidateRequerySuggested();
 
@@ -783,7 +795,6 @@ namespace Focus_Bear
                     ((App)(Application.Current)).wndTakeABreak.Close();
                     ((App)(Application.Current)).wndTakeABreak = null;
                 }
-
                 LogWriter.LogWrite("Show Break Activities Warning");
                 BreakWarning windBreakWarning = new BreakWarning();
                 windBreakWarning.WindowStartupLocation = WindowStartupLocation.Manual;
@@ -1399,7 +1410,7 @@ namespace Focus_Bear
             //OnboardingNewWelcome wnd2 = new OnboardingNewWelcome(wnd);
             ////wnd2.();
 
-
+            
 #endif
 
             if (appSettings.IsFirstInstall)

@@ -174,6 +174,19 @@ namespace Focus_Bear.Habits
 
                 LogWriter.LogWrite("nMinutesToPostpone - " + nMinutesToPostpone.ToString());
 
+                //Since we are making a new object everytime, we can kill the previous one and dispose the webview objects
+                if (((App)(Application.Current)).wndHabits != null)
+                {
+                    if (((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing != null)
+                    {
+                        ((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.webView.Dispose();
+                    }
+
+                    ((App)(Application.Current)).wndHabits.Close();
+                    ((App)(Application.Current)).wndHabits = null;
+                    LogWriter.LogWrite("wndHabits closed upon BREAK_ACTIVITY Postponed");
+                }
+
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) // FOr Breaks we will simply cancel the current routine.
                 {
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
