@@ -543,12 +543,10 @@ namespace Focus_Bear.ShutOff
             if (appSettings.sTheme == "Light")
             {
                 this.Background = new SolidColorBrush(Colors.White);
-                ShutOffWindowBackground.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
             }
             else
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
-                ShutOffWindowBackground.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
             }
         }
         protected override void OnSourceInitialized(EventArgs e)

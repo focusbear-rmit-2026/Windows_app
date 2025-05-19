@@ -226,15 +226,10 @@ namespace Focus_Bear.Habits
             if (theme == "Light")
             {
                 this.Background = new SolidColorBrush(Colors.White);
-                EasySkipPostponeBackground.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
-
-
             }
             else if (theme == "Dark")
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
-                EasySkipPostponeBackground.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
-
             }
         }        
     }

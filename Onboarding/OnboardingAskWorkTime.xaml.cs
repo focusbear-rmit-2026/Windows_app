@@ -294,6 +294,8 @@ namespace Focus_Bear.Onboarding
         private void btnNextWakeupTime_Click(object sender, RoutedEventArgs e)
         {
             StartupTimeSection.Opacity = 1;
+            StartupTimeSection.IsEnabled = true;
+            StartupTimeSection.IsHitTestVisible = true;
             nStep = 2;
             GridPopup.Margin = new Thickness(100, 100 + 40, 0, 0);
             Arrow.Margin = new Thickness(329, 185 + 40, 0, 0);
@@ -303,6 +305,9 @@ namespace Focus_Bear.Onboarding
         private void btnNextStartWork_Click(object sender, RoutedEventArgs e)
         {
             FinishWorkSection.Opacity = 1;
+            FinishWorkSection.IsEnabled = true;
+            FinishWorkSection.IsHitTestVisible = true;
+
             nStep = 3;
             GridPopup.Margin = new Thickness(100, 100 + 80, 0, 0);
             Arrow.Margin = new Thickness(329,185 + 80, 0,0);
@@ -313,6 +318,9 @@ namespace Focus_Bear.Onboarding
         private void btnNextFinishWork_Click(object sender, RoutedEventArgs e)
         {
             SleepTimeSection.Opacity = 1;
+            SleepTimeSection.IsEnabled = true;
+            SleepTimeSection.IsHitTestVisible = true;
+
             nStep = 4;
             GridPopup.Margin = new Thickness(100, 100 + 120, 0, 0);
             Arrow.Margin = new Thickness(329, 185 + 120, 0, 0);
@@ -330,7 +338,7 @@ namespace Focus_Bear.Onboarding
         }
         private void Page_Theme()
         {
-            app.ApplyThemeToPage(this, BackgroundImage);
+            app.ApplyThemeToPage(this);
         }
     }
 }

@@ -58,7 +58,7 @@ namespace Focus_Bear.Onboarding
             InitializeComponent();
 
             this.WindowState = WindowState.Normal;
-            this.WindowStyle = WindowStyle.ToolWindow;
+
             this.Width = 1300;
             this.Height = 750;
            
@@ -627,15 +627,10 @@ namespace Focus_Bear.Onboarding
             if (appSettings.sTheme == "Light")
             {
                 this.Background = new SolidColorBrush(Colors.White);
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
-
-
             }
             else if (appSettings.sTheme == "Dark")
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
-
             }
 
         }

@@ -21,9 +21,6 @@
             <RowDefinition Height="129" />
         </Grid.RowDefinitions>
         <Grid>
-            <Grid.Background >
-                <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center" />
-            </Grid.Background>
             <Grid.RowDefinitions>
                 <RowDefinition Height="150" />
                 <RowDefinition Height="30" />
@@ -91,9 +88,7 @@
                 <RowDefinition Height="20" />
                 <RowDefinition Height="25" />
             </Grid.RowDefinitions>
-            <Grid.Background >
-                <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center" />
-            </Grid.Background>
+
             <TextBlock Grid.Row="0"  Name="AfterPay" Margin="20,0,20,5" TextWrapping="Wrap" Text="xxAfter you pay, click the Sync Payment Status button below" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Grid.ColumnSpan="3"/>
             <Button Grid.Row="1"   x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,2,20,0" FontSize="18" Cursor="Hand"    Click="btnSyncPayment_Click" Grid.Column="2">
                 <Button.Content>

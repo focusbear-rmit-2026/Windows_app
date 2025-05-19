@@ -623,6 +623,18 @@ namespace Focus_Bear
                 return;
             }
 
+            if ((appSettings.isFocusModeRunning ||
+               appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+               appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
+               appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF ||
+               appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY ||
+               appSettings.bUseSuperPomodoroMode) &&
+               (!appSettings.bHabitsPostponedState) && (!appSettings.bFocusSummaryPostponedState))
+            {
+                //do not start if some habits or breaks are running. Case is when 5 mins break ends, we start the focus session back but if habits have resumed by then, then do not show it
+                return;
+            }
+
             if (appSettings.bIsGeekModeEnabled)
             {
                 ((App)(Application.Current)).ShowPomodoroWindow();

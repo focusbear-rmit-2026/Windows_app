@@ -156,7 +156,7 @@ namespace Focus_Bear.Utils
                appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF ||
                appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY ||
                appSettings.bUseSuperPomodoroMode) &&
-               (!appSettings.bHabitsPostponedState ))
+               (!appSettings.bHabitsPostponedState ) && (!appSettings.bFocusSummaryPostponedState))
             {
                 return;
             }

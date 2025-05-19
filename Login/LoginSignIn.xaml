@@ -19,9 +19,6 @@
             </ResourceDictionary>
         </Grid.Resources>
 
-        <Grid.Background>
-            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="/Images/background.png" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100"/>
             <ColumnDefinition/>
@@ -34,12 +31,12 @@
 
 
         <Button x:Name="btnBack" Grid.Column="0" Content="Button" Style="{StaticResource BtnStyleBack}" SnapsToDevicePixels="True" HorizontalAlignment="Center" Height="74" VerticalAlignment="Center" Width="80" ToolTip="xBack" Cursor="Hand" Click="btnBack_Click"/>
-        <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center" Width="300">
+        <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center" Width="360">
             <Image Source="../Images/FBicon-256.png" Width="50" HorizontalAlignment="Center" Margin="10,50,10,0" VerticalAlignment="Bottom"/>
             <TextBlock  Name="Heading" Margin="0,10,0,0" TextWrapping="Wrap" Text="xSign In" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             <TextBlock   Name="Description" Margin="40,20,40,0" TextWrapping="Wrap" Text="xCreate an account" Foreground="#e88800" FontSize="17" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock  Name="lblEmail" Margin="0,40,40,10" TextWrapping="Wrap" Text="xEmail Address" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
-            <TextBox TabIndex="0" x:Name="TxtEmailAddress" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" >
+            <TextBlock  Name="lblEmail" Margin="30,40,0,10" TextWrapping="Wrap" Text="xEmail Address" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+            <TextBox Width="300" TabIndex="0" x:Name="TxtEmailAddress" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" >
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -61,13 +58,17 @@
 
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="36*" />
+                    <ColumnDefinition Width="185*"/>
+                    <ColumnDefinition Width="10*"/>
+                    <ColumnDefinition Width="16*"/>
+                    <ColumnDefinition Width="94*"/>
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0">
+                <StackPanel Grid.Column="0" Grid.ColumnSpan="5" Margin="20,0,20.5,40" HorizontalAlignment="Center" >
                     <TextBlock Name="lblPassword" Margin="0,20,0,10" TextWrapping="Wrap" Text="xPassword" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
-                    <PasswordBox TabIndex="1" x:Name="TxtPassword" Margin="0" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" PasswordChanged="TxtPassword_PasswordChanged">
+                    <PasswordBox Width="300" TabIndex="1" x:Name="TxtPassword" Margin="0" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" PasswordChanged="TxtPassword_PasswordChanged">
                         <PasswordBox.Effect>
                             <DropShadowEffect ShadowDepth="3"
                                   Direction="330"
@@ -106,13 +107,12 @@
                         </TextBox.FocusVisualStyle>
                     </TextBox>
                 </StackPanel>
-                <Image x:Name="EyePassword" Grid.Column="1" Source="../images/eye-orange.png" Width="20" Height="20" Margin="0,0,0,5" Cursor="Hand" MouseUp="EyePassword_MouseUp" VerticalAlignment="Bottom"></Image>
-                <Image  Name="ImgPasswordValid"  Grid.Column="1" Source="../images/validIcon.png" Width="20" Height="20" Margin="0,0,0,5" Visibility="Collapsed" VerticalAlignment="Bottom"></Image>
-                
+                <Image x:Name="EyePassword" Grid.Column="4" Source="../images/eye-dark.png" Width="20" Height="20" Margin="70,0,0.5,45" Cursor="Hand" MouseUp="EyePassword_MouseUp" VerticalAlignment="Bottom" Grid.ColumnSpan="2"></Image>
+
             </Grid>
 
 
-            <Button TabIndex="2"  x:Name="btnSignIn"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,47,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnSignIn_Click" IsDefault="True" >
+            <Button Width="300" TabIndex="2"  x:Name="btnSignIn"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnSignIn_Click" IsDefault="True" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnSignInText"  Text="xSign In" Foreground="Black"/>
@@ -124,7 +124,7 @@
                 <Hyperlink x:Name="btnForgetPassword" Click="btnForgetPassword_Click"   TextDecorations="Underline" ><Run x:Name="ForgetPasswordTXT" Text="xForgot Password"/></Hyperlink>
             </TextBlock>
 
-            <Button TabIndex="3"  x:Name="btnCreatAccount"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreatAccount_Click" >
+            <Button Width="300" TabIndex="3"  x:Name="btnCreatAccount"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreatAccount_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnCreateAccountText" Text="xCreate an account" Foreground="Black"/>

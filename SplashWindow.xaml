@@ -8,9 +8,6 @@
         mc:Ignorable="d"
         Title="SplashWindow" Height="330" Width="550" ResizeMode="NoResize" WindowStyle="None" Loaded="Window_Loaded">
         <Grid>
-        <Grid.Background>
-            <ImageBrush x:Name="SplahwindowBackground" Stretch="UniformToFill" ImageSource="images/background.png" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="150" />
             <RowDefinition Height="90" />

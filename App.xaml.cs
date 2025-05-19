@@ -90,6 +90,11 @@ namespace Focus_Bear
         [DllImport("dwmapi.dll")]
         public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        private const int SW_RESTORE = 9;
+
 
         private const uint WINEVENT_OUTOFCONTEXT = 0;
         private const uint EVENT_SYSTEM_FOREGROUND = 3;
@@ -3262,33 +3267,28 @@ namespace Focus_Bear
             wndPreferences.Show();
             wndPreferences.BringIntoView();
 
+            WindowInteropHelper helper = new WindowInteropHelper(wndPreferences);
+            IntPtr hWnd = helper.Handle;
+
+            // Restore window if minimized
+            ShowWindow(hWnd, SW_RESTORE);
+
+            // Bring to foreground
+            SetForegroundWindow(hWnd);
+
         }
         public void ShowFocusEndWindow()
         {
-            ((App)(Application.Current)).HideToDoPlayer();
-
             LogWriter.LogWrite("appSettings.bShowFocusModeEnd"+ appSettings.bShowFocusModeEnd);
-            if (wndFocusModeEnd == null && appSettings.bShowFocusModeEnd)
+            if (wndFocusModeEnd == null )
             {
                 wndFocusModeEnd = new FocusModeEnd();
             }
 
             appSettings.bStartingAnotherFocusMode = false; //Resetting
 
-            //((App)(Application.Current)).HideToDoPlayer();
-            if (appSettings.bShowFocusModeEnd)
-            {
-                wndFocusModeEnd.Show();
-                wndFocusModeEnd.BringIntoView();
-            }
-            
-
-            //if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0)
-            //{
-            //    wndFocusModeEnd.ShowTasksEndWindow();
-            //}
-
-          
+            wndFocusModeEnd.Show();
+            wndFocusModeEnd.BringIntoView();
         }
         public void ShowBreakWindow()
         {
@@ -4427,11 +4427,11 @@ namespace Focus_Bear
         }
         public void HideToDoPlayer()
         {
-            wndToDoPlayer?.webView?.Reload(); // Refresh webview to stop background execution  
-
             //Called when focus mode ends
             if (wndToDoPlayer != null)
             {
+                wndToDoPlayer?.webView?.Reload(); // Refresh webview to stop background execution  
+
                 bLoadURLAgainInToDoPlayer = true;
                 wndToDoPlayer.Close();
             }
@@ -4502,8 +4502,11 @@ namespace Focus_Bear
         */
         public async Task SyncTodoTasksFromPlayer()
         {
-            var tasksArray = await wndToDoPlayer.webView.ExecuteScriptAsync("getToDosFromPlayer()");
-            appSettings.sRawTasks = tasksArray?.ToString() ?? "[]";
+            if (wndToDoPlayer != null)
+            {
+                var tasksArray = await wndToDoPlayer.webView.ExecuteScriptAsync("getToDosFromPlayer()");
+                appSettings.sRawTasks = tasksArray?.ToString() ?? "[]";
+            }
         }
 
         public void ChangeTheme(string theme)
@@ -4557,7 +4560,7 @@ namespace Focus_Bear
             return value is int i && i > 0;
         }
 
-        public void ApplyThemeToPage(System.Windows.Controls.Page page, System.Windows.Media.ImageBrush BackgroundImage)
+        public void ApplyThemeToPage(System.Windows.Controls.Page page)
         {
             LogWriter.LogWrite("app xaml ApplyThemeToPage: " +appSettings.sTheme );
 
@@ -4569,13 +4572,20 @@ namespace Focus_Bear
             if (appSettings.sTheme == "Light")
             {
                 page.Background = new SolidColorBrush(Colors.White);
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
+                //BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
             }
             else if (appSettings.sTheme == "Dark")
             {
                 page.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
-                BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
+                //BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
             }
+
+            bool isDarkMode = (appSettings.sTheme == "Dark");
+            Application.Current.Resources["TooltipBackground"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#FF2B2B2B" : "#FFF5F5F5"));
+            Application.Current.Resources["TooltipForeground"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#FFF1F1F1" : "#FF1E1E1E"));
+            Application.Current.Resources["TooltipBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#FF444444" : "#FFCCCCCC"));
+
+
         }
     }
 }

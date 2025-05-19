@@ -88,13 +88,11 @@ namespace Focus_Bear
             {
                 this.Background = new SolidColorBrush(Colors.White);
                 FocusBearLogo.Source = new BitmapImage(new Uri("pack://application:,,,/Images/fb_big.png"));
-                SplahwindowBackground.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
             }
             else if (appSettings.sTheme == "Dark")
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
                 FocusBearLogo.Source = new BitmapImage(new Uri("pack://application:,,,/Images/fb_big_dark.png"));
-                SplahwindowBackground.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
             }
         }
     }

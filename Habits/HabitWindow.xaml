@@ -36,13 +36,7 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        
-        <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
-        
-       
-        
+         
         <TextBlock  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xStay Focused...." Foreground="#e88800" FontSize="40" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Frame x:Name="AppFrameHabitScreens" Margin="0" NavigationUIVisibility="Hidden"   Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed"  />
         <Frame x:Name="AppFrameLogQuantity" Margin="0" NavigationUIVisibility="Hidden"  Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed" Opacity="0.5" />
@@ -79,7 +73,7 @@
                                 <RowDefinition Height="25"/>
                                 <RowDefinition Height="45"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="{Binding question, StringFormat=\{0\}}" FontSize="13" FontWeight="Semibold" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Row="0" Text="{Binding question, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" FontWeight="Semibold" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
                             <Grid  Grid.Row="1">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="150"/>
@@ -88,8 +82,8 @@
                                     <ColumnDefinition Width="45"/>
                                     <ColumnDefinition Width="150"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding minValueDescription, StringFormat=\{0\}}" FontSize="12"   TextWrapping="Wrap"   VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                                <TextBox  Grid.Column="0" TabIndex="0"  x:Name="Quantity" Text="{Binding quantity, StringFormat=\{0\}}"  MinHeight="25" Height="30" Margin="5,0,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Visibility="{Binding Path=bShowTextBox, Converter={StaticResource BoolToVis}}" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown" PreviewKeyUp="Quantity_PreviewKeyUp">
+                                <TextBlock Grid.Column="0" Text="{Binding minValueDescription, StringFormat=\{0\}}" FontSize="12" Foreground="{DynamicResource ForegroundColor}"  TextWrapping="Wrap"   VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                <TextBox  Grid.Column="0" TabIndex="0"  x:Name="Quantity" Text="{Binding quantity, StringFormat=\{0\}}"   MinHeight="25" Height="30" Margin="5,0,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Visibility="{Binding Path=bShowTextBox, Converter={StaticResource BoolToVis}}" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown" PreviewKeyUp="Quantity_PreviewKeyUp">
                                     <TextBox.Effect>
                                         <DropShadowEffect ShadowDepth="3"
                                                           Direction="330"
@@ -100,20 +94,20 @@
                                     </TextBox.Effect>
                                      
                                 </TextBox>
-                                <TextBlock Grid.Column="1" Text="{Binding minValue, StringFormat=(\{0\})}"  FontSize="13"  Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding minValue, StringFormat=(\{0\})}" Foreground="{DynamicResource ForegroundColor}"  FontSize="13"  Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
                                 <Grid Grid.Column="2">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="15"/>
                                         <RowDefinition Height="30"/>
                                     </Grid.RowDefinitions>
-                                    <TextBlock Grid.Row="0" Text="{Binding quantity, StringFormat=\{0\}}"   FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Center" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                    <TextBlock Grid.Row="0" Text="{Binding quantity, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Center" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
                                     <Slider Grid.Row="1" Margin="0,0,0,10" TabIndex="1" VerticalAlignment="Bottom" LargeChange="0.5" TickFrequency="0.1"  Minimum="{Binding minValue, StringFormat=(\{0\})}" Maximum="{Binding maxValue, StringFormat=(\{0\})}" Value="{Binding quantity, StringFormat=(\{0\})}" Cursor="Hand" IsSnapToTickEnabled="True" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"></Slider>
                                    
 
                                 </Grid>
 
-                                <TextBlock Grid.Column="3" Text="{Binding maxValue, StringFormat=(\{0\})}"   FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
-                                <TextBlock Grid.Column="4" Text="{Binding maxValueDescription, StringFormat=\{0\}}"   FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                <TextBlock Grid.Column="3" Text="{Binding maxValue, StringFormat=(\{0\})}" Foreground="{DynamicResource ForegroundColor}"   FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                <TextBlock Grid.Column="4" Text="{Binding maxValueDescription, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}"  FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
 
                             </Grid>
                         </Grid>

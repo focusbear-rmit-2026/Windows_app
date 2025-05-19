@@ -16,9 +16,7 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        <Grid.Background>
-            <ImageBrush x:Name="BackgroundImage" Stretch="UniformToFill" ImageSource="../images/background.png" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="105" />
             <RowDefinition Height="Auto" MinHeight="70" />
@@ -32,7 +30,7 @@
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xLet's take a quick 30 second break" Foreground="#e88800" FontSize="27" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <StackPanel  Grid.Row="2"  Orientation="Horizontal" HorizontalAlignment="Center">
-            <TextBlock Name="Suggest" Margin="0,0,0,0" TextWrapping="Wrap" Text="xTaking breaks throughout the day helps with stress and focus." FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
+            <TextBlock Name="Suggest" Margin="0,0,10,0" TextWrapping="Wrap" Text="xTaking breaks throughout the day helps with stress and focus." FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
             <Button x:Name="btnInfo" Style="{StaticResource BtnStyleInfo}" Click="btnInfo_Click"  MinWidth="35" Height="35" Cursor="Hand" >
                 <StackPanel Orientation="Vertical">
                     <Image Source="../images/info.png" Margin="0,0,0,0" Height="24" Width="24" />

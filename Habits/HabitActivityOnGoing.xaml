@@ -17,9 +17,7 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="{DynamicResource BackgroundImage}" AlignmentY="Top" AlignmentX="Center"/>
-        </Grid.Background>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto"   />
@@ -50,16 +48,8 @@
         </StackPanel>
         <Border x:Name="SectionTimer"  Grid.Row="3" BorderThickness="0" BorderBrush="#edeeee" CornerRadius="17" Padding="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Width="190" Height="85">
             <Grid>
-                <Grid.Effect>
-                    <DropShadowEffect ShadowDepth="3"
-                          Direction="320"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="8"
-                           />
-                </Grid.Effect>
                 <!-- Rounded mask (stretches to fill Grid) -->
-                <Border Name="mask" Background="{DynamicResource FocusActivitySummaryBackgroundColor}" CornerRadius="17"/>
+                <Border Name="mask" Background="#edeeee" CornerRadius="17"/>
                 <!-- Main content container -->
                 <StackPanel >
                     <!-- Use a VisualBrush of 'mask' as the opacity mask -->
@@ -69,7 +59,7 @@
 
                     <!-- Any content -->
 
-                    <TextBlock x:Name="TxtTimer" Margin="0,22,0,0" TextWrapping="Wrap" Text="00:30" Padding="0" FontSize="27" FontWeight="SemiBold" HorizontalAlignment="Center" MinHeight="30" VerticalAlignment="Center" />
+                    <TextBlock x:Name="TxtTimer" Margin="0,22,0,0" TextWrapping="Wrap" Text="00:30" Padding="0" FontSize="27" FontWeight="SemiBold" HorizontalAlignment="Center" MinHeight="30" VerticalAlignment="Center" Foreground="Black" />
 
                 </StackPanel>
 
