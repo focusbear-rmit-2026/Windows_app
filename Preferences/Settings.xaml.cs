@@ -303,23 +303,50 @@ namespace Focus_Bear.Preferences
             appSettings.nFocusBearMode = 0;//0 is Grizzly bear mode
         }
 
+        private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            ValidatePasswordMatch();
+        }
+
+        private void TxtConfirmPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            ValidatePasswordMatch();
+        }
+
         private void CuddlyMode_Checked(object sender, RoutedEventArgs e)
         {
             appSettings.nFocusBearMode = 1;//1 is cuddly bear mode
         }
 
-        private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
+
+        private void ValidatePasswordMatch()
         {
+            
+            PasswordMismatchError.Visibility = Visibility.Collapsed;
 
-        }
+            bool enableButton = !string.IsNullOrEmpty(TxtPassword.Password) &&
+                               !string.IsNullOrEmpty(TxtConfirmPassword.Password) &&
+                               TxtPassword.Password == TxtConfirmPassword.Password;
 
-        private void TxtConfirmPassword_PasswordChanged(object sender, RoutedEventArgs e)
-        {
+            btnSetPassword.IsEnabled = enableButton;
 
+        
+            if (!string.IsNullOrEmpty(TxtPassword.Password) &&
+                !string.IsNullOrEmpty(TxtConfirmPassword.Password) &&
+                TxtPassword.Password != TxtConfirmPassword.Password)
+            {
+                PasswordMismatchError.Visibility = Visibility.Visible;
+            }
         }
 
         private void btnSetPassword_Click(object sender, RoutedEventArgs e)
         {
+            if (TxtPassword.Password != TxtConfirmPassword.Password)
+            {
+                PasswordMismatchError.Visibility = Visibility.Visible;
+                return;
+            }
+
             if (TxtPassword.Password.Length == 0)
             {
                 FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordBlankAlertSubTitle"].ToString(), appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordBlankAlertTitle"].ToString());

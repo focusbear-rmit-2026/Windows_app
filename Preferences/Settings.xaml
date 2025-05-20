@@ -42,11 +42,11 @@
                 <TabItem Name="GeneralTab" Header="xGeneral" Style="{DynamicResource TabItemStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="Auto"/>
-                        
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="Auto"/>
+
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" >
                             <Grid.ColumnDefinitions>
@@ -109,6 +109,7 @@
                                 <TextBlock Grid.Row="0"   Name="SelectFont"     Margin="0,7,15,0"   TextWrapping="Wrap"    Text="xApplication Font:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
                                 <TextBlock Grid.Row="1"   Name="SelectLanguage" Margin="0,10,15,0"  TextWrapping="Wrap"    Text="xxSelect Language:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
                                 <TextBlock Grid.Row="2"   Name="SelectDarkMode" Margin="0,13,15,0"  TextWrapping="Wrap"    Text="xxDark Mode:"        FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
+                                <TextBlock Grid.Row="2"   Name="SelectDarkMoe" Margin="0,13,15,0"  TextWrapping="Wrap"    Text="xxDark Mode:"        FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
                             </Grid>
                             <Grid Grid.Column="1" Margin="0,40,20,0">
                                 <Grid.RowDefinitions>
@@ -119,6 +120,7 @@
                                 <ComboBox  Grid.Row="0" Name="Fonts"    Width="200" HorizontalAlignment="Left" Margin="20,5,0,0"  SelectionChanged="Fonts_SelectionChanged"></ComboBox>
                                 <ComboBox  Grid.Row="1" Name="Language" Width="200" HorizontalAlignment="Left" Margin="20,15,0,0" SelectionChanged="Language_SelectionChanged"></ComboBox>
                                 <ComboBox  Grid.Row="2" Name="DarkMode" Width="200" HorizontalAlignment="Left" Margin="20,15,0,0" SelectionChanged="DarkMode_SelectionChanged"></ComboBox>
+                                <ComboBox  Grid.Row="2" Name="DarkMoe" Width="200" HorizontalAlignment="Left" Margin="20,15,0,0" SelectionChanged="DarkMode_SelectionChanged"></ComboBox>
                             </Grid>
 
                         </Grid>
@@ -129,7 +131,7 @@
                     <!--<local:PomodoroTab x:Name="PomodoroTAB" />-->
                 </TabItem>
                 <TabItem Name="AdvancedTab" Header="xAdvanced" Style="{DynamicResource TabItemStyle}">
-                     
+
                 </TabItem>
                 <TabItem Name="BlockedURLTab" Header="xBlocked URLs" Style="{DynamicResource TabItemStyle}">
                     <!--<local:AITab x:Name="AITAB" />-->
@@ -171,16 +173,11 @@
 
                         </Grid>
 
-                        <TextBlock  Grid.Row="4"  Width="300"  Name="lblConfirmPassword" Margin="0,15,0,0" TextWrapping="Wrap" Text="xConfirm Password:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-                        <Grid  Grid.Row="5" Width="300" VerticalAlignment="Center">
-                            <PasswordBox Width="230" TabIndex="3" x:Name="TxtConfirmPassword" Margin="0"    BorderBrush="#000"  Padding="5,2,5,5"   BorderThickness="1" FontSize="14"  PasswordChanged="TxtConfirmPassword_PasswordChanged" Background="White" >
+                        <TextBlock Grid.Row="4" Width="300" Name="lblConfirmPassword" Margin="0,15,0,0" TextWrapping="Wrap" Text="xConfirm Password:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                        <Grid Grid.Row="5" Width="300" VerticalAlignment="Center">
+                            <PasswordBox Width="230" TabIndex="3" x:Name="TxtConfirmPassword" Margin="0" BorderBrush="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="14" PasswordChanged="TxtConfirmPassword_PasswordChanged" Background="White">
                                 <PasswordBox.Effect>
-                                    <DropShadowEffect ShadowDepth="3"
-                              Direction="330"
-                              Color="Gray"
-                              Opacity="0.5"
-                              BlurRadius="6"
-                               />
+                                    <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6"/>
                                 </PasswordBox.Effect>
                                 <PasswordBox.FocusVisualStyle>
                                     <Style>
@@ -192,20 +189,33 @@
                                     </Style>
                                 </PasswordBox.FocusVisualStyle>
                             </PasswordBox>
-
                         </Grid>
 
-                        <Button  Grid.Row="6" x:Name="btnSetPassword"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   MinHeight="27" Width="180" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSetPassword_Click" >
+                        <!-- Password Mismatch Error Message -->
+                        <TextBlock Grid.Row="5" x:Name="PasswordMismatchError" 
+           Margin="0,38,0,17" 
+           Text="Passwords do not match!" 
+           Foreground="Red" 
+           FontSize="12" 
+           Visibility="Collapsed"
+           HorizontalAlignment="Center" Width="142" Grid.RowSpan="2"/>
+
+                        <!-- Set Password Button (moved to Row 7) -->
+                        <Button Grid.Row="6" x:Name="btnSetPassword" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" MinHeight="27" Width="180" HorizontalAlignment="Center" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSetPassword_Click" Grid.RowSpan="2" Margin="0,17,0,0">
                             <Button.Content>
-                                <StackPanel  Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal">
                                     <TextBlock x:Name="btnSetPasswordTXT" Text="xSet Password" Style="{DynamicResource ButtonTextBlockStyle}"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
 
-                        <TextBlock Grid.Row="7" x:Name="DisablePassword" Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" MinHeight="22" Cursor="Hand">
-                             <Hyperlink x:Name="btnDisablePassword"   Click="btnDisablePassword_Click"   TextDecorations="Underline" ><Run x:Name="btnDisablePasswordTXT" Text="xDisable Password"/></Hyperlink>
+                        <!-- Disable Password Link (moved to Row 8) -->
+                        <TextBlock Grid.Row="7" x:Name="DisablePassword" Margin="235,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand" Grid.RowSpan="2">
+    <Hyperlink x:Name="btnDisablePassword" Click="btnDisablePassword_Click" TextDecorations="Underline">
+        <Run x:Name="btnDisablePasswordTXT" Text="xDisable Password"/>
+    </Hyperlink>
                         </TextBlock>
+
 
                         <Grid Grid.Row="8" Margin="0,0,0,0" >
                             <Grid.ColumnDefinitions>
