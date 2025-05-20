@@ -20,6 +20,8 @@ using System.Windows.Threading;
 using System.Threading;
 using System.Drawing;
 using Focus_Bear.SetIntention;
+using Focus_Bear.Focus.BlurWindow;
+using System.Runtime.InteropServices;
 
 namespace Focus_Bear.Utils          
 {
@@ -306,6 +308,20 @@ namespace Focus_Bear.Utils
         public string sRawKeywords = "";
 
         GentleBlock wndGentleBlock = null;
+
+        public BlurWindow wndBlurWindow = null;
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        [DllImport("user32.dll")]
+        static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
         public int nFocusBearMode = 1; //1 is cuddly bear mode
         ////
@@ -2234,8 +2250,11 @@ namespace Focus_Bear.Utils
             {
                 if (wndGentleBlock != null)
                 {
+                    if (wndGentleBlock.IsVisible)
+                        HideBlurWindow();
                     wndGentleBlock.StopTimer();
                     wndGentleBlock.Hide();
+                    
                 }
             }));
         }
@@ -2290,13 +2309,13 @@ namespace Focus_Bear.Utils
         {
             ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
             {
+                ShowBlurWindow(hWnd);
+
                 if (wndSetIntention == null)
                 {
                     wndSetIntention = new SetIntention.SetIntention();
                 }
-                
                 wndSetIntention.ShowSetIntentionWindow(hWnd, sEXE, sURL, sTabTitle, bShowTimerAndWarning);
-                
             }));
         }
         public void Show_ShowIntentionWindow(IntPtr hWnd, string sURL, string sIntention)
@@ -2327,6 +2346,7 @@ namespace Focus_Bear.Utils
                 {
                     wndSetIntention.Hide();
                 }
+                HideBlurWindow();
             }));
         }
         public void Hide_ShowIntentionWindow()
@@ -2502,6 +2522,41 @@ namespace Focus_Bear.Utils
                 tt.Show();
             }));
         }
+        
+        public void ShowBlurWindow(IntPtr hwndTarget)
+        {
+            if (wndBlurWindow == null)
+            {
+                wndBlurWindow = new BlurWindow();
+            }
+
+            PositionBlurWindowOn(hwndTarget, wndBlurWindow);
+            wndBlurWindow.Show();
+            
+        }
+        public void HideBlurWindow()
+        {
+            if(wndBlurWindow != null)
+            {
+                wndBlurWindow.Hide();
+            }
+        }
+
+        public void PositionBlurWindowOn(IntPtr hwndTarget, Window blurWindow)
+        {
+            if (GetWindowRect(hwndTarget, out RECT rect))
+            {
+                // Convert size and position
+                int width = rect.Right - rect.Left;
+                int height = rect.Bottom - rect.Top;
+
+                blurWindow.Left = rect.Left;
+                blurWindow.Top = rect.Top + 90;
+                blurWindow.Width = width;
+                blurWindow.Height = height;
+            }
+        }
+
     }
 }
 

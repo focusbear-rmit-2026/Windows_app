@@ -145,6 +145,7 @@ namespace Focus_Bear.Focus
                 AllowThisDomainText.Visibility = Visibility.Collapsed;
 
                 sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
+                appSettings.ShowBlurWindow(HWND);
                 this.Show(); //Will show this window for apps
             }
             else
@@ -175,6 +176,7 @@ namespace Focus_Bear.Focus
                 ////////////////////////////////////////////////////
 
                 sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
+                appSettings.HideBlurWindow();
                 this.Hide(); //Will keep this window hidden will we get response from API
             }
             sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeTitle);
@@ -221,6 +223,7 @@ namespace Focus_Bear.Focus
             }
             else
             {
+                appSettings.ShowBlurWindow(HWND);
                 this.Show(); //Will show this window 
                 dispatcherTimer.Start();
                 CommandManager.InvalidateRequerySuggested();
@@ -275,6 +278,7 @@ namespace Focus_Bear.Focus
 
                             dispatcherTimer.Start();
                             CommandManager.InvalidateRequerySuggested();
+                            appSettings.ShowBlurWindow(HWND);
                             this.Show();
                         }));
                     }
@@ -329,6 +333,7 @@ namespace Focus_Bear.Focus
                                     Heading.Text = sHeading;
                                     dispatcherTimer.Start();
                                     CommandManager.InvalidateRequerySuggested();
+                                    appSettings.ShowBlurWindow(HWND);
                                     this.Show();
                                 }
                             }
@@ -393,6 +398,7 @@ namespace Focus_Bear.Focus
                     }
                     TxtTimer.Text = "00:00";
                     dispatcherTimer.Stop();
+                    appSettings.HideBlurWindow();
                     Hide();
                 }
             }
@@ -454,6 +460,7 @@ namespace Focus_Bear.Focus
                 }
             }
             dispatcherTimer.Stop();
+            appSettings.HideBlurWindow();
             Hide();
         }
 
@@ -469,6 +476,7 @@ namespace Focus_Bear.Focus
                 ProcessBrowserURLs.suppressURLForFirefox(HWND, sFullURLForBlockedPage, "focus"); //here we will send the full URL
             }
             dispatcherTimer.Stop();
+            appSettings.HideBlurWindow();
             Hide();
         }
 
@@ -504,6 +512,14 @@ namespace Focus_Bear.Focus
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
             }
+        }
+
+        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            //if(IsVisible)
+            //{
+            //    appSettings.ShowBlurWindow(HWND);
+            //}
         }
     }
 }

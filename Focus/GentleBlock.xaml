@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="Focus Bear"   Height="auto" Width="360" ResizeMode="NoResize">
+        Title="Focus Bear"   Height="auto" Width="360" ResizeMode="NoResize" >
     <Grid x:Name="MainGrid">
         <Grid.Resources>
             <ResourceDictionary>

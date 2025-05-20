@@ -1132,9 +1132,13 @@ namespace Focus_Bear
                         //Reposition 
                         SetTrayMenuPosition();
 
-                        //Show the Focusmode end dialog
-                        ((App)(Application.Current)).ShowFocusEndWindow();
+                        ((App)(Application.Current)).HideToDoPlayer();
 
+                        if (appSettings.bShowFocusModeEnd) //Only if the user have selected the setting to show Focus mode end window
+                        {
+                            //Show the Focusmode end dialog
+                            ((App)(Application.Current)).ShowFocusEndWindow();
+                        }
                     }
                     catch (Exception ex)
                     {

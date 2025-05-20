@@ -42,6 +42,22 @@ namespace Focus_Bear.SetIntention
         private const int TypingDelay = 500; // Delay in milliseconds after user stops typing
         private DateTime _lastKeyPressTime;
 
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        const int SW_SHOW = 5;
+
+        public void ForceForeground()
+        {
+            var hwnd = new WindowInteropHelper(this).Handle;
+
+            ShowWindow(hwnd, SW_SHOW);
+            SetForegroundWindow(hwnd);
+        }
+
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -231,9 +247,11 @@ namespace Focus_Bear.SetIntention
             }
 
             sHeading = sHeading.Replace("<SITE>", sActiveURL);
+            this.Topmost = true;
+
             this.Show(); //Will keep this window hidden will we get response from API
-           
-           
+            ForceForeground();
+
             Heading.Text = sHeading;
 
             if(bShowTimerAndWarning)
@@ -465,6 +483,8 @@ namespace Focus_Bear.SetIntention
             {
                 dispatcherTimerAutoBlock.Stop();
                 dispatcherTimerUnlock.Stop();
+
+                appSettings.HideBlurWindow();
             }
         }
 

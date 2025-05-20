@@ -29,7 +29,7 @@
         </Grid.RowDefinitions>
         <TextBlock  Grid.Row="0" Margin="0,10,0,0" Name="Heading" TextWrapping="Wrap" Text="xPrivacy and Security" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
 
-        <Image Grid.Row="1" Height="120"  Width="120" Source="../../Imafoges/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
+        <Image Grid.Row="1" Height="120"  Width="120" Source="../../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
         <TextBlock  Grid.Row="2" Name="Welcome" Margin="40,18,40,0" TextWrapping="Wrap" Text="xWe take your privacy and security very seriously and will never share your data ever."  FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="3" Name="Descriptiopn1" Margin="40,20,40,0" TextWrapping="Wrap" Text="xx🙈 We do not log which websites or apps you use.\n\n🔄 We do sync your habit data to our server but this is only to support cross device distraction blocking.\n\n🔒 Your data is encrypted and we don't let anyone else see it." FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
         <TextBlock x:Name="ViewPrivacy"  Grid.Row="4"  TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
