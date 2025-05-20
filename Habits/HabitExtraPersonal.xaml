@@ -19,35 +19,33 @@
         </Grid.Resources>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="200" />
+            <RowDefinition Height="80" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" MinHeight="70" />
-            <RowDefinition Height="Auto" MinHeight="180" />
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="180" />
 
 
         </Grid.RowDefinitions>
 
          <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xGEt Focused" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Image Grid.Row="1" x:Name="CrossHair"   Source="../Images/crosshair_transparent.png" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="180,0,180,0" MaxHeight="350"/>
-        <Viewbox Grid.Row="1" x:Name="ConatainerWebView" Stretch="Uniform" Visibility="Collapsed">
-            <DockPanel  Margin="0" Width="853" Height="505">
-                <wv2:WebView2 Name="webView" />
-            </DockPanel>
-        </Viewbox>
-        <TextBlock  Grid.Row="2" Name="Description" Margin="180,70,180,0" TextWrapping="Wrap" Text="xBefore you begin your routine, take 30 seconds to engage in \extrapersonal focus\: try your best to keep your eyes fixed on the target. Research from Balcetis and colleagues in 2020 indicates that concentrating on a visual point will sharpen your focus and increase the likelihood of completing your routine."  FontSize="21" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
+        <Grid Grid.Row="1" x:Name="ConatainerWebView" Visibility="Collapsed" >
+            <wv2:WebView2 Grid.Row="1"  Margin="50,10,50,0" Name="webView"  />
+        </Grid>
+        <TextBlock Grid.Row="2" Name="Description" Margin="50,0,50,0" TextWrapping="Wrap" Text="xBefore you begin your routine, take 30 seconds to engage in \extrapersonal focus\: try your best to keep your eyes fixed on the target. Research from Balcetis and colleagues in 2020 indicates that concentrating on a visual point will sharpen your focus and increase the likelihood of completing your routine."  FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
 
         <TextBlock  Grid.Row="3" x:Name="TxtTimer" Margin="0,0,0,80" TextWrapping="Wrap" Text="00:30" Padding="0" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" Height="30" VerticalAlignment="Bottom" />
         <StackPanel x:Name="LowerButtons" Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed">
             <Button IsDefault="True"  x:Name="btnStartACtivity"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="40"  MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold"  Click="btnStartACtivity_Click" Visibility="Visible">
-            <Button.Content>
-                <StackPanel  Orientation="Horizontal" >
-                        <TextBlock x:Name="btnStartACtivityTXT" Text="xxStart 5 minutes Yoga" Padding="20,0,20,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
-                </StackPanel>
-            </Button.Content>
-        </Button>
-        <TextBlock x:Name="SkipThisHabitText" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-             <Hyperlink x:Name="btnSkipThisHabit" Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
-        </TextBlock>
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal" >
+                            <TextBlock x:Name="btnStartACtivityTXT" Text="xxStart 5 minutes Yoga" Padding="20,0,20,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <TextBlock x:Name="SkipThisHabitText" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                 <Hyperlink x:Name="btnSkipThisHabit" Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
+            </TextBlock>
         </StackPanel>
     </Grid>
 

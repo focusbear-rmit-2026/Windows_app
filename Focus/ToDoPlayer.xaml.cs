@@ -95,14 +95,15 @@ namespace Focus_Bear.Focus
                 string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
 
                 string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"total_duration\":{1},lang:\"{2}\",\"font\":\"{3}\",\"theme\":{6},\"intention\":\"{4}\",\"brain_dump\":\"{5}\"}}", appSettings.userAccount.accessToken, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump,sTheme);
-<<<<<<< HEAD
 
-=======
+                if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 2)
+                {
+                    LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{3}\",\"font\":\"{4}\",\"theme\":{7},\"intention\":\"{5}\",\"brain_dump\":\"{6}\"}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump, sTheme);
+                }
                 
->>>>>>> main
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForToDoPlayer) {{ loadMetaDataForToDoPlayer({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
              
-                webView.ExecuteScriptAsync(LoadTokenFunc);
+                var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
             }
         }
         private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)

@@ -253,7 +253,8 @@ namespace Focus_Bear.Focus
                         sBreakMinutes = sBreakMinutes.Replace("5", appSettings.sMinutesBreakPomodoro);
                     }
                     btnTakeBreakText.Text = sBreakMinutes;
-                     string intentionText =  appSettings.sRunningFocusModeIntention ?? "";                                              
+                    string sFocusModeIntention =  appSettings.sRunningFocusModeIntention ?? "";
+                    string sIntention = "";
                     try
                     {
                         if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 2) //Now the empty array [] is returned
@@ -277,25 +278,25 @@ namespace Focus_Bear.Focus
                             dispatcherTimerShowTasksEndWindow.Interval = new TimeSpan(0, 0, 2);
                             dispatcherTimerShowTasksEndWindow.Start();
                             CommandManager.InvalidateRequerySuggested();
+                            
+                            string arrTaskNames = "";
+                            JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawTasks);
 
-
-                            if(intentionText.Length == 0)
+                            for (int i = 0; i < array.Count(); i++)
                             {
-                                string arrTaskNames = "";
-                                JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawTasks);
-
-                                for (int i = 0; i < array.Count(); i++)
-                                {
-                                    JObject TodoItem = JObject.Parse(array[i].ToString());
-                                    string sName = TodoItem.ContainsKey("title") ? TodoItem["title"].ToString() : "";
-                                    arrTaskNames += sName;
-                                    arrTaskNames += "\n";
-                                }
-                                 intentionText = arrTaskNames;
+                                JObject TodoItem = JObject.Parse(array[i].ToString());
+                                string sName = TodoItem.ContainsKey("title") ? TodoItem["title"].ToString() : "";
+                                arrTaskNames += sName;
+                                arrTaskNames += "\n";
                             }
+                            sIntention = arrTaskNames;
                         }
 
-                        TxtIntention.Text = intentionText;
+                        TxtIntention.Text = sIntention;
+                        if(sFocusModeIntention.Length > 0)
+                        {
+                            TxtIntention.Text = sIntention + "\n" + sFocusModeIntention;
+                        }
                     }
                     catch (Exception ex)
                     {
