@@ -314,6 +314,9 @@
     <Compile Include="Focus\AddTempAllowedToFocusModeWindow.xaml.cs">
       <DependentUpon>AddTempAllowedToFocusModeWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\BlurWindow\BlurWindow.xaml.cs">
+      <DependentUpon>BlurWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\BreakWindow.xaml.cs">
       <DependentUpon>BreakWindow.xaml</DependentUpon>
     </Compile>
@@ -677,6 +680,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\AddTempAllowedToFocusModeWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\BlurWindow\BlurWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
