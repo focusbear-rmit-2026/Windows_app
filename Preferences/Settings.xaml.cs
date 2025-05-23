@@ -303,6 +303,11 @@ namespace Focus_Bear.Preferences
             appSettings.nFocusBearMode = 0;//0 is Grizzly bear mode
         }
 
+        private void CuddlyMode_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.nFocusBearMode = 1;//1 is cuddly bear mode
+        }
+        
         private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
             ValidatePasswordMatch();
@@ -313,15 +318,10 @@ namespace Focus_Bear.Preferences
             ValidatePasswordMatch();
         }
 
-        private void CuddlyMode_Checked(object sender, RoutedEventArgs e)
-        {
-            appSettings.nFocusBearMode = 1;//1 is cuddly bear mode
-        }
-
 
         private void ValidatePasswordMatch()
         {
-            
+
             PasswordMismatchError.Visibility = Visibility.Collapsed;
 
             bool enableButton = !string.IsNullOrEmpty(TxtPassword.Password) &&
@@ -330,7 +330,7 @@ namespace Focus_Bear.Preferences
 
             btnSetPassword.IsEnabled = enableButton;
 
-        
+
             if (!string.IsNullOrEmpty(TxtPassword.Password) &&
                 !string.IsNullOrEmpty(TxtConfirmPassword.Password) &&
                 TxtPassword.Password != TxtConfirmPassword.Password)
