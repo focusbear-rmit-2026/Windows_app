@@ -50,7 +50,21 @@ namespace Focus_Bear.Preferences
         public Settings(PreferencesWindow pp)
         {
             InitializeComponent();
-            
+
+            MessageDisplay.Text = ""; // TODO: Windows text
+
+            MessageDisplay.Text = "Passwords do not match!"; // TODO: Windows text
+            MessageDisplay.Foreground = Brushes.Red;
+            MessageDisplay.Visibility = Visibility.Visible;
+
+            MessageDisplay.Text = "Please fill in all required fields."; // TODO: Windows text
+            MessageDisplay.Foreground = Brushes.Red;
+            MessageDisplay.Visibility = Visibility.Visible;
+
+            MessageDisplay.Text = "Password set successfully!"; // TODO: Windows text
+            MessageDisplay.Foreground = Brushes.Green;
+            MessageDisplay.Visibility = Visibility.Visible;
+
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
                 this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
@@ -74,7 +88,7 @@ namespace Focus_Bear.Preferences
                 GrizzlyModeDesc.Text = appSettings.ConfigFileStrings["preferencesInfo"]["descriptionGrizzlyBearText"].ToString();
 
                 Version.Text = appSettings.ConfigFileStrings["preferencesInfo"]["versionText"].ToString() + appSettings.AppVersion.ToString();
-               
+
                 btnExportStatisticsTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemExportStatisticsTitle"].ToString();
                 btnCheckForUpdatesTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemCheckForUpdatesTitle"].ToString();
 
@@ -119,11 +133,11 @@ namespace Focus_Bear.Preferences
                 Language.Items.Add(appSettings.ConfigFileStrings["languageInfo"]["languageEnglish"].ToString());
                 Language.Items.Add(appSettings.ConfigFileStrings["languageInfo"]["languageSpanish"].ToString());
 
-                if(appSettings.sLangCode == "en")
+                if (appSettings.sLangCode == "en")
                 {
                     Language.SelectedIndex = 0;
                 }
-                else if(appSettings.sLangCode == "es")
+                else if (appSettings.sLangCode == "es")
                 {
                     Language.SelectedIndex = 1;
                 }
@@ -146,7 +160,7 @@ namespace Focus_Bear.Preferences
                 else if (appSettings.sTheme == "Dark" && appSettings.bAutoTheme == false)
                 {
                     DarkMode.SelectedIndex = 1;
-                }else if (appSettings.bAutoTheme == true)
+                } else if (appSettings.bAutoTheme == true)
                 {
                     DarkMode.SelectedIndex = 2;
                 }
@@ -157,11 +171,11 @@ namespace Focus_Bear.Preferences
 
                 //Fonts related
                 SelectFont.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleFont"].ToString();
-                foreach(string sFont in appSettings.arrFontFamily)
+                foreach (string sFont in appSettings.arrFontFamily)
                 {
                     Fonts.Items.Add(sFont);
                 }
-                
+
                 Fonts.SelectionChanged -= Fonts_SelectionChanged;
                 Fonts.SelectedItem = appSettings.sSelectedAppFont;
                 Fonts.SelectionChanged += Fonts_SelectionChanged;
@@ -194,9 +208,9 @@ namespace Focus_Bear.Preferences
 
         void SetPasswordTabTexts()
         {
-            if(RegistryManager.GetUserPassword())
+            if (RegistryManager.GetUserPassword())
             {
-                if(appSettings.sUserPassword.Length > 0)
+                if (appSettings.sUserPassword.Length > 0)
                 {
                     appSettings.isPasswordSet = true;
                 }
@@ -292,7 +306,7 @@ namespace Focus_Bear.Preferences
         private void btnCheckForUpdates_Click(object sender, RoutedEventArgs e)
         {
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
-            LogWriter.LogWrite("btnCheckForUpdates_Click "  );
+            LogWriter.LogWrite("btnCheckForUpdates_Click ");
             ((App)(Application.Current)).CheckForUpdate(true);
             Mouse.OverrideCursor = null;
 
@@ -307,7 +321,7 @@ namespace Focus_Bear.Preferences
         {
             appSettings.nFocusBearMode = 1;//1 is cuddly bear mode
         }
-        
+
         private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
             ValidatePasswordMatch();
@@ -319,33 +333,66 @@ namespace Focus_Bear.Preferences
         }
 
 
+        private void ShowMessage(string text, Brush color)
+        {
+            MessageDisplay.Text = text;
+            MessageDisplay.Foreground = color;
+            MessageDisplay.Visibility = Visibility.Visible;
+        }
+
+
+
+
         private void ValidatePasswordMatch()
         {
+            MessageDisplay.Visibility = Visibility.Collapsed;
+            btnSetPassword.IsEnabled = false;
 
-            PasswordMismatchError.Visibility = Visibility.Collapsed;
+            string password = TxtPassword.Password;
+            string confirmPassword = TxtConfirmPassword.Password;
 
-            bool enableButton = !string.IsNullOrEmpty(TxtPassword.Password) &&
-                               !string.IsNullOrEmpty(TxtConfirmPassword.Password) &&
-                               TxtPassword.Password == TxtConfirmPassword.Password;
-
-            btnSetPassword.IsEnabled = enableButton;
-
-
-            if (!string.IsNullOrEmpty(TxtPassword.Password) &&
-                !string.IsNullOrEmpty(TxtConfirmPassword.Password) &&
-                TxtPassword.Password != TxtConfirmPassword.Password)
+            if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
             {
-                PasswordMismatchError.Visibility = Visibility.Visible;
+                ShowMessage("Please fill in all required fields.", Brushes.Red); // TODO: Windows text
+                return;
             }
+
+            if (password != confirmPassword)
+            {
+                ShowMessage("Passwords do not match!", Brushes.Red); // TODO: Windows text
+                return;
+            }
+
+            if (password == confirmPassword)
+            {
+                btnSetPassword.IsEnabled = true;
+                ShowMessage("Password set successfully!", Brushes.Green); // TODO: Windows text
+            }
+
+            
         }
+
 
         private void btnSetPassword_Click(object sender, RoutedEventArgs e)
         {
-            if (TxtPassword.Password != TxtConfirmPassword.Password)
+            if (string.IsNullOrEmpty(TxtPassword.Password) || string.IsNullOrEmpty(TxtConfirmPassword.Password))
             {
-                PasswordMismatchError.Visibility = Visibility.Visible;
+                ShowMessage("Please fill in all required fields.", Brushes.Red); // TODO: Windows text
                 return;
             }
+
+            if (TxtPassword.Password != TxtConfirmPassword.Password)
+            {
+                ShowMessage("Passwords do not match!", Brushes.Red); // TODO: Windows text
+                return;
+            }
+
+            if (TxtPassword.Password == TxtConfirmPassword.Password)
+            {
+                ShowMessage("Password set successfully!", Brushes.Green); // TODO: Windows text
+                btnSetPassword.IsEnabled = true;
+            }
+
 
             if (TxtPassword.Password.Length == 0)
             {

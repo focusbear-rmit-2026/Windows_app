@@ -190,13 +190,13 @@
                         </Grid>
 
                         <!-- Password Mismatch Error Message -->
-                        <TextBlock Grid.Row="5" x:Name="PasswordMismatchError" 
-           Margin="0,38,0,17" 
-           Text="Passwords do not match!" 
-           Foreground="Red" 
+                        <TextBlock Grid.Row="5" x:Name="MessageDisplay"
+           Margin="0,38,0,17"  
            FontSize="12" 
+           TextAlignment="Center"
+           Text="Passwords do not match!" 
            Visibility="Collapsed"
-           HorizontalAlignment="Center" Width="142" Grid.RowSpan="2"/>
+           HorizontalAlignment="Center" Width="180" Grid.RowSpan="2"/>
 
                         <!-- Set Password Button (moved to Row 7) -->
                         <Button Grid.Row="6" x:Name="btnSetPassword" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" MinHeight="27" Width="180" HorizontalAlignment="Center" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSetPassword_Click" Grid.RowSpan="2" Margin="0,17,0,0">
