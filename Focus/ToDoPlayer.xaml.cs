@@ -1,4 +1,4 @@
-﻿using Focus_Bear.Utils;
+using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
