@@ -2983,6 +2983,145 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        internal async Task<int> ResetPassword() // OK
+        {
+            LogWriter.LogWrite("ResetPassword()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string addItemJsonString = $"{{\"email\":\"{appSettings.userAccount.email}\"}}";
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        //Make the data for Focus Mode
+                        var response = await client.PostAsync("https://api.focusbear.io/auth/reset-password", content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                        {
+                            if (response.Content != null)
+                            {
+                                LogWriter.LogWrite("ResetPassword() GOT Success");
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("ResetPassword() FAILED" + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("ResetPassword WebException - " + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ResetPassword Exception - " + ex.Message);
+
+            }
+            return 0;
+        }
+
+        internal async Task<int> ResendConfirmationEmail() // OK
+        {
+            LogWriter.LogWrite("ResendConfirmationEmail()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string addItemJsonString = $"{{\"email\":\"{appSettings.userAccount.email}\"}}";
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        //Make the data for Focus Mode
+                        var response = await client.PostAsync("https://api.focusbear.io/auth/email-confirmation", content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                        {
+                            if (response.Content != null)
+                            {
+                                LogWriter.LogWrite("ResendConfirmationEmail() GOT Success");
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("ResendConfirmationEmail() FAILED" + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("ResendConfirmationEmail WebException - " + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ResendConfirmationEmail Exception - " + ex.Message);
+
+            }
+            return 0;
+        }
     }
 
 }

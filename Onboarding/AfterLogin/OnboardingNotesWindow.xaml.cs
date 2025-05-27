@@ -44,6 +44,27 @@ namespace Focus_Bear.Onboarding.AfterLogin
             var hWnd = new WindowInteropHelper(this);
             var sysMenu = GetSystemMenu(hWnd.Handle, false);
             EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            var isLightTheme = app.IsLightTheme();
+            if (appSettings.bAutoTheme)
+            {
+                if (source != null)
+                {
+                    app.UseImmersiveDarkMode(source.Handle, !isLightTheme);
+                }
+            }
+            else
+            {
+                if (appSettings.sTheme == "Light")
+                {
+                    app.UseImmersiveDarkMode(source.Handle, false);
+                }
+                else if (appSettings.sTheme == "Dark")
+                {
+                    app.UseImmersiveDarkMode(source.Handle, true);
+                }
+            }
         }
 
         AppSettings appSettings = AppSettings.GetInstance;
@@ -124,7 +145,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {
-                UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
             if (appSettings.sTheme == "Light")
             {
@@ -161,7 +182,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
                 selectedTheme = "Dark";
             }
             TitleBarThemeChange();
-            ((App)Application.Current).ChangeTheme(selectedTheme);
+            app.ChangeTheme(selectedTheme);
             RegistryManager.SetThemeMode();
 
         }
@@ -177,7 +198,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
             // Apply the correct theme at startup
             ChangeThemeByWindows();
             var isLightTheme = IsLightTheme();
-            UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
+            app.UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
         }
         private static bool IsLightTheme()
         {
@@ -185,24 +206,24 @@ namespace Focus_Bear.Onboarding.AfterLogin
             var value = key?.GetValue("AppsUseLightTheme");
             return value is int i && i > 0;
         }
-        private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
-        {
-            Version osVersion = Environment.OSVersion.Version;
-            bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
+        //private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
+        //{
+        //    Version osVersion = Environment.OSVersion.Version;
+        //    bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
 
-            if (isWindows10OrGreater)
-            {
-                var attribute = 20;
-                if (osVersion.Build >= 18985)
-                {
-                    attribute = 19;
-                }
+        //    if (isWindows10OrGreater)
+        //    {
+        //        var attribute = 20;
+        //        if (osVersion.Build >= 18985)
+        //        {
+        //            attribute = 19;
+        //        }
 
-                int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-            }
+        //        int useImmersiveDarkMode = enabled ? 1 : 0;
+        //        return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
     }
 }

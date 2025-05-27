@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -25,6 +27,10 @@ namespace Focus_Bear.Habits
         AppSettings appSettings = AppSettings.GetInstance;
         public ObservableCollection<HabitListSelectable> FilteredList = new ObservableCollection<HabitListSelectable>();
         public string sIDHabitToDo = "";
+        App app = (App)Application.Current;
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
         public ChooseAnotherHabit()
         {
         }
@@ -79,6 +85,8 @@ namespace Focus_Bear.Habits
                     string sID = appSettings.arrAllMorningHabits[i].id;
                     string sNo = string.Format("{0}.", (nSerialNo).ToString());
                     double nDurationSeconds = appSettings.arrAllMorningHabits[i].durationSeconds;
+                    if (!appSettings.arrAllMorningHabits[i].useTimer)
+                        nDurationSeconds = appSettings.nTimerValForNonTimerActivities;
                     var ActivityItem = new HabitListSelectable { id = sID, SNumber = sNo, ActivityName = sActivityName, nDuration = nDurationSeconds };
                     FilteredList.Add(ActivityItem);
                     nSerialNo++;
@@ -132,6 +140,9 @@ namespace Focus_Bear.Habits
                         string sID = appSettings.arrAllEveningHabits[i].id;
                         string sNo = string.Format("{0}.", (nSerialNo).ToString());
                         double nDurationSeconds = appSettings.arrAllEveningHabits[i].durationSeconds;
+                        if (!appSettings.arrAllEveningHabits[i].useTimer)
+                            nDurationSeconds = appSettings.nTimerValForNonTimerActivities;
+
                         var ActivityItem = new HabitListSelectable { id = sID, SNumber = sNo, ActivityName = sActivityName, nDuration = nDurationSeconds };
                         FilteredList.Add(ActivityItem);
                         nSerialNo++;
@@ -200,9 +211,45 @@ namespace Focus_Bear.Habits
             {
                 HabitListSelectable selectedItem = ListHabits.SelectedItem as HabitListSelectable;
                 string sButtonText = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                sButtonText = sButtonText.Replace("<TIME>", appSettings.SecondsToTextHMS((int)selectedItem.nDuration));
-                sButtonText = sButtonText.Replace("<NAME>", selectedItem.ActivityName);
+                int nDurationSeconds = (int)selectedItem.nDuration;
+                if (nDurationSeconds == appSettings.nTimerValForNonTimerActivities)//86400
+                {
+                    sButtonText = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
+                    sButtonText = sButtonText.Replace("<NAME>", selectedItem.ActivityName);
+                }
+                else
+                {
+                    sButtonText = sButtonText.Replace("<TIME>", appSettings.SecondsToTextHMS(nDurationSeconds));
+                    sButtonText = sButtonText.Replace("<NAME>", selectedItem.ActivityName);
+                }
+                
                 btnStartTXT.Text = sButtonText;
+            }
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            var isLightTheme = app.IsLightTheme();
+            if (appSettings.bAutoTheme)
+            {
+                if (source != null)
+                {
+                    app.UseImmersiveDarkMode(source.Handle, !isLightTheme);
+                }
+            }
+            else
+            {
+                if (appSettings.sTheme == "Light")
+                {
+                    app.UseImmersiveDarkMode(source.Handle, false);
+                }
+                else if (appSettings.sTheme == "Dark")
+                {
+                    app.UseImmersiveDarkMode(source.Handle, true);
+                }
             }
         }
     }
