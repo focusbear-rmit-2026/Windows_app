@@ -273,7 +273,7 @@ namespace Focus_Bear
                         }
                         else
                         {
-                            btnStopPomodoroModetxt.Text = "Stop Focus Session"; //todo win texts
+                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString(); //todo win texts
                         }
                     }
                     else
@@ -385,7 +385,7 @@ namespace Focus_Bear
                         }
                         else
                         {
-                            btnStopPomodoroModetxt.Text = "Stop Focus Session"; //todo win texts
+                            btnStopPomodoroModetxt.Text =  btnStopPomodoroModetxt.Text =  btnStopPomodoroModetxt.Text = "Stop Focus Session"; //todo win texts
                         }
                     }
                     else

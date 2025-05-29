@@ -48,12 +48,13 @@ namespace Focus_Bear.Onboarding
                 btnContinue.IsEnabled = false;
                 TxtOtherJob.Visibility = Visibility.Collapsed;
 
-                //todo win texts
-                RadioButton1.Content = "University student";// appSettings.ConfigFileStrings["askOccupationVcInfo"]["occupationStudent"].ToString();
-                RadioButton2.Content = "Business owner";// appSettings.ConfigFileStrings["askOccupationVcInfo"]["occupationBusinessOwner"].ToString();
-                RadioButton3.Content = "Employee";// appSettings.ConfigFileStrings["askOccupationVcInfo"]["occupationEmployee"].ToString();
-                RadioButton4.Content = "Freelancer";
-                RadioButton5.Content = "Other";// appSettings.ConfigFileStrings["askOccupationVcInfo"]["occupationOther"].ToString();
+         
+                RadioButton1.Content = appSettings.ConfigFileStrings["askOccupationVcInfo"]["occupationStudent"].ToString();
+                RadioButton2.Content = appSettings.ConfigFileStrings["askOccupationVcInfo"]["occupationBusinessOwner"].ToString();
+                RadioButton3.Content = appSettings.ConfigFileStrings["askOccupationVcInfo"]["occupationEmployee"].ToString();
+                RadioButton4.Content = appSettings.ConfigFileStrings["askOccupationVcInfo"]["occupationFreelancer"].ToString();
+                RadioButton5.Content = appSettings.ConfigFileStrings["askOccupationVcInfo"]["occupationOther"].ToString();
+
 
                 TitleUniversityStudent.Text = "Select level of study:";
                 Study1.Content = "High school";

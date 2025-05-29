@@ -69,8 +69,9 @@ namespace Focus_Bear.Preferences
                 btnJoinDiscordTXT.Text = appSettings.ConfigFileStrings["helpVcInfo"]["buttonJoinDiscordText"].ToString();
                 BtnDontUseDiscordTxt.Text = appSettings.ConfigFileStrings["helpVcInfo"]["buttonDontUseDiscordText"].ToString();
 
-                GetSupport.Header = "Get Support"; //todo win texts
-                Tutorials.Header = "Tutorials";// todo win texts
+                GetSupport.Header = appSettings.ConfigFileStrings["helpVcInfo"]["tabGetSupport"].ToString(); 
+                Tutorials.Header = appSettings.ConfigFileStrings["helpVcInfo"]["tabCourses"].ToString(); 
+
             }
             catch (Exception ex)
             {

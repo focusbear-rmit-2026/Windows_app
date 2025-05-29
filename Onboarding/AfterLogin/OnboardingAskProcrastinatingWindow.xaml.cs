@@ -54,10 +54,9 @@ namespace Focus_Bear.Onboarding.AfterLogin
 
             try
             {
-                //todo win texts
-                Heading.Text = "Time to do something difficult";
-                Description.Text = "What's something you've been procrastinating on? Focus Bear will help you get it done right after this.";
-
+                
+                Heading.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["title"].ToString();
+                Description.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["subTitle"].ToString();
                 btnLetsDoIt.IsEnabled = false;
 
                 appSettings.CapturePostHog("show_procrastinating_screen");
@@ -68,77 +67,85 @@ namespace Focus_Bear.Onboarding.AfterLogin
                 {
                     case "University student":
                         {
-                            btnFirstTxt.Text = "Start that essay (finally).";
-                            btnSecondTxt.Text = "Review lecture notes.";
-                            btnThirdTxt.Text = "Take lead in group project.";
+                            btnFirstTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentShortTextFirst"].ToString();
+                            btnSecondTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentShortTextSecond"].ToString();
+                            btnThirdTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentShortTextThird"].ToString();
+
                             break;
                         }
                     case "Business Owner":
                         {
-                            btnFirstTxt.Text = "Chase overdue invoices.";
-                            btnSecondTxt.Text = "Review financials.";
-                            btnThirdTxt.Text = "Respond to client emails.";
+                            btnFirstTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["businessOwnerShortTextFirst"].ToString();
+                            btnSecondTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["businessOwnerShortTextSecond"].ToString();
+                            btnThirdTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["businessOwnerShortTextThird"].ToString();
+
                             break;
                         }
                     case "Programmer":
                         {
-                            btnFirstTxt.Text = "Fix the sneaky bug.";
-                            btnSecondTxt.Text = "Refactor that mess.";
-                            btnThirdTxt.Text = "Write unit tests (ugh).";
+                            btnFirstTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["programmerShortTextFirst"].ToString();
+                            btnSecondTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["programmerShortTextSecond"].ToString();
+                            btnThirdTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["programmerShortTextThird"].ToString();
+
                             break;
                         }
                     case "Graphic designer":
                         {
-                            btnFirstTxt.Text = "Finish design.";
-                            btnSecondTxt.Text = "Update portfolio.";
-                            btnThirdTxt.Text = "Start new concept.";
+                            btnFirstTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["graphicDesignerShortTextFirst"].ToString();
+                            btnSecondTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["graphicDesignerShortTextSecond"].ToString();
+                            btnThirdTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["graphicDesignerShortTextThird"].ToString();
+
                             break;
                         }
                     case "Other work from office":
                         {
-                            btnFirstTxt.Text = "Clear out inbox.";
-                            btnSecondTxt.Text = "Finish the report.";
-                            btnThirdTxt.Text = "Declutter your desk.";
+                            btnFirstTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["officeWorkShortTextFirst"].ToString();
+                            btnSecondTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["officeWorkShortTextSecond"].ToString();
+                            btnThirdTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["officeWorkShortTextThird"].ToString();
+
                             break;
                         }
                     case "Non desk based work":
                         {
-                            btnFirstTxt.Text = "Finish design.";
-                            btnSecondTxt.Text = "Update portfolio.";
-                            btnThirdTxt.Text = "Start new concept.";
+                            btnFirstTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["fieldWorkShortTextFirst"].ToString();
+                            btnSecondTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["fieldWorkShortTextSecond"].ToString();
+                            btnThirdTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["fieldWorkShortTextThird"].ToString();
+
                             break;
                         }
                     case "Employee":
                         {
-                            btnFirstTxt.Text = "Update portfolio.";
-                            btnSecondTxt.Text = "Clear out inbox.";
-                            btnThirdTxt.Text = "Start new concept.";
+                            btnFirstTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["employeeShortTextFirst"].ToString();
+                            btnSecondTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["employeeShortTextSecond"].ToString();
+                            btnThirdTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["employeeShortTextThird"].ToString();
+
                             break;
                         }
                     case "Freelancer":
                         {
-                            btnFirstTxt.Text = "Finish client project.";
-                            btnSecondTxt.Text = "Update portfolio.";
-                            btnThirdTxt.Text = "Send proposal.";
+                            btnFirstTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["freelancerShortTextFirst"].ToString();
+                            btnSecondTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["freelancerShortTextSecond"].ToString();
+                            btnThirdTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["freelancerShortTextThird"].ToString();
+
                             break;
                         }
                     case "Other":
                         {
-                            btnFirstTxt.Text = "Start your tax return.";
-                            btnSecondTxt.Text = "Sort through receipts.";
-                            btnThirdTxt.Text = "Do a dreaded chore.";
+                            btnFirstTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["genericSuggestionsShortTextFirst"].ToString();
+                            btnSecondTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["genericSuggestionsShortTextSecond"].ToString();
+                            btnThirdTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["genericSuggestionsShortTextThird"].ToString();
                             break;
                         }
                     default:
                         {
-                            btnFirstTxt.Text = "Start that essay (finally).";
-                            btnSecondTxt.Text = "Review lecture notes.";
-                            btnThirdTxt.Text = "Take lead in group project.";
+                            btnFirstTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentShortTextFirst"].ToString();
+                            btnSecondTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentShortTextSecond"].ToString();
+                            btnThirdTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentShortTextThird"].ToString();
                             break;
                         }
 
                 }
-                btnLetsDoItTxt.Text = "Let's do this!";
+                btnLetsDoItTxt.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["buttonStartText" ].ToString();
             }
             catch (Exception ex)
             {

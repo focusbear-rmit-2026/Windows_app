@@ -86,8 +86,8 @@ namespace Focus_Bear.Preferences
                 BlockedURLTab.Header = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
                 AccountTab.Header = appSettings.ConfigFileStrings["common"]["tabAccountsText"].ToString();
 
-                //todo win texts
-                PomodoroTab.Header = "Focus Sessions";//appSettings.ConfigFileStrings["common"]["tabPomodoroText"].ToString();
+               
+                PomodoroTab.Header = appSettings.ConfigFileStrings["common"]["tabPomodoroText"].ToString();
                 AdvancedTab.Header = appSettings.ConfigFileStrings["common"]["tabAdvancedText"].ToString();
                 AITab.Header = appSettings.ConfigFileStrings["common"]["tabAIText"].ToString();
                 UninstallTab.Header = appSettings.ConfigFileStrings["common"]["tabUninstallText"].ToString();

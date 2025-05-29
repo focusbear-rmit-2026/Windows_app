@@ -76,7 +76,8 @@
     "buttonSelectHabitsText": "I don't have time for all these habits",
     "menuItemSelectHabitsText": "Select the habits to do from the list of all habits",
     "buttonTutorialText": "Tutorial",
-    "questionHowMotivatedText": "How motivated do you feel to do your habits?"
+    "questionHowMotivatedText": "How motivated do you feel to do your habits?",
+    "cutoffHabitPopupText": "Some habits which are past the cutoff time you set have been removed from the list."
   },
   "common": {
     "emailId": "support@focusbear.io",
@@ -912,7 +913,8 @@
     "title": "Super Distracting Sites",
     "invalidDomainText": "Adding * will block all urls. Please use another combination.",
     "subTitleText": "Which sites do you waste time on? Focus Bear will help you be more intentional about how you use these sites. They will be blocked during focus sessions. The rest of the time, Focus Bear will ask you why you want to use the site.",
-    "checkBoxText": "Immediately block super distracting sites"
+    "checkBoxText": "Immediately block super distracting sites",
+    "toolTipCheckboxBlockImmediately": "Uncheck this option to let Focus Bear help you be more intentional about how you use these sites by asking you why you want to use the site. Check this to immediately block sites without asking your intention."
   },
   "rememberNextHabitViewInfo": {
     "randomPhraseRightChoice1": "Right on!",
@@ -1096,7 +1098,9 @@
     "explainCreateAccountText": "Create an account to sync your habit + block settings across all your devices.",
     "tooltipShowPassword": "Show Password",
     "tooltipHidePassword": "Hide Password",
-    "passwordGenerateText": "We generated a password for you"
+    "passwordGenerateText": "We generated a password for you",
+    "makeSureSaveText": "Make sure you save it somewhere safe"
+
   },
   "loginHelpVcInfo": {
     "title": "An incognito window should open where you can Login or Register. If you don't see it, please try opening Safari manually. If you still can't see it",
@@ -1272,7 +1276,12 @@
     "gladText": "Glad you're as passionate about building routines as we are!",
     "selectGoalsText": "Select all that apply",
     "titleActivateFeatures": "Activate features",
-    "subTitleActivateFeatures": "We'll do our best to help you achieve your goals 🤩 Which Focus Bear features do you want to activate?"
+    "subTitleActivateFeatures": "We'll do our best to help you achieve your goals 🤩 Which Focus Bear features do you want to activate?",
+    "careMessageDoNotCare": "Ok no worries. We'll let you focus on focusing!",
+    "careMessageNotCommitted": "Got it. We won't activate the habit features for now but you can activate them later.",
+    "careMessageCommitted": "Cool. We'll let you set up your habits right away",
+    "activateHabitsLaterInfoText": "If you ever decide you want to activate habits in the future, you can open Preferences from the menu bar and click Edit Habits"
+
   },
   "toolBoxVcInfo": {
     "title": "The toolbox makes it easy to open the apps and websites that you've allowed in the <FOCUS_NAME> focus mode. You can access it from the Menu under Tools.",
@@ -1477,7 +1486,8 @@
     "titleSchedule": "Set your schedule",
     "wakeUpTimeText": "☀️ <WAKEUP_TIME> - Wake up",
     "questionWakeUpTimeText": "What time do you usually wake up?",
-    "infoWakeUpTimeText": "Choose the earliest time you wake up. You can start your morning routine at this time. Before then, your computer will be locked so you can sleep (you can unlock it in an emergency)."
+    "infoWakeUpTimeText": "Choose the earliest time you wake up. You can start your morning routine at this time. Before then, your computer will be locked so you can sleep (you can unlock it in an emergency).",
+    "infoText": "Focus Bear will detect when you are less active (based on not typing or moving your mouse) and suggest a break at that time. You can skip/postpone the breaks but your eyes and body will really appreciate it if you do take breaks!"
   },
   "welcomeVcInfo": {
     "descriptionFirstText": "Focus Bear helps you avoid distractions and build healthy habits.",
