@@ -156,64 +156,51 @@ namespace Focus_Bear.Focus
 
         private void btnEndFocus_Click(object sender, RoutedEventArgs e)
         {
-            FBMessageBox msgBox = new FBMessageBox(
-                "Are you sure you want to end the focus session early?",
-                "End Focus Session",
-                MessageBoxButton.YesNo,
-                btnYesText: "Yes",
-                btnNoText: "No"
-            );
+            LogWriter.LogWrite("btnEndFocus_Click - Stopping Focus Session");
 
-            msgBox.Owner = this;
-            msgBox.ShowDialog();
-
-            if (msgBox.btnClicked == MessageBoxResult.Yes)
+            try
             {
-                LogWriter.LogWrite("btnEndFocus_Click - Stopping Focus Session");
+                Hide();
 
-                try
+                var runningFocusModes = appSettings.arrFocusModes.Where(i => i.isOn == true);
+                if (!runningFocusModes.Any())
                 {
-                    Hide();
-
-                    var runningFocusModes = appSettings.arrFocusModes.Where(i => i.isOn == true);
-                    if (!runningFocusModes.Any())
-                    {
-                        LogWriter.LogWrite("No focus mode is currently running");
-                        return;
-                    }
-
-                    FocusMode currentRunningFocusMode = runningFocusModes.First();
-
-                    StopFocusMode stopDialog = new StopFocusMode();
-                    bool? dialogResult = stopDialog.ShowDialog();
-
-                    if (dialogResult.Value == false)
-                    {
-                        return;
-                    }
-                    currentRunningFocusMode.isOn = false;
-                    Sounds.PlayFocusModeEndSound();
-
-                    FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
-                    FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
-
-                    appSettings.bUseSuperPomodoroMode = false;
-
-                    appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                    appSettings.TemporarryBlockedURLsGentleBlock.Clear();
-
-                    appSettings.isFocusModeRunning = false;
-
-                    ((App)Application.Current).CloseFocusProgressWindow();
-
-                    ((App)(Application.Current)).HideToDoPlayer();
-
-                    LogWriter.LogWrite("Focus session stopped successfully");
+                    LogWriter.LogWrite("No focus mode is currently running");
+                    return;
                 }
-                catch (Exception ex)
+
+                FocusMode currentRunningFocusMode = runningFocusModes.First();
+
+                StopFocusMode stopDialog = new StopFocusMode();
+                bool? dialogResult = stopDialog.ShowDialog();
+
+                if (dialogResult.Value == false)
                 {
-                    LogWriter.LogWrite($"Error in btnEndFocus_Click: {ex.Message}");
+                    this.ShowDialog();
+                    return;
                 }
+                currentRunningFocusMode.isOn = false;
+                Sounds.PlayFocusModeEndSound();
+
+                FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
+
+                appSettings.bUseSuperPomodoroMode = false;
+
+                appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+                appSettings.isFocusModeRunning = false;
+
+                ((App)Application.Current).CloseFocusProgressWindow();
+
+                ((App)(Application.Current)).HideToDoPlayer();
+
+                LogWriter.LogWrite("Focus session stopped successfully");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite($"Error in btnEndFocus_Click: {ex.Message}");
             }
         }
 
