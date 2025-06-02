@@ -23,7 +23,14 @@
 
             <TextBlock Grid.Row="1" Name="OnUntill" TextWrapping="Wrap" Visibility="Visible" Margin="15,0,0,0"   VerticalAlignment="Top" TextAlignment="Left" Foreground="White" FontSize="14"  >Time remaining:  </TextBlock>
             <Label Grid.Row="2" Name="AlignmentScore"  Margin="13,0,0,0"   VerticalAlignment="Top"  Foreground="White" FontSize="14"  >xFocus score</Label>
-            
+            <Button x:Name="btnEndFocus"
+            Content="End Session"
+            Click="btnEndFocus_Click"
+            Style="{StaticResource BtnStyleLightOrange}" 
+            HorizontalAlignment="Left"
+            Cursor="Hand"
+            ToolTip="Click to end the focus session early"
+            Margin="233,36,0,11" Grid.Row="1" Width="81" Height="30" Grid.RowSpan="2"/>
         </Grid>
     </Border>
 </Window>

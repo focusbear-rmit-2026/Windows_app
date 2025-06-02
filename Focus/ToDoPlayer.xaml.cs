@@ -145,6 +145,57 @@ namespace Focus_Bear.Focus
             this.Hide();
         }
 
+        private void btnEndFocus_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnEndFocus_Click - Stopping Focus Session");
+
+            try
+            {
+                Hide();
+
+                var runningFocusModes = appSettings.arrFocusModes.Where(i => i.isOn == true);
+                if (!runningFocusModes.Any())
+                {
+                    LogWriter.LogWrite("No focus mode is currently running");
+                    return;
+                }
+
+                FocusMode currentRunningFocusMode = runningFocusModes.First();
+
+                StopFocusMode stopDialog = new StopFocusMode();
+                bool? dialogResult = stopDialog.ShowDialog();
+
+                if (dialogResult.Value == false)
+                {
+                    this.ShowDialog();
+                    return;
+                }
+                currentRunningFocusMode.isOn = false;
+                Sounds.PlayFocusModeEndSound();
+
+                FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
+
+                appSettings.bUseSuperPomodoroMode = false;
+
+                appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+                appSettings.isFocusModeRunning = false;
+
+                ((App)Application.Current).CloseFocusProgressWindow();
+
+                ((App)(Application.Current)).HideToDoPlayer();
+
+                LogWriter.LogWrite("Focus session stopped successfully");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite($"Error in btnEndFocus_Click: {ex.Message}");
+            }
+        }
+
+
         private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             try
