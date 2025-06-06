@@ -64,6 +64,8 @@ namespace Focus_Bear.Focus
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
             App.ThemeChanged += TitleBarThemeChange;
+
+            btnEndFocusLinkTXT.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonEndFocusSessionText"].ToString();
         }
 
         private async Task SetWebView()

@@ -311,6 +311,8 @@ namespace Focus_Bear.Utils
 
         public BlurWindow wndBlurWindow = null;
 
+        public string sUploadURL = "";
+
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
         {

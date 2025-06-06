@@ -416,11 +416,12 @@ namespace Focus_Bear.Quit
                 messageBox.ShowDialog();
                 if (messageBox.btnClicked == MessageBoxResult.Yes)
                 {
+                    this.IsEnabled = false;
+                    bool xResponseUnused = await UploadLogs.UploadLogsToServer(TxtExplanation.Text);
+                    this.IsEnabled = true;
+
                     //we will hide the window here
                     Hide();
-
-                    FocusBearAPIClient client = new FocusBearAPIClient();
-                    var sResponse = await client.PostAppLogs(TxtExplanation.Text);
                 }
 
                 //25-May-2023 - WE will not be showing the timer but easy fix is having 1 second invisible timer.
