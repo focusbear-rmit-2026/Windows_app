@@ -205,7 +205,7 @@ namespace Focus_Bear.Quit
             LogWriter.LogWrite("Restart app now for DEACTIVATE to take Effect!");
 
             appSettings.bRestartAppNeeded = true;
-
+            appSettings.bRestartAppNeededAfterDeactivating = true;
             Application.Current.Shutdown(0);
 
         }

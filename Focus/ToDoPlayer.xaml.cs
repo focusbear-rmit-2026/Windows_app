@@ -1,4 +1,4 @@
-﻿using Focus_Bear.Utils;
+using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
@@ -102,7 +102,6 @@ namespace Focus_Bear.Focus
                 {
                     LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{3}\",\"font\":\"{4}\",\"theme\":{7},\"intention\":\"{5}\",\"brain_dump\":\"{6}\"}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump, sTheme);
                 }
-
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForToDoPlayer) {{ loadMetaDataForToDoPlayer({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
              
                 var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
@@ -146,6 +145,57 @@ namespace Focus_Bear.Focus
             e.Cancel = true;
             this.Hide();
         }
+
+        private void btnEndFocus_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnEndFocus_Click - Stopping Focus Session");
+
+            try
+            {
+                Hide();
+
+                var runningFocusModes = appSettings.arrFocusModes.Where(i => i.isOn == true);
+                if (!runningFocusModes.Any())
+                {
+                    LogWriter.LogWrite("No focus mode is currently running");
+                    return;
+                }
+
+                FocusMode currentRunningFocusMode = runningFocusModes.First();
+
+                StopFocusMode stopDialog = new StopFocusMode();
+                bool? dialogResult = stopDialog.ShowDialog();
+
+                if (dialogResult.Value == false)
+                {
+                    this.ShowDialog();
+                    return;
+                }
+                currentRunningFocusMode.isOn = false;
+                Sounds.PlayFocusModeEndSound();
+
+                FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
+
+                appSettings.bUseSuperPomodoroMode = false;
+
+                appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+                appSettings.isFocusModeRunning = false;
+
+                ((App)Application.Current).CloseFocusProgressWindow();
+
+                ((App)(Application.Current)).HideToDoPlayer();
+
+                LogWriter.LogWrite("Focus session stopped successfully");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite($"Error in btnEndFocus_Click: {ex.Message}");
+            }
+        }
+
 
         private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {

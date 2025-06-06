@@ -16,7 +16,7 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -25,6 +25,7 @@
         <TextBlock Grid.Row="0" x:Name="EndFocusLink"  Margin="10,10,0,10" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
              <Hyperlink x:Name="btnEndFocusLink" Click="btnEndFocus_Click"   TextDecorations="Underline" ><Run x:Name="btnEndFocusLinkTXT" Text="xEnd Focus Session"/></Hyperlink>
         </TextBlock>
+
         <wv2:WebView2 Name="webView" Grid.Row="1"/>
     </Grid>
 </Window>

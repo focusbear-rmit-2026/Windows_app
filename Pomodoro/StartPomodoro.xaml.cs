@@ -37,7 +37,7 @@ namespace Focus_Bear.Pomodoro
             InitializeComponent();
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             this.Topmost = true;
-            App.FocusModeAddedEvent += AddFocusModesToComboBox;
+            App.FocusModeAddedDeletedEvent += AddFocusModesToComboBox;
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {

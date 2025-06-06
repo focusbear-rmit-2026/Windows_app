@@ -73,6 +73,8 @@ namespace Focus_Bear.Utils
         public static readonly string FocusBlockPagePath = Path.Combine(AppDataDirPath, "focus-block.html");
 
         public bool bRestartAppNeeded = false;
+        public bool bRestartAppNeededAfterDeactivating = false;
+        public bool bStartingAfterDeactivated = false;
         public string sMacAddress { get; set; }
         public string sGlobalUUID { get; set; }//Used initially for new users specifically to link later with distinct user ID
         public string sOSVersion { get; set; }
@@ -147,6 +149,7 @@ namespace Focus_Bear.Utils
         public string sUser_id;
         public string sUser_name;
         public string sUser_email;
+        public bool bEmailVerified = false;
 
         public string sUserLocalDeviceSettings; // All local user device settings.
 
@@ -1379,6 +1382,7 @@ namespace Focus_Bear.Utils
                             }
 
                         }
+                        bEmailVerified = UserSettings.ContainsKey("email_verified") ? Convert.ToBoolean(UserSettings["email_verified"]) : false;
 
                     }
                     catch (Exception ex)

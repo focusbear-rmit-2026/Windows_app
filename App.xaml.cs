@@ -57,7 +57,7 @@ namespace Focus_Bear
     public partial class App : Application
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        
         private const string MutexGUID = "369F3719-1C05-41A1-B9E1-FC0CF0FCE3AE";
 
         private const string EventMutex = "9E2C7FEB-476B-41D3-9F7F-D02C512595C0";
@@ -341,7 +341,7 @@ namespace Focus_Bear
         public ToDoList wndToDoList = null;
 
         bool bAppExtracted = false;
-        public static event Action FocusModeAddedEvent;
+        public static event Action FocusModeAddedDeletedEvent;
 
         public static event Action ThemeChanged;
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
@@ -395,9 +395,14 @@ namespace Focus_Bear
                     Task.Delay(900);
                     bStartingAfterReactivate = true;
                 }
+                else if (e.Args[0] == "/afterdeactivate")
+                {
+                    Task.Delay(900);
+                    appSettings.bStartingAfterDeactivated = true;
+                }
             }
 
-            if (!bStartingAfterReactivate)
+            if (!bStartingAfterReactivate || !appSettings.bStartingAfterDeactivated)
             {
                 try
                 {
@@ -525,9 +530,12 @@ namespace Focus_Bear
 
             ///
             //Show the splash window here
-            wndSplash = new SplashWindow();
-            LogWriter.LogWrite("Show SplashWindow()");
-            wndSplash.Show();
+            if (!appSettings.bStartingAfterDeactivated)
+            {
+                wndSplash = new SplashWindow();
+                LogWriter.LogWrite("Show SplashWindow()");
+                wndSplash.Show();
+            }
 
             var status = appSettings.DownloadBlockHTMLFile();
 
@@ -585,7 +593,10 @@ namespace Focus_Bear
                     trayIcon.BalloonTipText = "Focus Bear";
                     trayIcon.Visible = true;
 
-                    new TrayBalloon(0, appSettings.ConfigFileStrings["WindowsSpecific"]["runningbg"].ToString()).Show();
+                    if (!appSettings.bStartingAfterDeactivated)//do not show if starting after deactivated
+                    {
+                        new TrayBalloon(0, appSettings.ConfigFileStrings["WindowsSpecific"]["runningbg"].ToString()).Show();
+                    }
                     using (Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/Focus Bear;component/Images/focus-bear.ico")).Stream)
                     {
                         trayIcon.Icon = new System.Drawing.Icon(iconStream);
@@ -923,6 +934,12 @@ namespace Focus_Bear
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite("ShowBreakActivities()" + ex.Message);
+                }
+
+                if (wndHabits != null) //close any open window
+                {
+                    wndHabits.Close();
+                    wndHabits = null;
                 }
 
                 wndHabits = new HabitWindow();
@@ -3836,7 +3853,14 @@ namespace Focus_Bear
             if (appSettings.bRestartAppNeeded)
             {
                 string currentAppPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                Process.Start(currentAppPath, "/restartbyself");
+                if (appSettings.bRestartAppNeededAfterDeactivating)
+                {
+                    Process.Start(currentAppPath, "/afterdeactivate");
+                }
+                else
+                {
+                    Process.Start(currentAppPath, "/restartbyself");
+                }
                 LogWriter.LogWrite(" Process.Start FIRED!");
             }
         }
@@ -4437,9 +4461,9 @@ namespace Focus_Bear
             }
         }
         
-        public void FocusModeAdded()
+        public void FocusModeAddedOrDeleted()
         {
-            FocusModeAddedEvent?.Invoke();
+            FocusModeAddedDeletedEvent?.Invoke();
         } 
 
         public void ForceStopFocusSessionOnHabitsTime()

@@ -118,6 +118,8 @@ namespace Focus_Bear.Preferences
 
                         //call the API and remove from backend
                         FocusBearAPIClient client = new FocusBearAPIClient();
+                        
+                        ((App)Application.Current).FocusModeAddedOrDeleted();
 
                         LogWriter.LogWrite("attempt to AddFocusModeToArrayAndUploadtoAPI");
                         var response = client.DeleteFocusMode(selectedItem.id);
@@ -171,7 +173,7 @@ namespace Focus_Bear.Preferences
             {
                 //add to focus modes  array
                 appSettings.arrFocusModes.Add(ff);
-                ((App)Application.Current).FocusModeAdded();
+                ((App)Application.Current).FocusModeAddedOrDeleted();
 
                 //Select the new item in the FOcus list.
                 ListFocusModes.SelectedIndex = appSettings.arrFocusModes.Count() - 1;
@@ -748,7 +750,7 @@ namespace Focus_Bear.Preferences
                     selectedItem.name = sNewName;
 
                     appSettings.CapturePostHog("change-focus-mode-name");
-                    app.FocusModeAdded();
+                    app.FocusModeAddedOrDeleted();
                 }
                 else
                 {
@@ -756,7 +758,7 @@ namespace Focus_Bear.Preferences
                     ff.Owner = _ParentWindow;
                     ff.ShowDialog();
                     TxtFocusName.Text = selectedItem.name;
-                    app.FocusModeAdded();
+                    app.FocusModeAddedOrDeleted();
                 }
             }
 
