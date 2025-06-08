@@ -38,6 +38,9 @@ namespace Focus_Bear.API
 
         public static string SubscriptionInfo { get { return "https://api.focusbear.io/user/subscription"; } }
 
+        public static string UploadLogsURL { get { return "https://api.focusbear.io/app-logs/upload-logs-url?filename=Debug_Logs.txt.zip&mimetype=application/zip"; } }
+        public static string NotifyUploadLogsSuccessURL { get { return "https://api.focusbear.io/app-logs/notify-upload-success"; } }
+        
         internal async Task<int> RenewToken()
         {
             //Renew the token and check again
@@ -3119,6 +3122,143 @@ namespace Focus_Bear.API
             {
                 LogWriter.LogWrite("ResendConfirmationEmail Exception - " + ex.Message);
 
+            }
+            return 0;
+        }
+
+        internal async Task<int> GetUploadLogsURL() //OK
+        {
+            LogWriter.LogWrite("GetUploadLogsURL()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    var response = await client.GetAsync(UploadLogsURL);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            appSettings.sUploadURL = responseCode.ToString();
+
+                            LogWriter.LogWrite("GetUploadLogsURL() GOT Success");
+
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        //GetLastActivityInfo Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            JObject resJson = JObject.Parse(responseCode);
+                            string sErrorMessage = resJson["message"].ToString();
+                            LogWriter.LogWrite("GetUploadLogsURL() FAILED - " + sErrorMessage);
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetUploadLogsURL WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetUploadLogsURL Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+        internal async Task<int> NotifyUploadLogsSuccess(string sFeedback, string sUploadURL) //OK
+        {
+            LogWriter.LogWrite("NotifyUploadLogsSuccess()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string addItemJsonString = $"{{\"feedback_message\":\"{sFeedback}\"," +
+                        $"\"app_platform\":\"windows\"," +
+                         $"\"uploaded_file_url\":\"{sUploadURL}\"," +
+                        $"\"app_version\":\"{ appSettings.AppVersion.ToString()}\"}}";
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        var response = await client.PostAsync(NotifyUploadLogsSuccessURL, content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                        {
+                            LogWriter.LogWrite("NotifyUploadLogsSuccess() SUCCESS");
+
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("NotifyUploadLogsSuccess() FAILED - " + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("NotifyUploadLogsSuccess WebException" + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("NotifyUploadLogsSuccess Exception" + ex.Message);
             }
             return 0;
         }

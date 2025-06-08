@@ -32,7 +32,7 @@ namespace Focus_Bear.Preferences
     {
         AppSettings appSettings = AppSettings.GetInstance;
         PreferencesWindow _ParentWindow = null;
-       
+
         public EditHabits()
         {
         }

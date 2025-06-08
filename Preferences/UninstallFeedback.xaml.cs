@@ -121,11 +121,10 @@ namespace Focus_Bear.Preferences
                     btnUninstall.IsEnabled = false;
                     btnCancel.IsEnabled = false;
                     ComboBoxReason.IsEnabled = false;
-                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
 
-                    FocusBearAPIClient client = new FocusBearAPIClient();
-                    var sResponse = await client.PostAppLogs(sUninstallDesc);
-                    Mouse.OverrideCursor = null;
+                    this.IsEnabled = false;
+                    bool xResponseUnused = await UploadLogs.UploadLogsToServer(TxtFeedback.Text);
+                    this.IsEnabled = true;
                 }
             }
 

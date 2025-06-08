@@ -6,33 +6,26 @@
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
-        Title="Focus Bear"  Height="900" Width="680" MinHeight="120" MinWidth="270" Topmost="True" Closing="Window_Closing"  WindowStartupLocation="CenterScreen" >
+        Title="Focus Bear"  Height="650" Width="680" MinHeight="120" MinWidth="270" Topmost="True" Closing="Window_Closing" >
     <Grid Background="{ DynamicResource BackgroundColor}">
+
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="../Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal"
-                    Grid.Row="0"
-                    Margin="10">
-            <TextBlock Grid.Row="3" Margin="20,0,20,0" 
-           VerticalAlignment="Center" 
-           HorizontalAlignment="Center" 
-           FontSize="14" 
-           Cursor="Hand">
-    <Hyperlink x:Name="btnEndFocusLink" 
-               Click="btnEndFocus_Click" 
-               TextDecorations="None" 
-               Foreground="#F70D1A"
-               FontWeight="DemiBold"
-               FontSize="18"
-               >
-        <Run Text="End Focus Session"/>
-    </Hyperlink>
-            </TextBlock>
+        <TextBlock Grid.Row="0" x:Name="EndFocusLink"  Margin="10,10,0,10" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+             <Hyperlink x:Name="btnEndFocusLink" Click="btnEndFocus_Click"   TextDecorations="Underline" ><Run x:Name="btnEndFocusLinkTXT" Text="xEnd Focus Session"/></Hyperlink>
+        </TextBlock>
 
-        </StackPanel>
         <wv2:WebView2 Name="webView" Grid.Row="1"/>
     </Grid>
 </Window>
