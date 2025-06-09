@@ -36,18 +36,18 @@
 
         <TextBlock  Grid.Row="3" Name="WhyDeactivating" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxCan you share why you are deactivating?" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <ComboBox Name="ComboBoxReason"  Grid.Row="4" Width="360" MinHeight="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxReason_SelectionChanged" >
+        <ComboBox Name="ComboBoxReason" AutomationProperties.AutomationId="cmbReason" Grid.Row="4" Width="360" MinHeight="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxReason_SelectionChanged" >
         </ComboBox>
 
         <StackPanel  Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-            <Button  x:Name="btnCancel"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="130" MinHeight="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,10,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click">
+            <Button  x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="130" MinHeight="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,10,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnCancelText" Margin="8" Text="xCancel" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  x:Name="btnStopFocus"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   MinHeight="43" HorizontalContentAlignment="Center" Padding="0" Margin="15,10,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStopFocus_Click">
+            <Button  x:Name="btnStopFocus" AutomationProperties.AutomationId="btnStopFocus"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   MinHeight="43" HorizontalContentAlignment="Center" Padding="0" Margin="15,10,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStopFocus_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnStopFocusText" Margin="15,0,15,0" Text="xDeactivate Focus Block" Style="{DynamicResource ButtonTextBlockStyle}"/>
