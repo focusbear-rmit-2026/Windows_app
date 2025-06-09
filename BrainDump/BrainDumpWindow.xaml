@@ -22,7 +22,7 @@
         <StackPanel Grid.Row="0" Orientation="Vertical" Margin="20,20,20,5" >
             <TextBlock   Name="DumpDown" Margin="0,0,0,5"   TextWrapping="Wrap" Text="xxDump down ideas you have so you don't forget - anything you write here will remain forever unless you delete it."  FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
         </StackPanel>
-        <TextBox Grid.Row="1" Margin="20,0,20,10"   Name="TxtDumpDown" TextWrapping="Wrap" AcceptsReturn="True"   FontSize="14" VerticalAlignment="Stretch"  VerticalScrollBarVisibility="Auto" >
+        <TextBox Grid.Row="1" Margin="20,0,20,10"   Name="TxtDumpDown" AutomationProperties.AutomationId="txtBoxDumpDown" TextWrapping="Wrap" AcceptsReturn="True"   FontSize="14" VerticalAlignment="Stretch"  VerticalScrollBarVisibility="Auto" >
             <TextBox.Effect>
                 <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -42,7 +42,7 @@
             </TextBox.FocusVisualStyle>
         </TextBox>
 
-        <Button  Grid.Row="2" x:Name="btnSave"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="24" Width="100" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnSave_Click" >
+        <Button  Grid.Row="2" x:Name="btnSave" AutomationProperties.AutomationId="btnSave"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="24" Width="100" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnSave_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnSaveTXT" Text="xSave" Foreground="Black"/>
