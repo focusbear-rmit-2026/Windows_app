@@ -207,7 +207,7 @@ namespace Focus_Bear.Onboarding
 
             string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForRoutineSuggestion) {{ loadMetaDataForRoutineSuggestion({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
 
-            var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
+            webView.ExecuteScriptAsync(LoadTokenFunc);
         }
 
     }
