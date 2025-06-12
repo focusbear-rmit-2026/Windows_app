@@ -7,7 +7,25 @@
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
         Title="Focus Bear"  Height="650" Width="680" MinHeight="120" MinWidth="270" Topmost="True" Closing="Window_Closing" >
-    <Grid>
-        <wv2:WebView2 Name="webView" />
+    <Grid Background="{ DynamicResource BackgroundColor}">
+
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="../Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" x:Name="EndFocusLink"  Margin="10,10,0,10" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+             <Hyperlink x:Name="btnEndFocusLink" Click="btnEndFocus_Click"   TextDecorations="Underline" ><Run x:Name="btnEndFocusLinkTXT" Text="xEnd Focus Session"/></Hyperlink>
+        </TextBlock>
+
+        <wv2:WebView2 Name="webView" Grid.Row="1"/>
     </Grid>
 </Window>

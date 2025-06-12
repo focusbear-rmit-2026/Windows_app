@@ -58,13 +58,46 @@
             <TabItem Name="ReportProblemTab" AutomationProperties.AutomationId="tabReportProblem" Header="xReport Problem" Style="{DynamicResource TabItemStyle}">
                 <Grid Margin="20" Background="{DynamicResource SoftCreamColor}">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="120"/>
+                        <RowDefinition Height="50"/>
                     </Grid.RowDefinitions>
                     <TextBlock  Grid.Row="0" Name="Heading" Margin="20,20,20,0"   Text="xFocus Bear is still a new app and you might encounter issues (or have great ideas on how to make it better). We'd really appreciate your feedback. You can email us at team@focusbear.io. Screenshots are really helpful to let us understand the problem. Also if you had a problem, please export your logs (use the link below) and attach it to the email." TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+
                     <TextBlock Grid.Row="1" x:Name="ExportLogs" AutomationProperties.AutomationId="txtExportLogs" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15"  Cursor="Hand">
                          <Hyperlink x:Name="btnExportLogs" Click="btnExportLogs_Click"   TextDecorations="Underline"  ><Run x:Name="btnExportLogsTXT" Text="xClick here to export logs to share with Support Team."/></Hyperlink>
                     </TextBlock>
+
+                    <TextBlock  Grid.Row="1" Name="WhatHappened" Margin="20,10,0,0"   Text="xWhat Happened?" TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+                    <TextBox  Grid.Row="2" Name="TxtFeedback" AutomationProperties.AutomationId="txtBoxFeedback" TextWrapping="Wrap" AcceptsReturn="True"  Height="90"   VerticalAlignment="Top"  FontSize="15" Margin="20,10,20,20">
+                        <TextBox.Effect>
+                            <DropShadowEffect ShadowDepth="3"
+                              Direction="330"
+                              Color="Gray"
+                              Opacity="0.5"
+                              BlurRadius="6"
+                               />
+                        </TextBox.Effect>
+                        <TextBox.FocusVisualStyle>
+                            <Style>
+                                <Setter Property="Control.Template">
+                                    <Setter.Value>
+                                        <ControlTemplate/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </TextBox.FocusVisualStyle>
+                    </TextBox>
+
+                    <Button   Grid.Row="3"  x:Name="ExportLogs" AutomationProperties.AutomationId="btnExportLogs"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" MinWidth="200" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnExportLogs_Click" >
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock x:Name="btnExportLogsTXT" Margin="20,0,20,0" Text="xxClick here to export logs to share with Support Team." Style="{DynamicResource ButtonTextBlockStyle}"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+
                 </Grid>
             </TabItem>
         </TabControl>

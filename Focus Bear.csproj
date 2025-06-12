@@ -671,6 +671,7 @@
     <Compile Include="Utils\TrayBalloon.xaml.cs">
       <DependentUpon>TrayBalloon.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\UploadLogs.cs" />
     <Page Include="BrainDump\BrainDumpWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

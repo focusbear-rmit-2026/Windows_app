@@ -113,17 +113,7 @@ namespace Focus_Bear.Onboarding
         {
             if (e.IsSuccess)
             {
-                string sTheme = appSettings.sTheme == "Light" ? "LIGHT" : "DARK";
-                string sStayFoucs = appSettings.bGoalStayFocused == true ? "Stay focused at work" : "";
-                LogWriter.LogWrite("appSettings.sCustomGoalSelected: " + appSettings.sCustomGoalSelected);
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":\"{4}\",\"long_term_goals\":[\"{3}\"]}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected, sTheme);
-                //string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":\"{4}\",\"long_term_goals\":[\"{3}\"]}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected + sStayFoucs, sTheme);
-
-                LogWriter.LogWrite("LoadToken: " + LoadToken);
-
-                string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForRoutineSuggestion) {{ loadMetaDataForRoutineSuggestion({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
-
-                var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
+                InitJsExec();
             }
         }
 
@@ -142,7 +132,7 @@ namespace Focus_Bear.Onboarding
 
 
                 string sContent = e.WebMessageAsJson;
-                if(sContent == "routine-suggestions-installed-successfully" || sContent == "\"routine-suggestions-installed-successfully\"")
+                if (sContent == "routine-suggestions-installed-successfully" || sContent == "\"routine-suggestions-installed-successfully\"")
                 {
                     //Get User Settings
                     FocusBearAPIClient client = new FocusBearAPIClient();
@@ -184,7 +174,9 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else //just navigating the steps
+                else if (sContent == "invoke-js-function") {
+                    InitJsExec();
+                } else //just navigating the steps
                 {
                     JObject sContentJson = JObject.Parse(sContent);
                     if (sContentJson.ContainsKey("step"))
@@ -202,6 +194,20 @@ namespace Focus_Bear.Onboarding
         private void Page_Theme()
         {
             app.ApplyThemeToPage(this);
+        }
+
+        private void InitJsExec()
+        {
+            string sTheme = appSettings.sTheme == "Light" ? "LIGHT" : "DARK";
+            string sStayFocus = appSettings.bGoalStayFocused == true ? "Stay focused at work" : "";
+            LogWriter.LogWrite("appSettings.sCustomGoalSelected: " + appSettings.sCustomGoalSelected);
+            string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":\"{4}\",\"long_term_goals\":[\"{3}\"]}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected, sTheme);
+
+            LogWriter.LogWrite("LoadToken: " + LoadToken);
+
+            string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForRoutineSuggestion) {{ loadMetaDataForRoutineSuggestion({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
+
+            webView.ExecuteScriptAsync(LoadTokenFunc);
         }
 
     }

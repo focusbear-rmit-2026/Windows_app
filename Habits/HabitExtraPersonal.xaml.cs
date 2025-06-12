@@ -332,8 +332,9 @@ namespace Focus_Bear.Habits
         {
             if (e.IsSuccess)
             {
+                string sFlags = string.Format("[\"{0}\"]", "migrate-stats-to-motivational-summary");
                 string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3},\"motivation_type\":\"desktop\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode,sTheme);
+                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3},\"flags\":{4},\"motivation_type\":\"desktop\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode,sTheme,sFlags);
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForInspirationPage) {{ loadAccessTokenForInspirationPage({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
 
                 var sReturn = webView.ExecuteScriptAsync(settingsFunc);

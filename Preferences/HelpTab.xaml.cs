@@ -1,10 +1,12 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.API;
+using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -57,8 +59,9 @@ namespace Focus_Bear.Preferences
 
             try
             {
-                Heading.Text = appSettings.ConfigFileStrings["preferencesInfo"]["helpText"].ToString();
-                btnExportLogsTXT.Text = appSettings.ConfigFileStrings["preferencesInfo"]["buttonExportLogsText"].ToString();
+                Heading.Text = appSettings.ConfigFileStrings["helpVcInfo"]["shareLogsText"].ToString();
+                btnExportLogsTXT.Text = appSettings.ConfigFileStrings["helpVcInfo"]["buttonShareLogsText"].ToString();
+                WhatHappened.Text = appSettings.ConfigFileStrings["helpVcInfo"]["placeHolderLogsFeedback"].ToString();
 
                 ReportProblemTab.Header = appSettings.ConfigFileStrings["preferencesInfo"]["tabReportProblemText"].ToString();
                 
@@ -78,43 +81,14 @@ namespace Focus_Bear.Preferences
             }
 
         }
-        private void btnExportLogs_Click(object sender, RoutedEventArgs e)
+        private async void btnExportLogs_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-               
-                var folderBrowserDialog1 = new FolderBrowserDialog();
-                folderBrowserDialog1.Description = appSettings.ConfigFileStrings["preferencesInfo"]["panelExportLogsText"].ToString();
-
-                // Show the FolderBrowserDialog.
-                DialogResult result = folderBrowserDialog1.ShowDialog();
-                if (result == DialogResult.OK)
-                {
-                    string folderName = folderBrowserDialog1.SelectedPath;
-                    string startPath = AppSettings.AppDataDirLogsPath;
-                    string zipPath = folderName + "\\FocusBearLogs.zip";
-
-                    if (File.Exists(zipPath))
-                    {
-                        Global.DeleteFile(zipPath, false);
-                    }
-
-                    ZipFile.CreateFromDirectory(startPath, zipPath, CompressionLevel.Fastest, false);
-                    string ss = appSettings.ConfigFileStrings["preferencesInfo"]["exportSuccessText"].ToString();
-                    ///MessageBox.Show(ss.Replace("<URL>", folderName), "Focus Bear");
-                    FBMessageBox ff = new FBMessageBox(ss.Replace("<URL>", folderName), "Focus Bear");
-                    ff.Owner = _ParentWindow;
-                    ff.ShowDialog();
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("HelpTab btnExportLogs_Click ex -" + ex.Message);
-            }
+            _ParentWindow.IsEnabled = false;
+            bool xResponseUnused = await UploadLogs.UploadLogsToServer(TxtFeedback.Text);
+            _ParentWindow.IsEnabled = true;
         }
 
+        
         private async Task SetWebViewGetSupport()
         {
             try
@@ -143,7 +117,7 @@ namespace Focus_Bear.Preferences
                 Mouse.OverrideCursor = null;
                 LogWriter.LogWrite("get support CoreWebView2NavigationCompleted() Success, Load Access token");
                 string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",theme:\"{3}\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme);
+                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme);
                 string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataFoGetSupport) {{ loadMetaDataFoGetSupport({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                 var ss = webViewGetSupport.ExecuteScriptAsync(settingsFunc);
 
