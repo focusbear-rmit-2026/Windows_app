@@ -202,7 +202,6 @@ namespace Focus_Bear.Onboarding
             string sStayFoucs = appSettings.bGoalStayFocused == true ? "Stay focused at work" : "";
             LogWriter.LogWrite("appSettings.sCustomGoalSelected: " + appSettings.sCustomGoalSelected);
             string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":\"{4}\",\"long_term_goals\":[\"{3}\"]}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected, sTheme);
-            //string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":\"{4}\",\"long_term_goals\":[\"{3}\"]}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected + sStayFoucs, sTheme);
 
             LogWriter.LogWrite("LoadToken: " + LoadToken);
 
