@@ -37,7 +37,8 @@ namespace Focus_Bear.Onboarding
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["title"].ToString();
-                Desc.Text = "If you ever decide you want to activate habits in the future, you can open Preferences from the menu bar and click Edit Habits"; //todo win texts
+                Desc.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["activateHabitsLaterInfoText"].ToString(); //If you ever decide you want to activate habits in the future, you can open Preferences from the menu bar and click Edit Habits
+
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
 
                 //Let's set the intial startup time / shutoff time when no habits are there so defaulting to maximum time

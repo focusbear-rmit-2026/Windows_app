@@ -1,4 +1,5 @@
 {
+
     "welcomeInfo": {
         "welcomeMessageHeading": "Let’s do a quick 30 seconds microbreak",
         "welcomeMessageIntro": "Every morning, I will help you silence your urge to check email/Facebook and help you to do your morning routine instead.\n\nLet’s try out some sample habits (deep breathing/stretching).\n\nWhile you breathe deeply/stretch, think of how awesome you’ll be if you stick to your morning routine every day.",
@@ -29,6 +30,8 @@
         "breaksEnabledText": "This is what your micro breaks and morning/evening habits will be like.",
         "breaksDisabledText": "You don’t have breaks activated but this is what your morning/evening routine will be like.",
         "descriptionHabitsText": "Each habit has a countdown timer and if it makes sense, an embedded Youtube video. You can edit your habits later."
+
+
     },
     "activityInfo": {
         "startMorningHabitTitleText": "Good Morning! Here are the habits to kick off an awesome day.",

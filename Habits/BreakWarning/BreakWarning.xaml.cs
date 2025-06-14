@@ -126,7 +126,7 @@ namespace Focus_Bear.Habits
                 Description.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["titleWIN"].ToString();
                 PostponeMinsText.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["titleSelectMinutes"].ToString();
                 BreakDescText.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["descriptionText"].ToString();
-                btnStartBreakNowTXT.Text = "Start micro break now";//todo win texts
+                btnStartBreakNowTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonStartBreakNowText"].ToString(); //"Start micro break now"
 
                 ComboBoxMinutes.SelectedIndex = 5; //30 minutes
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;

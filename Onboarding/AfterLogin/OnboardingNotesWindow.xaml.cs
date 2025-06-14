@@ -89,10 +89,10 @@ namespace Focus_Bear.Onboarding.AfterLogin
                 btnPlayVideoTxt.Text = appSettings.ConfigFileStrings["askOnboardingVideoVcInfo"]["buttonPlayText"].ToString();
                 btnNoThanksText.Text = appSettings.ConfigFileStrings["askOnboardingVideoVcInfo"]["buttonNoThanksText"].ToString();
 
-                //todo win texts
-                HeadingWantFeedback.Text = "We want your feedback"; //onboardingFeedbackVcInfo
-                DescriptionWantFeedback.Text = "We're a small independent team, not a faceless mega-corporation. Focus Bear is still a new app and we really want your feedback. If you have suggestions, please email support@focusbear.io.";
-                btnContinueFeedbackTxt.Text = appSettings.ConfigFileStrings["howHeardVcInfo"]["buttonContinueText"].ToString(); //appSettings.ConfigFileStrings["onboardingFeedbackVcInfo"]["buttonContinueText"].ToString();
+                HeadingWantFeedback.Text = appSettings.ConfigFileStrings["onboardingFeedbackVcInfo"]["title"].ToString();
+                DescriptionWantFeedback.Text = appSettings.ConfigFileStrings["onboardingFeedbackVcInfo"]["subTitle"].ToString();
+                btnContinueFeedbackTxt.Text = appSettings.ConfigFileStrings["onboardingFeedbackVcInfo"]["buttonContinueText"].ToString();
+
 
             }
             catch (Exception ex)

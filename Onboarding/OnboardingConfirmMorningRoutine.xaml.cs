@@ -59,7 +59,7 @@ namespace Focus_Bear.Onboarding
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("OnboardingAskWorkTime() ex - " + ex.Message); //Todo Win Texts
+                LogWriter.LogWrite("OnboardingAskWorkTime() ex - " + ex.Message); 
 
                 Heading.Text = "Confirm your morning routine";
                 ToBeClearDesc.Text = "To be super clear, here's what's going to happen in the morning.";

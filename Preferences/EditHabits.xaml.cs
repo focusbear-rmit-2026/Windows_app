@@ -63,7 +63,7 @@ namespace Focus_Bear.Preferences
                         "warning":"Warning",
                         "continue":"Continue",
                         "cancel":"Cancel"*/ 
-                        //todo win texts
+                        
                         FBMessageBox messageBox = new FBMessageBox("You are about to close the Edit habits menu. If you have made any changes, please tap the \"Save Habits\" button.", "Warning", MessageBoxButton.YesNo, appSettings.ConfigFileStrings["common"]["buttonContinueText"].ToString(), appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString());
                         messageBox.Owner = _ParentWindow;
                         messageBox.ShowDialog();
