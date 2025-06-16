@@ -70,7 +70,7 @@
                    
                 </DockPanel>
             </Grid>
-            <CheckBox Grid.Row="3" x:Name="ImmediatelyBlockDistractingURLs" AutomationProperties.AutomationId="cbImmediatelyBlockDistractingURLs" Cursor="Hand" Margin="20,0,20,0" FontSize="13"    Checked="ImmediatelyBlockDistractingURLs_Checked" Unchecked="ImmediatelyBlockDistractingURLs_Unchecked" Visibility="Visible">
+            <CheckBox Grid.Row="3" x:Name="ImmediatelyBlockDistractingURLs" AutomationProperties.AutomationId="chkImmediatelyBlockDistractingURLs" Cursor="Hand" Margin="20,0,20,0" FontSize="13"    Checked="ImmediatelyBlockDistractingURLs_Checked" Unchecked="ImmediatelyBlockDistractingURLs_Unchecked" Visibility="Visible">
                 <TextBlock x:Name="ImmediatelyBlockDistractingURLsText" TextWrapping="Wrap" Padding="3,0">xImmediately block super distracting sites</TextBlock>
             </CheckBox>
             

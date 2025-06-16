@@ -41,7 +41,7 @@
                     <TextBlock x:Name="EnableMeetingDetection" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEnable meeting detection</TextBlock>
                     <TextBlock x:Name="EnableMeetingDetectionDesc" Margin="0,0,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEnable meeting detection to automatically suggest starting \"Meetings\" focus mode when Focus Bear detects you are in a call.</TextBlock>
                 </StackPanel>
-                <ToggleButton Grid.Column="1" x:Name="btnEnableMeetingDetection"  Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableMeetingDetection_Checked" Unchecked="btnEnableMeetingDetection_Unchecked" />
+                    <ToggleButton Grid.Column="1" x:Name="btnEnableMeetingDetection" AutomationProperties.AutomationId="tglEnableMeetingDetection"  Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableMeetingDetection_Checked" Unchecked="btnEnableMeetingDetection_Unchecked" />
 
             </Grid>
 
@@ -56,7 +56,7 @@
                     <TextBlock x:Name="SuggestStartMeetings" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xAutomatically suggest starting \"Meetings\" focus mode</TextBlock>
                     <TextBlock x:Name="SuggestStartMeetingsDesc" Margin="0,0,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xWhen you start a video call, Focus Bear can prompt you to start the Meeting focus mode to help you stay focused during the meeting.</TextBlock>
                 </StackPanel>
-                <ToggleButton Grid.Column="1" x:Name="btnSuggestStartMeetingsFocus"  Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnSuggestStartMeetingsFocus_Checked" Unchecked="btnSuggestStartMeetingsFocus_Unchecked" />
+                    <ToggleButton Grid.Column="1" x:Name="btnSuggestStartMeetingsFocus" AutomationProperties.AutomationId="tglSuggestStartMeetingsFocus" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnSuggestStartMeetingsFocus_Checked" Unchecked="btnSuggestStartMeetingsFocus_Unchecked" />
             </Grid>
 
             <Grid Grid.Row="3"  Margin="15,0,15,0" Background="LightGray" ></Grid>
@@ -70,7 +70,7 @@
                     <TextBlock x:Name="BlockSuperDistracting" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xBlock \"Super Distracting Sites\" during Meetings</TextBlock>
                     <TextBlock x:Name="BlockSuperDistractingDesc" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xAvoid awkward screensharing moments. Turn this setting off if you don’t want blocking to happen while you’re in meetings.</TextBlock>
                 </StackPanel>
-                <ToggleButton Grid.Column="1" x:Name="btnBlockSuperDistracting"  Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnBlockSuperDistracting_Checked" Unchecked="btnBlockSuperDistracting_Unchecked"/>
+                    <ToggleButton Grid.Column="1" x:Name="btnBlockSuperDistracting" AutomationProperties.AutomationId="tglBlockSuperDistracting" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnBlockSuperDistracting_Checked" Unchecked="btnBlockSuperDistracting_Unchecked"/>
             </Grid>
 
                 <Grid Grid.Row="5"  Margin="15,0,15,0" Background="LightGray" ></Grid>
@@ -84,7 +84,7 @@
                         <TextBlock x:Name="ShowBreaksWhileInCall" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xShow breaks while in call</TextBlock>
                         <TextBlock x:Name="ShowBreaksWhileInCallDesc" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xIn large meetings where you’re not actively participating, it can be helpful to still have break reminders. We’ll choose office friendly break activities (e.g. chair stretches) and won’t play sound effects.. </TextBlock>
                     </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="btnShowBreaksWhileInCall"  Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnShowBreaksWhileInCall_Checked" Unchecked="btnShowBreaksWhileInCall_Unchecked"/>
+                    <ToggleButton Grid.Column="1" x:Name="btnShowBreaksWhileInCall" AutomationProperties.AutomationId="tglShowBreaksWhileInCall" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnShowBreaksWhileInCall_Checked" Unchecked="btnShowBreaksWhileInCall_Unchecked"/>
                 </Grid>
 
                 <Grid Grid.Row="7"  Margin="15,0,15,0" Background="LightGray" ></Grid>
@@ -98,7 +98,7 @@
                         <TextBlock x:Name="EnableFBTT" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEnable Focus Bear Time Tracker</TextBlock>
                         <TextBlock x:Name="EnableFBTTDesc" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xAnalyse your productivity by tracking how much time you spend on different websites and apps. You can automatically categorise time logs into different projects (helpful for timesheets). Data is stored locally for privacy reasons.</TextBlock>
                     </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="btnEnableFBTT"  Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableFBTT_Checked" Unchecked="btnEnableFBTT_Unchecked"/>
+                    <ToggleButton Grid.Column="1" x:Name="btnEnableFBTT" AutomationProperties.AutomationId="tglEnableFBTT" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableFBTT_Checked" Unchecked="btnEnableFBTT_Unchecked"/>
                 </Grid>
             
             </Grid>
