@@ -15,6 +15,15 @@
                 <Style TargetType="Grid">
                     <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
                 </Style>
+                
+                <Style x:Key="PlaceholderTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                    <Setter Property="Foreground" Value="Gray"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
             </ResourceDictionary>
         </Grid.Resources>
         
@@ -27,74 +36,96 @@
             <RowDefinition Height="50"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <TextBlock  Grid.Row="0"  Name="Heading" Margin="20,0,20,0"  TextWrapping="Wrap" Text="xPomodoro Mode cycles between deep work blocks where a focus mode is turned on (and distractions turned off) and break periods." FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
-        <TextBlock Grid.Row="1" x:Name="LearnMore" Margin="20,10,20,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="14" MinHeight="22" Cursor="Hand">
-             <Hyperlink x:Name="btnLearnMore" Click="btnLearnMore_Click"   TextDecorations="Underline" ><Run x:Name="btnLearnMoreTXT" Text="xLearn more about the pomodoro technique here."/></Hyperlink>
+        
+        <TextBlock Grid.Row="0" Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+        
+        <TextBlock Grid.Row="1" x:Name="LearnMore" Margin="20,10,20,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand">
+            <Hyperlink x:Name="btnLearnMore" Click="btnLearnMore_Click" TextDecorations="Underline">
+                <Run x:Name="btnLearnMoreTXT" Text="Learn more about the pomodoro technique here."/>
+            </Hyperlink>
         </TextBlock>
+        
         <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <TextBlock   Name="PomodoroMode" Margin="0,0,0,0" Width="245" TextWrapping="Wrap" Text="xPomodoro Mode:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Left"  />
-            <CheckBox Name="EnterPomodoroCheck" Margin="20,3,0,0"  VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="14" Checked="EnterPomodoroCheck_Checked" Unchecked="EnterPomodoroCheck_Unchecked" Cursor="Hand" Padding="5,-2,0,0">
-                <TextBlock Width="340" TextWrapping="Wrap" Name="EnterPomodoroCheckTxt">xEnter Pomodoro mode after completing morning routine </TextBlock></CheckBox>
+            <TextBlock Name="PomodoroMode" Margin="0,0,0,0" Width="245" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Left"/>
+            <CheckBox Name="EnterPomodoroCheck" Margin="20,3,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="14" Checked="EnterPomodoroCheck_Checked" Unchecked="EnterPomodoroCheck_Unchecked" Cursor="Hand" Padding="5,-2,0,0">
+                <TextBlock Width="340" TextWrapping="Wrap" Name="EnterPomodoroCheckTxt"/>
+            </CheckBox>
         </StackPanel>
-        <Button  Grid.Row="3"  x:Name="btnAdvanced"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="160" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="285,0,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnAdvanced_Click" >
+        
+        <Button Grid.Row="3" x:Name="btnAdvanced" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" Height="27" Width="160" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="285,0,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnAdvanced_Click">
             <Button.Content>
-                <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnAdvancedTXT" Text="xAdvanced" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="btnAdvancedTXT" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>
-        <TextBlock Grid.Row="4"   Name="SuperPomodoroStatus" Margin="285,0,20,20"  TextWrapping="Wrap"    Text="xSuper Pomodoro mode not enabled."  Foreground="Gray" FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
-
-        <StackPanel Grid.Row="5"  Orientation="Horizontal" VerticalAlignment="Bottom">
-            <TextBlock  Name="PomodoroModeDuration"  Width="245" Margin="0,0,0,0" TextWrapping="Wrap" Text="xPomodoro Mode duration:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Center"/>
-
-            <TextBox    TabIndex="1" x:Name="PomodoroMinutes" Margin="20,0,0,0" MinHeight="25"  Width="35"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="MinutesBreak_PreviewTextInput" PreviewKeyDown="MinutesBreak_PreviewKeyDown" PreviewKeyUp="MinutesBreak_PreviewKeyUp" TextChanged="PomodoroMinutes_TextChanged"  >
+        
+        <TextBlock Grid.Row="4" Name="SuperPomodoroStatus" Margin="285,0,20,20" TextWrapping="Wrap" Foreground="Gray" FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+        
+        <StackPanel Grid.Row="5" Orientation="Horizontal" VerticalAlignment="Bottom">
+            <TextBlock Name="PomodoroModeDuration" Width="245" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Center"/>
+            
+            <TextBox x:Name="PomodoroMinutes" 
+                     Margin="20,0,0,0" 
+                     MinHeight="25"  
+                     Width="35"
+                     Style="{StaticResource PlaceholderTextBoxStyle}"
+                     Tag="placeholder"
+                     Foreground="Gray"
+                     MaxLength="3"
+                     FontSize="16"
+                     TextAlignment="Center"
+                     ToolTip="Enter work duration in minutes (1-120)"
+                     PreviewTextInput="Minutes_PreviewTextInput" 
+                     PreviewKeyDown="Minutes_PreviewKeyDown"
+                     LostFocus="PomodoroMinutes_LostFocus">
                 <TextBox.Effect>
-                    <DropShadowEffect ShadowDepth="3"
-                          Direction="330"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="6"
-                           />
+                    <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6"/>
                 </TextBox.Effect>
-                <TextBox.FocusVisualStyle>
-                    <Style>
-                        <Setter Property="Control.Template">
-                            <Setter.Value>
-                                <ControlTemplate/>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </TextBox.FocusVisualStyle>
             </TextBox>
-            <TextBlock  Name="MinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-
+            
+            <TextBlock Name="MinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            
+            <Button Content="Save" 
+                    Width="80"
+                    Height="30"
+                    Margin="10,0,0,0"
+                    Cursor="Hand"
+                    Style="{StaticResource BtnStyleLightOrange}" 
+                    Click="SaveSettings_Click"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="6"  Orientation="Horizontal" VerticalAlignment="Bottom">
-            <TextBlock  Name="BreakDuration"  Width="245" Margin="0,0,0,0" TextWrapping="Wrap" Text="xBreak duration:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Center"/>
-
-            <TextBox    TabIndex="1" x:Name="BreakMinutes" Margin="20,0,0,0" MinHeight="25"  Width="35"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="MinutesBreak_PreviewTextInput" PreviewKeyDown="MinutesBreak_PreviewKeyDown" PreviewKeyUp="MinutesBreak_PreviewKeyUp" TextChanged="MinutesBreak_TextChanged" >
+        <StackPanel Grid.Row="6" Orientation="Horizontal" VerticalAlignment="Bottom">
+            <TextBlock Name="BreakDuration" Width="245" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Center"/>
+            
+            <TextBox x:Name="BreakMinutes"
+                     Margin="20,0,0,0"
+                     MinHeight="25"
+                     Width="35"
+                     Style="{StaticResource PlaceholderTextBoxStyle}"
+                     Tag="placeholder"
+                     Foreground="Gray"
+                     MaxLength="3"
+                     FontSize="16"
+                     TextAlignment="Center"
+                     ToolTip="Enter break duration in minutes (1-60)"
+                     PreviewTextInput="Minutes_PreviewTextInput" 
+                     PreviewKeyDown="Minutes_PreviewKeyDown"
+                     LostFocus="BreakMinutes_LostFocus">
                 <TextBox.Effect>
-                    <DropShadowEffect ShadowDepth="3"
-                          Direction="330"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="6"
-                           />
+                    <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6"/>
                 </TextBox.Effect>
-                <TextBox.FocusVisualStyle>
-                    <Style>
-                        <Setter Property="Control.Template">
-                            <Setter.Value>
-                                <ControlTemplate/>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </TextBox.FocusVisualStyle>
             </TextBox>
-            <TextBlock  Name="BreakMinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-
+            
+            <TextBlock Name="BreakMinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            
+            <Button Content="Save" 
+                    Width="80"
+                    Height="30"
+                    Margin="10,0,0,0"
+                    Cursor="Hand"
+                    Style="{StaticResource BtnStyleLightOrange}" 
+                    Click="SaveSettings_Click"/>
         </StackPanel>
     </Grid>
 </UserControl>
