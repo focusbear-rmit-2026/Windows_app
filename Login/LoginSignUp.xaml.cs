@@ -75,7 +75,6 @@ namespace Focus_Bear.Login
 
                 MakeSureSave.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["makeSureSaveText"].ToString(); //"Make sure to save your password in a safe place, as it will not be shown again!";
 
-
                 //initially button will be disabled
                 btnCreatAccount.IsEnabled = false;
 

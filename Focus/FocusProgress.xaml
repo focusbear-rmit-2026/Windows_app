@@ -13,7 +13,7 @@
                 <RowDefinition MinHeight="30"></RowDefinition>
                  <RowDefinition MinHeight="30"></RowDefinition>
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" >
+            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" >
                 <Image Name="TopIcon" ToolTip=""  Margin="10,0,0,0" Height="27" Width="27" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 <Label Grid.Row="0" Name="Focus"  Margin="5,0,0,0"   VerticalAlignment="Top"  Foreground="White" FontSize="14" FontWeight="Semibold" >xFocus</Label>
                

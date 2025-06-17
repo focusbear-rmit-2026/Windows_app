@@ -61,7 +61,7 @@ namespace Focus_Bear.CallDetection
             TxtCall.Text = sStatusMessage;
 
             string sUsage = "";
-            if (appSettings.sLastAppUsingMicrophone.Length > 0)
+            if(appSettings.sLastAppUsingMicrophone.Length > 0)
             {
                 sUsage = appSettings.ConfigFileStrings["callNotifier"]["micUsageText"].ToString(); //"is using your microphone"
 

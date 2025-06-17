@@ -188,7 +188,7 @@
 
         </Grid>
 
-        <Grid x:Name="GridSkippingHabitIn"  Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="280" Width="498" Background="White">
+        <Grid x:Name="GridSkippingHabitIn"  ZIndex="9"  Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="280" Width="498" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="80"/>
                 <RowDefinition Height="50"/>
@@ -204,7 +204,7 @@
             <Button  Grid.Row="3"   x:Name="btnChangedMyMind" IsDefault="True"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  MinWidth="360" HorizontalAlignment="Center" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnChangedMyMind_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                    <TextBlock Name="btnChangedMyMindTXT" Margin="8" Text="xI changed my mind - I will do"/>
+                        <TextBlock Name="btnChangedMyMindTXT" Margin="8" Text="xI changed my mind - I will do" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

@@ -50,7 +50,6 @@ namespace Focus_Bear.Preferences
 
                 ImmediatelyBlockDistractingURLsText.ToolTip = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["toolTipCheckboxBlockImmediately"].ToString();
 
-
             }
             catch (Exception ex)
             {

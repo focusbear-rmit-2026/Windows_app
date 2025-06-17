@@ -93,7 +93,6 @@ namespace Focus_Bear.Onboarding.AfterLogin
                 DescriptionWantFeedback.Text = appSettings.ConfigFileStrings["onboardingFeedbackVcInfo"]["subTitle"].ToString();
                 btnContinueFeedbackTxt.Text = appSettings.ConfigFileStrings["onboardingFeedbackVcInfo"]["buttonContinueText"].ToString();
 
-
             }
             catch (Exception ex)
             {
