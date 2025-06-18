@@ -261,7 +261,7 @@ namespace Focus_Bear.Onboarding
 
                 string ss = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["explanationText"].ToString();
 
-                //ss = "Your schedule looks like:\n\n🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Relax - block nothing\n\n<RELAX_END_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)"; //Todo win texts
+                //ss = "Your schedule looks like:\n\n🐥 <MORNING_ROUTINE_START_TIME> - <MORNING_ROUTINE_END_TIME> - Morning routine\n\n💼 <MORNING_ROUTINE_END_TIME> - <START_WORK_TIME> - Prepare to start work (buffer time)\n\n💪 <START_WORK_TIME> - <END_WORK_TIME> - Work\n\n🥱 <END_WORK_TIME> - <RELAX_END_TIME> - Relax - block nothing\n\n<RELAX_END_TIME> - <EVENING_ROUTINE_END_TIME> - Do evening routine.\n\n😴 <EVENING_ROUTINE_END_TIME> - Finish evening routine - computer locked (you can unlock it if you need it)"; 
                 ss = appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["titleTimeText"].ToString() + "\n\n" +
                     appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["wakeUpTimeText"].ToString() + "\n\n" + //"wakeUpTimeText": "☀️ <WAKEUP_TIME> - Wake up", 
                     appSettings.ConfigFileStrings["askWorkTimeVcInfo"]["morningRoutineTimeText"].ToString() + "\n\n" +

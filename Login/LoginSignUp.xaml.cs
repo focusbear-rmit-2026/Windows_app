@@ -73,7 +73,7 @@ namespace Focus_Bear.Login
                 btnCopyTXT.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCopyPasswordText"].ToString();
                 SavedPassword.Content = appSettings.ConfigFileStrings["customLoginVcInfo"]["checkBoxPasswordSavedText"].ToString();
 
-                MakeSureSave.Text = "Make sure you save it somewhere safe"; //todo win texts
+                MakeSureSave.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["makeSureSaveText"].ToString(); //"Make sure to save your password in a safe place, as it will not be shown again!";
 
                 //initially button will be disabled
                 btnCreatAccount.IsEnabled = false;

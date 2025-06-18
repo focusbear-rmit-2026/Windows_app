@@ -442,7 +442,7 @@ namespace Focus_Bear.SetIntention
 
         private void SetTotalTimeSpent()
         {
-            TotalTimeSpent.Text = "Total time spent: " + appSettings.SecondsToTextHMS(appSettings.nTotalTimeForDistractingSitesToday); //todo win texts
+            TotalTimeSpent.Text = appSettings.ConfigFileStrings["setIntentionBlockedUrlsVcInfo"]["timeSpentText"].ToString().Replace("<TIME>", appSettings.SecondsToTextHMS(appSettings.nTotalTimeForDistractingSitesToday));
         }
         private void TxtIntention_TextChanged(object sender, TextChangedEventArgs e)
         {

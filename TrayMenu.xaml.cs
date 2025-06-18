@@ -70,6 +70,20 @@ namespace Focus_Bear
             this.Loaded += MainWindow_Loaded;
         }
 
+        private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            TrayContextMenu.PlacementTarget = this;
+            TrayContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
+            TrayContextMenu.IsOpen = true;
+        }
+
+        private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("TrayMenu Exit clicked via right-click menu.");
+            System.Windows.Application.Current.Shutdown(); // Clean shutdown
+        }
+
+
         public void SetTrayMenuPosition()
         {
             // Manually alter window height and width
@@ -273,7 +287,7 @@ namespace Focus_Bear
                         }
                         else
                         {
-                            btnStopPomodoroModetxt.Text = "Stop Focus Session"; //todo win texts
+                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString(); //todo win texts
                         }
                     }
                     else
@@ -385,7 +399,7 @@ namespace Focus_Bear
                         }
                         else
                         {
-                            btnStopPomodoroModetxt.Text = "Stop Focus Session"; //todo win texts
+                            btnStopPomodoroModetxt.Text =  btnStopPomodoroModetxt.Text =  btnStopPomodoroModetxt.Text = "Stop Focus Session"; //todo win texts
                         }
                     }
                     else

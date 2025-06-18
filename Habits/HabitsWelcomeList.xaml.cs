@@ -108,7 +108,8 @@ namespace Focus_Bear.Habits
                     nCount = appSettings.arrAllEveningHabits.Count;
                     if(appSettings.bSomeHabitsRemovedDueToCutOffTime)
                     {
-                        PopupTitle.Text = "Some habits which are past the cutoff time you set have been removed from the list."; //todo win texts
+                        PopupTitle.Text = appSettings.ConfigFileStrings["activityInfo"]["cutoffHabitPopupText"].ToString(); //todo win texts
+
                         MyPopup.IsOpen = true;
                         // Create and start a timer to trigger fade-out after 5 seconds.
                         popupTimer = new DispatcherTimer();
