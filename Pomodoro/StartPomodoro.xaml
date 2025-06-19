@@ -42,7 +42,7 @@
         <StackPanel  Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock Visibility="Collapsed" Margin="0,0,0,0" Name="PomodoroCountText" TextWrapping="Wrap" Text="xHow many pomodoros you want to focus for:"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <ComboBox Visibility="Collapsed" Name="ComboBoxNumberOfPomodoros" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">
+            <ComboBox Visibility="Collapsed" Name="ComboBoxNumberOfPomodoros" AutomationProperties.AutomationId="cmbNumberOfPomodoros" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">
                 <ComboBoxItem Content="2"></ComboBoxItem>
                 <ComboBoxItem Content="3"></ComboBoxItem>
                 <ComboBoxItem Content="4"></ComboBoxItem>

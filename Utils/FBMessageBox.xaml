@@ -57,7 +57,7 @@
                     </Button.Content>
                 </Button>
             </StackPanel>
-            <CheckBox Grid.Row="4"  x:Name="DoNotShowAnymore" Margin="10,0,0,10" Checked="DoNotShowAnymore_Checked" Unchecked="DoNotShowAnymore_Unchecked" Visibility="Collapsed">xDon't show this anymore</CheckBox>
+            <CheckBox Grid.Row="4"  x:Name="DoNotShowAnymore" AutomationProperties.AutomationId="chkDoNotShowAnymore" Margin="10,0,0,10" Checked="DoNotShowAnymore_Checked" Unchecked="DoNotShowAnymore_Unchecked" Visibility="Collapsed">xDon't show this anymore</CheckBox>
         </Grid>
     </Border>
 </Window>
