@@ -36,7 +36,7 @@
             </DockPanel>
         </Viewbox>
 
-        <Button Grid.Row="5"  x:Name="btnGotIt"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnGotIt_Click" >
+        <Button Grid.Row="5"  x:Name="btnGotIt" AutomationProperties.AutomationId="btnGotIt"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnGotIt_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnGotItTXT" Text="xGot It" Foreground="Black"/>

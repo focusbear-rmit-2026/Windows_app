@@ -59,7 +59,7 @@
 
         </Border>
 
-        <Button Grid.Row="4"  x:Name="btnPausePlay"   Style="{StaticResource BtnStylePlay}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="40" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnPausePlay_Click" >
+        <Button Grid.Row="4"  x:Name="btnPausePlay" AutomationProperties.AutomationId="btnPausePlay"  Style="{StaticResource BtnStylePlay}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="40" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnPausePlay_Click" >
             <Button.Effect>
                 <DropShadowEffect ShadowDepth="3"
                           Direction="320"
@@ -76,7 +76,7 @@
             </Button.Content>
         </Button>
 
-        <TextBlock  Grid.Row="5"  x:Name="SkipThisHabitText" Margin="0,3,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="22" Cursor="Hand" Visibility="Collapsed"  >
+        <TextBlock  Grid.Row="5"  x:Name="SkipThisHabitText" AutomationProperties.AutomationId="txtSkipThisHabit" Margin="0,3,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="22" Cursor="Hand" Visibility="Collapsed"  >
              <Hyperlink x:Name="btnSkipThisHabit"  Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
         </TextBlock>
     </Grid>
