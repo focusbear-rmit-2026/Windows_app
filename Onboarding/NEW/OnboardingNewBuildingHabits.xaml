@@ -33,7 +33,7 @@
         <TextBlock  Grid.Row="2" Name="NextUp" Margin="40,18,40,0" TextWrapping="Wrap" Text="xNext Up: Building habits to support focus." FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <StackPanel Grid.Row="3" Visibility="Collapsed" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
             <TextBlock Name="Suggest" Margin="0,0,0,0" TextWrapping="Wrap" Text="xGot two minutes to try out our habit guide feature?"  FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
-            <Button x:Name="btnInfo" Style="{StaticResource BtnStyleInfo}" Click="btnInfo_Click"   MinWidth="35" Height="35" Cursor="Hand"  >
+            <Button x:Name="btnInfo" AutomationProperties.AutomationId="btnInfo" Style="{StaticResource BtnStyleInfo}" Click="btnInfo_Click"   MinWidth="35" Height="35" Cursor="Hand"  >
                 <StackPanel Orientation="Vertical">
                     <Image Source="{DynamicResource InfoImage}" Margin="0,0,0,0" Height="24" Width="24" />
                 </StackPanel>
@@ -42,14 +42,14 @@
         <TextBlock  Grid.Row="3" Visibility="Collapsed" Name="Descriptiopn1" Margin="40,0,40,0" TextWrapping="Wrap" Text="xLooking forward to helping you form healthy habits and get more deep work done. To start off, we want to show you a demo of how Focus Bear works. It takes 2 minutes and requires 100% attention from you."  FontSize="18" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
        
         <StackPanel  Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button  Grid.ColumnSpan="2"  Visibility="Collapsed" x:Name="btnABitLaterPlease"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnABitLaterPlease_Click">
+            <Button  Grid.ColumnSpan="2" AutomationProperties.AutomationId="btnABitLaterPlease" Visibility="Collapsed" x:Name="btnABitLaterPlease"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnABitLaterPlease_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnABitLaterPleaseText" Margin="8" Text="xA bit later please" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  Grid.ColumnSpan="2" x:Name="btnLetsDoIt"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnLetsDoIt_Click">
+            <Button  Grid.ColumnSpan="2" x:Name="btnLetsDoIt" AutomationProperties.AutomationId="btnLetsDoIt"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="216" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnLetsDoIt_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="buttonLetsDoItText" Margin="8" Text="xLet's do it" Foreground="Black"/>
@@ -57,7 +57,7 @@
                 </Button.Content>
             </Button>
         </StackPanel>
-        <TextBlock x:Name="NoThanks"  Visibility="Collapsed"  Grid.Row="5"  TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
+        <TextBlock x:Name="NoThanks" AutomationProperties.AutomationId="txtNoThanks"  Visibility="Collapsed"  Grid.Row="5"  TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
              <Hyperlink x:Name="btnNoThanks"  Click="btnNoThanks_Click"   TextDecorations="Underline" ><Run x:Name="btnNoThanksText" Text="xNo Thanks"/></Hyperlink>
         </TextBlock>
 

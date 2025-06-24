@@ -144,7 +144,7 @@
 
             <TextBlock   Name="SelectedTasksTitle" Visibility="Collapsed" Width="300" Margin="5,25,0,5" TextWrapping="Wrap" Text="xxSelected Tasks:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
 
-            <ListView    x:Name="ListTasks" Visibility="Collapsed" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"   Height="118" Width="300" VerticalAlignment="Top">
+            <ListView    x:Name="ListTasks" AutomationProperties.AutomationId="lvTasks" Visibility="Collapsed" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"   Height="118" Width="300" VerticalAlignment="Top">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Focusable" Value="false"/>

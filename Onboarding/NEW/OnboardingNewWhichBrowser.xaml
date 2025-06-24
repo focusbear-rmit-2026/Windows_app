@@ -24,14 +24,14 @@
 
 
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Margin="0,0,10,0"   x:Name="btnDidntBlocked"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="216" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Top" Padding="0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnDidntBlocked_Click">
+            <Button Margin="0,0,10,0"   x:Name="btnDidntBlocked" AutomationProperties.AutomationId="btnDidntBlock"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="216" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Top" Padding="0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnDidntBlocked_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnDidntBlockedText" Margin="8" Text="xStill not working" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button Margin="10,0,0,0"   x:Name="btnItWorked"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="43" MinWidth="216"  HorizontalContentAlignment="Center" VerticalAlignment="Top" Padding="0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnItWorked_Click">
+            <Button Margin="10,0,0,0"   x:Name="btnItWorked" AutomationProperties.AutomationId="btnItWorked"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="43" MinWidth="216"  HorizontalContentAlignment="Center" VerticalAlignment="Top" Padding="0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnItWorked_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnItWorkedText" Margin="8" Text="xI just tried those browsers and it worked!" Foreground="Black"/>

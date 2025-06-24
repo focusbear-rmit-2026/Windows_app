@@ -125,16 +125,16 @@
 
                     </Grid>
                 </TabItem>
-                <TabItem Name="PomodoroTab" Header="xPomodoro" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="PomodoroTab" AutomationProperties.AutomationId="tabPomodoro" Header="xPomodoro" Style="{DynamicResource TabItemStyle}">
                     <!--<local:PomodoroTab x:Name="PomodoroTAB" />-->
                 </TabItem>
-                <TabItem Name="AdvancedTab" Header="xAdvanced" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="AdvancedTab" AutomationProperties.AutomationId="tabAdvanced" Header="xAdvanced" Style="{DynamicResource TabItemStyle}">
 
                 </TabItem>
-                <TabItem Name="BlockedURLTab" Header="xBlocked URLs" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="BlockedURLTab" AutomationProperties.AutomationId="tabBlockedURLs" Header="xBlocked URLs" Style="{DynamicResource TabItemStyle}">
                     <!--<local:AITab x:Name="AITAB" />-->
                 </TabItem>
-                <TabItem Name="PasswordTab" Header="xPassword" Selector.Selected="PasswordTab_Selected" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="PasswordTab" AutomationProperties.AutomationId="tabPassword" Header="xPassword" Selector.Selected="PasswordTab_Selected" Style="{DynamicResource TabItemStyle}">
                     <Grid HorizontalAlignment="Center" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="35"/>
@@ -208,7 +208,7 @@
                         </Button>
 
                         <!-- Disable Password Link (moved to Row 8) -->
-                        <TextBlock Grid.Row="7" x:Name="DisablePassword" Margin="235,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand" Grid.RowSpan="2">
+                        <TextBlock Grid.Row="7" x:Name="DisablePassword" AutomationProperties.AutomationId="txtDisablePassword Margin="235,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand" Grid.RowSpan="2">
     <Hyperlink x:Name="btnDisablePassword" Click="btnDisablePassword_Click" TextDecorations="Underline">
         <Run x:Name="btnDisablePasswordTXT" Text="xDisable Password"/>
     </Hyperlink>

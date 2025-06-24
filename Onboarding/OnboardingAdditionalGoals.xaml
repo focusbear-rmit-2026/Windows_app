@@ -47,7 +47,7 @@
             </StackPanel>
         </Viewbox>
 
-        <Button Grid.Row="4"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue" AnythingElse  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
+        <Button Grid.Row="4"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>

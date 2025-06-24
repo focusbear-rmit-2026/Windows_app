@@ -95,7 +95,7 @@
             <TextBlock   Grid.Row="2"  Name="ReasonTitle" Margin="0,0,0,0" TextWrapping="Wrap" Text="xCan you tell us why you want to stop getting habit + break notifications?﹡"  FontSize="19" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
             
             <TextBlock   Grid.Row="3"  Name="TxtFinalTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="x00:05"  FontSize="23" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
-            <TextBox  Grid.Row="3" Name="TxtExplanation" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"  VerticalAlignment="Center"  FontSize="15" TextChanged="TxtExplanation_TextChanged" Visibility="Collapsed">
+            <TextBox  Grid.Row="3" Name="TxtExplanation" AutomationProperties.AutomationId="txtBoxExplanation" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"  VerticalAlignment="Center"  FontSize="15" TextChanged="TxtExplanation_TextChanged" Visibility="Collapsed">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"

@@ -46,7 +46,7 @@
                             <ColumnDefinition Width="25"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <CheckBox Grid.Column="0" IsChecked="{Binding Path=bIsSelected}" VerticalAlignment="Center" AutomationProperties.AutomationId="chk"/>
+                        <CheckBox Grid.Column="0" IsChecked="{Binding Path=bIsSelected}" VerticalAlignment="Center" AutomationProperties.AutomationId="chk0"/>
                         <TextBlock Grid.Column="1" Text="{Binding SNumber, StringFormat=\{0\}}" FontSize="15" Foreground="{DynamicResource ForegroundColor}"  FontWeight="Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
                         <TextBlock Grid.Column="2" Text="{Binding ActivityName, StringFormat=\{0\}}" FontSize="15" Foreground="{DynamicResource ForegroundColor}" VerticalAlignment="Center" Margin="0,0,15,0" HorizontalAlignment="Left" >
 

@@ -60,7 +60,7 @@
 
             <TextBlock  Grid.Row="7" Visibility="Collapsed" TextWrapping="NoWrap" Name="Subscription"  Foreground="Red" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center">xYour Subscription has expired!</TextBlock>
 
-            <Button Grid.Row="8" Grid.ColumnSpan="2" x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="18" Cursor="Hand"  VerticalAlignment="Bottom" Click="btnUpgradeNow_Click">
+            <Button Grid.Row="8" Grid.ColumnSpan="2" x:Name="btnUpgradeNow" AutomationProperties.AutomationId="btnUpgradeNow"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="216" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="18" Cursor="Hand"  VerticalAlignment="Bottom" Click="btnUpgradeNow_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnUpgradeNowTXT" Padding="10,0,10,0" Text="xUpgrade Now" Foreground="Black"/>
@@ -71,10 +71,10 @@
             <StackPanel Grid.Row="10" Orientation="Horizontal" HorizontalAlignment="Center">
 
                 <TextBlock   Name="YourUserId" Margin="0,0,10,0" TextWrapping="Wrap" Text="xYour user Id:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-                <TextBox TabIndex="0" x:Name="TxtUserId" IsReadOnly="True" Margin="0" Width="270" MinHeight="22" TextWrapping="NoWrap" Background="#FFF" BorderBrush="#999" Foreground="#000" Padding="1,2,1,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" VerticalContentAlignment="Center" >
+                <TextBox TabIndex="0" x:Name="TxtUserId" AutomationProperties.AutomationId="txtBoxUserId" IsReadOnly="True" Margin="0" Width="270" MinHeight="22" TextWrapping="NoWrap" Background="#FFF" BorderBrush="#999" Foreground="#000" Padding="1,2,1,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" VerticalContentAlignment="Center" >
 
                 </TextBox>
-                <Button  x:Name="btnCopyUserId"  IsEnabled="True"   Margin="10,0,0,0" Width="22" Height="22" HorizontalContentAlignment="Center" Padding="0"  FontSize="15" Cursor="Hand"   VerticalAlignment="Center" BorderBrush="#eee" Background="#eee" Click="btnCopyUserId_Click" ToolTip="xClose">
+                <Button  x:Name="btnCopyUserId" AutomationProperties.AutomationId="btnCopyUserId" IsEnabled="True"   Margin="10,0,0,0" Width="22" Height="22" HorizontalContentAlignment="Center" Padding="0"  FontSize="15" Cursor="Hand"   VerticalAlignment="Center" BorderBrush="#eee" Background="#eee" Click="btnCopyUserId_Click" ToolTip="xClose">
                     <Button.Content>
                         <Image Grid.Row="0" Height="20"  Width="20"  Margin="0,0,0,0" Source="../Images/copy.png" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Button.Content>
@@ -90,7 +90,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0"  Name="AfterPay" Margin="20,0,20,5" TextWrapping="Wrap" Text="xxAfter you pay, click the Sync Payment Status button below" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Grid.ColumnSpan="3"/>
-            <Button Grid.Row="1"   x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,2,20,0" FontSize="18" Cursor="Hand"    Click="btnSyncPayment_Click" Grid.Column="2">
+            <Button Grid.Row="1"   x:Name="btnSyncPayment" AutomationProperties.AutomationId="btnSyncPayment"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,2,20,0" FontSize="18" Cursor="Hand"    Click="btnSyncPayment_Click" Grid.Column="2">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnSyncPaymentTXT" Padding="10,0,10,0" Text="xSync Payment Status" Foreground="Black"/>
@@ -99,7 +99,7 @@
             </Button>
             <Image Grid.Row="2" x:Name="ImgUpdateAppProgress"   Models:ImageBehavior.AnimatedSource="../Images/progress.gif" HorizontalAlignment="Center" Margin="0,2,0,2" VerticalAlignment="Center" Visibility="Collapsed" Grid.Column="2"/>
 
-            <TextBlock x:Name="UninstallText" Grid.Row="3" Margin="20,2,20,2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="13" Height="22" Cursor="Hand" Grid.Column="2">
+            <TextBlock x:Name="UninstallText" AutomationProperties.AutomationId="txtUninstall" Grid.Row="3" Margin="20,2,20,2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="13" Height="22" Cursor="Hand" Grid.Column="2">
              <Hyperlink x:Name="btnUninstall" Click="btnUninstall_Click"   TextDecorations="Underline" ><Run x:Name="btnUninstallTXT" Text="xUninstall"/></Hyperlink>
             </TextBlock>
 

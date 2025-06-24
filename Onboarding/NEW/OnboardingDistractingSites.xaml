@@ -28,7 +28,7 @@
             <TextBlock  Name="BlockCertainSites" Margin="20,10,20,0"    TextWrapping="Wrap" Text="xYou can block certain sites by default to avoid going down rabbit holes." FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
         </StackPanel>
         <StackPanel  Grid.Row="1"  Orientation="Vertical" VerticalAlignment="Top"  Margin="0,20,0,0">
-            <ListView    x:Name="ListBLockedURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1"  Width="450" Height="175" VerticalAlignment="Top">
+            <ListView    x:Name="ListBLockedURLs" AutomationProperties.AutomationId="lvBlockedURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1"  Width="450" Height="175" VerticalAlignment="Top">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -36,7 +36,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal">
-                                <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
+                                <CheckBox  IsChecked="{Binding Path=IsItemChecked}" AutomationProperties.AutomationId="chk0"/>
                                 <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}"  FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
                             </StackPanel>
                             
@@ -48,9 +48,9 @@
 
             <TextBlock   Name="EnterURL" Margin="0,10,0,0"  Width="450" TextWrapping="Wrap"  Text="xEnter URL to block"   FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left"   />
             <StackPanel    Orientation="Horizontal" VerticalAlignment="Top" Width="450"  Margin="0,0,0,0" HorizontalAlignment="Center">
-                <TextBox   TabIndex="0" x:Name="TxtURL" Margin="0,5,10,0"  Width="285"  TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Height="25" TextChanged="TxtURL_TextChanged">
+                <TextBox   TabIndex="0" x:Name="TxtURL" AutomationProperties.AutomationId="txtBoxURL" Margin="0,5,10,0"  Width="285"  TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Height="25" TextChanged="TxtURL_TextChanged">
                 </TextBox>
-                <Button    x:Name="btnAddUrl"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="150" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnAddUrl_Click"   >
+                <Button    x:Name="btnAddUrl" AutomationProperties.AutomationId="btnAddURL"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="150" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnAddUrl_Click"   >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnAddUrlTXT" Text="xAdd URL" Foreground="Black"/>
@@ -72,7 +72,7 @@
             <TextBlock  Name="PreferencesDesc" Margin="20,15,20,0"  TextWrapping="Wrap" Text="xIf you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab." FontSize="17" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
 
         </StackPanel>
-        <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="300" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,20,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
+        <Button Grid.Row="3"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="300" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,20,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>

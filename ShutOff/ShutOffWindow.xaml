@@ -43,7 +43,7 @@
             <TextBlock  Grid.Row="3" Name="TxtTimer" Width="900"  Margin="0,35,0,0" TextWrapping="Wrap" Text="x00:30"  FontSize="23" FontWeight="Bold"  TextAlignment="Center" HorizontalAlignment="Center" />
 
             <TextBlock  Grid.Row="4" Name="TxtExplain" Width="900"  TextWrapping="Wrap" Text="xFeel free to write an explanation here:" FontSize="17" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
-            <TextBox  Grid.Row="5" Name="TxtExplaination" TextWrapping="Wrap" AcceptsReturn="True"  Width="650" Height="120" Margin="15" VerticalAlignment="Top"  FontSize="15">
+            <TextBox  Grid.Row="5" Name="TxtExplaination" AutomationProperties.AutomationId="txtBoxExplanation" TextWrapping="Wrap" AcceptsReturn="True"  Width="650" Height="120" Margin="15" VerticalAlignment="Top"  FontSize="15">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -63,7 +63,7 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
 
-            <Button Grid.Row="6"  Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
+            <Button Grid.Row="6"  Name="btnAction" AutomationProperties.AutomationId="btnAction"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnActionText" Text="xGet Access Now" Foreground="Black"/>
@@ -79,14 +79,14 @@
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Name="UpEarly"   Margin="0,4,0,0" TextWrapping="Wrap" Text="xUp Early?" FontSize="17" FontWeight="Normal" TextAlignment="Center" HorizontalAlignment="Center" />
                     <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <Button   Name="btnStartMorningRoutine"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="360" HorizontalContentAlignment="Center" VerticalAlignment="Top"  Padding="0" Margin="0,0,20,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStartMorningRoutine_Click" >
+                    <Button   Name="btnStartMorningRoutine" AutomationProperties.AutomationId="btnStartMorningRoutine"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="360" HorizontalContentAlignment="Center" VerticalAlignment="Top"  Padding="0" Margin="0,0,20,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStartMorningRoutine_Click" >
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
                                 <TextBlock x:Name="btnStartMorningRoutineText" Text="xStart Morning Routine" Foreground="Black"/>
                             </StackPanel>
                         </Button.Content>
                     </Button>
-                        <Button    Name="btnWorkEmergency"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="360" HorizontalContentAlignment="Center" VerticalAlignment="Top"  Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnWorkEmergency_Click" >
+                    <Button    Name="btnWorkEmergency" AutomationProperties.AutomationId="btnWorkEmergy"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="360" HorizontalContentAlignment="Center" VerticalAlignment="Top"  Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnWorkEmergency_Click" >
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
                                 <TextBlock x:Name="btnWorkEmergencyText" Text="xWork Emergency - start focusing" Foreground="Black"/>
@@ -94,7 +94,7 @@
                         </Button.Content>
                     </Button>
                 </StackPanel>
-                    <TextBlock   Grid.Row="2" x:Name="CompleteEveningRoutine" Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                <TextBlock   Grid.Row="2" x:Name="CompleteEveningRoutine" AutomationProperties.AutomationId="txtCompleteEveningRoutine" Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
                     <Hyperlink x:Name="btnCompleteEveningRoutine"  Click="btnCompleteEveningRoutine_Click"   TextDecorations="Underline" >
                         <Run x:Name="btnCompleteEveningRoutineTXT" Text="xComplete your evening routine"/>
                     </Hyperlink>
