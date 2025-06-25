@@ -26,12 +26,12 @@
 
         <TextBlock Grid.Row="0" Margin="20,0,20,0" Name="Heading" TextWrapping="Wrap" Text="xSelect the habits you want to do in this routine:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="20,0,20,0">
-            <CheckBox x:Name="SelectDeselect" Width="280" FontSize="14" Checked="SelectDeselect_Checked" Unchecked="SelectDeselect_Unchecked" Cursor="Hand" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="5,-3,0,0">xxSelect All / Deselect GAll?</CheckBox>
-            <TextBox  TabIndex="0" x:Name="SearchBox" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" MaxLines="1" Height="25" Width="150" HorizontalAlignment="Right"  TextChanged="SearchBox_TextChanged">
+            <CheckBox x:Name="SelectDeselect" AutomationProperties.AutomationId="chkDeselect" Width="280" FontSize="14" Checked="SelectDeselect_Checked" Unchecked="SelectDeselect_Unchecked" Cursor="Hand" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="5,-3,0,0">xxSelect All / Deselect GAll?</CheckBox>
+            <TextBox  TabIndex="0" x:Name="SearchBox"  AutomationProperties.AutomationId="txtBoxSearch" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" MaxLines="1" Height="25" Width="150" HorizontalAlignment="Right"  TextChanged="SearchBox_TextChanged">
             </TextBox>
         </StackPanel>
 
-        <ListView Grid.Row="2" Margin="15,0,20,0" x:Name="ListHabits" VerticalAlignment="Center"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" >
+        <ListView Grid.Row="2" Margin="15,0,20,0" x:Name="ListHabits" AutomationProperties.AutomationId="lvHabits" VerticalAlignment="Center"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" >
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem" >
                     <Setter Property="Focusable" Value="false"/>
@@ -46,7 +46,7 @@
                             <ColumnDefinition Width="25"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <CheckBox Grid.Column="0" IsChecked="{Binding Path=bIsSelected}" VerticalAlignment="Center"/>
+                        <CheckBox Grid.Column="0" IsChecked="{Binding Path=bIsSelected}" VerticalAlignment="Center" AutomationProperties.AutomationId="chk0"/>
                         <TextBlock Grid.Column="1" Text="{Binding SNumber, StringFormat=\{0\}}" FontSize="15" Foreground="{DynamicResource ForegroundColor}"  FontWeight="Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
                         <TextBlock Grid.Column="2" Text="{Binding ActivityName, StringFormat=\{0\}}" FontSize="15" Foreground="{DynamicResource ForegroundColor}" VerticalAlignment="Center" Margin="0,0,15,0" HorizontalAlignment="Left" >
 
@@ -59,7 +59,7 @@
 
         <TextBlock Grid.Row="3" Margin="20,0,20,0" Name="TotalTime" TextWrapping="Wrap" Text="xTotal time required for the selected habits:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
         <TextBlock Grid.Row="4" Margin="20,0,20,0" Name="ExpectedTime" TextWrapping="Wrap" Text="xExpected completion time::" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
-        <Button Grid.Row="5"   x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
+        <Button Grid.Row="5"   x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock Name="btnContinueText" Margin="8" Text="xContinue" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -67,7 +67,7 @@
             </Button.Content>
         </Button>
 
-        <TextBlock x:Name="CompletelySkip" Grid.Row="6" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" MinHeight="22" Cursor="Hand">
+        <TextBlock x:Name="CompletelySkip" AutomationProperties.AutomationId="txtCompletelySkip" Grid.Row="6" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" MinHeight="22" Cursor="Hand">
              <Hyperlink x:Name="btnCompletelySkip" Click="btnCompletelySkip_Click"   TextDecorations="Underline" ><Run x:Name="CompletelySkipTXT" Text="xCompletely Skip my morning habits for today"/></Hyperlink>
         </TextBlock>
     </Grid>

@@ -39,7 +39,7 @@
 
         <TextBlock  Grid.Row="2" Name="YourIntention" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxYour intention was"  FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <TextBox  Grid.Row="3" Name="TxtIntention" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"   VerticalAlignment="Center"  FontSize="15" IsEnabled="False">
+        <TextBox  Grid.Row="3" Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"   VerticalAlignment="Center"  FontSize="15" IsEnabled="False">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                               Direction="330"
@@ -61,7 +61,7 @@
 
         <TextBlock  Grid.Row="4" Name="Achieve" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxWhat did you achieve during this time?"  FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <TextBox  Grid.Row="5" Name="TxtAchieve" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"   VerticalAlignment="Center"  FontSize="15">
+        <TextBox  Grid.Row="5" Name="TxtAchieve" AutomationProperties.AutomationId="txtBoxAchieve" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"   VerticalAlignment="Center"  FontSize="15">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                               Direction="330"
@@ -82,7 +82,7 @@
             </TextBox>
             <TextBlock  Grid.Row="6" Name="Distractions" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxAny distractions?" FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <TextBox  Grid.Row="7" Name="TxtDistractions" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"  VerticalAlignment="Center"  FontSize="15">
+        <TextBox  Grid.Row="7" Name="TxtDistractions" AutomationProperties.AutomationId="txtBoxDistractions" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"  VerticalAlignment="Center"  FontSize="15">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                               Direction="330"
@@ -102,21 +102,21 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
             <StackPanel  Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-            <Button  x:Name="btnTakeBreak"   Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnTakeBreak_Click">
+            <Button  x:Name="btnTakeBreak" AutomationProperties.AutomationId="btnTakeBreak"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnTakeBreak_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnTakeBreakText" Margin="8" Text="xTake a 5 minutes break" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-                <Button   x:Name="btnStartAnotherFocusMode" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartAnotherFocusMode_Click">
+            <Button   x:Name="btnStartAnotherFocusMode" AutomationProperties.AutomationId="btnStartAnotherFocusMode" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartAnotherFocusMode_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnStartAnotherFocusModeText" Margin="8" Text="xStart another Focus Mode" Style="{DynamicResource ButtonTextBlockStyle}"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
-            <Button Visibility="Collapsed"  x:Name="btnContinue" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
+            <Button Visibility="Collapsed"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnContinueText" Margin="8" Text="xContinue" Foreground="Black"/>

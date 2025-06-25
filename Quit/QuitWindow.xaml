@@ -41,14 +41,14 @@
 
 
             </StackPanel>
-            <Button Grid.Row="2" IsDefault="True" x:Name="btnGiveMeABreak"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnGiveMeABreak_Click"  >
+            <Button Grid.Row="2" IsDefault="True" x:Name="btnGiveMeABreak" AutomationProperties.AutomationId="btnGiveMeABreak"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnGiveMeABreak_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnGiveMeABreakTXT" Text="xGive me a break for 4hrs" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button Grid.Row="3" IsDefault="True" x:Name="btnTurnOfCompletely"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold"  Click="btnTurnOfCompletely_Click"  >
+            <Button Grid.Row="3" IsDefault="True" x:Name="btnTurnOfCompletely" AutomationProperties.AutomationId="btnTurnOffCompletely"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold"  Click="btnTurnOfCompletely_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnTurnOfCompletelyTXT" Text="xTurn it off completely - I'll turn it back on when I'm ready" Foreground="Black"/>
@@ -72,7 +72,7 @@
             <TextBlock   Grid.Row="2"  Name="WhileYouWait" Margin="50,0,50,0" TextWrapping="Wrap" Text="xWhile you wait, reflect on why you're doing this. If it was because your morning routine was too ambitious, perhaps scale it back to only be a few minutes long so that it's easier to do it than not do it. If you're deactivating because the app is broken, really sorry!!" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             <TextBlock   Grid.Row="3"  Name="PleaseEmail" Margin="50,0,50,0" TextWrapping="Wrap" Text="xPlease email"  FontSize="19" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <Button Grid.Row="4" IsDefault="True" x:Name="btnLetMeDoMyHabits"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnLetMeDoMyHabits_Click"  >
+            <Button Grid.Row="4" IsDefault="True" x:Name="btnLetMeDoMyHabits" AutomationProperties.AutomationId="btnLetMeDoMyHabits"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnLetMeDoMyHabits_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnLetMeDoMyHabitsTXT" Text="xI didn't mean it. Let me do my habits!" Foreground="Black"/>
@@ -95,7 +95,7 @@
             <TextBlock   Grid.Row="2"  Name="ReasonTitle" Margin="0,0,0,0" TextWrapping="Wrap" Text="xCan you tell us why you want to stop getting habit + break notifications?﹡"  FontSize="19" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
             
             <TextBlock   Grid.Row="3"  Name="TxtFinalTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="x00:05"  FontSize="23" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
-            <TextBox  Grid.Row="3" Name="TxtExplanation" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"  VerticalAlignment="Center"  FontSize="15" TextChanged="TxtExplanation_TextChanged" Visibility="Collapsed">
+            <TextBox  Grid.Row="3" Name="TxtExplanation" AutomationProperties.AutomationId="txtBoxExplanation" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="90"  VerticalAlignment="Center"  FontSize="15" TextChanged="TxtExplanation_TextChanged" Visibility="Collapsed">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -114,9 +114,9 @@
                     </Style>
                 </TextBox.FocusVisualStyle>
             </TextBox>
-           
 
-            <Button Grid.Row="4" IsDefault="True" x:Name="btnQuit"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold"  Click="btnQuit_Click" >
+
+            <Button Grid.Row="4" IsDefault="True" x:Name="btnQuit" AutomationProperties.AutomationId="btnQuit"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold"  Click="btnQuit_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnQuitTXT" Text="xQuit" Foreground="Black"/>

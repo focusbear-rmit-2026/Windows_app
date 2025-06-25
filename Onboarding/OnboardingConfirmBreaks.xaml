@@ -40,14 +40,14 @@
                 <TextBlock  Name="CareAboutBreaks" Margin="0,10,0,0" TextWrapping="Wrap" Text="xHow much do you care about taking breaks?"  FontSize="20" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
                 <TextBlock  Name="SelectOne" Margin="0,5,0,10" TextWrapping="Wrap" Text="xSelect one that apply"  FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
 
-                <RadioButton x:Name="DoNotCare"   Margin="0,20,0,10" Content="xMeh - don't really care" FontSize="18" Style="{StaticResource HabitsCareRadioButtonStyle}"   Checked="DoNotCare_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="NotCommitted"  Margin="0,10,0,10"  Content="xI probably should take breaks but am not that committed" FontSize="18" Style="{StaticResource HabitsCareRadioButtonStyle}"  Checked="NotCommitted_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="MostlyCommitted"  Margin="0,10,0,10"  Content="xMostly committed - I'll take breaks most of the time" FontSize="18" Style="{StaticResource HabitsCareRadioButtonStyle}"  Checked="MostlyCommitted_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="Committed"  Margin="0,10,0,10"  Content="xSuper committed - i vow to take breaks regularly" FontSize="18" Style="{StaticResource HabitsCareRadioButtonStyle}"  Checked="Committed_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="DoNotCare" AutomationProperties.AutomationId="rbDoNotCare"  Margin="0,20,0,10" Content="xMeh - don't really care" FontSize="18" Style="{StaticResource HabitsCareRadioButtonStyle}"   Checked="DoNotCare_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="NotCommitted" AutomationProperties.AutomationId="rbNotCommitted" Margin="0,10,0,10"  Content="xI probably should take breaks but am not that committed" FontSize="18" Style="{StaticResource HabitsCareRadioButtonStyle}"  Checked="NotCommitted_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="MostlyCommitted" AutomationProperties.AutomationId="rbMostlyCommitted" Margin="0,10,0,10"  Content="xMostly committed - I'll take breaks most of the time" FontSize="18" Style="{StaticResource HabitsCareRadioButtonStyle}"  Checked="MostlyCommitted_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="Committed" AutomationProperties.AutomationId="rbCommitted" Margin="0,10,0,10"  Content="xSuper committed - i vow to take breaks regularly" FontSize="18" Style="{StaticResource HabitsCareRadioButtonStyle}"  Checked="Committed_Checked" Cursor="Hand"  />
             <TextBlock  Name="CareDesc" Margin="0,10,0,0" TextWrapping="Wrap" Text="xNo worries. You can always enable breaks later from Preferences > Breaks > Enable Breaks" FontSize="18"   FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
         </StackPanel>
     </Viewbox>
-    <Button Grid.Row="4"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
+        <Button Grid.Row="4"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
         <Button.Content>
             <StackPanel  Orientation="Horizontal">
                 <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>

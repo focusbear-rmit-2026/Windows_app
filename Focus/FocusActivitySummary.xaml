@@ -133,7 +133,7 @@
                           BlurRadius="6"
                            />
                 </Border.Effect>
-                <ListView x:Name="ListFocusSummary" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
+                <ListView x:Name="ListFocusSummary" AutomationProperties.AutomationId="lvFocusSummary" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
                     
                     <ListView.ItemTemplate>
                         <DataTemplate>
@@ -223,7 +223,7 @@
                           BlurRadius="6"
                            />
                         </Border.Effect>
-                        <ListView x:Name="ListQuantity" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
+                        <ListView x:Name="ListQuantity"  AutomationProperties.AutomationId="lvQuantity" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
 
                             <ListView.ItemTemplate>
                                 <DataTemplate>
@@ -298,7 +298,7 @@
                           BlurRadius="6"
                            />
                         </Border.Effect>
-                        <ListView x:Name="ListAverage" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
+                        <ListView x:Name="ListAverage" AutomationProperties.AutomationId="lvAverage" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
 
                             <ListView.ItemTemplate>
                                 <DataTemplate>
@@ -373,7 +373,7 @@
                           BlurRadius="6"
                            />
                         </Border.Effect>
-                        <ListView x:Name="ListDuration" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
+                        <ListView x:Name="ListDuration" AutomationProperties.AutomationId="lvDuration" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
 
                             <ListView.ItemTemplate>
                                 <DataTemplate>
@@ -395,14 +395,14 @@
 
         
             <StackPanel Grid.Row="4" Orientation="Horizontal"   HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button  IsDefault="True" x:Name="btnNeedOneMinute"    Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" Padding="0" Margin="0,0,30,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNeedOneMinute_Click" >
+            <Button  IsDefault="True" x:Name="btnNeedOneMinute" AutomationProperties.AutomationId="btnNeedOneMinute" Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" Padding="0" Margin="0,0,30,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNeedOneMinute_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnNeedOneMinuteTXT" Text="xI need One More Minute" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  IsDefault="True" x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="200"  HorizontalAlignment="Center"   Padding="0" Margin="30,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
+            <Button  IsDefault="True" x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="200"  HorizontalAlignment="Center"   Padding="0" Margin="30,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>

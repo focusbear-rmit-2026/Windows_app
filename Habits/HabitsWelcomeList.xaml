@@ -23,11 +23,11 @@
  
         <Image Grid.Row="0" Name="TopIcon" Height="160"  Width="160" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xGood Morning! Here are the habits to kick off an awesome day." Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock x:Name="DoNoHaveTime" Grid.Row="2" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+            <TextBlock x:Name="DoNoHaveTime" AutomationProperties.AutomationId="txtDoNoHaveTime" Grid.Row="2" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
              <Hyperlink x:Name="btnDoNoHaveTime" Click="btnDoNoHaveTime_Click"   TextDecorations="Underline" ><Run x:Name="DoNoHaveTimeTXT" Text="xI don't have time for all these habits"/></Hyperlink>
             </TextBlock>
-            
-            <ListView Grid.Row="3" MaxHeight="360"  MaxWidth="400" Margin="13,5,16,10" x:Name="ListActivities" VerticalAlignment="Center"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" >
+
+            <ListView Grid.Row="3" MaxHeight="360" AutomationProperties.AutomationId="lvActivities" MaxWidth="400" Margin="13,5,16,10" x:Name="ListActivities" VerticalAlignment="Center"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" >
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem" >
                     <Setter Property="Focusable" Value="true"/>
@@ -51,14 +51,14 @@
             </ListView.ItemTemplate>
  
         </ListView>
-            <Button Grid.Row="4" IsDefault="True"  x:Name="btnBegin"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnBegin_Click" >
+            <Button Grid.Row="4" IsDefault="True"  x:Name="btnBegin" AutomationProperties.AutomationId="btnBegin"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnBegin_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnBeginTXT" Text="xBegin" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button Grid.Row="5" x:Name="btnCustomizeHabits"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCustomizeHabits_Click">
+            <Button Grid.Row="5" x:Name="btnCustomizeHabits" AutomationProperties.AutomationId="btnCustomizeHabits"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCustomizeHabits_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnCustomizeHabitsTXT" Text="xCustomize my habits first" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -75,7 +75,7 @@
             </Viewbox>
         </Grid>
 
-        <Popup Name="MyPopup"  PlacementTarget="{Binding ElementName=ListActivities}" Placement="Right" StaysOpen="True"  AllowsTransparency="True" >
+        <Popup Name="MyPopup" AutomationProperties.AutomationId="popupRemove" PlacementTarget="{Binding ElementName=ListActivities}" Placement="Right" StaysOpen="True"  AllowsTransparency="True" >
             <Grid Width="209" Height="auto"  Background="{x:Null}">
                 <Border Name="PopupBorder" Background="LightGoldenrodYellow" BorderBrush="Orange" BorderThickness="1" Margin="0,0,0,0" CornerRadius="7">
                     <StackPanel>

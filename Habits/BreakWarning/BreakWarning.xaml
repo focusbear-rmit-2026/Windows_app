@@ -31,7 +31,7 @@
         <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" MaxWidth="220" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <ComboBox Name="ComboBoxMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="5" SelectionChanged="ComboBoxMinutes_SelectionChanged" Loaded="ComboBoxMinutes_Loaded">
+            <ComboBox Name="ComboBoxMinutes" AutomationProperties.AutomationId="cmbMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="5" SelectionChanged="ComboBoxMinutes_SelectionChanged" Loaded="ComboBoxMinutes_Loaded">
                 <ComboBoxItem Content="5"></ComboBoxItem>
                 <ComboBoxItem Content="10"></ComboBoxItem>
                 <ComboBoxItem Content="15"></ComboBoxItem>
@@ -45,7 +45,7 @@
 
 
         </StackPanel>
-        <Button Grid.Row="4"  x:Name="btnAction"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
+        <Button Grid.Row="4"  x:Name="btnAction" AutomationProperties.AutomationId="btnAction"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnActionTXT" Text="xPostpone for 5 Minutes" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -53,7 +53,7 @@
             </Button.Content>
         </Button>
         <TextBlock Grid.Row="5" Margin="0,0,0,0" Name="BreakDescText" TextWrapping="Wrap" Text="xMicro breaks help keep your energy + alertness levels consistent throughout the day and have positive impacts on your posture (no more screen headaches)." MaxWidth="320" FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <Button Grid.Row="6"  x:Name="btnStartBreakNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnStartBreakNow_Click" >
+        <Button Grid.Row="6"  x:Name="btnStartBreakNow" AutomationProperties.AutomationId="btnStartBreakNow"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnStartBreakNow_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnStartBreakNowTXT" Text="xStart micro break now" Style="{DynamicResource ButtonTextBlockStyle}"/>

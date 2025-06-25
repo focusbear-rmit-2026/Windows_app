@@ -23,9 +23,9 @@
         </Grid.RowDefinitions>
 
         <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap"  Text="xEnter apps manually:"   FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
-        
-        
-        <TextBox Grid.Row="1" TabIndex="0" x:Name="TxtApps" Margin="20,5,20,10" TextWrapping="Wrap"  BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Height="25" TextChanged="TxtApps_TextChanged">
+
+
+        <TextBox Grid.Row="1" TabIndex="0" x:Name="TxtApps" AutomationProperties.AutomationId="txtBoxApps" Margin="20,5,20,10" TextWrapping="Wrap"  BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Height="25" TextChanged="TxtApps_TextChanged">
 
         </TextBox>
 
@@ -37,8 +37,8 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="btnCancel" Grid.Column="0" Height="23" Width="100" Margin="20,0,0,0" HorizontalAlignment="Left" Click="btnCancel_Click" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}">xCancel</Button>
-            <Button x:Name="btnAdd"  Grid.Column="1" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right" Click="btnAdd_Click" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}">xAdd</Button>
+            <Button x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel" Grid.Column="0" Height="23" Width="100" Margin="20,0,0,0" HorizontalAlignment="Left" Click="btnCancel_Click" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}">xCancel</Button>
+            <Button x:Name="btnAdd" AutomationProperties.AutomationId="btnAdd" Grid.Column="1" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right" Click="btnAdd_Click" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}">xAdd</Button>
 
         </Grid>
 

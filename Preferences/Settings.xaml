@@ -28,8 +28,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel    Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,0" >
-            <RadioButton x:Name="GeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"    />
-            <RadioButton x:Name="SimpleMode" Content="xSimple Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Cursor="Hand"  />
+            <RadioButton x:Name="GeekMode" AutomationProperties.AutomationId="rbGeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"    />
+            <RadioButton x:Name="SimpleMode" AutomationProperties.AutomationId="rbSimpleMode" Content="xSimple Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Cursor="Hand"  />
         </StackPanel>
 
         <Grid Grid.Row="1" Margin="20,10,20,15" Background="{DynamicResource BackgroundColor}">
@@ -39,7 +39,7 @@
                         <Setter Property="HorizontalAlignment" Value="Center" />
                     </Style>
                 </TabControl.Resources>
-                <TabItem Name="GeneralTab" Header="xGeneral" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="GeneralTab" AutomationProperties.AutomationId="tabGeneral" Header="xGeneral" Style="{DynamicResource TabItemStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -70,12 +70,12 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <RadioButton Grid.Row="0" VerticalAlignment="Center"  Name="CuddlyMode" Margin="0,0,0,0" Padding="5,-4,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="CuddlyMode_Checked">
+                                <RadioButton Grid.Row="0" VerticalAlignment="Center"  Name="CuddlyMode" AutomationProperties.AutomationId="rbCuddlyMode" Margin="0,0,0,0" Padding="5,-4,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="CuddlyMode_Checked">
                                     xCuddly Bear mode
                                 </RadioButton>
                                 <TextBlock Grid.Row="1"   Name="CuddlyModeDesc" Margin="20,0,0,20"  TextWrapping="Wrap"    Text="xCuddly Bear mode: kind and gentle - gives you the benefit of the doubt when you open a non-allowed URL. Lets you temporarily allow blocked URLs during a focus mode."   FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-                                <RadioButton Grid.Row="2" VerticalAlignment="Center"  Name="GrizzlyMode" Margin="0,0,0,0" Padding="5,-3,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="GrizzlyMode_Checked">
+                                <RadioButton Grid.Row="2" VerticalAlignment="Center"  Name="GrizzlyMode" AutomationProperties.AutomationId="rbGrizzlyMode" Margin="0,0,0,0" Padding="5,-3,0,0" GroupName="FocusBearMode"  FontSize="14" FontWeight="SemiBold" Checked="GrizzlyMode_Checked">
                                     xGrizzly Bear mode
                                 </RadioButton>
                                 <TextBlock Grid.Row="3"    Name="GrizzlyModeDesc" Margin="20,0,0,20" TextWrapping="Wrap"   Text="xGrizzly Bear mode: super strict - immediately block URLs that aren't allowed and don't let yourself allow them until the focus mode is over."   FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
@@ -86,13 +86,13 @@
                         <Grid Grid.Row="1" >
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Name="FullScreen" Margin="0,0,0,0"  Width="215" TextWrapping="Wrap"   Text="xFull Screen View:"   FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
-                                <CheckBox Name="FullScreenCheckbox" Margin="40,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" Checked="FullScreenCheckbox_Checked" Unchecked="FullScreenCheckbox_Unchecked" Cursor="Hand" Padding="5,-2,0,0">xPlay activities in full screen mode</CheckBox>
+                                <CheckBox Name="FullScreenCheckbox" AutomationProperties.AutomationId="chkFullScreen" Margin="40,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" Checked="FullScreenCheckbox_Checked" Unchecked="FullScreenCheckbox_Unchecked" Cursor="Hand" Padding="5,-2,0,0">xPlay activities in full screen mode</CheckBox>
                             </StackPanel>
                         </Grid>
                         <Grid Grid.Row="2" >
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Name="EnableBreaks" Margin="0,0,0,0"  Width="215" TextWrapping="Wrap"   Text="xBreaks"   FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
-                                <CheckBox Name="EnableBreaksCheckbox" Margin="40,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" Checked="EnableBreaksCheckbox_Checked" Unchecked="EnableBreaksCheckbox_Unchecked" Cursor="Hand" Padding="5,-2,0,0">xEnable Breaks</CheckBox>
+                                <CheckBox Name="EnableBreaksCheckbox" AutomationProperties.AutomationId="chkEnableBreaks" Margin="40,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" Checked="EnableBreaksCheckbox_Checked" Unchecked="EnableBreaksCheckbox_Unchecked" Cursor="Hand" Padding="5,-2,0,0">xEnable Breaks</CheckBox>
                             </StackPanel>
                         </Grid>
                         <Grid Grid.Row="3" >
@@ -116,25 +116,25 @@
                                     <RowDefinition MinHeight="27"/>
                                     <RowDefinition MinHeight="27"/>
                                 </Grid.RowDefinitions>
-                                <ComboBox  Grid.Row="0" Name="Fonts"    Width="200" HorizontalAlignment="Left" Margin="20,5,0,0"  SelectionChanged="Fonts_SelectionChanged"></ComboBox>
-                                <ComboBox  Grid.Row="1" Name="Language" Width="200" HorizontalAlignment="Left" Margin="20,15,0,0" SelectionChanged="Language_SelectionChanged"></ComboBox>
-                                <ComboBox  Grid.Row="2" Name="DarkMode" Width="200" HorizontalAlignment="Left" Margin="20,15,0,0" SelectionChanged="DarkMode_SelectionChanged"></ComboBox>
+                                <ComboBox  Grid.Row="0" Name="Fonts" AutomationProperties.AutomationId="cmbFonts"  Width="200" HorizontalAlignment="Left" Margin="20,5,0,0"  SelectionChanged="Fonts_SelectionChanged"></ComboBox>
+                                <ComboBox  Grid.Row="1" Name="Language" AutomationProperties.AutomationId="cmbLanguage" Width="200" HorizontalAlignment="Left" Margin="20,15,0,0" SelectionChanged="Language_SelectionChanged"></ComboBox>
+                                <ComboBox  Grid.Row="2" Name="DarkMode" AutomationProperties.AutomationId="cmbDarkMode" Width="200" HorizontalAlignment="Left" Margin="20,15,0,0" SelectionChanged="DarkMode_SelectionChanged"></ComboBox>
                             </Grid>
 
                         </Grid>
 
                     </Grid>
                 </TabItem>
-                <TabItem Name="PomodoroTab" Header="xPomodoro" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="PomodoroTab" AutomationProperties.AutomationId="tabPomodoro" Header="xPomodoro" Style="{DynamicResource TabItemStyle}">
                     <!--<local:PomodoroTab x:Name="PomodoroTAB" />-->
                 </TabItem>
-                <TabItem Name="AdvancedTab" Header="xAdvanced" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="AdvancedTab" AutomationProperties.AutomationId="tabAdvanced" Header="xAdvanced" Style="{DynamicResource TabItemStyle}">
 
                 </TabItem>
-                <TabItem Name="BlockedURLTab" Header="xBlocked URLs" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="BlockedURLTab" AutomationProperties.AutomationId="tabBlockedURLs" Header="xBlocked URLs" Style="{DynamicResource TabItemStyle}">
                     <!--<local:AITab x:Name="AITAB" />-->
                 </TabItem>
-                <TabItem Name="PasswordTab" Header="xPassword" Selector.Selected="PasswordTab_Selected" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="PasswordTab" AutomationProperties.AutomationId="tabPassword" Header="xPassword" Selector.Selected="PasswordTab_Selected" Style="{DynamicResource TabItemStyle}">
                     <Grid HorizontalAlignment="Center" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="35"/>
@@ -154,7 +154,7 @@
                         <TextBlock  Grid.Row="2"  Width="300"  Name="lblPassword" Margin="0,15,0,0" TextWrapping="NoWrap" Text="xNew Password:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
                         <Grid  Grid.Row="3" Width="300" VerticalAlignment="Center">
 
-                            <PasswordBox Width="230" TabIndex="2" x:Name="TxtPassword" Margin="0"    BorderBrush="#000"  Padding="5,2,5,5" BorderThickness="1" FontSize="14"  PasswordChanged="TxtPassword_PasswordChanged" Background="White"   >
+                            <PasswordBox Width="230" TabIndex="2" x:Name="TxtPassword" AutomationProperties.AutomationId="txtBoxPassword" Margin="0"    BorderBrush="#000"  Padding="5,2,5,5" BorderThickness="1" FontSize="14"  PasswordChanged="TxtPassword_PasswordChanged" Background="White"   >
                                 <PasswordBox.Effect>
                                     <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6" />
                                 </PasswordBox.Effect>
@@ -173,7 +173,7 @@
 
                         <TextBlock Grid.Row="4" Width="300" Name="lblConfirmPassword" Margin="0,15,0,0" TextWrapping="Wrap" Text="xConfirm Password:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
                         <Grid Grid.Row="5" Width="300" VerticalAlignment="Center">
-                            <PasswordBox Width="230" TabIndex="3" x:Name="TxtConfirmPassword" Margin="0" BorderBrush="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="14" PasswordChanged="TxtConfirmPassword_PasswordChanged" Background="White">
+                            <PasswordBox Width="230" TabIndex="3" x:Name="TxtConfirmPassword" AutomationProperties.AutomationId="txtBoxConfirmPassword" Margin="0" BorderBrush="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="14" PasswordChanged="TxtConfirmPassword_PasswordChanged" Background="White">
                                 <PasswordBox.Effect>
                                     <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6"/>
                                 </PasswordBox.Effect>
@@ -199,7 +199,7 @@
            HorizontalAlignment="Center" Width="180" Grid.RowSpan="2"/>
 
                         <!-- Set Password Button (moved to Row 7) -->
-                        <Button Grid.Row="6" x:Name="btnSetPassword" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" MinHeight="27" Width="180" HorizontalAlignment="Center" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSetPassword_Click" Grid.RowSpan="2" Margin="0,17,0,0">
+                        <Button Grid.Row="6" x:Name="btnSetPassword" AutomationProperties.AutomationId="btnSetPassword" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" MinHeight="27" Width="180" HorizontalAlignment="Center" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSetPassword_Click" Grid.RowSpan="2" Margin="0,17,0,0">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock x:Name="btnSetPasswordTXT" Text="xSet Password" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -208,7 +208,7 @@
                         </Button>
 
                         <!-- Disable Password Link (moved to Row 8) -->
-                        <TextBlock Grid.Row="7" x:Name="DisablePassword" Margin="235,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand" Grid.RowSpan="2">
+                        <TextBlock Grid.Row="7" x:Name="DisablePassword" AutomationProperties.AutomationId="txtDisablePassword Margin="235,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand" Grid.RowSpan="2">
     <Hyperlink x:Name="btnDisablePassword" Click="btnDisablePassword_Click" TextDecorations="Underline">
         <Run x:Name="btnDisablePasswordTXT" Text="xDisable Password"/>
     </Hyperlink>
@@ -236,28 +236,28 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0"   Name="WhenRequire" Margin="20,0,0,0"  TextWrapping="Wrap"    Text="xWhen do you want to require a password?"   FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
                                 <StackPanel  Grid.Row="2"  Orientation="Vertical"   Margin="20,0,0,0" Grid.RowSpan="2" HorizontalAlignment="Left">
-                                    <CheckBox Margin="0,10,0,10" x:Name="CheckChangingSettings" FontSize="14" Checked="CheckChangingSettings_Checked" Unchecked="CheckChangingSettings_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xChanging Settings</CheckBox>
-                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingMorningRoutine" FontSize="14" Checked="CheckPostponingMorningRoutine_Checked"  Unchecked="CheckPostponingMorningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping morning routine</CheckBox>
-                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingEveningRoutine" FontSize="14" Checked="CheckPostponingEveningRoutine_Checked"  Unchecked="CheckPostponingEveningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping evening routine</CheckBox>
-                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckSkipEveningAfterCutOff" FontSize="14" Checked="CheckSkipEveningAfterCutOff_Checked" Unchecked="CheckSkipEveningAfterCutOff_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/Skipping evening routine after cutoff time</CheckBox>
-                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckUsingComputerLateNight" FontSize="14" Checked="CheckUsingComputerLateNight_Checked"  Unchecked="CheckUsingComputerLateNight_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xUsing your computer late at night</CheckBox>
-                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckQuittingApp" FontSize="14" Checked="CheckQuittingApp_Checked" Unchecked="CheckQuittingApp_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xQuitting app</CheckBox>
-                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckUseRelaxMode" FontSize="14" Checked="CheckUseRelaxMode_Checked" Unchecked="CheckUseRelaxMode_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xAllow using relax focus mode</CheckBox>
+                                    <CheckBox Margin="0,10,0,10" x:Name="CheckChangingSettings" AutomationProperties.AutomationId="chkChangingSettings" FontSize="14" Checked="CheckChangingSettings_Checked" Unchecked="CheckChangingSettings_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xChanging Settings</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingMorningRoutine" AutomationProperties.AutomationId="chkPostponingMorningRoutine" FontSize="14" Checked="CheckPostponingMorningRoutine_Checked"  Unchecked="CheckPostponingMorningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping morning routine</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckPostponingEveningRoutine" AutomationProperties.AutomationId="chkPostponingEveningRoutine" FontSize="14" Checked="CheckPostponingEveningRoutine_Checked"  Unchecked="CheckPostponingEveningRoutine_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/skipping evening routine</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckSkipEveningAfterCutOff" AutomationProperties.AutomationId="chkSkipEveningAfterCutOff" FontSize="14" Checked="CheckSkipEveningAfterCutOff_Checked" Unchecked="CheckSkipEveningAfterCutOff_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xPostponing/Skipping evening routine after cutoff time</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckUsingComputerLateNight" AutomationProperties.AutomationId="chkUsingComputerLateNight" FontSize="14" Checked="CheckUsingComputerLateNight_Checked"  Unchecked="CheckUsingComputerLateNight_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xUsing your computer late at night</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckQuittingApp" AutomationProperties.AutomationId="chkQuittingApp" FontSize="14" Checked="CheckQuittingApp_Checked" Unchecked="CheckQuittingApp_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xQuitting app</CheckBox>
+                                    <CheckBox  Margin="0,0,0,10" x:Name="CheckUseRelaxMode" AutomationProperties.AutomationId="chkUseRelaxMode" FontSize="14" Checked="CheckUseRelaxMode_Checked" Unchecked="CheckUseRelaxMode_Unchecked" Cursor="Hand" Padding="6,-3,0,0">xAllow using relax focus mode</CheckBox>
                                 </StackPanel>
                             </Grid>
                         </Grid>
                     </Grid>
                 </TabItem>
 
-                <TabItem Name="AccountTab" Header="xAccount" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="AccountTab" AutomationProperties.AutomationId="tabAccount" Header="xAccount" Style="{DynamicResource TabItemStyle}">
                     <local:AccountTab x:Name="AccountTab1" />
                 </TabItem>
 
-                <TabItem Name="AITab" Header="xAI" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="AITab" AutomationProperties.AutomationId="tabAI" Header="xAI" Style="{DynamicResource TabItemStyle}">
                     <local:AITab x:Name="AITAB" />
                 </TabItem>
 
-                <TabItem Name="UninstallTab" Header="xUninstall" Style="{DynamicResource TabItemStyle}">
+                <TabItem Name="UninstallTab" AutomationProperties.AutomationId="tabUninstall" Header="xUninstall" Style="{DynamicResource TabItemStyle}">
                     <!--<local:Uninstall x:Name="UninstallTab" />-->
                 </TabItem>
             </TabControl>
@@ -265,14 +265,14 @@
         </Grid>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal"  >
-            <Button  x:Name="btnExportStatistics"   Margin="20,0,0,0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnExportStatistics_Click" >
+            <Button  x:Name="btnExportStatistics" AutomationProperties.AutomationId="btnExportStatistics"  Margin="20,0,0,0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnExportStatistics_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnExportStatisticsTXT" Text="xExport Statistics" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  x:Name="btnCheckForUpdates" Margin="15,0,0,0"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCheckForUpdates_Click" >
+            <Button  x:Name="btnCheckForUpdates" AutomationProperties.AutomationId="btnCheckForUpdates" Margin="15,0,0,0"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="27" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCheckForUpdates_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnCheckForUpdatesTXT" Text="xCheck for Updates" Style="{DynamicResource ButtonTextBlockStyle}"/>

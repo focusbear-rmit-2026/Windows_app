@@ -37,7 +37,7 @@
         <TextBlock  Grid.Row="4" Name="Descriptiopn2" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxLet's start out by blocking distractions."  FontSize="20" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
 
 
-        <Button Grid.Row="6"   x:Name="btnLetsDoIt"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="7,7" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnLetsDoIt_Click">
+        <Button Grid.Row="6"   x:Name="btnLetsDoIt" AutomationProperties.AutomationId="btnLetsDoIt"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="7,7" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnLetsDoIt_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="buttonLetsDoItText" Margin="8" Text="xLet's do it" Foreground="Black"/>
@@ -45,7 +45,7 @@
                 </Button.Content>
             </Button>
 
-        <TextBlock x:Name="HaveAccount"  Grid.Row="7"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
+        <TextBlock x:Name="HaveAccount" AutomationProperties.AutomationId="txtHaveAccount" Grid.Row="7"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
              <Hyperlink x:Name="btnHaveAccount"   Click="btnHaveAccount_Click"   TextDecorations="Underline" ><Run x:Name="btnHaveAccountText" Text="xI already have a Focus Bear account"/></Hyperlink>
         </TextBlock>
         <Separator Grid.Row="8" Margin="0,0,0,0"/>

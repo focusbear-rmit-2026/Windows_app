@@ -32,7 +32,7 @@
         <TextBlock  Grid.Row="4" Name="Data2" Margin="185,0,30,0" TextWrapping="Wrap" Text="xYour mood and energy level"  FontSize="18"  VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
         <TextBlock  Grid.Row="5" Name="Data3" Margin="185,0,30,0" TextWrapping="Wrap" Text="xHow productive you felt at the end of the day"  FontSize="18" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
         <StackPanel  Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button  x:Name="btnNoThanks"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,15,0" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnNoThanks_Click">
+            <Button  x:Name="btnNoThanks" AutomationProperties.AutomationId="btnNoThanks"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,15,0" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnNoThanks_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnNoThanksText" Margin="8" Text="xNo Thanks" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -40,7 +40,7 @@
                 </Button.Content>
             </Button>
 
-            <Button x:Name="btnSure"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="15,0,0,0" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnSure_Click"  >
+            <Button x:Name="btnSure" AutomationProperties.AutomationId="btnSure"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="15,0,0,0" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnSure_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnSureText" Margin="8" Text="xOk Sure" Style="{DynamicResource ButtonTextBlockStyle}"/>

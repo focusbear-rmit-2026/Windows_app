@@ -37,7 +37,7 @@
 
         <StackPanel x:Name="SectionNonTimer" Grid.Row="3" Orientation="Vertical" MinHeight="85" Visibility="Collapsed">
             <TextBlock  Grid.Row="1"  Name="CompleteAfter" Margin="0,0,0,10" TextWrapping="Wrap" Text="xComplete after: " FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <Button   IsDefault="True" x:Name="btnIAmDone"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnIAmDone_Click" >
+            <Button   IsDefault="True" x:Name="btnIAmDone" AutomationProperties.AutomationId="btnIAmDone"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnIAmDone_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnIAmDoneTXT" Text="xI am Done!" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -67,7 +67,7 @@
 
         </Border>
         <StackPanel Grid.Row="4" Orientation="Vertical"  >
-        <Button   x:Name="btnPausePlay"   Style="{StaticResource BtnStylePlay}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="40" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnPausePlay_Click" >
+            <Button   x:Name="btnPausePlay" AutomationProperties.AutomationId="btnPausePlay"  Style="{StaticResource BtnStylePlay}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="40" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnPausePlay_Click" >
             <Button.Effect>
                 <DropShadowEffect ShadowDepth="3"
                           Direction="320"
@@ -83,7 +83,7 @@
                 </StackPanel>
             </Button.Content>
         </Button>
-        <TextBlock x:Name="SkipThisHabitText" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand" Visibility="Collapsed">
+            <TextBlock x:Name="SkipThisHabitText" AutomationProperties.AutomationId="txtSkipThisHabit" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand" Visibility="Collapsed">
              <Hyperlink x:Name="btnSkipThisHabit"  Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
         </TextBlock>
         </StackPanel>

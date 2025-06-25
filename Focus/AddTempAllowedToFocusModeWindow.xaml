@@ -27,8 +27,8 @@
             <TextBlock    Name="Heading" Margin="0,0,0,15"    TextWrapping="Wrap" Text="xxDo you want to permanently allow these Apps or URLs that you used during this session?"  FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
             <TextBlock    Name="AppsTitle" Margin="0,0,0,10"    TextWrapping="Wrap" Text="xxApps:" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
 
-             
-            <ListView    x:Name="ListApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"   MaxHeight="120" VerticalAlignment="Top">
+
+            <ListView    x:Name="ListApps" SelectionMode="Single" AutomationProperties.AutomationId="lvListApps" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"   MaxHeight="120" VerticalAlignment="Top">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -36,7 +36,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal">
-                                <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
+                                <CheckBox  IsChecked="{Binding Path=IsItemChecked}" AutomationProperties.AutomationId="chk0"/>
                                 <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}"  FontSize="15" Cursor="Hand" Foreground="{DynamicResource ForegroundColor}" VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
                             </StackPanel>
 
@@ -48,7 +48,7 @@
             
             <TextBlock   Name="URLSTitle" Margin="0,10,0,5"   TextWrapping="Wrap" Text="xxURLs:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
         </StackPanel>
-        <ListView    x:Name="ListURLs"  Grid.Row="1" Margin="20,0,20,10" MaxHeight="120"  SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"  VerticalAlignment="Stretch" >
+        <ListView    x:Name="ListURLs" AutomationProperties.AutomationId="lvURLs"  Grid.Row="1" Margin="20,0,20,10" MaxHeight="120"  SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"  VerticalAlignment="Stretch" >
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -56,7 +56,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
+                            <CheckBox  IsChecked="{Binding Path=IsItemChecked}" AutomationProperties.AutomationId="chk1"/>
                             <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
                         </StackPanel>
 
@@ -66,7 +66,7 @@
             </ListView.ItemTemplate>
         </ListView>
         <TextBlock Grid.Row="2"  Name="KeywordsTitle" Margin="20,10,0,5"   TextWrapping="Wrap" Text="xxKeywords:" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
-        <ListView    x:Name="ListKeywords"  Grid.Row="3" Margin="20,0,20,0" MinHeight="100" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"  VerticalAlignment="Top" Height="101" >
+        <ListView    x:Name="ListKeywords" AutomationProperties.AutomationId="lvKeyWords" Grid.Row="3" Margin="20,0,20,0" MinHeight="100" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"  VerticalAlignment="Top" Height="101" >
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -74,7 +74,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
+                            <CheckBox  IsChecked="{Binding Path=IsItemChecked}"  AutomationProperties.AutomationId="chk2"/>
                             <TextBox x:Name="ItemText" Grid.Column="0" MinWidth="250" Text="{Binding sURL, StringFormat=\{0\}}" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left" BorderThickness="0"/>
                         </StackPanel>
                     </Grid>
@@ -82,7 +82,7 @@
             </ListView.ItemTemplate>
         </ListView>
         <Grid Grid.Row="4" Margin="20,0,20,10" >
-            <Button   x:Name="btnAddKeyword"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800" Background="LightGray" Height="20" Width="20" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Padding="0" Margin="5,2,0,1"  Cursor="Hand" FontWeight="Semibold" Click="btnAddKeyword_Click"  >
+            <Button   x:Name="btnAddKeyword" AutomationProperties.AutomationId="btnAddKeyWord"  Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800" Background="LightGray" Height="20" Width="20" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Padding="0" Margin="5,2,0,1"  Cursor="Hand" FontWeight="Semibold" Click="btnAddKeyword_Click"  >
 
                 <Button.Content>
                     <Image Name="btnAddKeywordTXT" Height="20"  Width="20" Source="{DynamicResource PlusImage}" Stretch="Uniform" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
@@ -90,14 +90,14 @@
                 </Button.Content>
             </Button>
         </Grid>
-        <Button  Grid.Row="5" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
+        <Button  Grid.Row="5" x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnCancelTXT" Text="xCancel" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>
-        <Button Grid.Row="5"  x:Name="btnAdd"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAdd_Click" >
+        <Button Grid.Row="5"  x:Name="btnAdd" AutomationProperties.AutomationId="btnAdd"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAdd_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnAddTXT" Text="xAdd" Style="{DynamicResource ButtonTextBlockStyle}"/>

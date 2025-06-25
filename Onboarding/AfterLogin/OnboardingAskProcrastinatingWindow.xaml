@@ -29,7 +29,7 @@
             <Image Grid.Row="1" Height="140"  Width="140" Source="../../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="191,0,191,5"/>
             <TextBlock  Grid.Row="2" x:Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xTime to do something difficult"  FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
             <TextBlock  Grid.Row="3" x:Name="Description" Margin="50,0,50,0" TextWrapping="Wrap" Text="xWhat's something you've been procrastinating on? Focus Bear will help you get it done right after this."  FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBox  Grid.Row="4" Name="TxtIntention" Visibility="Visible"  TextWrapping="Wrap"  AcceptsReturn="True"  Height="90" Margin="50,0,50,0" VerticalAlignment="Top"  FontSize="15" TextChanged="TxtIntention_TextChanged">
+            <TextBox  Grid.Row="4" Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" Visibility="Visible"  TextWrapping="Wrap"  AcceptsReturn="True"  Height="90" Margin="50,0,50,0" VerticalAlignment="Top"  FontSize="15" TextChanged="TxtIntention_TextChanged">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -50,21 +50,21 @@
             </TextBox>
 
             <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button  x:Name="btnFirst"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="200"  HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnFirst_Click" >
+                <Button  x:Name="btnFirst" AutomationProperties.AutomationId="btnFirst"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="200"  HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnFirst_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnFirstTxt" Text="xFirst" Foreground="Black"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <Button  x:Name="btnSecond"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="200" HorizontalContentAlignment="Center"  VerticalAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnSecond_Click" >
+                <Button  x:Name="btnSecond" AutomationProperties.AutomationId="btnSecond"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="200" HorizontalContentAlignment="Center"  VerticalAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnSecond_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnSecondTxt" Text="xSecond" Foreground="Black"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <Button  x:Name="btnThird"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="200"  HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnThird_Click" >
+                <Button  x:Name="btnThird" AutomationProperties.AutomationId="btnThird"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="200"  HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnThird_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnThirdTxt" Text="xThird" Foreground="Black"/>
@@ -72,7 +72,7 @@
                     </Button.Content>
                 </Button>
             </StackPanel>
-            <Button Grid.Row="6"  x:Name="btnLetsDoIt"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="300" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnLetsDoIt_Click" >
+            <Button Grid.Row="6"  x:Name="btnLetsDoIt" AutomationProperties.AutomationId="btnLetsDoIt"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="300" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnLetsDoIt_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnLetsDoItTxt" Text="xLet's Do It" Foreground="Black"/>

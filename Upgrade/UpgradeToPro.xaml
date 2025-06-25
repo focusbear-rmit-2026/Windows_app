@@ -74,7 +74,7 @@
                         <!-- Heading -->
                         <TextBlock x:Name="freeText" Text="xFREE" FontWeight="SemiBold" FontSize="25" HorizontalAlignment="Center" Margin="0,0,0,5"/>
 
-                        <Button x:Name="buttonContinue"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,2,20,0" FontSize="18" Cursor="Hand" Click="buttonContinue_Click"  >
+                        <Button x:Name="buttonContinue" AutomationProperties.AutomationId="btnContinue"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,2,20,0" FontSize="18" Cursor="Hand" Click="buttonContinue_Click"  >
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
                                     <TextBlock Name="buttonContinueText" Padding="10,0,10,0" Text="xContinue with Limited Features" Foreground="Black"/>
@@ -142,7 +142,7 @@
                             
                         </StackPanel>
 
-                        <Button x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,40,20,0" FontSize="18" Cursor="Hand"    Click="btnUpgradeNow_Click" >
+                        <Button x:Name="btnUpgradeNow" AutomationProperties.AutomationId="btnUpgradeNow"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,40,20,0" FontSize="18" Cursor="Hand"    Click="btnUpgradeNow_Click" >
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
                                     <TextBlock Name="btnUpgradeNowText" FontWeight="Bold" Padding="10,0,10,0" Text="xUpgrade now" Foreground="Black"/>

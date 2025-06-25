@@ -30,7 +30,7 @@
             </DockPanel>
         </Viewbox>
 
-        <Button Grid.Row="2"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,60" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
+        <Button Grid.Row="2"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,60" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock Name="btnContinueTxt" Text="xContinue" Style="{DynamicResource ButtonTextBlockStyle}"/>

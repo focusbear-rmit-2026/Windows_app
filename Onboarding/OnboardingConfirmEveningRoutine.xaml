@@ -59,14 +59,14 @@
         </StackPanel>
 
         <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button x:Name="btnChangeThis"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnChangeThis_Click">
+            <Button x:Name="btnChangeThis" AutomationProperties.AutomationId="btnChangeThis"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnChangeThis_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnChangeThisTXT" Text="xChange this" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button x:Name="btnSoundsGood"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnSoundsGood_Click">
+            <Button x:Name="btnSoundsGood" AutomationProperties.AutomationId="btnSoundsGood"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnSoundsGood_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnSoundsGoodTXT" Text="xSounds Good" Foreground="Black"/>
