@@ -1,3 +1,4 @@
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Win32;
@@ -94,6 +95,10 @@ namespace Focus_Bear.Focus
                 DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime(); 
                 TimeSpan difference = end.Subtract(start); // could also write `now - otherTime`
                 double durationMinutes = difference.TotalMinutes;
+
+                //get the brain dump if saved from previous
+                RegistryManager.GetBrainDump();
+
                 string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
 
                 string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"total_duration\":{1},lang:\"{2}\",\"font\":\"{3}\",\"theme\":{6},\"intention\":\"{4}\",\"brain_dump\":\"{5}\"}}", appSettings.userAccount.accessToken, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump,sTheme);
@@ -209,6 +214,12 @@ namespace Focus_Bear.Focus
                 if (sContentJson.ContainsKey("brain_dump_content"))
                 {
                     appSettings.sBrainDump = sContentJson["brain_dump_content"].ToString();
+                    RegistryManager.SaveBrainDump();
+                    //Update the braindump window ui
+                    if (app.wndBrainDump != null)
+                    {
+                        app.wndBrainDump.TxtDumpDown.Text = appSettings.sBrainDump;
+                    }
                 }
                 if (sContentJson.ContainsKey("tasks"))
                 {
@@ -220,8 +231,11 @@ namespace Focus_Bear.Focus
 
                     //We need to add it back to the focus mode
                     var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
-                    FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
-                    CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
+                    if (listItems.Count() != 0)
+                    {
+                        FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
+                        CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
+                    }
 
                 }
                 if (sContentJson.ContainsKey("intention"))
@@ -251,5 +265,18 @@ namespace Focus_Bear.Focus
             }
         }
 
+        public void UpdateBrainDumpContent()
+        {
+            try
+            {
+                string UpdateFunc = string.Format("updateBrainDumpFromDesktopApp({0});", appSettings.sBrainDump);
+
+                var sReturn = webView.ExecuteScriptAsync(UpdateFunc);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpdateBrainDumpContent ex- " + ex.Message);
+            }
+        }
     }
 }

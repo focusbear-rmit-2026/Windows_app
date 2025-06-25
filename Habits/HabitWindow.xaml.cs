@@ -1523,6 +1523,7 @@ namespace Focus_Bear.Habits
             {
                 Hide();
                 appSettings.RemoveSecondaryWindows();
+                appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
             }
   
         }

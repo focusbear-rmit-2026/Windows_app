@@ -115,5 +115,16 @@ namespace Focus_Bear.BrainDump
         {
             Close();
         }
+
+        private void TxtDumpDown_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            appSettings.sBrainDump = TxtDumpDown.Text;
+            RegistryManager.SaveBrainDump();
+
+            if (((App)(Application.Current)).wndToDoPlayer != null)
+            {
+                ((App)(Application.Current)).wndToDoPlayer.UpdateBrainDumpContent();
+            }
+        }
     }
 }

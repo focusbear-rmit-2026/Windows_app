@@ -208,7 +208,7 @@
                         </Button>
 
                         <!-- Disable Password Link (moved to Row 8) -->
-                        <TextBlock Grid.Row="7" x:Name="DisablePassword" AutomationProperties.AutomationId="txtDisablePassword Margin="235,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand" Grid.RowSpan="2">
+                        <TextBlock Grid.Row="7" x:Name="DisablePassword" AutomationProperties.AutomationId="txtDisablePassword" Margin="235,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand" Grid.RowSpan="2">
     <Hyperlink x:Name="btnDisablePassword" Click="btnDisablePassword_Click" TextDecorations="Underline">
         <Run x:Name="btnDisablePasswordTXT" Text="xDisable Password"/>
     </Hyperlink>

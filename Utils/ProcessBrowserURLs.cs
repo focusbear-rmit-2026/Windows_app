@@ -960,7 +960,7 @@ namespace Focus_Bear.Utils
 
                     if (!bAllowedURLFound)
                     {
-                        LogWriter.LogWrite(sURL + " BLOCKED URL found in activity - BLOCK");
+                        LogWriter.LogWrite(sURL + "PBU - BLOCKED URL found in activity - BLOCK");
                         // "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={0}"; //evening-habit, morning-habit, break-activity
                         suppressURLForFirefox(hWnd, sURL, sHabitType);
                     }
@@ -1002,7 +1002,7 @@ namespace Focus_Bear.Utils
 
             try
             {
-                LogWriter.LogWrite("suppressURLForFirefox - Block URL - " + val);
+                LogWriter.LogWrite("PBU - suppressURLForFirefox - Block URL - " + val);
 
 
                 if (type == "focus")
