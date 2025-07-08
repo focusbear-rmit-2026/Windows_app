@@ -6,6 +6,7 @@
       xmlns:local="clr-namespace:Focus_Bear.Onboarding"
       mc:Ignorable="d" 
       d:DesignHeight="1080" d:DesignWidth="1920"
+      AutomationProperties.AutomationId="WelcomeWindow"
       Title="Focus Bear">
 
     <Grid>

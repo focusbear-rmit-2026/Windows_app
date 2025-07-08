@@ -6,7 +6,7 @@
         xmlns:Models="clr-namespace:Focus_Bear.Models"
         xmlns:local="clr-namespace:Focus_Bear.Quit"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="650" Width="1165" ResizeMode="NoResize"
+        Title="Focus Bear" AutomationProperties.AutomationId="quitWindow" Height="650" Width="1165" ResizeMode="NoResize"
         Background="{DynamicResource BackgroundColor}">
     <Grid>
         <Grid.Resources>

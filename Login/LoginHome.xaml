@@ -6,6 +6,7 @@
       xmlns:local="clr-namespace:Focus_Bear.Login"
       mc:Ignorable="d" 
       d:DesignHeight="680" d:DesignWidth="945"
+      AutomationProperties.AutomationId="LoginHomeWindow"
       Title="LoginHome" >
 
     <Grid>
