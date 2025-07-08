@@ -127,7 +127,7 @@ namespace FocusBear.Utils
 
             if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
             {
-                ProcessAllowedAppAndURLsInActivity(element);
+                ProcessAllowedAppAndURLsInActivity(element); //onmly for apps
                // ProcessAlloweURLsInActivity(element);
             }
 
@@ -420,6 +420,8 @@ namespace FocusBear.Utils
         }
         private void ProcessAlloweURLsInActivity(string sURL, IntPtr hWnd, IUIAutomationElement element, IUIAutomationValuePattern val, bool bForFirefox = false)
         {
+            return; //handled by PBU
+
             try
             {
                 //if (val != null && !string.IsNullOrEmpty(val.CurrentValue) && (!val.CurrentValue.ToString().Contains("focus-block.html")))
@@ -705,7 +707,7 @@ namespace FocusBear.Utils
 
                     if (!bAllowedURLFound)
                     {
-                        LogWriter.LogWrite(sURL + " BLOCKED URL found in activity - BLOCK");
+                        LogWriter.LogWrite(sURL + "FCH - BLOCKED URL found in activity - BLOCK");
                         //  string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={0}"; //evening-habit, morning-habit, break-activity
                         if (bForFirefox)
                         {
@@ -1335,7 +1337,7 @@ namespace FocusBear.Utils
                     }
                     if (!bAllowedURLFound)
                     {
-                        LogWriter.LogWrite("processCurrentFocusElement isBlockedListApproach - Attempt to Suppress URL");
+                        LogWriter.LogWrite("FCH - processCurrentFocusElement isBlockedListApproach - Attempt to Suppress URL");
                         if (bForFirefox)
                         {
                             suppressURLForFirefox(hWnd, sURL, "focus");
@@ -1360,6 +1362,8 @@ namespace FocusBear.Utils
         string sPreviousFFURL = "";
         private void processCurrentURL(IUIAutomationElement element)
         {
+            return;
+
             try
             {
                 using (Process process = Process.GetProcessById(element.CurrentProcessId))
@@ -1591,7 +1595,7 @@ namespace FocusBear.Utils
         {
             try
             {
-                LogWriter.LogWrite("suppressURLForFirefox - Block URL - " + val);
+                LogWriter.LogWrite("FCH - suppressURLForFirefox - Block URL - " + val);
 
                 if (type == "focus")
                 {

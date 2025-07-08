@@ -681,64 +681,65 @@ namespace Focus_Bear
                     {
                         var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
                         //Check if its the same focusmode that is running, then let's stop it.
-                        FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
-                            
-                        if (((App)(Application.Current)).wndStartPomodoro != null)
+                        if (listItems.Count() != 0)
                         {
-                            ((App)(Application.Current)).wndStartPomodoro.Hide();
-                            appSettings.isStartPomodoroWindowOpen = false;
-                        }
-                        //Stop the focus mode
-                        //Show WIndow here
-                        StopFocusMode ss = new StopFocusMode();
-                        bool? bResult = ss.ShowDialog();
-                        if (bResult.Value == false)
-                        {
-                            //Cancel CLicked, nothing to do
+                            FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
+
+                            if (((App)(Application.Current)).wndStartPomodoro != null)
+                            {
+                                ((App)(Application.Current)).wndStartPomodoro.Hide();
+                                appSettings.isStartPomodoroWindowOpen = false;
+                            }
+                            //Stop the focus mode
+                            //Show WIndow here
+                            StopFocusMode ss = new StopFocusMode();
+                            bool? bResult = ss.ShowDialog();
+                            if (bResult.Value == false)
+                            {
+                                //Cancel CLicked, nothing to do
+                                //Deselect the Seleted list view item
+                                ListFocusModes.SelectedItem = null;
+                                return;
+                            }
+
+                            OnUntill.Content = "";
+                            CurrentRunningFocusMode.isOn = false;
+                            Sounds.PlayFocusModeEndSound();
+
+                            FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                            FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
+
+                            //Turn off super pomodoro too as user have manually stopped
+                            appSettings.bUseSuperPomodoroMode = false;
+
+
+                            //Clear the Gentle block temp arrays
+                            appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                            appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+                            //Make the global variable false
+                            appSettings.isFocusModeRunning = false;
+
+                            ((App)Application.Current).CloseFocusProgressWindow();
+
+                            //Show and Set on untill value
+                            OnUntill.Visibility = Visibility.Collapsed;
+                            //Increase hearder height
+                            OrangeHeader.Height = 25; //Originally 25
+                            if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                            {
+                                OrangeHeader.Height = 30; //Originally 25
+                            }
+
                             //Deselect the Seleted list view item
-                            ListFocusModes.SelectedItem = null;
-                            return;
+                            //ListFocusModes.SelectedItem = null;
+
+                            if (appSettings.bUseSuperPomodoroMode)
+                            {
+                                LogWriter.LogWrite("Stop the super pomodoro mode and return");
+                                appSettings.bUseSuperPomodoroMode = false; //stop the super pomodoro mode and return
+                            }
                         }
-
-                        OnUntill.Content = "";
-                        CurrentRunningFocusMode.isOn = false;
-                        Sounds.PlayFocusModeEndSound();
-
-                        FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
-                        FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
-
-                        //Turn off super pomodoro too as user have manually stopped
-                        appSettings.bUseSuperPomodoroMode = false;
-
-
-                        //Clear the Gentle block temp arrays
-                        appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                        appSettings.TemporarryBlockedURLsGentleBlock.Clear();
-
-                        //Make the global variable false
-                        appSettings.isFocusModeRunning = false;
-
-                        ((App)Application.Current).CloseFocusProgressWindow();
-
-                        //Show and Set on untill value
-                        OnUntill.Visibility = Visibility.Collapsed;
-                        //Increase hearder height
-                        OrangeHeader.Height = 25; //Originally 25
-                        if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                        {
-                            OrangeHeader.Height = 30; //Originally 25
-                        }
-
-                        //Deselect the Seleted list view item
-                        //ListFocusModes.SelectedItem = null;
-
-                        if (appSettings.bUseSuperPomodoroMode)
-                        {
-                            LogWriter.LogWrite("Stop the super pomodoro mode and return");
-                            appSettings.bUseSuperPomodoroMode = false; //stop the super pomodoro mode and return
-                        }
-
-
                     }
                     catch (Exception ex)
                     {
