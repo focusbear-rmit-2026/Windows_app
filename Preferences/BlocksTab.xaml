@@ -29,6 +29,7 @@
 
             <TabItem Name="BlockingSchedule" AutomationProperties.AutomationId="tabBlockingSchedule" Header="xBlocking Schedule" Style="{DynamicResource TabItemStyle}">
                 <ScrollViewer>
+
                 <Grid Background="{DynamicResource SoftCreamColor}">
                     <Grid.RowDefinitions>
                         <RowDefinition MinHeight="200"/>

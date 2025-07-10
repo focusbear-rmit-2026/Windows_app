@@ -40,6 +40,7 @@
                     </Style>
                 </TabControl.Resources>
                 <TabItem Name="GeneralTab" AutomationProperties.AutomationId="tabGeneral" Header="xGeneral" Style="{DynamicResource TabItemStyle}">
+
                     <ScrollViewer>
                     <Grid>
                         <Grid.RowDefinitions>

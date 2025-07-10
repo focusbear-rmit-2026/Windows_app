@@ -24,6 +24,7 @@ namespace Focus_Bear.Habits.NaturalBreaks
         public NaturalBreakDetectionWindow()
         {
             InitializeComponent();
+
             LogWriter.LogWrite("NaturalBreakDetectionWindow Shown");
             try
             {
@@ -40,12 +41,14 @@ namespace Focus_Bear.Habits.NaturalBreaks
         private void btnOK_Click(object sender, RoutedEventArgs e) //"Thanks - I feel great",
         {
             LogWriter.LogWrite("NaturalBreakDetectionWindow - btnOK_Clicked");
+
             ((App)Application.Current).StartBreakActivityTimer();
             Hide();
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e) // "You're wrong! I wasn't on a break",
         {
+
             LogWriter.LogWrite("NaturalBreakDetectionWindow - btnCancel_Clicked");
             //"titleTakeBreak": "Ok do you want to take a break now 😅?",
             FBMessageBox msgBox = new FBMessageBox("", appSettings.ConfigFileStrings["naturalBreaksDetectionVcInfo"]["titleTakeBreak"].ToString(), MessageBoxButton.YesNo, appSettings.ConfigFileStrings["naturalBreaksDetectionVcInfo"]["buttonStartBreakText"].ToString(), appSettings.ConfigFileStrings["naturalBreaksDetectionVcInfo"]["buttonTakeBreakLaterText"].ToString());

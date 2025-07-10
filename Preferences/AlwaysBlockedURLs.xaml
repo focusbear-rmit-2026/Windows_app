@@ -71,7 +71,8 @@
                 </DockPanel>
             </Grid>
             <CheckBox Grid.Row="3" x:Name="ImmediatelyBlockDistractingURLs" AutomationProperties.AutomationId="chkImmediatelyBlockDistractingURLs" Cursor="Hand" Margin="20,0,20,0" FontSize="13"    Checked="ImmediatelyBlockDistractingURLs_Checked" Unchecked="ImmediatelyBlockDistractingURLs_Unchecked" Visibility="Visible">
-                <TextBlock x:Name="ImmediatelyBlockDistractingURLsText" ToolTip="X" TextWrapping="Wrap" Padding="3,0">xImmediately block super distracting sites</TextBlock>
+             <TextBlock x:Name="ImmediatelyBlockDistractingURLsText" ToolTip="X" TextWrapping="Wrap" Padding="3,0">xImmediately block super distracting sites</TextBlock>
+
             </CheckBox>
             
             <Border x:Name="GridShadeAdvanced" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.80"   Visibility="Collapsed" />
