@@ -28,11 +28,13 @@
             </TabControl.Resources>
 
             <TabItem Name="BlockingSchedule" AutomationProperties.AutomationId="tabBlockingSchedule" Header="xBlocking Schedule" Style="{DynamicResource TabItemStyle}">
+                <ScrollViewer>
+
                 <Grid Background="{DynamicResource SoftCreamColor}">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition MinHeight="200"/>
                         <RowDefinition Height="1"/>
-                        <RowDefinition Height="260"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <wv2:WebView2 Grid.Row="0" Name="webViewBlockingSchedule" Margin="0,0,0,10"/>
                     <Grid Grid.Row="1" Background="LightGray" Height="1"></Grid>
@@ -48,7 +50,7 @@
 
                     </StackPanel>
                 </Grid>
-                
+                </ScrollViewer>
                 
             </TabItem>
             <TabItem Name="DistractingSites" AutomationProperties.AutomationId="tabDistractingSites" Header="xSuper Distracting Sites" Style="{DynamicResource TabItemStyle}">

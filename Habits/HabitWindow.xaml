@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="850" Width="900"   PreviewKeyDown="Window_PreviewKeyDown" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" IsVisibleChanged="FullScreenParent_IsVisibleChanged" Closing="FullScreenParent_Closing"
+        Title="Focus Bear" Height="850" Width="900"   PreviewKeyDown="Window_PreviewKeyDown" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" IsVisibleChanged="FullScreenParent_IsVisibleChanged" Closing="FullScreenParent_Closing" Loaded="FullScreenParent_Loaded" 
                         Background="{DynamicResource BackgroundColor}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />

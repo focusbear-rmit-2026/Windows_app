@@ -436,5 +436,35 @@ namespace Focus_Bear.Pomodoro
                 app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
         }
+
+        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (IsVisible)
+            {
+                this.Width = 744;
+                this.Height = 700;
+
+                double screenLogicalWidth = SystemParameters.WorkArea.Width;
+                double screenLogicalHeight = SystemParameters.WorkArea.Height;
+
+                LogWriter.LogWrite(string.Format("screenLogicalWidth = {0}, screenLogicalHeight = {1}", screenLogicalWidth.ToString(), screenLogicalHeight.ToString()));
+
+                // “ideal” logical minimum
+                const double idealMinW = 744, idealMinH = 700;
+
+                //Cap the minimum to what actually fits
+                this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
+                this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
+
+                // 
+                this.Width = this.MinWidth;
+                this.Height = this.MinHeight;
+
+                // 6)
+                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+            }
+
+        }
     }
 }

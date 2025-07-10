@@ -459,6 +459,8 @@ namespace Focus_Bear.Onboarding
         {
             Hide();
             appSettings.bExitFullScreenClickedWhileOnboarding = true;
+            
+            app.ShowSplashWindow(true); //show the splach so that useer does not gets confused
 
             try
             {
@@ -633,6 +635,27 @@ namespace Focus_Bear.Onboarding
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
             }
 
+        }
+
+        private void FullScreenParent_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            this.Width = 1300;
+            this.Height = 750;
+
+            //  Compute how many logical units the screen can show
+            double screenLogicalWidth = SystemParameters.WorkArea.Width;
+            double screenLogicalHeight = SystemParameters.WorkArea.Height;
+
+            //“ideal” logical minimum
+            const double idealMinW = 1300, idealMinH = 750;
+
+            //set to what actually fits
+            this.Width = Math.Min(idealMinW, screenLogicalWidth);
+            this.Height = Math.Min(idealMinH, screenLogicalHeight);
+
+            //Center it
+            this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+            this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
         }
     }
 }

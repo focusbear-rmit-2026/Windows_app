@@ -17,7 +17,8 @@
                 </Style>
             </ResourceDictionary>
         </Grid.Resources>
-        
+        <ScrollViewer>
+            <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="40"/>
@@ -117,5 +118,7 @@
                 </StackPanel>
             </Button.Content>
         </Button>
+        </Grid>
+        </ScrollViewer>
     </Grid>
 </Window>

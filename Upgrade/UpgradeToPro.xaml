@@ -8,152 +8,154 @@
         mc:Ignorable="d"
         Title="Focus Bear" Height="770" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="ToolWindow"  >
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="108" />
-            <RowDefinition Height="*"   />
-          
-        </Grid.RowDefinitions>
+        <ScrollViewer>
+            <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="108" />
+                <RowDefinition Height="*"   />
+            </Grid.RowDefinitions>
 
-        <TextBlock  Name="TitleText" Margin="50,0,50,0" TextWrapping="Wrap" Text="xYou're currently using the Basic version of Focus Bear, which offers limited features. Consider upgrading to the Pro version for access to unlimited blocking, habits, and other premium features to maximize your productivity." FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Name="TitleText" Margin="50,0,50,0" TextWrapping="Wrap" Text="xYou're currently using the Basic version of Focus Bear, which offers limited features. Consider upgrading to the Pro version for access to unlimited blocking, habits, and other premium features to maximize your productivity." FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <!-- Second row with white background and black borders -->
-        <Border Grid.Row="1" >
-            <Grid Margin="25">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <!-- Adjust width as needed -->
-                    <ColumnDefinition Width="*"/>
-                    <!-- Adjust width as needed -->
-                </Grid.ColumnDefinitions>
+            <!-- Second row with white background and black borders -->
+                <Border Grid.Row="1" >
+                    <Grid Margin="25">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <!-- Adjust width as needed -->
+                            <ColumnDefinition Width="*"/>
+                            <!-- Adjust width as needed -->
+                        </Grid.ColumnDefinitions>
 
-                <!-- Left cell -->
-                <Border Grid.Column="0" Background="#ffe4c6" BorderBrush="Black" BorderThickness="2" CornerRadius="10"  Margin="10,0,10,0">
-                    <StackPanel VerticalAlignment="top" HorizontalAlignment="Center" Margin="0,30,0,0">
-                        <!-- Image view -->
-                        <Image Grid.Row="0" Height="60"  Width="60" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+                        <!-- Left cell -->
+                        <Border Grid.Column="0" Background="#ffe4c6" BorderBrush="Black" BorderThickness="2" CornerRadius="10"  Margin="10,0,10,0">
+                            <StackPanel VerticalAlignment="top" HorizontalAlignment="Center" Margin="0,30,0,0">
+                                <!-- Image view -->
+                                <Image Grid.Row="0" Height="60"  Width="60" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
 
-                        <!-- Heading -->
-                        <TextBlock x:Name="basicVersionTitle" Text="xBasic" FontWeight="Bold" FontSize="25" HorizontalAlignment="Center" Margin="0,10,0,5"/>
+                                <!-- Heading -->
+                                <TextBlock x:Name="basicVersionTitle" Text="xBasic" FontWeight="Bold" FontSize="25" HorizontalAlignment="Center" Margin="0,10,0,5"/>
 
-                        <!-- Subheading -->
-                        <TextBlock x:Name="keepRunningText" Text="xTo keep you running.." FontSize="17" HorizontalAlignment="Center" Margin="0,10,0,5"/>
+                                <!-- Subheading -->
+                                <TextBlock x:Name="keepRunningText" Text="xTo keep you running.." FontSize="17" HorizontalAlignment="Center" Margin="0,10,0,5"/>
 
-                        <!-- Points -->
-                        <StackPanel Width="300" Height="270">
-                            <StackPanel Orientation="Horizontal" Margin="0,10,0,5" HorizontalAlignment="Left">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointSimplePomodoroText" Text="xSimple mode"  FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointPomodoroText" Text="xPomodoro" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointLimitedBlockText" Text="xBlock up to COUNT> websites  apps" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5" Height="auto">
-                                <TextBlock  Width="20" Height="20" FontSize="13" VerticalAlignment="Top" >✔</TextBlock>
-                                <TextBlock x:Name="pointLimitedHabitsText" TextWrapping="Wrap" Width="280" Text="xMorning Evening Routines With Limited habits" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointLimitedMicroBreaksText" TextWrapping="Wrap" Width="280" Text="xMicro-Breaks with Limited activities" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointBrowserTabLimiterText" Text="xBrowser Tab Limiter" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointToDoListText" Text="xTo-Do List" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            
-                        </StackPanel>
+                                <!-- Points -->
+                                <StackPanel Width="300" Height="270">
+                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,5" HorizontalAlignment="Left">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointSimplePomodoroText" Text="xSimple mode"  FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointPomodoroText" Text="xPomodoro" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointLimitedBlockText" Text="xBlock up to COUNT> websites  apps" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5" Height="auto">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" VerticalAlignment="Top" >✔</TextBlock>
+                                        <TextBlock x:Name="pointLimitedHabitsText" TextWrapping="Wrap" Width="280" Text="xMorning Evening Routines With Limited habits" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointLimitedMicroBreaksText" TextWrapping="Wrap" Width="280" Text="xMicro-Breaks with Limited activities" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointBrowserTabLimiterText" Text="xBrowser Tab Limiter" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointToDoListText" Text="xTo-Do List" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
 
-                        <!-- Heading -->
-                        <TextBlock x:Name="freeText" Text="xFREE" FontWeight="SemiBold" FontSize="25" HorizontalAlignment="Center" Margin="0,0,0,5"/>
-
-                        <Button x:Name="buttonContinue" AutomationProperties.AutomationId="btnContinue"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,2,20,0" FontSize="18" Cursor="Hand" Click="buttonContinue_Click"  >
-                            <Button.Content>
-                                <StackPanel  Orientation="Horizontal">
-                                    <TextBlock Name="buttonContinueText" Padding="10,0,10,0" Text="xContinue with Limited Features" Foreground="Black"/>
                                 </StackPanel>
-                            </Button.Content>
-                        </Button>
-                    </StackPanel>
-                </Border>
 
-                <!-- Right cell -->
-                <Border Grid.Column="1" Background="#ffe4c6" BorderBrush="Black" BorderThickness="2" CornerRadius="10" Margin="10,0,10,0">
-                    <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,30,0,0">
-                        <!-- Image view -->
-                        <Image Grid.Row="0" Height="60"  Width="60" Source="../Images/FocusBear-Geek.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+                                <!-- Heading -->
+                                <TextBlock x:Name="freeText" Text="xFREE" FontWeight="SemiBold" FontSize="25" HorizontalAlignment="Center" Margin="0,0,0,5"/>
 
-                        <!-- Heading -->
-                        <TextBlock x:Name="proVersionTitle" Text="xPRO" FontWeight="Bold" FontSize="25" HorizontalAlignment="Center" Margin="0,10,0,5"/>
+                                <Button x:Name="buttonContinue" AutomationProperties.AutomationId="btnContinue"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,2,20,0" FontSize="18" Cursor="Hand" Click="buttonContinue_Click"  >
+                                    <Button.Content>
+                                        <StackPanel  Orientation="Horizontal">
+                                            <TextBlock Name="buttonContinueText" Padding="10,0,10,0" Text="xContinue with Limited Features" Foreground="Black"/>
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+                        </Border>
 
-                        <!-- Subheading -->
-                        <TextBlock x:Name="allInProVersionText" Text="xEverything in basic plus.." FontSize="17" HorizontalAlignment="Center" Margin="0,10,0,5"/>
+                        <!-- Right cell -->
+                        <Border Grid.Column="1" Background="#ffe4c6" BorderBrush="Black" BorderThickness="2" CornerRadius="10" Margin="10,0,10,0">
+                            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,30,0,0">
+                                <!-- Image view -->
+                                <Image Grid.Row="0" Height="60"  Width="60" Source="../Images/FocusBear-Geek.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
 
+                                <!-- Heading -->
+                                <TextBlock x:Name="proVersionTitle" Text="xPRO" FontWeight="Bold" FontSize="25" HorizontalAlignment="Center" Margin="0,10,0,5"/>
 
-                        <!-- Points -->
-                        <StackPanel Width="300" Height="270">
-                            <StackPanel Orientation="Horizontal" Margin="0,10,0,5" HorizontalAlignment="Left">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointGeekModeText" Text="xGeek Mode"  FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointSuperPomodoroText" Text="xSuper Pomodoro" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointUnlimitedBlockingText" Text="xUnlimited Blocking" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5" Height="auto">
-                                <TextBlock  Width="20" Height="20" FontSize="13" VerticalAlignment="Top" >✔</TextBlock>
-                                <TextBlock x:Name="pointAlBlockingText" TextWrapping="Wrap" Width="280" Text="xAl Blocking" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointFocusModesText" TextWrapping="Wrap" Width="280" Text="xFocus Modes" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointFocusMusicText" Text="xFocus Music" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointMeetingDetectionText" Text="xMeeting Detection" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointPartnerPasswordText" Text="xPartner Password" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointCustomizableStrictnessText" Text="xCustomizable Strictness Levels" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
-                                <TextBlock x:Name="pointAddOnsText" Text="xOther Add-Ons" FontSize="15" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            
-                        </StackPanel>
+                                <!-- Subheading -->
+                                <TextBlock x:Name="allInProVersionText" Text="xEverything in basic plus.." FontSize="17" HorizontalAlignment="Center" Margin="0,10,0,5"/>
 
-                        <Button x:Name="btnUpgradeNow" AutomationProperties.AutomationId="btnUpgradeNow"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,40,20,0" FontSize="18" Cursor="Hand"    Click="btnUpgradeNow_Click" >
-                            <Button.Content>
-                                <StackPanel  Orientation="Horizontal">
-                                    <TextBlock Name="btnUpgradeNowText" FontWeight="Bold" Padding="10,0,10,0" Text="xUpgrade now" Foreground="Black"/>
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
-                        <Image   x:Name="ImgUpdateAppProgress" Height="30"   Models:ImageBehavior.AnimatedSource="../Images/progress.gif" HorizontalAlignment="Center" Margin="0,2,0,2" VerticalAlignment="Center" Visibility="Collapsed"  />
+                                <!-- Points -->
+                                <StackPanel Width="300" Height="270">
+                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,5" HorizontalAlignment="Left">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointGeekModeText" Text="xGeek Mode"  FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointSuperPomodoroText" Text="xSuper Pomodoro" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointUnlimitedBlockingText" Text="xUnlimited Blocking" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5" Height="auto">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" VerticalAlignment="Top" >✔</TextBlock>
+                                        <TextBlock x:Name="pointAlBlockingText" TextWrapping="Wrap" Width="280" Text="xAl Blocking" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointFocusModesText" TextWrapping="Wrap" Width="280" Text="xFocus Modes" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointFocusMusicText" Text="xFocus Music" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointMeetingDetectionText" Text="xMeeting Detection" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointPartnerPasswordText" Text="xPartner Password" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointCustomizableStrictnessText" Text="xCustomizable Strictness Levels" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <TextBlock  Width="20" Height="20" FontSize="13" >✔</TextBlock>
+                                        <TextBlock x:Name="pointAddOnsText" Text="xOther Add-Ons" FontSize="15" Margin="10,0,0,0"/>
+                                    </StackPanel>
 
-                    </StackPanel>
+                               </StackPanel>
+
+                                <Button x:Name="btnUpgradeNow" AutomationProperties.AutomationId="btnUpgradeNow"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="225" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,40,20,0" FontSize="18" Cursor="Hand"    Click="btnUpgradeNow_Click" >
+                                    <Button.Content>
+                                        <StackPanel  Orientation="Horizontal">
+                                            <TextBlock Name="btnUpgradeNowText" FontWeight="Bold" Padding="10,0,10,0" Text="xUpgrade now" Foreground="Black"/>
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
+                                <Image   x:Name="ImgUpdateAppProgress" Height="30"   Models:ImageBehavior.AnimatedSource="../Images/progress.gif" HorizontalAlignment="Center" Margin="0,2,0,2" VerticalAlignment="Center" Visibility="Collapsed"  />
+
+                            </StackPanel>
+                        </Border>
+                    </Grid>
                 </Border>
             </Grid>
-        </Border>
+        </ScrollViewer>
     </Grid>
 </Window>

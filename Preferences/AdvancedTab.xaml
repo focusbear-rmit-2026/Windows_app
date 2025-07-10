@@ -19,7 +19,7 @@
         </Grid.Resources>
 
         <Border BorderThickness="1" Margin="20"   VerticalAlignment="Top" CornerRadius="10" BorderBrush="LightGray">
-
+            <ScrollViewer>
         <Grid Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
@@ -102,6 +102,7 @@
                 </Grid>
             
             </Grid>
+            </ScrollViewer>
         </Border>
 
         

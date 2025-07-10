@@ -51,7 +51,7 @@ namespace Focus_Bear.Habits
             _parentWindow = parentWindow;
  
            //Get the First activity name and duration to set on the Button
-           if(appSettings.bMotivationalMessageEnabled)
+                if(appSettings.bMotivationalMessageEnabled)
            {
                 SetWebView();
 

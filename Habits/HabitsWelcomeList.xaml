@@ -12,7 +12,7 @@
         <Grid x:Name="Normal">
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="185" />
+            <RowDefinition Height="Auto" MinHeight="81" />
             <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="50" />
             <RowDefinition Height="*" />

@@ -15,7 +15,7 @@
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="45"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
@@ -24,7 +24,7 @@
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Margin="20,0,20,0" Name="Heading" TextWrapping="Wrap" Text="xSelect the habits you want to do in this routine:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+        <TextBlock Grid.Row="0" Margin="20,0,20,0" Name="Heading" TextWrapping="Wrap" Text="xSelect the habits you want to do in this routine:" FontSize="17" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="20,0,20,0">
             <CheckBox x:Name="SelectDeselect" AutomationProperties.AutomationId="chkDeselect" Width="280" FontSize="14" Checked="SelectDeselect_Checked" Unchecked="SelectDeselect_Unchecked" Cursor="Hand" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="5,-3,0,0">xxSelect All / Deselect GAll?</CheckBox>
             <TextBox  TabIndex="0" x:Name="SearchBox"  AutomationProperties.AutomationId="txtBoxSearch" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" MaxLines="1" Height="25" Width="150" HorizontalAlignment="Right"  TextChanged="SearchBox_TextChanged">

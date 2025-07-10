@@ -527,6 +527,25 @@ namespace Focus_Bear
             }
 
         }
+
+        public void ShowSplashWindow(bool bProgressIndicator = false)
+        {
+            LogWriter.LogWrite("Show SplashWindow()");
+            if (bProgressIndicator) //need force creation of object in this case
+            {
+                if (wndSplash != null)
+                {
+                    wndSplash.Close();
+                }
+                wndSplash = null;
+            }
+
+            if (wndSplash == null)
+            {
+                wndSplash = new SplashWindow(bProgressIndicator);
+                wndSplash.Show();
+            }
+        }
         public void ProceedAfterDownloadingConfigFile()
         {
             LogWriter.LogWrite("ProceedAfterDownloadingConfigFile()");
@@ -535,9 +554,7 @@ namespace Focus_Bear
             //Show the splash window here
             if (!appSettings.bStartingAfterDeactivated)
             {
-                wndSplash = new SplashWindow();
-                LogWriter.LogWrite("Show SplashWindow()");
-                wndSplash.Show();
+                ShowSplashWindow();
             }
 
             var status = appSettings.DownloadBlockHTMLFile();
@@ -595,6 +612,11 @@ namespace Focus_Bear
                     trayIcon.Text = "Focus Bear";
                     trayIcon.BalloonTipText = "Focus Bear";
                     trayIcon.Visible = true;
+
+                    if(wndSplash != null)
+                    {
+                        wndSplash.Close();
+                    }
 
                     if (!appSettings.bStartingAfterDeactivated)//do not show if starting after deactivated
                     {

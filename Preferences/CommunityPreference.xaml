@@ -33,14 +33,14 @@
         <Button  Grid.Row="3" x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnCancelTXT" Text="xCancel"/>
+                    <TextBlock x:Name="btnCancelTXT" Text="xCancel" Foreground="Black"/>
                 </StackPanel>
             </Button.Content>
         </Button>
         <Button  Grid.Row="3" x:Name="btnOK" AutomationProperties.AutomationId="btnOK"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnOKTXT" Text="xOK"/>
+                    <TextBlock x:Name="btnOKTXT" Text="xOK" Foreground="Black"/>
                 </StackPanel>
             </Button.Content>
         </Button>

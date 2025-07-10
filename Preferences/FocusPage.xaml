@@ -54,8 +54,9 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        
-
+        <ScrollViewer>
+            <Grid>
+            
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition/>
@@ -133,7 +134,7 @@
                 </RadioButton>
                 <Grid Grid.Row="3" x:Name="SelectedAppsListBG" Margin="20,5,20,15" >
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="150"/>
                         <RowDefinition Height="1"/>
                         <RowDefinition Height="25"/>
                     </Grid.RowDefinitions>
@@ -181,7 +182,7 @@
 
                 <Grid Grid.Row="9" x:Name="SelectedURLsListBG" Margin="20,5,20,8">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="150"/>
                         <RowDefinition Height="1"/>
                         <RowDefinition Height="25"/>
                     </Grid.RowDefinitions>
@@ -245,5 +246,9 @@
                 </Button.Content>
             </Button>
         </StackPanel>
+
+            
+        </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

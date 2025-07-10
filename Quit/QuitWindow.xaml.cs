@@ -504,5 +504,31 @@ namespace Focus_Bear.Quit
             var source = (HwndSource)PresentationSource.FromVisual(this);
             app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
         }
+
+        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (IsVisible)
+            {
+                //Compute how many logical units the screen can show
+                double screenLogicalWidth = SystemParameters.WorkArea.Width ;
+                double screenLogicalHeight = SystemParameters.WorkArea.Height;
+
+                // “ideal” logical minimum
+                const double idealMinW = 1165, idealMinH = 650;
+
+                //Cap the minimum to what actually fits
+                this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
+                this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
+
+                // If you want the window to start at that minimum size:
+                this.Width = this.MinWidth;
+                this.Height = this.MinHeight;
+
+
+                //Center it
+                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+            }
+        }
     }
 }
