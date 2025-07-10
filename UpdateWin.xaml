@@ -6,9 +6,16 @@
         xmlns:local="clr-namespace:Focus_Bear"
         Title="Focus Bear" Height="200" Width="720" ShowInTaskbar="False" WindowStyle="None" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing">
     <Grid >
-         
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        
         <Border BorderThickness="1" Grid.RowSpan="2" Grid.ColumnSpan="3" Block.TextAlignment="Center"/>
-        <Button x:Name="BtnCancel" Content="xCancel" Style="{DynamicResource BtnStyleClearOrangeBordered}" Foreground="#FFADADAD" Height="36" VerticalAlignment="Bottom" Padding="0" Width="130" Margin="0,0,0,16" HorizontalAlignment="Center" Grid.Row="1" Click="BtnCancel_Click" FontSize="14" Grid.Column="1" Cursor="Hand" />
+        <Button x:Name="BtnCancel" AutomationProperties.AutomationId="btnCancel" Content="xCancel" Style="{DynamicResource BtnStyleClearOrangeBordered}" Foreground="Black" Height="36" VerticalAlignment="Bottom" Padding="0" Width="130" Margin="0,0,0,16" HorizontalAlignment="Center" Grid.Row="1" Click="BtnCancel_Click" FontSize="14" Grid.Column="1" Cursor="Hand" />
         <TextBlock x:Name="Heading" Margin="0,25" Text="xDownloading Update" VerticalAlignment="Top" Foreground="#FFADADAD" HorizontalAlignment="Center" Padding="0" FontSize="18" TextAlignment="Center"/>
         <StackPanel Margin="0,76,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" >
             <ProgressBar x:Name="DownloadProgressBar" Height="13"  Style="{DynamicResource ProgressBarStyle1}" Width="564"   Background="#FF222222" BorderBrush="#FF222222" Foreground="#FF5A5A5A" />

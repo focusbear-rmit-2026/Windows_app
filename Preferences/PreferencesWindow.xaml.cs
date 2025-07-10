@@ -277,26 +277,8 @@ namespace Focus_Bear.Preferences
             btnStats.IsEnabled = false;
             btnStatsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
             //btnThemeChange(btnStats);
-            
-            this.MinWidth = 999;
-            this.MinHeight = 750;
-            this.Width = 999;
-            this.Height = 750;
 
-            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-            if(this.Width > desktopWorkingArea.Width)
-            {
-                this.Width = desktopWorkingArea.Width;
-                this.MinWidth = desktopWorkingArea.Width;
-            }
-            if (this.Height > desktopWorkingArea.Height)
-            {
-                this.Height = desktopWorkingArea.Height-30;
-                this.MinHeight = desktopWorkingArea.Height-30;
-            }
-            this.Left = (desktopWorkingArea.Width - this.Width) / 2;
-            this.Top = (desktopWorkingArea.Height - this.Height) / 2;
-
+            AdjustWindowSize(999, 750);
 
             FrameStats.Visibility = Visibility.Visible;
         }
@@ -307,32 +289,11 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnSettings.IsEnabled = false;
             btnSettingsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-
-            this.MinWidth = 680 * ScaleX;
-            this.MinHeight = 750 * ScaleY;
-            this.Width = 680 * ScaleX; 
-            this.Height = 750 * ScaleY;
-
+            AdjustWindowSize(680,750);
             if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
-                this.Width = 735 * ScaleX;
-                this.MinWidth = 735 * ScaleX;
-                this.Height = 900 * ScaleY;
-                this.MinHeight = 900 * ScaleY;
+                AdjustWindowSize(735, 900);
             }
-
-            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-            if (this.Width > desktopWorkingArea.Width)
-            {
-                this.Width = desktopWorkingArea.Width;
-                this.MinWidth = desktopWorkingArea.Width;
-            }
-            if (this.Height > desktopWorkingArea.Height)
-            {
-                this.Height = desktopWorkingArea.Height-30;
-                this.MinHeight = desktopWorkingArea.Height-30;
-            }
-
 
             FrameSettings.Visibility = Visibility.Visible;
         }
@@ -345,18 +306,10 @@ namespace Focus_Bear.Preferences
             btnFocus.IsEnabled = false;
             btnFocusTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
             
-            this.MinWidth = 775 * ScaleX;
-            this.MinHeight = 750 * ScaleY;
-
-            this.Width = 775 * ScaleX; 
-            this.Height = 750 * ScaleY;
-
-            if(appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            AdjustWindowSize(775, 750);
+            if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
-                this.Width = 835 * ScaleX;
-                this.MinWidth = 835 * ScaleX;
-                this.Height = 900 * ScaleY;
-                this.MinHeight = 900 * ScaleY;
+                AdjustWindowSize(835, 900);
             }
             
 
@@ -370,25 +323,9 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnEditHabits.IsEnabled = false;
             btnEditHabitsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-            this.Width = 999 /** ScaleX*/; 
-            this.Height = 750 /** ScaleY*/;
-            //not applying scaling in 150% dpi for edit habits as this ruins the webview
-            this.MinWidth = 999;
-            this.MinHeight = 750;
-            
-            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-            if (this.Width > desktopWorkingArea.Width)
-            {
-                this.Width = desktopWorkingArea.Width;
-                this.MinWidth = desktopWorkingArea.Width;
-            }
-            if (this.Height > desktopWorkingArea.Height)
-            {
-                this.Height = desktopWorkingArea.Height-30;
-                this.MinHeight = desktopWorkingArea.Height-30;
-            }
-            this.Left = (desktopWorkingArea.Width - this.Width) / 2;
-            this.Top = (desktopWorkingArea.Height - this.Height) / 2;
+
+            AdjustWindowSize(999,750);
+
             FrameEditHabits.Visibility = Visibility.Visible;
 
             appSettings.CapturePostHog("edit-habits");
@@ -411,18 +348,11 @@ namespace Focus_Bear.Preferences
             btnBlocks.IsEnabled = false;
             btnBlocksTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
 
-
-            this.MinWidth = 680 * ScaleX;
-            this.MinHeight = 780 * ScaleY;
-            this.Width = 680 * ScaleX;
-            this.Height = 780 * ScaleY;
+            AdjustWindowSize(680,780);
 
             if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
-                this.Width = 735 * ScaleX;
-                this.MinWidth = 735 * ScaleX;
-                this.Height = 900 * ScaleY;
-                this.MinHeight = 900 * ScaleY;
+                 AdjustWindowSize(735, 900);
             }
 
 
@@ -437,6 +367,8 @@ namespace Focus_Bear.Preferences
             EnableAll();
             this.Width = 680 * ScaleX;
             this.Height = 600 * ScaleY;
+
+            AdjustWindowSize(680, 600);
 
             PageAccountsTab.LoadTexts();
             FrameAccountTab.Visibility = Visibility.Visible;
@@ -461,36 +393,7 @@ namespace Focus_Bear.Preferences
 
             if (null != e)
                 e.Handled = true;
-
-            
-            //var source = PresentationSource.FromVisual(this);
-
-            //if (null != source && null != source.CompositionTarget)
-            //{
-            //    var matrix = source.CompositionTarget.TransformToDevice;
-
-            //    var dpiTransform = new ScaleTransform(1 / matrix.M11, 1 / matrix.M22);
-
-            //    if (dpiTransform.CanFreeze)
-            //        dpiTransform.Freeze();
-
-            //    LayoutTransform = dpiTransform;
-            //    this.Width = this.Width * dpiTransform.ScaleX;
-            //    this.Height = this.Height * dpiTransform.ScaleY;
-            //    ScaleX = dpiTransform.ScaleX;
-            //    ScaleY = dpiTransform.ScaleY;
-
-            //    LogWriter.LogWrite("dpiTransform.ScaleX - " + dpiTransform.ScaleX);
-            //    LogWriter.LogWrite("dpiTransform.ScaleY - " + dpiTransform.ScaleY);
-            //    LogWriter.LogWrite("matrix.M11 - " + matrix.M11.ToString());
-            //    LogWriter.LogWrite("matrix.M22 - " + matrix.M22.ToString());
-
-            //    var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-            //    this.Left = (desktopWorkingArea.Width - this.Width) / 2;
-            //    this.Top = (desktopWorkingArea.Height - this.Height) / 2;
-
-
-            //}
+ 
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -584,8 +487,8 @@ namespace Focus_Bear.Preferences
         private async void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (IsVisible)
-            {
-                if(appSettings.isPasswordSet)
+            {    
+                if (appSettings.isPasswordSet)
                 {
                     if(appSettings.bPasswordRequireInChangeSettings)
                     {
@@ -651,12 +554,8 @@ namespace Focus_Bear.Preferences
             btnHelp.IsEnabled = false;
             btnHelpTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
 
-            this.MinWidth = 680 * ScaleX;
-            this.MinHeight = 750 * ScaleY;
-
-            this.Width = 680 * ScaleX;
-            this.Height = 750 * ScaleY;
-
+            AdjustWindowSize(680, 750);
+            
             FrameHelpTab.Visibility = Visibility.Visible;
         }
 
@@ -667,6 +566,32 @@ namespace Focus_Bear.Preferences
             {
                 app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
+        }
+
+        private void AdjustWindowSize(double width, double height, bool bRecenterWindow = false)
+        {
+            this.Width = width;
+            this.Height = height;
+            //Let's adjust the height
+           
+            //Compute how many logical units the screen can show
+            double screenLogicalWidth = SystemParameters.WorkArea.Width;
+            double screenLogicalHeight = SystemParameters.WorkArea.Height;
+
+            // 3) Your “ideal” logical minimum
+            double idealMinW = width, idealMinH = height;
+
+            // 4) set to what actually fits
+            this.Width = Math.Min(idealMinW, screenLogicalWidth);
+            this.Height = Math.Min(idealMinH, screenLogicalHeight);
+
+            // 6) Center it
+            if (bRecenterWindow)
+            {
+                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+            }
+            ///
         }
     }
 }

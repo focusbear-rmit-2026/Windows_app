@@ -36,8 +36,8 @@
                     <StackPanel   Orientation="Horizontal"   Margin="20,0,0,0">
 
                         <TextBlock  Name="WakeupTime" Margin="-20,0,0,0"     TextWrapping="Wrap" Text="xWhat time do you wake up?" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
-                        <localView:HourControl x:Name="WakeupTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0"  ValueChanged="WakeupTimePicker_ValueChanged"/>
-                        <Button x:Name="btnNextWakeupTime"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextWakeupTime_Click">
+                        <localView:HourControl x:Name="WakeupTimePicker" AutomationProperties.AutomationId="tpWakeTime" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0"  ValueChanged="WakeupTimePicker_ValueChanged"/>
+                        <Button x:Name="btnNextWakeupTime" AutomationProperties.AutomationId="btnNextWakeUpTime"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextWakeupTime_Click">
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
                                     <TextBlock x:Name="btnNextWakeupTimeTXT" Text="xNext" Foreground="Black"/>
@@ -48,8 +48,8 @@
                     <StackPanel x:Name="StartupTimeSection" IsEnabled="False" IsHitTestVisible="False" Opacity="0" Orientation="Horizontal"   Margin="20,30,0,0">
                  
                     <TextBlock Name="StartupTime" Margin="-20,0,0,0"     TextWrapping="Wrap" Text="xWhat time do you start work?" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <localView:HourControl x:Name="StartupTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0"  ValueChanged="StartupTimePicker_ValueChanged"/>
-                    <Button x:Name="btnNextStartWork"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextStartWork_Click">
+                        <localView:HourControl x:Name="StartupTimePicker" AutomationProperties.AutomationId="tpStartupTime" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0"  ValueChanged="StartupTimePicker_ValueChanged"/>
+                        <Button x:Name="btnNextStartWork" AutomationProperties.AutomationId="btnNextStartWork"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextStartWork_Click">
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
                                 <TextBlock x:Name="btnNextStartWorkTXT" Text="xNext" Foreground="Black"/>
@@ -60,8 +60,8 @@
 
                     <StackPanel x:Name="FinishWorkSection" IsEnabled="False" IsHitTestVisible="False" Opacity="0"  Orientation="Horizontal"  Margin="20,30,0,0" >
                     <TextBlock  Name="ShutdownTime" Margin="-20,0,0,0"    TextWrapping="Wrap" Text="xWhat time do you finish work?" FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <localView:HourControl x:Name="ShutdownTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0" ValueChanged="ShutdownTimePicker_ValueChanged" />
-                    <Button x:Name="btnNextFinishWork"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextFinishWork_Click">
+                        <localView:HourControl x:Name="ShutdownTimePicker" AutomationProperties.AutomationId="tpShutdownTime" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0" ValueChanged="ShutdownTimePicker_ValueChanged" />
+                        <Button x:Name="btnNextFinishWork" AutomationProperties.AutomationId="btnNextFinishWork"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextFinishWork_Click">
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
                                 <TextBlock x:Name="btnNextFinishWorkTXT" Text="xNext" Foreground="Black"/>
@@ -71,9 +71,9 @@
 
                 </StackPanel>
                     <StackPanel x:Name="SleepTimeSection" IsEnabled="False" IsHitTestVisible="False" Opacity="0" Orientation="Horizontal"  Margin="20,30,0,0">
-                    <TextBlock  Name="SleepTime" Margin="-20,0,0,0"    TextWrapping="Wrap" Text="xWhat time do you want to go to sleep?"  FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
-                    <localView:HourControl x:Name="SleepTimePicker"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0" ValueChanged="SleepTimePicker_ValueChanged" />
-                    <Button x:Name="btnNextSleep"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextSleep_Click">
+                        <TextBlock  Name="SleepTime" Margin="-20,0,0,0"    TextWrapping="Wrap" Text="xWhat time do you want to go to sleep?"  FontSize="20" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left" />
+                        <localView:HourControl x:Name="SleepTimePicker" AutomationProperties.AutomationId="tpSleepTime" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Cursor="Hand"  Margin="15,0,0,0" ValueChanged="SleepTimePicker_ValueChanged" />
+                        <Button x:Name="btnNextSleep" AutomationProperties.AutomationId="btnNextSleep"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="25" Width="110" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNextSleep_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                                 <TextBlock x:Name="btnNextSleepTXT" Text="xNext" Foreground="Black"/>
@@ -84,7 +84,7 @@
                 <TextBlock Name="Schedule" Opacity="0"   Margin="0,50,0,0" TextWrapping="Wrap" Text="xYour schedule looks like:\n\n🐥 MORNING_ROUTINE_START_TIME - MORNING_ROUTINE_END_TIME - Morning routine\n\n💼 MORNING_ROUTINE_END_TIME - START_WORK_TIME - Prepare to start work (buffer time)\n\n💪 START_WORK_TIME - END_WORK_TIME - Work\n\n🥱 END_WORK_TIME - EVENING_ROUTINE_END_TIME - Do evening routine.\n\n😴 EVENING_ROUTINE_END_TIME - Finish evening routine - computer locked (you can unlock it if you need it)" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
         </StackPanel>
         </Viewbox>
-        <Button Grid.Row="3"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,20,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
+            <Button Grid.Row="3"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,20,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>

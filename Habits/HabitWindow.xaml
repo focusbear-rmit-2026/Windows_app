@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="850" Width="900"   PreviewKeyDown="Window_PreviewKeyDown" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" IsVisibleChanged="FullScreenParent_IsVisibleChanged" Closing="FullScreenParent_Closing"
+        Title="Focus Bear" Height="850" Width="900"   PreviewKeyDown="Window_PreviewKeyDown" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" IsVisibleChanged="FullScreenParent_IsVisibleChanged" Closing="FullScreenParent_Closing" Loaded="FullScreenParent_Loaded" 
                         Background="{DynamicResource BackgroundColor}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -42,7 +42,7 @@
         <Frame x:Name="AppFrameLogQuantity" Margin="0" NavigationUIVisibility="Hidden"  Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed" Opacity="0.5" />
 
         <TextBlock Name="Time" Margin="0,18,173,0" Width="400" TextWrapping="Wrap" Text="x10:10 AM" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"/>
-        <Button x:Name="btnPleaseSpareMe" IsDefault="False" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" MinWidth="120" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnPleaseSpareMe_Click" >
+        <Button x:Name="btnPleaseSpareMe" AutomationProperties.AutomationId="btnPleaseSpareMe" IsDefault="False" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" MinWidth="120" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnPleaseSpareMe_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal" Margin="5,2,0,0" VerticalAlignment="Center">
                     <Image Source="../Images/spare.png" Width="25" Height="25" HorizontalAlignment="Left"></Image>
@@ -65,7 +65,7 @@
 
             <TextBlock  Grid.Row="0" Name="HeadingLogQuantity" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxLog Quantity of activity"  FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <ListView  MaxHeight="320" Width="540" Grid.Row="1"  Margin="0,5,0,20" x:Name="ListLogQuestions"   VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource ListViewItemStyle}" Background="{x:Null}"  BorderThickness="1" Foreground="{x:Null}"  >
+            <ListView  MaxHeight="320" Width="540" Grid.Row="1"  Margin="0,5,0,20" x:Name="ListLogQuestions" AutomationProperties.AutomationId="lvLogQuestions"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource ListViewItemStyle}" Background="{x:Null}"  BorderThickness="1" Foreground="{x:Null}"  >
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid x:Name="ItemHeader"  Height="72"  Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True"   >
@@ -83,7 +83,7 @@
                                     <ColumnDefinition Width="150"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{Binding minValueDescription, StringFormat=\{0\}}" FontSize="12" Foreground="{DynamicResource ForegroundColor}"  TextWrapping="Wrap"   VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                                <TextBox  Grid.Column="0" TabIndex="0"  x:Name="Quantity" Text="{Binding quantity, StringFormat=\{0\}}"   MinHeight="25" Height="30" Margin="5,0,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Visibility="{Binding Path=bShowTextBox, Converter={StaticResource BoolToVis}}" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown" PreviewKeyUp="Quantity_PreviewKeyUp">
+                                <TextBox  Grid.Column="0" TabIndex="0"  x:Name="Quantity" AutomationProperties.AutomationId="txtBoxQuantity" Text="{Binding quantity, StringFormat=\{0\}}"   MinHeight="25" Height="30" Margin="5,0,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Visibility="{Binding Path=bShowTextBox, Converter={StaticResource BoolToVis}}" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown" PreviewKeyUp="Quantity_PreviewKeyUp">
                                     <TextBox.Effect>
                                         <DropShadowEffect ShadowDepth="3"
                                                           Direction="330"
@@ -136,14 +136,14 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>-->
             <StackPanel  Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button    x:Name="btnCancel" TabIndex="3"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="160" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold"  Click="btnCancel_Click">
+                <Button    x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel" TabIndex="3"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="160" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold"  Click="btnCancel_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnCancelText" Margin="8" Text="xCancel" Foreground="Black"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <Button   x:Name="btnOK" IsDefault="True" TabIndex="2"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="160" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click"  >
+                <Button   x:Name="btnOK" AutomationProperties.AutomationId="btnOK" IsDefault="True" TabIndex="2"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="160" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click"  >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnOKText" Margin="8" Text="xOK" Foreground="Black"/>
@@ -164,19 +164,19 @@
                 <RowDefinition Height="60"/>
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <Button  Grid.Row="0" x:Name="btnGridWhyDoYouWantToSkipClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="34" VerticalAlignment="Top" Width="34" ToolTip="Close" Click="btnGridWhyDoYouWantToSkipClose_Click" Grid.Column="1" Cursor="Hand"/>
+            <Button  Grid.Row="0" x:Name="btnGridWhyDoYouWantToSkipClose" AutomationProperties.AutomationId="btnWhyDoYouWantToSkipClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="34" VerticalAlignment="Top" Width="34" ToolTip="Close" Click="btnGridWhyDoYouWantToSkipClose_Click" Grid.Column="1" Cursor="Hand"/>
 
             <TextBlock  Grid.Row="1" Name="HeadingWhySkip" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxWhy do you want to skip?" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             
             <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button    x:Name="btnAlreadyDidIt"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinWidth="160" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnAlreadyDidIt_Click">
+                <Button    x:Name="btnAlreadyDidIt" AutomationProperties.AutomationId="btnAlreadyDidIt"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinWidth="160" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnAlreadyDidIt_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnAlreadyDidItTXT" Margin="8" Text="xI already did it" Foreground="Black"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <Button   x:Name="btnCantDoItToday" IsDefault="True"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   MinWidth="160" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnCantDoItToday_Click"  >
+                <Button   x:Name="btnCantDoItToday" AutomationProperties.AutomationId="btnCantDoItToday" IsDefault="True"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   MinWidth="160" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnCantDoItToday_Click"  >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnCantDoItTodayTXT" Margin="8" Text="xCan't do it today" Foreground="Black"/>
@@ -188,7 +188,7 @@
 
         </Grid>
 
-        <Grid x:Name="GridSkippingHabitIn"  Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="280" Width="498" Background="White">
+        <Grid x:Name="GridSkippingHabitIn"  ZIndex="9"  Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="280" Width="498" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="80"/>
                 <RowDefinition Height="50"/>
@@ -201,10 +201,10 @@
             <TextBlock  Grid.Row="0" Name="HeadingSkippingIn" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxSkipping habit in"  FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             <TextBlock  Grid.Row="1" Name="HeadingSkippingInTimer" Margin="0,0,0,0" TextWrapping="Wrap" Text="00:15" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <Button  Grid.Row="3"   x:Name="btnChangedMyMind" IsDefault="True"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  MinWidth="360" HorizontalAlignment="Center" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnChangedMyMind_Click"  >
+            <Button  Grid.Row="3"   x:Name="btnChangedMyMind" AutomationProperties.AutomationId="btnChangedMyMind" IsDefault="True"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  MinWidth="360" HorizontalAlignment="Center" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnChangedMyMind_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                    <TextBlock Name="btnChangedMyMindTXT" Margin="8" Text="xI changed my mind - I will do"/>
+                        <TextBlock Name="btnChangedMyMindTXT" Margin="8" Text="xI changed my mind - I will do" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

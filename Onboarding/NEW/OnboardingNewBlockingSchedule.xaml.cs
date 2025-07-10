@@ -69,11 +69,13 @@ namespace Focus_Bear.Onboarding.NEW
             {
                 appSettings.nBlockingSchedule = BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK;
                 appSettings.CapturePostHog("choose-focus-schedule", "\"schedule-type\":\"until_i_finish_work\"");
+                LogWriter.LogWrite("OnboardingNewBlockingSchedule() until_i_finish_work selected" );
             }
             else if(RadioButton2.IsChecked.Value)
             {
                 appSettings.nBlockingSchedule = BLOCKINGSCHEDULE.WHEN_STARTING_FOCUS_SESSION;
                 appSettings.CapturePostHog("choose-focus-schedule", "\"schedule-type\":\"when_i_tell_you_to\"");
+                LogWriter.LogWrite("OnboardingNewBlockingSchedule() when_i_tell_you_to selected");
             }
             _parentWindow.ShowPrivacyScreen();
         }

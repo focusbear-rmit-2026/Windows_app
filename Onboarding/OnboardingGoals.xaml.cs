@@ -39,8 +39,8 @@ namespace Focus_Bear.Onboarding
             try
             {
                 Heading.Text = "Focus Bear";//appSettings.ConfigFileStrings["askAppWorkVcInfo"]["title"].ToString();
-                //todo win texts
-                WhatGoals.Text = "We'll do our best to help you achieve your goals 🤩 Which Focus Bear features do you want to activate?"; //appSettings.ConfigFileStrings["askAppWorkVcInfo"]["questionText"].ToString();
+             
+                WhatGoals.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["questionText"].ToString(); //"We'll do our best to help you achieve your goals 🤩 Which Focus Bear features do you want to activate?";
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonContinueText"].ToString();
 
                 TXTCheckBoxHealthyHabits.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["checkBoxFirstText"].ToString();
@@ -245,20 +245,22 @@ namespace Focus_Bear.Onboarding
         
         private void DoNotCare_Checked(object sender, RoutedEventArgs e)
         {
-            CareDesc.Text = "Ok no worries. We'll let you focus on focusing!"; //todo win texts
+            CareDesc.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["careMessageDoNotCare"].ToString();
             btnContinue.IsEnabled = true;
         }
+
         private void NotCommitted_Checked(object sender, RoutedEventArgs e)
         {
-            CareDesc.Text = "Got it. We won't activate the habit features for now but you can activate them later."; //todo win texts
+            CareDesc.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["careMessageNotCommitted"].ToString();
             btnContinue.IsEnabled = true;
         }
 
         private void Committed_Checked(object sender, RoutedEventArgs e)
         {
-            CareDesc.Text = "Cool. We'll let you set up your habits right away"; //todo win texts
+            CareDesc.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["careMessageCommitted"].ToString();
             btnContinue.IsEnabled = true;
         }
+
         private void Page_Theme()
         {
             app.ApplyThemeToPage(this);

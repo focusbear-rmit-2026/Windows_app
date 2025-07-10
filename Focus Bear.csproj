@@ -393,6 +393,9 @@
     <Compile Include="Habits\HabitWindow.xaml.cs">
       <DependentUpon>HabitWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Habits\NaturalBreaks\NaturalBreakDetectionWindow.xaml.cs">
+      <DependentUpon>NaturalBreakDetectionWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Habits\PostponeHabits.xaml.cs">
       <DependentUpon>PostponeHabits.xaml</DependentUpon>
     </Compile>
@@ -660,6 +663,7 @@
     <Compile Include="Utils\HourControl.xaml.cs">
       <DependentUpon>HourControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\IdleDetector.cs" />
     <Compile Include="Utils\IdleWaiter.cs" />
     <Compile Include="Utils\LocalSettingsManager.cs" />
     <Compile Include="Utils\LogWriter.cs" />
@@ -785,6 +789,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Habits\HabitWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\NaturalBreaks\NaturalBreakDetectionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

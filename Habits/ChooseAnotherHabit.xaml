@@ -15,15 +15,15 @@
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="45"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="70"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         
-        <TextBlock Grid.Row="0" Margin="20,0,20,0" Name="Heading" TextWrapping="Wrap" Text="xChoose the next habit to do from the following options:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
-        
-        <ListView Grid.Row="1" Margin="15,0,20,0" x:Name="ListHabits" VerticalAlignment="Top"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Cursor="Hand" SelectionChanged="ListHabits_SelectionChanged">
+        <TextBlock Grid.Row="0" Margin="20,0,20,0" Name="Heading" TextWrapping="Wrap" Text="xChoose the next habit to do from the following options:" FontSize="17" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+
+        <ListView Grid.Row="1" Margin="15,0,20,0" x:Name="ListHabits" AutomationProperties.AutomationId="lvHabits" VerticalAlignment="Top"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Cursor="Hand" SelectionChanged="ListHabits_SelectionChanged">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem" >
                     <Setter Property="Focusable" Value="True" />
@@ -47,7 +47,7 @@
 
         </ListView>
 
-        <Button Grid.Row="2"   x:Name="btnStart"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="200" HorizontalAlignment="Center"  HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnStart_Click">
+        <Button Grid.Row="2"   x:Name="btnStart" AutomationProperties.AutomationId="btnStart"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Height="40"  MinWidth="200" HorizontalAlignment="Center"  HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnStart_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock Name="btnStartTXT" Margin="8" Text="xStart...." Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -55,7 +55,7 @@
             </Button.Content>
         </Button>
 
-        <TextBlock x:Name="Cancel" Grid.Row="3" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" MinHeight="22" Cursor="Hand">
+        <TextBlock x:Name="Cancel" AutomationProperties.AutomationId="txtCancel" Grid.Row="3" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" MinHeight="22" Cursor="Hand">
              <Hyperlink x:Name="btnCancel" Click="btnCancel_Click"   TextDecorations="Underline" ><Run x:Name="CancelTXT" Text="xCancel"/></Hyperlink>
         </TextBlock>
     </Grid>

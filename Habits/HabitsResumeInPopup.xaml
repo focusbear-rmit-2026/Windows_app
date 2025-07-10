@@ -26,7 +26,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xHabit resumes in:" Foreground="{DynamicResource ForegroundColor}" FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
                 <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="02:00" Padding="0" Foreground="{DynamicResource ForegroundColor}" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Top" />
-                <TextBlock Grid.Row="2" x:Name="PostponeText"   Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}" Foreground="{DynamicResource ForegroundColor}"  FontSize="15" MinHeight="22" Cursor="Hand">
+                <TextBlock Grid.Row="2" x:Name="PostponeText" AutomationProperties.AutomationId="txtPostpone"  Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}" Foreground="{DynamicResource ForegroundColor}"  FontSize="15" MinHeight="22" Cursor="Hand">
              <Hyperlink x:Name="btnPostpone" Click="btnPostpone_Click"   TextDecorations="Underline" ><Run x:Name="btnPostponeTXT" Text="xPostpone" Foreground="{DynamicResource ForegroundColor}"/></Hyperlink>
                 </TextBlock>
             </Grid>

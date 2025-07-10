@@ -27,31 +27,32 @@
                 </Style>
             </TabControl.Resources>
 
-            <TabItem Name="BlockingSchedule" Header="xBlocking Schedule" Style="{DynamicResource TabItemStyle}">
+            <TabItem Name="BlockingSchedule" AutomationProperties.AutomationId="tabBlockingSchedule" Header="xBlocking Schedule" Style="{DynamicResource TabItemStyle}">
+                <ScrollViewer>
                 <Grid Background="{DynamicResource SoftCreamColor}">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition MinHeight="200"/>
                         <RowDefinition Height="1"/>
-                        <RowDefinition Height="260"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <wv2:WebView2 Grid.Row="0" Name="webViewBlockingSchedule" Margin="0,0,0,10"/>
                     <Grid Grid.Row="1" Background="LightGray" Height="1"></Grid>
                     <StackPanel  Grid.Row="2" Orientation="Vertical" Margin="30,0,10,0" >
                         
                         <TextBlock  Name="Welcome" Margin="8,10" TextWrapping="Wrap" Text="xWhen do you want to block distracting sites?" FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
-                        <RadioButton x:Name="RadioButton1" GroupName="Occupation1"  Margin="10,10,0,5" Content="xUntil I finish work" FontSize="14" FontWeight="Bold"    Checked="RadioButton1_Checked" Cursor="Hand" Padding="5,-5,0,0"  />
+                        <RadioButton x:Name="RadioButton1" AutomationProperties.AutomationId="rbAutomatically" GroupName="Occupation1"  Margin="10,10,0,5" Content="xUntil I finish work" FontSize="14" FontWeight="Bold"    Checked="RadioButton1_Checked" Cursor="Hand" Padding="5,-5,0,0"  />
                         <TextBlock   Name="Description1" Margin="30,0,40,10" TextWrapping="Wrap" Text="xFocus Bear will block the distracting sites for most of the day until you finish work. You'll get some free time before it's time for bed and then distractions will be blocked again while you're sleeping." FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
-                        <RadioButton x:Name="RadioButton2" GroupName="Occupation1"   Margin="10,10,0,5"  Content="xWhen I tell you to" FontSize="14"  FontWeight="Bold"  Checked="RadioButton2_Checked" Cursor="Hand" Padding="5,-5,0,0" />
+                        <RadioButton x:Name="RadioButton2" AutomationProperties.AutomationId="rbManually" GroupName="Occupation1"   Margin="10,10,0,5"  Content="xWhen I tell you to" FontSize="14"  FontWeight="Bold"  Checked="RadioButton2_Checked" Cursor="Hand" Padding="5,-5,0,0" />
                         <TextBlock    Name="Description2" Margin="30,0,40,10" TextWrapping="Wrap" Text="xFocus Bear will only block distracting sites when you start a focus session"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
-                        <RadioButton x:Name="RadioButton3" IsEnabled="False" GroupName="Occupation1"  Margin="10,10,0,5" Content="xOn a custom schedule" FontSize="14"  FontWeight="Bold" Cursor="Hand" Padding="5,-5,0,0" />
+                        <RadioButton x:Name="RadioButton3" AutomationProperties.AutomationId="rbAdvanced" IsEnabled="False" GroupName="Occupation1"  Margin="10,10,0,5" Content="xOn a custom schedule" FontSize="14"  FontWeight="Bold" Cursor="Hand" Padding="5,-5,0,0" />
                         <TextBlock    Name="Description3" IsEnabled="False" Margin="30,0,40,0" TextWrapping="Wrap" Text="xComing soon"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
 
                     </StackPanel>
                 </Grid>
-                
+                </ScrollViewer>
                 
             </TabItem>
-            <TabItem Name="DistractingSites" Header="xSuper Distracting Sites" Style="{DynamicResource TabItemStyle}">
+            <TabItem Name="DistractingSites" AutomationProperties.AutomationId="tabDistractingSites" Header="xSuper Distracting Sites" Style="{DynamicResource TabItemStyle}">
                                 
             </TabItem>
         </TabControl>

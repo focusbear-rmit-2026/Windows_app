@@ -17,7 +17,7 @@
                 </Style>
             </ResourceDictionary>
         </Grid.Resources>
-        
+        <ScrollViewer>
         <Grid Grid.Row="0" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="235"/>
@@ -44,16 +44,16 @@
 
                 </Grid.RowDefinitions>
 
-                <CheckBox Grid.Row="0" VerticalAlignment="Top" Name="PersonalisedMotivationCheckBox" Margin="0,3,0,0" Padding="5,-4,0,0"   FontSize="14" FontWeight="SemiBold" Checked="PersonalisedMotivationCheckBox_Checked" Unchecked="PersonalisedMotivationCheckBox_Unchecked">
+                <CheckBox Grid.Row="0" VerticalAlignment="Top" Name="PersonalisedMotivationCheckBox" AutomationProperties.AutomationId="chkPersonalisedMotivationalMessage" Margin="0,3,0,0" Padding="5,-4,0,0"   FontSize="14" FontWeight="SemiBold" Checked="PersonalisedMotivationCheckBox_Checked" Unchecked="PersonalisedMotivationCheckBox_Unchecked">
                     <TextBlock Name="PersonalisedMotivationCheckBoxTXT" Text="xUse AI to generate a personalised motivational message each morning" TextWrapping="Wrap"/>
                 </CheckBox>
                 <TextBlock Grid.Row="1"   Name="PersonalisedMotivationCheckBoxDesc" Margin="20,0,0,20"  TextWrapping="Wrap"    Text="xYour routine streak and your morning routine activities will be sent to Open AI. No other details will be shared but if you have anything in the habit titles that would identify you, we recommend you remove it."  FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-                <CheckBox Grid.Row="2" VerticalAlignment="Top"  Name="UseAIToDecide" Margin="0,3,0,0" Padding="5,-3,0,0"     FontSize="14" FontWeight="SemiBold" Checked="UseAIToDecide_Checked" Unchecked="UseAIToDecide_Unchecked">
+                <CheckBox Grid.Row="2" VerticalAlignment="Top"  Name="UseAIToDecide" AutomationProperties.AutomationId="chkAllowWebsites" Margin="0,3,0,0" Padding="5,-3,0,0"     FontSize="14" FontWeight="SemiBold" Checked="UseAIToDecide_Checked" Unchecked="UseAIToDecide_Unchecked">
                     <TextBlock Name="UseAIToDecideTXT" Text="xUse AI to decide if websites should be allowed" TextWrapping="Wrap"/>
                 </CheckBox>
                 <TextBlock Grid.Row="3"    Name="UseAIToDecideDesc" Margin="20,0,0,0" TextWrapping="Wrap"   Text="xWe'll use Open AI to decide if the site is valid based on your current focus mode, intention, the URL, the website title and the first 100 characters of the content. This is anonymous - no identifying details are shared." FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"   />
-                <CheckBox Grid.Row="4" VerticalAlignment="Top"  Name="SafeURLAllowedNotify" Margin="0,17,0,0" Padding="5,-3,0,0"     FontSize="14" FontWeight="SemiBold" Checked="SafeURLAllowedNotify_Checked" Unchecked="SafeURLAllowedNotify_Unchecked">
+                <CheckBox Grid.Row="4" VerticalAlignment="Top"  Name="SafeURLAllowedNotify"  AutomationProperties.AutomationId="chkSafeURLAllowedNotification" Margin="0,17,0,0" Padding="5,-3,0,0"     FontSize="14" FontWeight="SemiBold" Checked="SafeURLAllowedNotify_Checked" Unchecked="SafeURLAllowedNotify_Unchecked">
                     <TextBlock      Name="ShowAlertReason" Margin="0,0,0,0" TextWrapping="Wrap"   Text="xShow alert with reason when AI automatically allows a url."   FontSize="14" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"   />
                 </CheckBox>
 
@@ -62,5 +62,6 @@
             </Grid>
 
         </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

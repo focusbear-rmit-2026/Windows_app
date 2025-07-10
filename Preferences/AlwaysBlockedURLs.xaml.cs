@@ -48,7 +48,7 @@ namespace Focus_Bear.Preferences
                 btnAddSiteTXT.Text = appSettings.ConfigFileStrings["onboardingBlockedUrlsInfo"]["buttonAddUrlText"].ToString();
                 btnDeleteURLTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["toolTipRemove"].ToString();
 
-                ImmediatelyBlockDistractingURLsText.ToolTip = "Uncheck this option to let Focus Bear help you be more intentional about how you use these sites by asking you why you want to use the site. Check this to immediately block sites without asking your intention.";//todo win texts
+                ImmediatelyBlockDistractingURLsText.ToolTip = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["checkBoxText"].ToString();
 
             }
             catch (Exception ex)

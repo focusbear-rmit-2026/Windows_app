@@ -30,7 +30,7 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal">
             <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0"   Text="xSelect Apps to use while focusing:" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-            <TextBox  TabIndex="0" x:Name="SearchBox" Margin="45,5,20,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Height="25" Width="150"  TextChanged="SearchBox_TextChanged">
+            <TextBox  TabIndex="0" x:Name="SearchBox" AutomationProperties.AutomationId="txtBoxSearch" Margin="45,5,20,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Height="25" Width="150"  TextChanged="SearchBox_TextChanged">
 
             </TextBox>
         </StackPanel>
@@ -46,7 +46,7 @@
                 <RowDefinition Height="81*"/>
                 <RowDefinition Height="394*"/>
             </Grid.RowDefinitions>
-            <ListView   Grid.Row="0"   x:Name="ListInstalledApps" SelectionMode="Multiple"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" Grid.ColumnSpan="4" Grid.RowSpan="2"  >
+            <ListView   Grid.Row="0"   x:Name="ListInstalledApps" AutomationProperties.AutomationId="lvInstalledApps" SelectionMode="Multiple"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" Grid.ColumnSpan="4" Grid.RowSpan="2"  >
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="IsSelected" Value="{Binding IsSelected}" />
@@ -68,14 +68,14 @@
 
         </Grid>
 
-        <Button  Grid.Row="2" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
+        <Button  Grid.Row="2" x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnCancelTXT" Text="xCancel" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>
-        <Button  Grid.Row="2" x:Name="btnAdd"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAdd_Click" >
+        <Button  Grid.Row="2" x:Name="btnAdd" AutomationProperties.AutomationId="btnAdd"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAdd_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnAddTXT" Text="xAdd" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -83,7 +83,7 @@
             </Button.Content>
         </Button>
 
-        <TextBlock  Grid.Row="3" x:Name="EnterManually" Margin="20,0,0,0" TextWrapping="NoWrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="14" Height="22" Cursor="Hand">
+        <TextBlock  Grid.Row="3" x:Name="EnterManually" AutomationProperties.AutomationId="txtEnterManually" Margin="20,0,0,0" TextWrapping="NoWrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="14" Height="22" Cursor="Hand">
              <Hyperlink x:Name="btnEnterManually" Click="btnEnterManually_Click"   TextDecorations="Underline" ><Run x:Name="btnEnterManuallyTXT" Text="xCan't find your app in the above list? Click here to enter manually."/></Hyperlink>
         </TextBlock>
 

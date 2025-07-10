@@ -31,7 +31,7 @@
             <Grid Grid.Row="4" Background="LightGray" ></Grid>
             <Grid Grid.Row="5" >
                 <TextBlock Name="Steps" TextWrapping="Wrap"  Margin="20,0,20,0"  VerticalAlignment="Center"  Foreground="Gray" FontSize="12" FontFamily="Segoe UI" >x1 of 3</TextBlock>
-                <Button  x:Name="btnNext" Width="auto" HorizontalAlignment="Right"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26"  VerticalAlignment="Center"  Margin="0,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnNext_Click" >
+                <Button  x:Name="btnNext" AutomationProperties.AutomationId="btnNext" Width="auto" HorizontalAlignment="Right"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26"  VerticalAlignment="Center"  Margin="0,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnNext_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnNextTXT" Padding="10,0" Text="xGet Started"/>

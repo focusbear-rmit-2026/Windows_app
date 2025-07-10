@@ -17,7 +17,8 @@
                 </Style>
             </ResourceDictionary>
         </Grid.Resources>
-        
+        <ScrollViewer>
+            <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="40"/>
@@ -33,13 +34,13 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <CheckBox Name="UseSuperPomodoroCheck" Margin="20,30,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14" Checked="UseSuperPomodoroCheck_Checked" Unchecked="UseSuperPomodoroCheck_Unchecked" Cursor="Hand" Padding="5,-2,0,0" >
+        <CheckBox Name="UseSuperPomodoroCheck" AutomationProperties.AutomationId="chkUseSuperPomodoro" Margin="20,30,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14" Checked="UseSuperPomodoroCheck_Checked" Unchecked="UseSuperPomodoroCheck_Unchecked" Cursor="Hand" Padding="5,-2,0,0" >
             <TextBlock Width="340" TextWrapping="Wrap" Name="UseSuperPomodoroCheckTxt">xUse super pomodoro mode</TextBlock>
         </CheckBox>
         <TextBlock Grid.Row="1" Name="LockIn" Margin="41,5,0,0"  TextWrapping="Wrap"    Text="x(Lock in the focus mode for multiple pomodoros)"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
         <StackPanel Grid.Row="2" Orientation="Horizontal">
             <TextBlock  Name="ChooseFocusMode" Margin="41,0,0,5" TextWrapping="Wrap" Text="xChoose the focus mode" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
-            <ComboBox  Name="ComboBoxFocusModes"   Width="250" Height="27" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="20,0,0,0"  SelectedIndex="0" FontSize="14">
+            <ComboBox  Name="ComboBoxFocusModes" AutomationProperties.AutomationId="cmbFocusModes"  Width="250" Height="27" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="20,0,0,0"  SelectedIndex="0" FontSize="14">
             </ComboBox>
         </StackPanel>
         <StackPanel Grid.Row="3" Orientation="Vertical" Margin="41,0,20,0">
@@ -49,7 +50,7 @@
         <StackPanel  Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Left" Margin="41,0,20,0" VerticalAlignment="Bottom">
             <TextBlock Margin="0,0,0,0" Name="PomodoroCountText" TextWrapping="Wrap" Text="xHow many pomodoros you want to focus for:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <ComboBox Name="ComboBoxNumberOfPomodoros" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  FontSize="14"  >
+            <ComboBox Name="ComboBoxNumberOfPomodoros" AutomationProperties.AutomationId="cmbNumberOfPomodoros" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  FontSize="14"  >
                 <ComboBoxItem Content="2"></ComboBoxItem>
                 <ComboBoxItem Content="3"></ComboBoxItem>
                 <ComboBoxItem Content="4"></ComboBoxItem>
@@ -75,47 +76,49 @@
         <TextBlock Grid.Row="5" Name="ScheduleDays" Margin="41,0,20,0" TextWrapping="Wrap" Text="xSchedule specific days you want to run the super pomodoro mode after Morning Routine:" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
 
 
-        <CheckBox Grid.Row="6" Name="Monday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14" Cursor="Hand" Padding="5,-2,0,0" >
+        <CheckBox Grid.Row="6" Name="Monday" AutomationProperties.AutomationId="chkMonday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14" Cursor="Hand" Padding="5,-2,0,0" >
             xMonday
         </CheckBox>
-        <CheckBox Grid.Row="6" Name="Tuesday" Margin="271,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+        <CheckBox Grid.Row="6" Name="Tuesday" AutomationProperties.AutomationId="chkTuesday" Margin="271,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
             xTuesday
         </CheckBox>
 
-        <CheckBox Grid.Row="7" Name="Wednesday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+        <CheckBox Grid.Row="7" Name="Wednesday" AutomationProperties.AutomationId="chkWednesday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
             xWednesday
         </CheckBox>
-        <CheckBox Grid.Row="7" Name="Thursday" Margin="271,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+        <CheckBox Grid.Row="7" Name="Thursday" AutomationProperties.AutomationId="chkThursday" Margin="271,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
             xThursday
         </CheckBox>
 
-        <CheckBox Grid.Row="8" Name="Friday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+        <CheckBox Grid.Row="8" Name="Friday" AutomationProperties.AutomationId="chkFriday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
             xFriday
         </CheckBox>
-        <CheckBox Grid.Row="8" Name="Saturday" Margin="271,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+        <CheckBox Grid.Row="8" Name="Saturday" AutomationProperties.AutomationId="chkSaturday" Margin="271,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
             xSaturday
         </CheckBox>
 
-        <CheckBox Grid.Row="9" Name="Sunday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+        <CheckBox Grid.Row="9" Name="Sunday" AutomationProperties.AutomationId="chkSunday" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
             xSunday
         </CheckBox>
-        <CheckBox Grid.Row="10" Name="SkipMicroBreaks" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
+        <CheckBox Grid.Row="10" Name="SkipMicroBreaks" AutomationProperties.AutomationId="chkSkipMicroBreaks" Margin="41,0,0,0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="14"  Cursor="Hand" Padding="5,-2,0,0" >
             xSkip microbreaks during work blocks?
         </CheckBox>
 
-        <Button  Grid.Row="11" x:Name="btnCancel"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="41,0,0,20" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
+        <Button  Grid.Row="11" x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="41,0,0,20" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnCancelTXT" Text="xCancel" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>
-        <Button  Grid.Row="11" x:Name="btnApply"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" IsDefault="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,30,20" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnApply_Click" >
+        <Button  Grid.Row="11" x:Name="btnApply" AutomationProperties.AutomationId="btnApply" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" IsDefault="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,30,20" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnApply_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnApplyTXT" Text="xApply" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
         </Button>
+        </Grid>
+        </ScrollViewer>
     </Grid>
 </Window>

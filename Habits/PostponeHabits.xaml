@@ -23,12 +23,12 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <Button  Grid.Row="0" x:Name="btnClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="34" VerticalAlignment="Top" Width="34" ToolTip="Close" Click="btnClose_Click" Grid.Column="1" Cursor="Hand"/>
+        <Button  Grid.Row="0" x:Name="btnClose" AutomationProperties.AutomationId="btnClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="34" VerticalAlignment="Top" Width="34" ToolTip="Close" Click="btnClose_Click" Grid.Column="1" Cursor="Hand"/>
         <TextBlock  Grid.Row="1" Name="Heading" Margin="25,0,25,0" TextWrapping="Wrap" Text="xxIf you have something urgent, you can postpone Habits for a few minutes."  FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
         <StackPanel  Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <ComboBox Name="ComboBoxMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">
+            <ComboBox Name="ComboBoxMinutes" AutomationProperties.AutomationId="cmbMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">
                 <ComboBoxItem Content="5"></ComboBoxItem>
                 <ComboBoxItem Content="10"></ComboBoxItem>
                 <ComboBoxItem Content="15"></ComboBoxItem>
@@ -44,7 +44,7 @@
         </StackPanel>
 
         <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Grid.Row="3" Grid.ColumnSpan="2" x:Name="btnPostpone"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnPostpone_Click">
+            <Button Grid.Row="3" Grid.ColumnSpan="2" x:Name="btnPostpone" AutomationProperties.AutomationId="btnPostpone"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnPostpone_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnPostponeText" Margin="8" Text="xPostpone Habit" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -52,7 +52,7 @@
                 </Button.Content>
             </Button>
 
-            <Button Grid.Row="3" Grid.ColumnSpan="2" x:Name="btnCompletelySkip"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnCompletelySkip_Click" Visibility="Collapsed">
+            <Button Grid.Row="3" Grid.ColumnSpan="2" x:Name="btnCompletelySkip" AutomationProperties.AutomationId="btnCompletelySkip"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="200" Height="40" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnCompletelySkip_Click" Visibility="Collapsed">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnCompletelySkipText" Margin="8" Text="xCompletely Skip" Style="{DynamicResource ButtonTextBlockStyle}"/>

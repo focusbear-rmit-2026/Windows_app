@@ -54,8 +54,9 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        
-
+        <ScrollViewer>
+            <Grid>
+            
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition/>
@@ -79,7 +80,7 @@
                     <RowDefinition Height="35"/>
                 </Grid.RowDefinitions>
 
-                <ListView   Grid.Row="0"   x:Name="ListFocusModes"  SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" SelectionChanged="ListFocusModes_SelectionChanged" Grid.ColumnSpan="2">
+                <ListView   Grid.Row="0"   x:Name="ListFocusModes" AutomationProperties.AutomationId="lvFocusModes" SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" SelectionChanged="ListFocusModes_SelectionChanged" Grid.ColumnSpan="2">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid x:Name="ItemHeader"  Height="40"  Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -96,7 +97,7 @@
                     </ListView.ItemTemplate>
                 </ListView>
 
-                <Button Grid.Row="1" x:Name="btnAddFocusMode"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26"  VerticalAlignment="Center" Padding="0" Margin="10,0,10,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAddFocusMode_Click" Grid.ColumnSpan="2" >
+                <Button Grid.Row="1" x:Name="btnAddFocusMode" AutomationProperties.AutomationId="btnAddFocusMode"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26"  VerticalAlignment="Center" Padding="0" Margin="10,0,10,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAddFocusMode_Click" Grid.ColumnSpan="2" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnAddFocusModeTXT" Text="xAdd Focus Mode" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -122,22 +123,22 @@
                     <RowDefinition Height="35"/>
                 </Grid.RowDefinitions>
 
-                <TextBox Grid.Row="0" TabIndex="0" x:Name="TxtFocusName" Margin="20,10,10,10" TextWrapping="Wrap" BorderBrush="#000"  Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="25" LostFocus="TxtFocusName_LostFocus" KeyDown="TxtFocusName_KeyDown" VerticalContentAlignment="Center">
+                <TextBox Grid.Row="0" TabIndex="0" x:Name="TxtFocusName" AutomationProperties.AutomationId="txtBoxFocusName" Margin="20,10,10,10" TextWrapping="Wrap" BorderBrush="#000"  Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="25" LostFocus="TxtFocusName_LostFocus" KeyDown="TxtFocusName_KeyDown" VerticalContentAlignment="Center">
                 </TextBox>
 
-                <RadioButton Grid.Row="1"  Name="AllowAllApps" Margin="20,5,0,0" GroupName="allowApps"  FontSize="13" Checked="AllowAllApps_Checked" Foreground="{DynamicResource ForegroundColor}">
+                <RadioButton Grid.Row="1"  Name="AllowAllApps" AutomationProperties.AutomationId="rbAllowAllApps" Margin="20,5,0,0" GroupName="allowApps"  FontSize="13" Checked="AllowAllApps_Checked" Foreground="{DynamicResource ForegroundColor}">
                     xAllow all apps
                 </RadioButton>
-                <RadioButton Grid.Row="2" Name="AllowSelectedApps" Margin="20,5,0,0" GroupName="allowApps"  FontSize="13" Checked="AllowSelectedApps_Checked" Foreground="{DynamicResource ForegroundColor}">
+                <RadioButton Grid.Row="2" Name="AllowSelectedApps" AutomationProperties.AutomationId="rbAllowSelectedApps" Margin="20,5,0,0" GroupName="allowApps"  FontSize="13" Checked="AllowSelectedApps_Checked" Foreground="{DynamicResource ForegroundColor}">
                     xAllow Selected apps
                 </RadioButton>
                 <Grid Grid.Row="3" x:Name="SelectedAppsListBG" Margin="20,5,20,15" >
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="150"/>
                         <RowDefinition Height="1"/>
                         <RowDefinition Height="25"/>
                     </Grid.RowDefinitions>
-                    <ListView   Grid.Row="0" Background="{DynamicResource BackgroundColor}"  x:Name="ListApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}" BorderThickness="0" >
+                    <ListView   Grid.Row="0" Background="{DynamicResource BackgroundColor}"  x:Name="ListApps" AutomationProperties.AutomationId="lvApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}" BorderThickness="0" >
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -151,7 +152,7 @@
                     </ListView>
                     <Grid Grid.Row="1"  x:Name="SelectedAppsListBGSeperator" Background="LightGray" ></Grid>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" >
-                        <Button   x:Name="btnAddAllowedApp"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddAllowedApp_Click" >
+                        <Button   x:Name="btnAddAllowedApp" AutomationProperties.AutomationId="btnAddAllowedApp"  Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddAllowedApp_Click" >
 
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
@@ -159,7 +160,7 @@
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button   x:Name="btnAddDeleteAllowedApp"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddDeleteAllowedApp_Click" >
+                        <Button   x:Name="btnAddDeleteAllowedApp" AutomationProperties.AutomationId="btnDeleteAllowedApp"  Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddDeleteAllowedApp_Click" >
 
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
@@ -172,20 +173,20 @@
                 <Grid Grid.Row="4" Background="LightGray" Margin="20,0,20,0" />
                 <TextBlock  Grid.Row="5" Name="HowDoYouWant" Margin="20,0,0,0"   Text="xHow do you want to block URLs"   FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-                <RadioButton Grid.Row="6"  Name="BlockEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="BlockEverything_Checked">
+                <RadioButton Grid.Row="6"  Name="BlockEverything" AutomationProperties.AutomationId="rbBlockEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="BlockEverything_Checked">
                     xBlock everything except safe sites that I choose sdsdsd sdsdsd sdsdsdsd
                 </RadioButton>
-                <RadioButton Grid.Row="7" Name="AllowEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="AllowEverything_Checked">
+                <RadioButton Grid.Row="7" Name="AllowEverything"  AutomationProperties.AutomationId="rbAllowEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="AllowEverything_Checked">
                     xAllow everything except certain distracting sites
                 </RadioButton>
 
                 <Grid Grid.Row="9" x:Name="SelectedURLsListBG" Margin="20,5,20,8">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="150"/>
                         <RowDefinition Height="1"/>
                         <RowDefinition Height="25"/>
                     </Grid.RowDefinitions>
-                    <ListView   Grid.Row="0" Background="{DynamicResource BackgroundColor}" x:Name="ListURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"   BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" MouseDoubleClick="ListURLs_MouseDoubleClick" >
+                    <ListView   Grid.Row="0" Background="{DynamicResource BackgroundColor}" x:Name="ListURLs" AutomationProperties.AutomationId="lvURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"   BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" MouseDoubleClick="ListURLs_MouseDoubleClick" >
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -199,7 +200,7 @@
                     </ListView>
                     <Grid Grid.Row="1"  x:Name="SelectedURLsListBGSeperator" Background="LightGray" ></Grid>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" >
-                        <Button   x:Name="btnAddAllowedURLs"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddAllowedURLs_Click">
+                        <Button   x:Name="btnAddAllowedURLs" AutomationProperties.AutomationId="btnAddAllowedURLs"  Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddAllowedURLs_Click">
 
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
@@ -207,7 +208,7 @@
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button   x:Name="btnAddDeleteAllowedURLs"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddDeleteAllowedURLs_Click" >
+                        <Button   x:Name="btnAddDeleteAllowedURLs" AutomationProperties.AutomationId="btnDeleteAllowedURLs"  Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddDeleteAllowedURLs_Click" >
 
                             <Button.Content>
                                 <StackPanel  Orientation="Horizontal">
@@ -218,7 +219,7 @@
                     </StackPanel>
                 </Grid>
 
-                <Button Grid.Row="10" x:Name="btnAdvanced"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnadvanced_Click" >
+                <Button Grid.Row="10" x:Name="btnAdvanced" AutomationProperties.AutomationId="btnAdvanced"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnadvanced_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnAdvancedTXT" Text="xAdvanced" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -230,14 +231,14 @@
         </Grid>
 
         <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,5,30,0">
-            <Button  x:Name="btnDeleteFocusMode" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnDeleteFocusMode_Click" >
+            <Button  x:Name="btnDeleteFocusMode" AutomationProperties.AutomationId="btnDeleteFocusMode" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnDeleteFocusMode_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnDeleteFocusModeTXT" Text="xDelete" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button  x:Name="btnDuplicateFocusMode"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="15,0,0,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnDuplicateFocusMode_Click" >
+            <Button  x:Name="btnDuplicateFocusMode" AutomationProperties.AutomationId="btnDuplicateFocusMode"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="15,0,0,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnDuplicateFocusMode_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnDuplicateFocusModeTXT" Text="xDuplicate" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -245,5 +246,9 @@
                 </Button.Content>
             </Button>
         </StackPanel>
+
+            
+        </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

@@ -45,11 +45,11 @@
                 <RowDefinition Height="40" />
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Column="0">
-                <RadioButton x:Name="RadioButton1" GroupName="Occupation1" Width="230"  Margin="10,10" Content="xUniversity student" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton1_Checked" Cursor="Hand"   />
-                <RadioButton x:Name="RadioButton2" GroupName="Occupation1" Width="230" Margin="10,10"  Content="xBusiness owner" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton2_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="RadioButton3" GroupName="Occupation1" Width="230"  Margin="10,10" Content="xEmployee" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton3_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="RadioButton4" GroupName="Occupation1" Width="200" Margin="10,10"  Content="xFreelancer" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton4_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="RadioButton5" GroupName="Occupation1" Width="200" Margin="10,10"  Content="xOther" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton5_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="RadioButton1" AutomationProperties.AutomationId="rbUniversity student" GroupName="Occupation1" Width="230"  Margin="10,10" Content="xUniversity student" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton1_Checked" Cursor="Hand"   />
+                <RadioButton x:Name="RadioButton2" AutomationProperties.AutomationId="rbBusiness owner" GroupName="Occupation1" Width="230" Margin="10,10"  Content="xBusiness owner" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton2_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="RadioButton3" AutomationProperties.AutomationId="rbEmployee" GroupName="Occupation1" Width="230"  Margin="10,10" Content="xEmployee" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton3_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="RadioButton4" AutomationProperties.AutomationId="rbFreelancer" GroupName="Occupation1" Width="200" Margin="10,10"  Content="xFreelancer" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton4_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="RadioButton5" AutomationProperties.AutomationId="rbOther" GroupName="Occupation1" Width="200" Margin="10,10"  Content="xOther" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton5_Checked" Cursor="Hand"  />
             </StackPanel>
            
         </Grid>
@@ -63,10 +63,10 @@
             </Grid.ColumnDefinitions>
             <StackPanel x:Name="OptionsStudent" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left" Visibility="Collapsed" >
                 <TextBlock  Name="TitleUniversityStudent"   TextWrapping="Wrap" Margin="0,0" Text="xSelect level of study:"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
-                <RadioButton x:Name="Study1" GroupName="UniversityStudent" Width="250"  Margin="0,10" Content="xHigh school" FontSize="15"  Cursor="Hand"   />
-                <RadioButton x:Name="Study2" GroupName="UniversityStudent" Width="250" Margin="0,10"  Content="xUndergraduate" FontSize="15"  Cursor="Hand" />
-                <RadioButton x:Name="Study3" GroupName="UniversityStudent" Width="250"  Margin="0,10" Content="xGraduate" FontSize="15" Cursor="Hand" />
-                <RadioButton x:Name="Study4" GroupName="UniversityStudent" Width="250" Margin="0,10"  Content="xPostgraduate xPostgraduate xPostgraduate xPostgraduate " FontSize="15"   Cursor="Hand"  />
+                <RadioButton x:Name="Study1" AutomationProperties.AutomationId="rbHighSchool" GroupName="UniversityStudent" Width="250"  Margin="0,10" Content="xHigh school" FontSize="15"  Cursor="Hand"   />
+                <RadioButton x:Name="Study2" AutomationProperties.AutomationId="rbUndergraduate" GroupName="UniversityStudent" Width="250" Margin="0,10"  Content="xUndergraduate" FontSize="15"  Cursor="Hand" />
+                <RadioButton x:Name="Study3" AutomationProperties.AutomationId="rbGraduate" GroupName="UniversityStudent" Width="250"  Margin="0,10" Content="xGraduate" FontSize="15" Cursor="Hand" />
+                <RadioButton x:Name="Study4" AutomationProperties.AutomationId="rbPostgraduate" GroupName="UniversityStudent" Width="250" Margin="0,10"  Content="xPostgraduate xPostgraduate xPostgraduate xPostgraduate " FontSize="15"   Cursor="Hand"  />
                 <Border BorderBrush="#f9e98e" BorderThickness="2" Width="250" Height="70" Margin="0,5,0,0">
                     <Grid Background="#fefbec"    >
                         <StackPanel Orientation="Horizontal">
@@ -79,10 +79,10 @@
             </StackPanel>
             <StackPanel Name="OptionsEmployee" Visibility="Collapsed" Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Left" >
                 <TextBlock  Name="TitleEmployee"   TextWrapping="Wrap" Margin="0,0" Text="xType of work:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
-                <RadioButton x:Name="Employee1" GroupName="Employee" Width="250"  Margin="0,10" Content="xProgrammer" FontSize="15" Checked="Employee1_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="Employee2" GroupName="Employee" Width="250" Margin="0,10"  Content="xGraphic designer" FontSize="15" Checked="Employee2_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="Employee3" GroupName="Employee" Width="250"  Margin="0,10" Content="xOther work from office" FontSize="15" Checked="Employee3_Checked" Cursor="Hand"  />
-                <TextBox  Height="34" Visibility="Collapsed" x:Name="TxtOtherOfficeWOrk" MaxLength="200"  TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,5,5,5" VerticalAlignment="Top"  BorderThickness="1" FontSize="16" TextAlignment="Left" MaxLines="1" Width="185" HorizontalAlignment="Left" >
+                <RadioButton x:Name="Employee1" AutomationProperties.AutomationId="rbProgrammer" GroupName="Employee" Width="250"  Margin="0,10" Content="xProgrammer" FontSize="15" Checked="Employee1_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="Employee2" AutomationProperties.AutomationId="rbGraphicDesigner" GroupName="Employee" Width="250" Margin="0,10"  Content="xGraphic designer" FontSize="15" Checked="Employee2_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="Employee3" AutomationProperties.AutomationId="rbOtherWorkFromOffice" GroupName="Employee" Width="250"  Margin="0,10" Content="xOther work from office" FontSize="15" Checked="Employee3_Checked" Cursor="Hand"  />
+                <TextBox  Height="34" Visibility="Collapsed" x:Name="TxtOtherOfficeWOrk" AutomationProperties.AutomationId="txtBoxOtherOfficeWork" MaxLength="200"  TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,5,5,5" VerticalAlignment="Top"  BorderThickness="1" FontSize="16" TextAlignment="Left" MaxLines="1" Width="185" HorizontalAlignment="Left" >
                     <TextBox.Effect>
                         <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -101,8 +101,8 @@
                         </Style>
                     </TextBox.FocusVisualStyle>
                 </TextBox>
-                <RadioButton x:Name="Employee4" GroupName="Employee" Width="250" Margin="0,10"  Content="xNon desk based work" FontSize="15"   Checked="Employee4_Checked" Cursor="Hand" />
-                <TextBox  Height="34" Visibility="Collapsed" x:Name="TxtNonDeskBasedWork" MaxLength="200"  TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,5,5,5" VerticalAlignment="Top"  BorderThickness="1" FontSize="16" TextAlignment="Left" MaxLines="1" Width="185"  HorizontalAlignment="Left" >
+                <RadioButton x:Name="Employee4" AutomationProperties.AutomationId="rbNonDeskBasedWork" GroupName="Employee" Width="250" Margin="0,10"  Content="xNon desk based work" FontSize="15"   Checked="Employee4_Checked" Cursor="Hand" />
+                <TextBox  Height="34" Visibility="Collapsed" x:Name="TxtNonDeskBasedWork" AutomationProperties.AutomationId="txtBoxNonDeskBasedWork" MaxLength="200"  TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,5,5,5" VerticalAlignment="Top"  BorderThickness="1" FontSize="16" TextAlignment="Left" MaxLines="1" Width="185"  HorizontalAlignment="Left" >
                     <TextBox.Effect>
                         <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -124,7 +124,7 @@
             </StackPanel>
             <StackPanel Name="OptionsFreelancer" Grid.Column="3" Orientation="Vertical" HorizontalAlignment="Left" Visibility="Collapsed" >
                 <TextBlock  Name="TitleFreelancer"   TextWrapping="Wrap" Margin="0,0,0,15" Text="xType of work:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
-                <TextBox Grid.Column="4"  Height="34" x:Name="TxtFreelancer" MaxLength="200"  TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,5,5,5" VerticalAlignment="Top"  BorderThickness="1" FontSize="16" TextAlignment="Left" MaxLines="1" Width="185" Visibility="Visible" HorizontalAlignment="Left" >
+                <TextBox Grid.Column="4"  Height="34" x:Name="TxtFreelancer" AutomationProperties.AutomationId="txtBoxFreeLancer" MaxLength="200"  TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,5,5,5" VerticalAlignment="Top"  BorderThickness="1" FontSize="16" TextAlignment="Left" MaxLines="1" Width="185" Visibility="Visible" HorizontalAlignment="Left" >
                     <TextBox.Effect>
                         <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -144,7 +144,7 @@
                     </TextBox.FocusVisualStyle>
                 </TextBox>
             </StackPanel>
-            <TextBox Visibility="Collapsed" Grid.Column="4"  Height="34" x:Name="TxtOtherJob" MaxLength="200"  TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,5,5,5" VerticalAlignment="Top"  BorderThickness="1" FontSize="16" TextAlignment="Left" MaxLines="1" Width="195" HorizontalAlignment="Left"  >
+            <TextBox Visibility="Collapsed" Grid.Column="4" AutomationProperties.AutomationId="txtOtherJob" Height="34" x:Name="TxtOtherJob" MaxLength="200"  TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,5,5,5" VerticalAlignment="Top"  BorderThickness="1" FontSize="16" TextAlignment="Left" MaxLines="1" Width="195" HorizontalAlignment="Left"  >
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -164,7 +164,7 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
         </Grid>
-        <Button Grid.Row="6"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
+        <Button Grid.Row="6"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>

@@ -16,6 +16,7 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
+        <ScrollViewer>
         <Grid Margin="20" Background="{DynamicResource SoftCreamColor}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
@@ -51,7 +52,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock   Name="LblUserId" Margin="20,0,10,0"   Text="xEmail:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
                     <TextBox   Name="LblUserIdValue" IsReadOnly="True" Margin="0,0,0,0" Width="auto"  Text="xuser id" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
-                    <Button  x:Name="btnCopyUserId"  IsEnabled="True"   Margin="10,0,0,0" Width="22" Height="22" HorizontalContentAlignment="Center" Padding="0"  FontSize="15" Cursor="Hand"   VerticalAlignment="Center" BorderBrush="#eee" Background="#eee" Click="btnCopyUserId_Click" ToolTip="xCopy">
+                    <Button  x:Name="btnCopyUserId" AutomationProperties.AutomationId="btnCopyUserId" IsEnabled="True"   Margin="10,0,0,0" Width="22" Height="22" HorizontalContentAlignment="Center" Padding="0"  FontSize="15" Cursor="Hand"   VerticalAlignment="Center" BorderBrush="#eee" Background="#eee" Click="btnCopyUserId_Click" ToolTip="xCopy">
                         <Button.Content>
                             <Image Grid.Row="0" Height="20"  Width="20"  Margin="0,0,0,0" Source="../Images/copy.png" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Button.Content>
@@ -59,8 +60,8 @@
                 </StackPanel>
             </Grid>
             <StackPanel Grid.Row="5" Orientation="Vertical">
-                
-                <Button  x:Name="btnResetPassword"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="135" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnResetPassword_Click" >
+
+                <Button  x:Name="btnResetPassword" AutomationProperties.AutomationId="btnResetPassword"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="135" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnResetPassword_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnResetPasswordTXT" Text="xReset Password" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -68,7 +69,7 @@
                     </Button.Content>
                 </Button>
 
-                <Button  x:Name="btnLogout"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="135" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnLogout_Click" >
+                <Button  x:Name="btnLogout" AutomationProperties.AutomationId="btnLogout"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="135" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnLogout_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnLogoutTXT" Text="xLogout" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -84,7 +85,7 @@
 
             <TextBlock  Grid.Row="8" Width="500" Name="LblPurchase" Margin="20,0,20,0"  TextWrapping="Wrap" Text="xIf you've already purchased Focus Bear subscription, you can restore that purchase."  FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"  />
 
-            <Button  Grid.Row="9" x:Name="btnSyncPayment"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="200" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnSyncPayment_Click" >
+            <Button  Grid.Row="9" x:Name="btnSyncPayment" AutomationProperties.AutomationId="btnSyncPayment"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="200" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnSyncPayment_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock x:Name="btnSyncPaymentTXT" Text="xSync Payment Status" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -93,5 +94,6 @@
             </Button>
             <ProgressBar Grid.Row="10" x:Name="ProgressSync"   Height="15" Width="200" IsIndeterminate = "True"  Foreground="DodgerBlue" Visibility="Collapsed" />
         </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

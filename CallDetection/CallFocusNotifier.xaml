@@ -18,7 +18,7 @@
 
                     <TextBlock x:Name="TxtCall" Grid.Column="0" FontWeight="Bold" TextWrapping="Wrap" Text="xCALL " Foreground="LightGreen" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
 
-                    <Button Grid.Column="1" Width="15" Height="15" Background="Transparent" BorderBrush="Transparent" x:Name="CloseButton" Cursor="Hand" Click="btnClose_Click" ToolTip="Close">
+                    <Button Grid.Column="1" Width="15" Height="15" Background="Transparent" BorderBrush="Transparent" x:Name="CloseButton" AutomationProperties.AutomationId="btnClose"  Cursor="Hand" Click="btnClose_Click" ToolTip="Close">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Template">
@@ -45,7 +45,7 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    <Button x:Name="btnExpand" Grid.Column="2" Content="xButton" Margin="0,0,5,0" Style="{DynamicResource BtnStyleExpend}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="16" VerticalAlignment="Center" Width="16" ToolTip="Expand" Click="btnExpand_Click" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
+                    <Button x:Name="btnExpand" AutomationProperties.AutomationId="btnExpand" Grid.Column="2" Content="xButton" Margin="0,0,5,0" Style="{DynamicResource BtnStyleExpend}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="16" VerticalAlignment="Center" Width="16" ToolTip="Expand" Click="btnExpand_Click" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
                         <Button.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
@@ -81,12 +81,12 @@
                 <TextBlock Grid.Row="1" x:Name="AppUsingMic" TextWrapping="Wrap" Text="xexe is using your microphone" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="15,0,0,0" FontWeight="SemiBold" FontSize="13"/>
                 <TextBlock Grid.Row="2" x:Name="MeetingsOn" TextWrapping="Wrap" Text="xMeetings active - breaks off" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="15,0,0,0" FontWeight="SemiBold" FontSize="13"/>
                 <TextBlock Grid.Row="3" x:Name="MeetingsOnDesc" TextWrapping="Wrap" Text="xLooks like you're in a video call. I won't interrupt you with micro-breaks during the meeting to avoid embarrassing screensharing moments. Enjoy the meeting!" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="15,0,20,0" FontWeight="Normal" FontSize="13"/>
-                <TextBlock x:Name="NotInMeetingT" Grid.Row="4" Margin="15,10,0,20" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="13" MinHeight="22" Cursor="Hand">
+                <TextBlock x:Name="NotInMeetingT" AutomationProperties.AutomationId="txtInMeeting" Grid.Row="4" Margin="15,10,0,20" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="13" MinHeight="22" Cursor="Hand">
                     <Hyperlink x:Name="NotInMeetingH"  Foreground="#fff" Click="NotInMeetingTxt_Click"   TextDecorations="Underline" ><Run x:Name="NotInMeetingTxt" Text="xxWrong - I'm not in a meeting"/></Hyperlink>
                 </TextBlock>
 
 
-                <Button x:Name="btnCollapse" Content="xButton" Margin="0,0,10,0" Style="{DynamicResource BtnStyleExpend}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="16" VerticalAlignment="Center" Width="16" ToolTip="Collapse" Click="btnCollapse_Click" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
+                <Button x:Name="btnCollapse" AutomationProperties.AutomationId="btnCollapse" Content="xButton" Margin="0,0,10,0" Style="{DynamicResource BtnStyleExpend}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="16" VerticalAlignment="Center" Width="16" ToolTip="Collapse" Click="btnCollapse_Click" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
                     <Button.RenderTransform>
                         <TransformGroup>
                             <ScaleTransform/>

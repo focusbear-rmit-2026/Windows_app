@@ -132,7 +132,7 @@ namespace Focus_Bear.Utils
         public string sTheme = "Light";
         public bool bAutoTheme = false;
 
-        public bool bBlockWhileOnbording = true; //keeping it true just to override user preference for blocking while onboarding
+        public bool bBlockWhileOnbording = false;  
 
         public bool bBlockingWorkedWhileOnboarding = false;
         //API infos Related

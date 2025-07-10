@@ -5,7 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="auto"  MinWidth="330"  Width="330" MaxWidth="330" WindowStyle="None" Deactivated="Window_Deactivated">
+        Title="Focus Bear" Height="auto"  MinWidth="330"  Width="330" MaxWidth="330" WindowStyle="None" Deactivated="Window_Deactivated" MouseRightButtonDown="Window_MouseRightButtonDown">
+
+    <Window.ContextMenu>
+        <ContextMenu x:Name="TrayContextMenu">
+            <MenuItem Header="Exit" Click="ExitMenuItem_Click"/>
+        </ContextMenu>
+    </Window.ContextMenu>
+
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         
@@ -61,11 +68,11 @@
         <StackPanel  Grid.Row="1" Orientation="Vertical" Grid.ColumnSpan="2">
             <TextBlock   Name="AlignmentScoreText"  Margin="15,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Visibility="Collapsed" Foreground="#e88800">xFocus alignment score =</TextBlock>
             <StackPanel    Orientation="Horizontal" HorizontalAlignment="Center"  Margin="0,10,0,10" >
-                <RadioButton x:Name="GeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"  />
-                <RadioButton x:Name="SimpleMode" Content="xSimple Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Cursor="Hand"  />
+                <RadioButton x:Name="GeekMode" AutomationProperties.AutomationId="rbGeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"  />
+                <RadioButton x:Name="SimpleMode" AutomationProperties.AutomationId="rbSimpleMode" Content="xSimple Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Cursor="Hand"  />
             </StackPanel>
-            
-            <Button   x:Name="btnReactivate"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnReactivate_Click" Visibility="Collapsed">
+
+            <Button   x:Name="btnReactivate" AutomationProperties.AutomationId="btnReactivate" Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnReactivate_Click" Visibility="Collapsed">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Margin="8" Name="Reactivate">xReactivate</TextBlock>
@@ -73,7 +80,7 @@
                 </Button.Content>
             </Button>
 
-            <Button   x:Name="btnResumeHabits"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnResumeHabits_Click" Visibility="Collapsed">
+            <Button   x:Name="btnResumeHabits" AutomationProperties.AutomationId="btnResumeHabits" Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnResumeHabits_Click" Visibility="Collapsed">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="23"  Height="23" Source="images/play_circle.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
@@ -81,8 +88,8 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            
-            <Button   x:Name="btnSettings"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSettings_Click">
+
+            <Button   x:Name="btnSettings" AutomationProperties.AutomationId="btnSettings"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSettings_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="24"  Height="24" Source="images/preferences.png"  RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
@@ -99,8 +106,8 @@
             <StackPanel Orientation="Horizontal" Name="LimitedBlockingSection" Visibility="Collapsed">
                 <TextBlock   Name="LimitedBlocking"  Margin="20,10,0,5" FontSize="14" Cursor="Hand" Foreground="{DynamicResource ForegroundColor}" FontWeight="Semibold" Visibility="Visible">xLimited Blocking</TextBlock>
                 <Image Name="LimitedBlockingInfo" Source="{DynamicResource InfoImage}" Width="20"  Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Cursor="Hand"></Image>
-                
-                <Button x:Name="btnLimitedBlockingEdit" Margin="10,6,0,0" Style="{StaticResource BtnStyleInfo}" Click="btnLimitedBlockingEdit_Click" MinWidth="18" Height="18" Cursor="Hand" >
+
+                <Button x:Name="btnLimitedBlockingEdit" AutomationProperties.AutomationId="btnLimitedBlockingEdit" Margin="10,6,0,0" Style="{StaticResource BtnStyleInfo}" Click="btnLimitedBlockingEdit_Click" MinWidth="18" Height="18" Cursor="Hand" >
                     <StackPanel Orientation="Vertical">
                         <Image Name="LimitedBlockingEdit" Source="images/edit.png" Margin="0,0,0,0" Height="18" Width="18" />
                     </StackPanel>
@@ -108,8 +115,8 @@
                 
             </StackPanel>
             <StackPanel Name="OfficeModeSection"  Orientation="Horizontal" HorizontalAlignment="Center"  Margin="0,10,0,10" >
-                <RadioButton x:Name="OfficeMode" Content="xOffice Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Checked="OfficeMode_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="WFHMode" Content="xWFH Mode" Style="{StaticResource SegmentRadioButtonStyle}"  Checked="WFHMode_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="OfficeMode" AutomationProperties.AutomationId="rbOfficeMode" Content="xOffice Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Checked="OfficeMode_Checked" Cursor="Hand"  />
+                <RadioButton x:Name="WFHMode" AutomationProperties.AutomationId="rbWFHMode" Content="xWFH Mode" Style="{StaticResource SegmentRadioButtonStyle}"  Checked="WFHMode_Checked" Cursor="Hand"  />
             </StackPanel>
         </StackPanel>
 
@@ -120,7 +127,7 @@
             <Label   Grid.Row="2" Name="Focus"  Margin="20,-3,0,0"  MinHeight="25"  VerticalAlignment="Top"  Foreground="White" FontSize="14" FontWeight="Semibold" >xFocus</Label>
             <Label   Grid.Row="2" Name="OnUntill" Visibility="Collapsed"  Margin="20,-2,0,0"  MinHeight="25"  VerticalAlignment="Top"  Foreground="White" FontSize="11"  >On Untill</Label>
 
-            <ListView  MaxHeight="240"    Margin="13,5,16,10" x:Name="ListFocusModes"   VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource ListViewItemStyle}" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" SelectionChanged="ListFocusModes_SelectionChanged" >
+            <ListView  MaxHeight="240"    Margin="13,5,16,10" x:Name="ListFocusModes" AutomationProperties.AutomationId="lvFocusModes"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource ListViewItemStyle}" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" SelectionChanged="ListFocusModes_SelectionChanged" >
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         
@@ -181,16 +188,16 @@
         </Grid>
         <StackPanel Grid.Row="3" Grid.ColumnSpan="2">
 
-            <Button   x:Name="btnSetupFocusMode"  Click="btnSetupFocusMode_Click"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True" MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" >
+            <Button   x:Name="btnSetupFocusMode" AutomationProperties.AutomationId="btnSetupFocusModes" Click="btnSetupFocusMode_Click"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True" MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Margin="10" Name="btnSetupFocusModeText">xSetup Focus Modes</TextBlock>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            
-            
-            <Button   x:Name="btnBrainDump"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnBrainDump_Click">
+
+
+            <Button   x:Name="btnBrainDump" AutomationProperties.AutomationId="btnBrainDump"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnBrainDump_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                        
@@ -199,15 +206,15 @@
                 </Button.Content>
 
             </Button>
-            <Button   x:Name="btnToDoPlayer" Visibility="Visible"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnToDoPlayer_Click">
+            <Button   x:Name="btnToDoPlayer" AutomationProperties.AutomationId="btnToDoPlayer" Visibility="Visible"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnToDoPlayer_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Margin="8" Name="btnToDoPlayerTXT">xTo Do Player</TextBlock>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            
-            <Button   x:Name="btnStartPomodoroMode"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnStartPomodoroMode_Click">
+
+            <Button   x:Name="btnStartPomodoroMode" AutomationProperties.AutomationId="btnStartPomodoroMode"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnStartPomodoroMode_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="24"  Height="24" Source="images/start-pomodoro.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
@@ -216,7 +223,7 @@
                 </Button.Content>
 
             </Button>
-            <Button   x:Name="btnStopPomodoroMode" Visibility="Collapsed"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click='btnStopPomodoroMode_Click'>
+            <Button   x:Name="btnStopPomodoroMode" AutomationProperties.AutomationId="btnStopPomodoroMode" Visibility="Collapsed"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click='btnStopPomodoroMode_Click'>
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="24"  Height="24" Source="images/start-pomodoro.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
@@ -226,7 +233,7 @@
 
             </Button>
 
-            <Button   x:Name="btnQuit" Click="btnQuit_Click"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" >
+            <Button   x:Name="btnQuit" AutomationProperties.AutomationId="btnQuit" Click="btnQuit_Click"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="23"  Height="23" Source="images/pausecircle.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
@@ -235,7 +242,7 @@
                     
                 </Button.Content>
             </Button>
-            <Button   x:Name="btnUpgradeNow"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="55" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnUpgradeNow_Click">
+            <Button   x:Name="btnUpgradeNow" AutomationProperties.AutomationId="btnUpgradeNow"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="55" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnUpgradeNow_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <Image Grid.ColumnSpan="2"  Margin="10,7,0,0" Width="23"  Height="23" Source="images/upgrade.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top" />

@@ -48,6 +48,7 @@ using System.Windows.Media;
 using System.Web.UI;
 using System.Windows.Controls;
 using Focus_Bear.Onboarding.NEW;
+using Focus_Bear.Habits.NaturalBreaks;
 
 namespace Focus_Bear
 {
@@ -339,6 +340,8 @@ namespace Focus_Bear
 
         public ToDoPlayer wndToDoPlayer = null;
         public ToDoList wndToDoList = null;
+        
+        public NaturalBreakDetectionWindow wndNaturalBreakDetectionWindow = null;
 
         bool bAppExtracted = false;
         public static event Action FocusModeAddedDeletedEvent;
@@ -524,6 +527,25 @@ namespace Focus_Bear
             }
 
         }
+
+        public void ShowSplashWindow(bool bProgressIndicator = false)
+        {
+            LogWriter.LogWrite("Show SplashWindow()");
+            if (bProgressIndicator) //need force creation of object in this case
+            {
+                if (wndSplash != null)
+                {
+                    wndSplash.Close();
+                }
+                wndSplash = null;
+            }
+
+            if (wndSplash == null)
+            {
+                wndSplash = new SplashWindow(bProgressIndicator);
+                wndSplash.Show();
+            }
+        }
         public void ProceedAfterDownloadingConfigFile()
         {
             LogWriter.LogWrite("ProceedAfterDownloadingConfigFile()");
@@ -532,9 +554,7 @@ namespace Focus_Bear
             //Show the splash window here
             if (!appSettings.bStartingAfterDeactivated)
             {
-                wndSplash = new SplashWindow();
-                LogWriter.LogWrite("Show SplashWindow()");
-                wndSplash.Show();
+                ShowSplashWindow();
             }
 
             var status = appSettings.DownloadBlockHTMLFile();
@@ -592,6 +612,11 @@ namespace Focus_Bear
                     trayIcon.Text = "Focus Bear";
                     trayIcon.BalloonTipText = "Focus Bear";
                     trayIcon.Visible = true;
+
+                    if(wndSplash != null)
+                    {
+                        wndSplash.Close();
+                    }
 
                     if (!appSettings.bStartingAfterDeactivated)//do not show if starting after deactivated
                     {
@@ -721,7 +746,7 @@ namespace Focus_Bear
                 else
                 {
 #if DEBUG
-                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, appSettings.breakAfterMinutes);
+                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 2, 0);
 #else
                     dispatcherTimerBreaks.Interval = new TimeSpan(0,  appSettings.breakAfterMinutes, 0);
 #endif
@@ -827,6 +852,11 @@ namespace Focus_Bear
         public async void ShowBreakActivities()
         {
             LogWriter.LogWrite("ShowBreakActivities()");
+
+            if(wndNaturalBreakDetectionWindow != null)
+            {
+                wndNaturalBreakDetectionWindow.Hide(); 
+            }
 
             if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF || appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
             {
@@ -1935,7 +1965,21 @@ namespace Focus_Bear
                     }
 
                     if (isMorningHabitsAlreadyShown)
+                    {
+                        //Check idle time
+                        if (IdleDetector.IsUserIdle())
+                        {
+                            //MessageBox.Show("You've been idle for 10 minutes.");
+                            if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY ||
+                                appSettings.bIsUserOnCall ||
+                                appSettings.arrAllbreakActivities.Count == 0)
+                            {
+                                return;
+                            }
+                            ShowNaturalBreakDetectionWindow();
+                        }
                         return;
+                    }
 
                     if (!isMorningHabitsAlreadyShown)
                     {
@@ -4460,7 +4504,25 @@ namespace Focus_Bear
                 wndToDoPlayer.Close();
             }
         }
-        
+
+        public void ShowNaturalBreakDetectionWindow()
+        {
+            /*"naturalBreaksDetectionVcInfo": {
+        "title": "It looks like you're on a break. Well done on taking care of yourself.",
+        "buttonThanksText": "Thanks - I feel great",
+        "buttonWrongDetectionText": "You're wrong! I wasn't on a break",
+        "titleTakeBreak": "Ok do you want to take a break now 😅?",
+        "buttonStartBreakText": "Yup I need a break now",
+        "buttonTakeBreakLaterText": "No - I'll take later"
+    },*/
+
+            if (wndNaturalBreakDetectionWindow == null)
+            {
+                wndNaturalBreakDetectionWindow = new NaturalBreakDetectionWindow();
+            }
+            wndNaturalBreakDetectionWindow.Hide(); // avoid multiple
+            wndNaturalBreakDetectionWindow.Show();
+        }
         public void FocusModeAddedOrDeleted()
         {
             FocusModeAddedDeletedEvent?.Invoke();

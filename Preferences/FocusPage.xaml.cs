@@ -295,7 +295,7 @@ namespace Focus_Bear.Preferences
                     }
                     else
                     {
-                        HowDoYouWant.Text = "All websites are allowed";//todo win texts // appSettings.ConfigFileStrings["WindowsSpecific"]["allWebsitesAllowed"].ToString();
+                        HowDoYouWant.Text = appSettings.ConfigFileStrings["WindowsSpecific"]["allWebsitesAllowed"].ToString();
 
 
                         SelectedURLsListBG.Background = BackgroundColor;

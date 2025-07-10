@@ -31,7 +31,7 @@
 
         <StackPanel  Grid.Row="2"  Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock Name="Suggest" Margin="0,0,10,0" TextWrapping="Wrap" Text="xTaking breaks throughout the day helps with stress and focus." FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
-            <Button x:Name="btnInfo" Style="{StaticResource BtnStyleInfo}" Click="btnInfo_Click"  MinWidth="35" Height="35" Cursor="Hand" >
+            <Button x:Name="btnInfo" AutomationProperties.AutomationId="btnInfo" Style="{StaticResource BtnStyleInfo}" Click="btnInfo_Click"  MinWidth="35" Height="35" Cursor="Hand" >
                 <StackPanel Orientation="Vertical">
                     <Image Source="../images/info.png" Margin="0,0,0,0" Height="24" Width="24" />
                 </StackPanel>
@@ -43,10 +43,10 @@
          
             <StackPanel Grid.Row="3"  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock    Name="WhatActivity" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWhat 30 seconds of activity do you want to do?" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-            <ComboBox Name="ComboBoxActivityType"    Width="200" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,30,0,0"    FontSize="15" SelectionChanged="ComboBoxActivityType_SelectionChanged">
+            <ComboBox Name="ComboBoxActivityType" AutomationProperties.AutomationId="cmbActivityType"   Width="200" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,30,0,0"    FontSize="15" SelectionChanged="ComboBoxActivityType_SelectionChanged">
             </ComboBox>
             <TextBlock    Name="ActivityName" Margin="0,10,0,0" TextWrapping="Wrap" Text="xEnter name of activity" FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
-            <TextBox    Height="30" x:Name="TxtSomethingElse"    Margin="0,30" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" Width="341" Visibility="Collapsed" TextChanged="TxtSomethingElse_TextChanged">
+            <TextBox    Height="30" x:Name="TxtSomethingElse" AutomationProperties.AutomationId="txtBoxSomethingElse"   Margin="0,30" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" Width="341" Visibility="Collapsed" TextChanged="TxtSomethingElse_TextChanged">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -66,8 +66,8 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
         </StackPanel>
-        
-        <Button Grid.Row="4"  x:Name="btnStartMindfulBreathing"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalAlignment="Top" Padding="0" Margin="0,30,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStartMindfulBreathing_Click" >
+
+        <Button Grid.Row="4"  x:Name="btnStartMindfulBreathing" AutomationProperties.AutomationId="btnStartMindfulBreathing"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalAlignment="Top" Padding="0" Margin="0,30,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStartMindfulBreathing_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal" Margin="20,0,20,0">
                     <TextBlock x:Name="btnStartMindfulBreathingTXT" Text="xMindful Breathing" Foreground="Black"/>

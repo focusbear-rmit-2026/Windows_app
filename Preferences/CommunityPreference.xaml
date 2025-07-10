@@ -24,23 +24,23 @@
         </Grid.RowDefinitions>
         <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap"  Text="xWhat community system would you prefer to use?" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-        <ComboBox Name="ComboBoxOptions"  Grid.Row="1" Width="220" MinHeight="30" VerticalAlignment="Center" HorizontalAlignment="Center"   SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxOptions_SelectionChanged">
+        <ComboBox Name="ComboBoxOptions" AutomationProperties.AutomationId="cmbOptions" Grid.Row="1" Width="220" MinHeight="30" VerticalAlignment="Center" HorizontalAlignment="Center"   SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxOptions_SelectionChanged">
         </ComboBox>
 
         <TextBox  Grid.Row="2" Visibility="Collapsed" x:Name="OtherText" TextWrapping="Wrap"  BorderBrush="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Height="25" Width="220"  TextChanged="OtherText_TextChanged">
 
         </TextBox>
-        <Button  Grid.Row="3" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
+        <Button  Grid.Row="3" x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnCancelTXT" Text="xCancel"/>
+                    <TextBlock x:Name="btnCancelTXT" Text="xCancel" Foreground="Black"/>
                 </StackPanel>
             </Button.Content>
         </Button>
-        <Button  Grid.Row="3" x:Name="btnOK"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click" >
+        <Button  Grid.Row="3" x:Name="btnOK" AutomationProperties.AutomationId="btnOK"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnOKTXT" Text="xOK"/>
+                    <TextBlock x:Name="btnOKTXT" Text="xOK" Foreground="Black"/>
                 </StackPanel>
             </Button.Content>
         </Button>

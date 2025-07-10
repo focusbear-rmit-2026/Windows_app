@@ -31,7 +31,7 @@
             <TextBlock  Name="Description" Margin="0,0,0,0" TextWrapping="Wrap" Text="xHow do you want your life to change from using Focus Bear?"  FontSize="20" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
             <Image x:Name="InfoChange"   Source="{DynamicResource InfoImage}" Width="18"  Margin="10,0,0,3" VerticalAlignment="Bottom" HorizontalAlignment="Left"   ></Image>
         </StackPanel>
-        <TextBox  Grid.Row="3" Name="TxtAchieve" TextWrapping="Wrap" AcceptsReturn="True"  Width="855" Height="220"  Margin="0,50,0,0" VerticalAlignment="Top"  FontSize="18">
+        <TextBox  Grid.Row="3" Name="TxtAchieve" AutomationProperties.AutomationId="txtBoxAchieve" TextWrapping="Wrap" AcceptsReturn="True"  Width="855" Height="220"  Margin="0,50,0,0" VerticalAlignment="Top"  FontSize="18">
             <TextBox.Effect>
                 <DropShadowEffect ShadowDepth="3"
                               Direction="330"
@@ -50,7 +50,7 @@
                 </Style>
             </TextBox.FocusVisualStyle>
         </TextBox>
-        <Button Grid.Row="4"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
+        <Button Grid.Row="4"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>

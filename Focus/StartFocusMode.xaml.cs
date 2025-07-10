@@ -75,7 +75,8 @@ namespace Focus_Bear.Focus
 
                 SkipMicroBreaks.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonSkipMicrobreaksText"].ToString();
 
-                btnSelectTasksTXT.Text = "Choose tasks to work on"; //todo win texts
+                btnSelectTasksTXT.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["selectTasksText"].ToString(); //"Choose tasks to work on"
+
                 btnWriteFreeFormIntentionTXT.Text = "Write a freeform intention instead";
                 SelectedTasksTitle.Text = "Selected Tasks:";
             }

@@ -22,14 +22,14 @@
         </Grid.RowDefinitions>
         <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0" Width="500" TextWrapping="Wrap" Text="xAre you sure? It's pretty easy to get distracted without using a more restrictive focus mode" FontSize="23" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
         <StackPanel x:Name="buttons" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-            <Button   IsDefault="True" x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="63" Width="250"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,20,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
+            <Button   IsDefault="True" x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="63" Width="250"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,20,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click" >
                 <Button.Content>
 
                     <TextBlock x:Name="btnCancelTXT" Width="200" TextWrapping="Wrap" Text="xBah I guess you're right - CANCEL!" TextAlignment="Center" Style="{DynamicResource ButtonTextBlockStyle}"/>
          
                 </Button.Content>
             </Button>
-            <Button Grid.Row="3" IsDefault="True" x:Name="btnShutup"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="63"  Width="250"   HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnShutup_Click" >
+            <Button Grid.Row="3" IsDefault="True" x:Name="btnShutup" AutomationProperties.AutomationId="btnShutup"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    Height="63"  Width="250"   HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="20,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnShutup_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
                         <TextBlock x:Name="btnShutupTXT" Width="200" TextWrapping="Wrap" Text="xShutup I know what I'm doing" TextAlignment="Center" Style="{DynamicResource ButtonTextBlockStyle}"/>

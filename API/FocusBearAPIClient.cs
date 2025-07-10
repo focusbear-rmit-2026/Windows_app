@@ -3210,7 +3210,7 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
-                    string addItemJsonString = $"{{\"feedback_message\":\"{sFeedback}\"," +
+                    string addItemJsonString = $"{{\"feedback_message\":\"{HttpUtility.UrlEncode(sFeedback)}\"," +
                         $"\"app_platform\":\"windows\"," +
                          $"\"uploaded_file_url\":\"{sUploadURL}\"," +
                         $"\"app_version\":\"{ appSettings.AppVersion.ToString()}\"}}";

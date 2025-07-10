@@ -32,14 +32,14 @@
         </StackPanel>
         
         <StackPanel Grid.Row="5" Name="ButtonsSection" Orientation="Vertical" Margin="0,10,0,0">
-            <Button  x:Name="btnAllowTemporarily"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnAllowTemporarily_Click">
+                <Button  x:Name="btnAllowTemporarily" AutomationProperties.AutomationId="btnAllowTemporarily"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnAllowTemporarily_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnAllowTemporarilyText" Margin="1" Text="xAllow Temporarily"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button   x:Name="btnBlockIt"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnBlockIt_Click">
+            <Button   x:Name="btnBlockIt" AutomationProperties.AutomationId="btnBlockIt"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnBlockIt_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnBlockItText" Margin="1" Text="xBlock It"/>
@@ -47,7 +47,7 @@
                 </Button.Content>
             </Button>
 
-            <CheckBox x:Name="DoNotAskAnymore" Margin="10,10,0,10" FontSize="13"  Width="300" Checked="DoNotAskAnymore_Checked" Unchecked="DoNotAskAnymore_Unchecked" Visibility="Visible">
+            <CheckBox x:Name="DoNotAskAnymore" AutomationProperties.AutomationId="chkDoNotAskAnymore" Margin="10,10,0,10" FontSize="13"  Width="300" Checked="DoNotAskAnymore_Checked" Unchecked="DoNotAskAnymore_Unchecked" Visibility="Visible">
                 <TextBlock x:Name="DoNotAskAnymoreText" TextWrapping="Wrap" Padding="3,0">xDon't ask for intentions - block super distracting sites immediately</TextBlock>
             </CheckBox>
         </StackPanel>
@@ -65,7 +65,7 @@
 
             <TextBlock  Grid.Row="0" Name="HeadingAchieve"  Margin="10,10,10,0" TextWrapping="Wrap" Text="xYou said SITE is super distracting for you. What do you want to achieve during your time here?" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
 
-            <TextBox  Grid.Row="1"  Name="TxtIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"    Height="70" Margin="15" VerticalAlignment="Top"  FontSize="15" TextChanged="TxtIntention_TextChanged">
+            <TextBox  Grid.Row="1"  Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"    Height="70" Margin="15" VerticalAlignment="Top"  FontSize="15" TextChanged="TxtIntention_TextChanged">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -87,25 +87,25 @@
 
             <TextBlock  Grid.Row="2" Name="SelectMinutes" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xSelect minutes to use this site?" Foreground="#272727" FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <ComboBox Grid.Row="3" Name="ComboBoxMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,10,0,0"  SelectedIndex="0">
-                <ComboBoxItem Content="30s"></ComboBoxItem>
-                <ComboBoxItem Content="1m"></ComboBoxItem>
-                <ComboBoxItem Content="2m"></ComboBoxItem>
-                <ComboBoxItem Content="5m"></ComboBoxItem>
-                <ComboBoxItem Content="10m"></ComboBoxItem>
+            <ComboBox Grid.Row="3" Name="ComboBoxMinutes" AutomationProperties.AutomationId="cmbMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,10,0,0"  SelectedIndex="0">
+                <ComboBoxItem Content="30s" AutomationProperties.AutomationId="item30s"></ComboBoxItem>
+                <ComboBoxItem Content="1m" AutomationProperties.AutomationId="item1m"></ComboBoxItem>
+                <ComboBoxItem Content="2m" AutomationProperties.AutomationId="item2m"></ComboBoxItem>
+                <ComboBoxItem Content="5m" AutomationProperties.AutomationId="item5m"></ComboBoxItem>
+                <ComboBoxItem Content="10m" AutomationProperties.AutomationId="item10m"></ComboBoxItem>
             </ComboBox>
 
             <TextBlock Grid.Row="4" Name="TxtAutoBlockTimer1"  Margin="0,10,0,0" TextWrapping="Wrap" Text="x00:30" Foreground="#272727" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
 
             <StackPanel Grid.Row="5" Orientation="Vertical" Margin="0,10,0,0">
-                <Button  x:Name="btnSetIntention"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSetIntention_Click">
+                <Button  x:Name="btnSetIntention" AutomationProperties.AutomationId="btnIntention"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSetIntention_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnSetIntentionText" Margin="1" Text="xSet Intention"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <Button   x:Name="btnCancel"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click">
+                <Button   x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnCancelText" Margin="1" Text="xCancel"/>

@@ -35,19 +35,19 @@
 
                 <TextBlock  Name="SelectAll" Margin="0,0,0,10"  Width="300" TextWrapping="Wrap" Text="xSelect all that apply"  FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center" />
 
-                <CheckBox x:Name="CheckMeditateConsistently" Width="300" FontSize="18"  Cursor="Hand" Padding="10,-6,0,0" Margin="10">xMeditate consistently</CheckBox>
-                <CheckBox x:Name="CheckSleepBetter" Width="300" FontSize="18"  Cursor="Hand" Padding="10,-6,0,0" Margin="10">xSleep better</CheckBox>
-                <CheckBox x:Name="CheckExerciseMore" Width="300"  FontSize="18" Cursor="Hand" Padding="10,-6,0,0" Margin="10">xExercise more</CheckBox>
-                <CheckBox x:Name="CheckImproveWorkLifeBalance" Width="300" FontSize="18" Cursor="Hand" Padding="10,-6,0,0" Margin="0,10,0,15">xImprove work life balance</CheckBox>
+                <CheckBox x:Name="CheckMeditateConsistently" AutomationProperties.AutomationId="chkMeditateConsistently" Width="300" FontSize="18"  Cursor="Hand" Padding="10,-6,0,0" Margin="10">xMeditate consistently</CheckBox>
+                <CheckBox x:Name="CheckSleepBetter" AutomationProperties.AutomationId="chkSleepBetter" Width="300" FontSize="18"  Cursor="Hand" Padding="10,-6,0,0" Margin="10">xSleep better</CheckBox>
+                <CheckBox x:Name="CheckExerciseMore" AutomationProperties.AutomationId="chkExerciseMore" Width="300"  FontSize="18" Cursor="Hand" Padding="10,-6,0,0" Margin="10">xExercise more</CheckBox>
+                <CheckBox x:Name="CheckImproveWorkLifeBalance" AutomationProperties.AutomationId="chkImproveWorkLifeBalance" Width="300" FontSize="18" Cursor="Hand" Padding="10,-6,0,0" Margin="0,10,0,15">xImprove work life balance</CheckBox>
 
                 <TextBlock  Name="AnythingElse" Margin="0" Height="50" Width="550" TextWrapping="Wrap" Text="xAnything else you hope Focus Bear can help with? (We'll try to take your feedback on board)"  FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left" />
-                <TextBox   TabIndex="0" x:Name="AnythingElseVALUE" Margin="0,15,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="18" TextAlignment="Left" MaxLines="1" Height="30" TextChanged="AnythingElseVALUE_TextChanged">
+                <TextBox   TabIndex="0" x:Name="AnythingElseVALUE" AutomationProperties.AutomationId="txtBoxAnythingElse" Margin="0,15,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="18" TextAlignment="Left" MaxLines="1" Height="30" TextChanged="AnythingElseVALUE_TextChanged">
 
                 </TextBox>
             </StackPanel>
         </Viewbox>
-         
-        <Button Grid.Row="4"  x:Name="btnContinue"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
+
+        <Button Grid.Row="4"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>

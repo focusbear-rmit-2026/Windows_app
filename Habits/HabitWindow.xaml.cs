@@ -1406,19 +1406,33 @@ namespace Focus_Bear.Habits
                 this.WindowStyle = WindowStyle.ToolWindow;
                 this.Width = 1300;
                 this.Height = 750;
-                var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-                if (this.Width > desktopWorkingArea.Width)
+
+                //  Compute how many logical units the screen can show
+                double screenLogicalWidth = SystemParameters.WorkArea.Width;
+                double screenLogicalHeight = SystemParameters.WorkArea.Height;
+
+                //  “ideal” logical minimum
+                const double idealMinW = 1300, idealMinH = 750;
+
+                // Cap the minimum to what actually fits
+                this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
+                this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
+
+                // If you want the window to start at that minimum size:
+                this.Width = this.MinWidth;
+                this.Height = this.MinHeight;
+
+                if (this.Height < idealMinH)
                 {
-                    this.Width = desktopWorkingArea.Width;
-                    this.MinWidth = desktopWorkingArea.Width;
+                    if (PageWelcomeList != null)
+                    {
+                        PageWelcomeList.TopIcon.Height = 80;
+                        PageWelcomeList.TopIcon.Width = 80;
+                    }
                 }
-                if (this.Height > desktopWorkingArea.Height)
-                {
-                    this.Height = desktopWorkingArea.Height - 30;
-                    this.MinHeight = desktopWorkingArea.Height - 30;
-                }
-                this.Left = (desktopWorkingArea.Width - this.Width) / 2;
-                this.Top = (desktopWorkingArea.Height - this.Height) / 2;
+                // Center it
+                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
 
 
                 btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
@@ -1523,6 +1537,7 @@ namespace Focus_Bear.Habits
             {
                 Hide();
                 appSettings.RemoveSecondaryWindows();
+                appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
             }
   
         }
@@ -1542,5 +1557,30 @@ namespace Focus_Bear.Habits
             }
             return false;
         }
+
+        private void FullScreenParent_Loaded(object sender, RoutedEventArgs e)
+        {
+           
+            //Compute how many logical units the screen can show
+            double screenLogicalWidth = SystemParameters.WorkArea.Width;
+            double screenLogicalHeight = SystemParameters.WorkArea.Height;
+
+            LogWriter.LogWrite(string.Format("screenLogicalWidth = {0}, screenLogicalHeight = {1}", screenLogicalWidth.ToString(), screenLogicalHeight.ToString()));
+            // “ideal” logical minimum
+            const double idealMinW = 1300, idealMinH = 750;
+
+            //Cap the minimum to what actually fits
+            this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
+            this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
+
+            // If you want the window to start at that minimum size:
+            this.Width = this.MinWidth;
+            this.Height = this.MinHeight;
+
+            //Center it
+            this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+            this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+        }
+
     }
 }

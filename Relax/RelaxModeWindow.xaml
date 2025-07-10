@@ -25,7 +25,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0"   Name="Heading" Margin="20,0,0,5"    TextWrapping="Wrap" Text="xSites you saved for relax mode:" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
-        <ListView  Grid.Row="1"  x:Name="ListRelaxURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"   Margin="20,0,20,0" Width="auto" Height="270"  VerticalAlignment="Top" SelectionChanged="ListRelaxURLs_SelectionChanged">
+        <ListView  Grid.Row="1"  x:Name="ListRelaxURLs" AutomationProperties.AutomationId="lvRelaxURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"   Margin="20,0,20,0" Width="auto" Height="270"  VerticalAlignment="Top" SelectionChanged="ListRelaxURLs_SelectionChanged">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -33,14 +33,14 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox  IsChecked="{Binding Path=IsItemChecked}"/>
+                            <CheckBox  IsChecked="{Binding Path=IsItemChecked}" AutomationProperties.AutomationId="chk0"/>
                             <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="Blue"  FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Button Grid.Row="2"  x:Name="btnDeleteURLs"   Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Padding="0" Margin="17,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnDeleteURLs_Click" >
+        <Button Grid.Row="2"  x:Name="btnDeleteURLs" AutomationProperties.AutomationId="btnDeleteURLs"  Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Padding="0" Margin="17,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnDeleteURLs_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <Image Name="btnDeleteURLsIMG" Height="18"  Width="18" Source="{DynamicResource MinusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
@@ -49,7 +49,7 @@
         </Button>
         <Grid Grid.Row="3" Background="LightGray" ></Grid>
         <TextBlock Grid.Row="4"  Name="TimeRemaining" Margin="0,0,0,0"   TextWrapping="Wrap" Text="xxTime Remaining: 22.22" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Center"/>
-        <Button  Grid.Row="5" x:Name="btnMovetoNext"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" MinWidth="100" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10"  FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnMovetoNext_Click" >
+        <Button  Grid.Row="5" x:Name="btnMovetoNext" AutomationProperties.AutomationId="btnMoveToNext"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" MinWidth="100" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,10"  FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnMovetoNext_Click" >
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock x:Name="btnMovetoNextTXT" Text="xI'm done! Move to next activity" Margin="10,0" Foreground="Black"/>

@@ -33,7 +33,7 @@
                     <RowDefinition Height="1"/>
                     <RowDefinition Height="35"/>
                 </Grid.RowDefinitions>
-                <ListView   Grid.Row="0"   x:Name="ListBLockedURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" MouseDoubleClick="ListBLockedURLs_MouseDoubleClick" >
+                <ListView   Grid.Row="0"   x:Name="ListBLockedURLs" AutomationProperties.AutomationId="lvBlockedURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" MouseDoubleClick="ListBLockedURLs_MouseDoubleClick" >
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -47,7 +47,7 @@
                 </ListView>
                 <Grid Grid.Row="1" Background="LightGray" ></Grid>
                 <DockPanel Grid.Row="2" LastChildFill="False">
-                    <Button   x:Name="btnDeleteURL"  MaxWidth="100" Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="27" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="10,0,0,2" FontSize="12" Cursor="Hand" FontWeight="Normal" Click="btnDeleteURL_Click" >
+                    <Button   x:Name="btnDeleteURL" AutomationProperties.AutomationId="btnDeleteURL" MaxWidth="100" Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="27" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="10,0,0,2" FontSize="12" Cursor="Hand" FontWeight="Normal" Click="btnDeleteURL_Click" >
 
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
@@ -55,8 +55,8 @@
                             </StackPanel>
                         </Button.Content>
                     </Button>
-                    
-                    <Button   x:Name="btnAddURL" MaxWidth="100"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="27"  VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,10,2" FontSize="12" Cursor="Hand" FontWeight="Normal" Click="btnAddURL_Click" DockPanel.Dock="Right" >
+
+                    <Button   x:Name="btnAddURL" AutomationProperties.AutomationId="btnAddURL" MaxWidth="100"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="27"  VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,10,2" FontSize="12" Cursor="Hand" FontWeight="Normal" Click="btnAddURL_Click" DockPanel.Dock="Right" >
 
                         <Button.Content>
                             <!--<StackPanel  Orientation="Horizontal">
@@ -70,8 +70,8 @@
                    
                 </DockPanel>
             </Grid>
-            <CheckBox Grid.Row="3" x:Name="ImmediatelyBlockDistractingURLs" Cursor="Hand" Margin="20,0,20,0" FontSize="13"    Checked="ImmediatelyBlockDistractingURLs_Checked" Unchecked="ImmediatelyBlockDistractingURLs_Unchecked" Visibility="Visible">
-                <TextBlock x:Name="ImmediatelyBlockDistractingURLsText" TextWrapping="Wrap" Padding="3,0">xImmediately block super distracting sites</TextBlock>
+            <CheckBox Grid.Row="3" x:Name="ImmediatelyBlockDistractingURLs" AutomationProperties.AutomationId="chkImmediatelyBlockDistractingURLs" Cursor="Hand" Margin="20,0,20,0" FontSize="13"    Checked="ImmediatelyBlockDistractingURLs_Checked" Unchecked="ImmediatelyBlockDistractingURLs_Unchecked" Visibility="Visible">
+                <TextBlock x:Name="ImmediatelyBlockDistractingURLsText" ToolTip="X" TextWrapping="Wrap" Padding="3,0">xImmediately block super distracting sites</TextBlock>
             </CheckBox>
             
             <Border x:Name="GridShadeAdvanced" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.80"   Visibility="Collapsed" />

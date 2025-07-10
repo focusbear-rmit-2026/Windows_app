@@ -1,3 +1,4 @@
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Win32;
@@ -94,6 +95,10 @@ namespace Focus_Bear.Focus
                 DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime(); 
                 TimeSpan difference = end.Subtract(start); // could also write `now - otherTime`
                 double durationMinutes = difference.TotalMinutes;
+
+                //get the brain dump if saved from previous
+                RegistryManager.GetBrainDump();
+
                 string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
 
                 string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"total_duration\":{1},lang:\"{2}\",\"font\":\"{3}\",\"theme\":{6},\"intention\":\"{4}\",\"brain_dump\":\"{5}\"}}", appSettings.userAccount.accessToken, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump,sTheme);
@@ -102,6 +107,7 @@ namespace Focus_Bear.Focus
                 {
                     LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{3}\",\"font\":\"{4}\",\"theme\":{7},\"intention\":\"{5}\",\"brain_dump\":\"{6}\"}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump, sTheme);
                 }
+                
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForToDoPlayer) {{ loadMetaDataForToDoPlayer({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
              
                 var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
@@ -208,6 +214,12 @@ namespace Focus_Bear.Focus
                 if (sContentJson.ContainsKey("brain_dump_content"))
                 {
                     appSettings.sBrainDump = sContentJson["brain_dump_content"].ToString();
+                    RegistryManager.SaveBrainDump();
+                    //Update the braindump window ui
+                    if (app.wndBrainDump != null)
+                    {
+                        app.wndBrainDump.TxtDumpDown.Text = appSettings.sBrainDump;
+                    }
                 }
                 if (sContentJson.ContainsKey("tasks"))
                 {
@@ -219,8 +231,11 @@ namespace Focus_Bear.Focus
 
                     //We need to add it back to the focus mode
                     var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
-                    FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
-                    CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
+                    if (listItems.Count() != 0)
+                    {
+                        FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
+                        CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
+                    }
 
                 }
                 if (sContentJson.ContainsKey("intention"))
@@ -250,5 +265,43 @@ namespace Focus_Bear.Focus
             }
         }
 
+        public void UpdateBrainDumpContent()
+        {
+            try
+            {
+                string UpdateFunc = string.Format("updateBrainDumpFromDesktopApp({0});", appSettings.sBrainDump);
+
+                var sReturn = webView.ExecuteScriptAsync(UpdateFunc);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpdateBrainDumpContent ex- " + ex.Message);
+            }
+        }
+
+        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (IsVisible)
+            {
+                this.Width = 680;
+                this.Height = 650;
+
+ 
+                // Compute how many logical units the screen can show
+                double screenLogicalWidth = SystemParameters.WorkArea.Width;
+                double screenLogicalHeight = SystemParameters.WorkArea.Height;
+
+                // 3) Your “ideal” logical minimum
+                const double idealMinW = 680, idealMinH = 650;
+
+                // 4) set to what actually fits
+                this.Width = Math.Min(idealMinW, screenLogicalWidth);
+                this.Height = Math.Min(idealMinH, screenLogicalHeight);
+
+                // 6) Center it
+                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+            }
+        }
     }
 }
