@@ -26,7 +26,8 @@
                 </Style>
             </ResourceDictionary>
         </Grid.Resources>
-        
+        <ScrollViewer>
+            <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="80"/>
             <RowDefinition Height="70"/>
@@ -131,5 +132,7 @@
                     Style="{StaticResource BtnStyleLightOrange}" 
                     Click="SaveSettings_Click"/>
         </StackPanel>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

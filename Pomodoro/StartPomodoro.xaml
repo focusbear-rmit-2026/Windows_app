@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Pomodoro"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="700" Width="744"  ResizeMode="NoResize" Closing="Window_Closing" Background="{DynamicResource BackgroundColor}">
+        Title="Focus Bear" Height="700" Width="744"  ResizeMode="NoResize" Closing="Window_Closing" Background="{DynamicResource BackgroundColor}" IsVisibleChanged="Window_IsVisibleChanged">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -14,6 +14,8 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
+        <ScrollViewer>
+            <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50" />
             <RowDefinition Height="35" />
@@ -177,6 +179,7 @@
 
         <TextBlock Grid.Row="11" Name="PomodoroCompleted" Visibility="Collapsed" Margin="20,5,20,0" TextWrapping="Wrap" Text="xYou have completed.." Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Border x:Name="GridShade" Grid.RowSpan="13"   CornerRadius="0"  Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
-
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Window>

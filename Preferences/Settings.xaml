@@ -40,6 +40,8 @@
                     </Style>
                 </TabControl.Resources>
                 <TabItem Name="GeneralTab" AutomationProperties.AutomationId="tabGeneral" Header="xGeneral" Style="{DynamicResource TabItemStyle}">
+
+                    <ScrollViewer>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -124,6 +126,7 @@
                         </Grid>
 
                     </Grid>
+                    </ScrollViewer>
                 </TabItem>
                 <TabItem Name="PomodoroTab" AutomationProperties.AutomationId="tabPomodoro" Header="xPomodoro" Style="{DynamicResource TabItemStyle}">
                     <!--<local:PomodoroTab x:Name="PomodoroTAB" />-->
@@ -135,6 +138,7 @@
                     <!--<local:AITab x:Name="AITAB" />-->
                 </TabItem>
                 <TabItem Name="PasswordTab" AutomationProperties.AutomationId="tabPassword" Header="xPassword" Selector.Selected="PasswordTab_Selected" Style="{DynamicResource TabItemStyle}">
+                    <ScrollViewer>
                     <Grid HorizontalAlignment="Center" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="35"/>
@@ -247,6 +251,7 @@
                             </Grid>
                         </Grid>
                     </Grid>
+                    </ScrollViewer>
                 </TabItem>
 
                 <TabItem Name="AccountTab" AutomationProperties.AutomationId="tabAccount" Header="xAccount" Style="{DynamicResource TabItemStyle}">

@@ -27,7 +27,7 @@ namespace Focus_Bear
         App app = (App)Application.Current;
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
-        public SplashWindow()
+        public SplashWindow(bool bProgressIndicator = false)
         {
             InitializeComponent();
 
@@ -36,7 +36,14 @@ namespace Focus_Bear
             App.ThemeChanged += ChangeTheme;
             try
             {
-                Heading.Text = appSettings.ConfigFileStrings["common"]["loadingText"].ToString();
+                if (bProgressIndicator)
+                {
+                    Heading.Text = "Customizing Focus Bear per you needs. Please wait.."; //todo win texts
+                }
+                else
+                {
+                    Heading.Text = appSettings.ConfigFileStrings["common"]["loadingText"].ToString();
+                }
             }
             catch (Exception ex)
             {

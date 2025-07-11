@@ -233,6 +233,16 @@ namespace Focus_Bear.Focus
         }
         private void SetSimpleModeTexts()
         {
+            if (appSettings.bIsGeekModeEnabled)
+            {
+                GridFocusSummary.Visibility = Visibility.Visible;
+                GridSummarySimpleMode.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                GridFocusSummary.Visibility = Visibility.Collapsed;
+                GridSummarySimpleMode.Visibility = Visibility.Visible;
+            }
             //todo win texts
             Heading.Text = "Your day summary";//todo win texts
 
@@ -467,7 +477,38 @@ namespace Focus_Bear.Focus
 
         private void FullScreenParent_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if(!appSettings.bIsGeekModeEnabled)
+            if (IsVisible)
+            {
+                this.Width = 1300;
+                this.Height = 750;
+                // 1) Grab the DPI scale for this monitor
+                var src = PresentationSource.FromVisual(this);
+                if (src?.CompositionTarget == null) return;
+                var m = src.CompositionTarget.TransformToDevice;
+                double dpiX = m.M11, dpiY = m.M22;
+
+
+                // 2) Compute how many logical units the screen can show
+                //    (SystemParameters.WorkArea is in physical pixels)
+                double screenLogicalWidth = SystemParameters.WorkArea.Width / dpiX;
+                double screenLogicalHeight = SystemParameters.WorkArea.Height / dpiY;
+
+                // 3) Your “ideal” logical minimum
+                const double idealMinW = 1300, idealMinH = 750;
+
+                // 4) set to what actually fits
+                this.Width = Math.Min(idealMinW, screenLogicalWidth);
+                this.Height = Math.Min(idealMinH, screenLogicalHeight);
+                this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
+                this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
+
+                // 6) Center it
+                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+            }
+
+
+            if (!appSettings.bIsGeekModeEnabled)
                 SetSimpleModeTexts();
         }
     }

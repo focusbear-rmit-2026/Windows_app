@@ -16,6 +16,7 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
+        <ScrollViewer>
         <Grid Margin="20" Background="{DynamicResource SoftCreamColor}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
@@ -93,5 +94,6 @@
             </Button>
             <ProgressBar Grid.Row="10" x:Name="ProgressSync"   Height="15" Width="200" IsIndeterminate = "True"  Foreground="DodgerBlue" Visibility="Collapsed" />
         </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

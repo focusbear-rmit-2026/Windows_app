@@ -278,5 +278,31 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("UpdateBrainDumpContent ex- " + ex.Message);
             }
         }
+
+        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (IsVisible)
+            {
+                this.Width = 680;
+                this.Height = 650;
+
+ 
+                // Compute how many logical units the screen can show
+                double screenLogicalWidth = SystemParameters.WorkArea.Width;
+                double screenLogicalHeight = SystemParameters.WorkArea.Height;
+
+                // 3) Your �ideal� logical minimum
+                const double idealMinW = 680, idealMinH = 650;
+
+                // 4) set to what actually fits
+                this.Width = Math.Min(idealMinW, screenLogicalWidth);
+                this.Height = Math.Min(idealMinH, screenLogicalHeight);
+
+                // 6) Center it
+                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+            }
+        }
+
     }
 }

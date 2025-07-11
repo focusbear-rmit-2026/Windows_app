@@ -6,17 +6,17 @@
         xmlns:local="clr-namespace:Focus_Bear"
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="SplashWindow" Height="330" Width="550" ResizeMode="NoResize" WindowStyle="None" Loaded="Window_Loaded">
+        Title="SplashWindow" Height="330" Width="550" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="None" Loaded="Window_Loaded">
         <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="150" />
-            <RowDefinition Height="90" />
-            <RowDefinition Height="90" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="80" />
         </Grid.RowDefinitions>
 
         <Image Grid.Row="0" Name="FocusBearLogo" Height="100" Width="auto" Margin="63,0,63,0" Source="Images/fb_big.png" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
        
-        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xLoading..." Foreground="#e88800" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="1"  Name="Heading" Margin="40,0,40,0" TextWrapping="Wrap" Text="xLoading..." Foreground="#e88800" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <ProgressBar Grid.Row="2"    x:Name="Progress"   Height="15" Width="200" IsIndeterminate = "True"  Foreground="DodgerBlue" VerticalAlignment="Top" />
     </Grid>
 </Window>

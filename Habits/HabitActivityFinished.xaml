@@ -18,7 +18,7 @@
         </Grid.Resources>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="100" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto"   />
             <RowDefinition Height="*"  />
             <RowDefinition Height="Auto"  />
@@ -67,6 +67,6 @@
             </TextBlock>
             </StackPanel>
         </StackPanel>
-        <TextBlock  Grid.Row="4" Name="sTextCompletedDuration" Margin="40,20,40,80" TextWrapping="Wrap" Text="xxLooking forward!" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="4" Name="sTextCompletedDuration" Margin="40,20,40,60" TextWrapping="Wrap" Text="xxLooking forward!" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
     </Grid>
 </Page>

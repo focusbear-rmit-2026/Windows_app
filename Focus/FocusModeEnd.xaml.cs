@@ -343,6 +343,26 @@ namespace Focus_Bear.Focus
                         btnTakeBreak.Visibility = Visibility.Collapsed;
                         btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
                     }
+
+                    //Resize if needed
+                    this.Width = 954;
+                    this.Height = 740;
+
+                   
+                    //Compute how many logical units the screen can show
+                    double screenLogicalWidth = SystemParameters.WorkArea.Width ;
+                    double screenLogicalHeight = SystemParameters.WorkArea.Height ;
+
+                    //“ideal” logical minimum
+                    const double idealMinW = 954, idealMinH = 740;
+
+                    //set to what actually fits
+                    this.Width = Math.Min(idealMinW, screenLogicalWidth);
+                    this.Height = Math.Min(idealMinH, screenLogicalHeight);
+
+                    //Center it
+                    this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+                    this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
                 }
                 catch (Exception ex)
                 {
