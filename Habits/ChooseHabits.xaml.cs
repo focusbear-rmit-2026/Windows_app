@@ -310,6 +310,7 @@ namespace Focus_Bear.Habits
 
         private void btnCompletelySkip_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("ChooseHabits btnCompletelySkip_Click");
             //WE will set the morning habits shown date for today
             RegistryManager.SetMorningHabitsShownTillDate();
 

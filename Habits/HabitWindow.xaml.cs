@@ -191,7 +191,8 @@ namespace Focus_Bear.Habits
 
                     AskToAnalyzeSleepAndMood();
 
-                    AskConfirmationForLateHabits();
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                        AskConfirmationForLateHabits();
 
                     if (appSettings.isExpired)
                     {
@@ -1504,6 +1505,8 @@ namespace Focus_Bear.Habits
         {
             try
             {
+                LogWriter.LogWrite("AskConfirmationForLateHabits()");
+
                 DateTime now = DateTime.Now;
                 TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
                 DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
