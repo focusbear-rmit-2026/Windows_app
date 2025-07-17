@@ -102,9 +102,7 @@
                     </Style>
                 </TextBox.FocusVisualStyle>
             </TextBox>
-
             <StackPanel  Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,10">
-
             <Button  x:Name="btnTakeBreak" AutomationProperties.AutomationId="btnTakeBreak"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnTakeBreak_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">

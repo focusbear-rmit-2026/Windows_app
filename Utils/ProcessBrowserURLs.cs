@@ -410,6 +410,12 @@ namespace Focus_Bear.Utils
                     return;
                 }
 
+                if (focusType.isDefault)
+                {
+                    //if its default focus mode, we will keep it false
+                    focusType.isAllowedListApproach = false;
+                }
+
                 if (focusType != null )
                 {
                     if (focusType.isAllowedListApproach)//Block everything except safe sites I choose

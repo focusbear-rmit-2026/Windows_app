@@ -2529,7 +2529,7 @@ namespace Focus_Bear.Utils
             }));
         }
         
-        public void ShowBlurWindow(IntPtr hwndTarget)
+        public async void ShowBlurWindow(IntPtr hwndTarget)
         {
             if (wndBlurWindow == null)
             {
@@ -2538,7 +2538,7 @@ namespace Focus_Bear.Utils
 
             PositionBlurWindowOn(hwndTarget, wndBlurWindow);
             wndBlurWindow.Show();
-            
+            await Task.Delay(1000); // 1000 milliseconds = 1 seconds
         }
         public void HideBlurWindow()
         {

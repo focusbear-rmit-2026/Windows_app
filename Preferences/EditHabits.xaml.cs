@@ -242,7 +242,7 @@ namespace Focus_Bear.Preferences
     
         private async Task saveHabits(string eventDataJsonString)
         {
-            LogWriter.LogWrite("webView_WebMessageReceived() - settings got from SG");
+            LogWriter.LogWrite("Edit Habits webView_WebMessageReceived() - settings got from SG");
             //Set environment in settings page
             appSettings.sRawUserSettings = eventDataJsonString;
 
@@ -270,7 +270,7 @@ namespace Focus_Bear.Preferences
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("webView_WebMessageReceived app restart= " + ex.Message);
+                    Debug.WriteLine("Edit Habits - webView_WebMessageReceived app restart= " + ex.Message);
                 }
 
             }

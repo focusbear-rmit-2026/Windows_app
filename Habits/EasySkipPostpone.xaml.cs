@@ -60,6 +60,8 @@ namespace Focus_Bear.Habits
         public EasySkipPostpone()
         {
             InitializeComponent();
+            
+            LogWriter.LogWrite("EasySkipPostpone() Window Shown");
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {

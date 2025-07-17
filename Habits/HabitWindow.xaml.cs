@@ -191,6 +191,8 @@ namespace Focus_Bear.Habits
 
                     AskToAnalyzeSleepAndMood();
 
+                    AskConfirmationForLateHabits();
+
                     if (appSettings.isExpired)
                     {
                         if( ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) && appSettings.arrAllMorningHabits.Count > 3 ) ||
@@ -995,6 +997,7 @@ namespace Focus_Bear.Habits
         }
         private void btnPleaseSpareMe_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("Habit Window btnPleaseSpareMe_Click Clicked");
             //WE may have edit habits screen visible and user may have clicked Backt o my habits
             //in that case we need to check and return from here
             //If edits habits is open in welcome list, hide it
@@ -1192,7 +1195,7 @@ namespace Focus_Bear.Habits
             {
                 PageHabitActivityOnGoing.HandleTimerForPostpone(true); //Stop the timer
             }
-
+            LogWriter.LogWrite("Habit Window btnPleaseSpareMe_Click Clicked - Hide() now");
             Hide();
 
             appSettings.RemoveSecondaryWindows();
@@ -1494,6 +1497,78 @@ namespace Focus_Bear.Habits
                     dispatcherTimerAskSleepAndMood.Interval = new TimeSpan(0, 0, 1);
                     dispatcherTimerAskSleepAndMood.Start();
                 }
+            }
+        }
+
+        private void AskConfirmationForLateHabits()
+        {
+            try
+            {
+                DateTime now = DateTime.Now;
+                TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+                Console.WriteLine("{0}", myStartTime.ToString());
+
+                if (now > myStartTime.AddHours(4)) //if more then 4 hours have elapsed then startup time
+                {
+                    /* "lateMorningHabitPopupVcInfo": {
+                        "title": "Hiya, do you still want to do your morning routine today or skip it?",
+                        "subTitle": "(Asking because it's <HOUR> hours since your routine start time and it might not make sense to do it today)",
+                        "buttonSkipText": "Skip it",
+                        "buttonDoHabitsText": "Do my habits"
+                    },*/
+                    var timer = new DispatcherTimer
+                    {
+                        Interval = TimeSpan.FromSeconds(2)
+                    };
+
+                    timer.Tick += (s, e) =>
+                    {
+                        timer.Stop(); // Stop timer after it fires once
+
+                        string title = appSettings.ConfigFileStrings["lateMorningHabitPopupVcInfo"]["title"].ToString();
+                        string subTitle = appSettings.ConfigFileStrings["lateMorningHabitPopupVcInfo"]["subTitle"].ToString();
+                        string buttonDo = appSettings.ConfigFileStrings["lateMorningHabitPopupVcInfo"]["buttonDoHabitsText"].ToString();
+                        string buttonSkip = appSettings.ConfigFileStrings["lateMorningHabitPopupVcInfo"]["buttonSkipText"].ToString();
+
+                        // Calculate the time difference
+                        TimeSpan timeDiff = now - myStartTime;
+                        // Get the total hours (can be fractional)
+                        double hoursElapsed = timeDiff.TotalHours;
+                        int roundedHours = (int)Math.Round(hoursElapsed);
+                        subTitle = subTitle.Replace("<HOUR>", roundedHours.ToString());
+                        
+                        FBMessageBox ff = new FBMessageBox(subTitle, title, MessageBoxButton.YesNo, buttonDo, buttonSkip)
+                        {
+                            Owner = this
+                        };
+                        GridShade.Visibility = Visibility.Visible;
+                        ff.ShowDialog();
+                        GridShade.Visibility = Visibility.Collapsed;
+                        if (ff.btnClicked == MessageBoxResult.Yes) //do habits
+                        {
+                        }
+                        else
+                        {
+                            //skip habits
+                            //WE will set the morning habits shown date for today
+                            RegistryManager.SetMorningHabitsShownTillDate();
+
+                            FocusBearAPIClient client = new FocusBearAPIClient();
+                            var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
+
+                            Hide();
+                            appSettings.RemoveSecondaryWindows();
+                            appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
+                        }
+                    };
+
+                    timer.Start(); // Start the 2-second timer
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AskConfirmationForLateHabits() ex = " + ex.Message);
             }
         }
         private void dispatcherTimerAskSleepAndMood_Tick(object sender, EventArgs e)

@@ -738,7 +738,7 @@ namespace Focus_Bear
                 {
                     LogWriter.LogWrite("User Postponed set StartBreakActivityTimer() for 5 minutes");
 #if DEBUG
-                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 15);
+                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 10, 15);
 #else
                     dispatcherTimerBreaks.Interval = new TimeSpan(0, nMinutesToPostpone, 0);
 #endif

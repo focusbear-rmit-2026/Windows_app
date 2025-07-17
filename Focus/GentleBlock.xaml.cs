@@ -31,7 +31,7 @@ namespace Focus_Bear.Focus
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
-        int nTimer = 15; //15 Seconds
+        int nTimer = 30; //30 Seconds
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
         [DllImport("user32.dll")]
@@ -146,6 +146,7 @@ namespace Focus_Bear.Focus
 
                 sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
                 appSettings.ShowBlurWindow(HWND);
+
                 this.Show(); //Will show this window for apps
             }
             else
@@ -213,7 +214,7 @@ namespace Focus_Bear.Focus
             {
                 LogWriter.LogWrite("ShowGentleBlockWindowAndStartTimer - " + ex.Message);
             }
-            nTimer = 15;
+            nTimer = 30;
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
 
