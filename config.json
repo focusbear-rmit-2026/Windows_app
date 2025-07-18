@@ -127,7 +127,7 @@
         "habitsHardReasonText": "My habits are too hard - I can't handle them",
         "emailTitle": "Your Email (if you want us to reply):",
         "buttonPostponeText": "Postpone",
-        "noPurchasesFoundText": "No purchases found.",
+        "noPurchasesFoundText": "No active purchases found for your account.",
         "someProblemInCredentialText": "There was a problem connecting to the backend server. Please login again.",
         "askUninstallReasonText2": "Damn sorry, it seems like we let you down. We're in the early stages of this product and really want to get feedback to make it better. Could you tell us why you're uninstalling?",
         "minimumCharacterText": "(Minimum 10 characters)",
@@ -200,7 +200,10 @@
         "titleActivatingBlockingProgress": "Set up distraction blocking",
         "titleSettingHabitsProgress": "Activate Features",
         "toolTipMeetingsText": "We've detected that you're in a video call and won't show breaks during this time",
-        "unblockNotAvailableText": "You're in super strict mode - change your settings to unblock"
+        "unblockNotAvailableText": "You're in super strict mode - change your settings to unblock",
+        "unblockNotAvailableForFocusBlockedUrlText": "You can't unblock this site because it's currently listed under the blocked URLs for your focus session",
+        "buttonEndFocusSessionText": "I'm done, End focus session",
+        "syncErrorAlertText": "Failed to renew token. Please check your network or try again later. If you are definitely online and are getting this error, please contact support@focusbear.io"
     },
     "abortInfo": {
         "abortingTitle": "Cancelling..",
@@ -365,14 +368,17 @@
         "buttonWorkEmergencyText": "Work emergency - start focusing",
         "buttonCompleteEveningRoutineText": "Complete your evening routine",
         "buttonShutDownText": "Shut Down",
-        "buttonSleepText": "Put Mac to sleep"
+        "buttonSleepText": "Put Mac to sleep",
+        "selectUnlockMinutesText": "Select duration for unlock:",
+        "alreadyUnlockedText": "You already unlocked for <DURATION> minutes",
+        "unlockingFirstTimeText": "Unlocking for 30 minutes."
     },
     "settings": {
         "title": "Enter settings JSON below:",
         "buttonSaveText": "Save",
         "visitText": "Visit <SETTINGURL> to generate settings",
         "settingUrl": "https://settings.focusbear.io",
-        "schemaError": "Your settings cannot be validated.",
+        "schemaError": "Your settings could not be validated. The app needs to be restarted.",
         "buttonOkText": "OK",
         "settingIsNotValidText": "Sorry it seems like your settings aren’t valid. Please generate settings at https://settings.focusbear.io",
         "buttonEditSettingsText": "Edit Habits",
@@ -382,7 +388,8 @@
         "settingsEditedButNotSavedText": "You've made changes to your habits/breaks but haven't saved them yet. It is recommended to review and save the changes (the app will restart)?",
         "buttonReviewSettingsText": "I'll review and Save",
         "downloadReportText": "Please visit Focus Bear dashboard in your web browser to download the report.",
-        "buttonVisitDashboardText": "Click here to visit dashboard now"
+        "buttonVisitDashboardText": "Click here to visit dashboard now",
+        "tokenErrorText": "Session Expired! Please login again."
     },
     "trialNagInfo": {
         "title": "Focus Bear",
@@ -618,7 +625,7 @@
         "titleBlockUrlListApproch": "Allow everything except certain distracting sites",
         "allowUrlsQuestionText": "Websites to allow",
         "blockUrlsQuestionText": "Websites to block",
-        "enterMultiUrlText": "Enter single or multiple urls(one in each line)",
+        "enterMultiUrlText": "Enter one or more URLs, placing each on a new line",
         "meetingsFocusInfoText": "The meetings focus mode is used to detect when you are in a meeting so you don't get asked to take a break when you're in an important meeting. Add the apps and websites you use for video conferencing.",
         "descriptionAlwaysBlockedUrls": "When you use this focus mode, all websites will be allowed except for your Always Blocked URLs",
         "titleBlockedApps": "Which apps do you want to block?",
@@ -775,7 +782,13 @@
             "tooltipAverageTabCount": "If you have a lot of tabs open, you're likely to get distracted by half finished work. Put the tasks in your to do list instead. Use Focus Bear's tab limiter feature to help avoid tab overwhelm.",
             "askEnableTimeTrackerText": "Want to get even deeper analytics?",
             "buttonActivateTimeTrackerText": "Activate Focus Bear Time Tracker",
-            "titleNextSessionIntention": "What do you plan to do next?"
+            "titleNextSessionIntention": "What do you plan to do next?",
+            "buttonMoreOptionsText": "More Stats",
+            "buttonAccordionMoreOptionsText": "Reflect on the session",
+            "tourTitleStarRating": "Rate Your session",
+            "tourSubTitleStarRating": "Stored in your focus session log so you can look back at what you achieved.",
+            "tourTitleNextGoal": "Next session goal",
+            "tourSubTitleNextGoal": "Set your focus goal for your next session"
         },
         "focusSummaryInfo": {
             "title": "You completed <COUNT> focus blocks today.",
@@ -1329,7 +1342,20 @@
         "convinceAiDescription": "Give more info to the AI to explain why you need to use this site",
         "buttonConvinceText": "Convince the AI",
         "setIntentionText": "What do you want to achieve during your time here?",
-        "buttonSetIntentionText": "Set Intention"
+        "buttonSetIntentionText": "Set Intention",
+        "aiRelevanceScoreAppText": "AI relevance score for this app: <SCORE>%",
+        "appNotVerifiedText": "The status of this app could not be verified.",
+        "appStillDistractingTitle": "AI still thinks this app is distracting",
+        "appConvinceAiDescription": "Give more info to the AI to explain why you need to use this app",
+        "selectMinutesForAppText": "Select minutes to use this app",
+        "distractingForCurrentTaskDescription": "Focus Bear's AI still thinks <URL> isn't relevant for your current task \"<TASK>\". Are you sure you need it?",
+        "reportBadAiTooltip": "Report Bad AI decision",
+        "titleAskIntentionText": "What do you want to do while you're here?",
+        "titleSelectMinutesToUse": "How long do you need?",
+        "buttonBlockUrlText": "Block this page",
+        "buttonBlockAppText": "Block this app",
+        "infoTemporaryAllow": "This site’s been flagged as a distraction 🧠❗You can unlock it for now — just know it’ll be logged as non-productive time in your report.",
+        "currentTaskText": "Current task is \"<TASK>\""
     },
     "easyPostponeVcInfo": {
         "title": "Ok I get it - now's not a good time. I'll try again in 5 minutes. You can postpone for longer if you need to.",
@@ -1777,7 +1803,8 @@
         "titleDownloadTimeTrackerText": "Focus Bear Time Tracker needs to be downloaded and installed as a separate component.",
         "buttonDownloadTimeTrackerText": "Download Now",
         "blockingScheduleSettingTitle": "Blocking Schedule",
-        "buttonReleaseNotesText": "Release notes"
+        "buttonReleaseNotesText": "Release notes",
+        "researchSettingTitle": "Research"
     },
     "impactMeasurementVcInfo": {
         "title": "Analyse Your Sleep and Mood",
@@ -1827,7 +1854,12 @@
         "pointFirstNewText": "Open System Preferences > Privacy & Security > Accessibility or use the button below.",
         "step1Text": "Step 1: Grant Accessibility permission to focus bear",
         "step2Text": "Step 2: Edit specific setting in Firefox",
-        "buttonOpenAccessibilityPermissionsText": "Open Accessibility Permissions"
+        "buttonOpenAccessibilityPermissionsText": "Open Accessibility Permissions",
+        "point1_configText": "Click \"Open/Activate Firefox\" to open about:config",
+        "point2_configText": "Click \"Accept the Risk and Continue\" button on Firefox browser page (about:config page should automatically open)",
+        "point3_configText": "Search for accessibility.force_disabled in the \"Search preference name\" bar of Firefox page",
+        "point4_configText": "Double-click the setting and change its value to -1",
+        "buttonClickToCopySearchTermText": "Click to copy search term"
     },
     "longTermGoalsVcInfo": {
         "title": "Are you sure?",
@@ -2143,7 +2175,16 @@
         "buttonBlockText": "Yeah - block them!",
         "buttonNoText": "No thanks",
         "tipPermissionsFirst": "Want to block distractions during this focus session? Grant Focus Bear permissions to block.",
-        "tipPermissionsSecond": "Distraction blocking inactive: Focus Bear doesn’t have permissions for any of your browsers."
+        "tipPermissionsSecond": "Distraction blocking inactive: Focus Bear doesn’t have permissions for any of your browsers.",
+        "titleNormalMode": "Chill Mode",
+        "descriptionNormalMode": "Stop focusing anytime, no questions asked.",
+        "toolTipNormalMode": "Best for gentle focus days. No barriers to pausing or stopping a session.",
+        "titleStrictMode": "Wait for it…",
+        "descriptionStrictMode": "15-second delay before you can stop",
+        "toolTipStrictMode": "Adds a 15s countdown before you can pause/stop. Great for catching impulsive decisions.",
+        "titleSuperStrictMode": "Iron Focus",
+        "descriptionSuperStrictMode": "Once you start, you can't stop",
+        "toolTipSuperStrictMode": "Once you start, there’s no backing out. Best for deep, distraction-free sessions."
     },
     "achieveWithFocusBearVcInfo":{
         "title": "What would you like to improve in your life by using Focus Bear?",
@@ -2254,7 +2295,9 @@
     },
     "taskPlayerVcInfo":{
         "toolTipSnapLeft": "Snap to left",
-        "toolTipSnapRight": "Snap to right"
+        "toolTipSnapRight": "Snap to right",
+        "playFocusMusicTooltip": "Play focus music",
+        "endFocusSessionTooltip": "End focus session"
     },
     "onboardingBlockingScheduleVcInfo":{
         "title": "Blocking Schedule",
@@ -2291,7 +2334,9 @@
         "titleIssue": "What was wrong?",
         "checkBoxShareData": "Share URL and focus intention with Focus Bear team",
         "titleUrl": "URL:",
-        "buttonReportText": "Report issue"
+        "buttonReportText": "Report issue",
+        "checkBoxShareAppData": "Share App name and focus intention with Focus Bear team",
+        "titleApp": "App:"
     },
     "customRoutineTimeVcInfo":{
         "title": "Your <ROUTINE> starts in",
@@ -2339,6 +2384,35 @@
         "descriptionEmailSent": "We've sent a verification link to your email. Please check your inbox to verify your account.",
         "titleEmailFailed": "Failed to Send Verification Email",
         "descriptionEmailFailed": "Something went wrong while sending the verification email. Please try again later."
+    },
+    "researchSettingsVcInfo":{
+        "titleDataCollectionMode": "Data Collection Mode",
+        "descriptionDataCollectionMode": "All interventions turned off for research purposes"
+    },
+    "popUpFocusGoalConfirmationVcInfo":{
+        "titleGoalAndTask": "Are you still working on \"<TASK>\" as part of your focus goal: \"<GOAL>\"?",
+        "titleGoal": "Is your focus goal still: \"<GOAL>\"?",
+        "buttonAppRelevantText": "Yes and this app is relevant",
+        "buttonSiteRelevantText": "Yes and this site is relevant",
+        "buttonWorkingSomethingElseText": "No I'm working on something else now"
+    },
+    "popUpAddNewFocusGoalVcInfo":{
+        "title": "What's your new focus goal?",
+        "titleGoal": "Focus Goal:",
+        "titleTask": "Current task:",
+        "buttonSaveText": "Save",
+        "fetchingTaskText": "Fetching tasks...",
+        "SavingTaskText": "Saving task...",
+        "buttonMarkCurrentTaskAsCompleted": "Mark the previous task as complete",
+        "titleNewTask": "New task:",
+        "titlePreviousTask": "Previous task:"
+    },
+    "popUpSaveThisTaskForLaterVcInfo":{
+        "title": "Do you want to save this as a task for later?",
+        "buttonYesText": "Yes please",
+        "buttonJustBlockItText": "No - Just block it",
+        "titleTask": "Task title:",
+        "taskNameString": "To work on: <URL>"
     },
     "discordUrl": "https://discord.gg/VZdv3ZjhSq",
     "whatsAppUrl": "https://chat.whatsapp.com/FV0oTbCUWpILBYif7CP6UD",

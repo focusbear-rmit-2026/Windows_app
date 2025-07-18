@@ -92,7 +92,7 @@ namespace Focus_Bear.Habits
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
                     Heading.Text = appSettings.ConfigFileStrings["activityInfo"]["startMorningHabitTitleText"].ToString();
-                    nCount = appSettings.arrAllMorningHabits.Count;
+                    nCount = appSettings.arrAllMorningHabitsFiltered.Count;
 
                     string imagePath = ("pack://application:,,,/Focus Bear;component/images/gifs/Wakingup.gif");
                     var image = new BitmapImage();
@@ -105,7 +105,7 @@ namespace Focus_Bear.Habits
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
                     Heading.Text = appSettings.ConfigFileStrings["activityInfo"]["startEveningHabitTitleText"].ToString();
-                    nCount = appSettings.arrAllEveningHabits.Count;
+                    nCount = appSettings.arrAllEveningHabitsFiltered.Count;
                     if(appSettings.bSomeHabitsRemovedDueToCutOffTime)
                     {
                         PopupTitle.Text = appSettings.ConfigFileStrings["activityInfo"]["cutoffHabitPopupText"].ToString(); //todo win texts
@@ -125,10 +125,6 @@ namespace Focus_Bear.Habits
                     //let's not show the I do not have time for all these habits button
                     DoNoHaveTime.Visibility = Visibility.Collapsed;
                 }
-
-                ListActivities.ItemsSource = appSettings._ObjHabitListSelectable;
-
-                //InitializeHabitList();//Filling the visible list from the filtered morning/evening habits list
                
                 _ObjListActivityModel = new ObservableCollection<HabitList>();
                 ListActivities.ItemsSource = _ObjListActivityModel;
@@ -176,36 +172,44 @@ namespace Focus_Bear.Habits
                 appSettings._ObjHabitListSelectable.Add(ActivityItem);
             }
         }
-        private void  UpdateHabitsList()
+        private void UpdateHabitsList()
         {
-            //The choose habit window have already removed the unselected ones from the habits list to actually be done, so just refill
-            _ObjListActivityModel.Clear();
+            try
+            {
+                LogWriter.LogWrite("Welcome UpdateHabitsList()");
+                //The choose habit window have already removed the unselected ones from the habits list to actually be done, so just refill
+                _ObjListActivityModel.Clear();
 
-            int nCount = 0;
-            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-            {
-                nCount = appSettings.arrAllMorningHabits.Count;
-            }
-            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-            {
-                nCount = appSettings.arrAllEveningHabits.Count;
-            }
-
-            for (int i = 0; i < nCount; i++)
-            {
-                string sActivityName = "";
+                int nCount = 0;
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
-                    sActivityName = appSettings.arrAllMorningHabits[i].name;
+                    nCount = appSettings.arrAllMorningHabits.Count;
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
-                    sActivityName = appSettings.arrAllEveningHabits[i].name;
+                    nCount = appSettings.arrAllEveningHabits.Count;
                 }
 
-                string sNo = string.Format("{0}.", (i + 1).ToString());
-                var ActivityItem = new HabitList{ SNumber = sNo, ActivityName = sActivityName };
-                _ObjListActivityModel.Add(ActivityItem);
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sActivityName = "";
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                    {
+                        sActivityName = appSettings.arrAllMorningHabits[i].name;
+                    }
+                    else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    {
+                        sActivityName = appSettings.arrAllEveningHabits[i].name;
+                    }
+
+                    string sNo = string.Format("{0}.", (i + 1).ToString());
+                    var ActivityItem = new HabitList { SNumber = sNo, ActivityName = sActivityName };
+                    _ObjListActivityModel.Add(ActivityItem);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("Welcome UpdateHabitsList() ex - " + ex.Message);
             }
         }
         private void btnBegin_Click(object sender, RoutedEventArgs e)
@@ -247,6 +251,8 @@ namespace Focus_Bear.Habits
 
         private void btnCustomizeHabits_Click(object sender, RoutedEventArgs e)
         {
+            LogWriter.LogWrite("Welcome btnCustomizeHabits_Click");
+
             if (appSettings.isPasswordSet)
             {
                 if (appSettings.bPasswordRequireInChangeSettings)
@@ -440,10 +446,15 @@ namespace Focus_Bear.Habits
         {
             try
             {
-                LogWriter.LogWrite("webView_WebMessageReceived() - settings got from SG");
+                LogWriter.LogWrite("HabitsWelcomeList - webView_WebMessageReceived() - settings got from SG");
+                
+                if (e.WebMessageAsJson == "invoke-js-function" || e.WebMessageAsJson == "\"invoke-js-function\"")
+                {
+                    return;
+                }
                 //Set environment in settings page
                 appSettings.sRawUserSettings = e.WebMessageAsJson;
-
+                
                 //We will need to put the settings.
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var xResponse = await client.PutUserSettings();
@@ -468,13 +479,13 @@ namespace Focus_Bear.Habits
                     }
                     catch (Exception ex)
                     {
-                        LogWriter.LogWrite("webView_WebMessageReceived app restart= " + ex.Message);
+                        LogWriter.LogWrite("HabitsWelcomeList - webView_WebMessageReceived app restart= " + ex.Message);
                     }
 
                 }
                 else
                 {
-                    LogWriter.LogWrite("Settings cannot be validated from API.");
+                    LogWriter.LogWrite("HabitsWelcomeList - Settings cannot be validated from API.");
                     
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear");
                     ff.Owner = this._parentWindow;
@@ -483,7 +494,7 @@ namespace Focus_Bear.Habits
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("webView_WebMessageReceived()" + ex.Message);
+                LogWriter.LogWrite("HabitsWelcomeList - webView_WebMessageReceived()" + ex.Message);
             }
         }
 

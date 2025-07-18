@@ -141,6 +141,13 @@ namespace Focus_Bear.Utils
                         catch (Exception ex)
                         {
                             LogWriter.LogWrite("appSettings.ReadCSV().ToList<OfflineEntry>() FAILED" + ex.Message);
+                            //In this case it is best to delete the file so it is written again
+                            if (File.Exists(appSettings.sOfflineDataCSVPath))
+                            {
+                                Global.DeleteFile(appSettings.sOfflineDataCSVPath, false);
+                            }
+                            //Write back the default file
+                            appSettings.WriteDefaultOffilineCSVFile();
                         }
                         bIsProcesssingOfflineData = false;
                     }))).Start();

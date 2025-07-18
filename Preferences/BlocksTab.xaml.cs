@@ -145,7 +145,7 @@ namespace Focus_Bear.Preferences
         {
             try
             {
-                LogWriter.LogWrite("webView_WebMessageReceived() - settings got from SG");
+                LogWriter.LogWrite("Blocks Tab - webView_WebMessageReceived() - settings got from SG");
                 //Set environment in settings page
                 appSettings.sRawUserSettings = e.WebMessageAsJson;
 
@@ -173,13 +173,13 @@ namespace Focus_Bear.Preferences
                     }
                     catch (Exception ex)
                     {
-                        LogWriter.LogWrite("webView_WebMessageReceived app restart= " + ex.Message);
+                        LogWriter.LogWrite("Blocks Tab - webView_WebMessageReceived app restart= " + ex.Message);
                     }
 
                 }
                 else
                 {
-                    LogWriter.LogWrite("blocking schedule - Settings cannot be validated from API.");
+                    LogWriter.LogWrite("Blocks Tab - blocking schedule - Settings cannot be validated from API.");
 
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear");
                     ff.Owner = this._ParentWindow;
@@ -188,7 +188,7 @@ namespace Focus_Bear.Preferences
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("blocking schedule - webView_WebMessageReceived()" + ex.Message);
+                LogWriter.LogWrite("Blocks Tab - blocking schedule - webView_WebMessageReceived()" + ex.Message);
             }
         }
 

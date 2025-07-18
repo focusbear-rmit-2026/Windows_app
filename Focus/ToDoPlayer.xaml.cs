@@ -291,7 +291,7 @@ namespace Focus_Bear.Focus
                 double screenLogicalWidth = SystemParameters.WorkArea.Width;
                 double screenLogicalHeight = SystemParameters.WorkArea.Height;
 
-                // 3) Your �ideal� logical minimum
+                // 3) Your “ideal” logical minimum
                 const double idealMinW = 680, idealMinH = 650;
 
                 // 4) set to what actually fits
@@ -303,6 +303,5 @@ namespace Focus_Bear.Focus
                 this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
             }
         }
-
     }
 }
