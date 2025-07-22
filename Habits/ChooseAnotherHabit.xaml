@@ -20,7 +20,6 @@
             <RowDefinition Height="70"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        
         <TextBlock Grid.Row="0" Margin="20,0,20,0" Name="Heading" TextWrapping="Wrap" Text="xChoose the next habit to do from the following options:" FontSize="17" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
 
         <ListView Grid.Row="1" Margin="15,0,20,0" x:Name="ListHabits" AutomationProperties.AutomationId="lvHabits" VerticalAlignment="Top"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Cursor="Hand" SelectionChanged="ListHabits_SelectionChanged">
