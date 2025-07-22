@@ -572,7 +572,7 @@ namespace Focus_Bear.Preferences
                 else if(DarkMode.SelectedIndex == 2)
                 {
                     ////auto theme
-                    bool isLightTheme = IsLightTheme();
+                    bool isLightTheme = Global.IsLightTheme();
                     selectedTheme = isLightTheme ? "Light" : "Dark";
                     appSettings.sTheme = selectedTheme;
                     appSettings.bAutoTheme = true;
@@ -583,12 +583,6 @@ namespace Focus_Bear.Preferences
             }
         }
 
-        private static bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i > 0;
-        }
         private void PasswordTab_Selected(object sender, RoutedEventArgs e)
         {
             if (appSettings.isPasswordSet)

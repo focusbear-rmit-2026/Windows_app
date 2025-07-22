@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Focus_Bear.Models;
 using Interop.UIAutomationClient;
+using Microsoft.Win32;
 
 namespace Focus_Bear.Utils
 {
@@ -175,6 +176,13 @@ namespace Focus_Bear.Utils
         {
             var base64Bytes = System.Convert.FromBase64String(base64);
             return System.Text.Encoding.UTF8.GetString(base64Bytes);
+        }
+
+        public static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int i && i > 0;
         }
 
     }

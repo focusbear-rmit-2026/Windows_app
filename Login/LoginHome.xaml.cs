@@ -81,7 +81,7 @@ namespace Focus_Bear.Login
 
         private void TitleBarThemeChange()
         {
-            bool bDarkMode = IsLightTheme();
+            bool bDarkMode = Global.IsLightTheme();
             string theme = bDarkMode ? "Light" : "Dark";
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
@@ -102,12 +102,6 @@ namespace Focus_Bear.Login
                 Suggest.Foreground = new SolidColorBrush(Colors.LightGray);
                 Descriptiopn.Foreground = new SolidColorBrush(Colors.LightGray);
             }
-        }
-        private static bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i > 0;
         }
 
         private async void btnSignInWithGoogle_Click(object sender, RoutedEventArgs e)

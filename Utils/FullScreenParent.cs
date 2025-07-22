@@ -180,30 +180,22 @@ namespace Focus_Bear.Habits
         }
         private void ChangeThemeByWindows()
         {
-            bool bLightTheme = IsLightTheme();
+            bool bLightTheme = Global.IsLightTheme();
             string theme = bLightTheme ? "Light" : "Dark";
             LogWriter.LogWrite("FullscreenParent detect theme changed WndProctheme " + theme);
             string selectedTheme = appSettings.sTheme;
 
-            if (bLightTheme == true)
+            if (bLightTheme == true && appSettings.bAutoTheme == true)
             {
                 selectedTheme = "Light";
-                appSettings.sTheme = "Light";
             }
-            else if (bLightTheme == false)
+            else if (bLightTheme == false && appSettings.bAutoTheme == true)
             {
                 selectedTheme = "Dark";
-                appSettings.sTheme = "Dark";
             }
+            
             RegistryManager.SetThemeMode();
             ((App)Application.Current).ChangeTheme(selectedTheme);
-        }
-        
-        private static bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i > 0;
         }
         private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
         {
@@ -263,8 +255,8 @@ namespace Focus_Bear.Habits
 
             source.AddHook(this.WndProc);
 
-            var isLightTheme = IsLightTheme();
-            UseImmersiveDarkMode(source.Handle, !isLightTheme);
+            var isLightTheme = Global.IsLightTheme();
+            UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
 
             DeviceNotification.RegisterUsbDeviceNotification(source.Handle);
             DeviceNotification.RegisterMonitorDeviceNotification(source.Handle);

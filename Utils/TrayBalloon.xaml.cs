@@ -1,20 +1,4 @@
-﻿/*
- * Copyright (c) 2018-2019 Wise Tech Labs Private Limited, All Rights Reserved.
- *
- * File: TrayBalloon.xaml.cs
- * Project: SMART System Repair
- * User: Gaurav
- *
- * This document is the property of Wise Tech Labs Private Limited
- * It is considered confidential and proprietary.
- *
- * This document may not be reproduced or transmitted in any form, 
- * in whole or in part, without the express written permission of 
- * Wise Tech Labs Private Limited
- *
- */
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -147,7 +131,7 @@ namespace Focus_Bear
 
             // Apply the correct theme at startup
             ChangeThemeByWindows();
-            var isLightTheme = IsLightTheme();
+            var isLightTheme = Global.IsLightTheme();
             UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
         }
         private IntPtr WndProctheme(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -162,7 +146,7 @@ namespace Focus_Bear
         }
         private void ChangeThemeByWindows()
         {
-            bool isDarkMode = IsLightTheme();
+            bool isDarkMode = Global.IsLightTheme();
             string theme = isDarkMode ? "Light" : "Dark";
             LogWriter.LogWrite("TrayMenu detect theme changed WndProctheme" + theme);
             string selectedTheme = appSettings.sTheme;
@@ -178,12 +162,6 @@ namespace Focus_Bear
             ((App)System.Windows.Application.Current).ChangeTheme(selectedTheme);
             RegistryManager.SetThemeMode();
 
-        }
-        private static bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i > 0;
         }
         private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
         {
