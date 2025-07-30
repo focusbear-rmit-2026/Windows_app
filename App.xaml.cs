@@ -1461,8 +1461,8 @@ namespace Focus_Bear
             //wnd.Show();
             //OnboardingNewWelcome wnd2 = new OnboardingNewWelcome(wnd);
             ////wnd2.();
+            //ShowShutOffScreen();
 
-            
 #endif
 
             if (appSettings.IsFirstInstall)

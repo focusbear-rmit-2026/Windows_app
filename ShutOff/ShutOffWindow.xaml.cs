@@ -46,6 +46,7 @@ namespace Focus_Bear.ShutOff
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         int nTimer = 10;
+        int[] nDurationUnlockMins = new int[] { 15, 30, 60, 120, 240, 480 };
 
         public ShutOffWindow()
         {
@@ -120,7 +121,14 @@ namespace Focus_Bear.ShutOff
                 btnStartMorningRoutineText.Text =  appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonStartMorningRoutineText"].ToString();
                 btnWorkEmergencyText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonWorkEmergencyText"].ToString(); 
                 UpEarly.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["titleUpEarly"].ToString(); 
-                CompleteEveningRoutine.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonCompleteEveningRoutineText"].ToString();  
+                CompleteEveningRoutine.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonCompleteEveningRoutineText"].ToString();
+
+                UnlockMinsText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["selectUnlockMinutesText"].ToString();
+                foreach (int duration in nDurationUnlockMins)
+                {
+                    ComboBoxDuration.Items.Add(appSettings.SecondsToText(duration * 60));
+                }
+                DurationUnlockView.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
@@ -130,6 +138,15 @@ namespace Focus_Bear.ShutOff
             TxtTimer.Visibility = Visibility.Collapsed;
             TxtExplain.Visibility = Visibility.Collapsed;
             TxtExplaination.Visibility = Visibility.Collapsed;
+
+            if (RegistryManager.GetShutOffAbortedFor30MinsTillDate())
+            {
+                if (DateTime.Now < appSettings.ShutOFFAbortedFor30MinsTillDate)
+                {
+                    TxtTimer.Visibility = Visibility.Visible;
+                    TxtTimer.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["alreadyUnlockedText"].ToString().Replace("<DURATION>", "30"); //"You already unlocked for 30 minutes";
+                }
+            }
 
             if (!appSettings.bPlayActivitiesInFullScreenMode) //To get the access button little upward
             {
@@ -171,11 +188,44 @@ namespace Focus_Bear.ShutOff
                                        return;
                                 }
 
+                            } 
+                            
+                            nState = CurrentShutOffState.CANCELABLE;
+                            StartTimer();
+                        }
+                        else
+                        {
+                            //Unblocking in evening - make it easy to unblock for 30 minutes by default #1450
+                            //(If password not in place)
+                            //If it's after the cutoff time and they request to unlock, have a button to immediately unlock for 30 minutes. (Only available once per night)
+                            
+                            if (appSettings.DidCutOffTimePassed())
+                            {
+                                if (RegistryManager.GetShutOffAbortedFor30MinsTillDate())
+                                {
+                                    if (DateTime.Now < appSettings.ShutOFFAbortedFor30MinsTillDate)
+                                    {
+                                        //means already unlocked for 30 mins
+                                        nState = CurrentShutOffState.CANCELABLE;
+                                        StartTimer();
+                                    }
+                                    else
+                                    {
+                                        GridShade.Visibility = Visibility.Visible;
+                                        FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["shutOffTimeInfo"]["unlockingFirstTimeText"].ToString());
+                                        ff.Owner = this;
+                                        ff.ShowDialog();
+                                        GridShade.Visibility = Visibility.Collapsed;
+                                        AbortShutoffForMinutes(30);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                nState = CurrentShutOffState.CANCELABLE;
+                                StartTimer();
                             }
                         }
-
-                        nState = CurrentShutOffState.CANCELABLE;
-                        StartTimer();
                         break;
                     }
                 case CurrentShutOffState.CANCELABLE:
@@ -274,6 +324,15 @@ namespace Focus_Bear.ShutOff
                 MainGrid.RowDefinitions[4].MinHeight = 1;
                 MainGrid.RowDefinitions[5].MinHeight = 1;
             }
+
+            if (RegistryManager.GetShutOffAbortedFor30MinsTillDate())
+            {
+                if (DateTime.Now < appSettings.ShutOFFAbortedFor30MinsTillDate)
+                {
+                    TxtTimer.Visibility = Visibility.Visible;
+                    TxtTimer.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["alreadyUnlockedText"].ToString().Replace("<DURATION>", "30"); //"You already unlocked for 30 minutes";
+                }
+            }
         }
         private void Unlock()
         {
@@ -293,6 +352,17 @@ namespace Focus_Bear.ShutOff
                 string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortDoneInfo"]["subTitle"].ToString();
                 sSubTitle = sSubTitle.Replace("<STARTTIME>", appSettings.sDayStartTime);
                 Description.Text = sSubTitle;
+
+                if (DurationUnlockView.IsVisible)
+                {
+                    //Abort shutoff for selected minutes only    
+                    AbortShutoffForMinutes(nDurationUnlockMins[ComboBoxDuration.SelectedIndex]);
+                }
+                else
+                {
+                    AbortShutoff();
+                }
+                DurationUnlockView.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
@@ -323,8 +393,6 @@ namespace Focus_Bear.ShutOff
                 {
                     CommandManager.InvalidateRequerySuggested();
                     dispatcherTimerUnlock.Stop();
-
-                    AbortShutoff();
                 }
             }
             catch (Exception ex)
@@ -358,6 +426,11 @@ namespace Focus_Bear.ShutOff
                     Description.Text = sSubTitle;
                     btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["shutOffAbortInfo"]["buttonUnlockText"].ToString();
                     nState = CurrentShutOffState.UNLOCK;
+
+                    if (appSettings.DidCutOffTimePassed())
+                    {
+                        DurationUnlockView.Visibility = Visibility.Visible;
+                    }
                 }
 
             }
@@ -397,6 +470,47 @@ namespace Focus_Bear.ShutOff
             }
         }
 
+        void AbortShutoffForMinutes( int nMinutesToAbort)
+        {
+            LogWriter.LogWrite("AbortShutoffForMinutes() : " + nMinutesToAbort.ToString());
+           
+            //Set the appSettings.ShutOFFAbortedTillDate
+            DateTime now = DateTime.Now;
+            DateTime shutoffAbortedTime = now.AddMinutes(nMinutesToAbort);
+            Console.WriteLine("{0}", shutoffAbortedTime.ToString());
+            appSettings.ShutOFFAbortedTillDate = shutoffAbortedTime;
+
+            appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Now this needs to be set to none.
+            LogWriter.LogWrite("AbortShutoffForMinutes - Remove shutoff screen appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+
+            RegistryManager.SetShutOffAbortedTillDate();
+
+            //We also need to save that user have unlocked once for today
+            TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+
+            DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
+            Console.WriteLine("{0}", myShutOffTime.ToString());
+
+            TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+            DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+            Console.WriteLine("{0}", myStartTime.ToString());
+
+            if (now > myShutOffTime) //Same Day like befoee 12.00 am
+            {
+                //Get the morning time and prepare a DT for shutoff aborted till
+                myStartTime = myStartTime.AddDays(1);
+                Console.WriteLine("{0}", myStartTime.ToString());
+                appSettings.ShutOFFAbortedFor30MinsTillDate = myStartTime;
+            }
+            else //Next Day like after 12.00 am
+            {
+                appSettings.ShutOFFAbortedFor30MinsTillDate = myStartTime;//Today's Morning time
+            }
+            RegistryManager.SetShutOffAbortedFor30MinsTillDate();
+
+            Close();
+        }
+
         void AbortShutoff()
         {
             //Set the appSettings.ShutOFFAbortedTillDate
@@ -424,7 +538,7 @@ namespace Focus_Bear.ShutOff
             }
 
             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Now this needs to be set to none.
-            LogWriter.LogWrite("Remove shutoff screen appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+            LogWriter.LogWrite("AbortShutoff() - Remove shutoff screen appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
             RegistryManager.SetShutOffAbortedTillDate();
 
@@ -557,5 +671,27 @@ namespace Focus_Bear.ShutOff
             app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
         }
 
+        private void FullScreenParent_Loaded(object sender, RoutedEventArgs e)
+        {
+            //Compute how many logical units the screen can show
+            double screenLogicalWidth = SystemParameters.WorkArea.Width;
+            double screenLogicalHeight = SystemParameters.WorkArea.Height;
+
+            LogWriter.LogWrite(string.Format("screenLogicalWidth = {0}, screenLogicalHeight = {1}", screenLogicalWidth.ToString(), screenLogicalHeight.ToString()));
+            // “ideal” logical minimum
+            const double idealMinW = 1300, idealMinH = 750;
+
+            //Cap the minimum to what actually fits
+            this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
+            this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
+
+            // If you want the window to start at that minimum size:
+            this.Width = this.MinWidth;
+            this.Height = this.MinHeight;
+
+            //Center it
+            this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+            this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+        }
     }
 }

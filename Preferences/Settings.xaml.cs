@@ -439,6 +439,7 @@ namespace Focus_Bear.Preferences
         {
             FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["passwordPreferencesInfo"]["passwordDisableAskText"].ToString(), MessageBoxButton.YesNo);
             ff.Owner = _ParentWindow;
+            ff.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             ff.ShowDialog();
             if(ff.btnClicked == MessageBoxResult.Yes)
             {
