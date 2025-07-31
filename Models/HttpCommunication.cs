@@ -1,20 +1,4 @@
-﻿/*
- * Copyright (c) 2018-2019 Wise Tech Labs Private Limited, All Rights Reserved.
- *
- * File: HttpCommunication.cs
- * Project: SMART System Repair
- * User: Gaurav
- *
- * This document is the property of Wise Tech Labs Private Limited
- * It is considered confidential and proprietary.
- *
- * This document may not be reproduced or transmitted in any form, 
- * in whole or in part, without the express written permission of 
- * Wise Tech Labs Private Limited
- *
- */
-
-using Focus_Bear.Utils;
+﻿using Focus_Bear.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

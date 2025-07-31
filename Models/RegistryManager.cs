@@ -1633,6 +1633,49 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static void SetShutOffAbortedFor30MinsTillDate()
+        {
+            try
+            {
+                Write("SHUTOFFABORTED_FOR30MINS_TILLDATE", Global.ConvertToUnixTime(appSettings.ShutOFFAbortedFor30MinsTillDate).ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetShutOffAbortedFor30MinsTillDate - " + ex.Message);
+            }
+        }
+        internal static bool GetShutOffAbortedFor30MinsTillDate()
+        {
+            try
+            {
+                var regData = ReadStr("SHUTOFFABORTED_FOR30MINS_TILLDATE");
+
+                if (regData == null)
+                    return false;
+
+                appSettings.ShutOFFAbortedFor30MinsTillDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetShutOffAbortedFor30MinsTillDate() - " + ex.Message);
+                return false;
+            }
+        }
+        internal static void RemoveShutOffAbortedFor30MinsTillDate()
+        {
+            try
+            {
+                DeleteValue("SHUTOFFABORTED_FOR30MINS_TILLDATE");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RemoveShutOffAbortedFor30MinsTillDate - " + ex.Message);
+            }
+        }
+
+
         internal static string GetCurrentActivityPostponedID()
         {
             string regData = ReadStr("CurrentActivityPostponedID");

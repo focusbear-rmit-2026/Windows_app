@@ -97,7 +97,7 @@ namespace Focus_Bear.Login
 
             // Apply the correct theme at startup
             ChangeThemeByWindows();
-            var isLightTheme = app.IsLightTheme();
+            var isLightTheme = Global.IsLightTheme();
             app.UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
         }
         private IntPtr WndProctheme(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -112,9 +112,20 @@ namespace Focus_Bear.Login
         }
         private void ChangeThemeByWindows()
         {
-            bool bDarkMode = app.IsLightTheme();
-            string theme = bDarkMode ? "Light" : "Dark";
-            ((App)Application.Current).ChangeTheme(theme);
+            bool bLightTheme = Global.IsLightTheme();
+            string theme = bLightTheme ? "Light" : "Dark";
+            LogWriter.LogWrite("FullscreenParent detect theme changed WndProctheme " + theme);
+            string selectedTheme = appSettings.sTheme;
+
+            if (bLightTheme == true && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Light";
+            }
+            else if (bLightTheme == false && appSettings.bAutoTheme == true)
+            {
+                selectedTheme = "Dark";
+            }
+            ((App)Application.Current).ChangeTheme(selectedTheme);
             RegistryManager.SetThemeMode();
         }
         private void TitleBarThemeChange()

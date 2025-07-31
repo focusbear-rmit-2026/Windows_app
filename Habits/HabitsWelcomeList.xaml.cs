@@ -376,6 +376,7 @@ namespace Focus_Bear.Habits
                 try
                 {
                      
+                    
                     if (appSettings.userAccount.accessToken.Length > 0)
                     {
                         LogWriter.LogWrite("attempt to LoadSettings()");

@@ -120,7 +120,7 @@ namespace Focus_Bear.Utils
 
         public DateTime FocusSummaryShownTillDate { get; set; }
         public DateTime ShutOFFAbortedTillDate { get; set; }
-
+        public DateTime ShutOFFAbortedFor30MinsTillDate { get; set; }
         public DateTime AppDeactivatedTillDate { get; set; }
 
         public DateTime SelectedMorningHabitsDate { get; set; }

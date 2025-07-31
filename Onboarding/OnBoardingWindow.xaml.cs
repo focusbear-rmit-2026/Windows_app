@@ -270,6 +270,8 @@ namespace Focus_Bear.Onboarding
             {
                 //Window is already hidden, simulate the continue button click so assign all variables.
                 //We need to click the continue button on the screen
+                WndOnboardingAskWorkTime.btnContinue.IsEnabled = true; //We need to enable it to fire click event
+
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(WndOnboardingAskWorkTime.btnContinue);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
@@ -366,9 +368,8 @@ namespace Focus_Bear.Onboarding
             FocusBearAPIClient client = new FocusBearAPIClient();
             //we will need to put the user settings back if the startup or shutoff time is changed
             //if (appSettings.IsFirstInstall)
+            if(appSettings.sRawUserSettings != null && appSettings.sRawUserSettings.Length > 0)
             {
-                String jsonString = appSettings.sRawUserSettings;
-
                 JObject UserSettings = JObject.Parse(appSettings.sRawUserSettings);
 
                 if (UserSettings.ContainsKey("startup_time"))

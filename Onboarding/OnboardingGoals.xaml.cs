@@ -245,19 +245,19 @@ namespace Focus_Bear.Onboarding
         
         private void DoNotCare_Checked(object sender, RoutedEventArgs e)
         {
-            CareDesc.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["careMessageDoNotCare"].ToString();
+            CareDesc.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonDontCareText"].ToString();
             btnContinue.IsEnabled = true;
         }
 
         private void NotCommitted_Checked(object sender, RoutedEventArgs e)
         {
-            CareDesc.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["careMessageNotCommitted"].ToString();
+            CareDesc.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonNotCommittedText"].ToString();
             btnContinue.IsEnabled = true;
         }
 
         private void Committed_Checked(object sender, RoutedEventArgs e)
         {
-            CareDesc.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["careMessageCommitted"].ToString();
+            CareDesc.Text = appSettings.ConfigFileStrings["askAppWorkVcInfo"]["buttonCommittedText"].ToString();
             btnContinue.IsEnabled = true;
         }
 
