@@ -232,7 +232,7 @@ namespace Focus_Bear.Habits
             base.OnSourceInitialized(e);
 
             var source = (HwndSource)PresentationSource.FromVisual(this);
-            var isLightTheme = app.IsLightTheme();
+            var isLightTheme = Global.IsLightTheme();
             if (appSettings.bAutoTheme)
             {
                 if (source != null)

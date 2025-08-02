@@ -77,7 +77,9 @@
         "menuItemSelectHabitsText": "Seleccione los hábitos para hacer de la lista de todos los hábitos",
         "buttonTutorialText": "Tutorial",
         "questionHowMotivatedText": "¿Cuán motivado te sientes para hacer tus hábitos?",
-        "startCustomRoutineTitleText": "¡Tu rutina personalizada te está esperando! Da un paso a la vez y saca el máximo partido a tu día."
+        "startCustomRoutineTitleText": "¡Tu rutina personalizada te está esperando! Da un paso a la vez y saca el máximo partido a tu día.",
+        "menuItemCustomRoutineText": "Cambiar a otra rutina - <ROUTINE>",
+        "canNotDoCustomRoutineText": "No puedes realizar esta rutina en este momento porque no es la hora programada o ya la completaste."
     },
     "common": {
         "emailId": "support@focusbear.io",
@@ -486,7 +488,13 @@
         "toolTipPopoverDisable": "Mostrar el menú Focus Bear como ventana flotante",
         "toolTipPopoverEnable": "Mostrar el menú Focus Bear como ventana emergente",
         "menuItemStartCustomRoutineTitle": "Iniciar rutina personalizada",
-        "permissionsNotSetText": "Conceder permisos a Focus Bear para bloquear."
+        "permissionsNotSetText": "Conceder permisos a Focus Bear para bloquear.",
+        "distractionsAndpPermissionNotSet": "- Bloqueo de distracciones no configurado y sin permisos otorgados a ningún navegador.",
+        "distractionsNotSet": "- Bloqueo de distracciones no configurado",
+        "noPermissionSet": "- No se otorgaron permisos",
+        "browserPermissionNotSet": "- Permiso a ningún navegador otorgado",
+        "accessibilityNotSet": "- Permiso de accesibilidad no otorgado",
+        "systemEventsPermissionNotSet": "- Permiso de Eventos del Sistema no otorgado"
     },
     "preferencesInfo": {
         "titlePomodoro": "Modo Pomodoro:",
@@ -1341,8 +1349,8 @@
         "convinceAiTitle": "Convence a la IA de por qué es necesario",
         "convinceAiDescription": "Dar más información a la IA para explicar por qué necesitas usar este sitio",
         "buttonConvinceText": "Convencer a la IA",
-        "setIntentionText": "¿Qué quieres conseguir durante tu tiempo aquí?",
-        "buttonSetIntentionText": "Establecer intención",
+        "setIntentionText": "Desbloquear temporalmente",
+        "buttonSetIntentionText": "Acceso temporal",
         "aiRelevanceScoreAppText": "Puntaje de relevancia de IA para esta app: <SCORE>%",
         "appNotVerifiedText": "No se pudo verificar el estado de esta app.",
         "appStillDistractingTitle": "La IA sigue considerando que esta app es una distracción.",
@@ -1546,7 +1554,8 @@
         "firefoxInfoText": "Firefox no muestra a Focus Bear qué URL tienes abierta a menos que cambies esta configuración. Lo siento, es un trabajo extra. Otros navegadores no requieren este paso.",
         "alertOpenPreferencesText": "No se puede obtener la URL de <APPNAME>. Por favor, revisa los permisos. ¿Quiere Abrir Preferencias del Sistema -> Privacidad y Seguridad y comprobar si <APPNAME> puede ser accedido por Focus Bear bajo Automatización?",
         "alertOpenPreferencesLatestOsText": "No se puede obtener la URL de <APPNAME>. Por favor, revisa los permisos. ¿Quiere abrir Preferencias del Sistema -> Seguridad y Privacidad > Privacidad y comprobar si <APPNAME> puede ser accedido por Focus Bear bajo Automatización?",
-        "buttonLearnMoreText": "Más información"
+        "buttonLearnMoreText": "Más información",
+        "permissionNotGrantedText": "No has otorgado permiso a ningún navegador, lo que podría causar problemas de bloqueo. ¿Quieres continuar sin dar permiso?"
     },
     "onboardingPrivacyTipVcInfo": {
         "title": "Privacidad y Seguridad",
@@ -1729,7 +1738,9 @@
         "buttonOkText":"Ilumíname",
         "thisIsDemoText": "Esto es una demostración - puedes abrir el menú al terminar el recorrido",
         "descriptionMorningRoutine": "Tu rutina matutina no inicia automáticamente el primer día. Haz clic en Iniciar rutina matutina para activar tu primera rutina.",
-        "descriptionEveningRoutine": "Tu rutina nocturna no inicia automáticamente el primer día. Haz clic en Iniciar rutina nocturna para activar tu primera rutina."
+        "descriptionEveningRoutine": "Tu rutina nocturna no inicia automáticamente el primer día. Haz clic en Iniciar rutina nocturna para activar tu primera rutina.",
+        "tourTools": "Herramientas",
+        "descriptionTools": "Una colección de herramientas útiles, incluyendo Brain Dump, Lista de tareas/Reproductor de tareas, música para enfocarte y más."
     },
     "relaxModeVcInfo":{
         "title": "Sitios que guardaste para el modo Relajado:",
@@ -1968,7 +1979,8 @@
         "strictness_Password_UseRelaxFocusMode": "¡Navega libremente con control! Activa esta función para solicitar una contraseña cuando permitas el uso del modo Enfoque Relajado, añadiendo una capa de seguridad a tus sesiones de ocio en Internet.",
         "breaks_EnableBreaks": "Permitir hacer pausas a intervalos regulares. Las pausas favorecen la productividad, niveles de energía y capacidad de concentración.",
         "strictness_Password_CircumventingBlocks": "Algunos ajustes como \"Show Dock Icon\" y \"Restart after force quit\" pueden reducir la rigurosidad de bloqueo. Si marcas esta casilla, te pedirá una contraseña si la configuración se cambia a la versión menos estricta.",
-        "ui_EnablePopoverMenu": "Activa esta opción para mostrar el menú Focus Bear como una ventana emergente."
+        "ui_EnablePopoverMenu": "Activa esta opción para mostrar el menú Focus Bear como una ventana emergente.",
+        "breaks_NaturalBreaks": "Te avisa cuando se detecta una pausa natural tras estar inactivo por más de 10 minutos, ayudándote a mantener el enfoque y la productividad."
     },
     "chooseHabitsVCInfo": {
         "title": "Elegir Hábitos:",
@@ -2067,7 +2079,8 @@
     },
     "microBreaksSettingsVcInfo":{
         "enableBreaksText": "Activar Descansos",
-        "titleDoNotBlockSuperDistractingUrls": "No bloquear \"Super Distracting Sites\" en los descansos"
+        "titleDoNotBlockSuperDistractingUrls": "No bloquear \"Super Distracting Sites\" en los descansos",
+        "titleNaturalBreaks": "Detectar pausas naturales"
     },
     "toDoListSettingsVcInfo":{
         "showToDoPlayerSettingTitle": "Iniciar automáticamente el Reproductor de Lista de Tareas",

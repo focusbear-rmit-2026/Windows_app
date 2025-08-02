@@ -46,7 +46,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
             EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
 
             var source = (HwndSource)PresentationSource.FromVisual(this);
-            var isLightTheme = app.IsLightTheme();
+            var isLightTheme = Global.IsLightTheme();
             if (appSettings.bAutoTheme)
             {
                 if (source != null)
@@ -167,7 +167,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
         }
         private void ChangeThemeByWindows()
         {
-            bool isDarkMode = IsLightTheme();
+            bool isDarkMode = Global.IsLightTheme();
             string theme = isDarkMode ? "Light" : "Dark";
             LogWriter.LogWrite("NewOnboarding detect theme changed WndProctheme" + theme);
             string selectedTheme = appSettings.sTheme;
@@ -196,33 +196,9 @@ namespace Focus_Bear.Onboarding.AfterLogin
 
             // Apply the correct theme at startup
             ChangeThemeByWindows();
-            var isLightTheme = IsLightTheme();
+            var isLightTheme = Global.IsLightTheme();
             app.UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
         }
-        private static bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i > 0;
-        }
-        //private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
-        //{
-        //    Version osVersion = Environment.OSVersion.Version;
-        //    bool isWindows10OrGreater = (osVersion.Major == 10 && osVersion.Build >= 17763) || osVersion.Major > 10;
 
-        //    if (isWindows10OrGreater)
-        //    {
-        //        var attribute = 20;
-        //        if (osVersion.Build >= 18985)
-        //        {
-        //            attribute = 19;
-        //        }
-
-        //        int useImmersiveDarkMode = enabled ? 1 : 0;
-        //        return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
-        //    }
-
-        //    return false;
-        //}
     }
 }

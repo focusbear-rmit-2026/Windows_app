@@ -164,18 +164,12 @@ namespace Focus_Bear.Preferences
             FrameUninstallTab.Visibility = Visibility.Collapsed;
             FrameHelpTab.Visibility = Visibility.Collapsed;
         }
-        private static bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i > 0;
-        }
         protected override void OnSourceInitialized(EventArgs e)
         {
             //when the window is created we will check the theme and apply the dark mode if needed
             base.OnSourceInitialized(e);
 
-            var isLightTheme = IsLightTheme();
+            var isLightTheme = Global.IsLightTheme();
             var source = (HwndSource)PresentationSource.FromVisual(this);
             
 

@@ -746,7 +746,7 @@ namespace Focus_Bear
                 else
                 {
 #if DEBUG
-                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 2, 0);
+                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 20);
 #else
                     dispatcherTimerBreaks.Interval = new TimeSpan(0,  appSettings.breakAfterMinutes, 0);
 #endif
@@ -1461,8 +1461,8 @@ namespace Focus_Bear
             //wnd.Show();
             //OnboardingNewWelcome wnd2 = new OnboardingNewWelcome(wnd);
             ////wnd2.();
+            //ShowShutOffScreen();
 
-            
 #endif
 
             if (appSettings.IsFirstInstall)
@@ -4638,12 +4638,6 @@ namespace Focus_Bear
                 return DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
             }
             return false;
-        }
-        public bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i > 0;
         }
 
         public void ApplyThemeToPage(System.Windows.Controls.Page page)

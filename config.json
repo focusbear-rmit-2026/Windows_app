@@ -77,7 +77,9 @@
         "menuItemSelectHabitsText": "Select the habits to do from the list of all habits",
         "buttonTutorialText": "Tutorial",
         "questionHowMotivatedText": "How motivated do you feel to do your habits?",
-        "startCustomRoutineTitleText": "Your personalized routine is waiting! Take one step at a time and make the most of your day."
+        "startCustomRoutineTitleText": "Your personalized routine is waiting! Take one step at a time and make the most of your day.",
+        "menuItemCustomRoutineText": "Change to another routine - <ROUTINE>",
+        "canNotDoCustomRoutineText": "You can't perform this routine right now because either it's not the scheduled time or you've already completed it."
     },
     "common": {
         "emailId": "support@focusbear.io",
@@ -480,7 +482,13 @@
         "toolTipPopoverDisable": "Show Focus Bear menu as floating window",
         "toolTipPopoverEnable": "Show Focus Bear menu as popover",
         "menuItemStartCustomRoutineTitle": "Start Custom Routine",
-        "permissionsNotSetText": "Grant Focus Bear permissions to block."
+        "permissionsNotSetText": "Grant Focus Bear permissions to block.",
+        "distractionsAndpPermissionNotSet": "- Distraction blocking not set and no browser permission granted.",
+        "distractionsNotSet": "- Distraction blocking not set",
+        "noPermissionSet": "- No permissions granted",
+        "browserPermissionNotSet": "- Permission to any browser not granted",
+        "accessibilityNotSet": "- Accessibility permission not granted",
+        "systemEventsPermissionNotSet": "- System Events permission not granted"
     },
     "preferencesInfo": {
         "titlePomodoro": "Pomodoro Mode:",
@@ -1341,8 +1349,8 @@
         "convinceAiTitle": "Convince the AI why it's necessary",
         "convinceAiDescription": "Give more info to the AI to explain why you need to use this site",
         "buttonConvinceText": "Convince the AI",
-        "setIntentionText": "What do you want to achieve during your time here?",
-        "buttonSetIntentionText": "Set Intention",
+        "setIntentionText": "Temporarly unlock",
+        "buttonSetIntentionText": "Temporary access",
         "aiRelevanceScoreAppText": "AI relevance score for this app: <SCORE>%",
         "appNotVerifiedText": "The status of this app could not be verified.",
         "appStillDistractingTitle": "AI still thinks this app is distracting",
@@ -1546,7 +1554,8 @@
         "firefoxInfoText": "Firefox doesn't show Focus Bear which URL you have open unless you change this setting. Sorry it's extra work. Other browsers don't require this step.",
         "alertOpenPreferencesLatestOsText": "Unable to get <APPNAME> URL. Please check permissions. Do you want to Open System Preferences -> Privacy & Security and check if <APPNAME> is allowed to be accessed by Focus Bear under Automation?",
         "alertOpenPreferencesText": "Unable to get <APPNAME> URL. Please check permissions. Do you want to Open System Preferences -> Security & Privacy > Privacy and check if <APPNAME> is allowed to be accessed by Focus Bear under Automation?",
-        "buttonLearnMoreText": "Learn more"
+        "buttonLearnMoreText": "Learn more",
+        "permissionNotGrantedText": "You haven’t granted permission to any browser, which could cause blocking issues. Do you want to proceed without giving permission?"
     },
     "onboardingPrivacyTipVcInfo": {
         "title": "Privacy and Security",
@@ -1729,7 +1738,9 @@
         "buttonOkText":"Enlighten me",
         "thisIsDemoText": "This is a demo - you can open the menu after the tour is done",
         "descriptionMorningRoutine": "Your morning routine does not start automatically on the first day. Click Start morning routine to kick off your first routine.",
-        "descriptionEveningRoutine": "Your evening routine does not start automatically on the first day. Click Start evening routine to kick off your first routine."
+        "descriptionEveningRoutine": "Your evening routine does not start automatically on the first day. Click Start evening routine to kick off your first routine.",
+        "tourTools": "Tools",
+        "descriptionTools": "A collection of helpful tools including Brain Dump, To-Do List/To-Do Player, focus music, and more."
     },
     "relaxModeVcInfo":{
         "title": "Sites you saved for Free Time mode:",
@@ -1968,7 +1979,8 @@
         "strictness_Password_UseRelaxFocusMode": "Browse freely with control! Enable this feature to require a password when allowing the use of Relax Focus mode, adding a security layer to your leisurely internet sessions.",
         "breaks_EnableBreaks": "Enable taking breaks at regular intervals. Breaks help your productivity, energy levels, and ability to focus.",
         "strictness_Password_CircumventingBlocks": "Some settings like \"Show Dock Icon\" and \"Restart after force quit\" can reduce the strictness of blocking. If you tick this box, it will prompt for a password if the setting is changed to the less strict version.",
-        "ui_EnablePopoverMenu": "Enable this option to display the Focus Bear menu as a popover."
+        "ui_EnablePopoverMenu": "Enable this option to display the Focus Bear menu as a popover.",
+        "breaks_NaturalBreaks": "Notifies you when a natural break is detected after being idle for more than 10 minutes, helping you maintain focus and productivity."
     },
     "chooseHabitsVCInfo": {
         "title": "Choose Habits:",
@@ -2067,7 +2079,8 @@
     },
     "microBreaksSettingsVcInfo":{
         "enableBreaksText": "Enable Breaks",
-        "titleDoNotBlockSuperDistractingUrls": "Do not block \"Super Distracting Sites\" during breaks"
+        "titleDoNotBlockSuperDistractingUrls": "Do not block \"Super Distracting Sites\" during breaks",
+        "titleNaturalBreaks": "Detect natual breaks"
     },
     "toDoListSettingsVcInfo":{
         "showToDoPlayerSettingTitle": "Launch To Do player automatically",

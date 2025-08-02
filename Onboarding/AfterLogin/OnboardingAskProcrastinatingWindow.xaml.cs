@@ -435,7 +435,7 @@ namespace Focus_Bear.Onboarding.AfterLogin
         }
         private void ChangeThemeByWindows()
         {
-            bool isDarkMode = IsLightTheme();
+            bool isDarkMode = Global.IsLightTheme();
             string theme = isDarkMode ? "Light" : "Dark";
             LogWriter.LogWrite("NewOnboarding detect theme changed WndProctheme" + theme);
             string selectedTheme = appSettings.sTheme;
@@ -464,15 +464,10 @@ namespace Focus_Bear.Onboarding.AfterLogin
 
             // Apply the correct theme at startup
             ChangeThemeByWindows();
-            var isLightTheme = IsLightTheme();
+            var isLightTheme = Global.IsLightTheme();
             UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
         }
-        private static bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i > 0;
-        }
+
         private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
         {
             Version osVersion = Environment.OSVersion.Version;

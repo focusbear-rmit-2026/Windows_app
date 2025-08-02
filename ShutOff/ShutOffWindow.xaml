@@ -8,7 +8,7 @@
         xmlns:src="clr-namespace:Focus_Bear.Habits"
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="Focus Bear" d:DesignHeight="1080" d:DesignWidth="1920" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" Closing="FullScreenParent_Closing" >
+        Title="Focus Bear" d:DesignHeight="1080" d:DesignWidth="1920" WindowState="Maximized" WindowStyle="None" Loaded="FullScreenParent_Loaded" Closed="Window_Closed" Closing="FullScreenParent_Closing" >
 
     <!--<local1:DpiDecorator>-->
 
@@ -41,7 +41,11 @@
 
             <TextBlock  Grid.Row="3" Name="Txtunlocking" Width="900" Margin="0,0,0,0" TextWrapping="Wrap" Text="xunlocking in."  FontSize="23" FontWeight="Normal" TextAlignment="Center" HorizontalAlignment="Center" />
             <TextBlock  Grid.Row="3" Name="TxtTimer" Width="900"  Margin="0,35,0,0" TextWrapping="Wrap" Text="x00:30"  FontSize="23" FontWeight="Bold"  TextAlignment="Center" HorizontalAlignment="Center" />
-
+        <StackPanel Grid.Row="3" Visibility="Collapsed" Name="DurationUnlockView" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock  Margin="0,0,0,0" Name="UnlockMinsText" TextWrapping="Wrap" Text="xSelect duration for unlock:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <ComboBox Name="ComboBoxDuration" AutomationProperties.AutomationId="cmbMinutes" Width="100" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" FontSize="15"  SelectedIndex="0">
+            </ComboBox>
+        </StackPanel>    
             <TextBlock  Grid.Row="4" Name="TxtExplain" Width="900"  TextWrapping="Wrap" Text="xFeel free to write an explanation here:" FontSize="17" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center" />
             <TextBox  Grid.Row="5" Name="TxtExplaination" AutomationProperties.AutomationId="txtBoxExplanation" TextWrapping="Wrap" AcceptsReturn="True"  Width="650" Height="120" Margin="15" VerticalAlignment="Top"  FontSize="15">
                 <TextBox.Effect>

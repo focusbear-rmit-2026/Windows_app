@@ -204,12 +204,12 @@ namespace Focus_Bear.Upgrade
 
             // Apply the correct theme at startup
             ChangeThemeByWindows();
-            var isLightTheme = IsLightTheme();
+            var isLightTheme = Global.IsLightTheme();
             UseImmersiveDarkMode(hwndSource.Handle, !isLightTheme);
         }
         private void ChangeThemeByWindows()
         {
-            bool isDarkMode = IsLightTheme();
+            bool isDarkMode = Global.IsLightTheme();
             string theme = isDarkMode ? "Light" : "Dark";
             string selectedTheme = appSettings.sTheme;
             if (isDarkMode == true && appSettings.bAutoTheme == true)
@@ -233,12 +233,6 @@ namespace Focus_Bear.Upgrade
                 ChangeThemeByWindows();
             }
             return IntPtr.Zero;
-        }
-        private static bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return value is int i && i > 0;
         }
         private static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
         {

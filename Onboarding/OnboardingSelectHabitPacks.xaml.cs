@@ -174,9 +174,19 @@ namespace Focus_Bear.Onboarding
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
                 }
-                else if (sContent == "invoke-js-function") {
+                else if (sContent == "invoke-js-function" || sContent == "\"invoke-js-function\"") 
+                {
                     InitJsExec();
-                } else //just navigating the steps
+                }
+                else if(sContent == "routine-suggestions-installation-failed" || sContent == "\"routine-suggestions-installation-failed\"")
+                {
+                    LogWriter.LogWrite("routine-suggestions-installation-failed recieved form Save Habits so moving to next screen");
+                    //Not sure why the issue is coming but for now will proceed to next screens: 23 July 2025
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(btnContinue);
+                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                    invokeProv.Invoke();
+                }
+                else //just navigating the steps
                 {
                     JObject sContentJson = JObject.Parse(sContent);
                     if (sContentJson.ContainsKey("step"))
