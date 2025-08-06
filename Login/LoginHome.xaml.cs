@@ -81,26 +81,19 @@ namespace Focus_Bear.Login
 
         private void TitleBarThemeChange()
         {
-            bool bDarkMode = Global.IsLightTheme();
-            string theme = bDarkMode ? "Light" : "Dark";
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {
                 app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
-            if (theme == "Light")
+
+            if (appSettings.sTheme == "Light")
             {
                 this.Background = new SolidColorBrush(Colors.White);
-
-                Suggest.Foreground = new SolidColorBrush(Colors.Black);
-                Descriptiopn.Foreground = new SolidColorBrush(Colors.Black);
             }
-            else if (theme == "Dark")
+            else // Dark
             {
                 this.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(40, 40, 40));
-
-                Suggest.Foreground = new SolidColorBrush(Colors.LightGray);
-                Descriptiopn.Foreground = new SolidColorBrush(Colors.LightGray);
             }
         }
 
