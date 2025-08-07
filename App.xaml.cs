@@ -750,7 +750,7 @@ namespace Focus_Bear
                 else
                 {
 #if DEBUG
-                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 10);
+                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 20);
 #else
                     dispatcherTimerBreaks.Interval = new TimeSpan(0,  appSettings.breakAfterMinutes, 0);
 #endif
