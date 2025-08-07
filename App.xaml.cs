@@ -113,6 +113,7 @@ namespace Focus_Bear
 
             if (sAppName.Length > 0 && sAppName != "Focus Bear.exe" && sAppName != "explorer.exe")
             {
+                appSettings.Hide_SetIntentionWindow();
                 appSettings.sLastActiveAppName = sAppName;
             }
 
@@ -138,7 +139,10 @@ namespace Focus_Bear
                                 {
                                     string sName = accWindow.accName[objChild];
                                     string sURL = accWindow.accValue[objChild];
-
+                                    if(sURL == null)
+                                    {
+                                        appSettings.Hide_SetIntentionWindow();
+                                    }
                                     if (sName != null && (sName.StartsWith("Buscar con") || sName.StartsWith("Search with")) && (sURL != null && sURL.Length > 0)) //It's our FF address bar
                                     {
                                         if (int.Parse(accWindow.accState[objChild].ToString()) == 1074791424) //I just found this to be appropriate and not editable state
@@ -746,7 +750,7 @@ namespace Focus_Bear
                 else
                 {
 #if DEBUG
-                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 20);
+                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 10);
 #else
                     dispatcherTimerBreaks.Interval = new TimeSpan(0,  appSettings.breakAfterMinutes, 0);
 #endif
@@ -3225,6 +3229,12 @@ namespace Focus_Bear
 
             try
             {
+                if (wndHabits != null) //close evening routine window, if any
+                {
+                    wndHabits.Close();
+                    wndHabits = null;
+                }
+
                 wndHabits = new HabitWindow();
                 wndHabits.Topmost = true;
                 wndHabits.Show();
@@ -3699,6 +3709,7 @@ namespace Focus_Bear
 
                 if (wndFocusSummary != null)
                 {
+                    LogWriter.LogWrite("Closing existing instance of Focus Summary Window");
                     wndFocusSummary.Close();
                     wndFocusSummary = null;
                 }
@@ -4515,7 +4526,8 @@ namespace Focus_Bear
         "buttonStartBreakText": "Yup I need a break now",
         "buttonTakeBreakLaterText": "No - I'll take later"
     },*/
-
+            LogWriter.LogWrite("ShowNaturalBreakDetectionWindow()");
+            
             if (wndNaturalBreakDetectionWindow == null)
             {
                 wndNaturalBreakDetectionWindow = new NaturalBreakDetectionWindow();

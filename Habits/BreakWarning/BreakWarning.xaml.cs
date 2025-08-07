@@ -290,7 +290,7 @@ namespace Focus_Bear.Habits
             {
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
                 nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
-
+                ComboBoxMinutes_Loaded(ComboBoxMinutes, null);
             }
             catch (Exception ex)
             {

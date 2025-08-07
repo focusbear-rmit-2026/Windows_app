@@ -269,7 +269,7 @@ namespace Focus_Bear.Focus
         {
             try
             {
-                string UpdateFunc = string.Format("updateBrainDumpFromDesktopApp({0});", appSettings.sBrainDump);
+                string UpdateFunc = string.Format("updateBrainDumpFromDesktopApp('{0}');", appSettings.sBrainDump);
 
                 var sReturn = webView.ExecuteScriptAsync(UpdateFunc);
             }

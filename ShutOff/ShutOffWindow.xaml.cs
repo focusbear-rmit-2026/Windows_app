@@ -160,7 +160,7 @@ namespace Focus_Bear.ShutOff
 
         private void btnAction_Click(object sender, RoutedEventArgs e)
         {
-            LogWriter.LogWrite("ShutOff screen btnAction_Click()");
+            LogWriter.LogWrite("ShutOff screen btnAction_Click() nState = " + nState.ToString());
 
             switch (nState)
             {
@@ -243,6 +243,8 @@ namespace Focus_Bear.ShutOff
         }
         private void StartTimer()
         {
+            LogWriter.LogWrite("StartTimer()");
+
             try
             { 
                 Icon.Visibility = Visibility.Collapsed;
@@ -276,6 +278,8 @@ namespace Focus_Bear.ShutOff
         }
         private void Cancel()
         {
+            LogWriter.LogWrite("ShutOffWindow() Cancel()");
+
             Icon.Visibility = Visibility.Visible;
             //stop and reset the timer
             CommandManager.InvalidateRequerySuggested();
@@ -311,7 +315,7 @@ namespace Focus_Bear.ShutOff
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("ShutOffWindow() ex - " + ex.Message);
+                LogWriter.LogWrite("ShutOffWindow() cancel click ex - " + ex.Message);
             }
 
             Txtunlocking.Visibility = Visibility.Collapsed;
@@ -336,6 +340,7 @@ namespace Focus_Bear.ShutOff
         }
         private void Unlock()
         {
+            LogWriter.LogWrite("Unlock()");
             Txtunlocking.Visibility = Visibility.Visible;
             TxtExplain.Visibility = Visibility.Collapsed;
             TxtExplaination.Visibility = Visibility.Collapsed;
@@ -405,7 +410,7 @@ namespace Focus_Bear.ShutOff
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer -= 5;
+            int val = nTimer -= 1;
 #else
             int val = nTimer--;
 #endif
@@ -458,12 +463,15 @@ namespace Focus_Bear.ShutOff
             if (wasCodeClosed)
             {
                 // Closed with this.Close()
+                LogWriter.LogWrite("FullScreenParent_Closing() : wasCodeClosed ");
             }
             else
             {
                 e.Cancel = true;
                 // Closed some other way - like close button clicked.
                 // first Please spare me button to postpone
+                LogWriter.LogWrite("FullScreenParent_Closing() : Closed some other way - like close button clicked. Invoke Action ");
+
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(btnAction);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();

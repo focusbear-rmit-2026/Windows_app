@@ -26,11 +26,11 @@ namespace Focus_Bear.CallDetection
 
             if(list.Count > 0)
             {
-                LogWriter.LogWrite("list.Count > 0");
+                //LogWriter.LogWrite("list.Count > 0");
 
                 IList<AudioSession> listSessions = new List<AudioSession>();
                 listSessions = GetAllSessions();
-                LogWriter.LogWrite("listSessions = " + listSessions.Count);
+                //LogWriter.LogWrite("listSessions = " + listSessions.Count);
                 for (int i= 0; i< listSessions.Count; i++)
                 {
 
@@ -91,7 +91,7 @@ namespace Focus_Bear.CallDetection
                 LogWriter.LogWrite("No Audio device found");
             }
 
-            LogWriter.LogWrite("IsUserOnaAudioCall() - return false;");
+            //LogWriter.LogWrite("IsUserOnaAudioCall() - return false;");
             return false;
         }
         private static IAudioSessionManager2 GetAudioSessionManager()
@@ -206,7 +206,7 @@ namespace Focus_Bear.CallDetection
 
         public static IList<AudioSession> GetAllSessions()
         {
-            LogWriter.LogWrite("GetAllSessions()");
+            //LogWriter.LogWrite("GetAllSessions()");
 
             List <AudioSession> list = new List<AudioSession>();
             IAudioSessionManager2 mgr = GetAudioSessionManager();

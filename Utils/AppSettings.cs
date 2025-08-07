@@ -311,7 +311,7 @@ namespace Focus_Bear.Utils
         public string sRawKeywords = "";
 
         GentleBlock wndGentleBlock = null;
-
+        ReportBadAIDecision wndReportBadAIDecision = null;
         public BlurWindow wndBlurWindow = null;
 
         public string sUploadURL = "";
@@ -2561,6 +2561,19 @@ namespace Focus_Bear.Utils
                 blurWindow.Width = width;
                 blurWindow.Height = height;
             }
+        }
+
+        public void ShowReportBadAIDecision(string sPayload, string sURL)
+        {
+            ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
+            {
+                if (wndReportBadAIDecision == null)
+                {
+                    wndReportBadAIDecision = new ReportBadAIDecision();
+                }
+                wndReportBadAIDecision.ShowReportBadAIDecisionWithPayload(sPayload, sURL);
+                wndReportBadAIDecision.Show();
+            }));
         }
 
     }

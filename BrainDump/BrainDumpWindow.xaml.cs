@@ -33,6 +33,15 @@ namespace Focus_Bear.BrainDump
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
+        private const int GWL_STYLE = -16;
+        private const int WS_MINIMIZEBOX = 0x00020000;
+
+        [DllImport("user32.dll")]
+        static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll")]
+        static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
         public BrainDumpWindow()
         {
             InitializeComponent();
@@ -82,6 +91,12 @@ namespace Focus_Bear.BrainDump
 
             var source = (HwndSource)PresentationSource.FromVisual(this);
             app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+
+            var hwnd = new WindowInteropHelper(this).Handle;
+            int currentStyle = GetWindowLong(hwnd, GWL_STYLE);
+
+            // Disable minimize button by removing WS_MINIMIZEBOX
+            SetWindowLong(hwnd, GWL_STYLE, currentStyle & ~WS_MINIMIZEBOX);
         }
 
         public void ShowBrainDumpWindowAndStartTimer()

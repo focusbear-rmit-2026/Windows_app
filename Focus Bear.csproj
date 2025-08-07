@@ -336,6 +336,9 @@
     <Compile Include="Focus\GentleBlock.xaml.cs">
       <DependentUpon>GentleBlock.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\ReportBadAIDecision.xaml.cs">
+      <DependentUpon>ReportBadAIDecision.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\SelectTasks.xaml.cs">
       <DependentUpon>SelectTasks.xaml</DependentUpon>
     </Compile>
@@ -713,6 +716,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\GentleBlock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\ReportBadAIDecision.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -46,14 +46,16 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button   x:Name="btnSaveForRelax" AutomationProperties.AutomationId="btnSaveForRelax"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSaveForRelax_Click">
+            <!--<Button   x:Name="btnSaveForRelax" AutomationProperties.AutomationId="btnSaveForRelax"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSaveForRelax_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnSaveForRelaxText" Margin="1" Text="xBlock and save for Relax mode"  Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
-            </Button>
-             
+            </Button>-->
+            <TextBlock x:Name="ReportBadAIDecision" AutomationProperties.AutomationId="txtInMeeting" Grid.Row="4" Margin="15,10,0,20" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="13" MinHeight="22" Cursor="Hand">
+                    👎 <Hyperlink x:Name="BtnReportBadAIDecision" Click="BtnReportBadAIDecision_Click"   TextDecorations="Underline" ><Run x:Name="TextReportBadAIDecision" Text="xReport Bad AI Decision"/></Hyperlink>
+            </TextBlock>
         </StackPanel>
        
         

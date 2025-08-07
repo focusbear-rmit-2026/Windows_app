@@ -106,7 +106,7 @@ namespace Focus_Bear.Focus
 
             if (sURL.Length > 0)
             {
-                btnSaveForRelax.Visibility = Visibility.Visible;
+                //btnSaveForRelax.Visibility = Visibility.Visible;
                 /**
                 try
                 {
@@ -131,16 +131,18 @@ namespace Focus_Bear.Focus
             }
             else
             {
-                btnSaveForRelax.Visibility = Visibility.Collapsed;
+                //btnSaveForRelax.Visibility = Visibility.Collapsed;
             }
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
             btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
-            btnSaveForRelaxText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockAndAddToRelaxModeText"].ToString();
+            //btnSaveForRelaxText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockAndAddToRelaxModeText"].ToString();
+            TextReportBadAIDecision.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["reportBadAiTooltip"].ToString();
 
-            
+
             if (sAppName.Length > 0)
             {
+                ReportBadAIDecision.Visibility = Visibility.Collapsed;
                 AllowThisDomain.Visibility = Visibility.Collapsed;
                 AllowThisDomainText.Visibility = Visibility.Collapsed;
 
@@ -152,6 +154,7 @@ namespace Focus_Bear.Focus
             else
             {
                 ///////////////////////////////////////////////////////////////////
+                ReportBadAIDecision.Visibility = Visibility.Visible;
                 AllowThisDomain.Visibility = Visibility.Visible;
                 AllowThisDomainText.Visibility = Visibility.Visible;
                 string sHost = "";
@@ -268,10 +271,10 @@ namespace Focus_Bear.Focus
 
                     if (xProbability == -1)
                     {
-                        //API failed. Nothing to do.
-                       
                         await Dispatcher.BeginInvoke((Action)(() =>
                         {
+                            //API failed. Nothing to do.
+                            ReportBadAIDecision.Visibility = Visibility.Collapsed;
                             sHeading = sHeading + "\n\n" + "The status of this url could not be verified.";
                             sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
                             sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
@@ -285,9 +288,10 @@ namespace Focus_Bear.Focus
                     }
                     else  //we have got the probability
                     {
+                       
                         await Dispatcher.BeginInvoke((Action)(() =>
                         {
-                           
+                            ReportBadAIDecision.Visibility = Visibility.Visible;
                             Console.WriteLine("*****CheckWithChatGPT****current URL:" + sFullURLForBlockedPage);
                             //Safe URL, need to allow.
                             if (!FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.ContainsKey(sFullURLForBlockedPage))
@@ -521,6 +525,23 @@ namespace Focus_Bear.Focus
             //{
             //    appSettings.ShowBlurWindow(HWND);
             //}
+        }
+
+        private void BtnReportBadAIDecision_Click(object sender, RoutedEventArgs e)
+        {
+            dispatcherTimer.Stop();
+            appSettings.HideBlurWindow();
+            Hide();
+
+            string addItemJsonString = $"{{\"url\":\"{sActiveURL}\"," +
+                   $"\"tab_title\":\"{sCurrentTabTitle}\"," +
+                   $"\"meta_description\":\"\"," +
+                   $"\"focus_mode\":\"{appSettings.sRunningFocusModeName}\"," +
+                   $"\"intention\":\"{appSettings.sRunningFocusModeIntention}\"," +
+                   $"\"language\":\"{appSettings.sLangCode}\"}}";
+
+            //Show the Report Bad AI Desicion Feedback Window
+            appSettings.ShowReportBadAIDecision(addItemJsonString, sActiveURL);
         }
     }
 }

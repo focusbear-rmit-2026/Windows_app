@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.BrainDump"
         mc:Ignorable="d"
-        Title="Focus Bear" AutomationProperties.AutomationId="brainDumpWindow" Height="457" Width="315" ResizeMode="NoResize" Closing="Window_Closing">
+        Title="Focus Bear" AutomationProperties.AutomationId="brainDumpWindow" Height="457" Width="315" MinHeight="457" MinWidth="315" ResizeMode="CanResize" Closing="Window_Closing">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>

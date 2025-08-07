@@ -17,11 +17,11 @@ namespace Focus_Bear.CallDetection
 
         public static bool IsUserOnVideoCall()
         {
-            LogWriter.LogWrite("IsUserOnVideoCall()");
+            //LogWriter.LogWrite("IsUserOnVideoCall()");
 
             bool bWebcamInUse =  IsWebCamInUse();
 
-            LogWriter.LogWrite("Webcam in use: " + bWebcamInUse.ToString());
+            //LogWriter.LogWrite("Webcam in use: " + bWebcamInUse.ToString());
 
             return bWebcamInUse;
         }
@@ -91,7 +91,7 @@ namespace Focus_Bear.CallDetection
                         // NonPackaged has multiple subkeys
                         if (subKeyName == "NonPackaged")
                         {
-                            LogWriter.LogWrite("cu NonPackaged found");
+                            //LogWriter.LogWrite("cu NonPackaged found");
                             using (var nonpackagedkey = key.OpenSubKey(subKeyName))
                             {
                                 foreach (var nonpackagedSubKeyName in nonpackagedkey.GetSubKeyNames())
