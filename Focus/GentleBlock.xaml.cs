@@ -106,37 +106,17 @@ namespace Focus_Bear.Focus
 
             if (sURL.Length > 0)
             {
-                //btnSaveForRelax.Visibility = Visibility.Visible;
-                /**
-                try
-                {
-                    Uri myUri = new Uri(sURL);
-                    string host = myUri.Host; //fails if there is no http://
-                    sActiveURL = host;
-                    Debug.WriteLine(sActiveURL);
-                }
-                catch (Exception ex)
-                {
-                    /*
-                    This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
-                    If uri does not specify a scheme, the scheme defaults to "http:".
-                    * /
-                    Uri myUri = new UriBuilder(sURL).Uri;
-                    sActiveURL = myUri.Host;
-                    Debug.WriteLine(ex.Message);
-                }**/
-
                 if(appSettings.bAiCheckUrlEnabled)
                     sHeading = sHeading + "\n\n" + appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkingUrlText"].ToString();
             }
             else
             {
-                //btnSaveForRelax.Visibility = Visibility.Collapsed;
+                
             }
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
             btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
-            //btnSaveForRelaxText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockAndAddToRelaxModeText"].ToString();
+            
             TextReportBadAIDecision.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["reportBadAiTooltip"].ToString();
 
 
@@ -310,10 +290,7 @@ namespace Focus_Bear.Focus
 
                                 Console.WriteLine("*****CheckWithChatGPT****current URL tooltip:" + appSettings.sChatGPTReasonForCurrentURL);
                                 Console.WriteLine("*****CheckWithChatGPT****current URL xProbability:" + xProbability.ToString());
-                                //if (((App)(Application.Current)).wndFocusProgress != null)
-                                //{
-                                //    ((App)(Application.Current)).wndFocusProgress.TopIcon.ToolTip = sHeading; //reason
-                                //}
+
                             }
 
                             double currentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
@@ -342,24 +319,6 @@ namespace Focus_Bear.Focus
                                     this.Show();
                                 }
                             }
-                
-                            //if (appSettings.bAiAllowUrlShowAlertEnabled)
-                            //{
-                            //    string heading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["titleUrlSafeText"].ToString();
-                            //    heading = heading.Replace("<PERCENTAGE>", (appSettings.dProbablity * 100).ToString());
-
-                            //    string sReason = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["reasonText"].ToString();
-                            //    sReason = sReason.Replace("<REASON>", appSettings.sChatGPTReasonForCurrentURL);
-                            //    FBMessageBox ff = new FBMessageBox(sReason, heading, MessageBoxButton.YesNo, appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString(), appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBadDecisionText"].ToString(),"",true);
-                            //    ff.ShowDialog();
-                            //    if (ff.btnClicked == MessageBoxResult.No) //
-                            //    {
-                            //        //Bad Decision
-                            //        string ss = string.Format("\"payload\":{0},\"response\":{1}", appSettings.sChatGPTPayLoad, appSettings.sChatGPTResponse);
-                            //        appSettings.CapturePostHog("bad-decision-ai-allowed-url", ss);
-                            //    }
-                            //}
-
                         }));
                         
                         return;//allow the url
@@ -518,15 +477,6 @@ namespace Focus_Bear.Focus
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
             }
         }
-
-        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            //if(IsVisible)
-            //{
-            //    appSettings.ShowBlurWindow(HWND);
-            //}
-        }
-
         private void BtnReportBadAIDecision_Click(object sender, RoutedEventArgs e)
         {
             dispatcherTimer.Stop();

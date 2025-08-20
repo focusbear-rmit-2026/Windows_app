@@ -18,14 +18,73 @@ using Duende.IdentityModel.OidcClient;
 using Duende.IdentityModel.OidcClient.Browser;
 using Focus_Bear.Login;
 using Focus_Bear.Utils;
-using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Newtonsoft.Json.Linq;
 
+
 namespace Focus_Bear.API
 {
+    public class SystemBrowser : IBrowser
+    {
+        private readonly int _port;
+
+        public SystemBrowser(int port = 7890)
+        {
+            _port = port;
+        }
+
+        public async Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken cancellationToken = default)
+        {
+            var listener = new HttpListener();
+            var redirectUri = $"http://127.0.0.1:{_port}/";
+            listener.Prefixes.Add(redirectUri);
+            listener.Start();
+
+            // Launch system browser
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = options.StartUrl,
+                UseShellExecute = true,
+                Verb = "open"
+            });
+
+            // Wait for redirect
+            var context = await listener.GetContextAsync();
+
+            // Respond with auto-close HTML
+            string responseString = @"<html>
+          <head>
+            <title>Login successful</title>
+            <script type='text/javascript'>
+              setTimeout(function() {
+                try {
+                  window.open('', '_self');
+                  window.close();
+                } catch (e) { }
+              }, 1500);
+            </script>
+          </head>
+          <body>
+            <p>Login successful! This tab will close automatically.</p>
+            <p>If it doesn't, you can close it manually.</p>
+          </body>
+        </html>";
+
+            var buffer = Encoding.UTF8.GetBytes(responseString);
+            context.Response.ContentLength64 = buffer.Length;
+            await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+            context.Response.OutputStream.Close();
+            listener.Stop();
+
+            return new BrowserResult
+            {
+                ResultType = BrowserResultType.Success,
+                Response = context.Request.Url.ToString()
+            };
+        }
+    }
+
     public class CustomWebView2Browser : IBrowser
     {
         private readonly string _userDataFolder;
@@ -349,8 +408,9 @@ namespace Focus_Bear.API
                     Domain = "dev-2hidr8ad.us.auth0.com",
                     ClientId = sClientId,
                     Scope = "openid profile email offline_access",
+                    RedirectUri = "http://127.0.0.1:7890/",
                     LoadProfile = true,
-                    Browser = new CustomWebView2Browser(userDataFolder, ParentWindow)
+                    Browser = new SystemBrowser(7890)
                 });
 
                 var loginResult = await client.LoginAsync(new Dictionary<string, string>

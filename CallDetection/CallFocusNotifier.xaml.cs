@@ -63,21 +63,21 @@ namespace Focus_Bear.CallDetection
             string sUsage = "";
             if(appSettings.sLastAppUsingMicrophone.Length > 0)
             {
-                sUsage = appSettings.ConfigFileStrings["callNotifier"]["micUsageText"].ToString(); //"is using your microphone"
+                sUsage = appSettings.sLastAppUsingMicrophone + " is using your microphone"; //appSettings.ConfigFileStrings["callNotifier"]["micUsageText"].ToString() //todo win texts
 
             }
             if (appSettings.sLastAppUsingWebCam.Length > 0)
             {
                 if (sUsage.Length > 0)
                 {
-                    sUsage = sUsage + "\n" + appSettings.sLastAppUsingWebCam + " " +
-                    appSettings.ConfigFileStrings["callNotifier"]["webcamUsageText"].ToString(); //"is  using your webcam"
+                    sUsage = sUsage + "\n" + appSettings.sLastAppUsingWebCam + " " + "is  using your webcam";
+                    //appSettings.ConfigFileStrings["callNotifier"]["webcamUsageText"].ToString(); //todo win texts
                 }
             else
-                {   
-                //if mic usage is empty then just show webcam usage
-                    sUsage = appSettings.sLastAppUsingWebCam + " " +
-                    appSettings.ConfigFileStrings["callNotifier"]["webcamUsageText"].ToString(); //"is  using your webcam"
+                {
+                    //if mic usage is empty then just show webcam usage
+                    sUsage = appSettings.sLastAppUsingWebCam + " " + "is  using your webcam";
+                    //appSettings.ConfigFileStrings["callNotifier"]["webcamUsageText"].ToString(); //
                 }
 
             }

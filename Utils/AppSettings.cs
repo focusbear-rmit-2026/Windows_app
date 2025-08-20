@@ -2237,7 +2237,6 @@ namespace Focus_Bear.Utils
                 {
                     wndGentleBlock = new GentleBlock();
                 }
-                //wndGentleBlock.Show();
 
                 if (bHabitwithUseFocusModeRunning)//if an activity with use focus mode is running, we need to show the activity name
                 {
@@ -2296,7 +2295,6 @@ namespace Focus_Bear.Utils
 
         public string GetFontEquivalentForWeb(string sAppFont)
         {
-            //public string[] arrFontFamily = {  "IntelOne Mono", "OpenDyslexic3 Regular" };
             if (sAppFont == "IntelOne Mono")
             {
                 return "Intel One Mono";
@@ -2357,21 +2355,11 @@ namespace Focus_Bear.Utils
         }
         public void Hide_ShowIntentionWindow()
         {
-            //((App)(Application.Current)).Dispatcher.Invoke(() =>
-            //{
-            //    try
-            //    {
-                    if (wndShowIntention != null)
-                    {
-                        wndShowIntention.Hide();
-                    }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        LogWriter.LogWrite("Hide_ShowIntentionWindow EX = " + ex.Message);
-            //    }
-            //});
-           
+            if (wndShowIntention != null)
+            {
+                wndShowIntention.Hide();
+            }
+
         }
         public void GetTotalTimeForDistractingSitesToday() //we will use thi to also get the nTimeSpentBlockingDeactivated and nTimeSpentBlockingActivated
         {

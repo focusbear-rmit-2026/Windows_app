@@ -18,7 +18,6 @@ namespace Focus_Bear.CallDetection
             //dump all audio devices
             foreach (AudioDevice device in GetAllDevices())
             {
-                //LogWriter.LogWrite("Device: " + device.FriendlyName);
             }
 
             IList<AudioDevice> list = new List<AudioDevice>();
@@ -26,19 +25,12 @@ namespace Focus_Bear.CallDetection
 
             if(list.Count > 0)
             {
-                //LogWriter.LogWrite("list.Count > 0");
-
                 IList<AudioSession> listSessions = new List<AudioSession>();
                 listSessions = GetAllSessions();
-                //LogWriter.LogWrite("listSessions = " + listSessions.Count);
                 for (int i= 0; i< listSessions.Count; i++)
                 {
 
                     AudioSession session = listSessions[i];
-
-                //}
-                //foreach (AudioSession session in GetAllSessions())
-                //{
                     LogWriter.LogWrite("foreach (AudioSession session in GetAllSessions())");
 
                     if (session.Process != null)
@@ -90,8 +82,6 @@ namespace Focus_Bear.CallDetection
             {
                 LogWriter.LogWrite("No Audio device found");
             }
-
-            //LogWriter.LogWrite("IsUserOnaAudioCall() - return false;");
             return false;
         }
         private static IAudioSessionManager2 GetAudioSessionManager()
@@ -206,21 +196,15 @@ namespace Focus_Bear.CallDetection
 
         public static IList<AudioSession> GetAllSessions()
         {
-            //LogWriter.LogWrite("GetAllSessions()");
-
             List <AudioSession> list = new List<AudioSession>();
             IAudioSessionManager2 mgr = GetAudioSessionManager();
             if (mgr == null)
                 return list;
             
-            //LogWriter.LogWrite("GetAllSessions() found");
-
             IAudioSessionEnumerator sessionEnumerator;
             mgr.GetSessionEnumerator(out sessionEnumerator);
             int count;
             sessionEnumerator.GetCount(out count);
-
-            //LogWriter.LogWrite("GetAllSessions() count =" + count);
 
             for (int i = 0; i < count; i++)
             {
@@ -231,8 +215,6 @@ namespace Focus_Bear.CallDetection
 
                 AudioSessionState state = AudioSessionState.Inactive;
                 ctl.GetState(out state);
-
-                //LogWriter.LogWrite("AudioSessionState found " + state);
 
                 if (state == AudioSessionState.Active)
                 {

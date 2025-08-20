@@ -235,7 +235,6 @@ namespace Focus_Bear
                 }
                 else
                 {
-                    //Console.WriteLine("Hide_ShowIntentionWindow from else of exe check");
                     appSettings.Hide_ShowIntentionWindow();
                 }
 
@@ -295,7 +294,7 @@ namespace Focus_Bear
             }
             catch (Exception ex)
             {
-                //LogWriter.LogWrite("GetLastActiveAppName() - " + ex.Message);
+                
             }
 
             return "";
@@ -444,8 +443,6 @@ namespace Focus_Bear
                                         alreadyRunningMainWin.Activate();
                                         alreadyRunningMainWin.Focus();
                                         alreadyRunningMainWin.SetTrayMenuPosition();
-
-                                        //alreadyRunningMainWin.Show();
                                     }
                                 }));
                             }
@@ -520,7 +517,6 @@ namespace Focus_Bear
                 }
                 else
                 {
-                    //WinSecurity.RestartElevated(true);
                     LogWriter.LogWrite("User not admin, setting in RUN for startup");
                     RegistryManager.AddToStartup();
                 }
@@ -750,7 +746,7 @@ namespace Focus_Bear
                 else
                 {
 #if DEBUG
-                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 20);
+                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 10);
 #else
                     dispatcherTimerBreaks.Interval = new TimeSpan(0,  appSettings.breakAfterMinutes, 0);
 #endif
@@ -811,7 +807,7 @@ namespace Focus_Bear
                 }
 
 
-                if (appSettings.isFocusModeRunning && appSettings.bSkipMicroBreaksDuringFocus)
+                if (appSettings.bSkipMicroBreaksDuringFocus && (appSettings.isFocusModeRunning || appSettings.bUseSuperPomodoroMode))
                 {
                     LogWriter.LogWrite("appSettings.isFocusModeRunning && appSettings.bSkipMicroBreaksDuringFocus - return");
                     //Start the break Activities Timer
@@ -1016,8 +1012,6 @@ namespace Focus_Bear
                 windOnBoarding.Show();
                 windOnBoarding.Activate();
                 windOnBoarding.Focus();
-
-                //ShowBlankWindowOnOtherScreens();
             }
             else
             {
@@ -1130,7 +1124,6 @@ namespace Focus_Bear
         {
             if (!RegistryManager.GetOnboardingVideoShownStatus())
             {
-                ///await Task.Delay(1000); //Let the login window be closed
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var userConsentTermsResponseUnused = await client.RecordUserConsent("terms_of_service");
 
@@ -1139,11 +1132,6 @@ namespace Focus_Bear
                 var SyncPlatformCoursesResponseUnused = await client.SyncPlatformCourses();
 
                 var EnrolForCoursesUnused = await client.EnrollForCourses(); //Enroll for courses 
-
-                //if (appSettings.sAdditionalGoals.Length > 0)
-                //{
-                //    var ResponseUnused = client.PutAdditionalGoals();
-                //}
 
                 if (wndSplash != null)
                 {
@@ -1188,23 +1176,6 @@ namespace Focus_Bear
                 wndOnboardingAskProcrastinatingWindow.ShowDialog();
                 wndOnboardingAskProcrastinatingWindow.Activate();
                 wndOnboardingAskProcrastinatingWindow.Focus();
-
-                /*  "titleAlertSetupComplete":"Setup complete!",
-                    "subTitleAlertSetupComplete":"To get up and running quickly, have a read of our quick start guide.",
-                     "buttonOkText":"Enlighten me"*/
-                //FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["menuTourVcInfo"]["subTitleAlertSetupComplete"].ToString(), appSettings.ConfigFileStrings["menuTourVcInfo"]["titleAlertSetupComplete"].ToString(), MessageBoxButton.OK, appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonOkText"].ToString());
-                //msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                //msg.ShowDialog();
-
-                //try
-                //{
-                //    Process.Start("https://www.focusbear.io/en/post-install-windows");
-                //}
-                //catch (Exception ex)
-                //{
-                //    LogWriter.LogWrite("Post install url failed to load + " + ex.Message);
-                //}
-
             }
 
             //Check if we have a Devie ID Set, Otherwise generate one and set it
@@ -1276,7 +1247,6 @@ namespace Focus_Bear
                     wndSplash.Close();
                 }
 
-                //ShowExpiredNag(true);
                 //WE need to make sure that the app is running in the SIMPLE MODE and NOT THE GEEK MODE
                 appSettings.bIsGeekModeEnabled = false;
                 ShowUpgradeToProNag("");
@@ -1302,7 +1272,7 @@ namespace Focus_Bear
             if (!bAppExtracted)
             {
                 //GEt the list of Installed app
-                var engine = new AppsEngine();// SmartUninstallerEngine(_cts.Token, _PauseResetEvent);
+                var engine = new AppsEngine(); 
                 engine.GetData();
             }
 
@@ -3318,14 +3288,6 @@ namespace Focus_Bear
             UpgradeToPro up = new UpgradeToPro(sTitleContext);
             bool? bResult = up.ShowDialog();
 
-            //if (bShowingOnAppStartedExpired)
-            //{
-            //    if (bResult.Value == false)
-            //    {
-            //        LogWriter.LogWrite("Upgrade Nag Closed at very beginning, Terminate application");
-            //        Application.Current.Shutdown(0);
-            //    }
-            //}
         }
 
 
@@ -4403,29 +4365,14 @@ namespace Focus_Bear
             if (mainChromes.Length == 0)
                 return result;
 
-            /// var uiaClassObject = new Automation();
-
-            /// var rootElement = AutomationElement.FromHandle(handle);
-            // if (rootElement == null) return new List<string>();
-            //var tabControl = rootElement.FindFirst(System.Windows.Automation.TreeScope.Descendants, TabControlCondition);
-
-
             for (int c = 0; c < mainChromes.Length; c++)
             {
                 AutomationElement chromeMainUIAElement = AutomationElement.FromHandle(mainChromes[c].MainWindowHandle);
 
-                //UIA_ControlTypePropertyId =30003, UIA_TabItemControlTypeId = 50019
-                // AutomationElement chromeTabCondition = AutomationElement.CreatePropertyCondition(30003, 50019);
                 var chromeTabCollection = chromeMainUIAElement.FindAll(System.Windows.Automation.TreeScope.Descendants, TabItemCondition);
 
                 for (int i = 0; i < chromeTabCollection.Count; i++)
                 {
-                    //UIA_LegacyIAccessiblePatternId = 10018, 0 -> Number of Chrome tab you want to activate
-                    // var lp = chromeTabCollection.GetElement(i).GetCurrentPattern(10018) as IUIAutomationLegacyIAccessiblePattern;
-                    //lp.DoDefaultAction(); // to activate tab
-
-                    // String tabTitle = lp.CurrentName;
-                    // result.Add(tabTitle);
                     AutomationElement tab = chromeTabCollection[i];
                     string title = tab.Current.Name;
 
@@ -4518,14 +4465,6 @@ namespace Focus_Bear
 
         public void ShowNaturalBreakDetectionWindow()
         {
-            /*"naturalBreaksDetectionVcInfo": {
-        "title": "It looks like you're on a break. Well done on taking care of yourself.",
-        "buttonThanksText": "Thanks - I feel great",
-        "buttonWrongDetectionText": "You're wrong! I wasn't on a break",
-        "titleTakeBreak": "Ok do you want to take a break now 😅?",
-        "buttonStartBreakText": "Yup I need a break now",
-        "buttonTakeBreakLaterText": "No - I'll take later"
-    },*/
             LogWriter.LogWrite("ShowNaturalBreakDetectionWindow()");
             
             if (wndNaturalBreakDetectionWindow == null)
@@ -4610,8 +4549,6 @@ namespace Focus_Bear
         public void ChangeTheme(string theme)
         {
             ResourceDictionary newTheme = new ResourceDictionary();
-            //ResourceDictionary themeStyle = new ResourceDictionary();
-            //themeStyle.Source = new Uri("Theme/PreferencesStyle.xaml", UriKind.Relative);
             if (theme == "Dark")
             {
                 newTheme.Source = new Uri("Theme/DarkTheme.xaml", UriKind.Relative);
@@ -4664,12 +4601,10 @@ namespace Focus_Bear
             if (appSettings.sTheme == "Light")
             {
                 page.Background = new SolidColorBrush(Colors.White);
-                //BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background.png"));
             }
             else if (appSettings.sTheme == "Dark")
             {
                 page.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
-                //BackgroundImage.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/background_dark.png"));
             }
 
             bool isDarkMode = (appSettings.sTheme == "Dark");
