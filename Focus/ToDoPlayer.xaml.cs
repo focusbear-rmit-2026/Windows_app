@@ -39,16 +39,7 @@ namespace Focus_Bear.Focus
 
         private IntPtr HandleMessages(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            // 0x0112 == WM_SYSCOMMAND, 'Window' command message.
-            // 0xF020 == SC_MINIMIZE, command to minimize the window.
-            /**if (msg == 0x0112 && ((int)wParam & 0xFFF0) == 0xF020)
-            {
-                // Cancel the minimize.
-                handled = true;
-                this.WindowState = WindowState.Normal;
-                this.Height = 306;
-                this.Width = 504;
-            }**/ //On a user request allowing full minimization of the todo player - 06-Jan-2025
+            //On a user request allowing full minimization of the todo player - 06-Jan-2025
 
             return IntPtr.Zero;
         }
@@ -269,7 +260,7 @@ namespace Focus_Bear.Focus
         {
             try
             {
-                string UpdateFunc = string.Format("updateBrainDumpFromDesktopApp({0});", appSettings.sBrainDump);
+                string UpdateFunc = string.Format("updateBrainDumpFromDesktopApp('{0}');", appSettings.sBrainDump);
 
                 var sReturn = webView.ExecuteScriptAsync(UpdateFunc);
             }

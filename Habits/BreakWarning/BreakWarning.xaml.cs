@@ -291,7 +291,6 @@ namespace Focus_Bear.Habits
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
                 nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
                 ComboBoxMinutes_Loaded(ComboBoxMinutes, null);
-
             }
             catch (Exception ex)
             {
@@ -312,17 +311,7 @@ namespace Focus_Bear.Habits
 
         private void ComboBoxMinutes_Loaded(object sender, RoutedEventArgs e)
         {
-            if (appSettings.ConfigFileStrings != null &&
-                appSettings.ConfigFileStrings["breakWarningVcInfo"] != null &&
-                appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"] != null)
-            {
-                btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"]
-                    .ToString().Replace("5", nMinutesToPostpone.ToString());
-            }
-            else
-            {
-                btnActionTXT.Text = "Postpone for " + nMinutesToPostpone + " Minutes";
-            }
+            btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonPostponeText"].ToString().Replace("5", nMinutesToPostpone.ToString());
         }
         private void TitleBarThemeChange()
         {

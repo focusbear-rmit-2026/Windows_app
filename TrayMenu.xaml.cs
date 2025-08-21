@@ -641,8 +641,7 @@ namespace Focus_Bear
                appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
                appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
                appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF ||
-               appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY ||
-               appSettings.bUseSuperPomodoroMode) &&
+               appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY ) &&
                (!appSettings.bHabitsPostponedState) && (!appSettings.bFocusSummaryPostponedState))
             {
                 //do not start if some habits or breaks are running. Case is when 5 mins break ends, we start the focus session back but if habits have resumed by then, then do not show it
@@ -733,13 +732,14 @@ namespace Focus_Bear
 
                             //Deselect the Seleted list view item
                             //ListFocusModes.SelectedItem = null;
-
-                            if (appSettings.bUseSuperPomodoroMode)
-                            {
-                                LogWriter.LogWrite("Stop the super pomodoro mode and return");
-                                appSettings.bUseSuperPomodoroMode = false; //stop the super pomodoro mode and return
-                            }
                         }
+
+                        if (appSettings.bUseSuperPomodoroMode)
+                        {
+                            LogWriter.LogWrite("Stop the super pomodoro mode and return");
+                            appSettings.bUseSuperPomodoroMode = false; //stop the super pomodoro mode and return
+                        }
+
                     }
                     catch (Exception ex)
                     {
