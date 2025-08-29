@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Pomodoro"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="700" Width="744"  ResizeMode="NoResize" Closing="Window_Closing" Background="{DynamicResource BackgroundColor}" IsVisibleChanged="Window_IsVisibleChanged">
+        Title="Focus Bear" AutomationProperties.AutomationId="FSWindow" Height="700" Width="744"  ResizeMode="NoResize" Closing="Window_Closing" Background="{DynamicResource BackgroundColor}" IsVisibleChanged="Window_IsVisibleChanged">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
