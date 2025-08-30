@@ -68,7 +68,7 @@ namespace Focus_Bear.CallDetection
                                     if (bAllowedAppFound) //we have found a matching exe name
                                         break;
                                 }
-                                if(bAllowedAppFound)
+                                if(bAllowedAppFound) 
                                 {
                                     LogWriter.LogWrite("bAllowedAppFound - microphone is in use;");
                                     return true;

@@ -28,6 +28,8 @@ namespace Focus_Bear.Login
         private LoginMain _parentWindow;
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
+
+        Authentication authenticator = new Authentication();
         public LoginHome()
         {
         }
@@ -49,6 +51,8 @@ namespace Focus_Bear.Login
 
                 Suggest.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["descriptionText"].ToString();
                 appSettings.CapturePostHog("pre-signin-view-shown");
+
+                CancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
             }
             catch (Exception ex)
             {
@@ -99,19 +103,25 @@ namespace Focus_Bear.Login
 
         private async void btnSignInWithGoogle_Click(object sender, RoutedEventArgs e)
         {
-            _parentWindow.IsEnabled = false;
+            btnSignInWithGoogle.IsEnabled = false;
+            btnSignIn.IsEnabled = false;
+            btnSignUp.IsEnabled = false;
+            CancelButton.Visibility = Visibility.Visible;
             appSettings.CapturePostHog("button-signin-with-google-click");
 
             try
             {
-                var authenticator = new Authentication();
+                
                 if (await authenticator.LoginWithGoogle(_parentWindow))
                 {
                     //Login Success
                     appSettings.GetLoginAndTokenValidSettings();
                     appSettings.CapturePostHog("login-homemade");
 
-                    _parentWindow.IsEnabled = true;
+                    CancelButton.Visibility = Visibility.Collapsed;
+                    btnSignInWithGoogle.IsEnabled = true;
+                    btnSignIn.IsEnabled = true;
+                    btnSignUp.IsEnabled = true;
                     _parentWindow.bDoNotShutDown = true;
                     _parentWindow.Close();
                 }
@@ -122,8 +132,20 @@ namespace Focus_Bear.Login
             }
             finally
             {
-                _parentWindow.IsEnabled = true;
+                btnSignInWithGoogle.IsEnabled = true;
+                btnSignIn.IsEnabled = true;
+                btnSignUp.IsEnabled = true;
+                CancelButton.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            btnSignInWithGoogle.IsEnabled = true;
+            btnSignIn.IsEnabled = true;
+            btnSignUp.IsEnabled = true;
+            CancelButton.Visibility = Visibility.Collapsed;
+            authenticator.CancelGoogleLogin();
         }
     }
 }

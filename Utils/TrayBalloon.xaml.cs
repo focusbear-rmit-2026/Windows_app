@@ -35,11 +35,15 @@ namespace Focus_Bear
         {
         }
         //pos 0 = bottom right, 1 = top right
-        public TrayBalloon(int pos, string message)
+        public TrayBalloon(int pos, string message, string sAppTitle = "")
         {
             InitializeComponent();
- 
-            AppTitle.Text = "Focus Bear";
+
+            if (sAppTitle.Length > 0)
+                AppTitle.Text = sAppTitle;
+            else
+                AppTitle.Text = "Focus Bear";
+
             TrayBaloonTipMsg.Text = message;
 
             var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;

@@ -113,18 +113,15 @@
                     <RowDefinition Height="27"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="1"/>
-                    <RowDefinition Height="35"/>
+                    <RowDefinition  Height="*"/>
 
-                    <RowDefinition Height="27"/>
-                    <RowDefinition Height="27"/>
-
-                    <RowDefinition Height="1"/>
-                    <RowDefinition Height="*"/>
                     <RowDefinition Height="35"/>
                 </Grid.RowDefinitions>
 
                 <TextBox Grid.Row="0" TabIndex="0" x:Name="TxtFocusName" AutomationProperties.AutomationId="txtBoxFocusName" Margin="20,10,10,10" TextWrapping="Wrap" BorderBrush="#000"  Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="25" LostFocus="TxtFocusName_LostFocus" KeyDown="TxtFocusName_KeyDown" VerticalContentAlignment="Center">
                 </TextBox>
+                
+                <TextBlock Grid.Row="1" Visibility="Collapsed"  Name="WhichAppsDoYouWantToBlock" Margin="20,0,0,0" TextWrapping="Wrap"  Text="xHow do you want to block URLs"   FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
 
                 <RadioButton Grid.Row="1"  Name="AllowAllApps" AutomationProperties.AutomationId="rbAllowAllApps" Margin="20,5,0,0" GroupName="allowApps"  FontSize="13" Checked="AllowAllApps_Checked" Foreground="{DynamicResource ForegroundColor}">
                     xAllow all apps
@@ -171,55 +168,55 @@
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="4" Background="LightGray" Margin="20,0,20,0" />
-                <TextBlock  Grid.Row="5" Name="HowDoYouWant" Margin="20,0,0,0"   Text="xHow do you want to block URLs"   FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+                <StackPanel Grid.Row="5" Orientation="Vertical">
+                    <TextBlock   Name="HowDoYouWant" Margin="20,0,0,0" TextWrapping="Wrap"  Text="xHow do you want to block URLs"   FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-                <RadioButton Grid.Row="6"  Name="BlockEverything" AutomationProperties.AutomationId="rbBlockEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="BlockEverything_Checked">
-                    xBlock everything except safe sites that I choose sdsdsd sdsdsd sdsdsdsd
-                </RadioButton>
-                <RadioButton Grid.Row="7" Name="AllowEverything"  AutomationProperties.AutomationId="rbAllowEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="AllowEverything_Checked">
-                    xAllow everything except certain distracting sites
-                </RadioButton>
+                    <RadioButton   Name="BlockEverything" AutomationProperties.AutomationId="rbBlockEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="BlockEverything_Checked">
+                        xBlock everything except safe sites that I choose sdsdsd sdsdsd sdsdsdsd
+                    </RadioButton>
+                    <RadioButton  Name="AllowEverything"  AutomationProperties.AutomationId="rbAllowEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="AllowEverything_Checked">
+                        xAllow everything except certain distracting sites
+                    </RadioButton>
+                    <Grid  x:Name="SelectedURLsListBG" Margin="20,5,20,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="150"/>
+                            <RowDefinition Height="1"/>
+                            <RowDefinition Height="25"/>
+                        </Grid.RowDefinitions>
+                        <ListView   Grid.Row="0" Background="{DynamicResource BackgroundColor}" x:Name="ListURLs" AutomationProperties.AutomationId="lvURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"   BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" MouseDoubleClick="ListURLs_MouseDoubleClick" >
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding ., StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}"   FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        <Grid Grid.Row="1"  x:Name="SelectedURLsListBGSeperator" Background="LightGray" ></Grid>
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" >
+                            <Button   x:Name="btnAddAllowedURLs" AutomationProperties.AutomationId="btnAddAllowedURLs"  Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddAllowedURLs_Click">
 
-                <Grid Grid.Row="9" x:Name="SelectedURLsListBG" Margin="20,5,20,8">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="150"/>
-                        <RowDefinition Height="1"/>
-                        <RowDefinition Height="25"/>
-                    </Grid.RowDefinitions>
-                    <ListView   Grid.Row="0" Background="{DynamicResource BackgroundColor}" x:Name="ListURLs" AutomationProperties.AutomationId="lvURLs" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"   BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" MouseDoubleClick="ListURLs_MouseDoubleClick" >
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding ., StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}"   FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                    <Grid Grid.Row="1"  x:Name="SelectedURLsListBGSeperator" Background="LightGray" ></Grid>
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" >
-                        <Button   x:Name="btnAddAllowedURLs" AutomationProperties.AutomationId="btnAddAllowedURLs"  Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddAllowedURLs_Click">
+                                <Button.Content>
+                                    <StackPanel  Orientation="Horizontal">
+                                        <Image Name="btnAddAllowedURLsTXT" Height="16"  Width="16" Source="{DynamicResource PlusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+                            <Button   x:Name="btnAddDeleteAllowedURLs" AutomationProperties.AutomationId="btnDeleteAllowedURLs"  Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddDeleteAllowedURLs_Click" >
 
-                            <Button.Content>
-                                <StackPanel  Orientation="Horizontal">
-                                    <Image Name="btnAddAllowedURLsTXT" Height="16"  Width="16" Source="{DynamicResource PlusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
-                        <Button   x:Name="btnAddDeleteAllowedURLs" AutomationProperties.AutomationId="btnDeleteAllowedURLs"  Style="{StaticResource BtnStylePlusMinus}" IsEnabled="True" Foreground="#e88800"  Height="22" Width="22" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,0,2" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnAddDeleteAllowedURLs_Click" >
-
-                            <Button.Content>
-                                <StackPanel  Orientation="Horizontal">
-                                    <Image Name="btnAddDeleteURLsTXT" Height="16"  Width="16" Source="{DynamicResource MinusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
-                    </StackPanel>
-                </Grid>
-
-                <Button Grid.Row="10" x:Name="btnAdvanced" AutomationProperties.AutomationId="btnAdvanced"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnadvanced_Click" >
+                                <Button.Content>
+                                    <StackPanel  Orientation="Horizontal">
+                                        <Image Name="btnAddDeleteURLsTXT" Height="16"  Width="16" Source="{DynamicResource MinusImage}" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                 </StackPanel>
+                <Button Grid.Row="6" x:Name="btnAdvanced" AutomationProperties.AutomationId="btnAdvanced"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"   Height="26" Width="113" HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnadvanced_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnAdvancedTXT" Text="xAdvanced" Style="{DynamicResource ButtonTextBlockStyle}"/>

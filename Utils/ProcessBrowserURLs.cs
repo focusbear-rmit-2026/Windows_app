@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Focus;
 using Focus_Bear.Models;
+using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -93,7 +94,7 @@ namespace Focus_Bear.Utils
             }
             else //Normal
             {
-                if (appSettings.arrAlwaysBlockedURLs.Count() > 0 && appSettings.nBlockingSchedule == BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK) //only block when untill I finish work is selected
+                if (appSettings.arrAlwaysBlockedURLs.Count() > 0 ) //only block when untill I finish work is selected => updated on 22 Aug 2025 to show notification if user settings are set to manul blocking
                     ProcessCurrentAlwaysBlockedURL(hwnd); //For always Blocked URLS
             }
             
@@ -1184,6 +1185,19 @@ namespace Focus_Bear.Utils
                 }
                 else if (type == "blocked")
                 {
+                    if(appSettings.nBlockingSchedule != BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK)
+                    {
+                        /*(Focus - Bear / windows - app - v2#783)
+                        @manishjain999 can you also show a notification in the floating bear: "Super distracting site not blocked ℹ️" with tooltip "Your blocking setting is set to manual and you're not currently in a focus session"*/
+                        
+                        string sHeading = "Super distracting site not blocked!"; ///appSettings.ConfigFileStrings["common"]["appBlockNotificationTitle"].ToString();
+                        string sDesc = "ℹ️ Your blocking setting is set to manual and you're not currently in a focus session."; ///appSettings.ConfigFileStrings["common"]["appBlockNotificationTitle"].ToString();
+                        appSettings.ShowBaloonTip(sDesc, sHeading);
+
+                        return;
+
+                    }
+
                     if (appSettings.bImmediatelyBlockDistractingSites) //BLock immediately
                     {
                         string sDomain = "";
