@@ -2508,11 +2508,11 @@ namespace Focus_Bear.Utils
         }
 
 
-        public void ShowBaloonTip(string sBaloonTip)
+        public void ShowBaloonTip(string sBaloonTip, string sHeading = "")
         {
             ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
             {
-                TrayBalloon tt = new TrayBalloon(1, sBaloonTip);
+                TrayBalloon tt = new TrayBalloon(1, sBaloonTip, sHeading);
                 tt.Show();
             }));
         }

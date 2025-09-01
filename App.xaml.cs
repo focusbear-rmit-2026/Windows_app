@@ -113,9 +113,26 @@ namespace Focus_Bear
 
             if (sAppName.Length > 0 && sAppName != "Focus Bear.exe" && sAppName != "explorer.exe")
             {
-                appSettings.Hide_SetIntentionWindow();
+                //Click through is permitted from blur window and if the user was clicking on the same, it was changing app and blur was being removed. placing this check resolves it
+                if ((sAppName == "firefox.exe" && appSettings.sLastActiveAppName != "firefox.exe") ||
+                    (sAppName == "chrome.exe" && appSettings.sLastActiveAppName != "chrome.exe") ||
+                    (sAppName == "msedge.exe" && appSettings.sLastActiveAppName != "msedge.exe") ||
+                    (sAppName == "brave.exe" && appSettings.sLastActiveAppName != "brave.exe"))
+                {
+                    appSettings.Hide_SetIntentionWindow();
+                }
+                else if(sAppName != "firefox.exe" && sAppName != "chrome.exe" && sAppName != "msedge.exe" && sAppName != "brave.exe")
+                {
+                    appSettings.Hide_SetIntentionWindow();
+                }
+
                 appSettings.sLastActiveAppName = sAppName;
             }
+            else if(sAppName == "explorer.exe")
+            {
+                appSettings.Hide_SetIntentionWindow();
+            }
+            
 
             try
             {
@@ -207,7 +224,6 @@ namespace Focus_Bear
                                     string sName = accWindow.accName[objChild];
 
                                     string sURL = accWindow.accValue[objChild];
-
                                     if (sURL != null && sURL.Length > 0) //It's our chrome address bar value
                                     {
                                         Debug.WriteLine("accState = " + accWindow.accState[objChild].ToString());
@@ -227,6 +243,10 @@ namespace Focus_Bear
                                             ProcessBrowserURLs.ProcessCurrentURL(hwnd);
                                         }
 
+                                    }
+                                    else
+                                    {
+                                        appSettings.Hide_SetIntentionWindow();
                                     }
                                 }
                             }
@@ -3790,7 +3810,8 @@ namespace Focus_Bear
                 {
                     wndFocusProgress = new FocusProgress();
                 }
-                wndFocusProgress.nTimer = (int.Parse(appSettings.sRunningFocusModeMinutes) * 60);
+                
+                wndFocusProgress.StartTimer(int.Parse(appSettings.sRunningFocusModeMinutes) * 60);
                 wndFocusProgress.Show();
                 wndFocusProgress.BringIntoView();
             }

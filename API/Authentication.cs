@@ -28,7 +28,7 @@ namespace Focus_Bear.API
     public class SystemBrowser : IBrowser
     {
         private readonly int _port;
-
+        private HttpListener listener;
         public SystemBrowser(int port = 7890)
         {
             _port = port;
@@ -36,10 +36,21 @@ namespace Focus_Bear.API
 
         public async Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken cancellationToken = default)
         {
-            var listener = new HttpListener();
+            listener = new HttpListener();
             var redirectUri = $"http://127.0.0.1:{_port}/";
             listener.Prefixes.Add(redirectUri);
             listener.Start();
+
+            // Ensure cancellation will free the port
+            cancellationToken.Register(() =>
+            {
+                try
+                {
+                    listener?.Stop();
+                    listener?.Close();
+                }
+                catch { }
+            });
 
             // Launch system browser
             Process.Start(new ProcessStartInfo
@@ -50,7 +61,16 @@ namespace Focus_Bear.API
             });
 
             // Wait for redirect
-            var context = await listener.GetContextAsync();
+            HttpListenerContext context = null;
+
+            try
+            {
+                context = await listener.GetContextAsync();
+            }
+            catch (HttpListenerException)
+            {
+                return new BrowserResult { ResultType = BrowserResultType.UserCancel };
+            }
 
             // Respond with auto-close HTML
             string responseString = @"<html>
@@ -75,13 +95,28 @@ namespace Focus_Bear.API
             context.Response.ContentLength64 = buffer.Length;
             await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
             context.Response.OutputStream.Close();
-            listener.Stop();
+            
+            Dispose(); // free the listener
 
             return new BrowserResult
             {
                 ResultType = BrowserResultType.Success,
                 Response = context.Request.Url.ToString()
             };
+        }
+
+        public void Dispose()
+        {
+            if (listener != null)
+            {
+                try
+                {
+                    listener.Stop();
+                    listener.Close();
+                    listener = null;
+                }
+                catch { }
+            }
         }
     }
 
@@ -394,7 +429,7 @@ namespace Focus_Bear.API
             }
 
         }
-
+        private CancellationTokenSource _loginCts;
         public async Task<bool> LoginWithGoogle(LoginMain ParentWindow)
         {
             LogWriter.LogWrite("async Task<bool> LoginWithGoogle()");
@@ -403,6 +438,9 @@ namespace Focus_Bear.API
 
             try
             {
+                // create CTS for this login attempt
+                _loginCts = new CancellationTokenSource();
+
                 var client = new Auth0Client(new Auth0ClientOptions
                 {
                     Domain = "dev-2hidr8ad.us.auth0.com",
@@ -413,39 +451,65 @@ namespace Focus_Bear.API
                     Browser = new SystemBrowser(7890)
                 });
 
-                var loginResult = await client.LoginAsync(new Dictionary<string, string>
+                
+                try
                 {
-                    { "connection", "google-oauth2" },
-                    { "audience", "https://auth.focusbear.io/api/v2/" }
-                });
-
-                if (!loginResult.IsError)
-                {
-                    appSettings.userAccount.email = loginResult.User.FindFirst("email")?.Value;
-                    appSettings.userAccount.accessToken = loginResult.AccessToken;
-                    appSettings.userAccount.refreshToken = loginResult.RefreshToken;
-                    string strTopLevelClaim = getJWTTokenClaim(appSettings.userAccount.accessToken, "https://eyst-backend-prod-8th3.onrender.com/user");
-
-                    if (strTopLevelClaim.Length > 0)
+                    var loginResult = await client.LoginAsync(new Dictionary<string, string>
                     {
-                        JObject strTopLevelClaimsParsed = JObject.Parse(strTopLevelClaim);
-                        string sUserId = strTopLevelClaimsParsed["id"].ToString();
+                        { "connection", "google-oauth2" },
+                        { "audience", "https://auth.focusbear.io/api/v2/" }
+                    },
+                     _loginCts.Token
+                    );
 
-                        appSettings.userAccount.userID = sUserId;
-                        LogWriter.LogWrite("USER ID is:" + sUserId);
+                    if (!loginResult.IsError)
+                    {
+                        appSettings.userAccount.email = loginResult.User.FindFirst("email")?.Value;
+                        appSettings.userAccount.accessToken = loginResult.AccessToken;
+                        appSettings.userAccount.refreshToken = loginResult.RefreshToken;
+                        string strTopLevelClaim = getJWTTokenClaim(appSettings.userAccount.accessToken, "https://eyst-backend-prod-8th3.onrender.com/user");
+
+                        if (strTopLevelClaim.Length > 0)
+                        {
+                            JObject strTopLevelClaimsParsed = JObject.Parse(strTopLevelClaim);
+                            string sUserId = strTopLevelClaimsParsed["id"].ToString();
+
+                            appSettings.userAccount.userID = sUserId;
+                            LogWriter.LogWrite("USER ID is:" + sUserId);
+                        }
+
+                        appSettings.SaveTokens();
+                        appSettings.SaveLoggedInUserInfo();
+
+                        LogWriter.LogWrite("LoginWithGoogle() Successful");
+                        return true;
                     }
-
-                    appSettings.SaveTokens();
-                    appSettings.SaveLoggedInUserInfo();
-
-                    LogWriter.LogWrite("LoginWithGoogle() Successful");
-                    return true; 
+                    else
+                    {
+                        LogWriter.LogWrite("LoginWithGoogle() FAILED");
+                        return false;
+                    }
                 }
-                else
+                catch (OperationCanceledException)
                 {
-                    LogWriter.LogWrite("LoginWithGoogle() FAILED");
+                    LogWriter.LogWrite("LoginWithGoogle() was cancelled by user.");
                     return false;
                 }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("Google login error: " + ex);
+                    return false;
+                }
+                finally
+                {
+                    _loginCts.Dispose();
+                    _loginCts = null; // ensure we can start fresh next time
+                }
+            }
+            catch (HttpListenerException ex)
+            {
+                LogWriter.LogWrite("Port 7890 already in use: " + ex.Message);
+                return false;
             }
             catch (Exception ex)
             {
@@ -454,7 +518,10 @@ namespace Focus_Bear.API
             return false;
         }
 
-
+        public void CancelGoogleLogin()
+        {
+            _loginCts?.Cancel();
+        }
     }
 }
 

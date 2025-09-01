@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -260,7 +261,7 @@ namespace Focus_Bear.Focus
         {
             try
             {
-                string UpdateFunc = string.Format("updateBrainDumpFromDesktopApp('{0}');", appSettings.sBrainDump);
+                string UpdateFunc = string.Format("updateBrainDumpFromDesktopApp('{0}');", HttpUtility.UrlEncode(appSettings.sBrainDump));
 
                 var sReturn = webView.ExecuteScriptAsync(UpdateFunc);
             }

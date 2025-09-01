@@ -4,34 +4,59 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
-        mc:Ignorable="d"
-        Title="FocusProgress" Height="80" Width="330" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" WindowStyle="None" Opacity="0.5" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseDown="Window_MouseDown" Closing="Window_Closing">
+        mc:Ignorable="d" d:DesignHeight="128" d:DesignWidth="330"
+        Title="FocusProgress" Height="115" Width="330" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" WindowStyle="None" Opacity="0.5" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseDown="Window_MouseDown" Closing="Window_Closing">
     <Border  x:Name="WindowBorder" CornerRadius="15" BorderBrush="Black" BorderThickness="2" Padding="6" Background="#e88800">
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition MinHeight="60"></RowDefinition>
+                <RowDefinition MinHeight="25"></RowDefinition>
                 <RowDefinition MinHeight="30"></RowDefinition>
-                <RowDefinition MinHeight="30"></RowDefinition>
-                 <RowDefinition MinHeight="30"></RowDefinition>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" >
-                <Image Name="TopIcon" ToolTip=""  Margin="10,0,0,0" Height="27" Width="27" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                <Label Grid.Row="0" Name="Focus"  Margin="5,0,0,0"   VerticalAlignment="Top"  Foreground="White" FontSize="14" FontWeight="Semibold" >xFocus</Label>
-               
+                <Image Name="TopIcon" ToolTip=""  Margin="10,0,10,0" Height="27" Width="27" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <!--<Label Grid.Row="0" Name="Focus"  Margin="5,0,0,0"   VerticalAlignment="Top"  Foreground="White" FontSize="14" FontWeight="Semibold" >xFocus</Label>-->
+                <Viewbox Stretch="Uniform">
+                    <Canvas Width="200" Height="200">
+                        <!-- Gray background circle -->
+                        <Ellipse Width="200" Height="200"
+                         Stroke="LightGray" StrokeThickness="13" />
+
+                        <!-- Blue progress arc -->
+                        <Path x:Name="ProgressArc"
+                      Stroke="DodgerBlue"
+                      StrokeThickness="15"
+                      StrokeStartLineCap="Round"
+                      StrokeEndLineCap="Round"/>
+
+                        <!-- Text in center -->
+                        <TextBlock x:Name="OnUntill"
+                           FontSize="36" FontWeight="Bold" Foreground="White"
+                           Canvas.Left="80" Canvas.Top="80"
+                           Text="25m"
+                           RenderTransformOrigin="0.5,0.5"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+                    </Canvas>
+                </Viewbox>
+
+                <Button x:Name="btnEndFocus"
+                 AutomationProperties.AutomationId="btnEndFocus"
+                 Content="End Session"
+                 Click="btnEndFocus_Click"
+                 Style="{StaticResource BtnStyleLightOrange}" 
+                 HorizontalAlignment="Right"
+                 Cursor="Hand"
+                 ToolTip="Click to end the focus session early"
+                 Margin="85,0,0,0" Grid.Row="1" Width="81" Height="30"/>
+                
             </StackPanel>
 
             <Button  Grid.Row="0" x:Name="btnClose" AutomationProperties.AutomationId="btnClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="22" VerticalAlignment="Top" Width="22" ToolTip="Close" Click="btnClose_Click"  Cursor="Hand"/>
 
-            <TextBlock Grid.Row="1" Name="OnUntill" TextWrapping="Wrap" Visibility="Visible" Margin="15,0,0,0"   VerticalAlignment="Top" TextAlignment="Left" Foreground="White" FontSize="14"  >Time remaining:  </TextBlock>
-            <Label Grid.Row="2" Name="AlignmentScore"  Margin="13,0,0,0"   VerticalAlignment="Top"  Foreground="White" FontSize="14"  >xFocus score</Label>
-            <Button x:Name="btnEndFocus"
-            AutomationProperties.AutomationId="btnEndFocus"
-            Content="End Session"
-            Click="btnEndFocus_Click"
-            Style="{StaticResource BtnStyleLightOrange}" 
-            HorizontalAlignment="Left"
-            Cursor="Hand"
-            ToolTip="Click to end the focus session early"
-            Margin="233,36,0,11" Grid.Row="1" Width="81" Height="30" Grid.RowSpan="2"/>
+            <TextBlock Grid.Row="1" Name="Intention" TextWrapping="Wrap" Visibility="Visible" Margin="13,0,0,0"   VerticalAlignment="Top" TextAlignment="Left" Foreground="White" FontSize="14"  >Intention:  </TextBlock>
+            <TextBlock Grid.Row="2" Name="AlignmentScore"  Margin="13,0,0,0"   VerticalAlignment="Top"  Foreground="White" FontSize="14"  >xFocus score</TextBlock>
+           
         </Grid>
     </Border>
 </Window>

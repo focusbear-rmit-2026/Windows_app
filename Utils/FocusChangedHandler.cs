@@ -49,7 +49,7 @@ namespace FocusBear.Utils
         string sActivityBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
 
 
-        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "csrss", "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui", "searchhost", "applicationframehost", "textinputhost", "startmenuexperiencehost", "shellhost" };
+        public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "csrss", "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui", "searchhost", "applicationframehost", "textinputhost", "startmenuexperiencehost", "shellhost", "openwith", "searchapp", "lockapp" };
         public static readonly int SW_MINIMIZE = 6;
         public static readonly int SW_FORCEMINIMIZE = 11;
 
@@ -911,7 +911,14 @@ namespace FocusBear.Utils
                                         LogWriter.LogWrite("processCurrentFocusElement GetWindowText ALLOWED URLS EX - " + ex.Message);
                                     }
                                 }
-
+                                if(focusType.isDefault)
+                                {
+                                    //It means we have found an app that user wants to block as its the other way round in Default (block super distracting apps/sites) focus mode, see focus mode setting UI
+                                    if(bAllowedAppFound)
+                                        bAllowedAppFound = false;
+                                    else
+                                        bAllowedAppFound = true; //all other app then user listed apps are allowed in this focus mode
+                                }
                                 if (!bAllowedAppFound)
                                 {
                                     if (appSettings.nFocusBearMode == 1)//Cuddly bearMode

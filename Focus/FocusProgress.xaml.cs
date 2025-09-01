@@ -27,11 +27,48 @@ namespace Focus_Bear.Focus
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         string sRemaining = "";
 
+        private DateTime endTime;
+        private TimeSpan total;
+
+        // Drawing constants match the XAML inner grid (220x220)
+        private const double Center = 100; // canvas center
+        private const double Radius = 85;  // inside the stroke
+
+
         public FocusProgress()
         {
             InitializeComponent();
 
-            if(appSettings.bAiCheckUrlEnabled)
+            
+
+            try
+            {
+                ///Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
+
+                sRemaining = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("FocusProgress() ex = " + ex.Message);
+            }
+
+            Page_Theme();
+            App.ThemeChanged += Page_Theme;
+        }
+
+        public void StartTimer(int nDuration)
+        {
+            nTimer = nDuration;
+            total = TimeSpan.FromMinutes(nTimer/60); // Pomodoro length in minutes
+            endTime = DateTime.Now + total;
+
+            UpdateUI();
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimer.Start();
+            CommandManager.InvalidateRequerySuggested();
+
+            if (appSettings.bAiCheckUrlEnabled)
             {
                 this.Height = 130;
                 AlignmentScore.Visibility = Visibility.Visible;
@@ -57,27 +94,8 @@ namespace Focus_Bear.Focus
             this.Left = (desktopWorkingArea.Right - this.Width);
             this.Top = (desktopWorkingArea.Bottom - this.Height);
 
-            try
-            {
-                Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
 
-                sRemaining = appSettings.ConfigFileStrings["brainDumpVcInfo"]["titleTimeRemainingText"].ToString();
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("FocusProgress() ex = " + ex.Message);
-            }
-
-
-
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-            dispatcherTimer.Start();
-            CommandManager.InvalidateRequerySuggested();
-            Page_Theme();
-            App.ThemeChanged += Page_Theme;
         }
-
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
@@ -105,7 +123,7 @@ namespace Focus_Bear.Focus
                         double CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
                         string sScore = appSettings.ConfigFileStrings["menuInfo"]["focusAlignmentScoreText"].ToString();
                         sScore = sScore.Replace("<SCORE>", CurrentFocusAlignmentScore.ToString());
-                        AlignmentScore.Content = sScore + "%";
+                        AlignmentScore.Text = sScore + "%";
                     }
                 }
                 catch (Exception ex)
@@ -114,7 +132,9 @@ namespace Focus_Bear.Focus
                 }
 
                 CommandManager.InvalidateRequerySuggested();
-
+ 
+                UpdateUI();
+               
                 if (nTimer < 0)
                 {
                     OnUntill.Text = "";
@@ -219,5 +239,63 @@ namespace Focus_Bear.Focus
             }
 
         }
+
+        private void UpdateUI()
+        {
+            Intention.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleIntention"].ToString() + ": " + appSettings.sRunningFocusModeIntention;
+
+            var remaining = endTime - DateTime.Now;
+            if (remaining <= TimeSpan.Zero)
+            {
+                remaining = TimeSpan.Zero;
+            }
+
+            // Label logic
+            if (remaining.TotalSeconds > 15)
+                OnUntill.Text = $"{(int)Math.Ceiling(remaining.TotalMinutes)} m";
+            else
+                OnUntill.Text = $"{(int)Math.Ceiling(remaining.TotalSeconds)} s";
+
+            double percent = Math.Max(0, remaining.TotalSeconds / total.TotalSeconds);
+            DrawArc(percent);
+        }
+
+        private void DrawArc(double percent)
+        {
+            double angle = 360 * percent;
+
+            if (angle <= 0)
+            {
+                ProgressArc.Data = null;
+                return;
+            }
+
+            // full circle → split into two arcs
+            if (angle >= 360)
+            {
+                angle = 359.999;
+            }
+
+            Point start = AnglePoint(-90);
+            Point end = AnglePoint(-90 + angle);
+            bool isLargeArc = angle > 180;
+
+            var figure = new PathFigure { StartPoint = start };
+            figure.Segments.Add(new ArcSegment(end, new Size(Radius, Radius), 0,
+                                               isLargeArc, SweepDirection.Clockwise, true));
+
+            var geo = new PathGeometry();
+            geo.Figures.Add(figure);
+            ProgressArc.Data = geo;
+        }
+
+        private Point AnglePoint(double angleDeg)
+        {
+            double rad = angleDeg * Math.PI / 180.0;
+            return new Point(
+                Center + Radius * Math.Cos(rad),
+                Center + Radius * Math.Sin(rad));
+        }
     }
 }
+ 

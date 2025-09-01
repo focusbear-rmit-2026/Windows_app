@@ -277,7 +277,11 @@ namespace Focus_Bear.Preferences
             {
              
                 {
-                   
+                    if (selectedFocusMode.isDefault)
+                    {
+                        return;
+                    }
+
                     if (!selectedFocusMode.isRelaxFocus)
                     {
                         ListURLs.IsEnabled = true;
@@ -559,13 +563,20 @@ namespace Focus_Bear.Preferences
 
                     if (selectedFocusMode != null)
                     {
-                        if (selectedFocusMode.isAllowedListApproach)
+                        if (selectedFocusMode.isDefault)
                         {
-                            selectedFocusMode.arrAllowedUrls.Remove(selectedItem);
+                            appSettings.arrAlwaysBlockedURLs.Remove(selectedItem);
                         }
                         else
                         {
-                            selectedFocusMode.arrBlockedUrls.Remove(selectedItem);
+                            if (selectedFocusMode.isAllowedListApproach)
+                            {
+                                selectedFocusMode.arrAllowedUrls.Remove(selectedItem);
+                            }
+                            else
+                            {
+                                selectedFocusMode.arrBlockedUrls.Remove(selectedItem);
+                            }
                         }
                     }
                 }
@@ -639,19 +650,9 @@ namespace Focus_Bear.Preferences
                     {
                         TxtFocusName.IsEnabled = true;
                     }
-                    if(selectedItem.isRelaxFocus)
+                    if(selectedItem.isDefault)
                     {
-                        AllowSelectedApps.Visibility = Visibility.Collapsed;
-
-                        BlockEverything.Visibility = Visibility.Collapsed;
-                        AllowEverything.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        AllowSelectedApps.Visibility = Visibility.Visible;
-                        
-                        BlockEverything.Visibility = Visibility.Visible;
-                        AllowEverything.Visibility = Visibility.Visible;
+                        selectedItem.isAllowedAllApps = false;//The default focus mode will now have the list of apps user want to block
                     }
                     //check the appropriate radio boxes for apps
                     if (selectedItem.isAllowedAllApps)
@@ -676,8 +677,15 @@ namespace Focus_Bear.Preferences
                         ListURLs.ItemsSource = selectedItem.arrBlockedUrls;
                     }
 
+                    WhichAppsDoYouWantToBlock.Visibility = Visibility.Collapsed;
+
                     if (selectedItem.isRelaxFocus)
                     {
+                        AllowSelectedApps.Visibility = Visibility.Collapsed;
+
+                        BlockEverything.Visibility = Visibility.Collapsed;
+                        AllowEverything.Visibility = Visibility.Collapsed;
+
                         ListURLs.IsEnabled = false;
                         btnAddAllowedURLs.IsEnabled = false;
                         btnAddDeleteAllowedURLs.IsEnabled = false;
@@ -685,10 +693,58 @@ namespace Focus_Bear.Preferences
                         ListURLs.Visibility = Visibility.Collapsed;
                         btnAddAllowedURLs.Visibility = Visibility.Collapsed;
                         btnAddDeleteAllowedURLs.Visibility = Visibility.Collapsed;
-                        
+
+                        ListApps.IsEnabled = false;
+                        btnAddAllowedApp.IsEnabled = false;
+                        btnAddDeleteAllowedApp.IsEnabled = false;
+
+                        ListApps.Visibility = Visibility.Collapsed;
+                        btnAddAllowedApp.Visibility = Visibility.Collapsed;
+                        btnAddDeleteAllowedApp.Visibility = Visibility.Collapsed;
+
+                        HowDoYouWant.Text = appSettings.ConfigFileStrings["WindowsSpecific"]["allWebsitesAllowed"].ToString();
+
                     }
-                    else
+                    else if(selectedItem.isDefault)
                     {
+                        AllowSelectedApps.Visibility = Visibility.Collapsed;
+                        AllowAllApps.Visibility = Visibility.Collapsed;
+
+                        BlockEverything.Visibility = Visibility.Collapsed;
+                        AllowEverything.Visibility = Visibility.Collapsed;
+
+                        ListURLs.IsEnabled = true;
+                        btnAddAllowedURLs.IsEnabled = true;
+                        btnAddDeleteAllowedURLs.IsEnabled = true;
+
+                        ListURLs.Visibility = Visibility.Visible;
+                        btnAddAllowedURLs.Visibility = Visibility.Visible;
+                        btnAddDeleteAllowedURLs.Visibility = Visibility.Visible;
+
+                        ListApps.IsEnabled = true;
+                        btnAddAllowedApp.IsEnabled = true;
+                        btnAddDeleteAllowedApp.IsEnabled = true;
+
+                        ListApps.Visibility = Visibility.Visible;
+                        btnAddAllowedApp.Visibility = Visibility.Visible;
+                        btnAddDeleteAllowedApp.Visibility = Visibility.Visible;
+
+                        ListURLs.ItemsSource = appSettings.arrAlwaysBlockedURLs;
+
+                        WhichAppsDoYouWantToBlock.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockedApps"].ToString();
+                        WhichAppsDoYouWantToBlock.Visibility = Visibility.Visible;
+
+                        HowDoYouWant.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["descriptionAlwaysBlockedUrls"].ToString() + 
+                            "\n\n" + appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockedUrls"].ToString();
+
+                    }
+                    else //Show all for other focus modes
+                    {
+                        AllowSelectedApps.Visibility = Visibility.Visible;
+                        AllowAllApps.Visibility = Visibility.Visible;
+                        BlockEverything.Visibility = Visibility.Visible;
+                        AllowEverything.Visibility = Visibility.Visible;
+
                         ListURLs.IsEnabled = true;
                         btnAddAllowedURLs.IsEnabled = true;
                         btnAddDeleteAllowedURLs.IsEnabled = true;
@@ -700,7 +756,7 @@ namespace Focus_Bear.Preferences
 
                     //Fill the lists for apps and URLs
                     ListApps.ItemsSource = selectedItem.arrAllowedAppsWin;
- 
+
                 }
             }
             catch (Exception ex)
