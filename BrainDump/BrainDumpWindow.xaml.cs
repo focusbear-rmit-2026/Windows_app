@@ -1,22 +1,11 @@
 ﻿using Focus_Bear.Models;
 using Focus_Bear.Utils;
-using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace Focus_Bear.BrainDump
@@ -131,14 +120,14 @@ namespace Focus_Bear.BrainDump
             Close();
         }
 
-        private void TxtDumpDown_TextChanged(object sender, TextChangedEventArgs e)
+        private void TxtDumpDown_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             appSettings.sBrainDump = TxtDumpDown.Text;
             RegistryManager.SaveBrainDump();
 
             if (((App)(Application.Current)).wndToDoPlayer != null)
             {
-                ((App)(Application.Current)).wndToDoPlayer.UpdateBrainDumpContent();
+                ((App)(Application.Current)).wndToDoPlayer.UpdateBrainDumpContent(TxtDumpDown.Text);
             }
         }
     }

@@ -124,14 +124,14 @@
     <Reference Include="Microsoft.IdentityModel.Tokens, Version=6.34.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.IdentityModel.Tokens.6.34.0\lib\net472\Microsoft.IdentityModel.Tokens.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Web.WebView2.Core, Version=1.0.1823.32, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Web.WebView2.1.0.1823.32\lib\net45\Microsoft.Web.WebView2.Core.dll</HintPath>
+    <Reference Include="Microsoft.Web.WebView2.Core, Version=1.0.3405.78, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Web.WebView2.1.0.3405.78\lib\net462\Microsoft.Web.WebView2.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Web.WebView2.WinForms, Version=1.0.1823.32, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Web.WebView2.1.0.1823.32\lib\net45\Microsoft.Web.WebView2.WinForms.dll</HintPath>
+    <Reference Include="Microsoft.Web.WebView2.WinForms, Version=1.0.3405.78, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Web.WebView2.1.0.3405.78\lib\net462\Microsoft.Web.WebView2.WinForms.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Web.WebView2.Wpf, Version=1.0.1823.32, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Web.WebView2.1.0.1823.32\lib\net45\Microsoft.Web.WebView2.Wpf.dll</HintPath>
+    <Reference Include="Microsoft.Web.WebView2.Wpf, Version=1.0.3405.78, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Web.WebView2.1.0.3405.78\lib\net462\Microsoft.Web.WebView2.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="NaCl, Version=0.1.13.0, Culture=neutral, PublicKeyToken=827c20e50a9775fa, processorArchitecture=MSIL">
       <HintPath>packages\NaCl.Net.0.1.13\lib\net472\NaCl.dll</HintPath>
@@ -1362,7 +1362,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets'))" />
     <Error Condition="!Exists('packages\Sentry.3.29.1\build\Sentry.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Sentry.3.29.1\build\Sentry.targets'))" />
-    <Error Condition="!Exists('packages\Microsoft.Web.WebView2.1.0.1823.32\build\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Web.WebView2.1.0.1823.32\build\Microsoft.Web.WebView2.targets'))" />
+    <Error Condition="!Exists('packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets'))" />
   </Target>
   <Import Project="packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets" Condition="Exists('packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets')" />
   <Import Project="packages\Sentry.3.29.1\build\Sentry.targets" Condition="Exists('packages\Sentry.3.29.1\build\Sentry.targets')" />
@@ -1371,5 +1371,5 @@
       <UserProperties config_1json__JsonSchema="Completed" />
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="packages\Microsoft.Web.WebView2.1.0.1823.32\build\Microsoft.Web.WebView2.targets" Condition="Exists('packages\Microsoft.Web.WebView2.1.0.1823.32\build\Microsoft.Web.WebView2.targets')" />
+  <Import Project="packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets" Condition="Exists('packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets')" />
 </Project>
