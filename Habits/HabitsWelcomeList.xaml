@@ -7,7 +7,7 @@
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
      d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="HabitsWelcomeList" Background="{DynamicResource BackgroundColor}" IsVisibleChanged="Page_IsVisibleChanged">
+      Title="HabitsWelcomeList" AutomationProperties.AutomationId="HabitsWelcomeListWindow" Background="{DynamicResource BackgroundColor}" IsVisibleChanged="Page_IsVisibleChanged">
     <Grid>
         <Grid x:Name="Normal">
 
