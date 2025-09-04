@@ -69,9 +69,11 @@ namespace Focus_Bear.Pomodoro
                 
                 SkipMicroBreaks.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonSkipMicrobreaksText"].ToString();
                 //ShowFocusModeEnd.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonShowFocusProgressText"].ToString();// need to add ES in config
-                ShowFocusModeEnd.Content = "Show focus status when session end";
+                ShowFocusModeEnd.Content = "Show focus status when session end"; //to do win texts
                 btnStartSessionText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonLetsDoItText"].ToString();
-        
+
+                appSettings.bShowFocusModeEnd = true; //1 sep 2025: FORCING to show the end window.
+
                 AddFocusModesToComboBox();
 
             }

@@ -169,6 +169,7 @@ namespace Focus_Bear.ShutOff
                         //If a password is set, ask fopr a password
                         if (appSettings.isPasswordSet)
                         {
+                            LogWriter.LogWrite("GET_ACCESS - isPasswordSet ");
                             if (appSettings.bPasswordRequireInAbortShutoff)
                             {
                                 AskPassword pwdWnd = new AskPassword();
@@ -188,8 +189,8 @@ namespace Focus_Bear.ShutOff
                                        return;
                                 }
 
-                            } 
-                            
+                            }
+                            LogWriter.LogWrite("GET_ACCESS - nState = CurrentShutOffState.CANCELABLE; ");
                             nState = CurrentShutOffState.CANCELABLE;
                             StartTimer();
                         }
@@ -201,6 +202,8 @@ namespace Focus_Bear.ShutOff
                             
                             if (appSettings.DidCutOffTimePassed())
                             {
+                                LogWriter.LogWrite("GET_ACCESS - isPasswordSet FASLE DidCutOffTimePassed() TRUE ");
+
                                 if (RegistryManager.GetShutOffAbortedFor30MinsTillDate())
                                 {
                                     if (DateTime.Now < appSettings.ShutOFFAbortedFor30MinsTillDate)
@@ -222,6 +225,7 @@ namespace Focus_Bear.ShutOff
                             }
                             else
                             {
+                                LogWriter.LogWrite("GET_ACCESS - isPasswordSet FASLE DidCutOffTimePassed() FALSE  nState = CurrentShutOffState.CANCELABLE; ");
                                 nState = CurrentShutOffState.CANCELABLE;
                                 StartTimer();
                             }
@@ -340,7 +344,7 @@ namespace Focus_Bear.ShutOff
         }
         private void Unlock()
         {
-            LogWriter.LogWrite("Unlock()");
+            LogWriter.LogWrite("SHutoffWindow - Unlock()");
             Txtunlocking.Visibility = Visibility.Visible;
             TxtExplain.Visibility = Visibility.Collapsed;
             TxtExplaination.Visibility = Visibility.Collapsed;
@@ -521,6 +525,7 @@ namespace Focus_Bear.ShutOff
 
         void AbortShutoff()
         {
+            LogWriter.LogWrite("AbortShutoff()");
             //Set the appSettings.ShutOFFAbortedTillDate
             TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
 

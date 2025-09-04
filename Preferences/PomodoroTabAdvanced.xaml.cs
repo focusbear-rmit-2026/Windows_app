@@ -88,6 +88,9 @@ namespace Focus_Bear.Preferences
             UseSuperPomodoroCheck.IsChecked = appSettings.bAutomaticUseSuperPomodoroModeSetting;
             UpdateControls(appSettings.bAutomaticUseSuperPomodoroModeSetting);
 
+            //additional check:
+            if (appSettings.AutomaticNumberOfSuperPomodorosToRun < 2)
+                appSettings.AutomaticNumberOfSuperPomodorosToRun = 2;
             ComboBoxNumberOfPomodoros.SelectedIndex = (appSettings.AutomaticNumberOfSuperPomodorosToRun - 2);
 
             SkipMicroBreaks.IsChecked = appSettings.bAutomaticSuperPomodoroSkipMicroBreaks;

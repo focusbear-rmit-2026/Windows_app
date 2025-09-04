@@ -1480,6 +1480,8 @@ namespace Focus_Bear.Utils
 
                             AutomaticSuperPomodoroFocusedName = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedName") ? (string)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroFocusedName") : "";
                             AutomaticNumberOfSuperPomodorosToRun = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedCount") ? (int)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroFocusedCount") : 2;
+                            if (AutomaticNumberOfSuperPomodorosToRun < 2)
+                                AutomaticNumberOfSuperPomodorosToRun = 2;
                             bAutomaticSuperPomodoroSkipMicroBreaks = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroSkipMicroBreaks") ? (bool)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroSkipMicroBreaks") : false; //default false
                             AutomaticSuperPomodoroSelectedDaysArray = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroArrDays") ? (JArray)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroArrDays") : new JArray();
 

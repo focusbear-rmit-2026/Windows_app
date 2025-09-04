@@ -201,6 +201,8 @@ namespace Focus_Bear.Focus
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            dispatcherTimer.Stop();
+
             if (bShowingForNonTimerActivities)
             {
                 e.Cancel = true;
