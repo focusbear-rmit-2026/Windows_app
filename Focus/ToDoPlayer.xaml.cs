@@ -1,24 +1,15 @@
 using Focus_Bear.Models;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
-using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using System.Web;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Focus_Bear.Focus
 {
@@ -83,27 +74,49 @@ namespace Focus_Bear.Focus
         {
             if (e.IsSuccess)
             {
-                DateTime start = DateTime.Parse(appSettings.sRunningFocusModeStartTime).ToUniversalTime();
-                DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime(); 
-                TimeSpan difference = end.Subtract(start); // could also write `now - otherTime`
-                double durationMinutes = difference.TotalMinutes;
+                DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
+                DateTime start = DateTime.UtcNow;
+
+                // If end time is earlier than start time, assume it's on the next day
+                if (end < start)
+                {
+                    end = end.AddDays(1);
+                }
+
+                TimeSpan remaining = end.Subtract(start);
+                double durationInMinutes = remaining.TotalMinutes;
 
                 //get the brain dump if saved from previous
                 RegistryManager.GetBrainDump();
 
-                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+                string sTheme = appSettings.sTheme == "Light" ? "LIGHT" : "DARK";
 
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"total_duration\":{1},lang:\"{2}\",\"font\":\"{3}\",\"theme\":{6},\"intention\":\"{4}\",\"brain_dump\":\"{5}\"}}", appSettings.userAccount.accessToken, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump,sTheme);
-
-                if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 2)
+                var metaData = new
                 {
-                    LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{3}\",\"font\":\"{4}\",\"theme\":{7},\"intention\":\"{5}\",\"brain_dump\":\"{6}\"}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sRunningFocusModeIntention, appSettings.sBrainDump, sTheme);
-                }
-                
-                string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForToDoPlayer) {{ loadMetaDataForToDoPlayer({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
-             
+                    access_token = appSettings.userAccount.accessToken,
+                    platform = "win",
+                    tasks = appSettings?.sRawTasks ?? null,
+                    total_duration = durationInMinutes,
+                    lang = appSettings.sLangCode,
+                    font = appSettings.sSelectedAppFont,
+                    theme = sTheme,
+                    intention = appSettings.sRunningFocusModeIntention,
+                    brain_dump = appSettings.sBrainDump
+                };
+
+                string serializedMetaData = JsonSerializer.Serialize(metaData);
+
+                string LoadTokenFunc = $@"
+                    const waitForAppLoaded = setInterval(() => {{
+                        if (window.loadMetaDataForToDoPlayer) {{
+                            loadMetaDataForToDoPlayer({serializedMetaData});
+                            clearInterval(waitForAppLoaded);
+                        }}
+                    }}, 100);
+                ";
+
                 var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
-            }
+            }            
         }
         private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
@@ -118,7 +131,7 @@ namespace Focus_Bear.Focus
 
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
-                   
+
                     webView.WebMessageReceived += webView_WebMessageReceived;
 
                     LoadURL();
@@ -257,11 +270,12 @@ namespace Focus_Bear.Focus
             }
         }
 
-        public void UpdateBrainDumpContent()
+        public void UpdateBrainDumpContent(string sBrainDump)
         {
             try
             {
-                string UpdateFunc = string.Format("updateBrainDumpFromDesktopApp('{0}');", HttpUtility.UrlEncode(appSettings.sBrainDump));
+                string escapedBrainDump = JsonSerializer.Serialize(sBrainDump);
+                string UpdateFunc = $"updateBrainDumpFromDesktopApp({escapedBrainDump});";
 
                 var sReturn = webView.ExecuteScriptAsync(UpdateFunc);
             }
