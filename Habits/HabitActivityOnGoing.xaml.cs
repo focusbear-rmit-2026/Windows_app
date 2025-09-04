@@ -280,7 +280,7 @@ namespace Focus_Bear.Habits
                 else if (nAllowedApps > 0 || nAllowedURLs > 0 || appSettings.sUseFocusModeIDInActivity.Length > 0)
                 {
                     appSettings.bHabitwithAllowedAppsRunning = true;
-                    _parentWindow.WindowState = WindowState.Minimized;
+                    //_parentWindow.WindowState = WindowState.Minimized;
                     _parentWindow.Hide();
                     _parentWindow.ShowInTaskbar = false;
                     //here we also need to remove the secondary screen windows.
@@ -640,15 +640,23 @@ namespace Focus_Bear.Habits
         }
         public void HandleTimerForPostpone(bool bStop)
         {
+           
             if (bStop)
             {
+                LogWriter.LogWrite("HandleTimerForPostpone () bStop");
+
                 if (bTimerRunning)
                 {
+                    LogWriter.LogWrite("HandleTimerForPostpone () bTimerRunning, stop it");
                     dispatcherTimer.Stop();
                     Global.EnableSystemSleep();
                     CommandManager.InvalidateRequerySuggested();
                 }
 
+                //It might be an allowed app habit, so need to remove the break window too
+                 ((App)(Application.Current)).RemoveAllowedAppHabitTimerPopup();
+
+                LogWriter.LogWrite("HandleTimerForPostpone () SetPostponedHabitData for activity - " + sActivityIdToGetDataFromAPI);
                 //Here we need to set the timer and the activity id as CurrentActivityPostponedID, CurrentActivityPostponedTimerVal, CurrentActivityPostponedDT
                 RegistryManager.SetPostponedHabitData(sActivityIdToGetDataFromAPI, nTimer.ToString());
             }

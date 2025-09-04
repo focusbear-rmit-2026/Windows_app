@@ -2563,13 +2563,18 @@ namespace Focus_Bear
                     wndHabits = null;
                 }
 
-                wndHabits = new HabitWindow();
-
-                wndHabits.Topmost = true;
-                wndHabits.Show();
-                wndHabits.Activate();
-                wndHabits.Focus();
                 ShowBlankWindowOnOtherScreens();
+
+                wndHabits = new HabitWindow();
+                wndHabits.Topmost = true;
+
+                if (!appSettings.bHabitwithAllowedAppsRunning) //Only show window when habit with allowed app is not running..
+                {
+                    wndHabits.Show();
+                    wndHabits.Activate();
+                    wndHabits.Focus();
+                }
+                
 
                 //If by chance the start pomodoro window is open, we need to close it.
                 if(appSettings.isStartPomodoroWindowOpen)
@@ -3968,6 +3973,14 @@ namespace Focus_Bear
             }
 
 
+        }
+        public void RemoveAllowedAppHabitTimerPopup()
+        {
+            if (((App)(Application.Current)).wndTakeABreak != null )
+            {
+                ((App)(Application.Current)).wndTakeABreak.Close();
+                ((App)(Application.Current)).wndTakeABreak = null;
+            }
         }
 
         void ValidateSettingsChange(string s_edited_settings_date)

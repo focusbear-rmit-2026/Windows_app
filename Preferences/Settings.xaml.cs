@@ -53,18 +53,6 @@ namespace Focus_Bear.Preferences
 
             MessageDisplay.Text = ""; // TODO: Windows text
 
-            MessageDisplay.Text = "Passwords do not match!"; // TODO: Windows text
-            MessageDisplay.Foreground = Brushes.Red;
-            MessageDisplay.Visibility = Visibility.Visible;
-
-            MessageDisplay.Text = "Please fill in all required fields."; // TODO: Windows text
-            MessageDisplay.Foreground = Brushes.Red;
-            MessageDisplay.Visibility = Visibility.Visible;
-
-            MessageDisplay.Text = "Password set successfully!"; // TODO: Windows text
-            MessageDisplay.Foreground = Brushes.Green;
-            MessageDisplay.Visibility = Visibility.Visible;
-
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
                 this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
@@ -588,6 +576,8 @@ namespace Focus_Bear.Preferences
         {
             if (appSettings.isPasswordSet)
             {
+                MessageDisplay.Text = "";
+
                 if (!appSettings.bPasswordRequireInChangeSettings)
                 {
 
