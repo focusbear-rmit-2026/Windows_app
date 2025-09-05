@@ -794,9 +794,9 @@ namespace Focus_Bear.Preferences
                     TxtFocusName.Text = selectedItem.name;
                     return;
                 }
-                if (sNewName.Length > 250) //no more than 250
+                if (sNewName.Length > 45) //no more than 45
                 {
-                    sNewName = sNewName.Substring(0,250);
+                    sNewName = sNewName.Substring(0,45);
                      
                 }
 
