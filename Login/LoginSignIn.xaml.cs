@@ -113,6 +113,8 @@ namespace Focus_Bear.Login
                                     {
                                         await Dispatcher.BeginInvoke((Action)(() =>
                                         {
+                                            // Todo win texts
+
                                             // Pedro 10 Sep 2025 - fix for issue #275 (Redundant Wrong email or password)
                                             // The "loginFailed" key was added to the config.json and config-es.json files
                                             // FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, appSettings.ConfigFileStrings["customLoginVcInfo"]["loginFailed"].ToString());
