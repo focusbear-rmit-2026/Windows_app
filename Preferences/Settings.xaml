@@ -142,7 +142,7 @@
                     <Grid HorizontalAlignment="Center" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="35"/>
-                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="80"/>
                             <RowDefinition Height="35"/>
                             <RowDefinition Height="40"/>
                             <RowDefinition Height="35"/>
@@ -152,10 +152,8 @@
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0"   Name="PasswordHeading" Margin="0,0,0,0"  TextWrapping="NoWrap"    Text="xSet Password"   FontSize="16" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"  />
-                        <TextBlock Grid.Row="1"   Name="PasswordDesc" Margin="20,0,20,0"  TextWrapping="Wrap"       FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"  >
-                            If you're struggling to stick to your habits, get a housemate/partner to set a password. You won't be able to skip habits without the password.
-                        </TextBlock>
-                        <TextBlock  Grid.Row="2"  Width="300"  Name="lblPassword" Margin="0,15,0,0" TextWrapping="NoWrap" Text="xNew Password:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Row="1"   Name="PasswordDesc" Margin="20,0,20,0"  TextWrapping="Wrap"       FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                            <TextBlock  Grid.Row="2"  Width="300"  Name="lblPassword" Margin="0,15,0,0" TextWrapping="NoWrap" Text="xNew Password:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
                         <Grid  Grid.Row="3" Width="300" VerticalAlignment="Center">
 
                             <PasswordBox Width="230" TabIndex="2" x:Name="TxtPassword" AutomationProperties.AutomationId="txtBoxPassword" Margin="0"    BorderBrush="#000"  Padding="5,2,5,5" BorderThickness="1" FontSize="14"  PasswordChanged="TxtPassword_PasswordChanged" Background="White"   >

@@ -912,7 +912,7 @@
         "infoText": "You can reset the password at any time (but it has a 24hr cooling off period before it resets to stop you from cheating yourself). You'll need to provide the password when you cancel your morning/evening routine or super focus session. You can reset the password at any time - you just have to wait 24hrs.",
         "buttonSetPasswordText": "Set Password",
         "buttonChangePasswordText": "Change Password",
-        "passwordNotSetText": "If you're struggling to stick to your habits, get a housemate/partner to set a password. You won't be able to skip habits without the password.",
+        "passwordNotSetText": "If you're struggling to stick to your habits, get a housemate/partner to set a password. You won't be able to skip habits without the password. (This is different from your login Password)",
         "passwordSetText": "Extra accountability: you have an active password set and can't skip your habits without getting a friend to enter the password.",
         "passwordBlankAlertTitle": "Password cannot be blank.",
         "passwordBlankAlertSubTitle": "Please enter a valid password.",
@@ -1110,6 +1110,7 @@
         "emailInvalidText": "Please enter a valid Email.",
         "titlePasswordIsBlank": "Password cannot be blank.",
         "passwordInvalidText": "Please enter a valid password.",
+        "loginFailed": "Login Failed",
         "titleInvalidEmail": "Invalid Email",
         "titleConfirmPasswordBlank": "Confirm password cannot be blank.",
         "confirmPasswordInvalidText": "Please enter a valid \"Confirm password\".",
@@ -1133,7 +1134,7 @@
         "buttonCopyPasswordText": "Copy",
         "explainCreateAccountText": "Create an account to sync your habit + block settings across all your devices.",
         "tooltipShowPassword": "Show Password",
-		"tooltipHidePassword": "Hide Password",
+        "tooltipHidePassword": "Hide Password",
         "passwordGenerateText": "We generated a password for you"
     },
     "loginHelpVcInfo": {
