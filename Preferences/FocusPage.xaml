@@ -118,7 +118,7 @@
                     <RowDefinition Height="35"/>
                 </Grid.RowDefinitions>
 
-                <TextBox Grid.Row="0" TabIndex="0" x:Name="TxtFocusName" AutomationProperties.AutomationId="txtBoxFocusName" Margin="20,10,10,10" TextWrapping="Wrap" BorderBrush="#000"  Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="25" LostFocus="TxtFocusName_LostFocus" KeyDown="TxtFocusName_KeyDown" VerticalContentAlignment="Center">
+                <TextBox Grid.Row="0" TabIndex="0" x:Name="TxtFocusName" AutomationProperties.AutomationId="txtBoxFocusName" Margin="20,10,10,10" TextWrapping="Wrap" MaxLength="45" BorderBrush="#000"  Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="25" LostFocus="TxtFocusName_LostFocus" KeyDown="TxtFocusName_KeyDown" VerticalContentAlignment="Center">
                 </TextBox>
                 
                 <TextBlock Grid.Row="1" Visibility="Collapsed"  Name="WhichAppsDoYouWantToBlock" Margin="20,0,0,0" TextWrapping="Wrap"  Text="xHow do you want to block URLs"   FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />

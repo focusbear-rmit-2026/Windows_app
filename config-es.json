@@ -912,7 +912,7 @@
         "infoText": "Puedes restablecer la contraseña en cualquier momento (pero tiene un periodo de espera de 24 horas antes de restablecerse para evitar que te hagas trampa). Tendrás que proporcionar la contraseña cuando canceles tu rutina matutina o nocturna o tu sesión de superenfoque. Puedes restablecer la contraseña en cualquier momento, sólo tienes que esperar 24 horas.",
         "buttonSetPasswordText": "Configurar la Contraseña",
         "buttonChangePasswordText": "Cambiar Contraseña",
-        "passwordNotSetText": "Si tienes problemas para mantener tus hábitos, pide a un compañero de piso, tu pareja o a alguien con quien convivas que establezca una contraseña. No podrás saltarte los hábitos sin la contraseña.",
+        "passwordNotSetText": "Si tienes problemas para mantener tus hábitos, pide a un compañero de piso, tu pareja o a alguien con quien convivas que establezca una contraseña. No podrás saltarte los hábitos sin la contraseña. (Esto es diferente de tu contraseña de inicio de sesión)",
         "passwordSetText": "Responsabilidad adicional: tienes una contraseña activa configurada y no puedes saltarte tus hábitos sin que un amigo ingrese la contraseña.",
         "passwordBlankAlertTitle": "La contraseña no puede estar en blanco.",
         "passwordBlankAlertSubTitle": "Por favor introduce una contraseña válida.",
@@ -1107,6 +1107,7 @@
         "buttonSignInText": "Iniciar sesión",
         "buttonCreateAccountText": "Crear una cuenta",
         "titleEmailIsBlank": "El correo electrónico no puede estar vacío.",
+        "loginFailed": "Acceso Fallido",
         "emailInvalidText": "Ingresa un correo electrónico válido.",
         "titlePasswordIsBlank": "La contraseña no puede estar vacía.",
         "passwordInvalidText": "Por favor ingresa una contraseña válida.",
@@ -1133,7 +1134,7 @@
         "buttonCopyPasswordText": "Copiar",
         "explainCreateAccountText": "Crea una cuenta para sincronizar tu configuración de hábitos + bloqueos en todos tus dispositivos.",
         "tooltipShowPassword": "Mostrar Contraseña",
-		"tooltipHidePassword": "Ocultar Contraseña",
+        "tooltipHidePassword": "Ocultar Contraseña",
         "passwordGenerateText": "Hemos generado una contraseña para ti"
     },
     "loginHelpVcInfo": {
