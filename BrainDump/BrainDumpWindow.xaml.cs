@@ -120,7 +120,7 @@ namespace Focus_Bear.BrainDump
             Close();
         }
 
-        private void TxtDumpDown_TextChanged(object sender, TextChangedEventArgs e)
+        private void TxtDumpDown_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             appSettings.sBrainDump = TxtDumpDown.Text;
             RegistryManager.SaveBrainDump();

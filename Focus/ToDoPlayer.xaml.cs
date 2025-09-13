@@ -86,6 +86,15 @@ namespace Focus_Bear.Focus
                 TimeSpan remaining = end.Subtract(start);
                 double durationInMinutes = remaining.TotalMinutes;
 
+                // If end time is earlier than start time, assume it's on the next day
+                if (end < start)
+                {
+                    end = end.AddDays(1);
+                }
+
+                TimeSpan remaining = end.Subtract(start);
+                double durationInMinutes = remaining.TotalMinutes;
+
                 //get the brain dump if saved from previous
                 RegistryManager.GetBrainDump();
 
