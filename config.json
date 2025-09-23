@@ -848,6 +848,7 @@
         "questionSecondText": "Which focus mode do you want to use?",
         "buttonEditFocusModeText": "Edit focus modes",
         "buttonLetsDoItText": "Start Session",
+        "moreOptionsText": "More Options",
         "buttonHardcorePomodoroText": "Use Super Focus Session (lock in the focus mode for multiple focus sessions)",
         "howManyPomodoroText": "How many focus sessions you want to focus for:",
         "chooseTheFocusModeText": "Choose the focus mode and duration - you won't be able to change the focus mode until the time is up (you still get to use any app/website during the 5 minute break)",
