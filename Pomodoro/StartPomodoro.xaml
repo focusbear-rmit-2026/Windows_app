@@ -17,19 +17,19 @@
         <ScrollViewer>
             <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
+            <RowDefinition Height="70" />
             <RowDefinition Height="35" />
             <RowDefinition Height="60" />
             <RowDefinition Height="40" />
-            <RowDefinition Height="50" />
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
-            <RowDefinition Height="135" />
-            <RowDefinition Height="25" />
-            <RowDefinition Height="25" />
-            <RowDefinition Height="85" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="80" />
+            <RowDefinition Height="0" />
+            <RowDefinition Height="0" />
+            <RowDefinition Height="100" />
           </Grid.RowDefinitions>
 
 
@@ -69,7 +69,7 @@
 
         </StackPanel>
         <StackPanel Grid.Row="6"  Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-            <TextBlock  Name="HowMuchTime" Margin="10,0,10,0" TextWrapping="Wrap" Width="351" Text="xPomodoro Mode duration:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" />
+            <TextBlock  Name="HowMuchTime" Margin="10,0,10,0" TextWrapping="Wrap" Width="351" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" />
             <TextBox      x:Name="Minutes" AutomationProperties.AutomationId="txtBoxMinutes" MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="Minutes_TextChanged">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
@@ -116,15 +116,15 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
             <TextBlock  Name="MinutesBreakTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-
+            
         </StackPanel>
-
-        <StackPanel Grid.Row="8" Orientation="Vertical" VerticalAlignment="Top" Margin="0,20,0,0">
+        <CheckBox  Grid.Row="8" x:Name="SkipMicroBreaks" AutomationProperties.AutomationId="chkSkipMicroBreaks" FontSize="15" Checked="SkipMicroBreaks_Checked" Unchecked="SkipMicroBreaks_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0">xxSkip microbreaks during work blocks?</CheckBox>
+        <StackPanel Grid.Row="9" Orientation="Vertical" VerticalAlignment="Top" Margin="0,20,0,0">
 
 
             <TextBlock  Name="WhatPlan" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?"  FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <TextBox   Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"  Width="500" Height="80" Margin="15" VerticalAlignment="Top"  FontSize="15">
+            <TextBox   Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"  Width="550" Height="40" Margin="15" VerticalAlignment="Top"  FontSize="15">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -143,7 +143,8 @@
                     </Style>
                 </TextBox.FocusVisualStyle>
             </TextBox>
-
+        </StackPanel>
+        <StackPanel Grid.Row="10" Orientation="Vertical" VerticalAlignment="Top" Margin="0,20,0,0">
             <TextBlock   Name="SelectedTasksTitle" Visibility="Collapsed" Width="300" Margin="5,25,0,5" TextWrapping="Wrap" Text="xxSelected Tasks:"  FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Center"/>
 
             <ListView    x:Name="ListTasks" AutomationProperties.AutomationId="lvTasks" Visibility="Collapsed" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="Gray" BorderThickness="1" Foreground="{x:Null}"   Height="118" Width="300" VerticalAlignment="Top">
@@ -167,9 +168,9 @@
             </ListView>
 
         </StackPanel>
-        <CheckBox  Grid.Row="9" Visibility="Collapsed" x:Name="ShowFocusModeEnd" AutomationProperties.AutomationId="chkShowFocusModeEnd" FontSize="15" Checked="ShowFocusModeEnd_Checked" Unchecked="ShowFocusModeEnd_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0" >xxShow Focus Status after?</CheckBox>
-        <CheckBox  Grid.Row="10" x:Name="SkipMicroBreaks" AutomationProperties.AutomationId="chkSkipMicroBreaks" FontSize="15" Checked="SkipMicroBreaks_Checked" Unchecked="SkipMicroBreaks_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0">xxSkip microbreaks during work blocks?</CheckBox>
-        <Button  Grid.Row="11" x:Name="btnStartSession" AutomationProperties.AutomationId="btnStartSession"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" Height="45" HorizontalContentAlignment="Center" Padding="0" Margin="0,15,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartSession_Click">
+        <CheckBox  Grid.Row="11" Visibility="Collapsed" x:Name="ShowFocusModeEnd" AutomationProperties.AutomationId="chkShowFocusModeEnd" FontSize="15" Checked="ShowFocusModeEnd_Checked" Unchecked="ShowFocusModeEnd_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0" >xxShow Focus Status after?</CheckBox>
+        
+        <Button  Grid.Row="12" x:Name="btnStartSession" AutomationProperties.AutomationId="btnStartSession"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" Height="45" HorizontalContentAlignment="Center" Padding="0" Margin="0,15,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartSession_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock Name="btnStartSessionText" Margin="8" Text="xStart Session" Foreground="Black"/>
@@ -177,7 +178,7 @@
             </Button.Content>
         </Button>
 
-        <TextBlock Grid.Row="11" Name="PomodoroCompleted" Visibility="Collapsed" Margin="20,5,20,0" TextWrapping="Wrap" Text="xYou have completed.." Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Row="13" Name="PomodoroCompleted" Visibility="Collapsed" Margin="20,5,20,0" TextWrapping="Wrap" Text="xYou have completed.." Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Border x:Name="GridShade" Grid.RowSpan="13"   CornerRadius="0"  Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
             </Grid>
         </ScrollViewer>
