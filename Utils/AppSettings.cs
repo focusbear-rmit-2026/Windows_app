@@ -1417,27 +1417,7 @@ namespace Focus_Bear.Utils
                     try
                     {
                         JObject LocalSettings = JObject.Parse(sUserLocalDeviceSettings);
-                        string sWebSettings = LocalSettings.ContainsKey("Web") ? LocalSettings["Web"].ToString() : "";
-                        if (sWebSettings != null && sWebSettings.Length > 0)
-                        {
-                            JObject sWebSettingsOBJ = JObject.Parse(sWebSettings);
 
-                            if (sWebSettingsOBJ.ContainsKey("onboarding"))
-                            {
-                                JObject onboardingObj = sWebSettingsOBJ["onboarding"] as JObject;
-                                if (onboardingObj != null && onboardingObj.ContainsKey("currentStep"))
-                                {
-                                    string currentStep = onboardingObj["currentStep"]?.ToString();
-                                    if(currentStep.ToLower() == "completed")
-                                    {
-                                        //Use have done onboarding on Web, so we can skip to show further onboarding screens
-                                        RegistryManager.SetOnboardingAfterLoginDoneStatus();
-                                    }
-                                }
-                            }
-                           
-                        }
-                        
                         string sMacOSSettings = LocalSettings.ContainsKey("MacOS") ? LocalSettings["MacOS"].ToString() : "";
                         if (sMacOSSettings != null && sMacOSSettings.Length > 0)
                         {

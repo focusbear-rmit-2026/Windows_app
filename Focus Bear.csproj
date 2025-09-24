@@ -1373,4 +1373,3 @@
   </ProjectExtensions>
   <Import Project="packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets" Condition="Exists('packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets')" />
 </Project>
-

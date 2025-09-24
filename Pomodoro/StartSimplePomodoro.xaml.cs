@@ -58,7 +58,7 @@ namespace Focus_Bear.Pomodoro
                 AItextBlock.TextWrapping = TextWrapping.Wrap;
                 AItextBlock.Foreground= new SolidColorBrush(Colors.Gray);
                 AItextBlock.MaxWidth = 400; // Sentence too long, wrap it
-                AITooltip.Content = AItextBlock.Text;
+                AITooltip.Content = AItextBlock;
                 AITooltip.Background= new SolidColorBrush((Color)ColorConverter.ConvertFromString("#f1f2f7"));
                 RadioAI.ToolTip = AITooltip;
 

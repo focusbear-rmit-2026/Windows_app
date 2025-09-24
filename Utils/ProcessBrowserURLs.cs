@@ -1185,8 +1185,7 @@ namespace Focus_Bear.Utils
                 }
                 else if (type == "blocked")
                 {
-                    if((appSettings.nBlockingSchedule == BLOCKINGSCHEDULE.WHEN_STARTING_FOCUS_SESSION) &&
-                        !appSettings.isFocusModeRunning)
+                    if(appSettings.nBlockingSchedule != BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK)
                     {
                         /*(Focus - Bear / windows - app - v2#783)
                         @manishjain999 can you also show a notification in the floating bear: "Super distracting site not blocked ℹ️" with tooltip "Your blocking setting is set to manual and you're not currently in a focus session"*/

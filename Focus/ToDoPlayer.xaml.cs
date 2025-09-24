@@ -86,23 +86,11 @@ namespace Focus_Bear.Focus
                 TimeSpan remaining = end.Subtract(start);
                 double durationInMinutes = remaining.TotalMinutes;
 
-                // If end time is earlier than start time, assume it's on the next day
-                if (end < start)
-                {
-                    end = end.AddDays(1);
-                }
-
-                TimeSpan remaining = end.Subtract(start);
-                double durationInMinutes = remaining.TotalMinutes;
-
                 //get the brain dump if saved from previous
                 RegistryManager.GetBrainDump();
 
                 string sTheme = appSettings.sTheme == "Light" ? "LIGHT" : "DARK";
-                if(!appSettings.bIsGeekModeEnabled)
-                {
-                    appSettings.sRawTasks = "[]"; //fix for amanuel's below work not handled in simple mode to show the intention
-                }
+
                 var metaData = new
                 {
                     access_token = appSettings.userAccount.accessToken,

@@ -165,17 +165,17 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         if (nNumButtonClicked == 1)
                         {
                             //"studentLongTextFirst": "Finally start that essay that’s been staring at you with judgmental eyes.",
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentLongTextFirst"].ToString(); // "Finally start that essay that’s been staring at you with judgmental eyes.";
+                            TxtIntention.Text = "Finally start that essay that’s been staring at you with judgmental eyes.";
                         }
                         else if (nNumButtonClicked == 2)
                         {
                             //"studentLongTextSecond": "Wrestle with your lecture notes to see if you can remember anything from last month.",
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentLongTextSecond"].ToString(); // "Wrestle with your lecture notes to see if you can remember anything from last month.";
+                            TxtIntention.Text = "Wrestle with your lecture notes to see if you can remember anything from last month.";
                         }
                         else if (nNumButtonClicked == 3)
                         {
                             //"studentLongTextThird": "Pretend you know what’s going on in your group project and get cracking on research.",
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentLongTextThird"].ToString(); //"Pretend you know what’s going on in your group project and get cracking on research.";
+                            TxtIntention.Text = "Pretend you know what’s going on in your group project and get cracking on research.";
                         }
 
                         break;
@@ -188,15 +188,15 @@ namespace Focus_Bear.Onboarding.AfterLogin
       
                         if (nNumButtonClicked == 1)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["businessOwnerLongTextFirst"].ToString(); //"Tackle those overdue invoices—it’s time to get paid for all your hard work!";
+                            TxtIntention.Text = "Tackle those overdue invoices—it’s time to get paid for all your hard work!";
                         }
                         else if (nNumButtonClicked == 2)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["businessOwnerLongTextSecond"].ToString(); //"Review your financials before the numbers scare you in your sleep.";
+                            TxtIntention.Text = "Review your financials before the numbers scare you in your sleep.";
                         }
                         else if (nNumButtonClicked == 3)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["businessOwnerLongTextThird"].ToString(); //"Finally respond to those client emails that have been sitting in your inbox for way too long.";
+                            TxtIntention.Text = "Finally respond to those client emails that have been sitting in your inbox for way too long.";
                         }
                         break;
                     }
@@ -208,15 +208,15 @@ namespace Focus_Bear.Onboarding.AfterLogin
         
                         if (nNumButtonClicked == 1)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["programmerLongTextFirst"].ToString(); //"Hunt down that bug that’s been hiding from you like it’s in witness protection.";
+                            TxtIntention.Text = "Hunt down that bug that’s been hiding from you like it’s in witness protection.";
                         }
                         else if (nNumButtonClicked == 2)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["programmerLongTextSecond"].ToString(); //"Face the spaghetti code you created and somehow didn’t regret until now.";
+                            TxtIntention.Text = "Face the spaghetti code you created and somehow didn’t regret until now.";
                         }
                         else if (nNumButtonClicked == 3)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["programmerLongTextThird"].ToString(); //"Write those unit tests your future self will thank you for (but probably never run).";
+                            TxtIntention.Text = "Write those unit tests your future self will thank you for (but probably never run).";
                         }
                         break;
                     }
@@ -228,17 +228,17 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         if (nNumButtonClicked == 1)
                         {
 
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["graphicDesignerLongTextFirst"].ToString();  // "Finish the design project that’s been lurking on your desktop like a bad habit.";
+                            TxtIntention.Text = "Finish the design project that’s been lurking on your desktop like a bad habit.";
                         }
                         else if (nNumButtonClicked == 2)
                         {
 
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["graphicDesignerLongTextSecond"].ToString(); //"Update your portfolio before you forget how awesome your old work is.";
+                            TxtIntention.Text = "Update your portfolio before you forget how awesome your old work is.";
                         }
                         else if (nNumButtonClicked == 3)
                         {
 
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["graphicDesignerLongTextThird"].ToString(); //"Brainstorm that \"brilliant\" new concept that’ll either be genius or a creative dumpster fire.";
+                            TxtIntention.Text = "Brainstorm that \"brilliant\" new concept that’ll either be genius or a creative dumpster fire.";
                         }
                         break;
                     }
@@ -250,15 +250,15 @@ namespace Focus_Bear.Onboarding.AfterLogin
         
                         if (nNumButtonClicked == 1)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["officeWorkLongTextFirst"].ToString(); //"Attack your inbox like a boss—your future unread emails are watching.";
+                            TxtIntention.Text = "Attack your inbox like a boss—your future unread emails are watching.";
                         }
                         else if (nNumButtonClicked == 2)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["officeWorkLongTextSecond"].ToString(); //"Write that report before your boss reminds you (again... and again).";
+                            TxtIntention.Text = "Write that report before your boss reminds you (again... and again).";
                         }
                         else if (nNumButtonClicked == 3)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["officeWorkLongTextThird"].ToString(); //"Declutter your desk like you’re about to star in an episode of Office Hoarders.";
+                            TxtIntention.Text = "Declutter your desk like you’re about to star in an episode of Office Hoarders.";
                         }
                         break;
                     }
@@ -270,15 +270,15 @@ namespace Focus_Bear.Onboarding.AfterLogin
         
                         if (nNumButtonClicked == 1)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["fieldWorkLongTextFirst"].ToString(); //"Finish the design project that’s been lurking on your desktop like a bad habit.";
+                            TxtIntention.Text = "Finish the design project that’s been lurking on your desktop like a bad habit.";
                         }
                         else if (nNumButtonClicked == 2)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["fieldWorkLongTextSecond"].ToString(); //"Update your portfolio before you forget how awesome your old work is.";
+                            TxtIntention.Text = "Update your portfolio before you forget how awesome your old work is.";
                         }
                         else if (nNumButtonClicked == 3)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["fieldWorkLongTextThird"].ToString(); //"Brainstorm that \"brilliant\" new concept that’ll either be genius or a creative dumpster fire.";
+                            TxtIntention.Text = "Brainstorm that \"brilliant\" new concept that’ll either be genius or a creative dumpster fire.";
                         }
                         break;
                     }
@@ -290,15 +290,15 @@ namespace Focus_Bear.Onboarding.AfterLogin
         
                         if (nNumButtonClicked == 1)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["employeeLongTextFirst"].ToString(); //"Update your portfolio before you forget how awesome your old work is.";
+                            TxtIntention.Text = "Update your portfolio before you forget how awesome your old work is.";
                         }
                         else if (nNumButtonClicked == 2)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["employeeLongTextSecond"].ToString(); //"Attack your inbox like a boss—your future unread emails are watching.";
+                            TxtIntention.Text = "Attack your inbox like a boss—your future unread emails are watching.";
                         }
                         else if (nNumButtonClicked == 3)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["employeeLongTextThird"].ToString(); //"Brainstorm that \"brilliant\" new concept that’ll either be genius or a creative dumpster fire.";
+                            TxtIntention.Text = "Brainstorm that \"brilliant\" new concept that’ll either be genius or a creative dumpster fire.";
                         }
                         break;
                     }
@@ -310,17 +310,17 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         if (nNumButtonClicked == 1)
                         {
 
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["freelancerLongTextFirst"].ToString(); //"Finish that client project you’ve been “almost done with” for days.";
+                            TxtIntention.Text = "Finish that client project you’ve been “almost done with” for days.";
                         }
                         else if (nNumButtonClicked == 2)
                         {
 
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["freelancerLongTextSecond"].ToString(); //"Update your portfolio before you forget what awesome work you’ve done.";
+                            TxtIntention.Text = "Update your portfolio before you forget what awesome work you’ve done.";
                         }
                         else if (nNumButtonClicked == 3)
                         {
 
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["freelancerLongTextThird"].ToString(); //"Get around to sending that proposal you’ve been ‘fine-tuning’ forever.";
+                            TxtIntention.Text = "Get around to sending that proposal you’ve been ‘fine-tuning’ forever.";
                         }
                         break;
                     }
@@ -332,15 +332,15 @@ namespace Focus_Bear.Onboarding.AfterLogin
         
                         if (nNumButtonClicked == 1)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["genericSuggestionsLongTextFirst"].ToString(); //"Start that tax return you’ve been avoiding like it’s a monster under the bed.";
+                            TxtIntention.Text = "Start that tax return you’ve been avoiding like it’s a monster under the bed.";
                         }
                         else if (nNumButtonClicked == 2)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["genericSuggestionsLongTextSecond"].ToString(); //"Finally sort through those old receipts you’ve been pretending don’t exist.";
+                            TxtIntention.Text = "Finally sort through those old receipts you’ve been pretending don’t exist.";
                         }
                         else if (nNumButtonClicked == 3)
                         {
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["genericSuggestionsLongTextThird"].ToString(); //"Knock out that dreaded 15-minute chore that’s been sitting on your list for days.";
+                            TxtIntention.Text = "Knock out that dreaded 15-minute chore that’s been sitting on your list for days.";
                         }
                         break;
                     }
@@ -349,17 +349,17 @@ namespace Focus_Bear.Onboarding.AfterLogin
                         if (nNumButtonClicked == 1)
                         {
                             //"studentLongTextFirst": "Finally start that essay that’s been staring at you with judgmental eyes.",
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentLongTextFirst"].ToString(); //"Finally start that essay that’s been staring at you with judgmental eyes.";
+                            TxtIntention.Text = "Finally start that essay that’s been staring at you with judgmental eyes.";
                         }
                         else if (nNumButtonClicked == 2)
                         {
                             //"studentLongTextSecond": "Wrestle with your lecture notes to see if you can remember anything from last month.",
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentLongTextSecond"].ToString(); //"Wrestle with your lecture notes to see if you can remember anything from last month.";
+                            TxtIntention.Text = "Wrestle with your lecture notes to see if you can remember anything from last month.";
                         }
                         else if (nNumButtonClicked == 3)
                         {
                             //"studentLongTextThird": "Pretend you know what’s going on in your group project and get cracking on research.",
-                            TxtIntention.Text = appSettings.ConfigFileStrings["askProcrastinatingVcInfo"]["studentLongTextThird"].ToString(); //"Pretend you know what’s going on in your group project and get cracking on research.";
+                            TxtIntention.Text = "Pretend you know what’s going on in your group project and get cracking on research.";
                         }
 
                         break;
