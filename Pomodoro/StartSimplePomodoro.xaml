@@ -50,9 +50,9 @@
 
         </StackPanel>
 
-        <Expander Grid.Row="2" x:Name="MoreOptionsExpander" Width="600" IsExpanded="False" Margin="0,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Expander Grid.Row="2" x:Name="MoreOptionsExpander" Width="600" Margin="0,20,0,0" HorizontalAlignment="Stretch" Style="{StaticResource PomodoroOptionsExpanderStyle}">
             <Expander.Header>
-                <TextBlock x:Name="MoreOptionsHeader" FontSize="16" FontWeight="Normal" TextAlignment="Center"/>
+                <TextBlock x:Name="MoreOptionsHeader" FontSize="14" FontWeight="Normal" TextAlignment="Left"/>
             </Expander.Header>
 
             <StackPanel x:Name="MoreOptionsContent" Margin="0,8,0,0">

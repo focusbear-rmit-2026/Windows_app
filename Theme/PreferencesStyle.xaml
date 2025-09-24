@@ -75,8 +75,123 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>
-    
+    </Style>
+
+    <!-- Estilo estable del Expander de opciones -->
+    <Style x:Key="PomodoroOptionsExpanderStyle" TargetType="{x:Type Expander}">
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Expander}">
+                    <Grid SnapsToDevicePixels="True">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- HEADER: ToggleButton controla IsExpanded -->
+                        <ToggleButton x:Name="HeaderToggle"
+                            Grid.Row="0"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Focusable="False"
+                            HorizontalAlignment="Stretch"
+                            IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                            <!-- Anulamos visuals del tema -->
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <ContentPresenter/>
+                                    <!-- no pinta nada extra -->
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+
+                            <!-- Aquí pintamos TODO el header (fuera del template del botón) -->
+                            <Border x:Name="HeaderBorder"
+                                Background="{DynamicResource PreferenceButtonColor}"
+                                BorderBrush="{DynamicResource TabChosenColor}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="12,10"
+                                MinHeight="44"
+                                SnapsToDevicePixels="True">
+                                <Grid>
+                                    <!-- Overlay de hover (no capta el mouse) -->
+                                    <Border x:Name="HoverOverlay"
+                                    Background="{DynamicResource PreferenceTitleButtonPressedColor}"
+                                    CornerRadius="8"
+                                    Opacity="0"
+                                    IsHitTestVisible="False"/>
+
+                                    <!-- Texto del header (izquierda) -->
+                                    <ContentPresenter x:Name="HeaderContent"
+                                  Content="{TemplateBinding Header}"
+                                  ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                  Margin="0,0,40,0"
+                                  VerticalAlignment="Center"/>
+
+                                    <!-- Chevron derecha -->
+                                    <Path x:Name="Chevron"
+                                      Stroke="{DynamicResource ForegroundGrey}"
+                                      StrokeThickness="2"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      HorizontalAlignment="Right"
+                                      VerticalAlignment="Center"
+                                      Width="12" Height="8"
+                                      Data="M 0 0 L 6 6 L 12 0"
+                                      RenderTransformOrigin="0.5,0.5">
+                                        <!-- Colapsado: flecha a la derecha (-90°) -->
+                                        <Path.RenderTransform>
+                                            <RotateTransform Angle="-90"/>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                </Grid>
+                            </Border>
+                        </ToggleButton>
+
+                        <!-- CONTENIDO (arranca oculto) -->
+                        <ContentPresenter x:Name="ExpandSite"
+                            Grid.Row="1"
+                            Margin="0,8,0,0"
+                            Focusable="False"
+                            Visibility="Collapsed"
+                            ContentSource="Content"/>
+                    </Grid>
+
+                    <!-- Triggers del Expander (pueden acceder a Chevron/ExpandSite porque están en el MISMO namescope) -->
+                    <ControlTemplate.Triggers>
+                        <!-- Hover del header -->
+                        <Trigger SourceName="HeaderToggle" Property="IsMouseOver" Value="True">
+                            <Setter TargetName="HoverOverlay" Property="Opacity" Value="1"/>
+                        </Trigger>
+
+                        <!-- Mostrar/ocultar contenido y rotar chevron -->
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Chevron" Property="RenderTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="0"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+
+                        <!-- Deshabilitado -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="HeaderBorder" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+
+
+
+
+
+
 
 
 </ResourceDictionary>
