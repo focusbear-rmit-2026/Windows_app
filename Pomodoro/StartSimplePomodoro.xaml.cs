@@ -231,7 +231,7 @@ namespace Focus_Bear.Pomodoro
             string MinutesText = Minutes.Text;
             string MinutesBreakText = MinutesBreak.Text;
 
-            if ((MinutesText.Length > 0 && int.Parse(MinutesText) > 0) && (MinutesBreakText.Length > 0 && int.Parse(MinutesBreakText) > 0) && TxtIntention.Text.Length > 0)
+            if ((MinutesText.Length > 0 && int.Parse(MinutesText) > 0) && (MinutesBreakText.Length > 0 && int.Parse(MinutesBreakText) > 0))
             {
                 btnStartSession.IsEnabled = true;
             }
