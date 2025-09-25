@@ -34,7 +34,7 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,15,15,0">
             <CheckBox x:Name="ChkShowAdvanced" Style="{StaticResource ToggleSwitchStyle}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <TextBlock x:Name="ShowAdvancedLabel" Text="Show advanced options" VerticalAlignment="Center" FontSize="15"/>
+            <TextBlock x:Name="ShowAdvancedLabel" VerticalAlignment="Center" FontSize="15"/>
         </StackPanel>
         <TextBlock Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xIt's time to focus" Foreground="#e88800" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
         <CheckBox Grid.Row="1" x:Name="UseSuperPomodoroMode" AutomationProperties.AutomationId="chkUseSuperPomodoroMode" FontSize="15" Checked="UseSuperPomodoroMode_Checked" Unchecked="UseSuperPomodoroMode_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0">xUse super pomodoro mode (lock in the focus mode for multiple pomodoros)</CheckBox>
