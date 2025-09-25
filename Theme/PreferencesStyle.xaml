@@ -76,8 +76,8 @@
                 </Setter.Value>
             </Setter>
     </Style>
-
-    <!-- Estilo estable del Expander de opciones -->
+    
+    <!-- (More options) Expander -->
     <Style x:Key="PomodoroOptionsExpanderStyle" TargetType="{x:Type Expander}">
         <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
         <Setter Property="Template">
@@ -89,7 +89,6 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <!-- HEADER: ToggleButton controla IsExpanded -->
                         <ToggleButton x:Name="HeaderToggle"
                             Grid.Row="0"
                             Background="Transparent"
@@ -97,15 +96,12 @@
                             Focusable="False"
                             HorizontalAlignment="Stretch"
                             IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
-                            <!-- Anulamos visuals del tema -->
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
                                     <ContentPresenter/>
-                                    <!-- no pinta nada extra -->
                                 </ControlTemplate>
                             </ToggleButton.Template>
 
-                            <!-- Aquí pintamos TODO el header (fuera del template del botón) -->
                             <Border x:Name="HeaderBorder"
                                 Background="{DynamicResource PreferenceButtonColor}"
                                 BorderBrush="{DynamicResource TabChosenColor}"
@@ -115,21 +111,18 @@
                                 MinHeight="44"
                                 SnapsToDevicePixels="True">
                                 <Grid>
-                                    <!-- Overlay de hover (no capta el mouse) -->
                                     <Border x:Name="HoverOverlay"
                                     Background="{DynamicResource PreferenceTitleButtonPressedColor}"
                                     CornerRadius="8"
                                     Opacity="0"
                                     IsHitTestVisible="False"/>
 
-                                    <!-- Texto del header (izquierda) -->
                                     <ContentPresenter x:Name="HeaderContent"
                                   Content="{TemplateBinding Header}"
                                   ContentTemplate="{TemplateBinding HeaderTemplate}"
                                   Margin="0,0,40,0"
                                   VerticalAlignment="Center"/>
 
-                                    <!-- Chevron derecha -->
                                     <Path x:Name="Chevron"
                                       Stroke="{DynamicResource ForegroundGrey}"
                                       StrokeThickness="2"
@@ -140,7 +133,6 @@
                                       Width="12" Height="8"
                                       Data="M 0 0 L 6 6 L 12 0"
                                       RenderTransformOrigin="0.5,0.5">
-                                        <!-- Colapsado: flecha a la derecha (-90°) -->
                                         <Path.RenderTransform>
                                             <RotateTransform Angle="-90"/>
                                         </Path.RenderTransform>
@@ -149,7 +141,6 @@
                             </Border>
                         </ToggleButton>
 
-                        <!-- CONTENIDO (arranca oculto) -->
                         <ContentPresenter x:Name="ExpandSite"
                             Grid.Row="1"
                             Margin="0,8,0,0"
@@ -158,14 +149,11 @@
                             ContentSource="Content"/>
                     </Grid>
 
-                    <!-- Triggers del Expander (pueden acceder a Chevron/ExpandSite porque están en el MISMO namescope) -->
                     <ControlTemplate.Triggers>
-                        <!-- Hover del header -->
                         <Trigger SourceName="HeaderToggle" Property="IsMouseOver" Value="True">
                             <Setter TargetName="HoverOverlay" Property="Opacity" Value="1"/>
                         </Trigger>
 
-                        <!-- Mostrar/ocultar contenido y rotar chevron -->
                         <Trigger Property="IsExpanded" Value="True">
                             <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
                             <Setter TargetName="Chevron" Property="RenderTransform">
@@ -175,7 +163,6 @@
                             </Setter>
                         </Trigger>
 
-                        <!-- Deshabilitado -->
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="HeaderBorder" Property="Opacity" Value="0.5"/>
                         </Trigger>
@@ -185,13 +172,42 @@
         </Setter>
     </Style>
 
-
-
-
-
-
-
-
+    <!-- (Show Advanced options) CheckBox -->
+    <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid Width="44" Height="24">
+                        <Border x:Name="Track"
+                                  CornerRadius="12"
+                                  Background="{DynamicResource ToggleTrackOffBrush}"
+                                  BorderBrush="{DynamicResource TabChosenColor}"
+                                  BorderThickness="1"/>
+                        <Border x:Name="Thumb"
+                              Width="20" Height="20"
+                              CornerRadius="10"
+                              Background="White"
+                              Margin="2,2,22,2"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource ToggleTrackOnBrush}"/>
+                            <Setter TargetName="Thumb" Property="Margin" Value="22,2,2,2"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Track" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Content" Value=""/>
+        <Setter Property="FocusVisualStyle">
+            <Setter.Value>
+                <Style/>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 
 </ResourceDictionary>

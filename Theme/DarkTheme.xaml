@@ -31,6 +31,8 @@
     <BitmapImage x:Key="HabitImage" UriSource="../Images/checkmark_rectangle-dark.png" />
     <BitmapImage x:Key="StatsImage" UriSource="../Images/person-dark.png" />
 
+    <SolidColorBrush x:Key="ToggleTrackOnBrush" Color="#007AFF"/>
+
     <!-- Tooltip Base colors -->
     <Color x:Key="TooltipBackgroundDark">#FF2B2B2B</Color>
     <Color x:Key="TooltipForegroundDark">#FFF1F1F1</Color>

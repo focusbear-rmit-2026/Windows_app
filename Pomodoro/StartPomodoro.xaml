@@ -26,13 +26,16 @@
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
-            <RowDefinition Height="80" />
+            <RowDefinition Height="90" />
             <RowDefinition Height="0" />
             <RowDefinition Height="0" />
             <RowDefinition Height="100" />
-          </Grid.RowDefinitions>
+        </Grid.RowDefinitions>
 
-
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,15,15,0">
+            <CheckBox x:Name="ChkShowAdvanced" Style="{StaticResource ToggleSwitchStyle}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBlock x:Name="ShowAdvancedLabel" Text="Show advanced options" VerticalAlignment="Center" FontSize="15"/>
+        </StackPanel>
         <TextBlock Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xIt's time to focus" Foreground="#e88800" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
         <CheckBox Grid.Row="1" x:Name="UseSuperPomodoroMode" AutomationProperties.AutomationId="chkUseSuperPomodoroMode" FontSize="15" Checked="UseSuperPomodoroMode_Checked" Unchecked="UseSuperPomodoroMode_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0">xUse super pomodoro mode (lock in the focus mode for multiple pomodoros)</CheckBox>
         <TextBlock Grid.Row="2" Name="WhichFocusMode" Margin="30,0,30,0" TextWrapping="Wrap" Text="xWhich focus mode do you want to use?"  FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
@@ -124,7 +127,7 @@
 
             <TextBlock  Name="WhatPlan" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?"  FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <TextBox   Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"  Width="550" Height="40" Margin="15" VerticalAlignment="Top"  FontSize="15">
+            <TextBox   Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"  Width="550" Height="30" Margin="15" VerticalAlignment="Top"  FontSize="15">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
