@@ -84,6 +84,11 @@ namespace Focus_Bear.Pomodoro
             }
 
             UpdateValues();
+
+            ChkShowAdvanced.Checked += (s, e) => ShowAdvancedOptionsControls(true);
+            ChkShowAdvanced.Unchecked += (s, e) => ShowAdvancedOptionsControls(false);
+            ShowAdvancedOptionsControls(ChkShowAdvanced.IsChecked == true);
+
         }
 
         public void AddFocusModesToComboBox()
@@ -469,5 +474,13 @@ namespace Focus_Bear.Pomodoro
             }
 
         }
+
+        private void ShowAdvancedOptionsControls(bool visible)
+        {
+            var vis = visible ? Visibility.Visible : Visibility.Collapsed;
+            UseSuperPomodoroMode.Visibility = vis;
+
+        }
+
     }
 }
