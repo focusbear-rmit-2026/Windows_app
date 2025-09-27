@@ -421,6 +421,8 @@ namespace Focus_Bear.Habits
                             videoUrl = videoUrlsBreaks[nRandom].ToString();
                         }
 
+                        LogWriter.LogWrite("HabitActivityOnGoing attempt to load video URL - " + videoUrl);
+
                         if (videoUrl.Contains("&")) //Fix for URLS like https://www.youtube.com/watch?v=vNeRn90QjyA&pp=ygUQbWVkaXRhdGlvbiBtdXNpYw%3D%3D
                         {
                             videoUrl = videoUrl.Substring(0, videoUrl.IndexOf("&", 1));
@@ -452,6 +454,8 @@ namespace Focus_Bear.Habits
                         {
                             videoUrl = videoUrl + "?autoplay=1";
                         }
+
+                        LogWriter.LogWrite("HabitActivityOnGoing Final URL trying to video URL - " + videoUrl);
 
                         webView.Source = new System.Uri(videoUrl);
 

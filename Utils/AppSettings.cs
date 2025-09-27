@@ -315,6 +315,7 @@ namespace Focus_Bear.Utils
         public BlurWindow wndBlurWindow = null;
 
         public string sUploadURL = "";
+        public List<DroppedFile> droppedFiles = new List<DroppedFile>();
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
@@ -877,6 +878,13 @@ namespace Focus_Bear.Utils
 
                             string name = item.ContainsKey("name") ? item.GetValue("name").ToString() : "";
 
+                            string habit_icon = item.ContainsKey("habit_icon") ? item.GetValue("habit_icon").ToString() : "";
+                            
+                            if(habit_icon.Length > 0)
+                            {
+                                name = habit_icon + " " + name;
+                            }
+
                             int durationSeconds = item.ContainsKey("duration_seconds") ? (int)item.GetValue("duration_seconds") : 0;
 
                             List<string> arrVideoUrlsArray = new List<string>(); ;
@@ -967,6 +975,13 @@ namespace Focus_Bear.Utils
                             string id = item.ContainsKey("id") ? item.GetValue("id").ToString() : "";
 
                             string name = item.ContainsKey("name") ? item.GetValue("name").ToString() : "";
+
+                            string habit_icon = item.ContainsKey("habit_icon") ? item.GetValue("habit_icon").ToString() : "";
+
+                            if (habit_icon.Length > 0)
+                            {
+                                name = habit_icon + " " + name;
+                            }
 
                             int durationSeconds = item.ContainsKey("duration_seconds") ? (int)item.GetValue("duration_seconds") : 0;
 
@@ -1073,6 +1088,13 @@ namespace Focus_Bear.Utils
 
                             string name = item.ContainsKey("name") ? item.GetValue("name").ToString() : "";
 
+                            string habit_icon = item.ContainsKey("habit_icon") ? item.GetValue("habit_icon").ToString() : "";
+
+                            if (habit_icon.Length > 0)
+                            {
+                                name = habit_icon + " " + name;
+                            }
+
                             int durationSeconds = item.ContainsKey("duration_seconds") ? (int)item.GetValue("duration_seconds") : 0;
 
                             bool IncludeInEveryBreak = item.ContainsKey("include_in_every_break") ? (bool)item.GetValue("include_in_every_break") : false;
@@ -1135,6 +1157,12 @@ namespace Focus_Bear.Utils
                                 {
                                     string idchoice = choiceitem.ContainsKey("id") ? choiceitem.GetValue("id").ToString() : "";
                                     string namechoice = choiceitem.ContainsKey("name") ? choiceitem.GetValue("name").ToString() : "";
+                                    string habit_iconC = item.ContainsKey("habit_icon") ? item.GetValue("habit_icon").ToString() : "";
+
+                                    if (habit_iconC.Length > 0)
+                                    {
+                                        name = habit_iconC + " " + name;
+                                    }
                                     List<string> arrVideoUrlsArraychoice = new List<string>(); ;
                                     if (choiceitem.ContainsKey("video_urls"))
                                     {

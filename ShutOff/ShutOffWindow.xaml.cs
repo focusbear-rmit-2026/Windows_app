@@ -200,9 +200,10 @@ namespace Focus_Bear.ShutOff
                             //(If password not in place)
                             //If it's after the cutoff time and they request to unlock, have a button to immediately unlock for 30 minutes. (Only available once per night)
                             
-                            if (appSettings.DidCutOffTimePassed())
+                            //26 Sep 2025 Removing teh check for cutoff time passed
+                            
                             {
-                                LogWriter.LogWrite("GET_ACCESS - isPasswordSet FASLE DidCutOffTimePassed() TRUE ");
+                                LogWriter.LogWrite("GET_ACCESS - isPasswordSet FASLE  ");
 
                                 if (RegistryManager.GetShutOffAbortedFor30MinsTillDate())
                                 {
@@ -223,12 +224,7 @@ namespace Focus_Bear.ShutOff
                                     }
                                 }
                             }
-                            else
-                            {
-                                LogWriter.LogWrite("GET_ACCESS - isPasswordSet FASLE DidCutOffTimePassed() FALSE  nState = CurrentShutOffState.CANCELABLE; ");
-                                nState = CurrentShutOffState.CANCELABLE;
-                                StartTimer();
-                            }
+                           
                         }
                         break;
                     }
