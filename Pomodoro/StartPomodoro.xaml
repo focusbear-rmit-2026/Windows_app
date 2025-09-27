@@ -44,7 +44,7 @@
         <TextBlock Grid.Row="4" x:Name="EditFocusModes" AutomationProperties.AutomationId="txtEditFocusModes" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
              <Hyperlink x:Name="btnEditFocusModes"   Click="btnEditFocusModes_Click"   TextDecorations="Underline" ><Run x:Name="EditFocusModesTXT" Text="xEdit focus modes"/></Hyperlink>
         </TextBlock>
-        <StackPanel  Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
+        <StackPanel Name="PomodoroCountPanel" Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock Visibility="Collapsed" Margin="0,0,0,0" Name="PomodoroCountText" TextWrapping="Wrap" Text="xHow many pomodoros you want to focus for:"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
             <ComboBox Visibility="Collapsed" Name="ComboBoxNumberOfPomodoros" AutomationProperties.AutomationId="cmbNumberOfPomodoros" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">

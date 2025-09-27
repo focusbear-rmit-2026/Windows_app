@@ -479,6 +479,8 @@ namespace Focus_Bear.Pomodoro
         {
             var vis = visible ? Visibility.Visible : Visibility.Collapsed;
             UseSuperPomodoroMode.Visibility = vis;
+            //WhichFocusMode.Visibility = vis;
+            PomodoroCountPanel.Visibility = vis;
 
         }
 
