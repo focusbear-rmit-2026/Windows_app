@@ -86,38 +86,50 @@ namespace Focus_Bear.Utils
             try
             {
                 //Zip the logs
-                string zipPath = System.IO.Path.Combine(AppSettings.AppDataDirLogsPath, "FocusBearLogs.zip");
+                string zipPath = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FocusBearLogs.zip");
 
                 if (File.Exists(zipPath))
                 {
                     Global.DeleteFile(zipPath, false);
                 }
-                string sourceFile = System.IO.Path.Combine(AppSettings.AppDataDirLogsPath, "Debug_Logs.txt");
+               
+                //Zip all the logs files, better the entire log folder
+                string sourceDir = AppSettings.AppDataDirLogsPath;
 
-                bool bfileZipped = false;
+                //ZipFile.CreateFromDirectory(sourceDir, zipPath, CompressionLevel.Fastest, includeBaseDirectory: false);
                 using (FileStream zipToOpen = new FileStream(zipPath, FileMode.Create))
                 {
                     using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Create))
                     {
-                        archive.CreateEntryFromFile(sourceFile, System.IO.Path.GetFileName(sourceFile), CompressionLevel.Fastest);
-                        bfileZipped = true;
-                        await Task.Delay(100);
-                    }
-                }
-
-                if (bfileZipped)
-                {
-                    if (File.Exists(zipPath))
-                    {
-                        bool bUploadDone = await UploadZipFileAsync(zipPath);
-                        if (bUploadDone)
+                        // 1. Add all log files
+                        foreach (string file in Directory.GetFiles(sourceDir))
                         {
-                            return true;
+                            archive.CreateEntryFromFile(
+                                file,
+                                "Logs/" + Path.GetFileName(file),
+                                CompressionLevel.Fastest);
+                        }
+
+                        // 2. Add screenshots
+                        foreach (var screenshot in appSettings.droppedFiles)
+                        {
+                            archive.CreateEntryFromFile(
+                                screenshot.FilePath,
+                                "Screenshots/" + Path.GetFileName(screenshot.FilePath),
+                                CompressionLevel.Fastest);
                         }
                     }
                 }
 
-                // string ss = appSettings.ConfigFileStrings["preferencesInfo"]["exportSuccessText"].ToString();
+
+                if (File.Exists(zipPath))
+                {
+                    bool bUploadDone = await UploadZipFileAsync(zipPath);
+                    if (bUploadDone)
+                    {
+                        return true;
+                    }
+                }
             }
             catch (Exception ex)
             {

@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using Focus_Bear.Models;
 using Interop.UIAutomationClient;
 using Microsoft.Win32;
@@ -779,5 +780,16 @@ namespace Focus_Bear.Utils
         }
     }
 
+    public class DroppedFile
+    {
+        public string FilePath { get; set; }
+        public BitmapImage Thumbnail { get; set; }
+
+        public DroppedFile(string path)
+        {
+            FilePath = path;
+            Thumbnail = new BitmapImage(new Uri(path));
+        }
+    }
 }
 
