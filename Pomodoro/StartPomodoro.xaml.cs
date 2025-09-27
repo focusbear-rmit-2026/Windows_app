@@ -215,7 +215,7 @@ namespace Focus_Bear.Pomodoro
         private void btnEditFocusModes_Click(object sender, RoutedEventArgs e)
         {
             ((App)(Application.Current)).ShowPreferencesWindow();
-            ((App)(Application.Current)).wndPreferences.ShowFocusMode();
+            ((App)(Application.Current)).wndPreferences.ShowFocusMode(ComboBoxFocusModes.SelectedItem.ToString());
         }
 
         private void Minutes_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)

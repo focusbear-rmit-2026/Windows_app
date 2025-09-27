@@ -22,7 +22,7 @@
         <StackPanel Grid.Row="0" Orientation="Vertical" Margin="20,20,20,5" >
             <TextBlock   Name="DumpDown" Margin="0,0,0,5"   TextWrapping="Wrap" Text="xxDump down ideas you have so you don't forget - anything you write here will remain forever unless you delete it."  FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
         </StackPanel>
-        <TextBox Grid.Row="1" Margin="20,0,20,10"   Name="TxtDumpDown" AutomationProperties.AutomationId="txtBoxDumpDown" TextWrapping="Wrap" AcceptsReturn="True"   FontSize="14" VerticalAlignment="Stretch"  VerticalScrollBarVisibility="Auto" PreviewKeyDown="TxtDumpDown_PreviewKeyDown">
+        <TextBox Grid.Row="1" Margin="20,0,20,10"   Name="TxtDumpDown" AutomationProperties.AutomationId="txtBoxDumpDown" TextWrapping="Wrap" AcceptsReturn="True"   FontSize="14" VerticalAlignment="Stretch"  VerticalScrollBarVisibility="Auto" TextChanged="TxtDumpDown_TextChanged">
             <TextBox.Effect>
                 <DropShadowEffect ShadowDepth="3"
                           Direction="330"

@@ -19,12 +19,18 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Button = System.Windows.Controls.Button;
+using DataFormats = System.Windows.DataFormats;
+using DragDropEffects = System.Windows.DragDropEffects;
+using DragEventArgs = System.Windows.DragEventArgs;
 
 namespace Focus_Bear.Preferences
 {
     /// <summary>
     /// Interaction logic for HelpTab.xaml
     /// </summary>
+    /// 
+   
     public partial class HelpTab : Page
     {
         PreferencesWindow _ParentWindow = null;
@@ -73,8 +79,9 @@ namespace Focus_Bear.Preferences
                 BtnDontUseDiscordTxt.Text = appSettings.ConfigFileStrings["helpVcInfo"]["buttonDontUseDiscordText"].ToString();
 
                 GetSupport.Header = appSettings.ConfigFileStrings["helpVcInfo"]["tabGetSupport"].ToString(); 
-                Tutorials.Header = appSettings.ConfigFileStrings["helpVcInfo"]["tabCourses"].ToString(); 
+                Tutorials.Header = appSettings.ConfigFileStrings["helpVcInfo"]["tabCourses"].ToString();
 
+                DragDesc.Text = "Drag and drop screenshots here that you want to share"; //todo win texts
             }
             catch (Exception ex)
             {
@@ -246,5 +253,55 @@ namespace Focus_Bear.Preferences
                 LogWriter.LogWrite("btnJoinDiscord_Click + " + ex.Message);
             }
         }
+
+        private void Border_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effects = DragDropEffects.Copy;
+            else
+                e.Effects = DragDropEffects.None;
+
+            e.Handled = true;
+        }
+
+        private void RefreshScreenshots()
+        {
+            ScreenshotsList.ItemsSource = null;
+            ScreenshotsList.ItemsSource = appSettings.droppedFiles;
+
+            PlaceholderPanel.Visibility = appSettings.droppedFiles.Count == 0
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+
+        private void Border_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                foreach (string file in files)
+                {
+                    if (file.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                        file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                        file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var df = new DroppedFile(file);
+                        appSettings.droppedFiles.Add(df);
+                    }
+                }
+                RefreshScreenshots();
+            }
+        }
+
+        private void RemoveScreenshot_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is DroppedFile df)
+            {
+                appSettings.droppedFiles.Remove(df);
+                RefreshScreenshots();
+            }
+        }
+
+
     }
 }
