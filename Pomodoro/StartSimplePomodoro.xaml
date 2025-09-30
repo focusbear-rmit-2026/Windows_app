@@ -47,7 +47,7 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
             <TextBlock  Name="MinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-
+            <Image x:Name="FocusDurationInfo" Source="../images/info-dark.png" Width="20"  Margin="0,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Center"></Image>
         </StackPanel>
 
         <Expander Grid.Row="2" x:Name="MoreOptionsExpander" Width="600" Margin="0,20,0,0" HorizontalAlignment="Stretch" Style="{StaticResource PomodoroOptionsExpanderStyle}">
@@ -80,10 +80,10 @@
                         </TextBox.FocusVisualStyle>
                     </TextBox>
                     <TextBlock  Name="MinutesBreakTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-
+                    <Image x:Name="BreakDurationInfo" Source="../images/info-dark.png" Width="20"  Margin="0,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Center"></Image>
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Width="410" Margin="0,20,0,0" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Width="420" Margin="0,20,0,0" HorizontalAlignment="Center">
                     <TextBlock  x:Name="BlockingStyle" Visibility="Visible" Width="105"  Margin="0,0,0,0" TextWrapping="Wrap" Text="xBlocking Style:"  FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
                     <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" VerticalAlignment="Top"  >
                         <RadioButton  Name="RadioAI" AutomationProperties.AutomationId="rbAI" Margin="10,5,0,0" GroupName="BlockingStyle"  FontSize="15"  FontWeight="Normal" Padding="5,-5,0,0" Cursor="Hand" Checked="RadioAI_Checked"  >
@@ -93,12 +93,15 @@
                             xJust block super distracting sites
                         </RadioButton>
                     </StackPanel>
+                    <Image x:Name="AIPoweredBlockingInfo" Source="../images/info-dark.png" Width="20"  Margin="10,2,0,0" VerticalAlignment="Top" Cursor="Hand"/>
+
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0,20,0,0">
-
-                    <TextBlock  Name="WhatPlan" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-
+                    <Grid>
+                        <TextBlock  Name="WhatPlan" Visibility="Visible"  Margin="0,0,0,0" TextWrapping="Wrap" Text="xxWhat do you plan to achieve during this focus block?" FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+                        <Image x:Name="IntentionInfo" Source="../images/info-dark.png" Width="20"  Margin="0,0,90,0" VerticalAlignment="Top" HorizontalAlignment="Right" RenderTransformOrigin="0.55,0.512"></Image>
+                    </Grid>
                     <TextBox   Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"  Width="550" Height="80" Margin="15" VerticalAlignment="Top"  FontSize="15" TextChanged="TxtIntention_TextChanged">
                         <TextBox.Effect>
                             <DropShadowEffect ShadowDepth="3"
