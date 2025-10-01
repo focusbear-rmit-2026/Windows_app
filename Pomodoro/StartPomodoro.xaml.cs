@@ -67,8 +67,17 @@ namespace Focus_Bear.Pomodoro
                 WhatPlan.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["questionFirstText"].ToString();
 
                 SelectedTasksTitle.Text = "Selected Tasks:";
-                
-                SkipMicroBreaks.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonSkipMicrobreaksText"].ToString();
+
+                // For updating the text based on the current value of microbreak setting
+                SkipMicroBreaks.Inlines.Clear();
+                SkipMicroBreaks.Inlines.Add(
+                    new Run(appSettings.bSkipMicroBreaksDuringFocus
+                        ? appSettings.ConfigFileStrings["pomodoroInfo"]["titleBreaksOff"].ToString()
+                        : appSettings.ConfigFileStrings["pomodoroInfo"]["titleBreaksOn"].ToString()
+                    )
+                );
+
+
                 //ShowFocusModeEnd.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonShowFocusProgressText"].ToString();// need to add ES in config
                 ShowFocusModeEnd.Content = "Show focus status when session end"; //to do win texts
                 btnStartSessionText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonLetsDoItText"].ToString();
@@ -130,7 +139,6 @@ namespace Focus_Bear.Pomodoro
                     appSettings.sMinutesBreakPomodoro = MinutesBreak.Text;
                     appSettings.SuperPomodoroFocusedName = appSettings.AutomaticSuperPomodoroFocusedName;
                     appSettings.NumberOfSuperPomodorosToRun = appSettings.AutomaticNumberOfSuperPomodorosToRun;
-                    //appSettings.bSkipMicroBreaksDuringFocus = appSettings.bAutomaticSuperPomodoroSkipMicroBreaks;//save preference of skip microbreaks
                 }
 
                 UseSuperPomodoroMode.IsEnabled = !appSettings.bUseSuperPomodoroMode;
@@ -140,8 +148,6 @@ namespace Focus_Bear.Pomodoro
                 Minutes.IsEnabled = !appSettings.bUseSuperPomodoroMode;
                 MinutesBreak.IsEnabled = !appSettings.bUseSuperPomodoroMode;
                 SkipMicroBreaks.IsEnabled = !appSettings.bUseSuperPomodoroMode;
-
-                //SkipMicroBreaks.IsChecked = appSettings.bSkipMicroBreaksDuringFocus;
 
                 //set the previous values selected by user in case of Super Pomodoro by user
                 if (appSettings.bUseSuperPomodoroMode)
@@ -268,16 +274,20 @@ namespace Focus_Bear.Pomodoro
             }
         }
 
-        
-        private void SkipMicroBreaks_Checked(object sender, RoutedEventArgs e)
+        private void SkipMicroBreaks_Click(object sender, RoutedEventArgs e)
         {
-            appSettings.bSkipMicroBreaksDuringFocus = true;
+            appSettings.bSkipMicroBreaksDuringFocus = !appSettings.bSkipMicroBreaksDuringFocus;
+
+            SkipMicroBreaks.Inlines.Clear();
+            SkipMicroBreaks.Inlines.Add(
+                new Run(appSettings.bSkipMicroBreaksDuringFocus
+                    ? appSettings.ConfigFileStrings["pomodoroInfo"]["titleBreaksOff"].ToString()
+                    : appSettings.ConfigFileStrings["pomodoroInfo"]["titleBreaksOn"].ToString()
+                )
+            );
         }
 
-        private void SkipMicroBreaks_Unchecked(object sender, RoutedEventArgs e)
-        {
-            appSettings.bSkipMicroBreaksDuringFocus = false;
-        }
+
         private void ShowFocusModeEnd_Checked(object sender, RoutedEventArgs e)
         {
             appSettings.bShowFocusModeEnd = true;
