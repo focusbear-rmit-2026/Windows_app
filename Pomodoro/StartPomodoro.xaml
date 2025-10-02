@@ -121,12 +121,14 @@
             <TextBlock  Name="MinutesBreakTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             
         </StackPanel>
-        <TextBlock Grid.Row="8" Name="TxtSkipMicroBreaks" AutomationProperties.AutomationId="chkSkipMicroBreaks" Padding="0,15,0,0" HorizontalAlignment="Center">
-            <Hyperlink x:Name="SkipMicroBreaks" Click="SkipMicroBreaks_Click" FontSize="15" Cursor="Hand">
-                <Run Text="Micro-breaks on" />
-            </Hyperlink>
-        </TextBlock>
-
+        <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Name="TxtSkipMicroBreaks" AutomationProperties.AutomationId="chkSkipMicroBreaks" Padding="0,15,0,0" HorizontalAlignment="Center">
+                <Hyperlink x:Name="SkipMicroBreaks" Click="SkipMicroBreaks_Click" FontSize="15" Cursor="Hand">
+                    <Run Text="Micro-breaks on" />
+                </Hyperlink>
+            </TextBlock>
+            <Image x:Name="MicroBreaksInfo"  Source="../images/info-dark.png" Margin="5,17,0,0" Width="20" HorizontalAlignment="Center" VerticalAlignment="Bottom" Cursor="Hand"/>
+        </StackPanel>
         <StackPanel Grid.Row="9" Orientation="Vertical" VerticalAlignment="Top" Margin="0,20,0,0">
 
 
@@ -185,7 +187,7 @@
                 </StackPanel>
             </Button.Content>
         </Button>
-
+                
         <TextBlock Grid.Row="13" Name="PomodoroCompleted" Visibility="Collapsed" Margin="20,5,20,0" TextWrapping="Wrap" Text="xYou have completed.." Foreground="{DynamicResource ForegroundGrey}" FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Border x:Name="GridShade" Grid.RowSpan="13"   CornerRadius="0"  Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
             </Grid>

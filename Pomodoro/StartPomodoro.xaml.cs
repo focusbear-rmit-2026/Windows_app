@@ -64,6 +64,9 @@ namespace Focus_Bear.Pomodoro
                 BreakDuration.Text = appSettings.ConfigFileStrings["preferencesInfo"]["breakDurationText"].ToString();
                 MinutesBreakTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
 
+                MicroBreaksInfo.ToolTip = appSettings.ConfigFileStrings["pomodoroInfo"]["toggleBreaksTooltip"].ToString();
+
+
                 WhatPlan.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["questionFirstText"].ToString();
 
                 SelectedTasksTitle.Text = "Selected Tasks:";
