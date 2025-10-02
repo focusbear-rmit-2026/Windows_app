@@ -57,10 +57,10 @@ namespace Focus_Bear.Pomodoro
                 RadioSuperDistracting.ToolTip = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["checkBoxText"].ToString(); //"Immediately block super distracting sites"
                 BlockingStyle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["titleBlockingStyleText"].ToString(); //"Blocking Style: ";
 
-                FocusDurationInfo.ToolTip = appSettings.ConfigFileStrings["pomodoroInfo"]["pomodoroTooltipText"].ToString();
-                BreakDurationInfo.ToolTip = appSettings.ConfigFileStrings["pomodoroInfo"]["pomodoroTooltipText"].ToString();
+                FocusDurationInfo.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["subTitleWorkDuration"].ToString();
+                BreakDurationInfo.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["subTitleBreakDuration"].ToString();
                 AIPoweredBlockingInfo.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["toolTipAiBlocking"].ToString(); //"AI powered blocking uses machine learning to identify and block distracting websites and applications based on your usage patterns. It adapts over time to better suit your needs."
-                IntentionInfo.ToolTip = appSettings.ConfigFileStrings["pomodoroInfo"]["descriptionIntention"].ToString();
+                IntentionInfo.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["subTitleIntention"].ToString();
 
                 HowMuchTime.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["pomodoroModeDurationText"].ToString();
 
