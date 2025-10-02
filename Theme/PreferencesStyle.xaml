@@ -103,7 +103,7 @@
                             </ToggleButton.Template>
 
                             <Border x:Name="HeaderBorder"
-                                Background="{DynamicResource PreferenceButtonColor}"
+                                Background="{DynamicResource ExpanderBackground}"
                                 BorderBrush="{DynamicResource TabChosenColor}"
                                 BorderThickness="1"
                                 CornerRadius="8"

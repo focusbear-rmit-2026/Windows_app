@@ -35,6 +35,8 @@
     <SolidColorBrush x:Key="ToggleTrackOffBrush" Color="#D1D1D6"/>
     <SolidColorBrush x:Key="ToggleTrackOnBrush" Color="#007AFF"/>
 
+    <SolidColorBrush x:Key="ExpanderBackground" Color="White"/>
+
     <!-- Tooltip Base colors -->
     <Color x:Key="TooltipBackgroundLight">#FFF5F5F5</Color>
     <Color x:Key="TooltipForegroundLight">#FF1E1E1E</Color>
