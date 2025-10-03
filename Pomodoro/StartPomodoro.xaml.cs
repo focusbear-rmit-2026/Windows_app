@@ -66,6 +66,7 @@ namespace Focus_Bear.Pomodoro
 
                 MicroBreaksInfo.ToolTip = appSettings.ConfigFileStrings["pomodoroInfo"]["toggleBreaksTooltip"].ToString();
 
+                ShowAccordingFocusAlignmentScoreText.Text = appSettings.ConfigFileStrings["focusPreferencesAdvancedInfo"]["focusAlignmentScoreTitle"].ToString();
 
                 WhatPlan.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["questionFirstText"].ToString();
 
@@ -492,8 +493,8 @@ namespace Focus_Bear.Pomodoro
         {
             var vis = visible ? Visibility.Visible : Visibility.Collapsed;
             UseSuperPomodoroMode.Visibility = vis;
-            //WhichFocusMode.Visibility = vis;
             PomodoroCountPanel.Visibility = vis;
+            ShowAccordingFocusAlignmentScorePanel.Visibility = vis;
 
         }
 
