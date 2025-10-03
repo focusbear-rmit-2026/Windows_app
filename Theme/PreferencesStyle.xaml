@@ -177,14 +177,14 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
-                    <Grid Width="44" Height="24">
+                    <Grid Width="41" Height="21">
                         <Border x:Name="Track"
                                   CornerRadius="12"
                                   Background="{DynamicResource ToggleTrackOffBrush}"
                                   BorderBrush="{DynamicResource TabChosenColor}"
                                   BorderThickness="1"/>
                         <Border x:Name="Thumb"
-                              Width="20" Height="20"
+                              Width="17" Height="17"
                               CornerRadius="10"
                               Background="White"
                               Margin="2,2,22,2"/>
