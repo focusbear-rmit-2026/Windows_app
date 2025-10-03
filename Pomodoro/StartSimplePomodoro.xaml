@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Pomodoro"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="580" Width="744"  ResizeMode="NoResize" Closing="Window_Closing" LocationChanged="Window_LocationChanged">
+        Title="Focus Bear" Height="620" Width="744"  ResizeMode="NoResize" Closing="Window_Closing" LocationChanged="Window_LocationChanged">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -17,8 +17,9 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="80" />
             <RowDefinition Height="50" />
-            <RowDefinition Height="320" />
-            <RowDefinition Height="10" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -126,8 +127,9 @@
                 </StackPanel>
             </StackPanel>
         </Expander>
+        <TextBlock Grid.Row="4" Name="TimeUnfocusedText" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center" VerticalAlignment="Center" Text="xxTime spent unfocused: [TIME]" />
 
-        <Button  Grid.Row="4" x:Name="btnStartSession" AutomationProperties.AutomationId="btnStartSession"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" Height="45" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,50" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartSession_Click">
+        <Button  Grid.Row="5" x:Name="btnStartSession" AutomationProperties.AutomationId="btnStartSession"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" Height="45" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,50" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartSession_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
                     <TextBlock Name="btnStartSessionText" Margin="8" Text="xStart Session" Foreground="Black"/>

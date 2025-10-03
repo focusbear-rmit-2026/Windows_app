@@ -71,6 +71,7 @@ namespace Focus_Bear.Pomodoro
                 MinutesBreakTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
 
                 WhatPlan.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["questionFirstText"].ToString();  //"What do you want to achieve in this pomodoro session?";
+                TimeUnfocusedText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["timerText"].ToString();
                 btnStartSessionText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonLetsDoItText"].ToString();
 
                 if(appSettings.isExpired)

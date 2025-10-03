@@ -70,6 +70,8 @@ namespace Focus_Bear.Pomodoro
 
                 WhatPlan.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["questionFirstText"].ToString();
 
+                TimeUnfocusedText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["timerText"].ToString();
+
                 SelectedTasksTitle.Text = "Selected Tasks:";
 
                 // For updating the text based on the current value of microbreak setting
