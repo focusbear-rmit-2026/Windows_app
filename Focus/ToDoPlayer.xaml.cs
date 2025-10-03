@@ -90,7 +90,10 @@ namespace Focus_Bear.Focus
                 RegistryManager.GetBrainDump();
 
                 string sTheme = appSettings.sTheme == "Light" ? "LIGHT" : "DARK";
-
+                if(!appSettings.bIsGeekModeEnabled)
+                {
+                    appSettings.sRawTasks = "[]"; //fix for amanuel's below work not handled in simple mode to show the intention
+                }
                 var metaData = new
                 {
                     access_token = appSettings.userAccount.accessToken,

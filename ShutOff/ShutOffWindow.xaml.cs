@@ -223,6 +223,12 @@ namespace Focus_Bear.ShutOff
                                         AbortShutoffForMinutes(30);
                                     }
                                 }
+                                else
+                                {
+                                    LogWriter.LogWrite("Means user did not got access before");
+                                    nState = CurrentShutOffState.CANCELABLE;
+                                    StartTimer();
+                                }
                             }
                            
                         }
