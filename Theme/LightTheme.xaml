@@ -33,9 +33,9 @@
     <BitmapImage x:Key="StatsImage" UriSource="../Images/person.png" />
 
     <!-- Tooltip Base colors -->
-    <Color x:Key="TooltipBackgroundLight">#FFF5F5F5</Color>
-    <Color x:Key="TooltipForegroundLight">#FF1E1E1E</Color>
-    <Color x:Key="TooltipBorderLight">#FFCCCCCC</Color>
+    <Color x:Key="TooltipBackgroundColor">#FFF5F5F5</Color>
+    <Color x:Key="TooltipForegroundColor">#FF1E1E1E</Color>
+    <Color x:Key="TooltipBorderColor">#FFCCCCCC</Color>
     
     
     <Style x:Key="BtnStylePreferencesDynamic" TargetType="{x:Type Button}">
