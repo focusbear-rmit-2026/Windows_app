@@ -183,7 +183,7 @@ namespace Focus_Bear.Focus
                     //We will need to start the focus mode again after the focus session and X min break is over
                     if(!appSettings.bHabitwithAllowedAppsRunning && !bIamDoneTypeActivity ) //make sure break window is not shown for habits with allowed apps
                     {
-                        if (appSettings.bUseSuperPomodoroMode)
+                        //Removing the super pomodoro check, we need to show start focus mode window after the break ends.
                         {
                             ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
                             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;

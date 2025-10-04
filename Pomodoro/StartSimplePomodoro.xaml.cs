@@ -52,15 +52,7 @@ namespace Focus_Bear.Pomodoro
             {
                 Heading.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["title"].ToString();
                 RadioAI.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonBlockingStyleAiText"].ToString(); //"AI powered blocking(recommended)";
-                ToolTip AITooltip = new ToolTip();
-                TextBlock AItextBlock = new TextBlock();
-                AItextBlock.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["toolTipAiBlocking"].ToString();//"When you open a website you haven't specifically blocked or allowed, we'll use AI to check whether the website is relevant or not based on your focus intention. In strict mode, it will block it immediately if it's not relevant. In non strict mode, it will show a popup asking whether you really need it.",
-                AItextBlock.TextWrapping = TextWrapping.Wrap;
-                AItextBlock.Foreground= new SolidColorBrush(Colors.Gray);
-                AItextBlock.MaxWidth = 400; // Sentence too long, wrap it
-                AITooltip.Content = AItextBlock.Text;
-                AITooltip.Background= new SolidColorBrush((Color)ColorConverter.ConvertFromString("#f1f2f7"));
-                RadioAI.ToolTip = AITooltip;
+                RadioAI.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["toolTipAiBlocking"].ToString();//"When you open a website you haven't specifically blocked or allowed, we'll use AI to check whether the website is relevant or not based on your focus intention. In strict mode, it will block it immediately if it's not relevant. In non strict mode, it will show a popup asking whether you really need it.",;
 
                 RadioSuperDistracting.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonBlockingStyleDistractingSitesText"].ToString(); //"Just block super distracting sites";//
                 RadioSuperDistracting.ToolTip = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["checkBoxText"].ToString(); //"Immediately block super distracting sites"
