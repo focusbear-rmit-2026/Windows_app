@@ -74,7 +74,7 @@
 
         </StackPanel>
         <StackPanel Grid.Row="6"  Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-            <TextBlock  Name="HowMuchTime" Margin="10,0,10,0" TextWrapping="Wrap" Width="351" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" />
+                    <TextBlock  Name="HowMuchTime" Margin="10,0,10,0" TextWrapping="Wrap" Width="351" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" Text="xPomodoro Mode duration:" />
             <TextBox      x:Name="Minutes" AutomationProperties.AutomationId="txtBoxMinutes" MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="Minutes_TextChanged">
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
@@ -126,7 +126,7 @@
         <StackPanel Margin="0,0,0,0" Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock Name="TxtSkipMicroBreaks" AutomationProperties.AutomationId="chkSkipMicroBreaks" Padding="0,15,0,0" HorizontalAlignment="Center">
                 <Hyperlink x:Name="SkipMicroBreaks" Click="SkipMicroBreaks_Click" FontSize="15" Cursor="Hand">
-                    <Run Text="Micro-breaks on" />
+                    <Run Text="xMicro-breaks on" />
                 </Hyperlink>
             </TextBlock>
             <Image x:Name="MicroBreaksInfo"  Source="../images/info-dark.png" Margin="5,17,0,0" Width="20" HorizontalAlignment="Center" VerticalAlignment="Bottom" Cursor="Hand"/>

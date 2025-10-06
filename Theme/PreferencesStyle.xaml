@@ -173,42 +173,4 @@
         </Setter>
     </Style>
 
-    <!-- (Show Advanced options) CheckBox -->
-    <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="CheckBox">
-                    <Grid Width="41" Height="21">
-                        <Border x:Name="Track"
-                                  CornerRadius="12"
-                                  Background="{DynamicResource ToggleTrackOffBrush}"
-                                  BorderBrush="{DynamicResource TabChosenColor}"
-                                  BorderThickness="1"/>
-                        <Border x:Name="Thumb"
-                              Width="17" Height="17"
-                              CornerRadius="10"
-                              Background="White"
-                              Margin="2,2,22,2"/>
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource ToggleTrackOnBrush}"/>
-                            <Setter TargetName="Thumb" Property="Margin" Value="22,2,2,2"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Track" Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="Content" Value=""/>
-        <Setter Property="FocusVisualStyle">
-            <Setter.Value>
-                <Style/>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-
 </ResourceDictionary>
