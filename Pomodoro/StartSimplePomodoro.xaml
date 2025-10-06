@@ -51,7 +51,7 @@
             <Image x:Name="FocusDurationInfo" Source="../images/info-dark.png" Width="20"  Margin="0,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Cursor="Hand"/>
         </StackPanel>
 
-        <Expander Grid.Row="2" x:Name="MoreOptionsExpander" Width="600" Margin="0,20,0,0" HorizontalAlignment="Stretch" Style="{StaticResource PomodoroOptionsExpanderStyle}">
+        <Expander Grid.Row="2" x:Name="MoreOptionsExpander" Width="600" Margin="0,20,0,0" HorizontalAlignment="Stretch" Cursor="Hand" Style="{StaticResource PomodoroOptionsExpanderStyle}">
             <Expander.Header>
                 <TextBlock FontSize="14" FontWeight="Normal" TextAlignment="Left"/>
             </Expander.Header>
