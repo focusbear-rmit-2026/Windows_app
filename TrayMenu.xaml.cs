@@ -660,7 +660,7 @@ namespace Focus_Bear
 
         }
 
-        private void btnStopPomodoroMode_Click(object sender, RoutedEventArgs e)
+        private async void btnStopPomodoroMode_Click(object sender, RoutedEventArgs e)
         {
             
             //stop the current running focus session
@@ -678,6 +678,8 @@ namespace Focus_Bear
                 {
                     try
                     {
+                        await((App)(Application.Current)).SyncTodoTasksFromPlayer(); // sync todo tasks
+
                         var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
                         //Check if its the same focusmode that is running, then let's stop it.
                         if (listItems.Count() != 0)
@@ -690,20 +692,20 @@ namespace Focus_Bear
                                 appSettings.isStartPomodoroWindowOpen = false;
                             }
                             //Stop the focus mode
-                            //Show WIndow here
-                            StopFocusMode ss = new StopFocusMode();
-                            bool? bResult = ss.ShowDialog();
-                            if (bResult.Value == false)
-                            {
-                                //Cancel CLicked, nothing to do
-                                //Deselect the Seleted list view item
-                                ListFocusModes.SelectedItem = null;
-                                return;
-                            }
+                            //Show WIndow here - Removed 3 oct 2025 
+
+                            //Show the Focusmode end dialog
+                            ((App)(Application.Current)).ShowFocusEndWindow();
 
                             OnUntill.Content = "";
                             CurrentRunningFocusMode.isOn = false;
                             Sounds.PlayFocusModeEndSound();
+
+
+                            if (!appSettings.bIsGeekModeEnabled)//Simple mode
+                            {
+                                appSettings.bAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabledLastValueBeforeSimplePomodoro; //resetting the AI value
+                            }
 
                             FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
                             FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
@@ -730,6 +732,7 @@ namespace Focus_Bear
                                 OrangeHeader.Height = 30; //Originally 25
                             }
 
+                            ((App)(Application.Current)).HideToDoPlayer();
                             //Deselect the Seleted list view item
                             //ListFocusModes.SelectedItem = null;
                         }

@@ -34,9 +34,9 @@
     <SolidColorBrush x:Key="ToggleTrackOnBrush" Color="#007AFF"/>
 
     <!-- Tooltip Base colors -->
-    <Color x:Key="TooltipBackgroundDark">#FF2B2B2B</Color>
-    <Color x:Key="TooltipForegroundDark">#FFF1F1F1</Color>
-    <Color x:Key="TooltipBorderDark">#FF444444</Color>
+    <Color x:Key="TooltipBackgroundColor">#FF2B2B2B</Color>
+    <Color x:Key="TooltipForegroundColor">#FFF1F1F1</Color>
+    <Color x:Key="TooltipBorderColor">#FF444444</Color>
     
     <Style x:Key="BtnStylePreferencesDynamic" TargetType="{x:Type Button}">
         <Setter Property="Template">

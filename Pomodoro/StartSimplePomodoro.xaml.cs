@@ -52,7 +52,12 @@ namespace Focus_Bear.Pomodoro
             {
                 Heading.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["title"].ToString();
                 RadioAI.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonBlockingStyleAiText"].ToString(); //"AI powered blocking(recommended)";
+<<<<<<< HEAD
                 
+=======
+                RadioAI.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["toolTipAiBlocking"].ToString();//"When you open a website you haven't specifically blocked or allowed, we'll use AI to check whether the website is relevant or not based on your focus intention. In strict mode, it will block it immediately if it's not relevant. In non strict mode, it will show a popup asking whether you really need it.",;
+
+>>>>>>> main
                 RadioSuperDistracting.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonBlockingStyleDistractingSitesText"].ToString(); //"Just block super distracting sites";//
                 RadioSuperDistracting.ToolTip = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["checkBoxText"].ToString(); //"Immediately block super distracting sites"
                 BlockingStyle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["titleBlockingStyleText"].ToString(); //"Blocking Style: ";

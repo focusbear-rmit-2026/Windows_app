@@ -137,7 +137,7 @@
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
                             <Path x:Name="path" Stretch="Fill" Fill="Transparent" Data="M 1369.01,305.002L 1403,305.002L 1403.01,339.002L 1369.02,339.002L 1369.01,305.002 Z " HorizontalAlignment="Center" Height="34" Margin="0" VerticalAlignment="Center" Width="34"  SnapsToDevicePixels="True"/>
-                            <Path x:Name="path1" Stretch="Fill" StrokeThickness="1.5" StrokeLineJoin="Round" Stroke="#FFADADAD" Data="M 1476.47,192.998L 1476.83,193.354L 1486.67,203.198L 1487.36,203.886M 1487.21,193.129L 1486.85,193.486L 1477.01,203.33L 1476.32,204.018" Margin="0" Width="12" Height="11.04" HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="True"/>
+                            <Path x:Name="path1" Stretch="Fill" StrokeThickness="1.5" StrokeLineJoin="Round" Stroke="White" Data="M 1476.47,192.998L 1476.83,193.354L 1486.67,203.198L 1487.36,203.886M 1487.21,193.129L 1486.85,193.486L 1477.01,203.33L 1476.32,204.018" Margin="0" Width="12" Height="11.04" HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="True"/>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True"/>
@@ -1010,9 +1010,9 @@
         </Style>
 
         <!-- Auto-switching based on system theme -->
-        <SolidColorBrush x:Key="TooltipBackground" Color="{DynamicResource TooltipBackgroundLight}" />
-        <SolidColorBrush x:Key="TooltipForeground" Color="{DynamicResource TooltipForegroundLight}" />
-        <SolidColorBrush x:Key="TooltipBorderBrush" Color="{DynamicResource TooltipBorderLight}" />
+        <SolidColorBrush x:Key="TooltipBackground" Color="{DynamicResource TooltipBackgroundColor}" />
+        <SolidColorBrush x:Key="TooltipForeground" Color="{DynamicResource TooltipForegroundColor}" />
+        <SolidColorBrush x:Key="TooltipBorderBrush" Color="{DynamicResource TooltipBorderColor}" />
 
         <Style TargetType="ToolTip">
             <Setter Property="OverridesDefaultStyle" Value="True"/>

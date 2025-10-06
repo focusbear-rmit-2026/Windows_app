@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -181,6 +183,14 @@ namespace Focus_Bear.Focus
             try
             {
                 Hide();
+
+                //fire the Stop focus session button from the menu
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStopPomodoroMode);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+
+                return;
+
 
                 var runningFocusModes = appSettings.arrFocusModes.Where(i => i.isOn == true);
                 if (!runningFocusModes.Any())
