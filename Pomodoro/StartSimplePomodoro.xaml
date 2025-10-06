@@ -53,7 +53,7 @@
 
         <Expander Grid.Row="2" x:Name="MoreOptionsExpander" Padding="0" Width="600" Margin="0,20,0,0" HorizontalAlignment="Stretch" Cursor="Hand" Style="{StaticResource PomodoroOptionsExpanderStyle}">
             <Expander.Header>
-                <TextBlock FontSize="14" Padding="0,0,0,20" Width="600" FontWeight="Normal" TextAlignment="Left"/>
+                <TextBlock FontSize="14" Padding="20,0,0,0" Width="600" FontWeight="Normal" TextAlignment="Left"/>
             </Expander.Header>
 
             <StackPanel x:Name="MoreOptionsContent" Margin="0,8,0,0">
