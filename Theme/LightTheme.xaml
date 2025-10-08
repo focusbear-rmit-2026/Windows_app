@@ -32,9 +32,6 @@
     <BitmapImage x:Key="HabitImage" UriSource="../Images/checkmark_rectangle.png" />
     <BitmapImage x:Key="StatsImage" UriSource="../Images/person.png" />
 
-    <SolidColorBrush x:Key="ToggleTrackOffBrush" Color="#D1D1D6"/>
-    <SolidColorBrush x:Key="ToggleTrackOnBrush" Color="#007AFF"/>
-
     <SolidColorBrush x:Key="ExpanderBackground" Color="White"/>
 
     <!-- Tooltip Base colors -->
