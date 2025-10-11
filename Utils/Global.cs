@@ -455,6 +455,20 @@ namespace Focus_Bear.Utils
             }
         }
 
+        public int _AlignmentScoreThreshold;
+        public int AlignmentScoreThreshold
+        {
+            get { return _AlignmentScoreThreshold; }
+            set
+            {
+                if (value != _AlignmentScoreThreshold)
+                {
+                    _AlignmentScoreThreshold = value;
+                    OnChanged("AlignmentScoreThreshold");
+                }
+            }
+        }
+
 
         //public List<string> arrAllowedApps; //wont use this as this is for mac apps
         public ObservableCollection<string> arrAllowedUrls = new ObservableCollection<string>();
@@ -546,7 +560,7 @@ namespace Focus_Bear.Utils
         {
 
         }
-        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, bool isDeepWorkFocus, string sToolTip = "", string lastTaskUsed = "")
+        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, bool isDeepWorkFocus, string sToolTip = "", string lastTaskUsed = "", int AlignmentScoreThreshold = 80)
         {
             this.id = id;
             this.name = name;
@@ -564,6 +578,7 @@ namespace Focus_Bear.Utils
             this.isDeepWorkFocus = isDeepWorkFocus;
             this.sToolTip = sToolTip;
             this.lastTaskUsed = lastTaskUsed;
+            this.AlignmentScoreThreshold = AlignmentScoreThreshold;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

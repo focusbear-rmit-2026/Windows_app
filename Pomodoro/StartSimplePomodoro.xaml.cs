@@ -64,7 +64,7 @@ namespace Focus_Bear.Pomodoro
 
                 HowMuchTime.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["pomodoroModeDurationText"].ToString();
 
-                ((TextBlock)MoreOptionsExpander.Header).Text = appSettings.ConfigFileStrings["pomodoroInfo"]["moreOptionsText"].ToString();
+                ((TextBlock)MoreOptionsExpander.Header).Text = "More Options"; // todo win texts //appSettings.ConfigFileStrings["pomodoroInfo"]["moreOptionsText"].ToString();
 
                 MinutesTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
                 BreakDuration.Text = appSettings.ConfigFileStrings["preferencesInfo"]["breakDurationText"].ToString();
@@ -92,11 +92,8 @@ namespace Focus_Bear.Pomodoro
 
             UpdateValues();
 
-            if (!RegistryManager.GetSimplePomodoroTourShownStatus()) //can use this to detect the first pomodoro session
-            {
-                TxtIntention.Text = appSettings.sSavedIntentionFirstFocusSession;
-                ShowTourPopup();
-            }
+            //Removing the tour popup as now the UI has changed to show minimal options: 10 Oct 2025
+
             TitleBarThemeChange();
             App.ThemeChanged += TitleBarThemeChange;
 

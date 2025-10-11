@@ -560,6 +560,7 @@ namespace Focus_Bear.API
                    $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
                    $"\"isRelaxFocus\":{JsonConvert.SerializeObject(FF.isRelaxFocus)}," +
                    $"\"isDeepWorkFocus\":{JsonConvert.SerializeObject(FF.isDeepWorkFocus)}," +
+                   $"\"focusAlignmentScoreThreshold\":{JsonConvert.SerializeObject(FF.AlignmentScoreThreshold)}," +
                    $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
                    $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
 
@@ -703,6 +704,7 @@ namespace Focus_Bear.API
                         $"\"allowed_apps_win\":{JsonConvert.SerializeObject(FF.arrAllowedAppsWin.ToArray<AppDetails>())}," +
                         $"\"color\":\"{color}\"," +
                         $"\"lastTaskUsed\":{JsonConvert.SerializeObject(FF.lastTaskUsed)}," +
+                        $"\"focusAlignmentScoreThreshold\":{JsonConvert.SerializeObject(FF.AlignmentScoreThreshold)}," +
                         $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
                         $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}," +
                         $"\"isDefault\":{JsonConvert.SerializeObject(FF.isDefault)}," +

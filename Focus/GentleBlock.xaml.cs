@@ -150,21 +150,8 @@ namespace Focus_Bear.Focus
                     If uri does not specify a scheme, the scheme defaults to "http:".
                     */
                     // Ensure it has a scheme, otherwise UriBuilder will throw
-                    if (!sActiveURL.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-                    {
-                        sActiveURL = "http://" + sActiveURL;
-                    }
-
-                    Uri myUri;
-                    if (Uri.TryCreate(sActiveURL, UriKind.Absolute, out myUri))
-                    {
-                        sHost = myUri.Host;
-                        Debug.WriteLine($"Host: {sHost}");
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"Invalid URL: {sActiveURL}");
-                    }
+                    Uri myUri = new UriBuilder(sActiveURL).Uri;
+                    sHost = myUri.Host;
 
                     Debug.WriteLine(ex.Message);
                 } 

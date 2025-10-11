@@ -163,8 +163,10 @@ namespace Focus_Bear.SetIntention
                 //found in allowed url, remove it
                 appSettings.TemporaryAllowedURLsWithSetIntention.Remove(allowedURLs.First());
             }
+            //Inserting at 0, as we checkfor the first element of the found itmes.
+            //fixes - Temporary site unblock (10-minute option) not working #834
 
-            appSettings.TemporaryAllowedURLsWithSetIntention.Add(new DistractingURLAllowedWithIntention(sActiveURL.ToLower(), TxtIntention.Text, DateTime.Now.AddMinutes(nMinutesToUseSite), nMinutesToUseSite.ToString(), false));
+            appSettings.TemporaryAllowedURLsWithSetIntention.Insert(0,new DistractingURLAllowedWithIntention(sActiveURL.ToLower(), TxtIntention.Text, DateTime.Now.AddMinutes(nMinutesToUseSite), nMinutesToUseSite.ToString(), false));
 
             Hide();
 
@@ -340,7 +342,7 @@ namespace Focus_Bear.SetIntention
             dispatcherTimerAutoBlock.Start();
             CommandManager.InvalidateRequerySuggested();
         }
-
+        //Timer used to show 5 seconds delay after the user have unlocked already for once
         private void dispatcherTimer_Unlock(object sender, EventArgs e)
         {
             nTimer--;

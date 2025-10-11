@@ -64,7 +64,11 @@ namespace Focus_Bear.Pomodoro
                 BreakDuration.Text = appSettings.ConfigFileStrings["preferencesInfo"]["breakDurationText"].ToString();
                 MinutesBreakTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
 
-                MicroBreaksInfo.ToolTip = appSettings.ConfigFileStrings["pomodoroInfo"]["toggleBreaksTooltip"].ToString();
+                string sTip = appSettings.ConfigFileStrings["pomodoroInfo"]["toggleBreaksTooltip"].ToString();
+                sTip = sTip.Replace("<BREAK_FREQUENCY>", appSettings.breakAfterMinutes.ToString());
+                sTip = sTip.Replace("<BREAK_DURATION>", BreakDuration.ToString());
+
+                MicroBreaksInfo.ToolTip = sTip;
 
                 ShowAccordingFocusAlignmentScoreText.Text = appSettings.ConfigFileStrings["focusPreferencesAdvancedInfo"]["focusAlignmentScoreTitle"].ToString();
 
@@ -118,6 +122,8 @@ namespace Focus_Bear.Pomodoro
             if (ComboBoxFocusModes.Items.Count > 0)
             {
                 ComboBoxFocusModes.SelectedIndex = 0;
+                
+                FocusAlignmentThresholdCombo.SelectedItem = appSettings.arrFocusModes[0].AlignmentScoreThreshold;
             }
         }
 
@@ -227,7 +233,15 @@ namespace Focus_Bear.Pomodoro
 
         private void ComboBoxFocusModes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            string sFocusModeToStart = ComboBoxFocusModes.SelectedItem.ToString();
 
+            for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
+            {
+                if (appSettings.arrFocusModes[i].name == sFocusModeToStart)
+                {
+                    FocusAlignmentThresholdCombo.SelectedIndex = (appSettings.arrFocusModes[i].AlignmentScoreThreshold / 10) - 5;
+                }
+            }
         }
 
         private void btnEditFocusModes_Click(object sender, RoutedEventArgs e)
@@ -263,6 +277,11 @@ namespace Focus_Bear.Pomodoro
         private void Minutes_TextChanged(object sender, TextChangedEventArgs e)
         {
             HandleStartFocusEnableDisable();
+            //Update tooltip text
+            string sTip = appSettings.ConfigFileStrings["pomodoroInfo"]["toggleBreaksTooltip"].ToString();
+            sTip = sTip.Replace("<BREAK_FREQUENCY>", appSettings.breakAfterMinutes.ToString());
+            sTip = sTip.Replace("<BREAK_DURATION>", MinutesBreak.Text.ToString());
+            MicroBreaksInfo.ToolTip = sTip;
         }
 
         private void HandleStartFocusEnableDisable()
@@ -334,6 +353,9 @@ namespace Focus_Bear.Pomodoro
                 }
 
             }
+            ComboBoxItem selectedItem = FocusAlignmentThresholdCombo.SelectedItem as ComboBoxItem;
+            int value = int.Parse(selectedItem.Content.ToString());
+            appSettings.sRunningFocusModeAlignmentScoreThreshold = (double) value / 100;
 
             appSettings.sMinutesBreakPomodoro = "";
             //Start Normal Focus mode            
@@ -500,5 +522,23 @@ namespace Focus_Bear.Pomodoro
 
         }
 
+        private void FocusAlignmentThresholdCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(ComboBoxFocusModes.SelectedItem == null)
+            {
+                return;
+            }
+            string sFocusModeToStart = ComboBoxFocusModes.SelectedItem.ToString();
+
+            for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
+            {
+                if (appSettings.arrFocusModes[i].name == sFocusModeToStart)
+                {
+                    ComboBoxItem selectedItem = FocusAlignmentThresholdCombo.SelectedItem as ComboBoxItem;
+                    int value = int.Parse(selectedItem.Content.ToString());
+                    appSettings.arrFocusModes[i].AlignmentScoreThreshold = value;
+                }
+            }
+        }
     }
 }

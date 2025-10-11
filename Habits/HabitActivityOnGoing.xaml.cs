@@ -448,13 +448,14 @@ namespace Focus_Bear.Habits
                         }
                         if (videoUrl.Contains("?"))
                         {
-                            videoUrl = videoUrl + "&autoplay=1";
+                            videoUrl = videoUrl + "&autoplay=1&rel=0";
                         }
                         else
                         {
-                            videoUrl = videoUrl + "?autoplay=1";
+                            videoUrl = videoUrl + "?autoplay=1&rel=0";
                         }
 
+                        videoUrl = videoUrl.Replace("youtube.com", "youtube-nocookie.com");
                         LogWriter.LogWrite("HabitActivityOnGoing Final URL trying to video URL - " + videoUrl);
 
                         webView.Source = new System.Uri(videoUrl);
