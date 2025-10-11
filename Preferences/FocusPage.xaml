@@ -83,7 +83,7 @@
                 <ListView   Grid.Row="0"   x:Name="ListFocusModes" AutomationProperties.AutomationId="lvFocusModes" SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" SelectionChanged="ListFocusModes_SelectionChanged" Grid.ColumnSpan="2">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Grid x:Name="ItemHeader"  Height="40"  Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >
+                                    <Grid x:Name="ItemHeader"  Height="40" Width="280" Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="25"/>
                                     <ColumnDefinition Width="*"/>
@@ -91,7 +91,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Rectangle Fill="{Binding color, StringFormat=\{0\}}" Width="25" Height="25"  RadiusX="4" RadiusY="4"></Rectangle>
                                 <TextBlock Grid.Column="1" x:Name="ListViewTextBlock" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource PreferenceFocusListItemForegroundColor}"/>
-                                <Image x:Name="InfoImageMeetings" Grid.Column="2" Source="{DynamicResource InfoImage}" Width="18"  Margin="0,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{Binding Path=isMeetings, Converter={StaticResource BoolToVis}}" ToolTip="{Binding sToolTip, StringFormat=\{0\}}"></Image>
+                                <Image x:Name="InfoImageMeetings" Grid.Column="2" Source="{DynamicResource InfoImage}" Width="18"  Margin="0,0,8,0" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding Path=isMeetings, Converter={StaticResource BoolToVis}}" ToolTip="{Binding sToolTip, StringFormat=\{0\}}"></Image>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>

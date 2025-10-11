@@ -72,7 +72,7 @@ namespace Focus_Bear.Focus
                     }
 
                     double currentProbability = info.ContainsKey("probability") ? Convert.ToDouble(info["probability"]) : 0;
-                    if (currentProbability >= 0.80)
+                    if (currentProbability >= appSettings.sRunningFocusModeAlignmentScoreThreshold)
                     {
                         string reason = AppAllowedInFocusModeText.Replace("<APP>", appName).Replace("<FOCUSMODE>", focusModeName);
                         CustomToolTip = reason;
@@ -99,7 +99,7 @@ namespace Focus_Bear.Focus
                         { "startedTime", DateTime.Now }
                     };
 
-                        if (probability >= 0.80)
+                        if (probability >= appSettings.sRunningFocusModeAlignmentScoreThreshold)
                         {
                             string reason = AppAllowedInFocusModeText.Replace("<APP>", appName).Replace("<FOCUSMODE>", focusModeName);
                             CustomToolTip = reason;
@@ -259,7 +259,7 @@ namespace Focus_Bear.Focus
                 }
                 else
                 {
-                    if (probability >= 0.80)
+                    if (probability >= appSettings.sRunningFocusModeAlignmentScoreThreshold)
                     {
                         Application.Current.Dispatcher.BeginInvoke((Action)(() =>
                         {
@@ -325,7 +325,7 @@ namespace Focus_Bear.Focus
 
                 if (probability< 0.8)
                 {
-                    if (currentFocusAlignmentScore < 0.80)
+                    if (currentFocusAlignmentScore < appSettings.sRunningFocusModeAlignmentScoreThreshold)
                     {
                         // Unsafe url
                         //showPopupBlockConfirmWindow(

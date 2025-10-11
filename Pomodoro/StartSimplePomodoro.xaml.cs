@@ -53,18 +53,25 @@ namespace Focus_Bear.Pomodoro
                 Heading.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["title"].ToString();
                 RadioAI.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonBlockingStyleAiText"].ToString(); //"AI powered blocking(recommended)";
                 RadioAI.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["toolTipAiBlocking"].ToString();//"When you open a website you haven't specifically blocked or allowed, we'll use AI to check whether the website is relevant or not based on your focus intention. In strict mode, it will block it immediately if it's not relevant. In non strict mode, it will show a popup asking whether you really need it.",;
-
                 RadioSuperDistracting.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonBlockingStyleDistractingSitesText"].ToString(); //"Just block super distracting sites";//
                 RadioSuperDistracting.ToolTip = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["checkBoxText"].ToString(); //"Immediately block super distracting sites"
                 BlockingStyle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["titleBlockingStyleText"].ToString(); //"Blocking Style: ";
-               
 
-                HowMuchTime.Text = appSettings.ConfigFileStrings["preferencesInfo"]["pomodoroModeDurationText"].ToString();
+                FocusDurationInfo.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["subTitleWorkDuration"].ToString();
+                BreakDurationInfo.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["subTitleBreakDuration"].ToString();
+                AIPoweredBlockingInfo.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["toolTipAiBlocking"].ToString(); //"AI powered blocking uses machine learning to identify and block distracting websites and applications based on your usage patterns. It adapts over time to better suit your needs."
+                IntentionInfo.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["subTitleIntention"].ToString();
+
+                HowMuchTime.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["pomodoroModeDurationText"].ToString();
+
+                ((TextBlock)MoreOptionsExpander.Header).Text = "More Options"; // todo win texts //appSettings.ConfigFileStrings["pomodoroInfo"]["moreOptionsText"].ToString();
+
                 MinutesTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
                 BreakDuration.Text = appSettings.ConfigFileStrings["preferencesInfo"]["breakDurationText"].ToString();
                 MinutesBreakTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
 
                 WhatPlan.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["questionFirstText"].ToString();  //"What do you want to achieve in this pomodoro session?";
+                TimeUnfocusedText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["timerText"].ToString();
                 btnStartSessionText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonLetsDoItText"].ToString();
 
                 if(appSettings.isExpired)
@@ -85,11 +92,8 @@ namespace Focus_Bear.Pomodoro
 
             UpdateValues();
 
-            if (!RegistryManager.GetSimplePomodoroTourShownStatus()) //can use this to detect the first pomodoro session
-            {
-                TxtIntention.Text = appSettings.sSavedIntentionFirstFocusSession;
-                ShowTourPopup();
-            }
+            //Removing the tour popup as now the UI has changed to show minimal options: 10 Oct 2025
+
             TitleBarThemeChange();
             App.ThemeChanged += TitleBarThemeChange;
 
@@ -220,7 +224,7 @@ namespace Focus_Bear.Pomodoro
             string MinutesText = Minutes.Text;
             string MinutesBreakText = MinutesBreak.Text;
 
-            if ((MinutesText.Length > 0 && int.Parse(MinutesText) > 0) && (MinutesBreakText.Length > 0 && int.Parse(MinutesBreakText) > 0) && TxtIntention.Text.Length > 0)
+            if ((MinutesText.Length > 0 && int.Parse(MinutesText) > 0) && (MinutesBreakText.Length > 0 && int.Parse(MinutesBreakText) > 0))
             {
                 btnStartSession.IsEnabled = true;
             }

@@ -61,7 +61,7 @@
             </Grid>
             <StackPanel Grid.Row="5" Orientation="Vertical">
 
-                <Button  x:Name="btnResetPassword" AutomationProperties.AutomationId="btnResetPassword"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="135" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnResetPassword_Click" >
+                <Button  x:Name="btnResetPassword" AutomationProperties.AutomationId="btnResetPassword"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="150" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnResetPassword_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnResetPasswordTXT" Text="xReset Password" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -69,7 +69,7 @@
                     </Button.Content>
                 </Button>
 
-                <Button  x:Name="btnLogout" AutomationProperties.AutomationId="btnLogout"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="135" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnLogout_Click" >
+                <Button  x:Name="btnLogout" AutomationProperties.AutomationId="btnLogout" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"    Height="27" Width="150" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnLogout_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnLogoutTXT" Text="xLogout" Style="{DynamicResource ButtonTextBlockStyle}"/>

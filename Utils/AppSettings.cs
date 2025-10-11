@@ -22,6 +22,7 @@ using System.Drawing;
 using Focus_Bear.SetIntention;
 using Focus_Bear.Focus.BlurWindow;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 
 namespace Focus_Bear.Utils          
 {
@@ -262,6 +263,8 @@ namespace Focus_Bear.Utils
         public string sRunningFocusModeStartTime = "";
         public string sRunningFocusModeEndTime = "";
         public string sRunningFocusModeIntention = "";
+        public double sRunningFocusModeAlignmentScoreThreshold;
+
         public bool bSkipMicroBreaksDuringFocus;
         public bool bShowFocusModeEnd; 
         public bool bDontShowModeChangeFB = false;
@@ -1318,6 +1321,7 @@ namespace Focus_Bear.Utils
                                     bool isDeepWorkFocus = false;
                                     string sTooltip = "";
                                     string lastTaskUsed = "";
+                                    int focusAlignmentScoreThreshold = 80;
 
                                     if (name == "Free time - block nothing")
                                     {
@@ -1370,6 +1374,7 @@ namespace Focus_Bear.Utils
                                         isOn = false; // we will keep it hardcoded false as we are also finishing any focus mode that is running.
                                         isAllowedAllApps = metadata.ContainsKey("isAllowedAllApps") ? Convert.ToBoolean(metadata.GetValue("isAllowedAllApps")) : false;
                                         isAllowedListApproach = metadata.ContainsKey("isAllowedListApproach") ? Convert.ToBoolean(metadata.GetValue("isAllowedListApproach")) : false;
+                                        focusAlignmentScoreThreshold = metadata.ContainsKey("focusAlignmentScoreThreshold") ? Convert.ToInt32(metadata.GetValue("focusAlignmentScoreThreshold")) : 80;
                                         isDefault = metadata.ContainsKey("isDefault") ? Convert.ToBoolean(metadata.GetValue("isDefault")) : false;
                                         isMeetings = metadata.ContainsKey("isMeetings") ? Convert.ToBoolean(metadata.GetValue("isMeetings")) : false;
                                         isLockedFocus = metadata.ContainsKey("isLockedFocus") ? Convert.ToBoolean(metadata.GetValue("isLockedFocus")) : false;
@@ -1377,7 +1382,7 @@ namespace Focus_Bear.Utils
                                         isDeepWorkFocus = metadata.ContainsKey("isDeepWorkFocus") ? Convert.ToBoolean(metadata.GetValue("isDeepWorkFocus")) : false;
                                     }
 
-                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : sTooltip), lastTaskUsed));
+                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : sTooltip), lastTaskUsed, focusAlignmentScoreThreshold));
                                 }
 
                                 catch (Exception ex)
@@ -2569,6 +2574,10 @@ namespace Focus_Bear.Utils
         
         public async void ShowBlurWindow(IntPtr hwndTarget)
         {
+#if DEBUG
+         return;
+#endif
+
             if (wndBlurWindow == null)
             {
                 wndBlurWindow = new BlurWindow();

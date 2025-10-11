@@ -75,8 +75,102 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>
+    </Style>
     
+    <!-- (More options) Expander -->
+    <Style x:Key="PomodoroOptionsExpanderStyle" TargetType="{x:Type Expander}">
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Expander}">
+                    <Grid SnapsToDevicePixels="True">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
+                        <ToggleButton x:Name="HeaderToggle"
+                            Grid.Row="0"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Focusable="False"
+                            HorizontalAlignment="Stretch"
+                            IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+
+                            <Border x:Name="HeaderBorder"
+                                Background="{DynamicResource ExpanderBackground}"
+                                BorderBrush="{DynamicResource TabChosenColor}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="0"
+                                MinHeight="40"
+                                SnapsToDevicePixels="True">
+                                <Grid>
+                                    <Border x:Name="HoverOverlay"
+                                    Background="{DynamicResource PreferenceTitleButtonPressedColor}"
+                                    CornerRadius="8"
+                                    Opacity="0"
+                                    IsHitTestVisible="False"/>
+
+                                    <ContentPresenter x:Name="HeaderContent"
+                                  Content="{TemplateBinding Header}"
+                                  ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                  Margin="0,0,40,0"
+                                  VerticalAlignment="Center"/>
+
+                                    <Path x:Name="Chevron"
+                                      Stroke="{DynamicResource ForegroundGrey}"
+                                      StrokeThickness="2"
+                                      Margin="0,0,15,0"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      HorizontalAlignment="Right"
+                                      VerticalAlignment="Center"
+                                      Width="12" Height="8"
+                                      Data="M 0 0 L 6 6 L 12 0"
+                                      RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform>
+                                            <RotateTransform Angle="-90"/>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                </Grid>
+                            </Border>
+                        </ToggleButton>
+
+                        <ContentPresenter x:Name="ExpandSite"
+                            Grid.Row="1"
+                            Margin="0,8,0,0"
+                            Focusable="False"
+                            Visibility="Collapsed"
+                            ContentSource="Content"/>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger SourceName="HeaderToggle" Property="IsMouseOver" Value="True">
+                            <Setter TargetName="HoverOverlay" Property="Opacity" Value="1"/>
+                        </Trigger>
+
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Chevron" Property="RenderTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="0"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="HeaderBorder" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 </ResourceDictionary>
