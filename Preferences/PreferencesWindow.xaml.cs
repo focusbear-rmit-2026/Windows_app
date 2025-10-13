@@ -76,7 +76,7 @@ namespace Focus_Bear.Preferences
             App.ThemeChanged += btnThemeChange;
 
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
- 
+
             ///this.Topmost = true;
 
             try
@@ -283,12 +283,12 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnSettings.IsEnabled = false;
             btnSettingsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-            AdjustWindowSize(680,750);
+            AdjustWindowSize(999,750);
             if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
-                AdjustWindowSize(735, 900);
+                AdjustWindowSize(999, 750);
             }
-
+            
             FrameSettings.Visibility = Visibility.Visible;
         }
              
@@ -300,10 +300,10 @@ namespace Focus_Bear.Preferences
             btnFocus.IsEnabled = false;
             btnFocusTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
             
-            AdjustWindowSize(775, 750);
+            AdjustWindowSize(999, 750);
             if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
-                AdjustWindowSize(835, 900);
+                AdjustWindowSize(999, 750);
             }
             
 
@@ -342,13 +342,13 @@ namespace Focus_Bear.Preferences
             btnBlocks.IsEnabled = false;
             btnBlocksTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
 
-            AdjustWindowSize(680,780);
+            AdjustWindowSize(999,750);
 
             if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
-                 AdjustWindowSize(735, 900);
+                 AdjustWindowSize(999, 750);
             }
-
+            
 
             FrameBlocks.Visibility = Visibility.Visible;
            
@@ -548,7 +548,7 @@ namespace Focus_Bear.Preferences
             btnHelp.IsEnabled = false;
             btnHelpTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
 
-            AdjustWindowSize(680, 750);
+            AdjustWindowSize(999, 750);
             
             FrameHelpTab.Visibility = Visibility.Visible;
         }
@@ -562,7 +562,7 @@ namespace Focus_Bear.Preferences
             }
         }
 
-        private void AdjustWindowSize(double width, double height, bool bRecenterWindow = false)
+        private void AdjustWindowSize(double width, double height, bool bRecenterWindow = true)
         {
             this.Width = width;
             this.Height = height;
