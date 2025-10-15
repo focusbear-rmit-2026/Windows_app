@@ -827,7 +827,7 @@ namespace Focus_Bear.Utils
                     .GetField("screens", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
                     ?.SetValue(null, null);
 
-                // Obtener el área de todas las pantallas
+                // Obtain the area of all screens
                 var screens = System.Windows.Forms.Screen.AllScreens
                                 .Select(s => s.Bounds)
                                 .ToList();
