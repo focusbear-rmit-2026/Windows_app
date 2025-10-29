@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -35,6 +36,8 @@ namespace Focus_Bear.Focus
         App app = (App)Application.Current;
         DispatcherTimer dispatcherTimerShowTasksEndWindow = new DispatcherTimer(DispatcherPriority.Normal);
         bool bForceClosingFocusMode = false;
+        bool bDoNotShowBreak = false; 
+
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         public FocusModeEnd(bool bForceClosingFocusModeLocal = false)
@@ -141,8 +144,11 @@ namespace Focus_Bear.Focus
             if(((App)(Application.Current)).isMorningHabitsAlreadyShown)
                 ((App)(Application.Current)).StartBreakActivityTimer();
 
-            //Show the Break Window
-            ((App)(Application.Current)).ShowBreakWindow();
+            if (!bDoNotShowBreak)
+            {
+                //Show the Break Window
+                ((App)(Application.Current)).ShowBreakWindow();
+            }
 
             //Show the brain dump window
             if (appSettings.sBrainDump.Length > 0) //Only show if there is text.
@@ -237,6 +243,8 @@ namespace Focus_Bear.Focus
 
                 try
                 {
+                    bDoNotShowBreak = false;
+
                     btnContinueText.Text = appSettings.ConfigFileStrings["common"]["buttonContinueText"].ToString();
                     Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["title"].ToString();
 
@@ -377,7 +385,15 @@ namespace Focus_Bear.Focus
             {
                 return;
             }
-            
+
+            bool wasCodeClosed = new StackTrace().GetFrames().FirstOrDefault(x => x.GetMethod() == typeof(Window).GetMethod("Close")) != null;
+            if (!wasCodeClosed)
+            {
+                // Closed with Default Cross button, now we do not need to show the Break Window
+                LogWriter.LogWrite("Focusmode End Window_Closing() : User clicked default Close button");
+                bDoNotShowBreak = true; 
+            }
+
             e.Cancel = true;
             if(!appSettings.bStartingAnotherFocusMode)
                 Take5MinsBreak();

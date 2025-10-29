@@ -9,7 +9,7 @@
 
     <Window.ContextMenu>
         <ContextMenu x:Name="TrayContextMenu">
-            <MenuItem Header="Exit" Click="ExitMenuItem_Click"/>
+            <MenuItem Header="Exit" Click="btnQuit_Click"/>
         </ContextMenu>
     </Window.ContextMenu>
 

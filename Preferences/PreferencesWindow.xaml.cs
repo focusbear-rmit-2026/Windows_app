@@ -76,8 +76,7 @@ namespace Focus_Bear.Preferences
             App.ThemeChanged += btnThemeChange;
 
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
- 
-            ///this.Topmost = true;
+            AdjustWindowSize(0.6,0.9,true);
 
             try
             {
@@ -171,7 +170,7 @@ namespace Focus_Bear.Preferences
 
             var isLightTheme = Global.IsLightTheme();
             var source = (HwndSource)PresentationSource.FromVisual(this);
-            
+
 
             if (source != null)
             {
@@ -205,64 +204,64 @@ namespace Focus_Bear.Preferences
                     app.UseImmersiveDarkMode(source.Handle, true);//true for dark  
                 }
             }
-                //Status
-                if (btnStats.IsEnabled == true)
-                {
-                    btnStatsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-                }
-                else
-                {
-                    btnStatsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-                }
-                //Settings
-                if (btnSettings.IsEnabled == true)
-                {
-                    btnSettingsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-                }
-                else
-                {
-                    btnSettingsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-                }
-                //Focus
-                if (btnFocus.IsEnabled == true)
-                {
-                    btnFocusTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-                }
-                else
-                {
-                    btnFocusTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-                }
-                //EditHabits
-                if (btnEditHabits.IsEnabled == true)
-                {
-                    btnEditHabitsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-                }
-                else
-                {
-                    btnEditHabitsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-                }
-                //EditHabits
-                if (btnHelp.IsEnabled == true)
-                {
-                    btnHelpTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-                }
-                else
-                {
-                    btnHelpTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-                }
-                //EditHabits
-                if (btnBlocks.IsEnabled == true)
-                {
-                    btnBlocksTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
-                }
-                else
-                {
-                    btnBlocksTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-                }
+            //Status
+            if (btnStats.IsEnabled == true)
+            {
+                btnStatsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            }
+            else
+            {
+                btnStatsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            }
+            //Settings
+            if (btnSettings.IsEnabled == true)
+            {
+                btnSettingsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            }
+            else
+            {
+                btnSettingsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            }
+            //Focus
+            if (btnFocus.IsEnabled == true)
+            {
+                btnFocusTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            }
+            else
+            {
+                btnFocusTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            }
+            //EditHabits
+            if (btnEditHabits.IsEnabled == true)
+            {
+                btnEditHabitsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            }
+            else
+            {
+                btnEditHabitsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            }
+            //EditHabits
+            if (btnHelp.IsEnabled == true)
+            {
+                btnHelpTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            }
+            else
+            {
+                btnHelpTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            }
+            //EditHabits
+            if (btnBlocks.IsEnabled == true)
+            {
+                btnBlocksTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonNormalColor));
+            }
+            else
+            {
+                btnBlocksTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
+            }
 
 
         }
-        
+
         private void btnStats_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Preferences tab - btnStats_Click");
@@ -270,9 +269,7 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnStats.IsEnabled = false;
             btnStatsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-            //btnThemeChange(btnStats);
-
-            AdjustWindowSize(999, 750);
+            //original size 680, 750
 
             FrameStats.Visibility = Visibility.Visible;
         }
@@ -283,15 +280,15 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnSettings.IsEnabled = false;
             btnSettingsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-            AdjustWindowSize(680,750);
+            //original size 680, 750
             if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
-                AdjustWindowSize(735, 900);
+                //original size 735, 900
             }
 
             FrameSettings.Visibility = Visibility.Visible;
         }
-             
+
         private void btnFocus_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Preferences tab - btnFocus_Click");
@@ -299,13 +296,12 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnFocus.IsEnabled = false;
             btnFocusTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-            
-            AdjustWindowSize(775, 750);
+
             if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
-                AdjustWindowSize(835, 900);
+                //AdjustWindowSize();
             }
-            
+
 
             FrameFocus.Visibility = Visibility.Visible;
         }
@@ -318,8 +314,6 @@ namespace Focus_Bear.Preferences
             btnEditHabits.IsEnabled = false;
             btnEditHabitsTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
 
-            AdjustWindowSize(999,750);
-
             FrameEditHabits.Visibility = Visibility.Visible;
 
             appSettings.CapturePostHog("edit-habits");
@@ -331,7 +325,7 @@ namespace Focus_Bear.Preferences
             LogWriter.LogWrite("Preferences tab - btnPassword_Click");
 
             EnableAll();
-         
+
         }
 
         private void btnBlocks_Click(object sender, RoutedEventArgs e)
@@ -341,19 +335,18 @@ namespace Focus_Bear.Preferences
             EnableAll();
             btnBlocks.IsEnabled = false;
             btnBlocksTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
-
-            AdjustWindowSize(680,780);
+            //original size 680,780
 
             if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
-                 AdjustWindowSize(735, 900);
+                //original size 735, 900
             }
 
 
             FrameBlocks.Visibility = Visibility.Visible;
-           
-        }
 
+        }
+        //this method is not referenced anyone.
         private void btnAccount_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Preferences tab - btnAccount_Click");
@@ -361,8 +354,6 @@ namespace Focus_Bear.Preferences
             EnableAll();
             this.Width = 680 * ScaleX;
             this.Height = 600 * ScaleY;
-
-            AdjustWindowSize(680, 600);
 
             PageAccountsTab.LoadTexts();
             FrameAccountTab.Visibility = Visibility.Visible;
@@ -373,7 +364,7 @@ namespace Focus_Bear.Preferences
             LogWriter.LogWrite("Preferences tab - btnUninstall_Click");
 
             EnableAll();
-           
+
             this.Width = 680 * ScaleX;
             this.Height = 600 * ScaleY;
 
@@ -387,7 +378,7 @@ namespace Focus_Bear.Preferences
 
             if (null != e)
                 e.Handled = true;
- 
+
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -442,7 +433,7 @@ namespace Focus_Bear.Preferences
         }
 
         private void FrameFocus_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        
+
         {
             if(FrameFocus.IsVisible)
             {
@@ -467,7 +458,7 @@ namespace Focus_Bear.Preferences
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
             }
-            
+
             if(sFocusMode.Length > 0)
                 PageFocusModes.SelectFocusMode(sFocusMode);
         }
@@ -476,12 +467,12 @@ namespace Focus_Bear.Preferences
             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnBlocks);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
-    
+
         }
         private async void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (IsVisible)
-            {    
+            {
                 if (appSettings.isPasswordSet)
                 {
                     if(appSettings.bPasswordRequireInChangeSettings)
@@ -524,7 +515,7 @@ namespace Focus_Bear.Preferences
 
                         if (bResult.Value)
                         {
-                             //Password is correct
+                            //Password is correct
                         }
                         else
                         {
@@ -548,8 +539,8 @@ namespace Focus_Bear.Preferences
             btnHelp.IsEnabled = false;
             btnHelpTXT.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PreferenceButtonSelectedColor));
 
-            AdjustWindowSize(680, 750);
-            
+            //original size 680, 750
+
             FrameHelpTab.Visibility = Visibility.Visible;
         }
 
@@ -562,8 +553,12 @@ namespace Focus_Bear.Preferences
             }
         }
 
-        private void AdjustWindowSize(double width, double height, bool bRecenterWindow = false)
+        private void AdjustWindowSize(double percentageWith,double percentageHeigth, bool bRecenterWindow = false)
         {
+            /*
+             *
+             *Previous method
+             *
             this.Width = width;
             this.Height = height;
             //Let's adjust the height
@@ -584,6 +579,25 @@ namespace Focus_Bear.Preferences
             {
                 this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
                 this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+            }*/
+
+            // 1️- Get the visible desktop size
+            double screenWidth = SystemParameters.WorkArea.Width;
+            double screenHeight = SystemParameters.WorkArea.Height;
+
+            // 2️- Calculate the new size based on the percentage
+            double newWidth = screenWidth * percentageWith;
+            double newHeight = screenHeight * percentageHeigth;
+
+            // 3️- Apply the new dimensions
+            this.Width = newWidth;
+            this.Height = newHeight;
+
+            // 4️- Center it
+            if (bRecenterWindow)
+            {
+                this.Left = Math.Max(0, (screenWidth - newWidth) / 2);
+                this.Top = Math.Max(0, (screenHeight - newHeight) / 2);
             }
             ///
         }

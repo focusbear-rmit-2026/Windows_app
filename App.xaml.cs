@@ -502,6 +502,16 @@ namespace Focus_Bear
 
             //System sleep / wake up event
             SystemEvents.PowerModeChanged += OnPowerChange;
+
+            //Display settings change event
+            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
+        }
+
+        private void OnDisplaySettingsChanged(object sender, EventArgs e)
+        {
+            // When display settings change (resolution, multiple monitors, etc.)
+            // Ensure all app windows are visible
+            Focus_Bear.Utils.WindowHelper.EnsureAllVisible();
         }
 
         private void OnPowerChange(object s, PowerModeChangedEventArgs e)
@@ -691,6 +701,26 @@ namespace Focus_Bear
                     wndTrayMenu.Activate();
                     wndTrayMenu.Focus();
                     wndTrayMenu.SetTrayMenuPosition();
+                }
+                else if (e.Button == System.Windows.Forms.MouseButtons.Right) // Opens context menu on right click to close the app
+                {
+                    LogWriter.LogWrite("TrayIcon Right-Click Detected");
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        if (wndTrayMenu == null)
+                            wndTrayMenu = new TrayMenu();
+
+                        var contextMenu = wndTrayMenu.TrayContextMenu;
+                        if (contextMenu != null)
+                        {
+                            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
+                            contextMenu.IsOpen = true;
+                        }
+                        else
+                        {
+                            LogWriter.LogWrite("TrayContextMenu not found in wndTrayMenu");
+                        }
+                    });
                 }
             }
             catch (Exception ex)
@@ -2571,6 +2601,7 @@ namespace Focus_Bear
                 if (!appSettings.bHabitwithAllowedAppsRunning) //Only show window when habit with allowed app is not running..
                 {
                     wndHabits.Show();
+                    Focus_Bear.Utils.WindowHelper.EnsureWindowVisible(wndHabits); // Make sure the window is visible    
                     wndHabits.Activate();
                     wndHabits.Focus();
                 }
@@ -3233,6 +3264,7 @@ namespace Focus_Bear
                 wndHabits = new HabitWindow();
                 wndHabits.Topmost = true;
                 wndHabits.Show();
+                Focus_Bear.Utils.WindowHelper.EnsureWindowVisible(wndHabits); // Make sure the window is visible
                 wndHabits.Activate();
                 wndHabits.Focus();
                 ShowBlankWindowOnOtherScreens();
@@ -3282,6 +3314,7 @@ namespace Focus_Bear
             wndShutOff = new ShutOffWindow();
             wndShutOff.Topmost = true;
             wndShutOff.Show();
+            Focus_Bear.Utils.WindowHelper.EnsureWindowVisible(wndShutOff); // Make sure the window is visible
             wndShutOff.Activate();
             wndShutOff.Focus();
             ShowBlankWindowOnOtherScreens();
@@ -3359,6 +3392,7 @@ namespace Focus_Bear
                 }
 
                 wndTakeABreak.Show();
+                Focus_Bear.Utils.WindowHelper.EnsureWindowVisible(wndTakeABreak); // Make sure the window is visible
                 wndTakeABreak.BringIntoView();
 
                 int nBreakMinutes = 300; //Default to 5 minutes
@@ -3706,6 +3740,7 @@ namespace Focus_Bear
                 appSettings.RemoveSecondaryWindows();
                 ShowBlankWindowOnOtherScreens();
                 wndFocusSummary.Show();
+                Focus_Bear.Utils.WindowHelper.EnsureWindowVisible(wndFocusSummary); // Make sure the window is visible
 
                 //If by chance the start pomodoro window is open, we need to close it.
                 if (appSettings.isStartPomodoroWindowOpen)
@@ -3875,6 +3910,8 @@ namespace Focus_Bear
 
                 // Unsubscribe from the events when you're done
                 SystemEvents.PowerModeChanged -= OnPowerChange;
+                Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
+
 
                 try
                 {

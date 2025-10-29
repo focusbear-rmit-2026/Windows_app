@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.SetIntention"
         mc:Ignorable="d"
+        Background="{DynamicResource BackgroundColor}"
+        Foreground="{DynamicResource ForegroundColor}"
         Title="Focus Bear" Height="315" Width="360" ResizeMode="NoResize" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
@@ -16,7 +18,7 @@
         </Grid.RowDefinitions>
 
         <Image Name="TopIcon" Grid.Column="0"  Margin="0,10,0,10" Height="64" Width="64" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1" Name="Heading"  Margin="10,5,10,0" TextWrapping="Wrap" Text="xYou intention for facebook.com" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+        <TextBlock  Grid.Row="1" Name="Heading"  Margin="10,5,10,0" TextWrapping="Wrap" Text="xYou intention for facebook.com" Foreground="{DynamicResource ForegroundColor}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
         <TextBox  Grid.Row="2" IsReadOnly="True" Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"    Height="70" Margin="15" VerticalAlignment="Top"  FontSize="15" >
             <TextBox.Effect>
                 <DropShadowEffect ShadowDepth="3"

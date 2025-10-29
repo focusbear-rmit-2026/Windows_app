@@ -1,4 +1,5 @@
 ﻿using Focus_Bear.Utils;
+using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -21,6 +23,7 @@ namespace Focus_Bear.SetIntention
     public partial class ShowIntention : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
+        App app = (App)Application.Current;
         string sActiveURL = "";
         IntPtr HWND = IntPtr.Zero;
         public string sFullURLForBlockedPage = "";
@@ -55,8 +58,23 @@ namespace Focus_Bear.SetIntention
             {
                 LogWriter.LogWrite("ShowIntention text setting ex - " + ex.Message);
             }
+            App.ThemeChanged += TitleBarThemeChange;
         }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+            }
+        }
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
 
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+        }
         public void Show_ShowIntentionWindow(IntPtr hWnd, string sURL, string sIntention )
         {
             HWND = hWnd;
