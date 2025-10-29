@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Focus_Bear.Models;
+using Interop.UIAutomationClient;
+using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,10 +14,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media.Imaging;
-using Focus_Bear.Models;
-using Interop.UIAutomationClient;
-using Microsoft.Win32;
 
 namespace Focus_Bear.Utils
 {
@@ -804,6 +805,69 @@ namespace Focus_Bear.Utils
         {
             FilePath = path;
             Thumbnail = new BitmapImage(new Uri(path));
+        }
+    }
+
+    public static class WindowHelper
+    {
+        /// Replaces a WPF Window's position if it is off-screen.
+        public static void EnsureWindowVisible(System.Windows.Window window)
+        {
+            if (window == null) return;
+
+            // Wait until the window is loaded
+            window.Dispatcher.InvokeAsync(() =>
+            {
+                bool wasMaximized = (window.WindowState == System.Windows.WindowState.Maximized);
+                if (wasMaximized)
+                    window.WindowState = System.Windows.WindowState.Normal;
+
+                // Clear cached screen list 
+                typeof(System.Windows.Forms.Screen)
+                    .GetField("screens", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
+                    ?.SetValue(null, null);
+
+                // Obtain the area of all screens
+                var screens = System.Windows.Forms.Screen.AllScreens
+                                .Select(s => s.Bounds)
+                                .ToList();
+
+                // Convert window position to device pixels because WPF uses device-independent pixels
+                var source = PresentationSource.FromVisual(window);
+                double dpiX = 1.0, dpiY = 1.0;
+                if (source?.CompositionTarget != null)
+                {
+                    dpiX = source.CompositionTarget.TransformToDevice.M11;
+                    dpiY = source.CompositionTarget.TransformToDevice.M22;
+                }
+
+                var rect = new System.Drawing.Rectangle(
+                    (int)(window.Left * dpiX),
+                    (int)(window.Top * dpiY),
+                    (int)Math.Max(1, window.Width * dpiX),
+                    (int)Math.Max(1, window.Height * dpiY)
+                );
+
+                // If the window is not visible on any screen, move it to the primary screen
+                if (!screens.Any(area => area.IntersectsWith(rect)))
+                {
+                    var primary = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
+                    window.Left = primary.Left / dpiX + (primary.Width / dpiX - window.Width) / 2;
+                    window.Top = primary.Top / dpiY + (primary.Height / dpiY - window.Height) / 2;
+                }
+
+                if (wasMaximized)
+                    window.WindowState = System.Windows.WindowState.Maximized;
+            }, System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
+        /// Replaces all WPF Windows' positions if they are off-screen.
+        public static void EnsureAllVisible()
+        {
+            foreach (Window w in Application.Current.Windows)
+            {
+                EnsureWindowVisible(w);
+            }
         }
     }
 }
