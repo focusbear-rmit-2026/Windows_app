@@ -38,22 +38,22 @@
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         
-        <TextBlock Grid.Row="0" Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+        <TextBlock Grid.Row="0" Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Center"/>
 
-        <TextBlock Grid.Row="1" x:Name="LearnMore" AutomationProperties.AutomationId="txtLearnMore" Margin="20,10,20,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand">
+        <TextBlock Grid.Row="1" x:Name="LearnMore" AutomationProperties.AutomationId="txtLearnMore" Margin="20,10,20,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand">
             <Hyperlink x:Name="btnLearnMore" Click="btnLearnMore_Click" TextDecorations="Underline">
                 <Run x:Name="btnLearnMoreTXT" Text="Learn more about the pomodoro technique here."/>
             </Hyperlink>
         </TextBlock>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <TextBlock Name="PomodoroMode" Margin="0,0,0,0" Width="245" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Left"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock Name="PomodoroMode" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right"/>
             <CheckBox Name="EnterPomodoroCheck" AutomationProperties.AutomationId="chkEnterPomodoro" Margin="20,3,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="14" Checked="EnterPomodoroCheck_Checked" Unchecked="EnterPomodoroCheck_Unchecked" Cursor="Hand" Padding="5,-2,0,0">
                 <TextBlock Width="340" TextWrapping="Wrap" Name="EnterPomodoroCheckTxt"/>
             </CheckBox>
         </StackPanel>
 
-        <Button Grid.Row="3" x:Name="btnAdvanced" AutomationProperties.AutomationId="btnAdvanced" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" Height="27" Width="160" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="285,0,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnAdvanced_Click">
+        <Button Grid.Row="3" x:Name="btnAdvanced" AutomationProperties.AutomationId="btnAdvanced" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" Height="27" Width="160" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnAdvanced_Click">
             <Button.Content>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock x:Name="btnAdvancedTXT" Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -61,10 +61,10 @@
             </Button.Content>
         </Button>
         
-        <TextBlock Grid.Row="4" Name="SuperPomodoroStatus" Margin="285,0,20,20" TextWrapping="Wrap" Foreground="Gray" FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
+        <TextBlock Grid.Row="4" Name="SuperPomodoroStatus" Margin="0,0,20,20" TextWrapping="Wrap" Foreground="Gray" FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Center"/>
         
-        <StackPanel Grid.Row="5" Orientation="Horizontal" VerticalAlignment="Bottom">
-            <TextBlock Name="PomodoroModeDuration" Width="245" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Center"/>
+        <StackPanel Grid.Row="5" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+            <TextBlock Name="PomodoroModeDuration" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right"/>
 
             <TextBox x:Name="PomodoroMinutes"
                      AutomationProperties.AutomationId="txtBoxPomodoroMinutes"
@@ -98,8 +98,8 @@
                     Click="SaveSettings_Click"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="6" Orientation="Horizontal" VerticalAlignment="Bottom">
-            <TextBlock Name="BreakDuration" Width="245" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Center"/>
+        <StackPanel Grid.Row="6" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+            <TextBlock Name="BreakDuration" Margin="45,0,0,0" TextWrapping="Wrap" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" />
 
             <TextBox x:Name="BreakMinutes"
                      AutomationProperties.AutomationId="txtBoxBreakMinutes"

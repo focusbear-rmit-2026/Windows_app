@@ -210,14 +210,14 @@
                         </Button>
 
                         <!-- Disable Password Link (moved to Row 8) -->
-                        <TextBlock Grid.Row="7" x:Name="DisablePassword" AutomationProperties.AutomationId="txtDisablePassword" Margin="235,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand" Grid.RowSpan="2">
-    <Hyperlink x:Name="btnDisablePassword" Click="btnDisablePassword_Click" TextDecorations="Underline">
-        <Run x:Name="btnDisablePasswordTXT" Text="xDisable Password"/>
-    </Hyperlink>
+                        <TextBlock Grid.Row="7" x:Name="DisablePassword" AutomationProperties.AutomationId="txtDisablePassword" Margin="0,20,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand" Grid.RowSpan="2">
+                            <Hyperlink x:Name="btnDisablePassword" Click="btnDisablePassword_Click" TextDecorations="Underline">
+                                <Run x:Name="btnDisablePasswordTXT" Text="xDisable Password"/>
+                            </Hyperlink>
                         </TextBlock>
 
 
-                        <Grid Grid.Row="8" Margin="0,0,0,0" >
+                        <Grid Grid.Row="8" Margin="0,20,0,0" HorizontalAlignment="Center">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="185"/>
                                 <ColumnDefinition Width="*"/>
@@ -227,7 +227,7 @@
                                     <RowDefinition Height="27"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0"   Name="AskForPassword" Margin="0,0,0,0"  TextWrapping="Wrap"    Text="xAsk for password"   FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"  />
+                                <TextBlock Grid.Row="0"   Name="AskForPassword" Margin="0,0,0,0"  TextWrapping="Wrap"    Text="xAsk for password"   FontSize="14" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Right"  />
 
                             </Grid>
                             <Grid Grid.Column="1" Margin="0,0,0,0">
