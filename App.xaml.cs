@@ -702,6 +702,26 @@ namespace Focus_Bear
                     wndTrayMenu.Focus();
                     wndTrayMenu.SetTrayMenuPosition();
                 }
+                else if (e.Button == System.Windows.Forms.MouseButtons.Right) // Opens context menu on right click to close the app
+                {
+                    LogWriter.LogWrite("TrayIcon Right-Click Detected");
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        if (wndTrayMenu == null)
+                            wndTrayMenu = new TrayMenu();
+
+                        var contextMenu = wndTrayMenu.TrayContextMenu;
+                        if (contextMenu != null)
+                        {
+                            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
+                            contextMenu.IsOpen = true;
+                        }
+                        else
+                        {
+                            LogWriter.LogWrite("TrayContextMenu not found in wndTrayMenu");
+                        }
+                    });
+                }
             }
             catch (Exception ex)
             {
