@@ -527,7 +527,7 @@ namespace Focus_Bear
            
         }
 
-        private void btnQuit_Click(object sender, RoutedEventArgs e)
+        private async void btnQuit_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnQuit_Click()");
 
@@ -537,8 +537,19 @@ namespace Focus_Bear
                 //Call api top finish focus mode
                 if (appSettings.isFocusModeRunning)
                 {
+                    // Sync the todo tasks first
+                    try
+                    { 
+                        await((App)Application.Current).SyncTodoTasksFromPlayer(); 
+                    }
+                    catch (Exception ex)
+                    {                        
+                         LogWriter.LogWrite("btnQuit_Click sync: " + ex.Message); 
+                    }
+
                     appSettings.isFocusModeRunning = false;
                     ((App)Application.Current).CloseFocusProgressWindow();
+                    ((App)Application.Current).HideToDoPlayer();
 
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
