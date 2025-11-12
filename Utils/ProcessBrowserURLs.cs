@@ -384,8 +384,27 @@ namespace Focus_Bear.Utils
                 }
             }
 
-                       
-            
+            // Normalize URL for checking against always blocked list
+            var sUrlNormForOverride = (sURL ?? string.Empty)
+                .Replace("http://", "").Replace("https://", "").Replace("www.", "");
+
+            foreach (string ab in appSettings.arrAlwaysBlockedURLs)
+            {
+                var pattNormForOverride = (ab ?? string.Empty)
+                    .Replace("http://", "").Replace("https://", "").Replace("www.", "")
+                    .TrimEnd('/');
+
+                // Prefix or wildcard match
+                if (sUrlNormForOverride.StartsWith(pattNormForOverride) ||
+                    MatchWildcardString(sUrlNormForOverride, "*" + pattNormForOverride + "*"))
+                {
+                    LogWriter.LogWrite(sUrlNormForOverride + " matched SUPER DISTRACTING during focus mode - force SetIntention");
+                    // "blocked"
+                    suppressURLForFirefox(hWnd, sURL, "blocked");
+                    return;
+                }
+            }
+
             FocusAlignmentScoreManager.FocusModeOpenCurrentUrlForAlignmentScore(sURL);
 
             bool bAllowedURLFound = true; //by default allowed url is true
