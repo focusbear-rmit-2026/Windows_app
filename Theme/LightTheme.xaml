@@ -32,6 +32,8 @@
     <BitmapImage x:Key="HabitImage" UriSource="../Images/checkmark_rectangle.png" />
     <BitmapImage x:Key="StatsImage" UriSource="../Images/person.png" />
 
+    <BitmapImage x:Key="GlobeImage" UriSource="../Images/Globe.png" />
+    
     <SolidColorBrush x:Key="ExpanderBackground" Color="White"/>
 
     <!-- Tooltip Base colors -->

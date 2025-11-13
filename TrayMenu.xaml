@@ -188,6 +188,18 @@
         </Grid>
         <StackPanel Grid.Row="3" Grid.ColumnSpan="2">
 
+            <Border  x:Name="BlockingScheduleSection" Visibility="Collapsed" BorderThickness="1"   VerticalAlignment="Top"  Margin="14,0" CornerRadius="5,5,5,5" BorderBrush="Gray"  Grid.ColumnSpan="2">
+                <StackPanel  Orientation="Vertical" >
+                    <StackPanel  Orientation="Horizontal" >
+                        <TextBlock   Name="BlockingScheduleText"  Margin="15,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Foreground="{DynamicResource ForegroundColor}" >xBlocking Schedule</TextBlock>
+                        <ToggleButton x:Name="btnPauseBlockingSchedule" AutomationProperties.AutomationId="tglbtnPauseBlockingSchedule" Style="{DynamicResource MacStyleToggleSwitch}" Margin="25,3,0,0" VerticalAlignment="Center" Cursor="Hand" Focusable="True" Checked="btnPauseBlockingSchedule_Checked" Unchecked="btnPauseBlockingSchedule_Unchecked"/>
+                        <TextBlock   Name="BlockingScheduleState"  Margin="10,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Foreground="{DynamicResource ForegroundColor}" >xActive</TextBlock>
+                    </StackPanel>
+                    <TextBlock   Name="BlockingScheduleName"  Margin="15,5,0,5" FontSize="14"  FontWeight="Semibold" Foreground="{DynamicResource ForegroundColor}" >xBlocking Schedule Name</TextBlock>
+                    <TextBlock   Name="BlockingScheduleTime"  Margin="15,5,0,5" FontSize="12"  FontWeight="Normal" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource ForegroundColor}" >xBlocking Schedule Time </TextBlock>
+                </StackPanel>
+            </Border>
+
             <Button   x:Name="btnSetupFocusMode" AutomationProperties.AutomationId="btnSetupFocusModes" Click="btnSetupFocusMode_Click"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True" MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">

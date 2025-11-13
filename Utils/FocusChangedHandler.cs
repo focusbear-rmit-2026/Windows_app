@@ -131,12 +131,12 @@ namespace FocusBear.Utils
                // ProcessAlloweURLsInActivity(element);
             }
 
-            if (appSettings.isFocusModeRunning || appSettings.bHabitwithUseFocusModeRunning)
+            if (appSettings.isFocusModeRunning || appSettings.bHabitwithUseFocusModeRunning || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
             {
                 processCurrentFocusElement(element);
             }
  
-            if (appSettings.bHabitwithAllowedAppsRunning || appSettings.isFocusModeRunning)
+            if (appSettings.bHabitwithAllowedAppsRunning || appSettings.isFocusModeRunning || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
                 return;
 
             if (appSettings.IsAppDeactivated())//no need to track always blocked urls
@@ -861,6 +861,10 @@ namespace FocusBear.Utils
                         if(appSettings.bHabitwithUseFocusModeRunning)
                         {
                             listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.sUseFocusModeIDInActivity).ToList();
+                        }
+                        else if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                        {
+                            listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.ActiveSchedule.SelectedFocusModeId).ToList();
                         }
                         else //Normal focus mode running
                         {

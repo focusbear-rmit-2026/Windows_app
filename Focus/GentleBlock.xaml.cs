@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
@@ -92,7 +93,7 @@ namespace Focus_Bear.Focus
         public void ShowGentleBlockWindowAndStartTimer(IntPtr hWnd, string sFocusModeTitle, string sAppName, string sURL = "", string sIntention = "", string sTabTitle = "")
         {
             sFocusModeName = sFocusModeTitle;
-            sActiveAppName = sAppName; 
+            sActiveAppName = sAppName;
             sFullURLForBlockedPage = sURL;
             sActiveURL = sURL;
             sCurrentTabTitle = sTabTitle;
@@ -106,17 +107,17 @@ namespace Focus_Bear.Focus
 
             if (sURL.Length > 0)
             {
-                if(appSettings.bAiCheckUrlEnabled)
+                if (appSettings.bAiCheckUrlEnabled)
                     sHeading = sHeading + "\n\n" + appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkingUrlText"].ToString();
             }
             else
             {
-                
+
             }
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
             btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
-            
+
             TextReportBadAIDecision.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["reportBadAiTooltip"].ToString();
 
 
@@ -154,7 +155,7 @@ namespace Focus_Bear.Focus
                     sHost = myUri.Host;
 
                     Debug.WriteLine(ex.Message);
-                } 
+                }
 
                 string sDomain = appSettings.ConfigFileStrings["common"]["allowAllUrlsFromDomainText"].ToString();
                 sDomain = sDomain.Replace("<DOMAIN>", sHost);
@@ -165,8 +166,18 @@ namespace Focus_Bear.Focus
                 appSettings.HideBlurWindow();
                 this.Hide(); //Will keep this window hidden will we get response from API
             }
-            sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeTitle);
-            
+
+
+
+            if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+            {
+                sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
+            }
+            else
+            {
+                sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeTitle);
+            }
+
             //sHeading = sHeading.Length > 108 ? sHeading.Substring(0, 108) : sHeading; //If there are more characters, take only first 100 approx
             Heading.Text = sHeading;
 
@@ -259,7 +270,16 @@ namespace Focus_Bear.Focus
                             ReportBadAIDecision.Visibility = Visibility.Collapsed;
                             sHeading = sHeading + "\n\n" + "The status of this url could not be verified.";
                             sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
-                            sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
+
+                            if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                            {
+                                sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
+                            }
+                            else
+                            {
+                                sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
+                            }
+
                             Heading.Text = sHeading;
 
                             dispatcherTimer.Start();
@@ -313,7 +333,17 @@ namespace Focus_Bear.Focus
                                 {
                                     sHeading = sHeading + "\n\n" + appSettings.sChatGPTReasonForCurrentURL;
                                     sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
-                                    sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
+
+
+                                    if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                                    {
+                                        sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
+                                    }
+                                    else
+                                    {
+                                        sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
+                                    }
+
                                     Heading.Text = sHeading;
                                     dispatcherTimer.Start();
                                     CommandManager.InvalidateRequerySuggested();

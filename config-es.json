@@ -401,7 +401,7 @@
         "buttonReviewSettingsText": "Revisaré y Guardaré",
         "downloadReportText": "Visita el panel de control de Focus Bear en tu navegador web para descargar el informe.",
         "buttonVisitDashboardText": "Haz clic aquí para visitar el panel de control",
-        "tokenErrorText": "¡Sesión expirada! Por favor, inicia sesión de nuevo.",
+        "tokenErrorText": "Sesión expirada. Por favor, inicia sesión de nuevo.",
         "settingUrlNew": "https://dashboard.focusbear.io"
     },
     "trialNagInfo": {
@@ -669,7 +669,9 @@
         "buttonBackToCustomBlocking": "Volver al horario de bloqueo",
         "buttonAddBlockListText": "Agregar lista de bloqueos",
         "titleBlockList": "Usa listas de bloqueos para mantenerte enfocado en un tipo de trabajo.",
-        "descriptionForCustomBlocking": "Cuando uses esta lista de bloqueos, todos los sitios web estarán permitidos excepto tus URLs siempre bloqueadas."
+        "descriptionForCustomBlocking": "Cuando uses esta lista de bloqueos, todos los sitios web estarán permitidos excepto tus URLs siempre bloqueadas.",
+        "alertScheduleUsingFocusMode": "No puedes eliminar este modo de enfoque porque está asignado actualmente al horario de bloqueo \"<SCHEDULE>\". Por favor, edita ese horario primero y elige un modo de enfoque diferente.",
+        "buttonEditBlockingSchedule": "Editar horario de bloqueo"
     },
     "focusPreferencesAdvancedInfo": {
         "runScriptBeforeText": "Ejecuta el script de Apple antes de iniciar el modo de enfoque.",
@@ -1922,7 +1924,10 @@
         "titleWhatsAppGroup": "¡Únete al grupo de WhatsApp de Focus Bear para intercambiar ideas, organizar sesiones de trabajo colaborativo/acompañamiento y recibir apoyo con la app!",
         "buttonJoinWhatsAppGroupText": "Unirse al grupo de WhatsApp",
         "tabGetSupport": "Obtener Ayuda",
-        "titleAddScreenshots": "Arrastra y suelta aquí las capturas de pantalla que quieras compartir"
+        "titleAddScreenshots": "Arrastra y suelta aquí las capturas de pantalla que quieras compartir",
+        "buttonSelectScreenshots": "Seleccionar capturas de pantalla",
+        "titleSelectScreenshots": "Elige una o más capturas de pantalla que quieras compartir.",
+        "buttonSelect": "Seleccionar"
     },
     "confirmMorningRoutineTimeVcInfo": {
         "title": "Confirmar tu rutina matutina",

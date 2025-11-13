@@ -126,8 +126,10 @@ namespace Focus_Bear
                 btnSetupFocusModeText.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemSetFocusModesTitle"].ToString();
 
                 LimitedBlocking.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBlockingDisabledTitle"].ToString();
-                LimitedBlockingInfo.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipBlockingDisabled"].ToString();
+                LimitedBlockingInfo.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["addBlockingScheduleInfo"].ToString();
                 LimitedBlockingEdit.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipButtonEditBlockingSchedule"].ToString();
+
+                BlockingScheduleText.Text = appSettings.ConfigFileStrings["menuInfo"]["titleBlockingSchedule"].ToString();
 
                 if (appSettings.isOfficeModeEnabled)
                 {
@@ -176,7 +178,7 @@ namespace Focus_Bear
 
             try
             {
-                if(appSettings.nBlockingSchedule == BLOCKINGSCHEDULE.WHEN_STARTING_FOCUS_SESSION)
+                if(appSettings.arrCustomBlockingSchedules.Count == 0)
                 {
                     LimitedBlockingSection.Visibility = Visibility.Visible;
                 }
@@ -373,7 +375,8 @@ namespace Focus_Bear
                     OfficeModeSection.Visibility = Visibility.Visible;
 
                     //Focus Alignment score
-                    if (appSettings.isFocusModeRunning)
+                    if (appSettings.isFocusModeRunning || 
+                        (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled))
                     {
                         AlignmentScoreText.Visibility = Visibility.Visible;
                         double CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
@@ -435,6 +438,25 @@ namespace Focus_Bear
                 else
                 {
                     btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString(); //Todo List
+                }
+
+                if(appSettings.isBlockingScheduleRunning)
+                {
+                    BlockingScheduleSection.Visibility = Visibility.Visible;
+                    BlockingScheduleName.Text = appSettings.ActiveSchedule.name;
+                    BlockingScheduleTime.Text = appSettings.ActiveSchedule.BlockingScheduleDaysTime;
+                    if(appSettings.ActiveSchedule.isPaused)
+                    {
+                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
+                    }
+                    else
+                    {
+                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+                    }
+                }
+                else
+                {
+                    BlockingScheduleSection.Visibility = Visibility.Collapsed;
                 }
             }
             catch (Exception ex)
@@ -1427,6 +1449,105 @@ namespace Focus_Bear
             }
 
             return false;
+        }
+
+        private void btnPauseBlockingSchedule_Checked(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("BlockingSchedule Paused from menu");
+            if (appSettings.ActiveSchedule != null)
+            {
+                appSettings.ActiveSchedule.isPaused = false;
+                BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+            }
+        }
+
+        private void btnPauseBlockingSchedule_Unchecked(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("BlockingSchedule Reactiveted from menu");
+            if (appSettings.ActiveSchedule != null)
+            {
+                if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.CHILL_MODE)
+                {
+                    appSettings.ActiveSchedule.isPaused = true;
+
+                    BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
+                }
+                else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
+                {
+                    //Timer
+                    BlockingScheduleStrictTimer mwndTimer = new BlockingScheduleStrictTimer();
+                    mwndTimer.Topmost = true;
+                    mwndTimer.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                    bool? dialogResult = mwndTimer.ShowDialog();
+
+                    if (dialogResult.Value == true)
+                    {
+                        if (appSettings.ActiveSchedule != null)
+                        {
+                            appSettings.ActiveSchedule.isPaused = true;
+
+                            ((App)(Application.Current)).wndTrayMenu.BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Active";
+                        }
+                    }
+                    else
+                    {
+                        appSettings.ActiveSchedule.isPaused = false;
+
+                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            btnPauseBlockingSchedule.IsChecked = true;
+                        }), System.Windows.Threading.DispatcherPriority.Normal);
+                    }
+                }
+                else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+                {
+                    if(appSettings.isPasswordSet)
+                    {
+                        //ask password
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = this;
+                        bool? bRes = pwdWnd.ShowDialog();
+
+                        if (bRes.Value)
+                        {
+                            //Password is correct
+                            appSettings.ActiveSchedule.isPaused = true;
+                            BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
+
+                        }
+                        else
+                        {
+                            appSettings.ActiveSchedule.isPaused = false;
+
+                            BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+                            Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                btnPauseBlockingSchedule.IsChecked = true;
+                            }), System.Windows.Threading.DispatcherPriority.Normal);
+          
+                        }
+                    }
+                    else
+                    {
+                        //todo win texts
+                        FBMessageBox ff = new FBMessageBox("You're running in Super Strict mode and no password is set. You will need to set a password to pause this custom schedule.", "Focus Bear");
+                        ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                        ff.ShowDialog();
+
+                        appSettings.ActiveSchedule.isPaused = false;
+
+                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            btnPauseBlockingSchedule.IsChecked = true;
+                        }), System.Windows.Threading.DispatcherPriority.Normal);
+
+                    }
+
+                }
+
+            }
         }
     }
 }

@@ -31,6 +31,8 @@
     <BitmapImage x:Key="HabitImage" UriSource="../Images/checkmark_rectangle-dark.png" />
     <BitmapImage x:Key="StatsImage" UriSource="../Images/person-dark.png" />
 
+    <BitmapImage x:Key="GlobeImage" UriSource="../Images/Globe.png" />
+    
     <!-- Tooltip Base colors -->
     <Color x:Key="TooltipBackgroundColor">#FF2B2B2B</Color>
     <Color x:Key="TooltipForegroundColor">#FFF1F1F1</Color>

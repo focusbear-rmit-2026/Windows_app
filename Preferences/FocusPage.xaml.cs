@@ -28,7 +28,7 @@ namespace Focus_Bear.Preferences
     /// </summary>
     /// 
     
-    public partial class FocusPage : Page
+    public partial class FocusPage : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
