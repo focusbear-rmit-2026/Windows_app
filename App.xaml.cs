@@ -49,6 +49,7 @@ using System.Web.UI;
 using System.Windows.Controls;
 using Focus_Bear.Onboarding.NEW;
 using Focus_Bear.Habits.NaturalBreaks;
+using Focus_Bear.Services;
 
 namespace Focus_Bear
 {
@@ -865,6 +866,16 @@ namespace Focus_Bear
                     return;
                 }
 
+                if(appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+                {
+                    if (!appSettings.ActiveSchedule.bMicroBreaksEnabled)
+                    {
+                        LogWriter.LogWrite("appSettings.ActiveSchedule.bMicroBreaksEnabled is false - return");
+                        //Start the break Activities Timer
+                        StartBreakActivityTimer();
+                        return;
+                    }
+                }
                 if (appSettings.IsAppDeactivated())
                 {
                     LogWriter.LogWrite("appSettings.IsAppDeactivated() - return from breaks timer");
@@ -1409,6 +1420,24 @@ namespace Focus_Bear
                     }
                     CommandManager.InvalidateRequerySuggested();
                 }
+
+                LogWriter.LogWrite("attempt to Get all blocking schedules");
+                var blockingSchedulesResponse = await client.GetAllBlockingSchedules();
+                int mRes = int.Parse(blockingSchedulesResponse.ToString());
+                if (mRes == 1)
+                {
+                    LogWriter.LogWrite("GetAllBlockingSchedules Success");
+                    //User SEttings retrieved Successfully, Process them.
+                    BlockingScheduleManager.ReadAndParseBlockingSchedules();
+                }
+                else
+                {
+                    LogWriter.LogWrite("GetAllBlockingSchedules Failed");
+                    BlockingScheduleManager.ReadAndParseBlockingSchedules(); 
+                }
+
+                CommandManager.InvalidateRequerySuggested();
+
 
             });
 
@@ -1969,7 +1998,24 @@ namespace Focus_Bear
                     }
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                    {
+                        if(appSettings.bHabitsPostponedState)
+                        {
+                            if (!appSettings.isBlockingScheduleRunning)
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                            }
+                            else
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                            }
+                        }
+                        else
+                        {
+                            BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                        }
                         return;
+                    }
 
 
                     if (RegistryManager.GetMorningHabitsShownTillDate())
@@ -2002,6 +2048,17 @@ namespace Focus_Bear
                             }
                             ShowNaturalBreakDetectionWindow();
                         }
+
+                        //Check if custom blocking schedule time and no active schedule is running
+                        if (appSettings.ActiveSchedule == null && !appSettings.isBlockingScheduleRunning)
+                        {
+                            BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                        }
+                        else
+                        {
+                            BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                        }
+
                         return;
                     }
 

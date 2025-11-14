@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.SetIntention"
         mc:Ignorable="d"
+        Background="{DynamicResource BackgroundColor}"
+        Foreground="{DynamicResource ForegroundColor}"
         Title="Focus Bear"  Height="auto" Width="380" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged" >
     <Grid>
         <Grid >
@@ -17,43 +19,43 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Image Name="TopIcon" Grid.Row="0"  Margin="0,10,0,10" Height="64" Width="64" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <StackPanel x:Name="DoubleConfirm" Grid.Row="1" Orientation="Vertical" Visibility="Collapsed">
-            <TextBlock  Name="AreYouSure"  Margin="10,10,10,0" TextWrapping="Wrap" Text="xAre you sure? You already spent MINUTES minutes" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-            <TextBlock  Name="TxtTimer"  Margin="10,10,10,0" TextWrapping="Wrap" Text="x00:05" Foreground="#272727" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-        </StackPanel>
-        <TextBlock  Grid.Row="2" Name="Heading"  Margin="10,10,10,0" TextWrapping="Wrap" Text="xYou said SITE is super distracting for you. " Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <Image Name="TopIcon" Grid.Row="0"  Margin="0,10,0,10" Height="64" Width="64" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <StackPanel x:Name="DoubleConfirm" Grid.Row="1" Orientation="Vertical" Visibility="Collapsed">
+                <TextBlock  Name="AreYouSure"  Margin="10,10,10,0" TextWrapping="Wrap" Text="xAre you sure? You already spent MINUTES minutes" Foreground="{DynamicResource ForegroundColor}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock  Name="TxtTimer"  Margin="10,10,10,0" TextWrapping="Wrap" Text="x00:05" Foreground="{DynamicResource ForegroundColor}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            </StackPanel>
+            <TextBlock  Grid.Row="2" Name="Heading"  Margin="10,10,10,0" TextWrapping="Wrap" Text="xYou said SITE is super distracting for you. " Foreground="{DynamicResource ForegroundColor}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
 
-        <TextBlock Grid.Row="3" Name="TxtAutoBlockTimer"  Margin="0,10,0,0" TextWrapping="Wrap" Text="x00:30" Foreground="#272727" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-        
-        <StackPanel Visibility="Visible" Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,15,10,0">
-            <TextBlock   Name="TotalTimeSpent"  TextWrapping="Wrap" Text="xTotal time spent: "  FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center"   />
-            <Image x:Name="InfoIcon" Source="../images/info.png" Width="20"  Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Center"></Image>
-        </StackPanel>
-        
-        <StackPanel Grid.Row="5" Name="ButtonsSection" Orientation="Vertical" Margin="0,10,0,0">
+            <TextBlock Grid.Row="3" Name="TxtAutoBlockTimer"  Margin="0,10,0,0" TextWrapping="Wrap" Text="x00:30" Foreground="{DynamicResource ForegroundColor}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+
+            <StackPanel Visibility="Visible" Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,15,10,0">
+                <TextBlock   Name="TotalTimeSpent"  TextWrapping="Wrap" Text="xTotal time spent: "  FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center"   />
+                <Image x:Name="InfoIcon" Source="../images/info-dark.png" Width="20"  Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Center"></Image>
+            </StackPanel>
+
+            <StackPanel Grid.Row="5" Name="ButtonsSection" Orientation="Vertical" Margin="0,10,0,0">
                 <Button  x:Name="btnAllowTemporarily" AutomationProperties.AutomationId="btnAllowTemporarily"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnAllowTemporarily_Click">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnAllowTemporarilyText" Margin="1" Text="xAllow Temporarily"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-            <Button   x:Name="btnBlockIt" AutomationProperties.AutomationId="btnBlockIt"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnBlockIt_Click">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnBlockItText" Margin="1" Text="xBlock It"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnAllowTemporarilyText" Margin="1" Text="xAllow Temporarily"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button   x:Name="btnBlockIt" AutomationProperties.AutomationId="btnBlockIt"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnBlockIt_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnBlockItText" Margin="1" Text="xBlock It"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
 
-            <CheckBox x:Name="DoNotAskAnymore" AutomationProperties.AutomationId="chkDoNotAskAnymore" Margin="10,10,0,10" FontSize="13"  Width="300" Checked="DoNotAskAnymore_Checked" Unchecked="DoNotAskAnymore_Unchecked" Visibility="Visible">
-                <TextBlock x:Name="DoNotAskAnymoreText" TextWrapping="Wrap" Padding="3,0">xDon't ask for intentions - block super distracting sites immediately</TextBlock>
-            </CheckBox>
-        </StackPanel>
+                <CheckBox x:Name="DoNotAskAnymore" AutomationProperties.AutomationId="chkDoNotAskAnymore" Margin="10,10,0,10" FontSize="13"  Width="300" Checked="DoNotAskAnymore_Checked" Unchecked="DoNotAskAnymore_Unchecked" Visibility="Visible">
+                    <TextBlock x:Name="DoNotAskAnymoreText" Foreground="{DynamicResource ForegroundColor}" TextWrapping="Wrap" Padding="3,0">xDon't ask for intentions - block super distracting sites immediately</TextBlock>
+                </CheckBox>
+            </StackPanel>
         </Grid>
-        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed"  />
-        <Grid x:Name="GridAskIntentionPopup"  Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="auto" Width="auto" Background="White">
+        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="{DynamicResource BackgroundColor}" Opacity="0.65"   Visibility="Collapsed"  />
+        <Grid x:Name="GridAskIntentionPopup"  Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="auto" Width="auto" Background="{DynamicResource BackgroundColor}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -63,7 +65,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <TextBlock  Grid.Row="0" Name="HeadingAchieve"  Margin="10,10,10,0" TextWrapping="Wrap" Text="xYou said SITE is super distracting for you. What do you want to achieve during your time here?" Foreground="#272727" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock  Grid.Row="0" Name="HeadingAchieve"  Margin="10,10,10,0" TextWrapping="Wrap" Text="xYou said SITE is super distracting for you. What do you want to achieve during your time here?" Foreground="{DynamicResource ForegroundColor}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
 
             <TextBox  Grid.Row="1"  Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"    Height="70" Margin="15" VerticalAlignment="Top"  FontSize="15" TextChanged="TxtIntention_TextChanged">
                 <TextBox.Effect>
@@ -85,7 +87,7 @@
                 </TextBox.FocusVisualStyle>
             </TextBox>
 
-            <TextBlock  Grid.Row="2" Name="SelectMinutes" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xSelect minutes to use this site?" Foreground="#272727" FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock  Grid.Row="2" Name="SelectMinutes" Visibility="Visible"  Margin="40,0,40,0" TextWrapping="Wrap" Text="xSelect minutes to use this site?" Foreground="{DynamicResource ForegroundColor}" FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
             <ComboBox Grid.Row="3" Name="ComboBoxMinutes" AutomationProperties.AutomationId="cmbMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,10,0,0"  SelectedIndex="0">
                 <ComboBoxItem Content="30s" AutomationProperties.AutomationId="item30s"></ComboBoxItem>
@@ -95,7 +97,7 @@
                 <ComboBoxItem Content="10m" AutomationProperties.AutomationId="item10m"></ComboBoxItem>
             </ComboBox>
 
-            <TextBlock Grid.Row="4" Name="TxtAutoBlockTimer1"  Margin="0,10,0,0" TextWrapping="Wrap" Text="x00:30" Foreground="#272727" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock Grid.Row="4" Name="TxtAutoBlockTimer1"  Margin="0,10,0,0" TextWrapping="Wrap" Text="x00:30" Foreground="{DynamicResource ForegroundColor}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
 
             <StackPanel Grid.Row="5" Orientation="Vertical" Margin="0,10,0,0">
                 <Button  x:Name="btnSetIntention" AutomationProperties.AutomationId="btnIntention"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSetIntention_Click">

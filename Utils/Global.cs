@@ -441,7 +441,7 @@ namespace Focus_Bear.Utils
 
     public class FocusMode : INotifyPropertyChanged
     {
-        public string id;
+        public string id { get; set; }
         public string _name;
         public string name
         {

@@ -383,6 +383,12 @@ namespace Focus_Bear.Utils
 
         public bool bIsTestUser = false;
 
+        //Custom Blocking Schedule Related:
+        public string sRawBlockingSchedules = "";
+        public ObservableCollection<CustomBlockingSchedule> arrCustomBlockingSchedules = new ObservableCollection<CustomBlockingSchedule>();
+        public bool isBlockingScheduleRunning = false;
+        public CustomBlockingSchedule ActiveSchedule = null;
+
         //Meetings detection related
         public bool bIsUserOnCall = false;
         public string sLastAppUsingMicrophone = "";

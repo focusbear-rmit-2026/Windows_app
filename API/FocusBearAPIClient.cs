@@ -41,6 +41,7 @@ namespace Focus_Bear.API
         public static string UploadLogsURL { get { return "https://api.focusbear.io/app-logs/upload-logs-url?filename=Debug_Logs.txt.zip&mimetype=application/zip"; } }
         public static string NotifyUploadLogsSuccessURL { get { return "https://api.focusbear.io/app-logs/notify-upload-success"; } }
         
+        public static string BlockingSchedules { get { return "https://api.focusbear.io/blocking-schedules"; } }
         internal async Task<int> RenewToken()
         {
             //Renew the token and check again
@@ -3264,6 +3265,268 @@ namespace Focus_Bear.API
             }
             return 0;
         }
+
+        //Blocking Schedule related
+        internal async Task<int> GetAllBlockingSchedules() //OK
+        {
+            LogWriter.LogWrite("GetAllBlockingSchedules()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string responsePath = BlockingSchedules;
+
+                    var response = await client.GetAsync(responsePath);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            appSettings.sRawBlockingSchedules = responseCode.ToString();
+
+                            LogWriter.LogWrite("GetAllBlockingSchedules() - " + appSettings.sRawBlockingSchedules);
+
+                            RegistryManager.SaveBlockingSchedules();
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        //GetUserSettings Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetAllBlockingSchedules - WebException" + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetAllBlockingSchedules - Exception" + ex.Message);
+
+            }
+            return 0;
+        }
+
+        internal async Task<int> AddCustomBlockingSchedule(string addJsonString) // OK
+        {
+            LogWriter.LogWrite("AddCustomBlockingSchedule()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+ 
+                    if (!string.IsNullOrEmpty(addJsonString))
+                    {
+                        StringContent content = new StringContent(addJsonString, Encoding.UTF8, "application/json");
+
+                        //Make the data for Focus Mode
+                        var response = await client.PostAsync(BlockingSchedules, content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                        {
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                LogWriter.LogWrite("AddCustomBlockingSchedule() GOT Success");
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("AddCustomBlockingSchedule() FAILED - " + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("AddCustomBlockingSchedule WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AddCustomBlockingSchedule Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+        internal async Task<int> UpdateCustomBlockingSchedule(string sBlockingScheduleID, string addJsonString) // OK
+        {
+            LogWriter.LogWrite("UpdateCustomBlockingSchedule()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    if (!string.IsNullOrEmpty(addJsonString))
+                    {
+                        StringContent content = new StringContent(addJsonString, Encoding.UTF8, "application/json");
+
+                        string path = BlockingSchedules + "/" + sBlockingScheduleID;
+
+                        //Make the data for Focus Mode
+                        var response = await client.PutAsync(path, content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                        {
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                LogWriter.LogWrite("UpdateCustomBlockingSchedule() GOT Success");
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("UpdateCustomBlockingSchedule() FAILED - " + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("UpdateCustomBlockingSchedule WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpdateCustomBlockingSchedule Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+        internal async Task<int> DeleteCustomBlockingSchedule(string sBlockingScheduleID) // 
+        {
+            LogWriter.LogWrite("DeleteCustomBlockingSchedule() API");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string path = BlockingSchedules + "/" + sBlockingScheduleID;
+
+                    var response = await client.DeleteAsync(path);
+                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent) //204
+                    {
+                        LogWriter.LogWrite("DeleteCustomBlockingSchedule() GOT Success");
+                        return 1;
+                    }
+                    else
+                    {
+                        //Get Device ID Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            JObject resJson = JObject.Parse(responseCode);
+                            string sErrorMessage = resJson["message"].ToString();
+                            LogWriter.LogWrite("DeleteCustomBlockingSchedule() FAILED");
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("DeleteCustomBlockingSchedule WebException" + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("DeleteCustomBlockingSchedule Exception" + ex.Message);
+
+            }
+            return 0;
+        }
+
+
     }
 
 }

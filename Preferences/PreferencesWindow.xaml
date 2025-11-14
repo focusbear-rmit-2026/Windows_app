@@ -7,7 +7,7 @@
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
         AllowsTransparency="False"
-        Title="Preferences" AutomationProperties.AutomationId="preferencesWindow" Height="700" Width="670" ResizeMode="CanResize" Loaded="Window_Loaded" Closing="Window_Closing" IsVisibleChanged="Window_IsVisibleChanged"  >
+        Title="Preferences" AutomationProperties.AutomationId="preferencesWindow" MinHeight="630" MinWidth="720" Height="700" Width="670" ResizeMode="CanResize" Loaded="Window_Loaded" Closing="Window_Closing" IsVisibleChanged="Window_IsVisibleChanged"  >
     <!--<local1:DpiDecorator>-->
     <Grid>
         <Grid.Resources>
@@ -36,12 +36,12 @@
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="btnFocus" AutomationProperties.AutomationId="btnFocus" Style="{DynamicResource BtnStylePreferencesDynamic}" Click="btnFocus_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
+                    <!--<Button x:Name="btnFocus" AutomationProperties.AutomationId="btnFocus" Style="{DynamicResource BtnStylePreferencesDynamic}" Click="btnFocus_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
                         <StackPanel Orientation="Vertical">
                             <Image Source="{DynamicResource FocusImage}" Margin="0,5,0,0" Height="24" Width="24" />
                             <TextBlock Margin="0,3,0,0"  Padding="6,0,6,0" x:Name="btnFocusTXT">xFocus</TextBlock>
                         </StackPanel>
-                    </Button>
+                    </Button>-->
 
                     <Button x:Name="btnBlocks" AutomationProperties.AutomationId="btnBlocks" Style="{DynamicResource BtnStylePreferencesDynamic}" Click="btnBlocks_Click"  MinWidth="55" Height="55" Margin="0,0,5,0" Cursor="Hand">
                         <StackPanel Orientation="Vertical">

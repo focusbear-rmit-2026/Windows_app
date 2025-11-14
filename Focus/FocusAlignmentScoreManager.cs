@@ -47,6 +47,22 @@ namespace Focus_Bear.Focus
             IsCuddlyModeEnabled = (appSettings.nFocusBearMode == 1) ? true : false;
             IsAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabled;
 
+            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning )
+            {
+                if (!appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled)
+                {
+                    IsAiCheckUrlEnabled = true;
+                }
+                else
+                {
+                    IsAiCheckUrlEnabled = false;
+                }
+            }
+            else
+            {
+                IsAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabled;
+            }
+
 
             CustomToolTip = "";
             Console.WriteLine("customToolTip blank set");
@@ -143,6 +159,22 @@ namespace Focus_Bear.Focus
 
         public static void FocusModeOpenCurrentUrlForAlignmentScore(string domain)
         {
+            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+            {
+                if (!appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled)
+                {
+                    IsAiCheckUrlEnabled = true;
+                }
+                else
+                {
+                    IsAiCheckUrlEnabled = false;
+                }
+            }
+            else
+            {
+                IsAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabled;
+            }
+
             if (IsCuddlyModeEnabled && IsAiCheckUrlEnabled)
             {
                 if (DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.TryGetValue(domain, out var info))

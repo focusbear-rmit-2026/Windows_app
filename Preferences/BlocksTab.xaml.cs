@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -27,6 +29,8 @@ namespace Focus_Bear.Preferences
     {
         AppSettings appSettings = AppSettings.GetInstance;
         PreferencesWindow _ParentWindow = null;
+        FocusPage PageFocusModes = null;
+        bool bBlockingScheduleDetailsPageVisible = false;
         public BlocksTab()
         {
         }
@@ -38,168 +42,93 @@ namespace Focus_Bear.Preferences
 
             try
             {
+                //todo win texts
+                Heading.Text = "Blocking";
+                btnBlockListsText.Text = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["titleFocusMode"].ToString();
+                btnBlockingScheduleText.Text = appSettings.ConfigFileStrings["settingsNew"]["blockingScheduleSettingTitle"].ToString();
+                btnDistractingSitesText.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
 
-                BlockingSchedule.Header = appSettings.ConfigFileStrings["settingsNew"]["blockingScheduleSettingTitle"].ToString();
-                DistractingSites.Header = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
-
-                Welcome.Text = appSettings.ConfigFileStrings["onboardingBlockingScheduleVcInfo"]["subTitle"].ToString();
-                RadioButton1.Content = appSettings.ConfigFileStrings["onboardingBlockingScheduleVcInfo"]["radioBtnFirstText"].ToString();
-                RadioButton2.Content = appSettings.ConfigFileStrings["onboardingBlockingScheduleVcInfo"]["radioBtnSecondText"].ToString();
-                RadioButton3.Content = appSettings.ConfigFileStrings["onboardingBlockingScheduleVcInfo"]["radioBtnThirdText"].ToString();
-
-                Description1.Text = appSettings.ConfigFileStrings["onboardingBlockingScheduleVcInfo"]["descriptionFirstText"].ToString();
-                Description2.Text = appSettings.ConfigFileStrings["onboardingBlockingScheduleVcInfo"]["descriptionSecondText"].ToString();
-                Description3.Text = appSettings.ConfigFileStrings["onboardingBlockingScheduleVcInfo"]["descriptionThirdText"].ToString();
-                App.ThemeChanged += LoadURL;
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("BlocksTab text setting ex - " + ex.Message);
             }
 
-            if (appSettings.nBlockingSchedule == BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK)
-            {
-                RadioButton1.IsChecked = true;
-                appSettings.CapturePostHog("choose-focus-schedule", "\"schedule-type\":\"until_i_finish_work\"");
-            }
-            else if (appSettings.nBlockingSchedule == BLOCKINGSCHEDULE.WHEN_STARTING_FOCUS_SESSION)
-            {
-                RadioButton2.IsChecked = true;
-                appSettings.CapturePostHog("choose-focus-schedule", "\"schedule-type\":\"when_i_tell_you_to\"");
-            }
-
-            DistractingSites.Content = new AlwaysBlockedURLs(_ParentWindow);
-
-            SetWebView();
-
-            webViewBlockingSchedule.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
-            webViewBlockingSchedule.NavigationCompleted += CoreWebView2NavigationCompleted;
         }
 
-        private async Task SetWebView()
+        private void btnBlockingSchedule_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var userDataFolder = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FBCustomWebView2");
+            // Hide main menu
+            MainMenuPanel.Visibility = Visibility.Collapsed;
+            SubViewContainer.Visibility = Visibility.Visible;
 
-                var task = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
-
-                if (webViewBlockingSchedule != null)
-                {
-                    await webViewBlockingSchedule.EnsureCoreWebView2Async(task);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("blocking schedule SetWebView() Ex - " + ex.Message);
-            }
+            SubViewHeading.Text = appSettings.ConfigFileStrings["settingsNew"]["blockingScheduleSettingTitle"].ToString();
+            // Load the BlockingSchedule class here
+            ContentArea.Content = new BlockingSchedule(_ParentWindow);           
         }
-        private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+
+        private void btnDistractingSites_Click(object sender, RoutedEventArgs e)
         {
-            if (e.IsSuccess)
+            // Hide main menu
+            MainMenuPanel.Visibility = Visibility.Collapsed;
+            SubViewContainer.Visibility = Visibility.Visible;
+
+            SubViewHeading.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
+            // Load the DistractingSites class here
+            ContentArea.Content = new AlwaysBlockedURLs(_ParentWindow);
+        }
+
+        private void btnBack_Click(object sender, RoutedEventArgs e)
+        {
+           
+
+            if(bBlockingScheduleDetailsPageVisible)
             {
-                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+                //Show blocks list page
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnBlockingSchedule);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
 
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\",\"theme\":{2}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), sTheme);
-
-                string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
-
-                var sReturn = webViewBlockingSchedule.ExecuteScriptAsync(LoadTokenFunc);
+                bBlockingScheduleDetailsPageVisible = false;
+                return;
             }
+            // Hide subview, show main menu
+            SubViewContainer.Visibility = Visibility.Collapsed;
+            MainMenuPanel.Visibility = Visibility.Visible;
+
+            // Optionally clear the content
+            ContentArea.Content = null;
         }
-        private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+
+        private void btnBlockLists_Click(object sender, RoutedEventArgs e)
         {
-            if (e.IsSuccess)
-            {
-                try
-                {
-                    webViewBlockingSchedule.CoreWebView2.Settings.AreHostObjectsAllowed = true;
-                    webViewBlockingSchedule.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
-                    webViewBlockingSchedule.CoreWebView2.Settings.IsScriptEnabled = true;
-                    webViewBlockingSchedule.CoreWebView2.Settings.IsWebMessageEnabled = true;
+            // Hide main menu
+            MainMenuPanel.Visibility = Visibility.Collapsed;
+            SubViewContainer.Visibility = Visibility.Visible;
 
-                    webViewBlockingSchedule.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
-                    webViewBlockingSchedule.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+            SubViewHeading.Text = "Block Lists"; //todo win texts
+            // Load yourFocus modes page here
+            PageFocusModes = new FocusPage(_ParentWindow);
+            ContentArea.Content = PageFocusModes;
 
-                    webViewBlockingSchedule.WebMessageReceived += webView_WebMessageReceived;
-
-                    LoadURL();
-
-                    CommandManager.InvalidateRequerySuggested();
-                }
-                catch (Exception ex)
-                {
-                    LogWriter.LogWrite("webViewBlockingSchedule CoreWebView2InitializationCompleted() EX - " + ex.Message);
-                }
-            }
         }
 
-        public void LoadURL()
+        public void ShowFocusMode(string sFocusMode = "")
         {
-            string sURL = "https://settings.focusbear.io?edit_specific_routine=timing&bust_cache=" + DateTime.UtcNow.ToString();
+            //Show blocks list page
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnBlockLists);
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
 
-            webViewBlockingSchedule.Source = new System.Uri(sURL);
+            if (sFocusMode.Length > 0)
+                PageFocusModes.SelectFocusMode(sFocusMode);
         }
 
-        private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        public void ShowBlockingScheduleDetails(CustomBlockingSchedule Block)
         {
-            try
-            {
-                LogWriter.LogWrite("Blocks Tab - webView_WebMessageReceived() - settings got from SG");
-                //Set environment in settings page
-                appSettings.sRawUserSettings = e.WebMessageAsJson;
-
-                //We will need to put the settings.
-                FocusBearAPIClient client = new FocusBearAPIClient();
-                var xResponse = await client.PutUserSettings();
-
-                if (xResponse == 1) //valid settings
-                {
-                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear");
-                    ff.Owner = this._ParentWindow;
-                    ff.ShowDialog();
-                    appSettings.CapturePostHog("save-edited-habits");
-
-                    RegistryManager.SaveUserSettings();//save to local
-
-                    //Restart the app.
-                    try
-                    {
-                        LogWriter.LogWrite("blocking schedule changes in preferences - Restart app now for settings to take Effect!");
-
-                        appSettings.bRestartAppNeeded = true;
-
-                        Application.Current.Shutdown(0);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogWriter.LogWrite("Blocks Tab - webView_WebMessageReceived app restart= " + ex.Message);
-                    }
-
-                }
-                else
-                {
-                    LogWriter.LogWrite("Blocks Tab - blocking schedule - Settings cannot be validated from API.");
-
-                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear");
-                    ff.Owner = this._ParentWindow;
-                    ff.ShowDialog();
-                }
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("Blocks Tab - blocking schedule - webView_WebMessageReceived()" + ex.Message);
-            }
+            bBlockingScheduleDetailsPageVisible = true;
+            ContentArea.Content = new BlockingScheduleDetail(_ParentWindow, Block);
         }
 
-        private void RadioButton1_Checked(object sender, RoutedEventArgs e)
-        {
-            appSettings.nBlockingSchedule = BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK;
-        }
-
-        private void RadioButton2_Checked(object sender, RoutedEventArgs e)
-        {
-            appSettings.nBlockingSchedule = BLOCKINGSCHEDULE.WHEN_STARTING_FOCUS_SESSION;
-        }
     }
 }

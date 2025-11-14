@@ -423,6 +423,7 @@
     <Compile Include="Models\AppsEngine.cs" />
     <Compile Include="Models\AppTaskScheduler.cs" />
     <Compile Include="Models\AppUpdater.cs" />
+    <Compile Include="Models\CustomBlockingSchedule.cs" />
     <Compile Include="Models\HttpCommunication.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -569,6 +570,15 @@
     <Compile Include="Preferences\AskPassword.xaml.cs">
       <DependentUpon>AskPassword.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\BlockingSchedules\BlockingSchedule.xaml.cs">
+      <DependentUpon>BlockingSchedule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\BlockingSchedules\BlockingScheduleDetail.xaml.cs">
+      <DependentUpon>BlockingScheduleDetail.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\BlockingSchedules\BlockingScheduleStrictTimer.xaml.cs">
+      <DependentUpon>BlockingScheduleStrictTimer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Preferences\BlocksTab.xaml.cs">
       <DependentUpon>BlocksTab.xaml</DependentUpon>
     </Compile>
@@ -614,6 +624,7 @@
     <Compile Include="Relax\RelaxModeWindow.xaml.cs">
       <DependentUpon>RelaxModeWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\BlockingScheduleManager.cs" />
     <Compile Include="SetIntention\SetIntention.xaml.cs">
       <DependentUpon>SetIntention.xaml</DependentUpon>
     </Compile>
@@ -1020,6 +1031,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Preferences\AskPassword.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\BlockingSchedules\BlockingSchedule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\BlockingSchedules\BlockingScheduleDetail.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\BlockingSchedules\BlockingScheduleStrictTimer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -2700,6 +2700,47 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static void SaveBlockingSchedules()
+        {
+            LogWriter.LogWrite("RM SaveBlockingSchedules()");
+            try
+            {
+                Encoding unicode = Encoding.Unicode;
+                // Convert unicode string into a byte array.  
+                byte[] regSchedulesData = unicode.GetBytes(appSettings.sRawBlockingSchedules);
+                Write("blockingschedules", regSchedulesData);
+
+                regSchedulesData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveBlockingSchedules - " + ex.Message);
+            }
+        }
+
+        internal static bool GetSavedBlockingSchedules()
+        {
+            LogWriter.LogWrite("RM GetSavedBlockingSchedules()");
+
+            try
+            {
+                byte[] regSchedulesData = (byte[])Read("blockingschedules");
+
+                if (regSchedulesData == null)
+                    return false;
+
+                appSettings.sRawBlockingSchedules = Encoding.Unicode.GetString(regSchedulesData);
+
+                regSchedulesData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedBlockingSchedules - " + ex.Message);
+                return false;
+            }
+        }
 
     }
 

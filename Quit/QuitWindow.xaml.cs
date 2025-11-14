@@ -157,6 +157,19 @@ namespace Focus_Bear.Quit
         private void btnGiveMeABreak_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("QuitWindow - btnGiveMeABreak_Click - App should deactivate for selected hours");
+            
+            // If a password is set, ask for a password
+            if (appSettings.isPasswordSet && appSettings.bPasswordRequireInQuitApp)
+            {
+                var pwdWnd = new AskPassword { Owner = this };
+                GridShade.Visibility = Visibility.Visible;
+                bool? res = pwdWnd.ShowDialog();
+                GridShade.Visibility = Visibility.Collapsed;
+
+                // if cancelled or wrong password, return
+                if (res != true)
+                    return;
+            }
 
             switch (ComboBoxMinutes.SelectedIndex)
             {

@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace Focus_Bear.SetIntention
     public partial class SetIntention : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
+        App app = (App)Application.Current;
         [DllImport("user32.dll")]
         private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
         [DllImport("user32.dll")]
@@ -61,6 +62,10 @@ namespace Focus_Bear.SetIntention
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
+            
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+
             var hWnd = new WindowInteropHelper(this);
             var sysMenu = GetSystemMenu(hWnd.Handle, false);
             EnableMenuItem(sysMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
@@ -113,6 +118,16 @@ namespace Focus_Bear.SetIntention
             catch (Exception ex)
             {
                 LogWriter.LogWrite("SetIntention text setting ex - " + ex.Message);
+            }
+
+            App.ThemeChanged += TitleBarThemeChange;
+        }
+        private void TitleBarThemeChange()
+        {
+            var source = (HwndSource)PresentationSource.FromVisual(this);
+            if (source != null)
+            {
+                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
         }
 
