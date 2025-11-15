@@ -42,6 +42,8 @@ namespace Focus_Bear.API
         public static string NotifyUploadLogsSuccessURL { get { return "https://api.focusbear.io/app-logs/notify-upload-success"; } }
         
         public static string BlockingSchedules { get { return "https://api.focusbear.io/blocking-schedules"; } }
+
+        public static string FocusMusicTracks { get { return "https://api.focusbear.io/tracks"; } }
         internal async Task<int> RenewToken()
         {
             //Renew the token and check again
@@ -3526,6 +3528,71 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        internal async Task<int> GetAllTracks() //OK
+        {
+            LogWriter.LogWrite("GetAllTracks()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string responsePath = FocusMusicTracks;
+
+                    var response = await client.GetAsync(responsePath);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            appSettings.sRawFocusMusicTracks = responseCode.ToString();
+
+                            LogWriter.LogWrite("GetAllTracks() - " + appSettings.sRawFocusMusicTracks);
+
+                            RegistryManager.SaveFocusMusicTracks();
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        //GetUserSettings Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetAllTracks - WebException" + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetAllTracks - Exception" + ex.Message);
+
+            }
+            return 0;
+        }
 
     }
 
