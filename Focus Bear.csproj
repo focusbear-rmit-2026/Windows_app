@@ -311,6 +311,11 @@
     </Compile>
     <Compile Include="CallDetection\CameraUtilities.cs" />
     <Compile Include="Constants\Events.cs" />
+    <Compile Include="FocusMusic\FocusMusicTrack.cs" />
+    <Compile Include="FocusMusic\FocusMusicView.xaml.cs">
+      <DependentUpon>FocusMusicView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FocusMusic\FocusMusicManager.cs" />
     <Compile Include="Focus\AddTempAllowedToFocusModeWindow.xaml.cs">
       <DependentUpon>AddTempAllowedToFocusModeWindow.xaml</DependentUpon>
     </Compile>
@@ -695,6 +700,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CallDetection\CallFocusNotifier.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FocusMusic\FocusMusicView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1255,6 +1264,9 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\brainDump.png" />
+    <Resource Include="Images\music_albums_fill.png" />
+    <Resource Include="Images\gifs\audio Wave.gif" />
     <Resource Include="Images\email.png" />
     <Resource Include="Images\logo_google.png" />
     <Resource Include="Images\checkmark_dark.png" />

@@ -79,7 +79,10 @@
         "questionHowMotivatedText": "¿Cuán motivado te sientes para hacer tus hábitos?",
         "startCustomRoutineTitleText": "¡Tu rutina personalizada te está esperando! Da un paso a la vez y saca el máximo partido a tu día.",
         "menuItemCustomRoutineText": "Cambiar a otra rutina - <ROUTINE>",
-        "canNotDoCustomRoutineText": "No puedes realizar esta rutina en este momento porque no es la hora programada o ya la completaste."
+        "canNotDoCustomRoutineText": "No puedes realizar esta rutina en este momento porque no es la hora programada o ya la completaste.",
+        "actionBarItemPlay": "Reproducir",
+        "actionBarItemDone": "Hecho",
+        "actionBarItemSkip": "Saltar"
     },
     "common": {
         "emailId": "support@focusbear.io",
@@ -671,7 +674,8 @@
         "titleBlockList": "Usa listas de bloqueos para mantenerte enfocado en un tipo de trabajo.",
         "descriptionForCustomBlocking": "Cuando uses esta lista de bloqueos, todos los sitios web estarán permitidos excepto tus URLs siempre bloqueadas.",
         "alertScheduleUsingFocusMode": "No puedes eliminar este modo de enfoque porque está asignado actualmente al horario de bloqueo \"<SCHEDULE>\". Por favor, edita ese horario primero y elige un modo de enfoque diferente.",
-        "buttonEditBlockingSchedule": "Editar horario de bloqueo"
+        "buttonEditBlockingSchedule": "Editar horario de bloqueo",
+        "titleUseBlockList": "Usa las listas de bloqueo para mantenerte concentrad@ en un tipo de trabajo. Inicia una sesión de enfoque desde el menú de Focus Bear o configura un horario de bloqueo."
     },
     "focusPreferencesAdvancedInfo": {
         "runScriptBeforeText": "Ejecuta el script de Apple antes de iniciar el modo de enfoque.",
@@ -896,7 +900,9 @@
         "pomodoroModeDurationText": "Duración del enfoque:",
         "unpinWindowText": "Haz clic para desanclar la ventana (desactivar siempre encima)",
         "pinWindowText": "Haz clic para anclar la ventana (mantener encima)",
-        "titleAfterPostpone": "¿Qué quieres hacer en lugar de tus hábitos?"
+        "titleAfterPostpone": "¿Qué quieres hacer en lugar de tus hábitos?",
+        "buttonEditBlockListsText": "Editar listas de bloqueo",
+        "titleSelectBlockList": "¿Qué lista de bloqueo quieres usar?"
     },
     "logQuantityInfo": {
         "title": "Registra la Cantidad de la actividad",
@@ -1840,7 +1846,8 @@
         "buttonDownloadTimeTrackerText": "Descargar Ahora",
          "blockingScheduleSettingTitle": "Horario de Bloqueo",
         "buttonReleaseNotesText": "Notas de Publicación",
-        "researchSettingTitle": "Investigación"
+        "researchSettingTitle": "Investigación",
+        "titleBlockLists": "Listas de bloqueo"
     },
     "impactMeasurementVcInfo": {
         "title": "Analiza tu sueño y estado de ánimo",
@@ -2009,7 +2016,9 @@
         "breaks_EnableBreaks": "Permitir hacer pausas a intervalos regulares. Las pausas favorecen la productividad, niveles de energía y capacidad de concentración.",
         "strictness_Password_CircumventingBlocks": "Algunos ajustes como \"Show Dock Icon\" y \"Restart after force quit\" pueden reducir la rigurosidad de bloqueo. Si marcas esta casilla, te pedirá una contraseña si la configuración se cambia a la versión menos estricta.",
         "ui_EnablePopoverMenu": "Activa esta opción para mostrar el menú Focus Bear como una ventana emergente.",
-        "breaks_NaturalBreaks": "Te avisa cuando se detecta una pausa natural tras estar inactivo por más de 10 minutos, ayudándote a mantener el enfoque y la productividad."
+        "breaks_NaturalBreaks": "Te avisa cuando se detecta una pausa natural tras estar inactivo por más de 10 minutos, ayudándote a mantener el enfoque y la productividad.",
+        "strictness_Block_Lists": "Usa las listas de bloqueo para mantenerte enfocad@ en un tipo de trabajo. Inicia una sesión de enfoque desde el menú de Focus Bear o crea un horario de bloqueo.",
+        "strictness_Blocking_Schedules": "Crea tus propios horarios para bloquear distracciones automáticamente. Elige los días y horas en que quieres que se bloqueen las distracciones. Mantente enfocad@ sin tener que activar el bloqueo manualmente."
     },
     "chooseHabitsVCInfo": {
         "title": "Elegir Hábitos:",
@@ -2470,7 +2479,9 @@
         "nextRoutineText": "¡Buen trabajo manteniéndote en camino! Tu próxima rutina programada (<ROUTINE>) está fijada para <TIME>. Prepárate para retomarla y seguir construyendo esos hábitos saludables. ¡Tú puedes!",
         "buttonBeginCustomRoutine": "Iniciar rutina bajo demanda",
         "titleEveningRoutine": "Rutina nocturna",
-        "titleAppDisabled": "El bloqueo de distracciones está en pausa. Puedes volver a activarlo en cualquier momento para mantenerte enfocado."
+        "titleAppDisabled": "El bloqueo de distracciones está en pausa. Puedes volver a activarlo en cualquier momento para mantenerte enfocado.",
+        "freeTimeText": "¡Bien hecho! Tienes tiempo libre hasta las <CUTOFFTIME>.",
+        "buttonChangeTiming": "Cambiar horario"
     },
     "breakStateVcInfo":{
         "buttonEnableBreaks": "Activar descansos",
@@ -2496,7 +2507,7 @@
         "menuBrainDump": "Volcado de ideas",
         "menuFocusMusic": "Música de enfoque",
         "menuFocusPreferences": "Enfoque",
-        "menuBlocksPreferences": "Bloqueos",
+        "menuBlocksPreferences": "Bloqueo",
         "menuSettings": "Ajustes",
         "menuEditHabits": "Editar hábitos",
         "menuMotivation": "Motivación",
@@ -2547,7 +2558,12 @@
         "alertSelectDay": "Por favor, selecciona al menos un día para este horario.",
         "alertScheduleActive": "El horario está activo",
         "descriptionScheduleActive": "Este horario se está ejecutando actualmente. ¿Seguro que quieres eliminarlo? El bloqueo se detendrá de inmediato.",
-        "buttonAddNewBlock": "Agregar nuevo bloqueo"
+        "buttonAddNewBlock": "Agregar nuevo bloqueo",
+        "errorBlockListMissing": "Actualizar lista de bloqueo ⚠️",
+        "alertSelectBlockList": "Por favor, selecciona una lista de bloqueo.",
+        "titleScheduleOverlapAlert": "Se detectó un solapamiento de horarios.",
+        "subTitleScheduleOverlapAlert": "El horario de bloqueo se superpone con uno existente. ¿Quieres guardarlo de todos modos?",
+        "buttonSaveBlockAnyway": "Guardar de todos modos"
     },
     "abortingCustomScheduleBlockingVcInfo":{
         "titlePauseText": "Pausando horario personalizado - <SCHEDULE>",

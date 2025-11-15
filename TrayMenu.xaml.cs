@@ -119,9 +119,11 @@ namespace Focus_Bear
                 UpgradeNow.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemUpgradeNowTitle"].ToString();
                 Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
                 btnResumeHabitsTxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();
-                btnBrainDumpTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
 
-                btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
+                Tools.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToolsTitle"].ToString();
+                btnBrainDump.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
+                btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
+                btnFocusMusic.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusMusicTitle"].ToString();
 
                 btnSetupFocusModeText.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemSetFocusModesTitle"].ToString();
 
@@ -178,6 +180,42 @@ namespace Focus_Bear
 
             try
             {
+                //Focus Music icon
+                if(appSettings.arrFocusMusicTracks.Count > 0)
+                {
+                    var current = appSettings.arrFocusMusicTracks.FirstOrDefault(t => t.IsPlaying || t.IsPaused);
+                    if (current != null)
+                    {
+                        btnPlayPauseMusic.Visibility = Visibility.Visible;
+                        btnPlayPauseMusic.ToolTip = current.Name;
+                        if (current.IsPlaying)
+                        {
+                            string imagePath = ("pack://application:,,,/Focus Bear;component/images/pause_icon.png");
+                            var image = new BitmapImage();
+                            image.BeginInit();
+                            image.UriSource = new Uri(imagePath);
+                            image.EndInit();
+
+                            PlayPauseButtonImage.Source = image;
+                        }
+                        else if (current.IsPaused)
+                        {
+                            string imagePath = ("pack://application:,,,/Focus Bear;component/images/play_icon.png");
+                            var image = new BitmapImage();
+                            image.BeginInit();
+                            image.UriSource = new Uri(imagePath);
+                            image.EndInit();
+
+                            PlayPauseButtonImage.Source = image;
+                        }
+                    }
+                    else
+                    {
+                        btnPlayPauseMusic.Visibility = Visibility.Collapsed;
+                    }
+                       
+                }
+
                 if(appSettings.arrCustomBlockingSchedules.Count == 0)
                 {
                     LimitedBlockingSection.Visibility = Visibility.Visible;
@@ -433,11 +471,11 @@ namespace Focus_Bear
 
                 if (appSettings.isFocusModeRunning)
                 {
-                    btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
+                    btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
                 }
                 else
                 {
-                    btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString(); //Todo List
+                    btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString();
                 }
 
                 if(appSettings.isBlockingScheduleRunning)
@@ -1545,6 +1583,48 @@ namespace Focus_Bear
 
                     }
 
+                }
+
+            }
+        }
+
+        private void btnFocusMusic_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)Application.Current).ShowFocusMusic();
+        }
+
+        private void btnPlayPauseMusic_Click(object sender, RoutedEventArgs e)
+        {
+            //Focus Music icon
+            if (appSettings.arrFocusMusicTracks.Count > 0)
+            {
+                var current = appSettings.arrFocusMusicTracks.FirstOrDefault(t => t.IsPlaying || t.IsPaused);
+                if (current != null)
+                {
+                    if (current.IsPlaying)
+                    {
+                        ((App)Application.Current).wndFocusMusic.PauseTrack(current);
+
+                        string imagePath = ("pack://application:,,,/Focus Bear;component/images/play_icon.png");
+                        var image = new BitmapImage();
+                        image.BeginInit();
+                        image.UriSource = new Uri(imagePath);
+                        image.EndInit();
+
+                        PlayPauseButtonImage.Source = image;
+                    }
+                    else if (current.IsPaused)
+                    {
+                        ((App)Application.Current).wndFocusMusic.ResumeTrack(current);
+
+                        string imagePath = ("pack://application:,,,/Focus Bear;component/images/pause_icon.png");
+                        var image = new BitmapImage();
+                        image.BeginInit();
+                        image.UriSource = new Uri(imagePath);
+                        image.EndInit();
+
+                        PlayPauseButtonImage.Source = image;
+                    }
                 }
 
             }

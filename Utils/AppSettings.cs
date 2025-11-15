@@ -23,6 +23,7 @@ using Focus_Bear.SetIntention;
 using Focus_Bear.Focus.BlurWindow;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
+using Focus_Bear.FocusMusic;
 
 namespace Focus_Bear.Utils          
 {
@@ -419,6 +420,9 @@ namespace Focus_Bear.Utils
 
         //menu opening first time variable
         public bool bMenuOpeningFirstTime = false;
+
+        public string sRawFocusMusicTracks = "";
+        public ObservableCollection<FocusMusicTrack> arrFocusMusicTracks = new ObservableCollection<FocusMusicTrack>();
 
         public BLOCKINGSCHEDULE nBlockingSchedule { get; set; }
 
@@ -2628,7 +2632,6 @@ namespace Focus_Bear.Utils
                 wndReportBadAIDecision.Show();
             }));
         }
-
     }
 }
 
