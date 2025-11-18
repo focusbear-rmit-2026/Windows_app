@@ -24,6 +24,7 @@ using Focus_Bear.Focus.BlurWindow;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using Focus_Bear.FocusMusic;
+using Focus_Bear.AccountabilityBuddy;
 
 namespace Focus_Bear.Utils          
 {
@@ -424,6 +425,10 @@ namespace Focus_Bear.Utils
         public string sRawFocusMusicTracks = "";
         public ObservableCollection<FocusMusicTrack> arrFocusMusicTracks = new ObservableCollection<FocusMusicTrack>();
 
+        public string sRawBuddiesList = "";
+        public ObservableCollection<BuddyDetails> arrBuddiesList = new ObservableCollection<BuddyDetails>();
+        public string sUnlockRequestsInfo = "";
+        public DateTime UnlockTillTime = DateTime.Now;
         public BLOCKINGSCHEDULE nBlockingSchedule { get; set; }
 
         public CUIAutomation automation;

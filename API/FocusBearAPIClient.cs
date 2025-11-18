@@ -44,6 +44,9 @@ namespace Focus_Bear.API
         public static string BlockingSchedules { get { return "https://api.focusbear.io/blocking-schedules"; } }
 
         public static string FocusMusicTracks { get { return "https://api.focusbear.io/tracks"; } }
+
+        public static string AccountabilityBuddies { get { return "https://api.focusbear.io/accountability-buddy"; } }
+        
         internal async Task<int> RenewToken()
         {
             //Renew the token and check again
@@ -3593,6 +3596,205 @@ namespace Focus_Bear.API
             }
             return 0;
         }
+
+        internal async Task<int> GetAllBuddies() //OK
+        {
+            LogWriter.LogWrite("GetAllBuddies()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string responsePath = AccountabilityBuddies; 
+
+                    var response = await client.GetAsync(responsePath);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            appSettings.sRawBuddiesList = responseCode.ToString();
+
+                            LogWriter.LogWrite("GetAllBuddies() - " + appSettings.sRawBuddiesList);
+
+                            RegistryManager.SaveBuddyList();
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        //GetUserSettings Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetAllBuddies - WebException" + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetAllBuddies - Exception" + ex.Message);
+
+            }
+            return 0;
+        }
+
+        internal async Task<int> RequestUnlock(string addJsonString) // OK
+        {
+            LogWriter.LogWrite("RequestUnlock()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    if (!string.IsNullOrEmpty(addJsonString))
+                    {
+                        StringContent content = new StringContent(addJsonString, Encoding.UTF8, "application/json");
+
+                        string sPath = AccountabilityBuddies + "/" + "unlock-request";
+
+                        //Make the data for Focus Mode
+                        var response = await client.PostAsync(sPath, content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                        {
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                LogWriter.LogWrite("RequestUnlock() GOT Success");
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                //JObject resJson = JObject.Parse(responseCode);
+                                //string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("RequestUnlock() FAILED - " + responseCode);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("RequestUnlock WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RequestUnlock Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+        internal async Task<int> GetAllUnlockRequests() //OK
+        {
+            LogWriter.LogWrite("GetAllUnlockRequests()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string responsePath = AccountabilityBuddies + "/" + "unlock-requests";
+
+                    var response = await client.GetAsync(responsePath);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            appSettings.sUnlockRequestsInfo = responseCode.ToString();
+
+                            LogWriter.LogWrite("GetAllUnlockRequests() - " + appSettings.sUnlockRequestsInfo);
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        //GetUserSettings Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetAllUnlockRequests - WebException" + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetAllUnlockRequests - Exception" + ex.Message);
+
+            }
+            return 0;
+        }
+
 
     }
 

@@ -1,0 +1,134 @@
+﻿<UserControl x:Class="Focus_Bear.AccountabilityBuddy.AccountabilityBuddyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Focus_Bear.AccountabilityBuddy"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" IsVisibleChanged="UserControl_IsVisibleChanged">
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <!-- View shown when at least one Accepted buddy exists -->
+        <Grid x:Name="AcceptedBuddyView" Visibility="Visible">
+            <!-- accepted buddies UI -->
+            <StackPanel Orientation="Vertical">
+                <TextBlock Name="CreateHeading" Margin="20,20,20,5" TextWrapping="Wrap"  Text="Create Unlock Request"   FontSize="13" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
+
+                <TextBlock Name="SelectBuddy" Margin="20,10,20,0" TextWrapping="Wrap"  Text="Select Buddy:"   FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
+
+                <ComboBox Name="ComboBoxBuddies" AutomationProperties.AutomationId="cmbComboBoxBuddies" DisplayMemberPath="BuddyEmail" SelectedValuePath="BuddyUserId" SelectedValue="{Binding BuddyUserId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Width="250" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,10,0,0"  SelectedIndex="0" FontSize="15"  >
+                </ComboBox>
+                <TextBlock Name="Reason" Margin="20,15,20,0" TextWrapping="Wrap"  Text="Reason (Optional)"   FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
+
+                <TextBox Name="TextReason" AutomationProperties.AutomationId="txtTextReason" Margin="20,10,20,5" TextWrapping="Wrap" AcceptsReturn="True"  Width="auto" Height="50"   FontSize="13">
+                    <TextBox.Effect>
+                        <DropShadowEffect ShadowDepth="3"
+                                       Direction="330"
+                                       Color="Gray"
+                                       Opacity="0.5"
+                                       BlurRadius="6"/>
+                    </TextBox.Effect>
+                    <TextBox.FocusVisualStyle>
+                        <Style>
+                            <Setter Property="Control.Template">
+                                <Setter.Value>
+                                    <ControlTemplate/>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TextBox.FocusVisualStyle>
+                </TextBox>
+                <TextBlock Name="UnlockDuration" Margin="20,15,20,5" TextWrapping="Wrap"  Text="Unlock Duration (Optional)"   FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
+
+                <Slider x:Name="TimeSlider"
+                                Minimum="1"
+                                Maximum="1440"
+                                TickFrequency="1"
+                                IsSnapToTickEnabled="True"
+                                VerticalAlignment="Center"
+                                Margin="20,5,20,0"
+                                ValueChanged="TimeSlider_ValueChanged"
+                                PreviewMouseLeftButtonUp="TimeSlider_PreviewMouseLeftButtonUp"
+                                PreviewMouseLeftButtonDown="TimeSlider_PreviewMouseLeftButtonDown">        
+
+                    <Slider.Resources>
+                        <!-- Orange Track -->
+                        <SolidColorBrush x:Key="OrangeBrush" Color="#FF8A00" />
+
+                        <Style TargetType="Track">
+                            <Setter Property="Minimum" Value="{Binding Minimum, RelativeSource={RelativeSource AncestorType=Slider}}"/>
+                            <Setter Property="Maximum" Value="{Binding Maximum, RelativeSource={RelativeSource AncestorType=Slider}}"/>
+                        </Style>
+
+                        <!-- Orange Thumb -->
+                        <Style TargetType="Thumb">
+                            <Setter Property="Width" Value="18"/>
+                            <Setter Property="Height" Value="18"/>
+                            <Setter Property="Background" Value="#FF8A00"/>
+                            <Setter Property="BorderBrush" Value="#FF8A00"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                        </Style>
+                    </Slider.Resources>
+                </Slider>
+                <!-- DISPLAY SELECTED TIME -->
+                <TextBlock x:Name="TimeLabel"
+                   Text="1 minute"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Margin="10 2 10 0"
+                   FontSize="13" />
+                <!-- will turn orange when drag ends -->
+                <!-- Action Buttons -->
+                <Grid Margin="20,20,20,0" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left-aligned button -->
+                    <Button x:Name="btnCancel"  Grid.Column="0" AutomationProperties.AutomationId="btnCancel"  Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True" Height="35" Width="150" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Padding="0" Margin="0,15,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click">
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock Name="btnCancelText" Margin="8" Text="Cancel" Foreground="Black"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+
+                    <Button x:Name="btnCreateRequest"  Grid.Column="2" AutomationProperties.AutomationId="btnCreateRequest"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Height="35" Width="150"  HorizontalContentAlignment="Center"  HorizontalAlignment="Right" Padding="0" Margin="15,15,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnCreateRequest_Click">
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock Name="btnCreateRequestText" Margin="8" Text="Create Request" Foreground="Black"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </Grid>
+                <TextBlock x:Name="RefreshRequestUpdate" AutomationProperties.AutomationId="txtRefreshRequestUpdate" Grid.Row="4" Margin="20,15,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                    <Hyperlink x:Name="btnRefreshRequestUpdate" Click="btnRefreshRequestUpdate_Click"   TextDecorations="Underline" ><Run x:Name="btnRefreshRequestUpdateTXT" Text="Refresh Unlock Request's Status"/></Hyperlink>
+                </TextBlock>
+            </StackPanel>
+        </Grid>
+
+        <!-- View shown when buddies exist BUT NOT in Accepted state -->
+        <Grid x:Name="PendingBuddyView" Visibility="Collapsed">
+            <!-- pending buddies UI -->
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Name="NoAcceptedBuddies" Margin="20,0,20,5" TextWrapping="Wrap"  Text="xNo accepted accountability buddies available."   FontSize="13" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
+                <TextBlock Name="PleaseWait" Margin="20,20,20,5" TextWrapping="Wrap"  Text="xPlease wait for your buddy to accept the invitation before creating an unlock request."   FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
+                <TextBlock x:Name="AddNewBuddy" AutomationProperties.AutomationId="txtAddNewBuddy" Grid.Row="4" Margin="20,10,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                    <Hyperlink x:Name="btnAddNewBuddy" Click="btnAddNewBuddy_Click"   TextDecorations="Underline" ><Run x:Name="btnAddNewBuddyTXT" Text="xAdd a new Buddy"/></Hyperlink>
+                </TextBlock>
+                <TextBlock x:Name="Refresh" AutomationProperties.AutomationId="txtbtnRefresh" Grid.Row="4" Margin="20,10,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                     <Hyperlink x:Name="btnRefresh" Click="btnRefresh_Click"   TextDecorations="Underline" ><Run x:Name="btnRefreshTXT" Text="xAdd a new Buddy"/></Hyperlink>
+                </TextBlock>
+            </StackPanel>
+           
+        </Grid>
+
+    </Grid>
+</UserControl>
