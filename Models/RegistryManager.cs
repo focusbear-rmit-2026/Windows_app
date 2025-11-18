@@ -2742,6 +2742,48 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static void SaveFocusMusicTracks()
+        {
+            LogWriter.LogWrite("RM SaveFocusMusicTracks()");
+            try
+            {
+                Encoding unicode = Encoding.Unicode;
+                // Convert unicode string into a byte array.  
+                byte[] regTracksData = unicode.GetBytes(appSettings.sRawFocusMusicTracks);
+                Write("focusmusictracks", regTracksData);
+
+                regTracksData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveFocusMusicTracks - " + ex.Message);
+            }
+        }
+
+        internal static bool GetSavedFocusMusicTracks()
+        {
+            LogWriter.LogWrite("RM GetSavedFocusMusicTracks()");
+
+            try
+            {
+                byte[] regTracksData = (byte[])Read("focusmusictracks");
+
+                if (regTracksData == null)
+                    return false;
+
+                appSettings.sRawFocusMusicTracks = Encoding.Unicode.GetString(regTracksData);
+
+                regTracksData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedFocusMusicTracks - " + ex.Message);
+                return false;
+            }
+        }
+
     }
 
 

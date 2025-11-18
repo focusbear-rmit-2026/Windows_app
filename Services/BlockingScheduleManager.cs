@@ -90,7 +90,7 @@ namespace Focus_Bear.Services
                 {
                     LogWriter.LogWrite("sRawBlockingSchedules == null - Read previously saved data from registry");
                     //Read previously saved in registry
-                    RegistryManager.GetSavedUserDetailsInfo();
+                    RegistryManager.GetSavedBlockingSchedules();
                 }
                 if (appSettings.sRawBlockingSchedules.Length > 0)
                 {
@@ -314,7 +314,17 @@ namespace Focus_Bear.Services
                 {
                     appSettings.ActiveSchedule.isOn = false;
                     appSettings.isBlockingScheduleRunning = false;
-                    appSettings.ActiveSchedule = null;
+                    appSettings.ActiveSchedule = null; 
+                }
+                else
+                {
+                    //if a focusmode is running then also we need to stop it
+                    if(appSettings.isFocusModeRunning)
+                    {
+                        appSettings.ActiveSchedule.isOn = false;
+                        appSettings.isBlockingScheduleRunning = false;
+                        appSettings.ActiveSchedule = null;
+                    }
                 }
             }
         }

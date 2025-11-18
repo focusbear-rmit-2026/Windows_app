@@ -21,7 +21,7 @@
             <BeginStoryboard Storyboard="{StaticResource WinFade}"/>
         </EventTrigger>
     </Window.Triggers>
-    <Grid Background="#FF2B2B2B">
+    <Grid Background="#2B2B2B">
         <Grid.RowDefinitions>
             <RowDefinition Height="38"/>
             <RowDefinition/>

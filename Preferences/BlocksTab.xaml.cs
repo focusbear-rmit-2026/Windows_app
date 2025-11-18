@@ -44,10 +44,10 @@ namespace Focus_Bear.Preferences
             {
                 //todo win texts
                 Heading.Text = "Blocking";
-                btnBlockListsText.Text = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["titleFocusMode"].ToString();
+                btnBlockListsText.Text = "Block Lists";// appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["titleFocusMode"].ToString();
                 btnBlockingScheduleText.Text = appSettings.ConfigFileStrings["settingsNew"]["blockingScheduleSettingTitle"].ToString();
                 btnDistractingSitesText.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
-
+                
             }
             catch (Exception ex)
             {

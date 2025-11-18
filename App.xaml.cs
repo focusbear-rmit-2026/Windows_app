@@ -50,6 +50,7 @@ using System.Windows.Controls;
 using Focus_Bear.Onboarding.NEW;
 using Focus_Bear.Habits.NaturalBreaks;
 using Focus_Bear.Services;
+using Focus_Bear.FocusMusic;
 
 namespace Focus_Bear
 {
@@ -371,6 +372,8 @@ namespace Focus_Bear
         public static event Action FocusModeAddedDeletedEvent;
 
         public static event Action ThemeChanged;
+
+        public FocusMusicView wndFocusMusic = null;
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             SentrySdk.ConfigureScope(scope =>
@@ -1436,8 +1439,23 @@ namespace Focus_Bear
                     BlockingScheduleManager.ReadAndParseBlockingSchedules(); 
                 }
 
+
                 CommandManager.InvalidateRequerySuggested();
 
+                LogWriter.LogWrite("attempt to Get all Trackss");
+                var TracksResponse = await client.GetAllTracks();
+                int mTrack = int.Parse(TracksResponse.ToString());
+                if (mTrack == 1)
+                {
+                    LogWriter.LogWrite("GetAllTracks Success");
+                    //User SEttings retrieved Successfully, Process them.
+                    FocusMusicManager.ReadAndParseFocusMusicTracks();
+                }
+                else
+                {
+                    LogWriter.LogWrite("GetAllTracks Failed");
+                    FocusMusicManager.ReadAndParseFocusMusicTracks();
+                }
 
             });
 
@@ -1515,7 +1533,6 @@ namespace Focus_Bear
             //OnboardingNewWelcome wnd2 = new OnboardingNewWelcome(wnd);
             ////wnd2.();
             //ShowShutOffScreen();
-
 #endif
 
             if (appSettings.IsFirstInstall)
@@ -4736,10 +4753,24 @@ namespace Focus_Bear
             }
 
             bool isDarkMode = (appSettings.sTheme == "Dark");
-            Application.Current.Resources["TooltipBackground"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#FF2B2B2B" : "#FFF5F5F5"));
-            Application.Current.Resources["TooltipForeground"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#FFF1F1F1" : "#FF1E1E1E"));
-            Application.Current.Resources["TooltipBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#FF444444" : "#FFCCCCCC"));
+            Application.Current.Resources["TooltipBackground"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#2B2B2B" : "#F5F5F5"));
+            Application.Current.Resources["TooltipForeground"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#F1F1F1" : "#1E1E1E"));
+            Application.Current.Resources["TooltipBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#444444" : "#CCCCCC"));
 
+
+        }
+
+        public void ShowFocusMusic()
+        {
+            if (wndFocusMusic == null)
+            {
+                wndFocusMusic = new FocusMusicView();
+            }
+            wndFocusMusic.Topmost = true;
+            wndFocusMusic.Show();
+            wndFocusMusic.BringIntoView();
+            wndFocusMusic.Activate();
+            wndFocusMusic.Focus();
 
         }
 
