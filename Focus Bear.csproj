@@ -300,6 +300,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AccountabilityBuddy\AccountabilityBuddyManager.cs" />
+    <Compile Include="AccountabilityBuddy\AccountabilityBuddyView.xaml.cs">
+      <DependentUpon>AccountabilityBuddyView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AccountabilityBuddy\BuddyDetails.cs" />
     <Compile Include="API\Authentication.cs" />
     <Compile Include="API\FocusBearAPIClient.cs" />
     <Compile Include="BrainDump\BrainDumpWindow.xaml.cs">
@@ -695,6 +700,10 @@
       <DependentUpon>TrayBalloon.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils\UploadLogs.cs" />
+    <Page Include="AccountabilityBuddy\AccountabilityBuddyView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="BrainDump\BrainDumpWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

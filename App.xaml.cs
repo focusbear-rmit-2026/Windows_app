@@ -51,6 +51,7 @@ using Focus_Bear.Onboarding.NEW;
 using Focus_Bear.Habits.NaturalBreaks;
 using Focus_Bear.Services;
 using Focus_Bear.FocusMusic;
+using Focus_Bear.AccountabilityBuddy;
 
 namespace Focus_Bear
 {
@@ -1448,7 +1449,7 @@ namespace Focus_Bear
                 if (mTrack == 1)
                 {
                     LogWriter.LogWrite("GetAllTracks Success");
-                    //User SEttings retrieved Successfully, Process them.
+                    //focus music trcks retrieved Successfully, Process them.
                     FocusMusicManager.ReadAndParseFocusMusicTracks();
                 }
                 else
@@ -1456,7 +1457,21 @@ namespace Focus_Bear
                     LogWriter.LogWrite("GetAllTracks Failed");
                     FocusMusicManager.ReadAndParseFocusMusicTracks();
                 }
-
+                
+                LogWriter.LogWrite("attempt to Get all buddies");
+                var buddyResponse = await client.GetAllBuddies();
+                int mBuddy = int.Parse(buddyResponse.ToString());
+                if (mBuddy == 1)
+                {
+                    LogWriter.LogWrite("GetAllBuddies Success");
+                    //buddy list retrieved Successfully, Process them.
+                    AccountabilityBuddyManager.ReadAndParseAccountabilityBuddyList();
+                }
+                else
+                {
+                    LogWriter.LogWrite("GetAllBuddies Failed");
+                    AccountabilityBuddyManager.ReadAndParseAccountabilityBuddyList();
+                }
             });
 
 

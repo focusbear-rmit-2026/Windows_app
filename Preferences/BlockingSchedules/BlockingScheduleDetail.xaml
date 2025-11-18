@@ -107,7 +107,7 @@
                          Margin="0,0,0,0"
                          Padding="10"  HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                            <ComboBox Grid.Row="3" Name="ComboBoxFocusModes" AutomationProperties.AutomationId="cmbFocusModes" DisplayMemberPath="name" SelectedValuePath="id" SelectedValue="{Binding SelectedFocusModeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Width="250" Height="30" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,10,0,0"  SelectedIndex="0" FontSize="15"  >
+                            <ComboBox  Name="ComboBoxFocusModes" AutomationProperties.AutomationId="cmbFocusModes" DisplayMemberPath="name" SelectedValuePath="id" SelectedValue="{Binding SelectedFocusModeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Width="250" Height="30" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,10,0,0"  SelectedIndex="0" FontSize="15"  >
                             </ComboBox>
                             <TextBlock x:Name="EditBlockList"  AutomationProperties.AutomationId="txtEditBlockList"  Grid.Row="4" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"    MinHeight="22" Cursor="Hand">
                                 <Hyperlink x:Name="btnEditBlockList" Click="btnEditBlockList_Click" Foreground="Black"   TextDecorations="Underline" ><Run x:Name="EditBlockListText" Foreground="Black" Text="xEdit block list"/></Hyperlink>

@@ -2784,6 +2784,47 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static void SaveBuddyList()
+        {
+            LogWriter.LogWrite("RM SaveBuddyList()");
+            try
+            {
+                Encoding unicode = Encoding.Unicode;
+                // Convert unicode string into a byte array.  
+                byte[] regBuddyData = unicode.GetBytes(appSettings.sRawBuddiesList);
+                Write("buddylist", regBuddyData);
+
+                regBuddyData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveBuddyList - " + ex.Message);
+            }
+        }
+
+        internal static bool GetSavedBuddyList()
+        {
+            LogWriter.LogWrite("RM GetSavedBuddyList()");
+
+            try
+            {
+                byte[] regBuddyData = (byte[])Read("buddylist");
+
+                if (regBuddyData == null)
+                    return false;
+
+                appSettings.sRawBuddiesList = Encoding.Unicode.GetString(regBuddyData);
+
+                regBuddyData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedBuddyList - " + ex.Message);
+                return false;
+            }
+        }
     }
 
 
