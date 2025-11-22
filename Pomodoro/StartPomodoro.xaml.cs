@@ -250,6 +250,10 @@ namespace Focus_Bear.Pomodoro
 
         private void ComboBoxFocusModes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (ComboBoxFocusModes.SelectedItem == null)
+            {
+                return;
+            }
             string sFocusModeToStart = ComboBoxFocusModes.SelectedItem.ToString();
 
             for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
@@ -383,7 +387,11 @@ namespace Focus_Bear.Pomodoro
 
         private void StartFocusMode()
         {
-            string sFocusModeToStart = ComboBoxFocusModes.SelectedItem.ToString();
+            if (ComboBoxFocusModes.SelectedItem == null)
+            {
+                return;
+            }
+            string sFocusModeToStart = ComboBoxFocusModes.SelectedItem?.ToString();
 
             for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
             {
