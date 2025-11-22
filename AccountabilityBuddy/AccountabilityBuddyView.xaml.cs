@@ -19,6 +19,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using static Duende.IdentityModel.OidcConstants;
 using UserControl = System.Windows.Controls.UserControl;
 
@@ -31,6 +32,7 @@ namespace Focus_Bear.AccountabilityBuddy
     {
         AppSettings appSettings = AppSettings.GetInstance;
         private double _originalWindowHeight = 0;
+        private double _originalWindowWidth = 0;
         private bool _isLoaded = false;
         public AccountabilityBuddyView()
         {
@@ -82,25 +84,35 @@ namespace Focus_Bear.AccountabilityBuddy
             if (!(sender is UserControl uc))
                 return;
 
-            // Get parent window (outer view)
-            var parentWindow = Window.GetWindow(uc);
-            if (parentWindow == null)
-                return;
-
-            // Store original height once
-            if (_originalWindowHeight == 0)
-                _originalWindowHeight = parentWindow.Height;
-
-            if (uc.IsVisible && HasAcceptedBuddy)
+            Dispatcher.BeginInvoke(new Action(() =>
             {
-                // Increase height by x
-                parentWindow.Height = _originalWindowHeight + 180;
-            }
-            else
-            {
-                // Restore original height
-                parentWindow.Height = _originalWindowHeight;
-            }
+                // Get parent window (outer view)
+                var parentWindow = Window.GetWindow(uc);
+                if (parentWindow == null)
+                    return;
+
+                // Store original height once
+                if (_originalWindowHeight == 0)
+                    _originalWindowHeight = parentWindow.Height;
+
+                if (_originalWindowWidth == 0)
+                    _originalWindowWidth = parentWindow.Width;
+
+                if (uc.IsVisible && HasAcceptedBuddy)
+                {
+                    // Increase height by x
+                    parentWindow.Height = _originalWindowHeight + 200;
+                    parentWindow.Width = _originalWindowWidth + 100;
+                }
+                else
+                {
+                    // Restore original height
+                    parentWindow.Height = _originalWindowHeight;
+                    parentWindow.Width = _originalWindowWidth;
+                }
+            }), DispatcherPriority.ContextIdle);
+
+            
         }
 
         private bool ShowCorrectView()

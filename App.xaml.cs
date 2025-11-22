@@ -4599,6 +4599,15 @@ namespace Focus_Bear
                 wndToDoPlayer.LoadURL();
                 bLoadURLAgainInToDoPlayer = false;
             }
+
+            WindowInteropHelper helper = new WindowInteropHelper(wndToDoPlayer);
+            IntPtr hWnd = helper.Handle;
+
+            // Restore window if minimized
+            ShowWindow(hWnd, SW_RESTORE);
+
+            // Bring to foreground
+            SetForegroundWindow(hWnd);
         }
 
         public void ShowToDoList()
@@ -4610,6 +4619,15 @@ namespace Focus_Bear
             wndToDoList.Show();
 
             wndToDoList.LoadURL();
+
+            WindowInteropHelper helper = new WindowInteropHelper(wndToDoList);
+            IntPtr hWnd = helper.Handle;
+
+            // Restore window if minimized
+            ShowWindow(hWnd, SW_RESTORE);
+
+            // Bring to foreground
+            SetForegroundWindow(hWnd);
         }
         public void HideToDoPlayer()
         {
@@ -4781,11 +4799,19 @@ namespace Focus_Bear
             {
                 wndFocusMusic = new FocusMusicView();
             }
-            wndFocusMusic.Topmost = true;
             wndFocusMusic.Show();
             wndFocusMusic.BringIntoView();
             wndFocusMusic.Activate();
             wndFocusMusic.Focus();
+
+            WindowInteropHelper helper = new WindowInteropHelper(wndFocusMusic);
+            IntPtr hWnd = helper.Handle;
+
+            // Restore window if minimized
+            ShowWindow(hWnd, SW_RESTORE);
+
+            // Bring to foreground
+            SetForegroundWindow(hWnd);
 
         }
 

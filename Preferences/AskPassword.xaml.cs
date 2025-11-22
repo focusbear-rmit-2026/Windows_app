@@ -92,6 +92,7 @@ namespace Focus_Bear.Preferences
                 if (isFirstTab )
                 {
                     this.Height = 300;
+                    this.Width = 450;
                 }
                
             }
@@ -104,7 +105,7 @@ namespace Focus_Bear.Preferences
             // Centralized check
             if (appSettings.UnlockTillTime > DateTime.Now)
             {
-                LogWriter.LogWrite("Unlcoked till time - " + appSettings.UnlockTillTime.ToString());
+                LogWriter.LogWrite("Unlocked till time - " + appSettings.UnlockTillTime.ToString());
                 DialogResult = true;
                 return;
             }

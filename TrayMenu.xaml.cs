@@ -52,6 +52,8 @@ namespace Focus_Bear
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
         private const int WM_SETTINGCHANGE = 0x001A;
+
+        bool bQuitVisible = false;
         public TrayMenu()
         {
             InitializeComponent();
@@ -591,7 +593,10 @@ namespace Focus_Bear
         private void btnQuit_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnQuit_Click()");
-
+            if(bQuitVisible)
+            {
+                return;
+            }
             try
             {
                 //Chck if the Focus mode is running, then we should terminate it
@@ -604,12 +609,15 @@ namespace Focus_Bear
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
                 }
-
+                
                 QuitWindow aa = new QuitWindow();
+                bQuitVisible = true;
                 aa.ShowDialog();
+                bQuitVisible = false;
             }
             catch (Exception ex)
             {
+                bQuitVisible = false;
                 LogWriter.LogWrite("btnQuit_Click - " + ex.Message);
    
             }
