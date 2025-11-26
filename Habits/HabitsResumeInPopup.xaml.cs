@@ -47,7 +47,7 @@ namespace Focus_Bear.Habits
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
-
+            
             Description.Text = appSettings.ConfigFileStrings["common"]["postponeEndsText"].ToString();
             btnPostponeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
             ShowInTaskbar = false;  
