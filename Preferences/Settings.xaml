@@ -50,7 +50,7 @@
                             <RowDefinition Height="Auto"/>
 
                         </Grid.RowDefinitions>
-                        <Grid Grid.Row="0" >
+                        <Grid Grid.Row="0" HorizontalAlignment="Center">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="235"/>
                                 <ColumnDefinition Width="*"/>
@@ -85,19 +85,19 @@
                             </Grid>
 
                         </Grid>
-                        <Grid Grid.Row="1" >
+                        <Grid Grid.Row="1" HorizontalAlignment="Center" Margin="0,0,320,0">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Name="FullScreen" Margin="0,0,0,0"  Width="215" TextWrapping="Wrap"   Text="xFull Screen View:"   FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
                                 <CheckBox Name="FullScreenCheckbox" AutomationProperties.AutomationId="chkFullScreen" Margin="40,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" Checked="FullScreenCheckbox_Checked" Unchecked="FullScreenCheckbox_Unchecked" Cursor="Hand" Padding="5,-2,0,0">xPlay activities in full screen mode</CheckBox>
                             </StackPanel>
                         </Grid>
-                        <Grid Grid.Row="2" >
+                        <Grid Grid.Row="2" HorizontalAlignment="Center" Margin="0,0,430,0">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Name="EnableBreaks" Margin="0,0,0,0"  Width="215" TextWrapping="Wrap"   Text="xBreaks:"   FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Right"  />
                                 <CheckBox Name="EnableBreaksCheckbox" AutomationProperties.AutomationId="chkEnableBreaks" Margin="40,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" Checked="EnableBreaksCheckbox_Checked" Unchecked="EnableBreaksCheckbox_Unchecked" Cursor="Hand" Padding="5,-2,0,0">xEnable Breaks</CheckBox>
                             </StackPanel>
                         </Grid>
-                        <Grid Grid.Row="3" >
+                        <Grid Grid.Row="3" HorizontalAlignment="Center" Margin="0,0,300,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="235"/>
                                 <ColumnDefinition Width="*"/>
