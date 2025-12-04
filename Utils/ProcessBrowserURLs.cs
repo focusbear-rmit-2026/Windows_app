@@ -547,6 +547,12 @@ namespace Focus_Bear.Utils
 
                                     if(bAllowedURLFound)
                                     {
+                                        if (appSettings.arrAlwaysBlockedURLs.Count > 0 &&
+                                            ProcessCurrentAlwaysBlockedURL(hWnd))
+                                        {
+                                            return;
+                                        }
+
                                         string sHeading = appSettings.ConfigFileStrings["common"]["appAllowedInFocusModeText"].ToString();
                                         sHeading = sHeading.Replace("<APP>", sURL);
                                         sHeading = sHeading.Replace("<FOCUSMODE>", appSettings.sRunningFocusModeName);
@@ -672,8 +678,12 @@ namespace Focus_Bear.Utils
                             }
                             else //Check the URL in Always BLocked URL List
                             {
-                                if (appSettings.arrAlwaysBlockedURLs.Count() > 0)
-                                    ProcessCurrentAlwaysBlockedURL(hWnd); //For always Blocked URLS
+                                if (appSettings.arrAlwaysBlockedURLs.Count() > 0 &&
+                                    ProcessCurrentAlwaysBlockedURL(hWnd))
+                                {
+                                    // Si devuelve true, ya hubo bloqueo o Set Intention; cerramos flujo.
+                                    return;
+                                }
                             }
                         }
                     }
