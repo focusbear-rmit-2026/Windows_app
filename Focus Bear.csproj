@@ -300,6 +300,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AccountabilityBuddy\AccountabilityBuddyManager.cs" />
+    <Compile Include="AccountabilityBuddy\AccountabilityBuddyView.xaml.cs">
+      <DependentUpon>AccountabilityBuddyView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AccountabilityBuddy\BuddyDetails.cs" />
     <Compile Include="API\Authentication.cs" />
     <Compile Include="API\FocusBearAPIClient.cs" />
     <Compile Include="BrainDump\BrainDumpWindow.xaml.cs">
@@ -311,6 +316,11 @@
     </Compile>
     <Compile Include="CallDetection\CameraUtilities.cs" />
     <Compile Include="Constants\Events.cs" />
+    <Compile Include="FocusMusic\FocusMusicTrack.cs" />
+    <Compile Include="FocusMusic\FocusMusicView.xaml.cs">
+      <DependentUpon>FocusMusicView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FocusMusic\FocusMusicManager.cs" />
     <Compile Include="Focus\AddTempAllowedToFocusModeWindow.xaml.cs">
       <DependentUpon>AddTempAllowedToFocusModeWindow.xaml</DependentUpon>
     </Compile>
@@ -423,6 +433,7 @@
     <Compile Include="Models\AppsEngine.cs" />
     <Compile Include="Models\AppTaskScheduler.cs" />
     <Compile Include="Models\AppUpdater.cs" />
+    <Compile Include="Models\CustomBlockingSchedule.cs" />
     <Compile Include="Models\HttpCommunication.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -569,6 +580,15 @@
     <Compile Include="Preferences\AskPassword.xaml.cs">
       <DependentUpon>AskPassword.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\BlockingSchedules\BlockingSchedule.xaml.cs">
+      <DependentUpon>BlockingSchedule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\BlockingSchedules\BlockingScheduleDetail.xaml.cs">
+      <DependentUpon>BlockingScheduleDetail.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\BlockingSchedules\BlockingScheduleStrictTimer.xaml.cs">
+      <DependentUpon>BlockingScheduleStrictTimer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Preferences\BlocksTab.xaml.cs">
       <DependentUpon>BlocksTab.xaml</DependentUpon>
     </Compile>
@@ -614,6 +634,7 @@
     <Compile Include="Relax\RelaxModeWindow.xaml.cs">
       <DependentUpon>RelaxModeWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\BlockingScheduleManager.cs" />
     <Compile Include="SetIntention\SetIntention.xaml.cs">
       <DependentUpon>SetIntention.xaml</DependentUpon>
     </Compile>
@@ -679,11 +700,19 @@
       <DependentUpon>TrayBalloon.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils\UploadLogs.cs" />
+    <Page Include="AccountabilityBuddy\AccountabilityBuddyView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="BrainDump\BrainDumpWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CallDetection\CallFocusNotifier.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FocusMusic\FocusMusicView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1023,6 +1052,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Preferences\BlockingSchedules\BlockingSchedule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\BlockingSchedules\BlockingScheduleDetail.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\BlockingSchedules\BlockingScheduleStrictTimer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Preferences\BlocksTab.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1232,6 +1273,9 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\brainDump.png" />
+    <Resource Include="Images\music_albums_fill.png" />
+    <Resource Include="Images\gifs\audio Wave.gif" />
     <Resource Include="Images\email.png" />
     <Resource Include="Images\logo_google.png" />
     <Resource Include="Images\checkmark_dark.png" />

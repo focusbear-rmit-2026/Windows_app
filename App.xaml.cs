@@ -49,6 +49,9 @@ using System.Web.UI;
 using System.Windows.Controls;
 using Focus_Bear.Onboarding.NEW;
 using Focus_Bear.Habits.NaturalBreaks;
+using Focus_Bear.Services;
+using Focus_Bear.FocusMusic;
+using Focus_Bear.AccountabilityBuddy;
 
 namespace Focus_Bear
 {
@@ -370,6 +373,8 @@ namespace Focus_Bear
         public static event Action FocusModeAddedDeletedEvent;
 
         public static event Action ThemeChanged;
+
+        public FocusMusicView wndFocusMusic = null;
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             SentrySdk.ConfigureScope(scope =>
@@ -865,6 +870,16 @@ namespace Focus_Bear
                     return;
                 }
 
+                if(appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+                {
+                    if (!appSettings.ActiveSchedule.bMicroBreaksEnabled)
+                    {
+                        LogWriter.LogWrite("appSettings.ActiveSchedule.bMicroBreaksEnabled is false - return");
+                        //Start the break Activities Timer
+                        StartBreakActivityTimer();
+                        return;
+                    }
+                }
                 if (appSettings.IsAppDeactivated())
                 {
                     LogWriter.LogWrite("appSettings.IsAppDeactivated() - return from breaks timer");
@@ -1410,6 +1425,53 @@ namespace Focus_Bear
                     CommandManager.InvalidateRequerySuggested();
                 }
 
+                LogWriter.LogWrite("attempt to Get all blocking schedules");
+                var blockingSchedulesResponse = await client.GetAllBlockingSchedules();
+                int mRes = int.Parse(blockingSchedulesResponse.ToString());
+                if (mRes == 1)
+                {
+                    LogWriter.LogWrite("GetAllBlockingSchedules Success");
+                    //User SEttings retrieved Successfully, Process them.
+                    BlockingScheduleManager.ReadAndParseBlockingSchedules();
+                }
+                else
+                {
+                    LogWriter.LogWrite("GetAllBlockingSchedules Failed");
+                    BlockingScheduleManager.ReadAndParseBlockingSchedules(); 
+                }
+
+
+                CommandManager.InvalidateRequerySuggested();
+
+                LogWriter.LogWrite("attempt to Get all Trackss");
+                var TracksResponse = await client.GetAllTracks();
+                int mTrack = int.Parse(TracksResponse.ToString());
+                if (mTrack == 1)
+                {
+                    LogWriter.LogWrite("GetAllTracks Success");
+                    //focus music trcks retrieved Successfully, Process them.
+                    FocusMusicManager.ReadAndParseFocusMusicTracks();
+                }
+                else
+                {
+                    LogWriter.LogWrite("GetAllTracks Failed");
+                    FocusMusicManager.ReadAndParseFocusMusicTracks();
+                }
+                
+                LogWriter.LogWrite("attempt to Get all buddies");
+                var buddyResponse = await client.GetAllBuddies();
+                int mBuddy = int.Parse(buddyResponse.ToString());
+                if (mBuddy == 1)
+                {
+                    LogWriter.LogWrite("GetAllBuddies Success");
+                    //buddy list retrieved Successfully, Process them.
+                    AccountabilityBuddyManager.ReadAndParseAccountabilityBuddyList();
+                }
+                else
+                {
+                    LogWriter.LogWrite("GetAllBuddies Failed");
+                    AccountabilityBuddyManager.ReadAndParseAccountabilityBuddyList();
+                }
             });
 
 
@@ -1486,7 +1548,6 @@ namespace Focus_Bear
             //OnboardingNewWelcome wnd2 = new OnboardingNewWelcome(wnd);
             ////wnd2.();
             //ShowShutOffScreen();
-
 #endif
 
             if (appSettings.IsFirstInstall)
@@ -1969,7 +2030,24 @@ namespace Focus_Bear
                     }
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                    {
+                        if(appSettings.bHabitsPostponedState)
+                        {
+                            if (!appSettings.isBlockingScheduleRunning)
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                            }
+                            else
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                            }
+                        }
+                        else
+                        {
+                            BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                        }
                         return;
+                    }
 
 
                     if (RegistryManager.GetMorningHabitsShownTillDate())
@@ -2002,6 +2080,17 @@ namespace Focus_Bear
                             }
                             ShowNaturalBreakDetectionWindow();
                         }
+
+                        //Check if custom blocking schedule time and no active schedule is running
+                        if (appSettings.ActiveSchedule == null && !appSettings.isBlockingScheduleRunning)
+                        {
+                            BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                        }
+                        else
+                        {
+                            BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                        }
+
                         return;
                     }
 
@@ -4510,6 +4599,15 @@ namespace Focus_Bear
                 wndToDoPlayer.LoadURL();
                 bLoadURLAgainInToDoPlayer = false;
             }
+
+            WindowInteropHelper helper = new WindowInteropHelper(wndToDoPlayer);
+            IntPtr hWnd = helper.Handle;
+
+            // Restore window if minimized
+            ShowWindow(hWnd, SW_RESTORE);
+
+            // Bring to foreground
+            SetForegroundWindow(hWnd);
         }
 
         public void ShowToDoList()
@@ -4521,6 +4619,15 @@ namespace Focus_Bear
             wndToDoList.Show();
 
             wndToDoList.LoadURL();
+
+            WindowInteropHelper helper = new WindowInteropHelper(wndToDoList);
+            IntPtr hWnd = helper.Handle;
+
+            // Restore window if minimized
+            ShowWindow(hWnd, SW_RESTORE);
+
+            // Bring to foreground
+            SetForegroundWindow(hWnd);
         }
         public void HideToDoPlayer()
         {
@@ -4679,10 +4786,32 @@ namespace Focus_Bear
             }
 
             bool isDarkMode = (appSettings.sTheme == "Dark");
-            Application.Current.Resources["TooltipBackground"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#FF2B2B2B" : "#FFF5F5F5"));
-            Application.Current.Resources["TooltipForeground"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#FFF1F1F1" : "#FF1E1E1E"));
-            Application.Current.Resources["TooltipBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#FF444444" : "#FFCCCCCC"));
+            Application.Current.Resources["TooltipBackground"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#2B2B2B" : "#F5F5F5"));
+            Application.Current.Resources["TooltipForeground"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#F1F1F1" : "#1E1E1E"));
+            Application.Current.Resources["TooltipBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(isDarkMode ? "#444444" : "#CCCCCC"));
 
+
+        }
+
+        public void ShowFocusMusic()
+        {
+            if (wndFocusMusic == null)
+            {
+                wndFocusMusic = new FocusMusicView();
+            }
+            wndFocusMusic.Show();
+            wndFocusMusic.BringIntoView();
+            wndFocusMusic.Activate();
+            wndFocusMusic.Focus();
+
+            WindowInteropHelper helper = new WindowInteropHelper(wndFocusMusic);
+            IntPtr hWnd = helper.Handle;
+
+            // Restore window if minimized
+            ShowWindow(hWnd, SW_RESTORE);
+
+            // Bring to foreground
+            SetForegroundWindow(hWnd);
 
         }
 

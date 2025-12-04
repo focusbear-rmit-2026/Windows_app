@@ -343,7 +343,7 @@ namespace Focus_Bear.Habits
         }
         private void LoadUrl()
         {
-            string sSettingsURL = appSettings.ConfigFileStrings["settings"]["settingUrl"].ToString();
+            string sSettingsURL = "https://dashboard.focusbear.io/webview/settings";//appSettings.ConfigFileStrings["settings"]["settingUrl"].ToString();
 
             string routine = null;
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)

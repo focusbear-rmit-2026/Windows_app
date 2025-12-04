@@ -69,7 +69,7 @@ namespace Focus_Bear.Utils
                 ProcessAlloweURLsInActivity(hwnd);
             }
 
-            if (appSettings.isFocusModeRunning || appSettings.bHabitwithUseFocusModeRunning)
+            if (appSettings.isFocusModeRunning || appSettings.bHabitwithUseFocusModeRunning || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
             {
                 ProcessURLForFocusModes(hwnd);
             }
@@ -92,11 +92,11 @@ namespace Focus_Bear.Utils
             {
                 ProcessCurrentAlwaysBlockedURL(hwnd); //For always Blocked URLS
             }
-            else //Normal
-            {
-                if (appSettings.arrAlwaysBlockedURLs.Count() > 0 ) //only block when untill I finish work is selected => updated on 22 Aug 2025 to show notification if user settings are set to manul blocking
-                    ProcessCurrentAlwaysBlockedURL(hwnd); //For always Blocked URLS
-            }
+            //else //Normal
+            //{
+            //    if (appSettings.arrAlwaysBlockedURLs.Count() > 0 ) //only block when untill I finish work is selected => updated on 22 Aug 2025 to show notification if user settings are set to manul blocking
+            //        ProcessCurrentAlwaysBlockedURL(hwnd); //For always Blocked URLS
+            //}
             
         }
 
@@ -393,6 +393,10 @@ namespace Focus_Bear.Utils
             if (appSettings.bHabitwithUseFocusModeRunning)
             {
                 listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.sUseFocusModeIDInActivity).ToList();
+            }
+            else if(appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+            {
+                listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.ActiveSchedule.SelectedFocusModeId).ToList();
             }
             else //Normal focus mode running
             {
@@ -1193,19 +1197,17 @@ namespace Focus_Bear.Utils
                 }
                 else if (type == "blocked")
                 {
-                    if((appSettings.nBlockingSchedule == BLOCKINGSCHEDULE.WHEN_STARTING_FOCUS_SESSION) &&
-                        !appSettings.isFocusModeRunning)
+                    /**if(!appSettings.isFocusModeRunning)
                     {
                         /*(Focus - Bear / windows - app - v2#783)
-                        @manishjain999 can you also show a notification in the floating bear: "Super distracting site not blocked ℹ️" with tooltip "Your blocking setting is set to manual and you're not currently in a focus session"*/
+                        @manishjain999 can you also show a notification in the floating bear: "Super distracting site not blocked ℹ️" with tooltip "Your blocking setting is set to manual and you're not currently in a focus session"* /
                         
                         string sHeading = "Super distracting site not blocked!"; ///appSettings.ConfigFileStrings["common"]["appBlockNotificationTitle"].ToString();
                         string sDesc = "ℹ️ Your blocking setting is set to manual and you're not currently in a focus session."; ///appSettings.ConfigFileStrings["common"]["appBlockNotificationTitle"].ToString();
                         appSettings.ShowBaloonTip(sDesc, sHeading);
 
                         return;
-
-                    }
+                    }**/
 
                     if (appSettings.bImmediatelyBlockDistractingSites) //BLock immediately
                     {

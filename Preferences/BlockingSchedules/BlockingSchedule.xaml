@@ -1,0 +1,87 @@
+﻿<UserControl x:Class="Focus_Bear.Preferences.BlockingSchedule"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Focus_Bear.Preferences"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        
+        <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
+            <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Border  x:Name="IconBorder" Background="{x:Null}" CornerRadius="5" Margin="0,1" BorderThickness="1" BorderBrush="LightGray" >
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!--<Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="IconBorder" Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#e9912c" Opacity="1" />
+
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>-->
+
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="IconBorder" Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#e9912c" Opacity="1"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Visibility" Value="{Binding isShowAbleInList, Converter={StaticResource BoolToVis}}" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+
+        </Grid.RowDefinitions>
+        <ListView   Grid.Row="0"   x:Name="ListBlockingSchedules" AutomationProperties.AutomationId="lvListBlockingSchedules" SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" SelectionChanged="ListBlockingSchedules_SelectionChanged" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid x:Name="ItemHeader"  Height="60" Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Vertical"  >
+                            <TextBlock Grid.Column="0" x:Name="BlockingScheduleName" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand" FontWeight="Bold" VerticalAlignment="Center" Margin="5,10,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource PreferenceFocusListItemForegroundColor}"/>
+                            <TextBlock Grid.Column="0" x:Name="BlockingScheduleDays" Text="{Binding BlockingScheduleDaysTime, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,10,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource PreferenceFocusListItemForegroundColor}"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+
+                            <Border Background="#ffdcb3" Margin="0,0,10,0" CornerRadius="13" MinWidth="125" Height="25">
+                                <TextBlock Text="{Binding StrictnessLevelDisplay, StringFormat=\{0\}}" Foreground="#e9912c"  Margin="20,0,20,0" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                            </Border>
+                            <Border Background="White" BorderBrush="Gray" BorderThickness="1" CornerRadius="13" Height="25">
+                                <TextBlock Text="{Binding FocusModeName, StringFormat=\{0\}}" Margin="20,0,20,0" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" FontWeight="SemiBold"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Button Grid.Row="1"  IsDefault="True" x:Name="btnNewBlockingSchedule" AutomationProperties.AutomationId="btnNewBlockingSchedule"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNewBlockingSchedule_Click" >
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
+                    <TextBlock x:Name="btnNewBlockingScheduleTXT" Text="xAdd new Block" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+    </Grid>
+</UserControl>

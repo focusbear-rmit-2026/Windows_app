@@ -2700,7 +2700,131 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static void SaveBlockingSchedules()
+        {
+            LogWriter.LogWrite("RM SaveBlockingSchedules()");
+            try
+            {
+                Encoding unicode = Encoding.Unicode;
+                // Convert unicode string into a byte array.  
+                byte[] regSchedulesData = unicode.GetBytes(appSettings.sRawBlockingSchedules);
+                Write("blockingschedules", regSchedulesData);
 
+                regSchedulesData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveBlockingSchedules - " + ex.Message);
+            }
+        }
+
+        internal static bool GetSavedBlockingSchedules()
+        {
+            LogWriter.LogWrite("RM GetSavedBlockingSchedules()");
+
+            try
+            {
+                byte[] regSchedulesData = (byte[])Read("blockingschedules");
+
+                if (regSchedulesData == null)
+                    return false;
+
+                appSettings.sRawBlockingSchedules = Encoding.Unicode.GetString(regSchedulesData);
+
+                regSchedulesData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedBlockingSchedules - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SaveFocusMusicTracks()
+        {
+            LogWriter.LogWrite("RM SaveFocusMusicTracks()");
+            try
+            {
+                Encoding unicode = Encoding.Unicode;
+                // Convert unicode string into a byte array.  
+                byte[] regTracksData = unicode.GetBytes(appSettings.sRawFocusMusicTracks);
+                Write("focusmusictracks", regTracksData);
+
+                regTracksData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveFocusMusicTracks - " + ex.Message);
+            }
+        }
+
+        internal static bool GetSavedFocusMusicTracks()
+        {
+            LogWriter.LogWrite("RM GetSavedFocusMusicTracks()");
+
+            try
+            {
+                byte[] regTracksData = (byte[])Read("focusmusictracks");
+
+                if (regTracksData == null)
+                    return false;
+
+                appSettings.sRawFocusMusicTracks = Encoding.Unicode.GetString(regTracksData);
+
+                regTracksData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedFocusMusicTracks - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SaveBuddyList()
+        {
+            LogWriter.LogWrite("RM SaveBuddyList()");
+            try
+            {
+                Encoding unicode = Encoding.Unicode;
+                // Convert unicode string into a byte array.  
+                byte[] regBuddyData = unicode.GetBytes(appSettings.sRawBuddiesList);
+                Write("buddylist", regBuddyData);
+
+                regBuddyData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveBuddyList - " + ex.Message);
+            }
+        }
+
+        internal static bool GetSavedBuddyList()
+        {
+            LogWriter.LogWrite("RM GetSavedBuddyList()");
+
+            try
+            {
+                byte[] regBuddyData = (byte[])Read("buddylist");
+
+                if (regBuddyData == null)
+                    return false;
+
+                appSettings.sRawBuddiesList = Encoding.Unicode.GetString(regBuddyData);
+
+                regBuddyData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedBuddyList - " + ex.Message);
+                return false;
+            }
+        }
     }
 
 

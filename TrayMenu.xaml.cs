@@ -1,4 +1,5 @@
 ﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -51,6 +52,8 @@ namespace Focus_Bear
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
         private const int WM_SETTINGCHANGE = 0x001A;
+
+        bool bQuitVisible = false;
         public TrayMenu()
         {
             InitializeComponent();
@@ -118,15 +121,19 @@ namespace Focus_Bear
                 UpgradeNow.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemUpgradeNowTitle"].ToString();
                 Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
                 btnResumeHabitsTxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();
-                btnBrainDumpTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
 
-                btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
+                Tools.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToolsTitle"].ToString();
+                btnBrainDump.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
+                btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
+                btnFocusMusic.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusMusicTitle"].ToString();
 
                 btnSetupFocusModeText.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemSetFocusModesTitle"].ToString();
 
                 LimitedBlocking.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBlockingDisabledTitle"].ToString();
-                LimitedBlockingInfo.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipBlockingDisabled"].ToString();
+                LimitedBlockingInfo.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["addBlockingScheduleInfo"].ToString();
                 LimitedBlockingEdit.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipButtonEditBlockingSchedule"].ToString();
+
+                BlockingScheduleText.Text = appSettings.ConfigFileStrings["menuInfo"]["titleBlockingSchedule"].ToString();
 
                 if (appSettings.isOfficeModeEnabled)
                 {
@@ -175,7 +182,43 @@ namespace Focus_Bear
 
             try
             {
-                if(appSettings.nBlockingSchedule == BLOCKINGSCHEDULE.WHEN_STARTING_FOCUS_SESSION)
+                //Focus Music icon
+                if(appSettings.arrFocusMusicTracks.Count > 0)
+                {
+                    var current = appSettings.arrFocusMusicTracks.FirstOrDefault(t => t.IsPlaying || t.IsPaused);
+                    if (current != null)
+                    {
+                        btnPlayPauseMusic.Visibility = Visibility.Visible;
+                        btnPlayPauseMusic.ToolTip = current.Name;
+                        if (current.IsPlaying)
+                        {
+                            string imagePath = ("pack://application:,,,/Focus Bear;component/images/pause_icon.png");
+                            var image = new BitmapImage();
+                            image.BeginInit();
+                            image.UriSource = new Uri(imagePath);
+                            image.EndInit();
+
+                            PlayPauseButtonImage.Source = image;
+                        }
+                        else if (current.IsPaused)
+                        {
+                            string imagePath = ("pack://application:,,,/Focus Bear;component/images/play_icon.png");
+                            var image = new BitmapImage();
+                            image.BeginInit();
+                            image.UriSource = new Uri(imagePath);
+                            image.EndInit();
+
+                            PlayPauseButtonImage.Source = image;
+                        }
+                    }
+                    else
+                    {
+                        btnPlayPauseMusic.Visibility = Visibility.Collapsed;
+                    }
+                       
+                }
+
+                if(appSettings.arrCustomBlockingSchedules.Count == 0)
                 {
                     LimitedBlockingSection.Visibility = Visibility.Visible;
                 }
@@ -372,7 +415,8 @@ namespace Focus_Bear
                     OfficeModeSection.Visibility = Visibility.Visible;
 
                     //Focus Alignment score
-                    if (appSettings.isFocusModeRunning)
+                    if (appSettings.isFocusModeRunning || 
+                        (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled))
                     {
                         AlignmentScoreText.Visibility = Visibility.Visible;
                         double CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
@@ -429,11 +473,30 @@ namespace Focus_Bear
 
                 if (appSettings.isFocusModeRunning)
                 {
-                    btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
+                    btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
                 }
                 else
                 {
-                    btnToDoPlayerTXT.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString(); //Todo List
+                    btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString();
+                }
+
+                if(appSettings.isBlockingScheduleRunning)
+                {
+                    BlockingScheduleSection.Visibility = Visibility.Visible;
+                    BlockingScheduleName.Text = appSettings.ActiveSchedule.name;
+                    BlockingScheduleTime.Text = appSettings.ActiveSchedule.BlockingScheduleDaysTime;
+                    if(appSettings.ActiveSchedule.isPaused)
+                    {
+                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
+                    }
+                    else
+                    {
+                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+                    }
+                }
+                else
+                {
+                    BlockingScheduleSection.Visibility = Visibility.Collapsed;
                 }
             }
             catch (Exception ex)
@@ -530,7 +593,10 @@ namespace Focus_Bear
         private async void btnQuit_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnQuit_Click()");
-
+            if(bQuitVisible)
+            {
+                return;
+            }
             try
             {
                 //Chck if the Focus mode is running, then we should terminate it
@@ -554,12 +620,15 @@ namespace Focus_Bear
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
                 }
-
+                
                 QuitWindow aa = new QuitWindow();
+                bQuitVisible = true;
                 aa.ShowDialog();
+                bQuitVisible = false;
             }
             catch (Exception ex)
             {
+                bQuitVisible = false;
                 LogWriter.LogWrite("btnQuit_Click - " + ex.Message);
    
             }
@@ -1437,6 +1506,147 @@ namespace Focus_Bear
             }
 
             return false;
+        }
+
+        private void btnPauseBlockingSchedule_Checked(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("BlockingSchedule Paused from menu");
+            if (appSettings.ActiveSchedule != null)
+            {
+                appSettings.ActiveSchedule.isPaused = false;
+                BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+            }
+        }
+
+        private void btnPauseBlockingSchedule_Unchecked(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("BlockingSchedule Reactiveted from menu");
+            if (appSettings.ActiveSchedule != null)
+            {
+                if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.CHILL_MODE)
+                {
+                    appSettings.ActiveSchedule.isPaused = true;
+
+                    BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
+                }
+                else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
+                {
+                    //Timer
+                    BlockingScheduleStrictTimer mwndTimer = new BlockingScheduleStrictTimer();
+                    mwndTimer.Topmost = true;
+                    mwndTimer.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                    bool? dialogResult = mwndTimer.ShowDialog();
+
+                    if (dialogResult.Value == true)
+                    {
+                        if (appSettings.ActiveSchedule != null)
+                        {
+                            appSettings.ActiveSchedule.isPaused = true;
+
+                            ((App)(Application.Current)).wndTrayMenu.BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Active";
+                        }
+                    }
+                    else
+                    {
+                        appSettings.ActiveSchedule.isPaused = false;
+
+                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            btnPauseBlockingSchedule.IsChecked = true;
+                        }), System.Windows.Threading.DispatcherPriority.Normal);
+                    }
+                }
+                else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+                {
+                    if(appSettings.isPasswordSet)
+                    {
+                        //ask password
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = this;
+                        bool? bRes = pwdWnd.ShowDialog();
+
+                        if (bRes.Value)
+                        {
+                            //Password is correct
+                            appSettings.ActiveSchedule.isPaused = true;
+                            BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
+
+                        }
+                        else
+                        {
+                            appSettings.ActiveSchedule.isPaused = false;
+
+                            BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+                            Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                btnPauseBlockingSchedule.IsChecked = true;
+                            }), System.Windows.Threading.DispatcherPriority.Normal);
+          
+                        }
+                    }
+                    else
+                    {
+                        //todo win texts
+                        FBMessageBox ff = new FBMessageBox("You're running in Super Strict mode and no password is set. You will need to set a password to pause this custom schedule.", "Focus Bear");
+                        ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                        ff.ShowDialog();
+
+                        appSettings.ActiveSchedule.isPaused = false;
+
+                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            btnPauseBlockingSchedule.IsChecked = true;
+                        }), System.Windows.Threading.DispatcherPriority.Normal);
+
+                    }
+
+                }
+
+            }
+        }
+
+        private void btnFocusMusic_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)Application.Current).ShowFocusMusic();
+        }
+
+        private void btnPlayPauseMusic_Click(object sender, RoutedEventArgs e)
+        {
+            //Focus Music icon
+            if (appSettings.arrFocusMusicTracks.Count > 0)
+            {
+                var current = appSettings.arrFocusMusicTracks.FirstOrDefault(t => t.IsPlaying || t.IsPaused);
+                if (current != null)
+                {
+                    if (current.IsPlaying)
+                    {
+                        ((App)Application.Current).wndFocusMusic.PauseTrack(current);
+
+                        string imagePath = ("pack://application:,,,/Focus Bear;component/images/play_icon.png");
+                        var image = new BitmapImage();
+                        image.BeginInit();
+                        image.UriSource = new Uri(imagePath);
+                        image.EndInit();
+
+                        PlayPauseButtonImage.Source = image;
+                    }
+                    else if (current.IsPaused)
+                    {
+                        ((App)Application.Current).wndFocusMusic.ResumeTrack(current);
+
+                        string imagePath = ("pack://application:,,,/Focus Bear;component/images/pause_icon.png");
+                        var image = new BitmapImage();
+                        image.BeginInit();
+                        image.UriSource = new Uri(imagePath);
+                        image.EndInit();
+
+                        PlayPauseButtonImage.Source = image;
+                    }
+                }
+
+            }
         }
     }
 }

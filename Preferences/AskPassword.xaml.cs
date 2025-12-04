@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.AccountabilityBuddy;
+using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +41,10 @@ namespace Focus_Bear.Preferences
                 Heading.Text = appSettings.ConfigFileStrings["enterPasswordViewInfo"]["title"].ToString();
                 btnOKTXT.Text = appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString();
                 btnCancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
+
+                PasswordTab.Header = "Password";
+                AccountabilityBuddy.Header = "Accountability Buddy";
+
                 TxtPassword.Focus();
             }
             catch (Exception ex)
@@ -75,6 +80,34 @@ namespace Focus_Bear.Preferences
                     ff.Owner = this;
                     ff.ShowDialog();
                 }
+            }
+        }
+
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.Source is TabControl)
+            {
+                bool isFirstTab = MainTabControl.SelectedIndex == 0;
+
+                if (isFirstTab )
+                {
+                    this.Height = 300;
+                    this.Width = 450;
+                }
+               
+            }
+        }
+
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+
+            // Centralized check
+            if (appSettings.UnlockTillTime > DateTime.Now)
+            {
+                LogWriter.LogWrite("Unlocked till time - " + appSettings.UnlockTillTime.ToString());
+                DialogResult = true;
+                return;
             }
         }
     }

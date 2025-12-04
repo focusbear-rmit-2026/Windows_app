@@ -157,7 +157,7 @@
                 <TextBlock Grid.Row="0" x:Name="Copy" AutomationProperties.AutomationId="txtCopy" Margin="61,5,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" Height="22" Cursor="Hand">
                      <Hyperlink x:Name="btnCopy" Click="btnCopy_Click"   TextDecorations="Underline" ><Run x:Name="btnCopyTXT" Text="xCopy"/></Hyperlink>
                 </TextBlock>
-                <TextBlock  Grid.Row="1" Margin="61,5,0,0" x:Name="MakeSureSave" FontSize="15">Make sure you save it somewhere safe</TextBlock>
+                <TextBlock  Grid.Row="1" Margin="61,5,0,0" x:Name="MakeSureSave" FontSize="15">xMake sure you save it somewhere safe</TextBlock>
                 <CheckBox Visibility="Collapsed" IsEnabled="False" Grid.Row="1"  Margin="61,5,0,0" x:Name="SavedPassword" AutomationProperties.AutomationId="chkSavedPassword" FontSize="15" Checked="SavedPassword_Checked" Unchecked="SavedPassword_Unchecked" Cursor="Hand" HorizontalAlignment="Left" VerticalAlignment="Bottom" Padding="5,-3,0,0">xI saved the password somewhere safe</CheckBox>
             </Grid>
             <Grid x:Name="GridPasswordRules" Visibility="Collapsed">

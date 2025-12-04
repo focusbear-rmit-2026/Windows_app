@@ -32,12 +32,14 @@
     <BitmapImage x:Key="HabitImage" UriSource="../Images/checkmark_rectangle.png" />
     <BitmapImage x:Key="StatsImage" UriSource="../Images/person.png" />
 
+    <BitmapImage x:Key="GlobeImage" UriSource="../Images/Globe.png" />
+    
     <SolidColorBrush x:Key="ExpanderBackground" Color="White"/>
 
     <!-- Tooltip Base colors -->
-    <Color x:Key="TooltipBackgroundColor">#FFF5F5F5</Color>
-    <Color x:Key="TooltipForegroundColor">#FF1E1E1E</Color>
-    <Color x:Key="TooltipBorderColor">#FFCCCCCC</Color>
+    <Color x:Key="TooltipBackgroundColor">#F5F5F5</Color>
+    <Color x:Key="TooltipForegroundColor">#1E1E1E</Color>
+    <Color x:Key="TooltipBorderColor">#CCCCCC</Color>
     
     
     <Style x:Key="BtnStylePreferencesDynamic" TargetType="{x:Type Button}">

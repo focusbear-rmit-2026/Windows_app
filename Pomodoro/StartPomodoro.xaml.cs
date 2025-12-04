@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Focus;
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -54,9 +55,9 @@ namespace Focus_Bear.Pomodoro
                 Heading.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["title"].ToString();
                 UseSuperPomodoroMode.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonHardcorePomodoroText"].ToString();
 
-                WhichFocusMode.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["questionSecondText"].ToString();
-                
-                EditFocusModesTXT.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonEditFocusModeText"].ToString();
+                WhichFocusMode.Text = "Which block list do you want to use?";// appSettings.ConfigFileStrings["pomodoroInfo"]["questionSecondText"].ToString();
+                //todo win texts
+                EditFocusModesTXT.Text = "Edit block lists";// appSettings.ConfigFileStrings["pomodoroInfo"]["buttonEditFocusModeText"].ToString();
                 PomodoroCountText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["howManyPomodoroText"].ToString();
                 
                 HowMuchTime.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["pomodoroModeDurationText"].ToString();
@@ -200,6 +201,22 @@ namespace Focus_Bear.Pomodoro
                     ShowFocusModeEnd.IsChecked = false;
                 }
 
+                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+                {
+                    if(appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+                    {
+                        ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
+                        ComboBoxFocusModes.IsEnabled = false;
+                    }
+                    else
+                    {
+                        ComboBoxFocusModes.IsEnabled = true;
+                    }
+                }
+                else
+                {
+                    ComboBoxFocusModes.IsEnabled = true;
+                }
             }
             catch (Exception ex)
             {
@@ -233,6 +250,10 @@ namespace Focus_Bear.Pomodoro
 
         private void ComboBoxFocusModes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (ComboBoxFocusModes.SelectedItem == null)
+            {
+                return;
+            }
             string sFocusModeToStart = ComboBoxFocusModes.SelectedItem.ToString();
 
             for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
@@ -366,7 +387,11 @@ namespace Focus_Bear.Pomodoro
 
         private void StartFocusMode()
         {
-            string sFocusModeToStart = ComboBoxFocusModes.SelectedItem.ToString();
+            if (ComboBoxFocusModes.SelectedItem == null)
+            {
+                return;
+            }
+            string sFocusModeToStart = ComboBoxFocusModes.SelectedItem?.ToString();
 
             for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
             {

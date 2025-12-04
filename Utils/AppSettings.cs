@@ -23,6 +23,8 @@ using Focus_Bear.SetIntention;
 using Focus_Bear.Focus.BlurWindow;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
+using Focus_Bear.FocusMusic;
+using Focus_Bear.AccountabilityBuddy;
 
 namespace Focus_Bear.Utils          
 {
@@ -383,6 +385,12 @@ namespace Focus_Bear.Utils
 
         public bool bIsTestUser = false;
 
+        //Custom Blocking Schedule Related:
+        public string sRawBlockingSchedules = "";
+        public ObservableCollection<CustomBlockingSchedule> arrCustomBlockingSchedules = new ObservableCollection<CustomBlockingSchedule>();
+        public bool isBlockingScheduleRunning = false;
+        public CustomBlockingSchedule ActiveSchedule = null;
+
         //Meetings detection related
         public bool bIsUserOnCall = false;
         public string sLastAppUsingMicrophone = "";
@@ -414,6 +422,13 @@ namespace Focus_Bear.Utils
         //menu opening first time variable
         public bool bMenuOpeningFirstTime = false;
 
+        public string sRawFocusMusicTracks = "";
+        public ObservableCollection<FocusMusicTrack> arrFocusMusicTracks = new ObservableCollection<FocusMusicTrack>();
+
+        public string sRawBuddiesList = "";
+        public ObservableCollection<BuddyDetails> arrBuddiesList = new ObservableCollection<BuddyDetails>();
+        public string sUnlockRequestsInfo = "";
+        public DateTime UnlockTillTime = DateTime.Now;
         public BLOCKINGSCHEDULE nBlockingSchedule { get; set; }
 
         public CUIAutomation automation;
@@ -2622,7 +2637,6 @@ namespace Focus_Bear.Utils
                 wndReportBadAIDecision.Show();
             }));
         }
-
     }
 }
 

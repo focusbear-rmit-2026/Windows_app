@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -28,7 +29,7 @@ namespace Focus_Bear.Preferences
     /// </summary>
     /// 
     
-    public partial class FocusPage : Page
+    public partial class FocusPage : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
@@ -57,6 +58,8 @@ namespace Focus_Bear.Preferences
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleFocusType"].ToString();
+                Heading.Text = "Use Block Lists to stay focused on a certain type of work.Start a focus session from the focus bear menu or use a blocking schedule."; //todo win texts
+
                 AllowAllApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedAllApps"].ToString();
                 AllowSelectedApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedSelectedApps"].ToString();
 
@@ -67,6 +70,7 @@ namespace Focus_Bear.Preferences
                 btnDuplicateFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["duplicateText"].ToString();
                 btnAdvancedTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAdvancedText"].ToString();
                 btnAddFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddFocusTypeText"].ToString();
+                btnAddFocusModeTXT.Text = "Add Block List";
             }
             catch (Exception ex)
             {
@@ -734,7 +738,7 @@ namespace Focus_Bear.Preferences
                         WhichAppsDoYouWantToBlock.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockedApps"].ToString();
                         WhichAppsDoYouWantToBlock.Visibility = Visibility.Visible;
 
-                        HowDoYouWant.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["descriptionAlwaysBlockedUrls"].ToString() + 
+                        HowDoYouWant.Text = /*appSettings.ConfigFileStrings["focusPreferencesInfo"]["descriptionAlwaysBlockedUrls"].ToString()*/ "When you use this block list, all websites will be allowed except for your Always Blocked URLs\"," + 
                             "\n\n" + appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockedUrls"].ToString();
 
                     }
