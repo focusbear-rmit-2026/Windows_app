@@ -184,17 +184,6 @@ namespace Focus_Bear.Utils
                                 sMacOSSettingsOBJ.Add("kAiCheckUrlEnabled", appSettings.bAiCheckUrlEnabled);
                             }
 
-                            if (sMacOSSettingsOBJ.ContainsKey("kAiAllowUrlShowAlertEnabled"))
-                            {
-                                sMacOSSettingsOBJ.Remove("kAiAllowUrlShowAlertEnabled"); //Remove  
-                                                                                         //Add new  
-                                sMacOSSettingsOBJ.Add("kAiAllowUrlShowAlertEnabled", appSettings.bAiAllowUrlShowAlertEnabled);
-                            }
-                            else
-                            {
-                                sMacOSSettingsOBJ.Add("kAiAllowUrlShowAlertEnabled", appSettings.bAiAllowUrlShowAlertEnabled);
-                            }
-
                             if (sMacOSSettingsOBJ.ContainsKey("has_edited_blocked_urls"))
                             {
                                 sMacOSSettingsOBJ.Remove("has_edited_blocked_urls"); //Remove  

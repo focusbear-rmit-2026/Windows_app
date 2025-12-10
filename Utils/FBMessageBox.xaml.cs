@@ -181,8 +181,7 @@ namespace Focus_Bear.Utils
         {
             if (bSuggestMeetingsFocusModeView)
                 appSettings.bAutomaticallySuggestStartingMeetingsFocus = false;
-            else
-                appSettings.bAiAllowUrlShowAlertEnabled = false;
+           
             if (bIsModeChangeFB)
             {
                 LogWriter.LogWrite("DoNotShowAnymore_Checked true");
@@ -195,8 +194,7 @@ namespace Focus_Bear.Utils
         {
             if (bSuggestMeetingsFocusModeView)
                 appSettings.bAutomaticallySuggestStartingMeetingsFocus = true;
-            else
-                appSettings.bAiAllowUrlShowAlertEnabled = true;
+            
         }
     }
 }

@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="Focus_Bear.Preferences.SettingsTab.Breaks"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Focus_Bear.Preferences.SettingsTab"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
+        <Border BorderThickness="1" Margin="20"   VerticalAlignment="Top" CornerRadius="10" BorderBrush="LightGray"  Background="{DynamicResource SoftCreamColor}">
+            <Grid Margin="5"  Background="{DynamicResource SoftCreamColor}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="1"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="1"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="1"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="1"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="15,15"  Background="{DynamicResource SoftCreamColor}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="60"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0"  Orientation="Vertical"  >
+                        <TextBlock x:Name="EnableBreaks" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xxEnable Breaks</TextBlock>
+                        <TextBlock x:Name="EnableBreaksDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEnable taking breaks at regular intervals. Breaks help your productivity, energy levels, and ability to focus....</TextBlock>
+                    </StackPanel>
+                    <ToggleButton Grid.Column="1" x:Name="EnableBreaksCheckbox" AutomationProperties.AutomationId="tglEnableBreaksCheckbox"  Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="EnableBreaksCheckbox_Checked" Unchecked="EnableBreaksCheckbox_Unchecked" />
+                </Grid>
+                <Grid Grid.Row="1"  Margin="15,0,15,0" Background="LightGray" ></Grid>
+
+                <Grid Margin="15,15" Grid.Row="2" Background="{DynamicResource SoftCreamColor}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="60"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0"  Orientation="Vertical"  >
+                        <TextBlock x:Name="ShowBreaksWhileInCall" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xShow breaks while in call</TextBlock>
+                        <TextBlock x:Name="ShowBreaksWhileInCallDesc" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xIn large meetings where you’re not actively participating, it can be helpful to still have break reminders. We’ll choose office friendly break activities (e.g. chair stretches) and won’t play sound effects..</TextBlock>
+                    </StackPanel>
+                    <ToggleButton Grid.Column="1" x:Name="btnShowBreaksWhileInCall" AutomationProperties.AutomationId="tglShowBreaksWhileInCall" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnShowBreaksWhileInCall_Checked" Unchecked="btnShowBreaksWhileInCall_Unchecked"/>
+                </Grid>
+                
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

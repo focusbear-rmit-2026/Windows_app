@@ -84,7 +84,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Image Source="{DynamicResource FocusImage}" Margin="10,4,0,0" Height="24" Width="24" Grid.Column="0"/>
+                                <Image Source="{DynamicResource FocusModeDark}" Margin="10,4,0,0" Height="24" Width="24" Grid.Column="0"/>
                                 <TextBlock Name="btnBlockListsText" Margin="8,0,0,0" Text="xBlock Lists" Foreground="Black" VerticalAlignment="Center" Grid.Column="1"/>
                                 <TextBlock Text="❯" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" Foreground="#333" Grid.Column="2" Margin="0,0,10,0"/>
                             </Grid>
@@ -107,7 +107,7 @@
                         </Button.Content>
                     </Button>
                     <Grid Background="LightGray" Height="1" Margin="10,1,10,0"></Grid>
-                    <Button x:Name="btnDistractingSites"  AutomationProperties.AutomationId="btnBlockingSchedule" Margin="2,2,2,0" Style="{StaticResource  BtnMacStyleSettingsGray}" IsEnabled="True" Height="45"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0"  FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnDistractingSites_Click">
+                    <Button x:Name="btnDistractingSites"  AutomationProperties.AutomationId="btnDistractingSites" Margin="2,2,2,0" Style="{StaticResource  BtnMacStyleSettingsGray}" IsEnabled="True" Height="45"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0"  FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnDistractingSites_Click">
                         <Button.Content>
                             <Grid  Background="{x:Null}">
                                 <Grid.ColumnDefinitions>

@@ -367,8 +367,7 @@ namespace Focus_Bear.Utils
         //AI Tab
         public bool bMotivationalMessageEnabled { get; set; }
         public bool bAiCheckUrlEnabled { get; set; }
-        public bool bAiAllowUrlShowAlertEnabled { get; set; }
-
+       
         public bool bAiCheckUrlEnabledLastValueBeforeSimplePomodoro { get; set; }
         /// 
 
@@ -472,7 +471,6 @@ namespace Focus_Bear.Utils
             //Default true on 23 June 2023 #188
             bMotivationalMessageEnabled = true;
             bAiCheckUrlEnabled = true;
-            bAiAllowUrlShowAlertEnabled = true;
 
             bPasswordRequireInChangeSettings = false;
             bPasswordRequireInSkipMorning = false;
@@ -1478,7 +1476,7 @@ namespace Focus_Bear.Utils
                                     string currentStep = onboardingObj["currentStep"]?.ToString();
                                     if(currentStep.ToLower() == "completed")
                                     {
-                                        //Use have done onboarding on Web, so we can skip to show further onboarding screens
+                                        //User have done onboarding on Web, so we can skip to show further onboarding screens
                                         RegistryManager.SetOnboardingAfterLoginDoneStatus();
                                     }
                                 }
@@ -1537,8 +1535,7 @@ namespace Focus_Bear.Utils
 
                             bMotivationalMessageEnabled = sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kMotivationalMessageEnabled") : true; //Default true on 23 June 2023 #188
                             bAiCheckUrlEnabled = sMacOSSettingsOBJ.ContainsKey("kAiCheckUrlEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiCheckUrlEnabled") : true;
-                            bAiAllowUrlShowAlertEnabled = sMacOSSettingsOBJ.ContainsKey("kAiAllowUrlShowAlertEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiAllowUrlShowAlertEnabled") : true;
-
+                            
                             bPlayActivitiesInFullScreenMode = sMacOSSettingsOBJ.ContainsKey("kisFullScreenEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kisFullScreenEnabled") : false; //default false
 
                             bEnterPomodoroModeAfterMorningRoutine = sMacOSSettingsOBJ.ContainsKey("kPomodoroModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kPomodoroModeEnabled") : true; //default true

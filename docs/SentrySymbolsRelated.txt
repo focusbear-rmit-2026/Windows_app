@@ -1,0 +1,8 @@
+setx SENTRY_AUTH_TOKEN sntryu_Personal token
+setx SENTRY_ORG focus-bear-pty-ltd
+setx SENTRY_PROJECT focus-bear-windows
+
+
+Project is configured in release mode to automatically upload symbols.
+But the above should be added to environment variables.
+

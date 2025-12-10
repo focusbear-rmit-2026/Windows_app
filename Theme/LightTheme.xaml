@@ -33,6 +33,18 @@
     <BitmapImage x:Key="StatsImage" UriSource="../Images/person.png" />
 
     <BitmapImage x:Key="GlobeImage" UriSource="../Images/Globe.png" />
+
+    <!-- Settings Icons -->
+    <BitmapImage x:Key="UITab" UriSource="../Images/Settings/uiwindow_black.png" />
+    <BitmapImage x:Key="FocusSessions" UriSource="../Images/Settings/focus_sessions_black.png" />
+    <BitmapImage x:Key="Breaks" UriSource="../Images/Settings/breaks_black.png" />
+    <BitmapImage x:Key="Advanced" UriSource="../Images/Settings/advanced_black.png" />
+    <BitmapImage x:Key="Account" UriSource="../Images/Settings/account_black.png" />
+    <BitmapImage x:Key="Uninstall" UriSource="../Images/Settings/uninstall_black.png" />
+    <BitmapImage x:Key="AI" UriSource="../Images/Settings/ai_black.png" />
+    <BitmapImage x:Key="Strictness" UriSource="../Images/Settings/strictness_black.png" />
+    <BitmapImage x:Key="Password" UriSource="../Images/Settings/password_black.png" />
+    <BitmapImage x:Key="FocusModeDark" UriSource="../Images/eye.png" />
     
     <SolidColorBrush x:Key="ExpanderBackground" Color="White"/>
 
