@@ -685,7 +685,7 @@ namespace Focus_Bear.Utils
                                 if (appSettings.arrAlwaysBlockedURLs.Count() > 0 &&
                                     ProcessCurrentAlwaysBlockedURL(hWnd))
                                 {
-                                    // Si devuelve true, ya hubo bloqueo o Set Intention; cerramos flujo.
+                                    // if returned true means it was blocked by always blocked url
                                     return;
                                 }
                             }
