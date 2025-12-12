@@ -67,7 +67,7 @@
             Creates a <see cref="T:Microsoft.Web.WebView2.Core.CoreWebView2ControllerOptions"/> using the current values of this instance's properties.
             </summary>
             <returns>A <see cref="T:Microsoft.Web.WebView2.Core.CoreWebView2ControllerOptions"/> object or null if no controller-related properties are set.</returns>
-            <exception cref="!:NullReferenceException">Thrown if the parameter environment is null.</exception>
+            <exception cref="T:System.NullReferenceException">Thrown if the parameter environment is null.</exception>
         </member>
         <member name="T:Microsoft.Web.WebView2.WinForms.WebView2">
             <summary>
@@ -299,6 +299,12 @@
             <summary>
             Protected Select method: override this to capture tab direction when WebView control is activated
             </summary>
+        </member>
+        <member name="M:Microsoft.Web.WebView2.WinForms.WebView2.ProcessDialogKey(System.Windows.Forms.Keys)">
+            <summary>Processes a dialog key.</summary>
+            <param name="keyData">One of the <see cref="T:System.Windows.Forms.Keys" /> values that represents the key to process.</param>
+            <returns>
+              <see langword="true" /> if the key was processed by the control; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Microsoft.Web.WebView2.WinForms.WebView2.OnGotFocus(System.EventArgs)">
             <summary>

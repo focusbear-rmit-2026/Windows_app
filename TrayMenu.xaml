@@ -5,14 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear"
         mc:Ignorable="d"
-        Title="Focus Bear" AutomationProperties.AutomationId="TrayMenu" Height="auto"  MinWidth="330"  Width="330" MaxWidth="330" WindowStyle="None" Deactivated="Window_Deactivated" MouseRightButtonDown="Window_MouseRightButtonDown">
-
-    <Window.ContextMenu>
-        <ContextMenu x:Name="TrayContextMenu">
-            <MenuItem Header="Exit" Click="btnQuit_Click"/>
-        </ContextMenu>
-    </Window.ContextMenu>
-
+        Title="Focus Bear" AutomationProperties.AutomationId="TrayMenu" Height="auto"  MinWidth="330"  Width="330" MaxWidth="330" WindowStyle="None" Deactivated="Window_Deactivated" >
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         

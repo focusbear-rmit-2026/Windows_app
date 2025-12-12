@@ -14,9 +14,6 @@
                 <ResourceDictionary.MergedDictionaries>
                     <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
                 </ResourceDictionary.MergedDictionaries>
-                <Style TargetType="Grid">
-                    <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
-                </Style>
             </ResourceDictionary>
         </Grid.Resources>
         

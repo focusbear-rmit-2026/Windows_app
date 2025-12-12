@@ -71,7 +71,16 @@ namespace Focus_Bear.Login
         private void btnSignUp_Click(object sender, RoutedEventArgs e)
         {
             appSettings.CapturePostHog("button-signup-with-email-clicked"); //to match with mac
-            _parentWindow.ShowSignUpWindow();
+
+            try
+            {
+                System.Diagnostics.Process.Start("https://dashboard.focusbear.io/login?ui=signup&source=win_app");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnSignUp_Click ex + " + ex.Message);
+            }
+            // erlier we used to ShowSignUpWindow() here;
         }
 
         private void btnInfo_Click(object sender, RoutedEventArgs e)

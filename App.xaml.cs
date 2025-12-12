@@ -53,6 +53,9 @@ using Focus_Bear.Services;
 using Focus_Bear.FocusMusic;
 using Focus_Bear.AccountabilityBuddy;
 
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
+
 namespace Focus_Bear
 {
     /// <summary>
@@ -636,6 +639,26 @@ namespace Focus_Bear
 
         }
 
+        private WinForms.ContextMenuStrip CreateContextMenu()
+        {
+            var menu = new WinForms.ContextMenuStrip
+            {
+                Renderer = new WinForms.ToolStripProfessionalRenderer()
+            };
+
+            var exitItem = new WinForms.ToolStripMenuItem(appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["buttonQuitText"].ToString());
+            exitItem.Name = "ExitItem";
+            exitItem.Click += (s, e) =>
+            {
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(wndTrayMenu.btnQuit);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            };
+
+            menu.Items.Add(exitItem);
+            return menu;
+        }
+
         public void InitializeTrayIcon()
         {
             LogWriter.LogWrite("InitializeTrayIcon()");
@@ -647,8 +670,9 @@ namespace Focus_Bear
                     trayIcon.Text = "Focus Bear";
                     trayIcon.BalloonTipText = "Focus Bear";
                     trayIcon.Visible = true;
+                    trayIcon.ContextMenuStrip = CreateContextMenu();
 
-                    if(wndSplash != null)
+                    if (wndSplash != null)
                     {
                         wndSplash.Close();
                     }
@@ -707,26 +731,7 @@ namespace Focus_Bear
                     wndTrayMenu.Focus();
                     wndTrayMenu.SetTrayMenuPosition();
                 }
-                else if (e.Button == System.Windows.Forms.MouseButtons.Right) // Opens context menu on right click to close the app
-                {
-                    LogWriter.LogWrite("TrayIcon Right-Click Detected");
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        if (wndTrayMenu == null)
-                            wndTrayMenu = new TrayMenu();
 
-                        var contextMenu = wndTrayMenu.TrayContextMenu;
-                        if (contextMenu != null)
-                        {
-                            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
-                            contextMenu.IsOpen = true;
-                        }
-                        else
-                        {
-                            LogWriter.LogWrite("TrayContextMenu not found in wndTrayMenu");
-                        }
-                    });
-                }
             }
             catch (Exception ex)
             {

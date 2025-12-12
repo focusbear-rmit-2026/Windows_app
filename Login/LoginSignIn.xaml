@@ -124,7 +124,7 @@
                 <Hyperlink x:Name="btnForgetPassword" Click="btnForgetPassword_Click"   TextDecorations="Underline" ><Run x:Name="ForgetPasswordTXT" Text="xForgot Password"/></Hyperlink>
             </TextBlock>
 
-            <Button Width="300" TabIndex="3"  x:Name="btnCreatAccount" AutomationProperties.AutomationId="btnCreateAccount"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreatAccount_Click" >
+            <Button Width="300" TabIndex="3"  x:Name="btnCreateAccount" AutomationProperties.AutomationId="btnCreateAccount"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreateAccount_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnCreateAccountText" Text="xCreate an account" Foreground="Black"/>

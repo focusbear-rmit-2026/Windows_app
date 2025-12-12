@@ -64,9 +64,16 @@ namespace Focus_Bear.Login
             App.ThemeChanged += TitleBarThemeChange;
         }
 
-        private void btnCreatAccount_Click(object sender, RoutedEventArgs e)
+        private void btnCreateAccount_Click(object sender, RoutedEventArgs e)
         {
-            _parentWindow.ShowSignUpWindow();
+            try
+            {
+                System.Diagnostics.Process.Start("https://dashboard.focusbear.io/login?ui=signup&source=win_app");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnSignUp_Click ex + " + ex.Message);
+            }
         }
 
         private void btnBack_Click(object sender, RoutedEventArgs e)
@@ -177,7 +184,7 @@ namespace Focus_Bear.Login
             TxtPassword.IsEnabled = bEnable;
             btnBack.IsEnabled = bEnable;
             btnSignIn.IsEnabled = bEnable;
-            btnCreatAccount.IsEnabled = bEnable;
+            btnCreateAccount.IsEnabled = bEnable;
         }
 
         private async void btnForgetPassword_Click(object sender, RoutedEventArgs e)

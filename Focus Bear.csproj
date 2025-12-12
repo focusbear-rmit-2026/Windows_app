@@ -16,6 +16,7 @@
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -28,7 +29,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -44,13 +44,26 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DebugSymbols>true</DebugSymbols>
+    <!-- Configure Sentry org and project -->
+    <SentryOrg>focus-bear-pty-ltd</SentryOrg>
+    <!-- Automatically creates a release when building your application. -->
+    <SentryCreateRelease>true</SentryCreateRelease>
+    <!-- Automatically associates commits with the release. -->
+    <SentrySetCommits>true</SentrySetCommits>
+    <!-- Optionally provide explicit flags to the set-commits command -->
+    <SentrySetCommitOptions>--local</SentrySetCommitOptions>
+    <SentryProject>focus-bear-windows</SentryProject>
+    <!-- Sends symbols to Sentry, enabling symbolication of stack traces. -->
+    <SentryUploadSymbols>true</SentryUploadSymbols>
+    <!-- Sends sources to Sentry, enabling display of source context. -->
+    <SentryUploadSources>true</SentryUploadSources>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>focus-bear.ico</ApplicationIcon>
@@ -553,7 +566,7 @@
     <Compile Include="Pomodoro\StartPomodoro.xaml.cs">
       <DependentUpon>StartPomodoro.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Preferences\AccountTab.xaml.cs">
+    <Compile Include="Preferences\SettingsTab\AccountTab.xaml.cs">
       <DependentUpon>AccountTab.xaml</DependentUpon>
     </Compile>
     <Compile Include="Preferences\AddApp.xaml.cs">
@@ -568,10 +581,10 @@
     <Compile Include="Preferences\AddWebUrl.xaml.cs">
       <DependentUpon>AddWebUrl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Preferences\AdvancedTab.xaml.cs">
+    <Compile Include="Preferences\SettingsTab\AdvancedTab.xaml.cs">
       <DependentUpon>AdvancedTab.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Preferences\AITab.xaml.cs">
+    <Compile Include="Preferences\SettingsTab\AITab.xaml.cs">
       <DependentUpon>AITab.xaml</DependentUpon>
     </Compile>
     <Compile Include="Preferences\AlwaysBlockedURLs.xaml.cs">
@@ -607,7 +620,7 @@
     <Compile Include="Preferences\HelpTab.xaml.cs">
       <DependentUpon>HelpTab.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Preferences\PomodoroTab.xaml.cs">
+    <Compile Include="Preferences\SettingsTab\PomodoroTab.xaml.cs">
       <DependentUpon>PomodoroTab.xaml</DependentUpon>
     </Compile>
     <Compile Include="Preferences\PomodoroTabAdvanced.xaml.cs">
@@ -616,8 +629,23 @@
     <Compile Include="Preferences\PreferencesWindow.xaml.cs">
       <DependentUpon>PreferencesWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Preferences\Settings.xaml.cs">
+    <Compile Include="Preferences\SettingsTab\Breaks.xaml.cs">
+      <DependentUpon>Breaks.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\SettingsTab\FocusModeSetting.xaml.cs">
+      <DependentUpon>FocusModeSetting.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\SettingsTab\Password.xaml.cs">
+      <DependentUpon>Password.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\SettingsTab\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\SettingsTab\Strictness.xaml.cs">
+      <DependentUpon>Strictness.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\SettingsTab\UI.xaml.cs">
+      <DependentUpon>UI.xaml</DependentUpon>
     </Compile>
     <Compile Include="Preferences\Stats.xaml.cs">
       <DependentUpon>Stats.xaml</DependentUpon>
@@ -1016,7 +1044,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Preferences\AccountTab.xaml">
+    <Page Include="Preferences\SettingsTab\AccountTab.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1036,11 +1064,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Preferences\AdvancedTab.xaml">
+    <Page Include="Preferences\SettingsTab\AdvancedTab.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Preferences\AITab.xaml">
+    <Page Include="Preferences\SettingsTab\AITab.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1088,7 +1116,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Preferences\PomodoroTab.xaml">
+    <Page Include="Preferences\SettingsTab\PomodoroTab.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1100,7 +1128,27 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Preferences\Settings.xaml">
+    <Page Include="Preferences\SettingsTab\Breaks.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\SettingsTab\FocusModeSetting.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\SettingsTab\Password.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\SettingsTab\Settings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\SettingsTab\Strictness.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\SettingsTab\UI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1273,6 +1321,23 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\Settings\password_black.png" />
+    <Resource Include="Images\Settings\strictness_black.png" />
+    <Resource Include="Images\Settings\strictness_white.png" />
+    <Resource Include="Images\Settings\ai_black.png" />
+    <Resource Include="Images\Settings\ai_white.png" />
+    <Resource Include="Images\Settings\uninstall_black.png" />
+    <Resource Include="Images\Settings\uninstall_white.png" />
+    <Resource Include="Images\Settings\account_black.png" />
+    <Resource Include="Images\Settings\account_white.png" />
+    <Resource Include="Images\Settings\advanced_black.png" />
+    <Resource Include="Images\Settings\advanced_white.png" />
+    <Resource Include="Images\Settings\breaks_black.png" />
+    <Resource Include="Images\Settings\breaks_white.png" />
+    <Resource Include="Images\Settings\focus_sessions_black.png" />
+    <Resource Include="Images\Settings\focus_sessions_white.png" />
+    <Resource Include="Images\Settings\uiwindow_black.png" />
+    <Resource Include="Images\Settings\uiwindow_white.png" />
     <Resource Include="Images\brainDump.png" />
     <Resource Include="Images\music_albums_fill.png" />
     <Resource Include="Images\gifs\audio Wave.gif" />

@@ -73,20 +73,6 @@ namespace Focus_Bear
             this.Loaded += MainWindow_Loaded;
         }
 
-        private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            TrayContextMenu.PlacementTarget = this;
-            TrayContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
-            TrayContextMenu.IsOpen = true;
-        }
-
-        private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            LogWriter.LogWrite("TrayMenu Exit clicked via right-click menu.");
-            System.Windows.Application.Current.Shutdown(); // Clean shutdown
-        }
-
-
         public void SetTrayMenuPosition()
         {
             // Manually alter window height and width
@@ -288,20 +274,11 @@ namespace Focus_Bear
                 GeekMode.Checked += GeekMode_Checked;
                 SimpleMode.Checked += SimpleMode_Checked;
 
-                btnSetupFocusMode.Visibility = Visibility.Collapsed; //hide in simple mode
+                //8 dec 2025 We are moving the option to setup Focus mode.
+                btnSetupFocusMode.Visibility = Visibility.Collapsed; //hide permanently
 
                 if (appSettings.bIsGeekModeEnabled) //GEEK MODE ENABLED
                 {
-                    ///FocusSection.Visibility = Visibility.Visible;
-
-                    if (RegistryManager.GetFocusModeSetupDone())
-                    {
-                        btnSetupFocusMode.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        btnSetupFocusMode.Visibility = Visibility.Visible;
-                    }
                     if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
                     {
                         if (!appSettings.isFocusModeRunning)
@@ -309,15 +286,6 @@ namespace Focus_Bear
                         else
                             OrangeHeader.Height = 70;
                     }
-
-                    /**if (appSettings.bUseSuperPomodoroMode)
-                    {
-                        Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemHardcorePomodoroModeTitle"].ToString();
-                    }
-                    else
-                    {
-                        Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
-                    }**/
 
                     if (appSettings.isFocusModeRunning)
                     {

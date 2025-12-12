@@ -49,3 +49,4 @@ secrets.json
 # Ignore JetBrains Rider / Resharper
 *.sln.iml
 .idea/
+/Setup/Output
