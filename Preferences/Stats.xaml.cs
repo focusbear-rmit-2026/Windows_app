@@ -20,7 +20,7 @@ namespace Focus_Bear.Preferences
     /// <summary>
     /// Interaction logic for Stats.xaml
     /// </summary>
-    public partial class Stats : Page
+    public partial class Stats : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         public Stats()

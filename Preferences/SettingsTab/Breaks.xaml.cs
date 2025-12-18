@@ -22,13 +22,13 @@ namespace Focus_Bear.Preferences.SettingsTab
     /// </summary>
     public partial class Breaks : UserControl
     {
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
         public Breaks()
         {
         }
-        public Breaks(PreferencesWindow ParentWindow)
+        public Breaks(FocusBearMainWindow ParentWindow)
         {
             InitializeComponent();
             _ParentWindow = ParentWindow;

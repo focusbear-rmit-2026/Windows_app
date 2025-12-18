@@ -29,7 +29,7 @@ namespace Focus_Bear.Preferences
         AppSettings appSettings = AppSettings.GetInstance;
         public string sUninstallReason = "";
         public string sUninstallDesc = "";
-        public UninstallFeedback(PreferencesWindow _ParentWindow)
+        public UninstallFeedback(FocusBearMainWindow _ParentWindow)
         {
             InitializeComponent();
 

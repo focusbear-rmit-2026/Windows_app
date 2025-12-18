@@ -243,7 +243,6 @@ namespace Focus_Bear.Preferences
             }
             else
             {
-                //todo win texts
                 FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["title"].ToString(), "Focus Bear", MessageBoxButton.YesNo, appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["buttonResendEmailText"].ToString(), appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString());
                 ff.Owner = ((App)(Application.Current)).wndPreferences;
                 ff.ShowDialog();

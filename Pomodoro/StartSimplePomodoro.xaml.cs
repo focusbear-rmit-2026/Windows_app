@@ -26,7 +26,7 @@ namespace Focus_Bear.Pomodoro
     /// <summary>
     /// Interaction logic for StartSimplePomodoro.xaml
     /// </summary>
-    public partial class StartSimplePomodoro : Window
+    public partial class StartSimplePomodoro : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
@@ -36,8 +36,6 @@ namespace Focus_Bear.Pomodoro
         public StartSimplePomodoro()
         {
             InitializeComponent();
-            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            this.Topmost = true;
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
@@ -93,9 +91,6 @@ namespace Focus_Bear.Pomodoro
             UpdateValues();
 
             //Removing the tour popup as now the UI has changed to show minimal options: 10 Oct 2025
-
-            TitleBarThemeChange();
-            App.ThemeChanged += TitleBarThemeChange;
 
         }
         private void ShowTourPopup()
@@ -262,7 +257,6 @@ namespace Focus_Bear.Pomodoro
             MyPopup.IsOpen = false;
             RegistryManager.SetSimplePomodoroTourShownStatus();
 
-            Hide();
             appSettings.isStartPomodoroWindowOpen = false;
         }
 
@@ -365,17 +359,18 @@ namespace Focus_Bear.Pomodoro
 
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            e.Cancel = true;
+        //mj// todo
+        //private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        //{
+        //    e.Cancel = true;
 
-            //Close the popup
-            MyPopup.IsOpen = false;
-            RegistryManager.SetSimplePomodoroTourShownStatus();
+        //    //Close the popup
+        //    MyPopup.IsOpen = false;
+        //    RegistryManager.SetSimplePomodoroTourShownStatus();
 
-            Hide();
-            appSettings.isStartPomodoroWindowOpen = false;
-        }
+        //    Hide();
+        //    appSettings.isStartPomodoroWindowOpen = false;
+        //}
 
         private void RadioAI_Checked(object sender, RoutedEventArgs e)
         {
@@ -405,42 +400,10 @@ namespace Focus_Bear.Pomodoro
             HandleStartFocusEnableDisable();
         }
 
-        private void Window_LocationChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void btnNextPopup_Click(object sender, RoutedEventArgs e)
         {   
             nStep++;
             UpdateTourPopupTexts();
-        }
-
-        private void TitleBarThemeChange()
-        {
-            LogWriter.LogWrite("simple podomo TitleBarThemeChange appsetting.stheme: "+appSettings.sTheme);
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            if (source != null)
-            {
-                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
-            }
-            if (appSettings.sTheme == "Light")
-            {
-                this.Background = new SolidColorBrush(Colors.White);
-            }
-            else
-            {
-                this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
-            }
-        }
-
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-
-            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
         }
     }
 }

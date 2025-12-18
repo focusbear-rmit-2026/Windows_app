@@ -22,14 +22,14 @@ namespace Focus_Bear.Preferences.SettingsTab
     /// </summary>
     public partial class Password : UserControl
     {
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
         public Password()
         {
             
         }
-        public Password(PreferencesWindow pp)
+        public Password(FocusBearMainWindow pp)
         {
             InitializeComponent();
             _ParentWindow = pp;

@@ -888,7 +888,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="FocusBearMainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -896,8 +896,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="FocusBearMainWindow.xaml.cs">
+      <DependentUpon>FocusBearMainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Onboarding\AfterLogin\OnboardingAskProcrastinatingWindow.xaml">
@@ -1321,6 +1321,11 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\fb_white.png" />
+    <Resource Include="Images\motivation.png" />
+    <Resource Include="Images\blocks.png" />
+    <Resource Include="Images\MainAppWindow\sidebar_black.png" />
+    <Resource Include="Images\MainAppWindow\sidebar_white.png" />
     <Resource Include="Images\Settings\password_black.png" />
     <Resource Include="Images\Settings\strictness_black.png" />
     <Resource Include="Images\Settings\strictness_white.png" />

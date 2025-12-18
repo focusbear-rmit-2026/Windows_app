@@ -24,13 +24,13 @@ namespace Focus_Bear.Preferences
     /// </summary>
     public partial class Uninstall : UserControl
     {
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
         public Uninstall()
         { 
         }
-        public Uninstall(PreferencesWindow pp)
+        public Uninstall(FocusBearMainWindow pp)
         {
             InitializeComponent();
             _ParentWindow = pp;

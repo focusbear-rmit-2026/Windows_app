@@ -47,7 +47,7 @@ namespace Focus_Bear.Preferences
             TitleBarThemeChange();
             App.ThemeChanged += TitleBarThemeChange;
         }
-        public AddAppsManually(PreferencesWindow _ParentWindow)
+        public AddAppsManually(FocusBearMainWindow _ParentWindow)
         {
             InitializeComponent();
 

@@ -1,4 +1,4 @@
-﻿<Page x:Class="Focus_Bear.Preferences.Stats"
+﻿<UserControl x:Class="Focus_Bear.Preferences.Stats"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -7,9 +7,9 @@
        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
       d:DesignHeight="670" d:DesignWidth="670"
-      Title="Stats"  Background="#fff" Loaded="Page_Loaded" >
+      Background="#fff" Loaded="Page_Loaded" >
 
     <Grid>
         <wv2:WebView2 Name="webView" />
     </Grid>
-</Page>
+</UserControl>

@@ -22,14 +22,14 @@ namespace Focus_Bear.Preferences.SettingsTab
     /// </summary>
     public partial class Strictness : UserControl
     {
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
         public Strictness()
         {
            
         }
-        public Strictness(PreferencesWindow pp)
+        public Strictness(FocusBearMainWindow pp)
         {
             InitializeComponent();
             _ParentWindow = pp;

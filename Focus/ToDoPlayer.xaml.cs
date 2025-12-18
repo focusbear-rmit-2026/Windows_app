@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 
@@ -18,7 +19,7 @@ namespace Focus_Bear.Focus
     /// <summary>
     /// Interaction logic for ToDoPlayer.xaml
     /// </summary>
-    public partial class ToDoPlayer : Window
+    public partial class ToDoPlayer : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
@@ -41,9 +42,6 @@ namespace Focus_Bear.Focus
         public ToDoPlayer()
         {
             InitializeComponent();
-
-            WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            this.SourceInitialized += new EventHandler(OnSourceInitialized);
 
             SetWebView();
 
@@ -76,7 +74,12 @@ namespace Focus_Bear.Focus
         {
             if (e.IsSuccess)
             {
-                DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
+                DateTime end = DateTime.UtcNow;
+                if (appSettings.sRunningFocusModeEndTime.Length > 0)
+                {
+                    end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
+                }
+                
                 DateTime start = DateTime.UtcNow;
 
                 // If end time is earlier than start time, assume it's on the next day
@@ -158,8 +161,9 @@ namespace Focus_Bear.Focus
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            e.Cancel = true;
-            this.Hide();
+            //mj todo
+            //e.Cancel = true;
+            //this.Hide();
         }
 
         private void btnEndFocus_Click(object sender, RoutedEventArgs e)
@@ -168,7 +172,7 @@ namespace Focus_Bear.Focus
 
             try
             {
-                Hide();
+                //mj// todo Hide();
 
                 //fire the Stop focus session button from the menu
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStopPomodoroMode);
@@ -192,7 +196,7 @@ namespace Focus_Bear.Focus
 
                 if (dialogResult.Value == false)
                 {
-                    this.ShowDialog();
+                    //this.ShowDialog();
                     return;
                 }
                 currentRunningFocusMode.isOn = false;
@@ -266,13 +270,14 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("SelectTasks webView_WebMessageReceived()" + ex.Message);
             }
         }
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
+        //mj// todo
+        //protected override void OnSourceInitialized(EventArgs e)
+        //{
+        //    base.OnSourceInitialized(e);
 
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
-        }
+        //    var source = (HwndSource)PresentationSource.FromVisual(this);
+        //    app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+        //}
 
         private void TitleBarThemeChange()
         {
@@ -300,27 +305,29 @@ namespace Focus_Bear.Focus
 
         private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (IsVisible)
-            {
-                this.Width = 680;
-                this.Height = 650;
+            //mj// todo
+
+            //if (IsVisible)
+            //{
+            //    this.Width = 680;
+            //    this.Height = 650;
 
  
-                // Compute how many logical units the screen can show
-                double screenLogicalWidth = SystemParameters.WorkArea.Width;
-                double screenLogicalHeight = SystemParameters.WorkArea.Height;
+            //    // Compute how many logical units the screen can show
+            //    double screenLogicalWidth = SystemParameters.WorkArea.Width;
+            //    double screenLogicalHeight = SystemParameters.WorkArea.Height;
 
-                // 3) Your “ideal” logical minimum
-                const double idealMinW = 680, idealMinH = 650;
+            //    // 3) Your “ideal” logical minimum
+            //    const double idealMinW = 680, idealMinH = 650;
 
-                // 4) set to what actually fits
-                this.Width = Math.Min(idealMinW, screenLogicalWidth);
-                this.Height = Math.Min(idealMinH, screenLogicalHeight);
+            //    // 4) set to what actually fits
+            //    this.Width = Math.Min(idealMinW, screenLogicalWidth);
+            //    this.Height = Math.Min(idealMinH, screenLogicalHeight);
 
-                // 6) Center it
-                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
-                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
-            }
+            //    // 6) Center it
+            //    this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+            //    this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+            //}
         }
     }
 }

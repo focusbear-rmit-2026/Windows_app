@@ -50,7 +50,7 @@ namespace Focus_Bear.Preferences
             SetTexts();
 
         }
-        public AddWebUrl(PreferencesWindow _ParentWindow, string sURLToEdit = "", bool bEditURLMode = false, bool isBlockedURLsMode = false) : this()
+        public AddWebUrl(FocusBearMainWindow _ParentWindow, string sURLToEdit = "", bool bEditURLMode = false, bool isBlockedURLsMode = false) : this()
         {
             InitializeComponent();
 

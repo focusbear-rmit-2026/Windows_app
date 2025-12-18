@@ -1553,6 +1553,9 @@ namespace Focus_Bear
             //OnboardingNewWelcome wnd2 = new OnboardingNewWelcome(wnd);
             ////wnd2.();
             //ShowShutOffScreen();
+
+            FocusBearMainWindow mm = new FocusBearMainWindow();
+            mm.ShowDialog();
 #endif
 
             if (appSettings.IsFirstInstall)
@@ -3928,13 +3931,14 @@ namespace Focus_Bear
 
         public void ShowBrainDumpWindow()
         {
-            if (wndBrainDump == null)
-            {
-                wndBrainDump = new BrainDumpWindow();
-            }
-            wndBrainDump.Show();
-            wndBrainDump.BringIntoView();
-            wndBrainDump.ShowBrainDumpWindowAndStartTimer();
+            //mj// todo
+            //if (wndBrainDump == null)
+            //{
+            //    wndBrainDump = new BrainDumpWindow();
+            //}
+            //wndBrainDump.Show();
+            //wndBrainDump.BringIntoView();
+            //wndBrainDump.ShowBrainDumpWindowAndStartTimer();
         }
         public void ShowFocusProgressWindow()
         {
@@ -4281,7 +4285,7 @@ namespace Focus_Bear
             {
                 wndStartSimplePomodoro = new StartSimplePomodoro();
             }
-            wndStartSimplePomodoro.Show();
+            ///mj//wndStartSimplePomodoro.Show();
             wndStartSimplePomodoro.BringIntoView();
             wndStartSimplePomodoro.UpdateValues();
         }
@@ -4593,57 +4597,61 @@ namespace Focus_Bear
 
         public void ShowToDoPlayer()
         {
-            if (wndToDoPlayer == null)
-            {
-                wndToDoPlayer = new ToDoPlayer();
-            }
-            wndToDoPlayer.Show();
+            //mj// todo
 
-            if (bLoadURLAgainInToDoPlayer)
-            {
-                wndToDoPlayer.LoadURL();
-                bLoadURLAgainInToDoPlayer = false;
-            }
+            //if (wndToDoPlayer == null)
+            //{
+            //    wndToDoPlayer = new ToDoPlayer();
+            //}
+            //wndToDoPlayer.Show();
 
-            WindowInteropHelper helper = new WindowInteropHelper(wndToDoPlayer);
-            IntPtr hWnd = helper.Handle;
+            //if (bLoadURLAgainInToDoPlayer)
+            //{
+            //    wndToDoPlayer.LoadURL();
+            //    bLoadURLAgainInToDoPlayer = false;
+            //}
 
-            // Restore window if minimized
-            ShowWindow(hWnd, SW_RESTORE);
+            //WindowInteropHelper helper = new WindowInteropHelper(wndToDoPlayer);
+            //IntPtr hWnd = helper.Handle;
 
-            // Bring to foreground
-            SetForegroundWindow(hWnd);
+            //// Restore window if minimized
+            //ShowWindow(hWnd, SW_RESTORE);
+
+            //// Bring to foreground
+            //SetForegroundWindow(hWnd);
         }
 
         public void ShowToDoList()
         {
-            if (wndToDoList == null)
-            {
-                wndToDoList = new ToDoList();
-            }
-            wndToDoList.Show();
+            //mj// todo
+            //if (wndToDoList == null)
+            //{
+            //    wndToDoList = new ToDoList();
+            //}
+            //wndToDoList.Show();
 
-            wndToDoList.LoadURL();
+            //wndToDoList.LoadURL();
 
-            WindowInteropHelper helper = new WindowInteropHelper(wndToDoList);
-            IntPtr hWnd = helper.Handle;
+            //WindowInteropHelper helper = new WindowInteropHelper(wndToDoList);
+            //IntPtr hWnd = helper.Handle;
 
-            // Restore window if minimized
-            ShowWindow(hWnd, SW_RESTORE);
+            //// Restore window if minimized
+            //ShowWindow(hWnd, SW_RESTORE);
 
-            // Bring to foreground
-            SetForegroundWindow(hWnd);
+            //// Bring to foreground
+            //SetForegroundWindow(hWnd);
         }
         public void HideToDoPlayer()
         {
+            //mj// todo
             //Called when focus mode ends
-            if (wndToDoPlayer != null)
-            {
-                wndToDoPlayer?.webView?.Reload(); // Refresh webview to stop background execution  
+            //if (wndToDoPlayer != null)
+            //{
+            //    wndToDoPlayer?.webView?.Reload(); // Refresh webview to stop background execution  
 
-                bLoadURLAgainInToDoPlayer = true;
-                wndToDoPlayer.Close();
-            }
+            //    bLoadURLAgainInToDoPlayer = true;
+            //    wndToDoPlayer.Close();
+            //}
         }
 
         public void ShowNaturalBreakDetectionWindow()
@@ -4655,6 +4663,8 @@ namespace Focus_Bear
                 wndNaturalBreakDetectionWindow = new NaturalBreakDetectionWindow();
             }
             wndNaturalBreakDetectionWindow.Hide(); // avoid multiple
+            wndNaturalBreakDetectionWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            wndNaturalBreakDetectionWindow.Topmost = true;
             wndNaturalBreakDetectionWindow.Show();
         }
         public void FocusModeAddedOrDeleted()
@@ -4800,23 +4810,23 @@ namespace Focus_Bear
 
         public void ShowFocusMusic()
         {
-            if (wndFocusMusic == null)
-            {
-                wndFocusMusic = new FocusMusicView();
-            }
-            wndFocusMusic.Show();
-            wndFocusMusic.BringIntoView();
-            wndFocusMusic.Activate();
-            wndFocusMusic.Focus();
+            //if (wndFocusMusic == null)
+            //{
+            //    wndFocusMusic = new FocusMusicView();
+            //}
+            //wndFocusMusic.Show();
+            //wndFocusMusic.BringIntoView();
+            //wndFocusMusic.Activate();
+            //wndFocusMusic.Focus();
 
-            WindowInteropHelper helper = new WindowInteropHelper(wndFocusMusic);
-            IntPtr hWnd = helper.Handle;
+            //WindowInteropHelper helper = new WindowInteropHelper(wndFocusMusic);
+            //IntPtr hWnd = helper.Handle;
 
-            // Restore window if minimized
-            ShowWindow(hWnd, SW_RESTORE);
+            //// Restore window if minimized
+            //ShowWindow(hWnd, SW_RESTORE);
 
-            // Bring to foreground
-            SetForegroundWindow(hWnd);
+            //// Bring to foreground
+            //SetForegroundWindow(hWnd);
 
         }
 
