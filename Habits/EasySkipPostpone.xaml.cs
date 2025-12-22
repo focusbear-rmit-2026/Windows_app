@@ -55,14 +55,20 @@ namespace Focus_Bear.Habits
                 ChangeTheme("Dark");
             }
         }
-       
 
         public EasySkipPostpone()
         {
+        }
+        public EasySkipPostpone(FocusBearMainWindow _ParentWindow)
+        {
             InitializeComponent();
-            
+
             LogWriter.LogWrite("EasySkipPostpone() Window Shown");
 
+            this.Owner = _ParentWindow;
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+            
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
                 this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
@@ -71,12 +77,6 @@ namespace Focus_Bear.Habits
             {
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
-
-
-            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-            this.Left = (desktopWorkingArea.Right - this.Width);
-            this.Top = (desktopWorkingArea.Top + 25);
-            this.Topmost = true;
 
             try
             {
@@ -177,18 +177,18 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("nMinutesToPostpone - " + nMinutesToPostpone.ToString());
 
                 //Since we are making a new object everytime, we can kill the previous one and dispose the webview objects
-                if (((App)(Application.Current)).wndHabits != null)
-                {
-                    if (((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing != null)
-                    {
-                        ((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.webView.Dispose();
-                    }
+                //mj// todo handling may be main app window
+                /** if (((App)(Application.Current)).wndHabits != null)
+                 {
+                     if (((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing != null)
+                     {
+                         ((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.webView.Dispose();
+                     }
 
-                    ((App)(Application.Current)).wndHabits.Close();
-                    ((App)(Application.Current)).wndHabits = null;
-                    LogWriter.LogWrite("wndHabits closed upon BREAK_ACTIVITY Postponed");
-                }
-
+                     ((App)(Application.Current)).wndHabits.Close();
+                     ((App)(Application.Current)).wndHabits = null;
+                     LogWriter.LogWrite("wndHabits closed upon BREAK_ACTIVITY Postponed");
+                 }**/
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) // FOr Breaks we will simply cancel the current routine.
                 {
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;

@@ -26,7 +26,7 @@ namespace Focus_Bear.Habits
     /// </summary>
     public partial class HabitExtraPersonal : Page
     {
-        private HabitWindow _parentWindow;
+        private FocusBearMainWindow _parentWindow;
         private int nTimer = 30;
         private DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         AppSettings appSettings = AppSettings.GetInstance;
@@ -35,7 +35,7 @@ namespace Focus_Bear.Habits
         public HabitExtraPersonal()
         {
         }
-        public HabitExtraPersonal(HabitWindow parentWindow) : this()
+        public HabitExtraPersonal(FocusBearMainWindow parentWindow) : this()
         {
             InitializeComponent();
 
@@ -197,7 +197,7 @@ namespace Focus_Bear.Habits
                 appSettings.CapturePostHog("start-evening-routine");
             }
             
-            _parentWindow.ShowActivityStartScreen();
+            _parentWindow.PageHabits.ShowActivityStartScreen();
         }
 
         private void btnSkipThisHabit_Click(object sender, RoutedEventArgs e)
@@ -278,7 +278,7 @@ namespace Focus_Bear.Habits
             {
                 appSettings.CapturePostHog("start-evening-routine");
             }
-            _parentWindow.ShowWhySkipHabitsWindow();
+            _parentWindow.PageHabits.ShowWhySkipHabitsWindow();
         }
 
         private async Task SetWebView()

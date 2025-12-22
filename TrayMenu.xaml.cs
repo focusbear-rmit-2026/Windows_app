@@ -640,12 +640,6 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("btnSettings_Click() Tray Menu");
 
-            //if (appSettings.isExpired)
-            //{
-            //    Hide();
-            //    ((App)(Application.Current)).ShowExpiredNag();
-            //    return;
-            //}
             Hide();
 
             appSettings.CapturePostHog("open-preferences");
@@ -678,7 +672,7 @@ namespace Focus_Bear
             //}
 
             Hide();
-
+            /**
             if (appSettings.isStartPomodoroWindowOpen || isFocusModeWindowOpen || appSettings.isFocusModeRunning)
             {
                 LogWriter.LogWrite("isStartPomodoroWindowOpen || isFocusModeWindowOpen || appSettings.isFocusModeRunning - return");
@@ -694,7 +688,7 @@ namespace Focus_Bear
             {
                 //do not start if some habits or breaks are running. Case is when 5 mins break ends, we start the focus session back but if habits have resumed by then, then do not show it
                 return;
-            }
+            }**/ //mj //todo handling
 
             if (appSettings.bIsGeekModeEnabled)
             {
@@ -734,11 +728,12 @@ namespace Focus_Bear
                         {
                             FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
 
-                            if (((App)(Application.Current)).wndStartPomodoro != null)
+                            /**if (((App)(Application.Current)).wndStartPomodoro != null)
                             {
                                 ((App)(Application.Current)).wndStartPomodoro.Hide();
                                 appSettings.isStartPomodoroWindowOpen = false;
-                            }
+                            }**/ //mj// todo handling
+
                             //Stop the focus mode
                             //Show WIndow here - Removed 3 oct 2025 
 
@@ -988,11 +983,6 @@ namespace Focus_Bear
                             FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
                             if (CurrentRunningFocusMode.id == selectedItem.id)
                             {
-                                if (((App)(Application.Current)).wndStartPomodoro != null)
-                                {
-                                    ((App)(Application.Current)).wndStartPomodoro.Hide();
-                                    appSettings.isStartPomodoroWindowOpen = false;
-                                }
                                 //Stop the focus mode
                                 //Show WIndow here
                                 StopFocusMode ss = new StopFocusMode();
@@ -1581,7 +1571,7 @@ namespace Focus_Bear
         }
 
         private void btnPlayPauseMusic_Click(object sender, RoutedEventArgs e)
-        {
+        { //mj// todo
             //Focus Music icon
             if (appSettings.arrFocusMusicTracks.Count > 0)
             {

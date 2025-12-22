@@ -143,7 +143,8 @@ namespace Focus_Bear.Relax
 
         private void FinishWork()
         {
-            if (((App)(Application.Current)).wndHabits != null)
+            //mj// todo handling may be main app window
+            /**if (((App)(Application.Current)).wndHabits != null)
             {
                 //show the habit window
                 ((App)(Application.Current)).wndHabits.Show();
@@ -159,7 +160,8 @@ namespace Focus_Bear.Relax
                 //set timer to 0
                 ((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.SetTimerToZeroToFinish(); ;
 
-            }
+            }**/
+
             bForceClose = true;
             Close(); //Best to close here .
         }

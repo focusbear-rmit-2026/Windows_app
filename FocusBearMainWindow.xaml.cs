@@ -34,6 +34,9 @@ using Focus_Bear.FocusMusic;
 using Focus_Bear.Focus;
 using Focus_Bear.BrainDump;
 using Focus_Bear.Pomodoro;
+using System.Web.UI.WebControls;
+using static Focus_Bear.Preferences.Settings;
+using Focus_Bear.Habits;
 
 namespace Focus_Bear
 {
@@ -143,9 +146,8 @@ namespace Focus_Bear
 
         public ObservableCollection<NavCategory> NavigationItems { get; set; }
         public object SelectedView { get; set; }
-        public bool IsLeftPaneExpanded { get; set; } = true;
 
-        private bool _isSidebarCollapsed = false;
+        public bool IsSidebarCollapsed = false;
 
         AppSettings appSettings = AppSettings.GetInstance;
 
@@ -158,12 +160,14 @@ namespace Focus_Bear
         public BrainDumpWindow PageBrainDump;
         public Stats PageStats;
         public StartSimplePomodoro PageSimplePomodoro;
+        public StartPomodoro PagePomodoro;
+        public HabitWindow PageHabits;
         public FocusBearMainWindow()
         {
             InitializeComponent();
 
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
-
+            
             ChangeTheme();
 
             CreateViews();
@@ -276,11 +280,13 @@ namespace Focus_Bear
             PageToDoList = new ToDoList();
             PageBrainDump = new BrainDumpWindow();
             PageStats = new Stats();
-            PageSimplePomodoro = new StartSimplePomodoro();
+            PageSimplePomodoro = new StartSimplePomodoro(this);
+            PagePomodoro = new StartPomodoro(this);
+            PageHabits = new HabitWindow(this);
 
             _views = new Dictionary<LeftButtonType, UserControl>
             {
-
+                { LeftButtonType.Habits, PageHabits },
                 { LeftButtonType.Blocking, PageBlocks },
                 { LeftButtonType.Settings, PageSettings},
                 { LeftButtonType.FocusMusic, PageFocusMusic },
@@ -289,50 +295,221 @@ namespace Focus_Bear
                 { LeftButtonType.BrainDump, PageBrainDump },
                 { LeftButtonType.Motivation, PageStats},
                 { LeftButtonType.StartFocusSession, PageSimplePomodoro },
-                { LeftButtonType.EditHabits, new EditHabits(this) }
-                //{ LeftButtonType.Uninstall, new Uninstall(this) }
+                { LeftButtonType.EditHabits, PageEditHabits }
+                
             };
         }
         private void NavLeaf_Click(object sender, RoutedEventArgs e)
         {
-            //if (sender is Button btn && btn.DataContext is NavLeaf leaf)
-            //{
-            //    RightContent.Content = _views[leaf.ButtonType];
-            //}
-
             // The sender is the Border, not a Button
             if (sender is Border border && border.DataContext is NavLeaf leaf)
             {
-                if(leaf.ButtonType == LeftButtonType.ToDoList) //used for both todo player and todo list
-                {
-                    if (appSettings.isFocusModeRunning)
-                    {
-                        RightContent.Content = _views[LeftButtonType.ToDoPlayer];
-                    }
-                    else
-                    {
-                        RightContent.Content = _views[leaf.ButtonType];
-                    }
-                }
-                else if(leaf.ButtonType == LeftButtonType.StartFocusSession)
-                {
-                    if(appSettings.bIsGeekModeEnabled)
-                    {
-                        ShowSimplePomodoroView();
-                    }
-                    else
-                    {
-                        ShowSimplePomodoroView();
-                    }
-                }
-                else
-                {
-                    RightContent.Content = _views[leaf.ButtonType];
-                }
-                
+                // Handle content based on button type
+                HandleContentForButtonType(leaf.ButtonType);
             }
         }
 
+        // Helper method to find leaf by ButtonType
+        private NavLeaf FindLeafByButtonType(LeftButtonType buttonType)
+        {
+            foreach (NavCategory category in NavigationItems)
+            {
+                foreach (NavLeaf leaf in category.Items)
+                {
+                    if (leaf.ButtonType == buttonType)
+                    {
+                        return leaf;
+                    }
+                }
+            }
+            return null;
+        }
+        // Overload for ButtonType only
+        public void HandleLeafSelection(LeftButtonType buttonType)
+        {
+            // Try to find and select the leaf
+            SelectLeafInTreeView(buttonType);
+
+            // Handle content based on button type
+            HandleContentForButtonType(buttonType);
+        }
+        private void SelectLeafInTreeView(LeftButtonType buttonType)
+        {
+            foreach (NavCategory category in NavigationItems)
+            {
+                foreach (NavLeaf leaf in category.Items)
+                {
+                    if (leaf.ButtonType == buttonType)
+                    {
+                        category.IsExpanded = true;
+                        leaf.IsSelected = true;
+                    }
+                }
+            }
+        }
+        private void HandleContentForButtonType(LeftButtonType buttonType)
+        {
+            switch (buttonType)
+            {
+                case LeftButtonType.Habits:
+                    ShowHabitsView();
+                    break;
+
+                case LeftButtonType.StartFocusSession:
+                    ShowFocusSessionView();
+                    break;
+
+                case LeftButtonType.ToDoList:
+                    ShowToDoListView();
+                    break;
+
+                case LeftButtonType.ToDoPlayer:
+                    ShowToDoPlayerView();
+                    break;
+
+                case LeftButtonType.BrainDump:
+                    ShowBrainDumpView();
+                    break;
+
+                case LeftButtonType.FocusMusic:
+                    ShowFocusMusicView();
+                    break;
+
+                case LeftButtonType.Motivation:
+                    ShowMotivationView();
+                    break;
+
+                case LeftButtonType.Blocking:
+                    ShowBlockingView();
+                    break;
+
+                case LeftButtonType.Settings:
+                    ShowSettingsView();
+                    break;
+
+                case LeftButtonType.EditHabits:
+                    ShowEditHabitsView();
+                    break;
+
+                default:
+                    ShowDefaultView(buttonType);
+                    break;
+            }
+        }
+        private void ShowHabitsView()
+        {
+            LogWriter.LogWrite("Showing Habits View");
+            if (_views.ContainsKey(LeftButtonType.Habits))
+            {
+                RightContent.Content = _views[LeftButtonType.Habits];
+            }
+            CollapseSideBar();
+        }
+
+        private void ShowFocusSessionView()
+        {
+            LogWriter.LogWrite("Showing Focus Session View");
+            
+            ExpandSideBar();
+
+            if (appSettings.bIsGeekModeEnabled)
+            {
+                ShowPomodoroView();
+            }
+            else
+            {
+                ShowSimplePomodoroView();
+            }
+
+        }
+
+        private void ShowToDoListView()
+        {
+            LogWriter.LogWrite("Showing ToDo List View");
+            RightContent.Content = appSettings.isFocusModeRunning
+                ? _views[LeftButtonType.ToDoPlayer]
+                : _views[LeftButtonType.ToDoList];
+        }
+
+        private void ShowToDoPlayerView()
+        {
+            LogWriter.LogWrite("Showing ToDo Player View");
+            if (_views.ContainsKey(LeftButtonType.ToDoPlayer))
+            {
+                RightContent.Content = _views[LeftButtonType.ToDoPlayer];
+            }
+        }
+
+        private void ShowBrainDumpView()
+        {
+            LogWriter.LogWrite("Showing Brain Dump View");
+            if (_views.ContainsKey(LeftButtonType.BrainDump))
+            {
+                RightContent.Content = _views[LeftButtonType.BrainDump];
+            }
+        }
+
+        private void ShowFocusMusicView()
+        {
+            LogWriter.LogWrite("Showing Focus Music View");
+            if (_views.ContainsKey(LeftButtonType.FocusMusic))
+            {
+                RightContent.Content = _views[LeftButtonType.FocusMusic];
+            }
+        }
+
+        private void ShowMotivationView()
+        {
+            LogWriter.LogWrite("Showing Motivation View");
+            if (_views.ContainsKey(LeftButtonType.Motivation))
+            {
+                RightContent.Content = _views[LeftButtonType.Motivation];
+            }
+        }
+
+        private void ShowBlockingView()
+        {
+            LogWriter.LogWrite("Showing Blocking View");
+            if (_views.ContainsKey(LeftButtonType.Blocking))
+            {
+                RightContent.Content = _views[LeftButtonType.Blocking];
+            }
+           
+        }
+
+        private void ShowSettingsView()
+        {
+            LogWriter.LogWrite("Showing Settings View");
+            if (_views.ContainsKey(LeftButtonType.Settings))
+            {
+                RightContent.Content = _views[LeftButtonType.Settings];
+            }
+            
+        }
+
+        private void ShowEditHabitsView()
+        {
+            // TODO: Implement edit habits view logic
+            if (_views.ContainsKey(LeftButtonType.EditHabits))
+            {
+                RightContent.Content = _views[LeftButtonType.EditHabits];
+            }
+            LogWriter.LogWrite("Showing Edit Habits View");
+        }
+
+        private void ShowDefaultView(LeftButtonType buttonType)
+        {
+            // TODO: Implement default view logic for unknown types
+            if (_views.ContainsKey(buttonType))
+            {
+                RightContent.Content = _views[buttonType];
+            }
+            else
+            {
+                LogWriter.LogWrite($"No view found for ButtonType: {buttonType}");
+            }
+        }
+        
         private void LeftTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (e.NewValue is NavLeaf leaf)
@@ -413,20 +590,33 @@ namespace Focus_Bear
 
         private void btnSideBar_Click(object sender, RoutedEventArgs e)
         {
-            if (_isSidebarCollapsed)
+            if (IsSidebarCollapsed)
             {
                 // Expand sidebar
                 LeftColumn.Width = new GridLength(235);
-                _isSidebarCollapsed = false;
+                IsSidebarCollapsed = false;
             }
             else
             {
                 // Collapse sidebar
                 LeftColumn.Width = new GridLength(45);
-                _isSidebarCollapsed = true;
+                IsSidebarCollapsed = true;
             }
         }
-
+        public void ExpandSideBar()
+        {
+            IsSidebarCollapsed = true; //Force expand 
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnSideBar);
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
+        }
+        public void CollapseSideBar()
+        {
+            IsSidebarCollapsed = false; //Force collapse 
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnSideBar);
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
+        }
         public void RepositionWindow()
         {
             try
@@ -456,6 +646,23 @@ namespace Focus_Bear
             }**/
 
             PageBlocks.ShowFocusMode(sFocusMode);
+        }
+        public void ShowPomodoroView()
+        {
+            //Check here if the Breaks window is visible, we will hide it.
+            if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
+            {
+                ((App)(Application.Current)).wndTakeABreak.Close();
+                ((App)(Application.Current)).wndTakeABreak = null;
+            }
+
+            if (((App)(Application.Current)).wndFocusModeEnd != null)
+            {
+                ((App)(Application.Current)).wndFocusModeEnd.Hide(); //If focus mode end window is visible, hide it
+            }
+
+            PagePomodoro.UpdateValues(appSettings.bEnterSuperPomodoroModeAfterMorningRoutine);
+            RightContent.Content = PagePomodoro;
         }
         public void ShowSimplePomodoroView()
         {
@@ -494,6 +701,36 @@ namespace Focus_Bear
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
                 FocusBearLogo.Source = new BitmapImage(new Uri("pack://application:,,,/Images/fb_big_dark.png"));
             }
+        }
+
+        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (IsVisible)
+            {
+                this.Width = 900;
+                this.Height = 630;
+
+                double screenLogicalWidth = SystemParameters.WorkArea.Width;
+                double screenLogicalHeight = SystemParameters.WorkArea.Height;
+
+                LogWriter.LogWrite(string.Format("screenLogicalWidth = {0}, screenLogicalHeight = {1}", screenLogicalWidth.ToString(), screenLogicalHeight.ToString()));
+
+                // “ideal” logical minimum
+                const double idealMinW = 900, idealMinH = 630;
+
+                //Cap the minimum to what actually fits
+                this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
+                this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
+
+                // 
+                this.Width = this.MinWidth;
+                this.Height = this.MinHeight;
+
+                // 6)
+                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
+                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+            }
+
         }
     }
    

@@ -214,10 +214,10 @@ namespace Focus_Bear.Focus
         private void btnIAmDone_Click(object sender, RoutedEventArgs e)
         {
             dispatcherTimer.Stop();
-            if (((App)(Application.Current)).wndHabits != null )
+            if (((App)(Application.Current)).wndFocusBearMainWindow != null )
             {
                      //CLick the I am done button on the main window
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.btnIAmDone);
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing.btnIAmDone);//V2
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
 

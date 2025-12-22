@@ -318,8 +318,8 @@ namespace Focus_Bear.Focus
                     TxtAchieve.Text = "";
                     TxtDistractions.Text = "";
 
-                    
-                    if (appSettings.isStartPomodoroWindowOpen)
+
+                    /**if (appSettings.isStartPomodoroWindowOpen)
                     {
                         //Let's close the start pomodoro window 
                         if (((App)(Application.Current)).wndStartPomodoro != null)
@@ -327,9 +327,9 @@ namespace Focus_Bear.Focus
                             ((App)(Application.Current)).wndStartPomodoro.Hide();
                         }
                         appSettings.isStartPomodoroWindowOpen = false;
-                    }
+                    }**/ //mj// todo handling
 
-                    if(!appSettings.bIsGeekModeEnabled) //simple mode
+                    if (!appSettings.bIsGeekModeEnabled) //simple mode
                     {
                         btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
                     }

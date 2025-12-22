@@ -37,7 +37,7 @@ namespace Focus_Bear.Focus
             this.Owner = ParentWindow;
             InitialSettings();
         }
-        public SelectTasks(StartPomodoro ParentWindow)
+        public SelectTasks(FocusBearMainWindow ParentWindow)
         {
             InitializeComponent();
             this.Owner = ParentWindow;

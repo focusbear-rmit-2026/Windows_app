@@ -31,7 +31,7 @@ namespace Focus_Bear.Habits
     /// </summary>
     public partial class HabitActivityOnGoing : Page
     {
-        private HabitWindow _parentWindow = null;
+        private FocusBearMainWindow _parentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
 
@@ -51,7 +51,7 @@ namespace Focus_Bear.Habits
             bTimerRunning = false;
             nTickCount = 0;
         }
-        public HabitActivityOnGoing(HabitWindow parentWindow, bool bStartingAfterPostponed) : this()
+        public HabitActivityOnGoing(FocusBearMainWindow parentWindow, bool bStartingAfterPostponed) : this()
         {
             InitializeComponent();
 
@@ -270,8 +270,9 @@ namespace Focus_Bear.Habits
 
                 if (show_saved_distracting_websites)
                 {
-                    _parentWindow.WindowState = WindowState.Minimized;
-                    _parentWindow.ShowInTaskbar = false;
+                    //mj// todo handling may be main app window
+                    /**_parentWindow.WindowState = WindowState.Minimized;
+                    _parentWindow.ShowInTaskbar = false;**/
                     //here we also need to remove the secondary screen windows.
                     appSettings.RemoveSecondaryWindows();
 
@@ -281,8 +282,11 @@ namespace Focus_Bear.Habits
                 {
                     appSettings.bHabitwithAllowedAppsRunning = true;
                     //_parentWindow.WindowState = WindowState.Minimized;
-                    _parentWindow.Hide();
-                    _parentWindow.ShowInTaskbar = false;
+
+                    //mj// todo handling may be main app window
+                    /**_parentWindow.Hide();
+                    _parentWindow.ShowInTaskbar = false;**/
+
                     //here we also need to remove the secondary screen windows.
                     appSettings.RemoveSecondaryWindows();
 
@@ -302,7 +306,7 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("HabitActivityOnGoing EX - " + ex.Message);
             }
 
-            _parentWindow.ActivityStartTime = DateTime.UtcNow;
+            _parentWindow.PageHabits.ActivityStartTime = DateTime.UtcNow;
 
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
@@ -559,8 +563,9 @@ namespace Focus_Bear.Habits
                         }
 
                         appSettings.bHabitwithAllowedAppsRunning = false;
-                        _parentWindow.WindowState = WindowState.Normal;
-                        _parentWindow.Show();
+                        //mj// todo handling may be main app window
+                        /**_parentWindow.WindowState = WindowState.Normal;
+                        _parentWindow.Show();**/
 
                        ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
 
@@ -585,7 +590,7 @@ namespace Focus_Bear.Habits
                     dispatcherTimer.Stop();
                     CommandManager.InvalidateRequerySuggested();
                     Global.EnableSystemSleep();
-                    _parentWindow.ShowACtivityFinishedScreen();
+                    _parentWindow.PageHabits.ShowACtivityFinishedScreen();
 
                 }
                 catch (Exception ex)
@@ -691,7 +696,8 @@ namespace Focus_Bear.Habits
                         webView.Visibility = Visibility.Collapsed;
 
                         AskPassword pwdWnd = new AskPassword();
-                        pwdWnd.Owner = _parentWindow;
+                        //mj// todo handling may be main app window
+                        //mj// pwdWnd.Owner = _parentWindow;
                         _parentWindow.GridShade.Visibility = Visibility.Visible;
 
                         bool? bResult = pwdWnd.ShowDialog();
@@ -720,7 +726,8 @@ namespace Focus_Bear.Habits
                         webView.Visibility = Visibility.Collapsed;
 
                         AskPassword pwdWnd = new AskPassword();
-                        pwdWnd.Owner = _parentWindow;
+                        //mj// todo handling may be main app window
+                        //mj// pwdWnd.Owner = _parentWindow;
                         _parentWindow.GridShade.Visibility = Visibility.Visible;
 
                         bool? bResult = pwdWnd.ShowDialog();
@@ -744,7 +751,7 @@ namespace Focus_Bear.Habits
             ///
             appSettings.bSkipWhileActivityOngoing = true;
             webView.Visibility = Visibility.Collapsed; /*When using Webview2 in WPF, unable to overlay WPF controls on the Webview - https://github.com/MicrosoftEdge/WebView2Feedback/issues/286*/
-            _parentWindow.ShowWhySkipHabitsWindow();
+            _parentWindow.PageHabits.ShowWhySkipHabitsWindow();
         }
 
         private void btnIAmDone_Click(object sender, RoutedEventArgs e)

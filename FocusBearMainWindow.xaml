@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear"
         mc:Ignorable="d"
         Title="Focus Bear" MinHeight="630" MinWidth="900"
-        AutomationProperties.AutomationId="FocusBearMainWindow">
+        AutomationProperties.AutomationId="FocusBearMainWindow" IsVisibleChanged="Window_IsVisibleChanged" Topmost="True">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>

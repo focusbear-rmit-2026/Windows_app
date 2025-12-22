@@ -344,7 +344,7 @@ namespace Focus_Bear.Focus
                 appSettings.bFocusSummaryPostponedState = false;
 
                 //If by chance the start pomodoro window is open, we need to close it.
-                if (appSettings.isStartPomodoroWindowOpen)
+                /**if (appSettings.isStartPomodoroWindowOpen)
                 {
                     //Let's close the start pomodoro window 
                     if (((App)(Application.Current)).wndStartPomodoro != null)
@@ -352,7 +352,7 @@ namespace Focus_Bear.Focus
                         ((App)(Application.Current)).wndStartPomodoro.Hide();
                     }
                     appSettings.isStartPomodoroWindowOpen = false;
-                }
+                }**/ //mj// todo handling
 
                 if (appSettings.isFocusModeRunning)
                 {
