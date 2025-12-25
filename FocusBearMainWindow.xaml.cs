@@ -94,7 +94,12 @@ namespace Focus_Bear
     }
     public class NavLeaf : INotifyPropertyChanged
     {
-        public string Title { get; set; }
+        private string _title;
+        public string Title
+        {
+            get => _title;
+            set { _title = value; OnPropertyChanged(nameof(Title)); }
+        }
         public LeftButtonType ButtonType { get; set; }
         public ImageSource IconSource { get; set; } 
         public Color Color { get; set; } = Colors.DodgerBlue;
@@ -110,7 +115,16 @@ namespace Focus_Bear
                 OnPropertyChanged(nameof(IsSelected));
             }
         }
-
+        private bool _isEnabled = true;
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set
+            {
+                _isEnabled = value;
+                OnPropertyChanged(nameof(IsEnabled));
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -162,6 +176,8 @@ namespace Focus_Bear
         public StartSimplePomodoro PageSimplePomodoro;
         public StartPomodoro PagePomodoro;
         public HabitWindow PageHabits;
+        public StopFocusMode PageStopFocusMode;
+        public FocusModeEnd PageFocusModeEnd;
         public FocusBearMainWindow()
         {
             InitializeComponent();
@@ -283,6 +299,8 @@ namespace Focus_Bear
             PageSimplePomodoro = new StartSimplePomodoro(this);
             PagePomodoro = new StartPomodoro(this);
             PageHabits = new HabitWindow(this);
+            PageStopFocusMode = new StopFocusMode();
+            PageFocusModeEnd = new FocusModeEnd();
 
             _views = new Dictionary<LeftButtonType, UserControl>
             {
@@ -324,6 +342,16 @@ namespace Focus_Bear
             }
             return null;
         }
+        // Find and update specific leaf
+        public void UpdateLeafTitle(LeftButtonType buttonType, string newTitle)
+        {
+            NavLeaf leaf = FindLeafByButtonType(buttonType);
+            if (leaf != null)
+            {
+                leaf.Title = newTitle;
+            }
+        }
+
         // Overload for ButtonType only
         public void HandleLeafSelection(LeftButtonType buttonType)
         {
@@ -333,7 +361,7 @@ namespace Focus_Bear
             // Handle content based on button type
             HandleContentForButtonType(buttonType);
         }
-        private void SelectLeafInTreeView(LeftButtonType buttonType)
+        public void SelectLeafInTreeView(LeftButtonType buttonType)
         {
             foreach (NavCategory category in NavigationItems)
             {
@@ -399,26 +427,41 @@ namespace Focus_Bear
         private void ShowHabitsView()
         {
             LogWriter.LogWrite("Showing Habits View");
+
             if (_views.ContainsKey(LeftButtonType.Habits))
             {
                 RightContent.Content = _views[LeftButtonType.Habits];
             }
+            
+            if (appSettings.bHabitsPostponedState)
+            {
+                //V2 todo - postponed view again with button - resume habits
+                PageHabits.ShowHabitsPostponedView();
+            }
+
             CollapseSideBar();
+
+            DisableAllButtons(LeftButtonType.Habits);
         }
 
         private void ShowFocusSessionView()
         {
             LogWriter.LogWrite("Showing Focus Session View");
-            
-            ExpandSideBar();
 
-            if (appSettings.bIsGeekModeEnabled)
+            if (appSettings.isFocusModeRunning)
             {
-                ShowPomodoroView();
+                ShowStopFocusModeView();
             }
             else
             {
-                ShowSimplePomodoroView();
+                if (appSettings.bIsGeekModeEnabled)
+                {
+                    ShowPomodoroView();
+                }
+                else
+                {
+                    ShowSimplePomodoroView();
+                }
             }
 
         }
@@ -474,12 +517,14 @@ namespace Focus_Bear
             {
                 RightContent.Content = _views[LeftButtonType.Blocking];
             }
-           
         }
 
         private void ShowSettingsView()
         {
             LogWriter.LogWrite("Showing Settings View");
+            
+            Show();
+
             if (_views.ContainsKey(LeftButtonType.Settings))
             {
                 RightContent.Content = _views[LeftButtonType.Settings];
@@ -509,7 +554,41 @@ namespace Focus_Bear
                 LogWriter.LogWrite($"No view found for ButtonType: {buttonType}");
             }
         }
-        
+
+        public void EnableAllButtons()
+        {
+            foreach (NavCategory category in NavigationItems)
+            {
+                foreach (NavLeaf leaf in category.Items)
+                {
+                    leaf.IsEnabled = true;
+                }
+            }
+            ExpandSideBar();
+        }
+        private void DisableAllButtons()
+        {
+            foreach (NavCategory category in NavigationItems)
+            {
+                foreach (NavLeaf leaf in category.Items)
+                {
+                    leaf.IsEnabled = false;
+                }
+            }
+        }
+        private void DisableAllButtons(LeftButtonType ExceptButtonType)
+        {
+            foreach (NavCategory category in NavigationItems)
+            {
+                foreach (NavLeaf leaf in category.Items)
+                {
+                    if (leaf.ButtonType != ExceptButtonType)
+                    {
+                        leaf.IsEnabled = false;
+                    }
+                }
+            }
+        }
         private void LeftTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (e.NewValue is NavLeaf leaf)
@@ -647,6 +726,17 @@ namespace Focus_Bear
 
             PageBlocks.ShowFocusMode(sFocusMode);
         }
+
+        public void ShowStopFocusModeView()
+        {
+            RightContent.Content = PageStopFocusMode;
+            PageStopFocusMode.StartTimer();
+        }
+
+        public void ShowFocusModeEndView()
+        {
+            RightContent.Content = PageFocusModeEnd;
+        }
         public void ShowPomodoroView()
         {
             //Check here if the Breaks window is visible, we will hide it.
@@ -654,11 +744,6 @@ namespace Focus_Bear
             {
                 ((App)(Application.Current)).wndTakeABreak.Close();
                 ((App)(Application.Current)).wndTakeABreak = null;
-            }
-
-            if (((App)(Application.Current)).wndFocusModeEnd != null)
-            {
-                ((App)(Application.Current)).wndFocusModeEnd.Hide(); //If focus mode end window is visible, hide it
             }
 
             PagePomodoro.UpdateValues(appSettings.bEnterSuperPomodoroModeAfterMorningRoutine);
@@ -673,11 +758,6 @@ namespace Focus_Bear
             {
                 ((App)(Application.Current)).wndTakeABreak.Close();
                 ((App)(Application.Current)).wndTakeABreak = null;
-            }
-            //mj// todo
-            if (((App)(Application.Current)).wndFocusModeEnd != null)
-            {
-                ((App)(Application.Current)).wndFocusModeEnd.Hide(); //If focus mode end window is visible, hide it
             }
             
             PageSimplePomodoro.UpdateValues();
@@ -731,6 +811,24 @@ namespace Focus_Bear
                 this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
             }
 
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            //mj// todo handling
+            bool wasCodeClosed = new StackTrace().GetFrames().FirstOrDefault(x => x.GetMethod() == typeof(Window).GetMethod("Close")) != null;
+            if (wasCodeClosed)
+            {
+                // Closed with this.Close()
+            }
+            else
+            {
+                e.Cancel = true;
+                // Closed some other way - like close button clicked.
+
+                // fire Please spare me button to postpone
+                ((App)(Application.Current)).SimulatePleaseSpareMe();
+            } 
         }
     }
    

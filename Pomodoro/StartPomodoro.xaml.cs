@@ -27,17 +27,22 @@ namespace Focus_Bear.Pomodoro
     /// <summary>
     /// Interaction logic for StartPomodoro.xaml
     /// </summary>
-    public partial class StartPomodoro : Window
+    public partial class StartPomodoro : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+        FocusBearMainWindow _ParentWindow = null;
         public StartPomodoro()
         {
+        }
+        public StartPomodoro(FocusBearMainWindow ParentWindow)
+        {
             InitializeComponent();
-            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            this.Topmost = true;
+
+            _ParentWindow = ParentWindow;
+
             App.FocusModeAddedDeletedEvent += AddFocusModesToComboBox;
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
@@ -48,7 +53,7 @@ namespace Focus_Bear.Pomodoro
             {
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
-            App.ThemeChanged += TitleBarThemeChange;
+
             try
             {
                 ShowAdvancedLabel.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonAdvancedOptionsText"].ToString();
@@ -152,6 +157,7 @@ namespace Focus_Bear.Pomodoro
                     appSettings.sMinutesBreakPomodoro = MinutesBreak.Text;
                     appSettings.SuperPomodoroFocusedName = appSettings.AutomaticSuperPomodoroFocusedName;
                     appSettings.NumberOfSuperPomodorosToRun = appSettings.AutomaticNumberOfSuperPomodorosToRun;
+                    appSettings.bEnterSuperPomodoroModeAfterMorningRoutine = false; //Reset for next time poomdoro view is shown
                 }
 
                 UseSuperPomodoroMode.IsEnabled = !appSettings.bUseSuperPomodoroMode;
@@ -231,12 +237,12 @@ namespace Focus_Bear.Pomodoro
             ComboBoxNumberOfPomodoros.Visibility = Visibility.Visible;
 
             if (!appSettings.bUseSuperPomodoroMode)
-            { 
-                GridShade.Visibility = Visibility.Visible;
+            {
+                _ParentWindow.GridShade.Visibility = Visibility.Visible;
                 FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["pomodoroInfo"]["alertWarningPaswwordSetText"].ToString());
-                msg.Owner = this;
+                msg.Owner = _ParentWindow;
                 msg.ShowDialog();
-                GridShade.Visibility = Visibility.Collapsed;
+                _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -354,7 +360,7 @@ namespace Focus_Bear.Pomodoro
             {
                 LogWriter.LogWrite("appSettings.bUseSuperPomodoroMode, set intention return; ");
 
-                Hide();
+                _ParentWindow.Hide();
                 appSettings.isStartPomodoroWindowOpen = false;
                 return;
             }
@@ -381,7 +387,7 @@ namespace Focus_Bear.Pomodoro
             appSettings.sMinutesBreakPomodoro = "";
             //Start Normal Focus mode            
             StartFocusMode();
-            Hide();
+
             appSettings.isStartPomodoroWindowOpen = false;
         }
 
@@ -424,21 +430,7 @@ namespace Focus_Bear.Pomodoro
 
                         ((App)Application.Current).ShowFocusProgressWindow();
 
-                        if (((App)Application.Current).wndBrainDump != null && ((App)Application.Current).wndBrainDump.IsVisible) //Update the window if its made or is visible
-                        {
-                            ((App)Application.Current).wndBrainDump.ShowBrainDumpWindowAndStartTimer();
-                        }
-
-                        //Show and Set on untill value
-                        ((App)(Application.Current)).wndTrayMenu.OnUntill.Visibility = Visibility.Visible;
-                        //Increase hearder height
-                        ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 45; //Originally 25
-
-                        if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                        {
-                            ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 70;
-                        }
-
+                       
                         DateTime dTill = DateTime.Now;
 
                         appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
@@ -482,69 +474,12 @@ namespace Focus_Bear.Pomodoro
 
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            e.Cancel = true;
-            Hide();
-            appSettings.isStartPomodoroWindowOpen = false;
-        }
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            if (source != null)
-            {
-                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
-            } 
-        }
-        
-        private void TitleBarThemeChange()
-        {
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            if (source != null)
-            {
-                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
-            }
-        }
-
-        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (IsVisible)
-            {
-                this.Width = 744;
-                this.Height = 700;
-
-                double screenLogicalWidth = SystemParameters.WorkArea.Width;
-                double screenLogicalHeight = SystemParameters.WorkArea.Height;
-
-                LogWriter.LogWrite(string.Format("screenLogicalWidth = {0}, screenLogicalHeight = {1}", screenLogicalWidth.ToString(), screenLogicalHeight.ToString()));
-
-                // “ideal” logical minimum
-                const double idealMinW = 744, idealMinH = 700;
-
-                //Cap the minimum to what actually fits
-                this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
-                this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
-
-                // 
-                this.Width = this.MinWidth;
-                this.Height = this.MinHeight;
-
-                // 6)
-                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
-                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
-            }
-
-        }
-
         private void ShowAdvancedOptionsControls(bool visible)
         {
             var vis = visible ? Visibility.Visible : Visibility.Collapsed;
             UseSuperPomodoroMode.Visibility = vis;
             PomodoroCountPanel.Visibility = vis;
             ShowAccordingFocusAlignmentScorePanel.Visibility = vis;
-
         }
 
         private void FocusAlignmentThresholdCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)

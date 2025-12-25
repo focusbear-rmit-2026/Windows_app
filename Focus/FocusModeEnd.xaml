@@ -1,4 +1,4 @@
-﻿<Window x:Class="Focus_Bear.Focus.FocusModeEnd"
+﻿<UserControl x:Class="Focus_Bear.Focus.FocusModeEnd"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,7 +7,7 @@
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
         Background="{DynamicResource BackgroundColor}"
-        Title="Focus Bear" Height="740" Width="954" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged" Closing="Window_Closing" Loaded="Window_Loaded">
+        IsVisibleChanged="Window_IsVisibleChanged" >
     <!--<local1:DpiDecorator>-->
     <Grid>
         <Grid.Resources>
@@ -131,4 +131,4 @@
         </ScrollViewer>
     </Grid>
     <!--</local1:DpiDecorator>-->
-</Window>
+</UserControl>

@@ -183,6 +183,12 @@ namespace Focus_Bear.Focus
                     //We will need to start the focus mode again after the focus session and X min break is over
                     if(!appSettings.bHabitwithAllowedAppsRunning && !bIamDoneTypeActivity ) //make sure break window is not shown for habits with allowed apps
                     {
+
+                        if (appSettings.bUseSuperPomodoroMode) //If super pomodoro is still running we keep the title as Stop Super focus session
+                            ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopSuperFocusSession"].ToString());
+                        else
+                            ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartFocusSession"].ToString());
+             
                         //Removing the super pomodoro check, we need to show start focus mode window after the break ends.
                         {
                             ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);

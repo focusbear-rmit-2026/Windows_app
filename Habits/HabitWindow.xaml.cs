@@ -90,7 +90,7 @@ namespace Focus_Bear.Habits
             {
                 btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
             }
-
+            btnPleaseSpareMe.Visibility = Visibility.Visible;
             //Set the minimum so that in non full screen mode we do not go below this.
             /**this.MinWidth = 1300;
             this.MinHeight = 750;
@@ -200,6 +200,12 @@ namespace Focus_Bear.Habits
             }
         }
       
+        public void ShowHabitsPostponedView()
+        {
+            HabitsPostponedView PageHabitsPostponedView = new HabitsPostponedView();
+            AppFrameHabitScreens.Navigate(PageHabitsPostponedView);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
         public void ShowReducedHabitsMessageOnExpired()
         {
             dispatcherTimerShowReducedHabitsMessage.Tick += new EventHandler(dispatcherTimerShowReducedHabitsMessage_Tick);
@@ -967,7 +973,7 @@ namespace Focus_Bear.Habits
         public void SimulatePleaseSpareMeClick()
         {
             LogWriter.LogWrite("Habit Window SimulatePleaseSpareMeClick()");
-            if (!this.IsVisible || ParentWindow.GridShade.IsVisible) //Either the window is not visible means its postponsed or the grid share is visible mean either log window or the skip confirm window is there..so return from here
+            /**if (!this.IsVisible || ParentWindow.GridShade.IsVisible) //Either the window is not visible means its postponsed or the grid share is visible mean either log window or the skip confirm window is there..so return from here
             {
                 LogWriter.LogWrite("Habit Window Not visible or GridShade.IsVisible, return ");
                 return;
@@ -976,7 +982,7 @@ namespace Focus_Bear.Habits
             {
                 LogWriter.LogWrite("btnPleaseSpareMe Not visible, return");
                 return;
-            }
+            }**/ //mj// todo handling
             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnPleaseSpareMe);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
@@ -1184,7 +1190,7 @@ namespace Focus_Bear.Habits
             LogWriter.LogWrite("Habit Window btnPleaseSpareMe_Click Clicked - Hide() now");
             //mj// Hide(); //mj// todo handling may be main app window check waht to do
 
-            appSettings.RemoveSecondaryWindows();
+            //mj//appSettings.RemoveSecondaryWindows();
             
             //Show the Easy Postpone 
             ((App)(Application.Current)).ShowEasyPostponeWindow();

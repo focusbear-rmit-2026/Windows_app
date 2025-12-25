@@ -54,6 +54,7 @@ namespace Focus_Bear.Habits
         public HabitActivityOnGoing(FocusBearMainWindow parentWindow, bool bStartingAfterPostponed) : this()
         {
             InitializeComponent();
+            _parentWindow = parentWindow;
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
@@ -69,8 +70,6 @@ namespace Focus_Bear.Habits
 
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
-
-            _parentWindow = parentWindow;
 
             appSettings.bSkipWhileActivityOngoing = false;
 
@@ -283,9 +282,8 @@ namespace Focus_Bear.Habits
                     appSettings.bHabitwithAllowedAppsRunning = true;
                     //_parentWindow.WindowState = WindowState.Minimized;
 
-                    //mj// todo handling may be main app window
-                    /**_parentWindow.Hide();
-                    _parentWindow.ShowInTaskbar = false;**/
+                    _parentWindow.Hide();
+                    // _parentWindow.ShowInTaskbar = false;
 
                     //here we also need to remove the secondary screen windows.
                     appSettings.RemoveSecondaryWindows();
@@ -563,9 +561,9 @@ namespace Focus_Bear.Habits
                         }
 
                         appSettings.bHabitwithAllowedAppsRunning = false;
-                        //mj// todo handling may be main app window
-                        /**_parentWindow.WindowState = WindowState.Normal;
-                        _parentWindow.Show();**/
+                        
+                        _parentWindow.WindowState = WindowState.Normal;
+                        _parentWindow.Show();
 
                        ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
 
@@ -696,8 +694,7 @@ namespace Focus_Bear.Habits
                         webView.Visibility = Visibility.Collapsed;
 
                         AskPassword pwdWnd = new AskPassword();
-                        //mj// todo handling may be main app window
-                        //mj// pwdWnd.Owner = _parentWindow;
+                        pwdWnd.Owner = _parentWindow;
                         _parentWindow.GridShade.Visibility = Visibility.Visible;
 
                         bool? bResult = pwdWnd.ShowDialog();
@@ -726,8 +723,7 @@ namespace Focus_Bear.Habits
                         webView.Visibility = Visibility.Collapsed;
 
                         AskPassword pwdWnd = new AskPassword();
-                        //mj// todo handling may be main app window
-                        //mj// pwdWnd.Owner = _parentWindow;
+                        pwdWnd.Owner = _parentWindow;
                         _parentWindow.GridShade.Visibility = Visibility.Visible;
 
                         bool? bResult = pwdWnd.ShowDialog();

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear"
         mc:Ignorable="d"
         Title="Focus Bear" MinHeight="630" MinWidth="900"
-        AutomationProperties.AutomationId="FocusBearMainWindow" IsVisibleChanged="Window_IsVisibleChanged" Topmost="True">
+        AutomationProperties.AutomationId="FocusBearMainWindow" IsVisibleChanged="Window_IsVisibleChanged" Closing="Window_Closing" Topmost="True">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -65,7 +65,9 @@
                                 <Setter Property="BorderThickness" Value="1"/>
                                 <Setter Property="Margin" Value="5,0,5,0"/>
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-
+                                <!-- Bind TreeViewItem.IsEnabled to NavLeaf.IsEnabled -->
+                                <Setter Property="IsEnabled" Value="{Binding IsEnabled}"/>
+                                
                                 <!-- Custom template with working right-side expander -->
                                 <Setter Property="Template">
                                     <Setter.Value>
@@ -247,10 +249,18 @@
                                                 MouseLeftButtonDown="NavLeaf_Click" >
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                     <!-- Icon from Images folder -->
-                                                    <Image Width="18" Height="18"
-                                                   Source="{Binding IconSource}"
-                                                   Margin="0,0,8,0" 
-                                                   VerticalAlignment="Center"/>
+                                                    <Image Width="18" Height="18" Source="{Binding IconSource}" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                        <Image.Style>
+                                                            <Style TargetType="Image">
+                                                                <Style.Triggers>
+                                                                    <!-- Disabled state -->
+                                                                    <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                                                                        <Setter Property="Opacity" Value="0.5"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Image.Style>
+                                                    </Image>
 
                                                     <!-- Value Text -->
 
@@ -266,6 +276,13 @@
                                                                     <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}}}" Value="True">
                                                                         <Setter Property="Foreground" Value="#222222"/>
                                                                     </DataTrigger>
+
+                                                                    <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}}}" Value="False">
+                                                                        <Setter Property="Opacity" Value="0.5"/>
+                                                                        <Setter Property="Foreground" Value="Gray"/>
+                                                                        <Setter Property="Cursor" Value="Arrow"/>
+                                                                    </DataTrigger>
+                                                                    
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </TextBlock.Style>

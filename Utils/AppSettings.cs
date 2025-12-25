@@ -282,9 +282,11 @@ namespace Focus_Bear.Utils
         public string sRawFocusModeTemplates = "";
 
         //Super Pomodoro Related
+        public bool bForceClosingFocusMode = false;
         public bool isStartPomodoroWindowOpen = false;
 
         public bool bUseSuperPomodoroMode = false;
+        public bool bEnterSuperPomodoroModeAfterMorningRoutine = false;
 
         public string sMinutesSuperPomodoro = "";
         public string sMinutesBreakPomodoro = "";

@@ -33,9 +33,15 @@ namespace Focus_Bear.Pomodoro
         int nStep = 1;
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+        FocusBearMainWindow _ParentWindow = null;
         public StartSimplePomodoro()
+        { 
+        }
+        public StartSimplePomodoro(FocusBearMainWindow ParentWindow)
         {
             InitializeComponent();
+
+            _ParentWindow = ParentWindow;
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
@@ -257,6 +263,7 @@ namespace Focus_Bear.Pomodoro
             MyPopup.IsOpen = false;
             RegistryManager.SetSimplePomodoroTourShownStatus();
 
+            _ParentWindow.Hide();
             appSettings.isStartPomodoroWindowOpen = false;
         }
 

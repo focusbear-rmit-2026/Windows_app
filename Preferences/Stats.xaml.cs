@@ -76,6 +76,7 @@ namespace Focus_Bear.Preferences
 
                 var ss = webView.ExecuteScriptAsync(settingsFunc);
                 LogWriter.LogWrite(ss.ToString());
+                Mouse.OverrideCursor = null;
             }
         }
         private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)

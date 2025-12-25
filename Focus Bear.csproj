@@ -398,6 +398,9 @@
     <Compile Include="Habits\ChooseHabits.xaml.cs">
       <DependentUpon>ChooseHabits.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Habits\HabitsPostponedView.xaml.cs">
+      <DependentUpon>HabitsPostponedView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Habits\HabitsResumeInPopup.xaml.cs">
       <DependentUpon>HabitsResumeInPopup.xaml</DependentUpon>
     </Compile>
@@ -825,6 +828,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Habits\ChooseHabits.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\HabitsPostponedView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

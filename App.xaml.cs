@@ -3469,12 +3469,22 @@ namespace Focus_Bear
             WindowInteropHelper helper = new WindowInteropHelper(wndFocusBearMainWindow);
             IntPtr hWnd = helper.Handle;
 
+            ShowWindow(hWnd,SW_SHOW);
             // Restore window if minimized
             ShowWindow(hWnd, SW_RESTORE);
 
             // Bring to foreground
             SetForegroundWindow(hWnd);
 
+            wndFocusBearMainWindow.Visibility = Visibility.Visible;
+            wndFocusBearMainWindow.Activate();
+
+            // Force redraw
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                wndFocusBearMainWindow.InvalidateVisual();
+                wndFocusBearMainWindow.UpdateLayout();
+            }), System.Windows.Threading.DispatcherPriority.Render);
         }
         public void ShowHabitsSectionInMainWindow()
         {
@@ -3486,20 +3496,15 @@ namespace Focus_Bear
         {
             BringMainWindowToFront();
 
-            wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Blocking);
+            wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Settings);
         }
         public void ShowFocusEndWindow()
         {
-            LogWriter.LogWrite("appSettings.bShowFocusModeEnd"+ appSettings.bShowFocusModeEnd);
-            if (wndFocusModeEnd == null )
-            {
-                wndFocusModeEnd = new FocusModeEnd();
-            }
+            BringMainWindowToFront();
+            //Just select the Start focus session button in left tree
+            wndFocusBearMainWindow.SelectLeafInTreeView(LeftButtonType.StartFocusSession);
 
-            appSettings.bStartingAnotherFocusMode = false; //Resetting
-
-            wndFocusModeEnd.Show();
-            wndFocusModeEnd.BringIntoView();
+            wndFocusBearMainWindow.ShowFocusModeEndView();
         }
         public void ShowBreakWindow()
         {
@@ -3596,6 +3601,8 @@ namespace Focus_Bear
 
             try
             {
+                appSettings.RemoveSecondaryWindows();
+
                 //If any old timer for postpone is running, we need to stop that
                 dispatcherTimerPostponeHabits.Stop();
 
@@ -3622,13 +3629,15 @@ namespace Focus_Bear
                 {
                     dispatcherTimerPostponeHabits.Tick += new EventHandler(dispatcherTimer_Postpone);
 #if DEBUG
-                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 0, nMinutesToPostpone*2);
+                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 0, nMinutesToPostpone);
 #else
                     dispatcherTimerPostponeHabits.Interval = new TimeSpan(0,  nMinutesToPostpone, 0);
 #endif
                     dispatcherTimerPostponeHabits.Start();
 
                     appSettings.bHabitsPostponedState = true;
+
+                    wndFocusBearMainWindow.EnableAllButtons();//Enable all the left menu buttons
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                     {
@@ -3646,6 +3655,7 @@ namespace Focus_Bear
                     else
                     {
                         //V2 todo - in simple mode, show morning habits view again with button - resume habits
+                        wndFocusBearMainWindow.PageHabits.ShowHabitsPostponedView();
                     }
 
 
@@ -3817,17 +3827,13 @@ namespace Focus_Bear
             LogWriter.LogWrite("EasyPostponeCancelled()");
             try
             {
-                //mj// todo handling may be main app window
-                /**if (wndHabits != null)
+                if (wndFocusBearMainWindow != null)
                 {
-                    wndHabits.Show();
-                    wndHabits.EasyPostponeCancelled(); //enable the timers
+                    wndFocusBearMainWindow.PageHabits.EasyPostponeCancelled(); //enable the timers
 
                     ShowBlankWindowOnOtherScreens();
-                }**/
-
-                ((App)(Application.Current)).ShowHabitsSectionInMainWindow();//v2
-                ShowBlankWindowOnOtherScreens();
+                }
+                
             }
             catch (Exception ex)
             {
@@ -3840,16 +3846,24 @@ namespace Focus_Bear
             LogWriter.LogWrite("SimulatePleaseSpareMe()");
             try
             { //Just make sure that we have the habits time or breaks time
-                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS || appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS || appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                if ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS || appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS || appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
+                    !appSettings.bHabitsPostponedState)
                 {
                     if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && wndFocusSummary != null && wndFocusSummary.IsVisible)
                     {
                         wndFocusSummary.SimulateNeedOneMinute_Click();
                     }
-                    else if (wndFocusBearMainWindow != null && wndFocusBearMainWindow.PageHabits.IsVisible) //V2
+                    else 
                     {
+                        //Show habits view it it was elsewhere
+                        wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
                         wndFocusBearMainWindow.PageHabits.SimulatePleaseSpareMeClick();
                     }
+                    
+                }
+                else
+                {
+                    wndFocusBearMainWindow.Hide();
                 }
             }
             catch (Exception ex)
@@ -4614,28 +4628,21 @@ namespace Focus_Bear
 
         public void ShowToDoPlayer()
         {
-            //mj// todo
+            if(appSettings.isFocusModeRunning)
+            {
+                //change the title of the todo player button
+                wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.ToDoList, appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString());
+            }
+            BringMainWindowToFront();
 
-            //if (wndToDoPlayer == null)
-            //{
-            //    wndToDoPlayer = new ToDoPlayer();
-            //}
-            //wndToDoPlayer.Show();
+            wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.ToDoList);
 
-            //if (bLoadURLAgainInToDoPlayer)
-            //{
-            //    wndToDoPlayer.LoadURL();
-            //    bLoadURLAgainInToDoPlayer = false;
-            //}
+            if (bLoadURLAgainInToDoPlayer)
+            {
+                wndFocusBearMainWindow.PageToDoPlayer.LoadURL();
+                bLoadURLAgainInToDoPlayer = false;
+            }
 
-            //WindowInteropHelper helper = new WindowInteropHelper(wndToDoPlayer);
-            //IntPtr hWnd = helper.Handle;
-
-            //// Restore window if minimized
-            //ShowWindow(hWnd, SW_RESTORE);
-
-            //// Bring to foreground
-            //SetForegroundWindow(hWnd);
         }
 
         public void ShowToDoList()
@@ -4658,20 +4665,12 @@ namespace Focus_Bear
             //// Bring to foreground
             //SetForegroundWindow(hWnd);
             BringMainWindowToFront();
-
             wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.ToDoList);
         }
         public void HideToDoPlayer()
         {
-            //mj// todo
-            //Called when focus mode ends
-            //if (wndToDoPlayer != null)
-            //{
-            //    wndToDoPlayer?.webView?.Reload(); // Refresh webview to stop background execution  
-
-            //    bLoadURLAgainInToDoPlayer = true;
-            //    wndToDoPlayer.Close();
-            //}
+            wndFocusBearMainWindow.PageToDoPlayer?.webView?.Reload(); // Refresh webview to stop background execution  
+            bLoadURLAgainInToDoPlayer = true;
         }
 
         public void ShowNaturalBreakDetectionWindow()
@@ -4703,35 +4702,19 @@ namespace Focus_Bear
                 {
                     try
                     {
-                        Sounds.PlayFocusModeEndSound();
-
-                        FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
-                        FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
-
                         //Stop the focus mode
                         listItems.First<FocusMode>().isOn = false;
 
-                        //Make the global variable false
-                        appSettings.isFocusModeRunning = false;
                         appSettings.bUseSuperPomodoroMode = false;
 
-                        ((App)Application.Current).CloseFocusProgressWindow();
-
-                        //Clear the Gentle block temp arrays
-                        appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                        appSettings.TemporarryBlockedURLsGentleBlock.Clear();
-
-                        ((App)(Application.Current)).HideToDoPlayer();
+                        FinishFocusModeCommonTasks();
 
                         appSettings.bStartingAnotherFocusMode = false; //Resetting
 
+                        appSettings.bForceClosingFocusMode = true;
                         //Show the Focusmode end dialog
-                        wndFocusModeEndForced = new FocusModeEnd(true);
-                        if(appSettings.bPlayActivitiesInFullScreenMode)
-                        {
-                            wndFocusModeEndForced.WindowState = WindowState.Maximized;
-                        }
-                        wndFocusModeEndForced.ShowDialog();
+                        wndFocusBearMainWindow.ShowFocusModeEndView();
+
                     }
                     catch (Exception ex)
                     {
@@ -4746,9 +4729,51 @@ namespace Focus_Bear
              
         }
 
+        public async void FinishFocusModeCommonTasks()
+        {
+            try
+            {
+                // Sync the todo tasks first
+                try
+                {
+                    await SyncTodoTasksFromPlayer();
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("FinishFocusModeCommonTasks() ex = " + ex.Message);
+                }
+                Sounds.PlayFocusModeEndSound();
+
+                //Set Alignment score related
+                FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
+
+                //Make the global variables false
+                appSettings.isFocusModeRunning = false;
+
+                //Clear the Gentle block temp arrays
+                appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+                //Close the required windows
+                CloseFocusProgressWindow();
+                
+                HideToDoPlayer();
+
+                //change the title of the todo player button
+                wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.ToDoList, appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString());
+                wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["menuInfo"]["menuItemStartPomodoroTitle"].ToString());
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnQuit_Click sync: " + ex.Message);
+            }
+        }
+        
         /* Invoke Window_Closing to retrieve the latest to-do tasks from the player and store them in appSettings.sRawTasks. 
-           This redundancy helps ensure consistency between the to-do list in the player 
-           and the task list displayed in the focus and end WebViews.
+            This redundancy helps ensure consistency between the to-do list in the player 
+            and the task list displayed in the focus and end WebViews.
         */
         public async Task SyncTodoTasksFromPlayer()
         {

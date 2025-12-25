@@ -178,22 +178,6 @@ namespace Focus_Bear.Utils
 
             if (nTotalMinutes > 0)
             {
-                //If old focus mode end window is visible
-                if (((App)(Application.Current)).wndFocusModeEnd != null && ((App)(Application.Current)).wndFocusModeEnd.IsVisible)
-                {
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        ((App)(Application.Current)).wndFocusModeEnd.Hide(); //If focus mode end window is visible, hide it
-                    });
-
-                    DateTime now = DateTime.Now;
-                    TimeSpan diff = now.Subtract(DateTime.Parse(appSettings.sRunningFocusModeStartTime)); // could also write `now - otherTime`
-                    var durationSeconds = diff.TotalSeconds;
-                    int nSeconds = Convert.ToInt32(durationSeconds);
-
-                    appSettings.AddEntryInCSV("focus block", appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, "", "", "", "");
-                }
-
                 for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
                 {
                     if (appSettings.arrFocusModes[i].id == sFocusModeId)
@@ -228,24 +212,6 @@ namespace Focus_Bear.Utils
                                 try
                                 {
                                     ((App)Application.Current).ShowFocusProgressWindow();
-
-                                    if (((App)Application.Current).wndBrainDump != null && ((App)Application.Current).wndBrainDump.IsVisible) //Update the window if its made or is visible
-                                    {
-                                        ((App)Application.Current).wndBrainDump.ShowBrainDumpWindowAndStartTimer();
-                                    }
-
-                                    //Show and Set on untill value
-                                    ((App)(Application.Current)).wndTrayMenu.OnUntill.Visibility = Visibility.Visible;
-                                    //Increase hearder height
-                                    ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 45; //Originally 25
-
-                                    if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                                    {
-                                        ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 70;
-                                    }
-
-                                    ((App)(Application.Current)).wndTrayMenu.OnUntill.Content = sTill;
-                                    
                                 }
                                 catch (Exception ex)
                                 {
@@ -296,31 +262,10 @@ namespace Focus_Bear.Utils
                    
                     //Stop the focus mode
                     listItems.First<FocusMode>().isOn = false;
-
-                    //Make the global variable false
-                    appSettings.isFocusModeRunning = false;
-
-                    //Clear the Gentle block temp arrays
-                    appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                    appSettings.TemporarryBlockedURLsGentleBlock.Clear();
-
+                  
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        Sounds.PlayFocusModeEndSound();
-
-                        //Show and Set on untill value
-                        ((App)(Application.Current)).wndTrayMenu.OnUntill.Content = "";
-                        ((App)Application.Current).CloseFocusProgressWindow();
-
-                        ((App)(Application.Current)).HideToDoPlayer();
-
-                        ((App)(Application.Current)).wndTrayMenu.OnUntill.Visibility = Visibility.Collapsed;
-                        //Increase hearder height
-                        ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 25; //Originally 25
-                        if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                        {
-                            ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 30; //Originally 25
-                        }
+                        ((App)Application.Current).FinishFocusModeCommonTasks();
                     });
 
                     DateTime now = DateTime.Now;
