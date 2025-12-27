@@ -69,6 +69,9 @@ namespace Focus_Bear.Habits
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView1.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted1;
 
+            SetWebView();
+            SetWebView1();
+
             _parentWindow = parentWindow;
             bBreakActivitiesFinished = false;
             bExcludedActivityIndex = -1;

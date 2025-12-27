@@ -42,6 +42,9 @@ namespace Focus_Bear.Habits
         public HabitsWelcomeList PageWelcomeList = null;
         public HabitExtraPersonal PageHabitExtraPersonal;
 
+        HabitsPostponedView PageHabitsPostponedView = new HabitsPostponedView();
+        NoHabitsRunningState PageNoHabitsRunningState = new NoHabitsRunningState();
+
         int nTimer = 5;
        
         DispatcherTimer dispatcherTimerSkippingIn = new DispatcherTimer(DispatcherPriority.Normal);
@@ -63,7 +66,7 @@ namespace Focus_Bear.Habits
             ParentWindow = _ParentWindow;
 
         }
-        public void InitializeInnerScreens()
+        public async void InitializeInnerScreens()
         {
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
@@ -116,6 +119,21 @@ namespace Focus_Bear.Habits
             if (nScreenHabitActivityFinished == null)
             {
                 nScreenHabitActivityFinished = new HabitActivityFinished(ParentWindow);
+                //brought from onContentRendered
+                //try
+                //{
+                //    if (nScreenHabitActivityFinished != null)
+                //    {
+                //        await nScreenHabitActivityFinished.SetWebView();
+                //        if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                //            await nScreenHabitActivityFinished.SetWebView1();
+
+                //    }
+                //}
+                //catch (Exception exception)
+                //{
+                //    Console.WriteLine(exception.Message);
+                //}
             }
 
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -199,13 +217,36 @@ namespace Focus_Bear.Habits
                 }
             }
         }
-      
+       
         public void ShowHabitsPostponedView()
         {
-            HabitsPostponedView PageHabitsPostponedView = new HabitsPostponedView();
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
             AppFrameHabitScreens.Navigate(PageHabitsPostponedView);
             btnPleaseSpareMe.Visibility = Visibility.Collapsed;
         }
+
+        public void ShowMorningRoutineFinishedState()
+        {
+            PageNoHabitsRunningState.ShowMorningRoutineFinishedState();
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
+        public void ShowAppDeactivatedStateView()
+        {
+            PageNoHabitsRunningState.ShowAppDeactivatedStateView();
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
+        public void ShowShutoffAbortedView()
+        {
+            PageNoHabitsRunningState.ShowShutoffAbortedView();
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
+
         public void ShowReducedHabitsMessageOnExpired()
         {
             dispatcherTimerShowReducedHabitsMessage.Tick += new EventHandler(dispatcherTimerShowReducedHabitsMessage_Tick);
@@ -496,6 +537,7 @@ namespace Focus_Bear.Habits
             {
                 PageHabitActivityOnGoing.webView.Dispose();
             }
+            PageHabitActivityOnGoing = null;
 
             bool bMorningHabitsFinished = false;
 
@@ -584,12 +626,18 @@ namespace Focus_Bear.Habits
 
             if (bMorningHabitsFinished)
             {
+                ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
+
                 ((App)(Application.Current)).ShowSurvey();
 
                 //WE need to show the pomodoro window
                 if(appSettings.bEnterPomodoroModeAfterMorningRoutine)
                 {
                     ((App)(Application.Current)).EnterPomodoroModeAfterMorningRoutine();
+                }
+                else
+                {
+                    ((App)(Application.Current)).wndFocusBearMainWindow.Hide();
                 }
             }
         }
@@ -642,7 +690,7 @@ namespace Focus_Bear.Habits
  
             nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
 
-            ParentWindow.GridShade.Visibility = Visibility.Visible;
+            GridShade.Visibility = Visibility.Visible;
             GridLogQuantityNag.Visibility = Visibility.Visible;
 
             string sLogQuantityQuestion = "";
@@ -742,8 +790,14 @@ namespace Focus_Bear.Habits
         {
             LogWriter.LogWrite("HideLogWindow()");
 
-            ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+            GridShade.Visibility = Visibility.Collapsed;
             GridLogQuantityNag.Visibility = Visibility.Collapsed;
+
+            //We will need to show the webview that we had hidden when showing this box
+            if (nScreenHabitActivityFinished != null)
+            {
+                nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
+            }
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
@@ -977,12 +1031,12 @@ namespace Focus_Bear.Habits
             {
                 LogWriter.LogWrite("Habit Window Not visible or GridShade.IsVisible, return ");
                 return;
-            }
+            }**/ //mj// todo handling
             if(!btnPleaseSpareMe.IsVisible)
             {
                 LogWriter.LogWrite("btnPleaseSpareMe Not visible, return");
                 return;
-            }**/ //mj// todo handling
+            }
             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnPleaseSpareMe);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
@@ -1237,7 +1291,7 @@ namespace Focus_Bear.Habits
             btnAlreadyDidItTXT.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["buttonAlreadyDidItText"].ToString(); 
             btnCantDoItTodayTXT.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["buttonCanNotDoItText"].ToString(); 
 
-            ParentWindow.GridShade.Visibility = Visibility.Visible;
+            GridShade.Visibility = Visibility.Visible;
             GridWhyDoYouWantToSkip.Visibility = Visibility.Visible;
 
         }
@@ -1245,7 +1299,7 @@ namespace Focus_Bear.Habits
         {
             LogWriter.LogWrite("HideWhySkipHabitsWindow()");
 
-            ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+            GridShade.Visibility = Visibility.Collapsed;
             GridWhyDoYouWantToSkip.Visibility = Visibility.Collapsed;
 
             if (PageHabitExtraPersonal != null)
@@ -1267,7 +1321,7 @@ namespace Focus_Bear.Habits
             HeadingSkippingInTimer.Text = "00:05";
             btnChangedMyMindTXT.Text = appSettings.ConfigFileStrings["skipHabitVcInfo"]["buttonDoHabitsText"].ToString(); ;
 
-            ParentWindow.GridShade.Visibility = Visibility.Visible;
+            GridShade.Visibility = Visibility.Visible;
             GridSkippingHabitIn.Visibility = Visibility.Visible;
 
             if (PageHabitExtraPersonal != null)
@@ -1292,7 +1346,7 @@ namespace Focus_Bear.Habits
             LogWriter.LogWrite("HideSkippingHabitInWindow()");
             try
             {
-                ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+                GridShade.Visibility = Visibility.Collapsed;
                 GridSkippingHabitIn.Visibility = Visibility.Collapsed;
                 //We will need to show the webview that we had hidden when showing this box
                 if (nScreenHabitActivityFinished != null)
@@ -1403,78 +1457,6 @@ namespace Focus_Bear.Habits
             }
 
         }
-
-        private void FullScreenParent_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            //mj// todo handling may be take to the main app window when the habits page is visible.
-            if (!appSettings.bPlayActivitiesInFullScreenMode)
-            {
-                ParentWindow.WindowState = WindowState.Normal;
-                // this.WindowStyle = WindowStyle.ToolWindow;
-                ParentWindow.Width = 1300;
-                ParentWindow.Height = 750;
-
-                //  Compute how many logical units the screen can show
-                double screenLogicalWidth = SystemParameters.WorkArea.Width;
-                double screenLogicalHeight = SystemParameters.WorkArea.Height;
-
-                //  “ideal” logical minimum
-                const double idealMinW = 1300, idealMinH = 750;
-
-                // Cap the minimum to what actually fits
-                ParentWindow.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
-                ParentWindow.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
-
-                // If you want the window to start at that minimum size:
-                ParentWindow.Width = ParentWindow.MinWidth;
-                ParentWindow.Height = ParentWindow.MinHeight;
-
-                if (ParentWindow.Height < idealMinH)
-                {
-                    if (PageWelcomeList != null)
-                    {
-                        PageWelcomeList.TopIcon.Height = 80;
-                        PageWelcomeList.TopIcon.Width = 80;
-                    }
-                }
-                // Center it
-                ParentWindow.Left = Math.Max(0, (screenLogicalWidth - ParentWindow.Width) / 2);
-                ParentWindow.Top = Math.Max(0, (screenLogicalHeight - ParentWindow.Height) / 2);
-
-
-                btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
-                TodaysTime.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
-                TodaysTime.Visibility = Visibility.Visible;
-
-                ParentWindow.WindowState = WindowState.Maximized;
-                //ParentWindow.WindowStyle = WindowStyle.None;
-            }
-
-        }
-
-        private void FullScreenParent_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            //mj// todo handling
-            /**bool wasCodeClosed = new StackTrace().GetFrames().FirstOrDefault(x => x.GetMethod() == typeof(Window).GetMethod("Close")) != null;
-            if (wasCodeClosed)
-            {
-                // Closed with this.Close()
-            }
-            else
-            {
-                e.Cancel = true;
-                // Closed some other way - like close button clicked.
-                // first Please spare me button to postpone
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnPleaseSpareMe);
-                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                invokeProv.Invoke();
-            }**/
-        }
-
         public void HideCloseButton()//need to hide the close button if is the last activity finished screen
         {
             if (appSettings.bPlayActivitiesInFullScreenMode)
@@ -1663,20 +1645,7 @@ namespace Focus_Bear.Habits
             ParentWindow.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
 
 
-            //brought from onContentRendered
-            try
-            {
-                if (nScreenHabitActivityFinished != null)
-                {
-                    await nScreenHabitActivityFinished.SetWebView();
-                    await nScreenHabitActivityFinished.SetWebView1();
-
-                }
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-            }
+           
 
             //mj// todo handling maybe take to main app window now when habits view is visible.
              

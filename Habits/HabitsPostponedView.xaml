@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:Focus_Bear.Habits"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Background="{DynamicResource BackgroundColor}" >
+      Background="{DynamicResource BackgroundColor}" IsVisibleChanged="Page_IsVisibleChanged">
 
     <Grid>
         <Grid.Resources>

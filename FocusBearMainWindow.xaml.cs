@@ -37,6 +37,9 @@ using Focus_Bear.Pomodoro;
 using System.Web.UI.WebControls;
 using static Focus_Bear.Preferences.Settings;
 using Focus_Bear.Habits;
+using Focus_Bear.Models;
+using Focus_Bear.API;
+using Focus_Bear.ShutOff;
 
 namespace Focus_Bear
 {
@@ -134,6 +137,7 @@ namespace Focus_Bear
     {
         Habits,
         StartFocusSession,
+        MicroBreaks,
         ToDoPlayer,
         ToDoList,
         BrainDump,
@@ -178,6 +182,8 @@ namespace Focus_Bear
         public HabitWindow PageHabits;
         public StopFocusMode PageStopFocusMode;
         public FocusModeEnd PageFocusModeEnd;
+        public FocusActivitySummary PageFocusSummary;
+        public ShutOffWindow PageShutOffWindow;
         public FocusBearMainWindow()
         {
             InitializeComponent();
@@ -197,7 +203,8 @@ namespace Focus_Bear
                     Items =
                     {
                         new NavLeaf { Title="Habits", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/play_circle.png")), ButtonType=LeftButtonType.Habits },
-                        new NavLeaf { Title="Start Focus Session", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/start-pomodoro.png")), ButtonType=LeftButtonType.StartFocusSession }
+                        new NavLeaf { Title="Start Focus Session", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/start-pomodoro.png")), ButtonType=LeftButtonType.StartFocusSession },
+                        new NavLeaf { Title="Start Micro Break", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/break.png")), ButtonType=LeftButtonType.MicroBreaks }
                     }
                 },
                 new NavCategory
@@ -301,6 +308,8 @@ namespace Focus_Bear
             PageHabits = new HabitWindow(this);
             PageStopFocusMode = new StopFocusMode();
             PageFocusModeEnd = new FocusModeEnd();
+            PageFocusSummary = new FocusActivitySummary(this);
+            PageShutOffWindow = new ShutOffWindow(this);
 
             _views = new Dictionary<LeftButtonType, UserControl>
             {
@@ -387,6 +396,10 @@ namespace Focus_Bear
                     ShowFocusSessionView();
                     break;
 
+                case LeftButtonType.MicroBreaks:
+                    ShowMicroBreaksView();
+                    break;
+
                 case LeftButtonType.ToDoList:
                     ShowToDoListView();
                     break;
@@ -423,6 +436,8 @@ namespace Focus_Bear
                     ShowDefaultView(buttonType);
                     break;
             }
+
+
         }
         private void ShowHabitsView()
         {
@@ -432,16 +447,112 @@ namespace Focus_Bear
             {
                 RightContent.Content = _views[LeftButtonType.Habits];
             }
-            
-            if (appSettings.bHabitsPostponedState)
+
+            if (appSettings.IsAppDeactivated())
             {
-                //V2 todo - postponed view again with button - resume habits
-                PageHabits.ShowHabitsPostponedView();
+                PageHabits.ShowAppDeactivatedStateView();
             }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.NONE)
+            {
+                EnableAllButtons();
+                //below order important
+                //Check if shutoff time is aborted, if not show the shutoff screen
+                if (appSettings.bHabitsPostponedState)
+                {
+                    //V2 todo - postponed view again with button - resume habits
+                    PageHabits.ShowHabitsPostponedView();
+                }
+                else if (appSettings.IsShutOffTime())
+                {
+                    if (RegistryManager.GetShutOffAbortedTillDate())
+                    {
+                        if (DateTime.Now < appSettings.ShutOFFAbortedTillDate) //Looks like a current  day aborted value
+                        {
+                            PageHabits.ShowShutoffAbortedView();
+                        }
+                    }
+                }
+                else
+                {
+                    PageHabits.ShowMorningRoutineFinishedState();
+                }
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+            {
+                if (appSettings.bHabitsPostponedState)
+                {
+                    EnableAllButtons();
+                    PageHabits.ShowHabitsPostponedView();
+                    return;
+                }
+                else
+                {
+                    CollapseSideBar();
 
-            CollapseSideBar();
+                    DisableAllButtons(LeftButtonType.Habits);
+                }
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            {
+                if (appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
+                {
+                    EnableAllButtons();
+                    PageHabits.ShowHabitsPostponedView();
+                    return;
+                }
+                CheckFocusSummaryToBeShown();
 
-            DisableAllButtons(LeftButtonType.Habits);
+                CollapseSideBar();
+
+                DisableAllButtons(LeftButtonType.Habits);
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF)
+            {
+                ShowShutOffView();
+
+                CollapseSideBar();
+
+                DisableAllButtons(LeftButtonType.Habits);
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+            {
+                PageHabits.ShowMorningRoutineFinishedState();
+            }
+            else
+            {
+                CollapseSideBar();
+
+                DisableAllButtons(LeftButtonType.Habits);
+            }
+            
+        }
+        private void CheckFocusSummaryToBeShown()
+        {
+            //Check if we have already show the Focus Summary,  
+            if (RegistryManager.GetFocusSummaryShownTillDate())
+            {
+                if (DateTime.Now > appSettings.FocusSummaryShownTillDate) //Looks like a previous day Evening shown value
+                {
+                    LogWriter.LogWrite("DateTime.Now > appSettings.FocusSummaryShownTillDate true Focus Summary for some other day");
+                    ShowFocusSummaryView();
+                    return;
+                }
+                else
+                {
+                    LogWriter.LogWrite("DateTime.Now > appSettings.FocusSummaryShownTillDate false - focus summary shown for today procees to evening routine checks(); ");
+                    //Proceed procees to evening routine checks();
+                }
+            }
+            else
+            {
+                ShowFocusSummaryView();
+                return;
+            }
+        }
+
+        private void ShowMicroBreaksView()
+        {
+            RightContent.Content = _views[LeftButtonType.Habits];
         }
 
         private void ShowFocusSessionView()
@@ -737,6 +848,22 @@ namespace Focus_Bear
         {
             RightContent.Content = PageFocusModeEnd;
         }
+
+        public async void ShowFocusSummaryView()
+        {
+            if (appSettings.sActivityAllDaySummaryData.Length == 0)
+            {
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var xResponse = await client.GetActivityAllDaySummary();
+            }
+            PageFocusSummary.InitializeFocusSummaryView();
+            RightContent.Content = PageFocusSummary;
+        }
+
+        public void ShowShutOffView()
+        {
+            RightContent.Content = PageShutOffWindow;
+        }
         public void ShowPomodoroView()
         {
             //Check here if the Breaks window is visible, we will hide it.
@@ -787,30 +914,49 @@ namespace Focus_Bear
         {
             if (IsVisible)
             {
-                this.Width = 900;
-                this.Height = 630;
+                if (!appSettings.bPlayActivitiesInFullScreenMode)
+                {
+                    WindowState = WindowState.Normal;
+                    // this.WindowStyle = WindowStyle.ToolWindow;
+                    Width = 1300;
+                    Height = 750;
 
-                double screenLogicalWidth = SystemParameters.WorkArea.Width;
-                double screenLogicalHeight = SystemParameters.WorkArea.Height;
+                    //  Compute how many logical units the screen can show
+                    double screenLogicalWidth = SystemParameters.WorkArea.Width;
+                    double screenLogicalHeight = SystemParameters.WorkArea.Height;
 
-                LogWriter.LogWrite(string.Format("screenLogicalWidth = {0}, screenLogicalHeight = {1}", screenLogicalWidth.ToString(), screenLogicalHeight.ToString()));
+                    //  “ideal” logical minimum
+                    const double idealMinW = 1300, idealMinH = 750;
 
-                // “ideal” logical minimum
-                const double idealMinW = 900, idealMinH = 630;
+                    // Cap the minimum to what actually fits
+                    MinWidth = Math.Min(idealMinW, screenLogicalWidth);
+                    MinHeight = Math.Min(idealMinH, screenLogicalHeight);
 
-                //Cap the minimum to what actually fits
-                this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
-                this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
+                    // If you want the window to start at that minimum size:
+                    Width = MinWidth;
+                    Height = MinHeight;
 
-                // 
-                this.Width = this.MinWidth;
-                this.Height = this.MinHeight;
 
-                // 6)
-                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
-                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+                    // Center it
+                    Left = Math.Max(0, (screenLogicalWidth - Width) / 2);
+                    Top = Math.Max(0, (screenLogicalHeight - Height) / 2);
+
+
+                    PageHabits.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
+                    PageHabits.TodaysTime.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    PageHabits.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
+                    PageHabits.TodaysTime.Visibility = Visibility.Visible;
+
+                    WindowState = WindowState.Maximized;
+                }
             }
-
+            else
+            {
+                appSettings.RemoveSecondaryWindows();
+            }
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)

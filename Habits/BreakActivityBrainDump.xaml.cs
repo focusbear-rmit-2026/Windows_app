@@ -93,8 +93,8 @@ namespace Focus_Bear.Habits
                 }
             }
 
-            //mj// todo handling may be main app window
-            //mj// _parentWindow.ShowStartBreakActivityScreen();
+            
+            _parentWindow.PageHabits.ShowStartBreakActivityScreen();
 
         }
     }

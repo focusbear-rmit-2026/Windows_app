@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
-          
-                        Background="{DynamicResource BackgroundColor}" IsVisibleChanged="FullScreenParent_IsVisibleChanged">
+        Background="{DynamicResource BackgroundColor}" >
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
@@ -37,7 +36,7 @@
             </ResourceDictionary>
         </Grid.Resources>
          
-        <TextBlock  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xStay Focused...." Foreground="#e88800" FontSize="40" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="" Foreground="#e88800" FontSize="40" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Frame x:Name="AppFrameHabitScreens" Margin="0" NavigationUIVisibility="Hidden"   Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed"  />
         <Frame x:Name="AppFrameLogQuantity" Margin="0" NavigationUIVisibility="Hidden"  Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed" Opacity="0.5" />
 

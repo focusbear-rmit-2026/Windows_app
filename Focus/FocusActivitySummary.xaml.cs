@@ -27,7 +27,7 @@ namespace Focus_Bear.Focus
     /// <summary>
     /// Interaction logic for FocusActivitySummary.xaml
     /// </summary>
-    public partial class FocusActivitySummary : FullScreenParent
+    public partial class FocusActivitySummary : UserControl
     {
 
         AppSettings appSettings = AppSettings.GetInstance;
@@ -71,9 +71,12 @@ namespace Focus_Bear.Focus
         private List<ActivitySummary> ActivityQuantityItems = new List<ActivitySummary>();
         private List<ActivitySummary> ActivityAverageItems = new List<ActivitySummary>();
         private List<ActivitySummary> ActivityDurationItems = new List<ActivitySummary>();
-        public FocusActivitySummary()
+        FocusBearMainWindow ParentWindow = null;
+        public FocusActivitySummary(FocusBearMainWindow _ParentWindow)
         {
             InitializeComponent();
+            
+            ParentWindow = _ParentWindow;
 
             LogWriter.LogWrite("FocusActivitySummary() window Initating");
 
@@ -85,29 +88,24 @@ namespace Focus_Bear.Focus
             {
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
-
+        }
+        public void InitializeFocusSummaryView()
+        {
             try
             {
-                this.Topmost = true;
 
                 if (!appSettings.bPlayActivitiesInFullScreenMode)
                 {
-                    this.WindowState = WindowState.Normal;
-                    this.WindowStyle = WindowStyle.ToolWindow;
-                    this.Width = 1300;
-                    this.Height = 750;
-
                     MainGrid.RowDefinitions[0].Height = new GridLength(100);
                 }
-
-                //Set the minimum so that in non full screen mode we do not go below this.
-                this.MinWidth = 1300;
-                this.MinHeight = 750;
-                this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-
-
                 int nCountFocusBlocks = 0;
                 int nTotalFocusTime = 0;
+
+                //Reinitialize
+                FocusSummaryItems.Clear();
+                ActivityQuantityItems.Clear();
+                ActivityAverageItems.Clear();
+                ActivityDurationItems.Clear();
 
                 //Parse the Activity data got from API
                 if (appSettings.sActivityAllDaySummaryData.Length > 0)
@@ -207,7 +205,13 @@ namespace Focus_Bear.Focus
                 Activity3.Text = appSettings.ConfigFileStrings["focusInfo"]["focusSummaryInfo"]["activityTableColumnFirstText"].ToString();
                 TotalDuration.Text = appSettings.ConfigFileStrings["focusInfo"]["focusSummaryInfo"]["activityTableColumnSixthText"].ToString();
 
-                btnNeedOneMinuteTXT.Text = appSettings.ConfigFileStrings["focusInfo"]["focusSummaryInfo"]["buttonNeedMoreTimeText"].ToString();
+                if (bNeedMoreTime)
+                {
+                    btnNeedOneMinuteTXT.Text = appSettings.ConfigFileStrings["focusInfo"]["focusSummaryInfo"]["buttonStillNeedMoreTimeText"].ToString();
+                }
+                else{
+                    btnNeedOneMinuteTXT.Text = appSettings.ConfigFileStrings["focusInfo"]["focusSummaryInfo"]["buttonNeedMoreTimeText"].ToString();
+                }
 
                 btnContinueTXT.Text = appSettings.ConfigFileStrings["preloadFocusModesViewInfo"]["buttonContinueText"].ToString();
 
@@ -222,14 +226,13 @@ namespace Focus_Bear.Focus
                     GridSummarySimpleMode.Visibility = Visibility.Visible;
 
                     SetSimpleModeTexts();
-                    
+
                 }
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("FocusActivitySummary() + " + ex.Message);
+                LogWriter.LogWrite("FocusActivitySummary() InitializeFocusSummaryView ex + " + ex.Message);
             }
-
         }
         private void SetSimpleModeTexts()
         {
@@ -252,11 +255,11 @@ namespace Focus_Bear.Focus
             TimeSpentBlockingDeactivated.Text = "Time spent with blocking deactivated: " + appSettings.SecondsToTextHMS(appSettings.nTimeSpentBlockingDeactivated);
 
         }
-    public void SimulateNeedOneMinute_Click()
+        public void SimulateNeedOneMinute_Click()
         {
             LogWriter.LogWrite("SimulateNeedOneMinute_Click()");
 
-            if (GridShade.IsVisible)
+            if (ParentWindow.GridShade.IsVisible)
             {
                 LogWriter.LogWrite("GridShade.IsVisible return from SimulateNeedOneMinute_Click()");
                 return;
@@ -275,12 +278,12 @@ namespace Focus_Bear.Focus
                     if (appSettings.bPasswordRequireToSkipEveningAfterCutOff)
                     {
                         AskPassword pwdWnd = new AskPassword();
-                        pwdWnd.Owner = this;
-                        GridShade.Visibility = Visibility.Visible;
+                        pwdWnd.Owner = ParentWindow;
+                        ParentWindow.GridShade.Visibility = Visibility.Visible;
 
                         bool? bResult = pwdWnd.ShowDialog();
 
-                        GridShade.Visibility = Visibility.Collapsed;
+                        ParentWindow.GridShade.Visibility = Visibility.Collapsed;
 
                         if (bResult.Value)
                         {
@@ -299,11 +302,11 @@ namespace Focus_Bear.Focus
             {
                 LogWriter.LogWrite("bNeedMoreTime - show postpone dialog");
 
-                GridShade.Visibility = Visibility.Visible;
+                ParentWindow.GridShade.Visibility = Visibility.Visible;
                 //Show the postpone dialog here
-                PostponeHabits wndPostpone = new PostponeHabits(this);
+                PostponeHabits wndPostpone = new PostponeHabits(ParentWindow);
                 wndPostpone.ShowDialog();
-                GridShade.Visibility = Visibility.Collapsed;
+                ParentWindow.GridShade.Visibility = Visibility.Collapsed;
             }
             else
             {
@@ -318,7 +321,7 @@ namespace Focus_Bear.Focus
                     dispatcherTimer.Interval = new TimeSpan(0, 1, 0); //One minute timer
 #endif
                     dispatcherTimer.Start();
-                    Hide(); //hide self window for 1 minute
+                    ParentWindow.Hide(); //hide self window for 1 minute
                     CommandManager.InvalidateRequerySuggested();
                 }
                 catch (Exception ex)
@@ -340,19 +343,10 @@ namespace Focus_Bear.Focus
                 btnNeedOneMinuteTXT.Text = appSettings.ConfigFileStrings["focusInfo"]["focusSummaryInfo"]["buttonStillNeedMoreTimeText"].ToString();
                 bNeedMoreTime = true;
                 ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
-                Show();
-                appSettings.bFocusSummaryPostponedState = false;
 
-                //If by chance the start pomodoro window is open, we need to close it.
-                /**if (appSettings.isStartPomodoroWindowOpen)
-                {
-                    //Let's close the start pomodoro window 
-                    if (((App)(Application.Current)).wndStartPomodoro != null)
-                    {
-                        ((App)(Application.Current)).wndStartPomodoro.Hide();
-                    }
-                    appSettings.isStartPomodoroWindowOpen = false;
-                }**/ //mj// todo handling
+                ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+                ParentWindow.Show();
+                appSettings.bFocusSummaryPostponedState = false;
 
                 if (appSettings.isFocusModeRunning)
                 {
@@ -381,7 +375,7 @@ namespace Focus_Bear.Focus
              dispatcherTimer.Interval = new TimeSpan(0, nMinutesToPostpone, 0);
 #endif
             appSettings.bFocusSummaryPostponedState = true;
-
+            appSettings.sActivityAllDaySummaryData = ""; //Setting it empty so that API can be fetched again.
             if (appSettings.DidCutOffTimePassed())
             {
                 appSettings.bEveningHabitsPostponedAfterCutoffTime = true;
@@ -389,7 +383,7 @@ namespace Focus_Bear.Focus
 
             dispatcherTimer.Start();
 
-            Hide();
+            ParentWindow.Hide();
             appSettings.RemoveSecondaryWindows();
 
             CommandManager.InvalidateRequerySuggested();
@@ -409,7 +403,7 @@ namespace Focus_Bear.Focus
             }
 
             ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
-            Show();
+            ParentWindow.Show();
             appSettings.bFocusSummaryPostponedState = false;
             appSettings.bEveningHabitsPostponedAfterCutoffTime = false;
         }
@@ -449,12 +443,8 @@ namespace Focus_Bear.Focus
             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Background thread will take care of evening routine
             LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
-            Close();
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            appSettings.RemoveSecondaryWindows();
+            //Fire the habits button to show the required screen
+            ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
         }
 
         private void FullScreenParent_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -472,6 +462,9 @@ namespace Focus_Bear.Focus
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(btnNeedOneMinute);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
+
+                //mj// todo hanle in main window close
+
             }
         }
 
@@ -479,37 +472,14 @@ namespace Focus_Bear.Focus
         {
             if (IsVisible)
             {
-                this.Width = 1300;
-                this.Height = 750;
-                // 1) Grab the DPI scale for this monitor
-                var src = PresentationSource.FromVisual(this);
-                if (src?.CompositionTarget == null) return;
-                var m = src.CompositionTarget.TransformToDevice;
-                double dpiX = m.M11, dpiY = m.M22;
-
-
-                // 2) Compute how many logical units the screen can show
-                //    (SystemParameters.WorkArea is in physical pixels)
-                double screenLogicalWidth = SystemParameters.WorkArea.Width / dpiX;
-                double screenLogicalHeight = SystemParameters.WorkArea.Height / dpiY;
-
-                // 3) Your “ideal” logical minimum
-                const double idealMinW = 1300, idealMinH = 750;
-
-                // 4) set to what actually fits
-                this.Width = Math.Min(idealMinW, screenLogicalWidth);
-                this.Height = Math.Min(idealMinH, screenLogicalHeight);
-                this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
-                this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
-
-                // 6) Center it
-                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
-                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+                if (!appSettings.bIsGeekModeEnabled)
+                    SetSimpleModeTexts();
             }
-
-
-            if (!appSettings.bIsGeekModeEnabled)
-                SetSimpleModeTexts();
+            else
+            {
+                appSettings.RemoveSecondaryWindows();
+            }
+           
         }
     }
 }

@@ -162,7 +162,7 @@ namespace Focus_Bear.Utils
         public string sCurrentDayActivityDataForGraphQuestionsStats;
 
 
-        public string sActivityAllDaySummaryData;
+        public string sActivityAllDaySummaryData = "";
 
         public bool isAppEnable = true;
         public string sDayStartTime;

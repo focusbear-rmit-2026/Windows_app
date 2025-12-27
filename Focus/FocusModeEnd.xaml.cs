@@ -141,7 +141,7 @@ namespace Focus_Bear.Focus
             {
                 appSettings.bForceClosingFocusMode = false; ///Reset
 
-                //Also fire the haibts button to show the required screen
+                //Also fire the habits button to show the required screen
                 ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
 
                 return;

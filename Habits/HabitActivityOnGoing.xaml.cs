@@ -497,7 +497,7 @@ namespace Focus_Bear.Habits
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer -= 1;
+            int val = nTimer -= 20;
 #else
             int val = nTimer--;
 #endif

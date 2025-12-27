@@ -37,6 +37,17 @@ namespace Focus_Bear.Habits
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
+        }
+
+        private void btnResumeHabits_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnResumeHabits);
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
+        }
+
+        private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
             try
             {
                 LogWriter.LogWrite("Habits postponed state View shown");
@@ -47,28 +58,20 @@ namespace Focus_Bear.Habits
                 {
                     sHeading = appSettings.ConfigFileStrings["habitsStateVcInfo"]["morningRoutinePostponedText"].ToString();
                 }
-                else if(appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)//both evening habits and focus summary postponed state
                 {
                     sHeading = appSettings.ConfigFileStrings["habitsStateVcInfo"]["eveningRoutinePostponedText"].ToString();
                 }
-                
+
                 Heading.Text = sHeading;
 
                 btnResumeHabitsText.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();
-               
+
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("Habits postponed state () ex = " + ex.Message);
             }
-
-        }
-
-        private void btnResumeHabits_Click(object sender, RoutedEventArgs e)
-        {
-            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnResumeHabits);
-            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-            invokeProv.Invoke();
         }
     }
 }
