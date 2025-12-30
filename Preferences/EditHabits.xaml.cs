@@ -188,7 +188,6 @@ namespace Focus_Bear.Preferences
         {
             if (e.IsSuccess)
             {
-                Mouse.OverrideCursor = null;
                 LoadSettings();
             }
         }
@@ -218,7 +217,7 @@ namespace Focus_Bear.Preferences
         }
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+             
         }
 
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)

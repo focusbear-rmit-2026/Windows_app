@@ -193,13 +193,21 @@ namespace Focus_Bear.Habits
                 {
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                     LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
-
+                    
                     //simply set the timer for thenext break activity.
                     ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);
+
+                    ((App)(Application.Current)).ShowBreaksSectionInMainWindow();
+
+                    //enable the left buttons
+                    ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
                 }
                 else
                 {
                     ((App)(Application.Current)).PostponeHabitWork(nMinutesToPostpone);
+
+                    //Now we also need to reset the break timer if habits are postponed with actual break after minutes
+                    //((App)(Application.Current)).StartBreakActivityTimer(true, appSettings.breakAfterMinutes);
                 }
             }
             catch (Exception ex)

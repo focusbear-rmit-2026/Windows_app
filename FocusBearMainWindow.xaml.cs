@@ -107,6 +107,8 @@ namespace Focus_Bear
         public ImageSource IconSource { get; set; } 
         public Color Color { get; set; } = Colors.DodgerBlue;
 
+        public bool IsLastItemInLastCategory { get; set; } = false;
+
         private bool _isSelected;
         public bool IsSelected
         {
@@ -146,6 +148,7 @@ namespace Focus_Bear
         Blocking,
         Settings,
         EditHabits,
+        Help
     }
 
 
@@ -184,6 +187,7 @@ namespace Focus_Bear
         public FocusModeEnd PageFocusModeEnd;
         public FocusActivitySummary PageFocusSummary;
         public ShutOffWindow PageShutOffWindow;
+        public HelpTab PageHelp;
         public FocusBearMainWindow()
         {
             InitializeComponent();
@@ -202,9 +206,9 @@ namespace Focus_Bear
                     IsExpanded = true,
                     Items =
                     {
-                        new NavLeaf { Title="Habits", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/play_circle.png")), ButtonType=LeftButtonType.Habits },
-                        new NavLeaf { Title="Start Focus Session", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/start-pomodoro.png")), ButtonType=LeftButtonType.StartFocusSession },
-                        new NavLeaf { Title="Start Micro Break", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/break.png")), ButtonType=LeftButtonType.MicroBreaks }
+                        new NavLeaf { Title = "Habits", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/play_circle.png")), ButtonType = LeftButtonType.Habits },
+                        new NavLeaf { Title = "Start Focus Session", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/start-pomodoro.png")), ButtonType = LeftButtonType.StartFocusSession },
+                        new NavLeaf { Title = "Start Micro Break", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/break.png")), ButtonType = LeftButtonType.MicroBreaks }
                     }
                 },
                 new NavCategory
@@ -213,10 +217,10 @@ namespace Focus_Bear
                     IsExpanded = true,
                     Items =
                     {
-                        new NavLeaf { Title="To Do List", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/validIcon.png")), ButtonType=LeftButtonType.ToDoList },
-                        new NavLeaf { Title="Brain Dump", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/brainDump.png")), ButtonType=LeftButtonType.BrainDump },
-                        new NavLeaf { Title="Focus Music", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/music_albums_fill.png")), ButtonType=LeftButtonType.FocusMusic },
-                        new NavLeaf { Title="Motivation", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/motivation.png")), ButtonType=LeftButtonType.Motivation }
+                        new NavLeaf { Title = "To Do List", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/validIcon.png")), ButtonType = LeftButtonType.ToDoList },
+                        new NavLeaf { Title = "Brain Dump", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/brainDump.png")), ButtonType = LeftButtonType.BrainDump },
+                        new NavLeaf { Title = "Focus Music", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/music_albums_fill.png")), ButtonType = LeftButtonType.FocusMusic },
+                        new NavLeaf { Title = "Motivation", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/motivation.png")), ButtonType = LeftButtonType.Motivation }
                     }
                 },
                 new NavCategory
@@ -225,9 +229,10 @@ namespace Focus_Bear
                     IsExpanded = true,
                     Items =
                     {
-                        new NavLeaf { Title="Blocking", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/blocks.png")), ButtonType=LeftButtonType.Blocking },
-                        new NavLeaf { Title="Settings", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/preferences.png")), ButtonType=LeftButtonType.Settings },
-                        new NavLeaf { Title="Edit Habits", IconSource= new BitmapImage(new Uri("pack://application:,,,/Images/edit.png")), ButtonType=LeftButtonType.EditHabits },
+                        new NavLeaf { Title = "Blocking", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/blocks.png")), ButtonType = LeftButtonType.Blocking },
+                        new NavLeaf { Title = "Settings", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/preferences.png")), ButtonType = LeftButtonType.Settings },
+                        new NavLeaf { Title = "Edit Habits", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/edit.png")), ButtonType = LeftButtonType.EditHabits },
+                        new NavLeaf { Title = "Help & Support", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/help.png")), ButtonType = LeftButtonType.Help, IsLastItemInLastCategory = true },
                     }
                 }
             };
@@ -310,6 +315,7 @@ namespace Focus_Bear
             PageFocusModeEnd = new FocusModeEnd();
             PageFocusSummary = new FocusActivitySummary(this);
             PageShutOffWindow = new ShutOffWindow(this);
+            PageHelp = new HelpTab(this);
 
             _views = new Dictionary<LeftButtonType, UserControl>
             {
@@ -322,8 +328,9 @@ namespace Focus_Bear
                 { LeftButtonType.BrainDump, PageBrainDump },
                 { LeftButtonType.Motivation, PageStats},
                 { LeftButtonType.StartFocusSession, PageSimplePomodoro },
-                { LeftButtonType.EditHabits, PageEditHabits }
-                
+                { LeftButtonType.EditHabits, PageEditHabits },
+                { LeftButtonType.Help, PageHelp }
+
             };
         }
         private void NavLeaf_Click(object sender, RoutedEventArgs e)
@@ -431,13 +438,19 @@ namespace Focus_Bear
                 case LeftButtonType.EditHabits:
                     ShowEditHabitsView();
                     break;
-
+                case LeftButtonType.Help:
+                    ShowHelpView();
+                    break;
                 default:
                     ShowDefaultView(buttonType);
                     break;
             }
 
 
+        }
+        private void ShowHelpView()
+        {
+            RightContent.Content = _views[LeftButtonType.Help];
         }
         private void ShowHabitsView()
         {
@@ -487,6 +500,9 @@ namespace Focus_Bear
                 }
                 else
                 {
+                    //It might have been shown by Resume Habit button 
+                    GridShade.Visibility = Visibility.Collapsed;
+
                     CollapseSideBar();
 
                     DisableAllButtons(LeftButtonType.Habits);
@@ -516,7 +532,14 @@ namespace Focus_Bear
             }
             else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
-                PageHabits.ShowMorningRoutineFinishedState();
+                if (appSettings.bHabitsPostponedState)
+                {
+                    PageHabits.ShowHabitsPostponedView();
+                }
+                else
+                {
+                    PageHabits.ShowMorningRoutineFinishedState();
+                }
             }
             else
             {
@@ -552,7 +575,36 @@ namespace Focus_Bear
 
         private void ShowMicroBreaksView()
         {
-            RightContent.Content = _views[LeftButtonType.Habits];
+            //if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+            //{
+            //    if (appSettings.bHabitsPostponedState)
+            //    {
+            //        PageHabits.ShowMicroBreakStatusView();
+            //        return;
+            //    }
+            //}
+            //else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            //{
+            //    if (appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
+            //    {
+            //        PageHabits.ShowHabitsPostponedView();
+            //        return;
+            //    }
+            //}
+            //else
+            //{
+            //Show breaks screen
+            //}
+            if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+            {
+
+            }
+            else
+            {
+                RightContent.Content = _views[LeftButtonType.Habits];
+                PageHabits.ShowMicroBreakStatusView();
+            }
+
         }
 
         private void ShowFocusSessionView()
@@ -687,7 +739,7 @@ namespace Focus_Bear
                 }
             }
         }
-        private void DisableAllButtons(LeftButtonType ExceptButtonType)
+        public void DisableAllButtons(LeftButtonType ExceptButtonType)
         {
             foreach (NavCategory category in NavigationItems)
             {

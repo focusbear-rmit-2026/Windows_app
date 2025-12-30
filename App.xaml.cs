@@ -800,16 +800,20 @@ namespace Focus_Bear
                     LogWriter.LogWrite("User Postponed set StartBreakActivityTimer() for 5 minutes");
 #if DEBUG
                     dispatcherTimerBreaks.Interval = new TimeSpan(0, 10, 15);
+                    appSettings.NextBreakAt = DateTime.Now.AddMinutes(10); 
 #else
                     dispatcherTimerBreaks.Interval = new TimeSpan(0, nMinutesToPostpone, 0);
+                    appSettings.NextBreakAt = DateTime.Now.AddMinutes(nMinutesToPostpone);
 #endif
                 }
                 else
                 {
 #if DEBUG
                     dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 10);
+                    appSettings.NextBreakAt = DateTime.Now.AddMinutes(1);
 #else
                     dispatcherTimerBreaks.Interval = new TimeSpan(0,  appSettings.breakAfterMinutes, 0);
+                    appSettings.NextBreakAt = DateTime.Now.AddMinutes(appSettings.breakAfterMinutes);
 #endif
                 }
 
@@ -935,11 +939,15 @@ namespace Focus_Bear
                 return;
             }
 
-            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS &&
+                !appSettings.bHabitsPostponedState)
             {
                 LogWriter.LogWrite("MORNING_HABITS - Return from ShowBreakActivities()");
                 return;
             }
+
+            wndFocusBearMainWindow.DisableAllButtons(LeftButtonType.MicroBreaks);//Disable the left buttons when break starts
+            wndFocusBearMainWindow.CollapseSideBar();
 
             appSettings.nCurrentActivityType = CurrentActivityType.BREAK_ACTIVITY;
             LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.BREAK_ACTIVITY;");
@@ -2054,7 +2062,10 @@ namespace Focus_Bear
                         LogWriter.LogWrite("appSettings.IsAppDeactivated() - DO not show morning routine");
                         return;
                     }
-
+                    if(appSettings.bHabitsPostponedState)//Case user postponed morning habit and started break.
+                    {
+                        return;
+                    }
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                     {
                         if(appSettings.bHabitsPostponedState)
@@ -3731,29 +3742,6 @@ namespace Focus_Bear
                 //Simply set the activity type to NONE and the background thread will take care.
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                 LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
-
-                try
-                {
-                    //mj// todo handling may be main app window
-                   /**if (wndHabits != null)
-                    {
-                        wndHabits.Close();
-                        wndHabits = null;
-                        LogWriter.LogWrite("wndHabits closed upon ResumeAfterPostponeFinished()");
-                    }
-
-                    if (wndFocusSummary != null)
-                    {
-                        wndFocusSummary.Close();
-                        wndFocusSummary = null;
-                        LogWriter.LogWrite("wndFocusSummary closed upon ResumeAfterPostponeFinished()");
-                    }**/
-                }
-                catch (Exception ex)
-                {
-                    LogWriter.LogWrite("wndHabits OR wndFocusSummary closed upon ResumeAfterPostponeFinished() ex- " + ex.Message);
-                }
-
             }
             catch (Exception ex)
             {

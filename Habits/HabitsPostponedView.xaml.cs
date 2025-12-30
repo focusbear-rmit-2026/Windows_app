@@ -41,6 +41,9 @@ namespace Focus_Bear.Habits
 
         private void btnResumeHabits_Click(object sender, RoutedEventArgs e)
         {
+            //Show the gridshade as it will take a while for the 5 second timer to get current state again
+            ((App)Application.Current).wndFocusBearMainWindow.GridShade.Visibility = Visibility.Visible;
+
             ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnResumeHabits);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
@@ -53,16 +56,18 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("Habits postponed state View shown");
 
                 string sHeading = "";
-
-                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                if (appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
                 {
-                    sHeading = appSettings.ConfigFileStrings["habitsStateVcInfo"]["morningRoutinePostponedText"].ToString();
+                    if (appSettings.IsShutOffTime())
+                    {
+                        sHeading = appSettings.ConfigFileStrings["habitsStateVcInfo"]["eveningRoutinePostponedText"].ToString();
+                    }
+                    else
+                    {
+                        sHeading = appSettings.ConfigFileStrings["habitsStateVcInfo"]["morningRoutinePostponedText"].ToString();
+                    }
                 }
-                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)//both evening habits and focus summary postponed state
-                {
-                    sHeading = appSettings.ConfigFileStrings["habitsStateVcInfo"]["eveningRoutinePostponedText"].ToString();
-                }
-
+      
                 Heading.Text = sHeading;
 
                 btnResumeHabitsText.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();

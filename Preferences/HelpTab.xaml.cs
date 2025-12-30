@@ -31,15 +31,15 @@ namespace Focus_Bear.Preferences
     /// </summary>
     /// 
    
-    public partial class HelpTab : Page
+    public partial class HelpTab : System.Windows.Controls.UserControl
     {
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
         public HelpTab()
         {
         }
-        public HelpTab(PreferencesWindow pp)
+        public HelpTab(FocusBearMainWindow pp)
         {
             InitializeComponent();
 

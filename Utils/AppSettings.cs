@@ -147,6 +147,7 @@ namespace Focus_Bear.Utils
         public int nMorningRoutineDuration = 0;
         public int nEveningRoutineDuration = 0;
         public int BreaksTimeInterval = 20;
+        public DateTime? NextBreakAt;
 
         public string sUserDetailsInfo; //All user details from API
         public string sUser_id;

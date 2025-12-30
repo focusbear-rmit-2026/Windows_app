@@ -344,8 +344,8 @@ namespace Focus_Bear.Focus
                 bNeedMoreTime = true;
                 ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
 
-                ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
-                ParentWindow.Show();
+                //((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+                //ParentWindow.Show();
                 appSettings.bFocusSummaryPostponedState = false;
 
                 if (appSettings.isFocusModeRunning)
@@ -353,9 +353,8 @@ namespace Focus_Bear.Focus
                     ((App)(Application.Current)).ForceStopFocusSessionOnHabitsTime();
                 }
 
-                //Make the global variable false
-                appSettings.isFocusModeRunning = false;
-                appSettings.bUseSuperPomodoroMode = false;
+                appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Background thread will take care of evening routine
+                LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
             }
             catch (Exception ex)
             {
@@ -386,6 +385,20 @@ namespace Focus_Bear.Focus
             ParentWindow.Hide();
             appSettings.RemoveSecondaryWindows();
 
+            ((App)Application.Current).wndFocusBearMainWindow.EnableAllButtons();//Enable all the left menu buttons
+
+             //V2: we need to show the Start Focus session Section if its Geek mode OR the Resume habits window secion.
+            if (appSettings.bIsGeekModeEnabled)
+            {
+                ((App)Application.Current).ShowPomodoroWindow();
+            }
+            else
+            {
+                //V2 todo - in simple mode, show morning habits view again with button - resume habits
+                ((App)Application.Current).wndFocusBearMainWindow.PageHabits.ShowHabitsPostponedView();
+            }
+
+
             CommandManager.InvalidateRequerySuggested();
         }
 
@@ -406,6 +419,9 @@ namespace Focus_Bear.Focus
             ParentWindow.Show();
             appSettings.bFocusSummaryPostponedState = false;
             appSettings.bEveningHabitsPostponedAfterCutoffTime = false;
+
+            appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Background thread will take care of evening routine
+            LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
         }
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {

@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Preferences.SettingsTab;
+using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,10 @@ namespace Focus_Bear.Habits
         enum ActionState
         {
             NoEveningHabits,
-            AppDeactivated
+            AppDeactivated,
+            BreaksNotEnabled,
+            BreaksNotScheduled,
+
         } 
         ActionState nButtonActionState;
 
@@ -112,6 +116,53 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("No Habits state ShowShutoffAbortedView() ex = " + ex.Message);
             }
         }
+        public void ShowMicroBreakStatusView()
+        {
+            try
+            {
+                if (!appSettings.bAreBreaksEnabled)
+                {
+                    string sHeading = appSettings.ConfigFileStrings["breakStateVcInfo"]["titleEnableBreaks"].ToString();
+                    Heading.Text = sHeading;
+
+                    btnAction.Visibility = Visibility.Visible;
+                    Description.Visibility = Visibility.Collapsed;
+
+                    nButtonActionState = ActionState.BreaksNotEnabled;
+                    btnActionText.Text = appSettings.ConfigFileStrings["breakStateVcInfo"]["buttonEnableBreaks"].ToString();
+                }
+                else if(appSettings.NextBreakAt.HasValue)//break time has been set
+                {
+                    TimeSpan durationUntilBreak = appSettings.NextBreakAt.Value - DateTime.Now;
+
+                    string sHeading = appSettings.ConfigFileStrings["menuInfo"]["nextBreakText"].ToString();
+                    Heading.Text = sHeading.Replace("<DURATION>", durationUntilBreak.ToString(@"hh\:mm\:ss"));
+
+                    btnAction.Visibility = Visibility.Visible;
+                    Description.Visibility = Visibility.Collapsed;
+
+                    nButtonActionState = ActionState.BreaksNotScheduled; //Since action is same Start Break.
+                    btnActionText.Text = appSettings.ConfigFileStrings["breakStateVcInfo"]["buttonStartBreak"].ToString();
+                }
+                else
+                {
+                    LogWriter.LogWrite("NextBreakAt is not set yet.");
+
+                    string sHeading = appSettings.ConfigFileStrings["breakStateVcInfo"]["noBreakScheduledText"].ToString();
+                    Heading.Text = sHeading;
+
+                    btnAction.Visibility = Visibility.Visible;
+                    Description.Visibility = Visibility.Collapsed;
+
+                    nButtonActionState = ActionState.BreaksNotScheduled;
+                    btnActionText.Text = appSettings.ConfigFileStrings["breakStateVcInfo"]["buttonStartBreak"].ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("No Habits state ShowMicroBreakStatusView() ex = " + ex.Message);
+            }
+        }
         private void btnAction_Click(object sender, RoutedEventArgs e)
         {
             if(nButtonActionState == ActionState.NoEveningHabits)
@@ -123,6 +174,15 @@ namespace Focus_Bear.Habits
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnReactivate);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
+            }
+            else if (nButtonActionState == ActionState.BreaksNotEnabled)
+            {
+                appSettings.bAreBreaksEnabled = true;
+            }
+            else if (nButtonActionState == ActionState.BreaksNotScheduled)
+            {
+                //Action to start the break
+                ((App)Application.Current).ShowBreakActivities();
             }
         }
     }

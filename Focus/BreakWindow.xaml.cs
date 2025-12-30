@@ -222,7 +222,10 @@ namespace Focus_Bear.Focus
             dispatcherTimer.Stop();
             if (((App)(Application.Current)).wndFocusBearMainWindow != null )
             {
-                     //CLick the I am done button on the main window
+                //Select the habits tab
+                ((App)(Application.Current)).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+
+                //CLick the I am done button on the main window
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing.btnIAmDone);//V2
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();

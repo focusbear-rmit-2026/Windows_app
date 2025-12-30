@@ -246,7 +246,13 @@ namespace Focus_Bear.Habits
             AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
             btnPleaseSpareMe.Visibility = Visibility.Collapsed;
         }
-
+        public void ShowMicroBreakStatusView()
+        {
+            PageNoHabitsRunningState.ShowMicroBreakStatusView();
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
         public void ShowReducedHabitsMessageOnExpired()
         {
             dispatcherTimerShowReducedHabitsMessage.Tick += new EventHandler(dispatcherTimerShowReducedHabitsMessage_Tick);
@@ -545,7 +551,10 @@ namespace Focus_Bear.Habits
             {
                 LogWriter.LogWrite("LAST BREAK_ACTIVITY Finished");
                 //Set the current activity type to NONE
-               appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+
+                //enable the left buttons
+                ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
 
                 //Start the break Activities Timer
                 ((App)(Application.Current)).StartBreakActivityTimer();

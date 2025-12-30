@@ -107,7 +107,7 @@ namespace Focus_Bear.Preferences
             PageAccountsTab = new AccountTab();
             FrameAccountTab.Navigate(PageAccountsTab);
 
-            PageHelp = new HelpTab(this);
+            PageHelp = new HelpTab();
             FrameHelpTab.Navigate(PageHelp);
 
 
