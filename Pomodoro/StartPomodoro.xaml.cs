@@ -13,6 +13,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -273,8 +275,10 @@ namespace Focus_Bear.Pomodoro
 
         private void btnEditFocusModes_Click(object sender, RoutedEventArgs e)
         {
-            ((App)(Application.Current)).ShowPreferencesWindow();
-            ((App)(Application.Current)).wndPreferences.ShowFocusMode(ComboBoxFocusModes.SelectedItem.ToString());
+            ((App)(Application.Current)).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Blocking);
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndFocusBearMainWindow.PageBlocks.btnBlockLists);
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
         }
 
         private void Minutes_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)

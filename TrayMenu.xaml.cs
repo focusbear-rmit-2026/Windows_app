@@ -1017,9 +1017,9 @@ namespace Focus_Bear
                 ff.ShowDialog();
             }
             appSettings.bIsGeekModeEnabled = true;
-            if(((App)(Application.Current)).wndPreferences != null)
+            if(((App)(Application.Current)).wndFocusBearMainWindow != null)
             {
-                ((App)(Application.Current)).wndPreferences.PageSettings.SetGeekModeStatus();
+                ((App)(Application.Current)).wndFocusBearMainWindow.PageSettings.SetGeekModeStatus();
 
             }
             appSettings.CapturePostHog("switch-to-geek-mode");
@@ -1037,9 +1037,9 @@ namespace Focus_Bear
                 ff1.ShowDialog();
             }
             appSettings.bIsGeekModeEnabled = false;
-            if (((App)(Application.Current)).wndPreferences != null)
+            if (((App)(Application.Current)).wndFocusBearMainWindow != null)
             {
-                ((App)(Application.Current)).wndPreferences.PageSettings.SetGeekModeStatus();
+                ((App)(Application.Current)).wndFocusBearMainWindow.PageSettings.SetGeekModeStatus();
 
             }
             appSettings.CapturePostHog("switch-to-simple-mode");
@@ -1063,7 +1063,7 @@ namespace Focus_Bear
         private void btnLimitedBlockingEdit_Click(object sender, RoutedEventArgs e)
         {
             ((App)(Application.Current)).ShowPreferencesWindow();
-            ((App)(Application.Current)).wndPreferences.ShowBlocksTab();
+            ((App)(Application.Current)).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Blocking);
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)

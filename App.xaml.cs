@@ -933,7 +933,14 @@ namespace Focus_Bear
                 wndNaturalBreakDetectionWindow.Hide(); 
             }
 
-            if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF || appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF  )
+            {
+                LogWriter.LogWrite("SHUT_OFF or EVENING_HABITS - Return from ShowBreakActivities()");
+                return;
+            }
+
+            if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS &&
+                (!appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState ))
             {
                 LogWriter.LogWrite("SHUT_OFF or EVENING_HABITS - Return from ShowBreakActivities()");
                 return;
@@ -1057,6 +1064,8 @@ namespace Focus_Bear
                  wndHabits.Show();
                  wndHabits.Activate();
                  wndHabits.Focus();**/
+                wndFocusBearMainWindow.GridShade.Visibility = Visibility.Collapsed; //May be this was shown from the start break button on no habit status screen
+
                 ShowBlankWindowOnOtherScreens();
                 wndFocusBearMainWindow.PageHabits.InitializeInnerScreens(); //V2 most important to load all screens as required.
 
@@ -1931,8 +1940,6 @@ namespace Focus_Bear
                                                 msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                                                 msg.ShowDialog();
 
-                                                //mj// todo handling may be main app window
-                                                //mj// wndHabits.Show();
                                                 ShowHabitsSectionInMainWindow(); //V2
 
                                                 appSettings.bSkipCurrentActivityCantDoItToday = true;
@@ -1994,8 +2001,6 @@ namespace Focus_Bear
                                                         msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                                                         msg.ShowDialog();
 
-                                                        //mj// todo handling may be main app window
-                                                        //mj//wndHabits.Show();
                                                         ShowHabitsSectionInMainWindow(); //V2
                                                         appSettings.bSkipCurrentActivityCantDoItToday = true;
                                                         LogWriter.LogWrite("appSettings.bSkipCurrentActivityCantDoItToday = true; - After cutoff time of individual habit - " + appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name);
@@ -2656,35 +2661,15 @@ namespace Focus_Bear
             try
             {
                 LogWriter.LogWrite("ShowMorningRoutine - Now show the HabitWindow");
-
-                //mj// todo handling may be main app window
-                 
+                                 
                 ShowBlankWindowOnOtherScreens();
 
                 wndFocusBearMainWindow.PageHabits.InitializeInnerScreens(); //V2 most important to load all screens as required.
 
                 if (!appSettings.bHabitwithAllowedAppsRunning) //Only show window when habit with allowed app is not running..
                 {
-                    wndFocusBearMainWindow.Show();
-                    Focus_Bear.Utils.WindowHelper.EnsureWindowVisible(wndFocusBearMainWindow); // Make sure the window is visible    
-                    wndFocusBearMainWindow.Activate();
-                    wndFocusBearMainWindow.Focus();
-                     
                     ShowHabitsSectionInMainWindow(); //V2
                 }
-
-
-                //If by chance the start pomodoro window is open, we need to close it.
-                /**if(appSettings.isStartPomodoroWindowOpen)
-                {
-                    //Let's close the start pomodoro window 
-                    if (((App)(Application.Current)).wndStartPomodoro != null)
-                    {
-                        ((App)(Application.Current)).wndStartPomodoro.Hide();
-                    }
-                    appSettings.isStartPomodoroWindowOpen = false;
-                }**/ //mj// todo handling
-
 
                 if (appSettings.isFocusModeRunning)
                 {
@@ -3331,11 +3316,6 @@ namespace Focus_Bear
 
                 if (!appSettings.bHabitwithAllowedAppsRunning) //Only show window when habit with allowed app is not running..
                 {
-                    wndFocusBearMainWindow.Show();
-                    Focus_Bear.Utils.WindowHelper.EnsureWindowVisible(wndFocusBearMainWindow); // Make sure the window is visible    
-                    wndFocusBearMainWindow.Activate();
-                    wndFocusBearMainWindow.Focus();
-
                     ShowHabitsSectionInMainWindow(); //V2
                 }
 
@@ -3414,8 +3394,30 @@ namespace Focus_Bear
             IntPtr hWnd = helper.Handle;
 
             ShowWindow(hWnd,SW_SHOW);
-            // Restore window if minimized
-            ShowWindow(hWnd, SW_RESTORE);
+
+            if(((appSettings.nCurrentActivityType ==  CurrentActivityType.MORNING_HABITS ||
+                appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
+                appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF 
+                ) &&
+                !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState
+                && appSettings.bPlayActivitiesInFullScreenMode) ||
+                (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY && appSettings.bPlayActivitiesInFullScreenMode))
+            {
+                
+                wndFocusBearMainWindow.SetMinimizeButtonEnabled(false);
+                wndFocusBearMainWindow.SetMaximizeButtonEnabled(false);
+                wndFocusBearMainWindow.WindowStyle = WindowStyle.None;
+                wndFocusBearMainWindow.WindowState = WindowState.Maximized;
+            }
+            else
+            {
+                wndFocusBearMainWindow.WindowStyle = WindowStyle.SingleBorderWindow;
+                wndFocusBearMainWindow.SetMinimizeButtonEnabled(true);
+                wndFocusBearMainWindow.SetMaximizeButtonEnabled(true);
+                // Restore window if minimized
+                ShowWindow(hWnd, SW_RESTORE);
+            }
+            
 
             // Bring to foreground
             SetForegroundWindow(hWnd);
@@ -3809,23 +3811,11 @@ namespace Focus_Bear
             LogWriter.LogWrite("ShowFocusSummaryWindow()");
             try
             {
+                wndFocusBearMainWindow.GridShade.Visibility = Visibility.Collapsed;//caution break window's initiated
+
                 ShowBlankWindowOnOtherScreens();
 
-                wndFocusBearMainWindow.Show();
-                Focus_Bear.Utils.WindowHelper.EnsureWindowVisible(wndFocusBearMainWindow); // Make sure the window is visible    
-                wndFocusBearMainWindow.Activate();
-                wndFocusBearMainWindow.Focus();
-
-                //////
-
-                if (appSettings.isFocusModeRunning)
-                {
-                    ForceStopFocusSessionOnHabitsTime();
-                }
-                else
-                {
-                    ShowHabitsSectionInMainWindow(); //V2
-                }
+                ShowHabitsSectionInMainWindow();
             }
             catch (Exception ex)
             {
@@ -3948,11 +3938,11 @@ namespace Focus_Bear
                 }
                 // We dispose of the control so the internal WebView objects are released
                 // and the associated browser process exits.
-                if (wndPreferences != null)
+                if (wndFocusBearMainWindow != null)
                 {
-                    if (wndPreferences.PageEditHabits != null)
+                    if (wndFocusBearMainWindow.PageEditHabits != null)
                     {
-                        wndPreferences.PageEditHabits.webView.Dispose();
+                        wndFocusBearMainWindow.PageEditHabits.webView.Dispose();
                     }
                 }
                 LogWriter.LogWrite("Application_Exit() 2");

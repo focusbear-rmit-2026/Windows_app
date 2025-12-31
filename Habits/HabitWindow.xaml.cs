@@ -81,12 +81,6 @@ namespace Focus_Bear.Habits
 
             if (!appSettings.bPlayActivitiesInFullScreenMode)
             {
-                //mj// todo handling may be main app window
-                /**
-                this.WindowState = WindowState.Normal;
-                this.WindowStyle = WindowStyle.ToolWindow;
-                this.Width = 1300;
-                this.Height = 750;**/
                 btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
             }
             else
@@ -94,10 +88,6 @@ namespace Focus_Bear.Habits
                 btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
             }
             btnPleaseSpareMe.Visibility = Visibility.Visible;
-            //Set the minimum so that in non full screen mode we do not go below this.
-            /**this.MinWidth = 1300;
-            this.MinHeight = 750;
-            **/ //mj// todo handling may be main app window
 
             TodaysTime.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
 
@@ -116,25 +106,14 @@ namespace Focus_Bear.Habits
             dispatcherTimerSkippingIn.Tick += new EventHandler(dispatcherTimerSkippingIn_Tick);
             dispatcherTimerSkippingIn.Interval = new TimeSpan(0, 0, 1);
 
-            if (nScreenHabitActivityFinished == null)
+            if (nScreenHabitActivityFinished != null) //Will create afresh
             {
-                nScreenHabitActivityFinished = new HabitActivityFinished(ParentWindow);
-                //brought from onContentRendered
-                //try
-                //{
-                //    if (nScreenHabitActivityFinished != null)
-                //    {
-                //        await nScreenHabitActivityFinished.SetWebView();
-                //        if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
-                //            await nScreenHabitActivityFinished.SetWebView1();
-
-                //    }
-                //}
-                //catch (Exception exception)
-                //{
-                //    Console.WriteLine(exception.Message);
-                //}
+                nScreenHabitActivityFinished.webView.Dispose();
+                nScreenHabitActivityFinished.webView1.Dispose();
+                nScreenHabitActivityFinished = null;
             }
+            
+            nScreenHabitActivityFinished = new HabitActivityFinished(ParentWindow);
 
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
@@ -556,8 +535,10 @@ namespace Focus_Bear.Habits
                 //enable the left buttons
                 ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
 
+                ((App)(Application.Current)).BringMainWindowToFront(); //Just to resize again
+
                 //Start the break Activities Timer
-                ((App)(Application.Current)).StartBreakActivityTimer();
+               ((App)(Application.Current)).StartBreakActivityTimer();
             }
             else if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {

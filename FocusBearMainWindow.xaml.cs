@@ -151,8 +151,23 @@ namespace Focus_Bear
         Help
     }
 
+    public class WidthToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is double width)
+            {
+                return width < 50 ? Visibility.Collapsed : Visibility.Visible;
+            }
+            return Visibility.Visible;
+        }
 
-    public partial class FocusBearMainWindow : Window
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public partial class FocusBearMainWindow : FullScreenParent
     {
         private const int GWL_STYLE = -16;
         private const int WS_MINIMIZEBOX = 0x00020000;
@@ -242,19 +257,19 @@ namespace Focus_Bear
             LeftTree.PreviewMouseLeftButtonDown += TreeView_PreviewMouseLeftButtonDown;
         }
 
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
+        //protected override void OnSourceInitialized(EventArgs e)
+        //{
+        //    base.OnSourceInitialized(e);
 
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            ((App)Application.Current).UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+        //    var source = (HwndSource)PresentationSource.FromVisual(this);
+        //    ((App)Application.Current).UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
 
-            var hwnd = new WindowInteropHelper(this).Handle;
-            int currentStyle = GetWindowLong(hwnd, GWL_STYLE);
+        //    var hwnd = new WindowInteropHelper(this).Handle;
+        //    int currentStyle = GetWindowLong(hwnd, GWL_STYLE);
 
-            // Disable minimize button by removing WS_MINIMIZEBOX
-            SetWindowLong(hwnd, GWL_STYLE, currentStyle & ~WS_MINIMIZEBOX);
-        }
+        //    // Disable minimize button by removing WS_MINIMIZEBOX
+        //    SetWindowLong(hwnd, GWL_STYLE, currentStyle & ~WS_MINIMIZEBOX);
+        //}
         private void TreeView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
         
@@ -455,6 +470,7 @@ namespace Focus_Bear
         private void ShowHabitsView()
         {
             LogWriter.LogWrite("Showing Habits View");
+            ((App)Application.Current).BringMainWindowToFront();//just to ensure the Full screen
 
             if (_views.ContainsKey(LeftButtonType.Habits))
             {
@@ -910,6 +926,11 @@ namespace Focus_Bear
             }
             PageFocusSummary.InitializeFocusSummaryView();
             RightContent.Content = PageFocusSummary;
+
+            if (appSettings.isFocusModeRunning)
+            {
+                ((App)Application.Current).ForceStopFocusSessionOnHabitsTime();
+            }
         }
 
         public void ShowShutOffView()
@@ -1002,7 +1023,7 @@ namespace Focus_Bear
                     PageHabits.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
                     PageHabits.TodaysTime.Visibility = Visibility.Visible;
 
-                    WindowState = WindowState.Maximized;
+                    //WindowState = WindowState.Maximized;
                 }
             }
             else

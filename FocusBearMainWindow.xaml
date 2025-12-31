@@ -1,4 +1,4 @@
-﻿<Window x:Class="Focus_Bear.FocusBearMainWindow"
+﻿<habits:FullScreenParent  xmlns:habits="clr-namespace:Focus_Bear.Habits" x:Class="Focus_Bear.FocusBearMainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,6 +7,9 @@
         mc:Ignorable="d"
         Title="Focus Bear" MinHeight="630" MinWidth="900"
         AutomationProperties.AutomationId="FocusBearMainWindow" IsVisibleChanged="Window_IsVisibleChanged" Closing="Window_Closing" Topmost="True">
+    <Window.Resources>
+        <local:WidthToVisibilityConverter x:Key="WidthToVisibilityConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -54,7 +57,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- TreeView with Categories and Values -->
-                    <TreeView x:Name="LeftTree" Grid.Row="0" SelectedItemChanged="LeftTree_SelectedItemChanged_1" BorderThickness="0" BorderBrush="#CCCCCC">
+                    <TreeView x:Name="LeftTree" Grid.Row="0" SelectedItemChanged="LeftTree_SelectedItemChanged_1" BorderThickness="0" BorderBrush="#CCCCCC" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
 
                         <!-- Custom TreeViewItem style with working expander -->
                         <TreeView.ItemContainerStyle>
@@ -242,7 +245,10 @@
                                 <!-- Category Header -->
                                 <StackPanel Orientation="Horizontal" Margin="15,0,0,0" Height="40">
                                         <!-- Category Name -->
-                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ForegroundColor}"   VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ForegroundColor}"   VerticalAlignment="Center" Visibility="{Binding ActualWidth, 
+                                                                                                               RelativeSource={RelativeSource AncestorType={x:Type TreeView}},
+                                                                                                               Converter={StaticResource WidthToVisibilityConverter},
+                                                                                                               ConverterParameter=50}"/>
                                 </StackPanel>
 
                                 <!-- Template for child items (Values) -->
@@ -364,4 +370,4 @@
 
     </Grid>
 
-</Window>
+</habits:FullScreenParent>

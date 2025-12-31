@@ -401,5 +401,14 @@ namespace Focus_Bear.Preferences
                 RightContent.Content = _views[item.ButtonType]; // Swap existing view
             }
         }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(!IsVisible)
+            {
+                //save the local settings and upload to server
+                LocalSettingsManager.PutLocalSettings();
+            }
+        }
     }
 }

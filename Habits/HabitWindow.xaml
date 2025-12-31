@@ -163,7 +163,7 @@
                 <RowDefinition Height="60"/>
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <Button  Grid.Row="0" x:Name="btnGridWhyDoYouWantToSkipClose" AutomationProperties.AutomationId="btnWhyDoYouWantToSkipClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="34" VerticalAlignment="Top" Width="34" ToolTip="Close" Click="btnGridWhyDoYouWantToSkipClose_Click" Grid.Column="1" Cursor="Hand"/>
+            <Button  Grid.Row="0" x:Name="btnGridWhyDoYouWantToSkipClose" AutomationProperties.AutomationId="btnWhyDoYouWantToSkipClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="34" VerticalAlignment="Top" Width="34" ToolTip="Close" Click="btnGridWhyDoYouWantToSkipClose_Click"   Cursor="Hand"/>
 
             <TextBlock  Grid.Row="1" Name="HeadingWhySkip" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxWhy do you want to skip?" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
             

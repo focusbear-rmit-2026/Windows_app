@@ -73,7 +73,7 @@ namespace Focus_Bear.Preferences
         private void btnLogout_Click(object sender, RoutedEventArgs e)
         {
             FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["accountVcInfo"]["logoutAlertText"].ToString(), "Focus Bear", MessageBoxButton.YesNo);
-            ff.Owner = ((App)(Application.Current)).wndPreferences;
+            ff.Owner = ((App)(Application.Current)).wndFocusBearMainWindow;
             ff.ShowDialog();
             if(ff.btnClicked == MessageBoxResult.Yes)
             {
@@ -229,7 +229,7 @@ namespace Focus_Bear.Preferences
                     //"linkSentDescription": "We've sent a password reset link to your email. Please check your inbox.",
                     
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["accountVcInfo"]["linkSentDescription"].ToString(), appSettings.ConfigFileStrings["accountVcInfo"]["linkSentTitle"].ToString());
-                    ff.Owner = ((App)(Application.Current)).wndPreferences;
+                    ff.Owner = ((App)(Application.Current)).wndFocusBearMainWindow;
                     ff.ShowDialog();
                 }
                 else
@@ -237,14 +237,14 @@ namespace Focus_Bear.Preferences
                     //"linkSendFailedTitle": "Unable to Send Reset Email",
                     //"linkSendFailedDescription": "Something went wrong while sending the reset link. Please check your internet connection and try again."
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["accountVcInfo"]["linkSendFailedDescription"].ToString(), appSettings.ConfigFileStrings["accountVcInfo"]["linkSendFailedTitle"].ToString());
-                    ff.Owner = ((App)(Application.Current)).wndPreferences;
+                    ff.Owner = ((App)(Application.Current)).wndFocusBearMainWindow;
                     ff.ShowDialog();
                 }
             }
             else
             {
                 FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["title"].ToString(), "Focus Bear", MessageBoxButton.YesNo, appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["buttonResendEmailText"].ToString(), appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString());
-                ff.Owner = ((App)(Application.Current)).wndPreferences;
+                ff.Owner = ((App)(Application.Current)).wndFocusBearMainWindow;
                 ff.ShowDialog();
                 if (ff.btnClicked == MessageBoxResult.Yes)
                 {
@@ -259,7 +259,7 @@ namespace Focus_Bear.Preferences
                     if (y == 1)
                     {
                         FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["descriptionEmailSent"].ToString(), appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["titleEmailSent"].ToString());
-                        msg.Owner = ((App)(Application.Current)).wndPreferences;
+                        msg.Owner = ((App)(Application.Current)).wndFocusBearMainWindow;
                         msg.ShowDialog();
                     }
                     else
@@ -267,7 +267,7 @@ namespace Focus_Bear.Preferences
                         //"linkSendFailedTitle": "Unable to Send Reset Email",
                         //"linkSendFailedDescription": "Something went wrong while sending the reset link. Please check your internet connection and try again."
                         FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["descriptionEmailFailed"].ToString(), appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["titleEmailFailed"].ToString());
-                        msg.Owner = ((App)(Application.Current)).wndPreferences;
+                        msg.Owner = ((App)(Application.Current)).wndFocusBearMainWindow;
                         msg.ShowDialog();
                     }
                 }

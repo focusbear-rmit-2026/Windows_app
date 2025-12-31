@@ -348,12 +348,17 @@ namespace Focus_Bear.Focus
                 //ParentWindow.Show();
                 appSettings.bFocusSummaryPostponedState = false;
 
-                if (appSettings.isFocusModeRunning)
-                {
-                    ((App)(Application.Current)).ForceStopFocusSessionOnHabitsTime();
-                }
+                //if (appSettings.isFocusModeRunning)
+                //{
+                //    ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+                //    ((App)(Application.Current)).ForceStopFocusSessionOnHabitsTime();
+                //}
+                //else
+                //{
+                    appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Background thread will take care of evening routine
+                //}
 
-                appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Background thread will take care of evening routine
+                
                 LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
             }
             catch (Exception ex)

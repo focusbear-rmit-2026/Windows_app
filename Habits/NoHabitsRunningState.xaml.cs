@@ -181,6 +181,8 @@ namespace Focus_Bear.Habits
             }
             else if (nButtonActionState == ActionState.BreaksNotScheduled)
             {
+                //Show a loader till the break activities are prepared. it will be removed before starting breaks
+                ((App)Application.Current).wndFocusBearMainWindow.GridShade.Visibility = Visibility.Visible;
                 //Action to start the break
                 ((App)Application.Current).ShowBreakActivities();
             }
