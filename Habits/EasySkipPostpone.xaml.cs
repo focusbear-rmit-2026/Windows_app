@@ -153,8 +153,12 @@ namespace Focus_Bear.Habits
                     var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
                 }
 
-                appSettings.nCurrentActivityType = CurrentActivityType.NONE; //We will set this a none and rest will be taken care of
-                LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+                //We will restart the app here
+                LogWriter.LogWrite("easyskippostpone Restart app now for DEACTIVATE to take Effect!");
+
+                appSettings.bRestartAppNeeded = true;
+                appSettings.bRestartAppNeededAfterDeactivating = true;
+                Application.Current.Shutdown(0);
 
                 Close();
             }
@@ -176,19 +180,6 @@ namespace Focus_Bear.Habits
 
                 LogWriter.LogWrite("nMinutesToPostpone - " + nMinutesToPostpone.ToString());
 
-                //Since we are making a new object everytime, we can kill the previous one and dispose the webview objects
-                //mj// todo handling may be main app window
-                /** if (((App)(Application.Current)).wndHabits != null)
-                 {
-                     if (((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing != null)
-                     {
-                         ((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.webView.Dispose();
-                     }
-
-                     ((App)(Application.Current)).wndHabits.Close();
-                     ((App)(Application.Current)).wndHabits = null;
-                     LogWriter.LogWrite("wndHabits closed upon BREAK_ACTIVITY Postponed");
-                 }**/
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) // FOr Breaks we will simply cancel the current routine.
                 {
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;

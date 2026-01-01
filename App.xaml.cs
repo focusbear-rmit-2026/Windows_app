@@ -3390,6 +3390,8 @@ namespace Focus_Bear
 
         public void BringMainWindowToFront()
         {
+            wndFocusBearMainWindow.Show(); 
+
             WindowInteropHelper helper = new WindowInteropHelper(wndFocusBearMainWindow);
             IntPtr hWnd = helper.Handle;
 
@@ -3403,19 +3405,21 @@ namespace Focus_Bear
                 && appSettings.bPlayActivitiesInFullScreenMode) ||
                 (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY && appSettings.bPlayActivitiesInFullScreenMode))
             {
-                
-                wndFocusBearMainWindow.SetMinimizeButtonEnabled(false);
-                wndFocusBearMainWindow.SetMaximizeButtonEnabled(false);
                 wndFocusBearMainWindow.WindowStyle = WindowStyle.None;
                 wndFocusBearMainWindow.WindowState = WindowState.Maximized;
+
+                wndFocusBearMainWindow.SetMinimizeButtonEnabled(false);
+                wndFocusBearMainWindow.SetMaximizeButtonEnabled(false);
             }
             else
             {
                 wndFocusBearMainWindow.WindowStyle = WindowStyle.SingleBorderWindow;
-                wndFocusBearMainWindow.SetMinimizeButtonEnabled(true);
-                wndFocusBearMainWindow.SetMaximizeButtonEnabled(true);
                 // Restore window if minimized
                 ShowWindow(hWnd, SW_RESTORE);
+
+                wndFocusBearMainWindow.SetMinimizeButtonEnabled(true);
+                wndFocusBearMainWindow.SetMaximizeButtonEnabled(true);
+                
             }
             
 
@@ -3588,7 +3592,10 @@ namespace Focus_Bear
                     dispatcherTimerPostponeHabits.Start();
 
                     appSettings.bHabitsPostponedState = true;
+                    appSettings.bHabitwithAllowedAppsRunning = false; //Reset
+                    appSettings.bHabitwithUseFocusModeRunning = false;
 
+                    
                     wndFocusBearMainWindow.EnableAllButtons();//Enable all the left menu buttons
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)

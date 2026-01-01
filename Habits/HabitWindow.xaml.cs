@@ -77,7 +77,7 @@ namespace Focus_Bear.Habits
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
-            LogWriter.LogWrite("HabitWindow()");
+            LogWriter.LogWrite("HabitWindow() - InitializeInnerScreens()");
 
             if (!appSettings.bPlayActivitiesInFullScreenMode)
             {
@@ -1232,9 +1232,6 @@ namespace Focus_Bear.Habits
                 PageHabitActivityOnGoing.HandleTimerForPostpone(true); //Stop the timer
             }
             LogWriter.LogWrite("Habit Window btnPleaseSpareMe_Click Clicked - Hide() now");
-            //mj// Hide(); //mj// todo handling may be main app window check waht to do
-
-            //mj//appSettings.RemoveSecondaryWindows();
             
             //Show the Easy Postpone 
             ((App)(Application.Current)).ShowEasyPostponeWindow();
@@ -1248,15 +1245,6 @@ namespace Focus_Bear.Habits
                 PageHabitActivityOnGoing.HandleTimerForPostpone(false); //start the timer
             }
         }
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            //mj// todo handling
-            /**
-            //If its shutoff window already shown then do not remove secondary monitor windows
-            if(appSettings.nCurrentActivityType != CurrentActivityType.SHUT_OFF)
-                appSettings.RemoveSecondaryWindows();///*/
-        }
-
         public void ShowWhySkipHabitsWindow()
         {
             LogWriter.LogWrite("ShowWhySkipHabitsWindow()");
@@ -1397,7 +1385,7 @@ namespace Focus_Bear.Habits
         
         private void dispatcherTimerShowDateTime_Tick(object sender, EventArgs e)
         {
-            if (appSettings.bPlayActivitiesInFullScreenMode)
+            if (appSettings.bPlayActivitiesInFullScreenMode && !appSettings.bHabitsPostponedState && appSettings.nCurrentActivityType != CurrentActivityType.NONE)
             {
                 TodaysTime.Visibility = Visibility.Visible;
             }
@@ -1610,36 +1598,6 @@ namespace Focus_Bear.Habits
                 return true;
             }
             return false;
-        }
-
-        private async void FullScreenParent_Loaded(object sender, RoutedEventArgs e)
-        {
-            //Compute how many logical units the screen can show
-            double screenLogicalWidth = SystemParameters.WorkArea.Width;
-            double screenLogicalHeight = SystemParameters.WorkArea.Height;
-
-            LogWriter.LogWrite(string.Format("screenLogicalWidth = {0}, screenLogicalHeight = {1}", screenLogicalWidth.ToString(), screenLogicalHeight.ToString()));
-            // “ideal” logical minimum
-            const double idealMinW = 1300, idealMinH = 750;
-
-            //Cap the minimum to what actually fits
-            ParentWindow.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
-            ParentWindow.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
-
-            // If you want the window to start at that minimum size:
-            ParentWindow.Width = this.MinWidth;
-            ParentWindow.Height = this.MinHeight;
-
-            //Center it
-            ParentWindow.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
-            ParentWindow.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
-
-
-           
-
-            //mj// todo handling maybe take to main app window now when habits view is visible.
-             
-            
         }
 
     }

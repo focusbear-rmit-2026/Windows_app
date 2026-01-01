@@ -591,29 +591,11 @@ namespace Focus_Bear
 
         private void ShowMicroBreaksView()
         {
-            //if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-            //{
-            //    if (appSettings.bHabitsPostponedState)
-            //    {
-            //        PageHabits.ShowMicroBreakStatusView();
-            //        return;
-            //    }
-            //}
-            //else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-            //{
-            //    if (appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
-            //    {
-            //        PageHabits.ShowHabitsPostponedView();
-            //        return;
-            //    }
-            //}
-            //else
-            //{
-            //Show breaks screen
-            //}
+            LogWriter.LogWrite("ShowMicroBreaksView()");
+            
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
-
+                RightContent.Content = _views[LeftButtonType.Habits];
             }
             else
             {
@@ -702,13 +684,47 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("Showing Settings View");
             
-            Show();
+            GridShade.Visibility = Visibility.Collapsed;
 
             if (_views.ContainsKey(LeftButtonType.Settings))
             {
                 RightContent.Content = _views[LeftButtonType.Settings];
             }
-            
+
+            if (appSettings.isPasswordSet)
+            {
+                if (appSettings.bPasswordRequireInChangeSettings)
+                {
+                    AskPassword pwdWnd = new AskPassword();
+                    pwdWnd.Owner = this;
+                    GridShade.Visibility = Visibility.Visible;
+
+                    bool? bResult = pwdWnd.ShowDialog();
+
+                    GridShade.Visibility = Visibility.Collapsed;
+                   
+                    if (bResult.Value)
+                    {
+                        //Password is correct
+                    }
+                    else
+                    {
+                        //Jump to Help tab
+                        // Fire function after 1 second without blocking
+                        Task.Delay(100).ContinueWith(t =>
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                // This runs after 1 second on a thread pool thread
+                                HandleLeafSelection(LeftButtonType.Help);
+                            });
+                            
+                        });
+                       
+                    }
+                }
+            }
+
         }
 
         private void ShowEditHabitsView()
@@ -990,7 +1006,7 @@ namespace Focus_Bear
                 if (!appSettings.bPlayActivitiesInFullScreenMode)
                 {
                     WindowState = WindowState.Normal;
-                    // this.WindowStyle = WindowStyle.ToolWindow;
+
                     Width = 1300;
                     Height = 750;
 
@@ -1016,14 +1032,12 @@ namespace Focus_Bear
 
 
                     PageHabits.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
-                    PageHabits.TodaysTime.Visibility = Visibility.Collapsed;
+                    //PageHabits.TodaysTime.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
                     PageHabits.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
-                    PageHabits.TodaysTime.Visibility = Visibility.Visible;
-
-                    //WindowState = WindowState.Maximized;
+                    //PageHabits.TodaysTime.Visibility = Visibility.Visible;
                 }
             }
             else

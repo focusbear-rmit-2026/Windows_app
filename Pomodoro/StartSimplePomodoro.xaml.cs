@@ -288,12 +288,9 @@ namespace Focus_Bear.Pomodoro
                 if (appSettings.arrFocusModes[i].name == sFocusModeToStart)
                 {
                     int TotalMinutes = int.Parse(Minutes.Text);
-                    int nHours = TotalMinutes / 60;
-                    int nMinutes = TotalMinutes % 60;
 
                     //used when user starts another focus block
-                    appSettings.sRunningFocusModeHours = nHours.ToString();
-                    appSettings.sRunningFocusModeMinutes = nMinutes.ToString();
+                    appSettings.sRunningFocusModeMinutes = TotalMinutes.ToString();
 
                     appSettings.sMinutesBreakPomodoro = MinutesBreak.Text;
                     appSettings.sMinutesSuperPomodoro = Minutes.Text;
@@ -316,25 +313,13 @@ namespace Focus_Bear.Pomodoro
                             ((App)Application.Current).wndBrainDump.ShowBrainDumpWindowAndStartTimer();
                         }
 
-                        //Show and Set on untill value
-                        ////((App)(Application.Current)).wndTrayMenu.OnUntill.Visibility = Visibility.Visible;
-                        //Increase hearder height
-                        ///((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 45; //Originally 25
-
-                        ///if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                        {
-                           /// ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 70;
-                        }
-
                         DateTime dTill = DateTime.Now;
 
                         appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
 
-                        dTill = dTill.AddHours(nHours);
-                        dTill = dTill.AddMinutes(nMinutes);
+                        dTill = dTill.AddMinutes(TotalMinutes);
                         string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
                         sTill = sTill.Replace("<TIME>", dTill.ToString());
-                        //((App)(Application.Current)).wndTrayMenu.OnUntill.Content = sTill;
 
                         appSettings.sRunningFocusModeID = appSettings.arrFocusModes[i].id;
                         appSettings.sRunningFocusModeName = appSettings.arrFocusModes[i].name;
@@ -349,7 +334,7 @@ namespace Focus_Bear.Pomodoro
                         appSettings.TemporaryAllowedKeywords.Clear();
                         appSettings.TemporaryAllowedURLsTabTitles.Clear();
                         //Start the Focus Mode Timer to end after x hours / minutes
-                        ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes);
+                        ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(0, TotalMinutes);
 
                         FocusBearAPIClient client = new FocusBearAPIClient();
                         var xResponse = client.StartFocusMode(appSettings.arrFocusModes[i].id);
@@ -365,19 +350,6 @@ namespace Focus_Bear.Pomodoro
         {
 
         }
-
-        //mj// todo
-        //private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        //{
-        //    e.Cancel = true;
-
-        //    //Close the popup
-        //    MyPopup.IsOpen = false;
-        //    RegistryManager.SetSimplePomodoroTourShownStatus();
-
-        //    Hide();
-        //    appSettings.isStartPomodoroWindowOpen = false;
-        //}
 
         private void RadioAI_Checked(object sender, RoutedEventArgs e)
         {
