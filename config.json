@@ -593,7 +593,7 @@
         "privacyAdvanceAanalytics": "Data is only stored on your computer and not sent to our servers."
     },
     "focusPreferencesInfo": {
-        "titleFocusType": "Use Focus Modes to stay focused on a certain type of work. Start a focus mode from the Focus Bear menu.",
+        "titleFocusType": "Use Block Lists to stay focused on a certain type of work.Start a focus session from the focus bear menu or use a blocking schedule.",
         "titleAllowedAllApps": "Allow all apps",
         "titleAllowedSelectedApps": "Allow selected apps",
         "titleAllowedAllUrls": "Allow all urls",

@@ -602,7 +602,7 @@
         "privacyAdvanceAanalytics": "Los datos sólo se almacenan en tu computador y no se envían a nuestros servidores."
     },
     "focusPreferencesInfo": {
-        "titleFocusType": "Utiliza los Modos de Enfoque para concentrarte en un determinado tipo de trabajo. Inicia un modo de enfoque desde el menú de Focus Bear.",
+        "titleFocusType": "Utiliza las Listas de Bloqueos para concentrarte en un determinado tipo de trabajo. Inicia un modo de enfoque desde el menú de Focus Bear o utiliza un Horario de Bloqueo.",
         "titleAllowedAllApps": "Permitir todas las aplicaciones",
         "titleAllowedSelectedApps": "Permitir aplicaciones seleccionadas",
         "titleAllowedAllUrls": "Permitir todas las URL",
