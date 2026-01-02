@@ -120,7 +120,7 @@ namespace Focus_Bear.FocusMusic
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["allTracksVcInfo"]["title"].ToString();
-                Volume.Text = appSettings.ConfigFileStrings["allTracksVcInfo"]["titleVolumeText"].ToString();
+                Volume.Text = appSettings.ConfigFileStrings["allTracksVcInfo"]["titleVolumeText"].ToString();   
             }
             catch (Exception ex)
             {

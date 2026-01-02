@@ -1505,7 +1505,8 @@
     },
     "allTracksVcInfo": {
         "title": "Here are some focus music tracks (some are binaural beats) you can use to help you focus. FYI the research is ambivalent about binaural beats - you'll likely get similar benefits from using your own music. Just make sure the music doesn't have lyrics otherwise you'll get distracted.",
-        "titleVolumeText": "Volume:"
+        "titleVolumeText": "Volume:",
+        "downloadButtonText": "Download"
     },
     "setUpVcInfo": {
         "title": "Setup",

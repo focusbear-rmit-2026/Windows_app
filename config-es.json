@@ -1505,7 +1505,8 @@
     },
     "allTracksVcInfo": {
         "title": "Aquí hay algunas pistas de música de enfoque (algunas son ritmos binaurales) que puedes usar para ayudarte a concentrarte. Para tu información, la investigación es ambivalente sobre los ritmos binaurales - es probable que obtengas beneficios similares al usar tu propia música. Solo asegúrate que la música no tenga letra, de lo contrario te distraerás.",
-        "titleVolumeText": "Volumen:"
+        "titleVolumeText": "Volumen:",
+        "downloadButtonText": "Descargar"
     },
     "setUpVcInfo": {
         "title": "Configuración",
