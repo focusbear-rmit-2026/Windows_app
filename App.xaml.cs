@@ -833,6 +833,11 @@ namespace Focus_Bear
 
             dispatcherTimerBreaks.Stop(); //Tick Once only
 
+            if(appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+            {
+                LogWriter.LogWrite("dispatcherTimer_Breaks()  CurrentActivityType.BREAK_ACTIVITY - manual break already runing, return");
+                return;
+            }
             try
             {
                 //Preferred approach is to detect keyboard / mouse activity and wait for 5 seconds of idle time.
@@ -862,14 +867,14 @@ namespace Focus_Bear
                     return;
                 }
                 //We should also check if the morning routine has not been show, should return from here - case found from logs of #256
-                if (RegistryManager.GetMorningHabitsShownTillDate())
+                /**if (RegistryManager.GetMorningHabitsShownTillDate())
                 {
                     if (appSettings.MorningHabitsShownTillDate < DateTime.Now)
                     {
                         LogWriter.LogWrite("MorningHabits Not Shown for this Date - Return from dispatcherTimer_Breaks()");
                         return;
                     }
-                }
+                }**/
 
 
                 if (appSettings.bSkipMicroBreaksDuringFocus && (appSettings.isFocusModeRunning || appSettings.bUseSuperPomodoroMode))
@@ -884,7 +889,7 @@ namespace Focus_Bear
                 {
                     if (!appSettings.ActiveSchedule.bMicroBreaksEnabled)
                     {
-                        LogWriter.LogWrite("appSettings.ActiveSchedule.bMicroBreaksEnabled is false - return");
+                        LogWriter.LogWrite("appSettings.ActiveSchedule.bMicroBreaksEnabled is false - return reset timer");
                         //Start the break Activities Timer
                         StartBreakActivityTimer();
                         return;
@@ -3400,13 +3405,14 @@ namespace Focus_Bear
             if(((appSettings.nCurrentActivityType ==  CurrentActivityType.MORNING_HABITS ||
                 appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
                 appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF 
-                ) &&
-                !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState
-                && appSettings.bPlayActivitiesInFullScreenMode) ||
-                (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY && appSettings.bPlayActivitiesInFullScreenMode))
+                ) && !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState) ||
+                (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY ))
             {
-                wndFocusBearMainWindow.WindowStyle = WindowStyle.None;
-                wndFocusBearMainWindow.WindowState = WindowState.Maximized;
+                if (appSettings.bPlayActivitiesInFullScreenMode) //Dsiable all in full screen
+                {
+                    wndFocusBearMainWindow.WindowStyle = WindowStyle.None;
+                    wndFocusBearMainWindow.WindowState = WindowState.Maximized;
+                }
 
                 wndFocusBearMainWindow.SetMinimizeButtonEnabled(false);
                 wndFocusBearMainWindow.SetMaximizeButtonEnabled(false);
@@ -3791,8 +3797,19 @@ namespace Focus_Bear
                     }
                     else 
                     {
-                        //Show habits view it it was elsewhere
-                        wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+                        if(appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                        {
+                            //Show habits view it it was elsewhere
+                            if (!wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.MicroBreaks))
+                                wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.MicroBreaks);
+                        }
+                        else
+                        {
+                            //Show habits view it it was elsewhere
+                            if (!wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.Habits))
+                                wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+                        }
+                        
                         wndFocusBearMainWindow.PageHabits.SimulatePleaseSpareMeClick();
                     }
                     

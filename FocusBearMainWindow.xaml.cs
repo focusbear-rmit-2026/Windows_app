@@ -406,6 +406,16 @@ namespace Focus_Bear
                 }
             }
         }
+
+        public bool IsLeafSelected(LeftButtonType buttonType)
+        {
+            if (LeftTree.SelectedItem is NavLeaf selectedLeaf)
+            {
+                return selectedLeaf.ButtonType == buttonType;
+            }
+            return false;
+        }
+
         private void HandleContentForButtonType(LeftButtonType buttonType)
         {
             switch (buttonType)
@@ -767,7 +777,11 @@ namespace Focus_Bear
             {
                 foreach (NavLeaf leaf in category.Items)
                 {
-                    leaf.IsEnabled = false;
+                   if(leaf.ButtonType != LeftButtonType.Help) //Help is always active
+                   {
+                        leaf.IsEnabled = false;
+                   }
+                        
                 }
             }
         }
@@ -779,7 +793,10 @@ namespace Focus_Bear
                 {
                     if (leaf.ButtonType != ExceptButtonType)
                     {
-                        leaf.IsEnabled = false;
+                        if (leaf.ButtonType != LeftButtonType.Help) //Help is always active
+                        {
+                            leaf.IsEnabled = false;
+                        }
                     }
                 }
             }
@@ -1059,8 +1076,20 @@ namespace Focus_Bear
                 e.Cancel = true;
                 // Closed some other way - like close button clicked.
 
-                // fire Please spare me button to postpone
-                ((App)(Application.Current)).SimulatePleaseSpareMe();
+                //Jump to Help tab
+                // Fire function after 1 second without blocking
+                Task.Delay(100).ContinueWith(t =>
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        // This runs after 1 second on a thread pool thread
+                        // fire Please spare me button to postpone
+                        ((App)(Application.Current)).SimulatePleaseSpareMe();
+                    });
+
+                });
+
+                
             } 
         }
     }

@@ -255,7 +255,16 @@ namespace Focus_Bear.Focus
                     appSettings.bStartingAnotherFocusMode = false;
                     bUserClickedContinue = false;
 
-                    btnContinueText.Text = appSettings.ConfigFileStrings["common"]["buttonContinueText"].ToString();
+                    //if a break is running and focus session ends, the button should be Continue Break
+                    if(appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                    {
+                        btnContinueText.Text = "Continue Break";//appSettings.ConfigFileStrings["focusCompletedInfo"]["buttonContinueMicroBreak"].ToString();
+                    }
+                    else
+                    {
+                        btnContinueText.Text = appSettings.ConfigFileStrings["common"]["buttonContinueText"].ToString();
+                    }
+                    
                     Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["title"].ToString();
 
                     string sDescription = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["subTitle"].ToString();
@@ -347,8 +356,24 @@ namespace Focus_Bear.Focus
                     if (appSettings.bForceClosingFocusMode)//Only show continue
                     {
                         btnContinue.Visibility = Visibility.Visible;
+
                         btnTakeBreak.Visibility = Visibility.Collapsed;
                         btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        //if a break is running and focus session ends, the button should be Continue Break
+                        if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                        {
+                            btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
+                            btnTakeBreak.Visibility = Visibility.Collapsed;
+                            btnContinue.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            btnTakeBreak.Visibility = Visibility.Visible;
+                            btnContinue.Visibility = Visibility.Collapsed;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -408,7 +433,16 @@ namespace Focus_Bear.Focus
         {
             bUserClickedContinue = true;
             bDoNotShowBreak = true;
-            appSettings.bUseSuperPomodoroMode = false; //Force stop the super focus session
+
+            if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+            {
+                //go to micro breaks screen
+                ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.MicroBreaks);
+            }
+            else
+            {
+                appSettings.bUseSuperPomodoroMode = false; //Force stop the super focus session
+            }
 
             Take5MinsBreak();
         }

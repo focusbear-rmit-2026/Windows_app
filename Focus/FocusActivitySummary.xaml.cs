@@ -462,7 +462,7 @@ namespace Focus_Bear.Focus
             RegistryManager.SetFocusSummaryShownTillDate();
 
             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Background thread will take care of evening routine
-            LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+            LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
             //Fire the habits button to show the required screen
             ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);

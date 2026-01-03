@@ -1017,16 +1017,7 @@ namespace Focus_Bear.Habits
         public void SimulatePleaseSpareMeClick()
         {
             LogWriter.LogWrite("Habit Window SimulatePleaseSpareMeClick()");
-            /**if (!this.IsVisible || ParentWindow.GridShade.IsVisible) //Either the window is not visible means its postponsed or the grid share is visible mean either log window or the skip confirm window is there..so return from here
-            {
-                LogWriter.LogWrite("Habit Window Not visible or GridShade.IsVisible, return ");
-                return;
-            }**/ //mj// todo handling
-            if(!btnPleaseSpareMe.IsVisible)
-            {
-                LogWriter.LogWrite("btnPleaseSpareMe Not visible, return");
-                return;
-            }
+
             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnPleaseSpareMe);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();

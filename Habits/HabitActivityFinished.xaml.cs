@@ -1604,6 +1604,12 @@ namespace Focus_Bear.Habits
                     _parentWindow.PageHabits.ShowActivityStartScreen();
                 }
             }
+            else
+            {
+                //edge Case when few habits are done on windows and then rest are finished on the mobile, the action button on last habit does not do anything.
+                //take to home screen
+                ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+            }
 
             LogWriter.LogWrite("HabitIndex now = " + appSettings.nHabitIndex.ToString());
         }
