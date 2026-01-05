@@ -24,9 +24,9 @@ namespace Focus_Bear.Preferences
     public partial class PomodoroTab : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        PreferencesWindow ParentWindow;
+        FocusBearMainWindow ParentWindow;
 
-        public PomodoroTab(PreferencesWindow _parentWindow)
+        public PomodoroTab(FocusBearMainWindow _parentWindow)
         {
             InitializeComponent();
             ParentWindow = _parentWindow;

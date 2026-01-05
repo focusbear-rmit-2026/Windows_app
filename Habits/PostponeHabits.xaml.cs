@@ -22,13 +22,15 @@ namespace Focus_Bear.Habits
     public partial class PostponeHabits : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        FocusActivitySummary _parentWindow = null;
+        FocusBearMainWindow _parentWindow = null;
         public PostponeHabits()
         {
         }
-            public PostponeHabits(FocusActivitySummary parentWindow)
+        public PostponeHabits(FocusBearMainWindow parentWindow)
         {
             InitializeComponent();
+
+            LogWriter.LogWrite("Focus summary postpone PostponeHabits() shown");
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
@@ -78,7 +80,7 @@ namespace Focus_Bear.Habits
 
                 LogWriter.LogWrite("Postpone for - " + nMinutesToPostpone.ToString());
 
-                _parentWindow.PostponeFocusSummary(nMinutesToPostpone);
+                _parentWindow.PageFocusSummary.PostponeFocusSummary(nMinutesToPostpone);
                 Close();
             }
             catch (Exception ex)

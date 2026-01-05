@@ -28,7 +28,7 @@ namespace Focus_Bear.Preferences
         public AdvancedTab()
         {
         }
-        public AdvancedTab(PreferencesWindow _parentWindow)
+        public AdvancedTab(FocusBearMainWindow _parentWindow)
         {
             InitializeComponent();
 

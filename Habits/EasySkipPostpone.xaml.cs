@@ -55,14 +55,20 @@ namespace Focus_Bear.Habits
                 ChangeTheme("Dark");
             }
         }
-       
 
         public EasySkipPostpone()
         {
+        }
+        public EasySkipPostpone(FocusBearMainWindow _ParentWindow)
+        {
             InitializeComponent();
-            
+
             LogWriter.LogWrite("EasySkipPostpone() Window Shown");
 
+            this.Owner = _ParentWindow;
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+            
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
                 this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
@@ -71,12 +77,6 @@ namespace Focus_Bear.Habits
             {
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
-
-
-            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-            this.Left = (desktopWorkingArea.Right - this.Width);
-            this.Top = (desktopWorkingArea.Top + 25);
-            this.Topmost = true;
 
             try
             {
@@ -153,8 +153,12 @@ namespace Focus_Bear.Habits
                     var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
                 }
 
-                appSettings.nCurrentActivityType = CurrentActivityType.NONE; //We will set this a none and rest will be taken care of
-                LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+                //We will restart the app here
+                LogWriter.LogWrite("easyskippostpone Restart app now for DEACTIVATE to take Effect!");
+
+                appSettings.bRestartAppNeeded = true;
+                appSettings.bRestartAppNeededAfterDeactivating = true;
+                Application.Current.Shutdown(0);
 
                 Close();
             }
@@ -176,30 +180,25 @@ namespace Focus_Bear.Habits
 
                 LogWriter.LogWrite("nMinutesToPostpone - " + nMinutesToPostpone.ToString());
 
-                //Since we are making a new object everytime, we can kill the previous one and dispose the webview objects
-                if (((App)(Application.Current)).wndHabits != null)
-                {
-                    if (((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing != null)
-                    {
-                        ((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.webView.Dispose();
-                    }
-
-                    ((App)(Application.Current)).wndHabits.Close();
-                    ((App)(Application.Current)).wndHabits = null;
-                    LogWriter.LogWrite("wndHabits closed upon BREAK_ACTIVITY Postponed");
-                }
-
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) // FOr Breaks we will simply cancel the current routine.
                 {
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                     LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
-
+                    
                     //simply set the timer for thenext break activity.
                     ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);
+
+                    ((App)(Application.Current)).ShowBreaksSectionInMainWindow();
+
+                    //enable the left buttons
+                    ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
                 }
                 else
                 {
                     ((App)(Application.Current)).PostponeHabitWork(nMinutesToPostpone);
+
+                    //Now we also need to reset the break timer if habits are postponed with actual break after minutes
+                    //((App)(Application.Current)).StartBreakActivityTimer(true, appSettings.breakAfterMinutes);
                 }
             }
             catch (Exception ex)

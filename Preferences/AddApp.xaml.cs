@@ -45,7 +45,7 @@ namespace Focus_Bear.Preferences
 
             LoadTexts();
         }
-        public AddApp(PreferencesWindow ParentWindow, FocusMode sFocusMode)
+        public AddApp(FocusBearMainWindow ParentWindow, FocusMode sFocusMode)
         {
             InitializeComponent();
 

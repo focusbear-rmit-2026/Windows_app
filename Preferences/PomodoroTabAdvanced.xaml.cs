@@ -22,14 +22,14 @@ namespace Focus_Bear.Preferences
     /// </summary>
     public partial class PomodoroTabAdvanced : Window
     {
-        PreferencesWindow ParentWindow;
+        FocusBearMainWindow ParentWindow;
         AppSettings appSettings = AppSettings.GetInstance;
         public PomodoroTabAdvanced()
         {
             
         }
 
-        public PomodoroTabAdvanced(PreferencesWindow _parentWindow)
+        public PomodoroTabAdvanced(FocusBearMainWindow _parentWindow)
         {
             InitializeComponent();
             ParentWindow = _parentWindow;

@@ -45,6 +45,10 @@
     <BitmapImage x:Key="Password" UriSource="../Images/Settings/password_black.png" />  <!-- //intentionally black -->
     <BitmapImage x:Key="FocusModeDark" UriSource="../Images/eye.png" />     <!-- //intentionally black -->
 
+    <!-- Main Window Icon -->
+    <BitmapImage x:Key="SidebarButton" UriSource="../Images/MainAppWindow/sidebar_white.png" />
+    <BitmapImage x:Key="FocusBearLogoMain" UriSource="../Images/fb_white.png" />
+
     <!-- Tooltip Base colors -->
     <Color x:Key="TooltipBackgroundColor">#2B2B2B</Color>
     <Color x:Key="TooltipForegroundColor">#F1F1F1</Color>

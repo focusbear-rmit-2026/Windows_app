@@ -23,7 +23,7 @@ namespace Focus_Bear.Habits
     public partial class AnalyzeSleepMoodWindow : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        public AnalyzeSleepMoodWindow(HabitWindow parentWindow)
+        public AnalyzeSleepMoodWindow(FocusBearMainWindow parentWindow)
         {
             InitializeComponent();
 

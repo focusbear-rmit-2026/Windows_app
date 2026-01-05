@@ -66,26 +66,26 @@
             </Grid>
 
         </Border>
-        <StackPanel Grid.Row="4" Orientation="Vertical"  >
-            <Button   x:Name="btnPausePlay" AutomationProperties.AutomationId="btnPausePlay"  Style="{StaticResource BtnStylePlay}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="40" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnPausePlay_Click" >
-            <Button.Effect>
-                <DropShadowEffect ShadowDepth="3"
-                          Direction="320"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="8"
-                           />
-            </Button.Effect>
-            <Button.Content>
-                <StackPanel  Orientation="Horizontal">
+        <StackPanel Grid.Row="4" Orientation="Vertical" VerticalAlignment="Top">
+            <Button   x:Name="btnPausePlay" AutomationProperties.AutomationId="btnPausePlay"  Style="{StaticResource BtnStylePlay}" IsEnabled="True" Foreground="#e88800"  Height="40" Width="40" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnPausePlay_Click" >
+                <Button.Effect>
+                    <DropShadowEffect ShadowDepth="3"
+                              Direction="320"
+                              Color="Gray"
+                              Opacity="0.5"
+                              BlurRadius="8"
+                               />
+                </Button.Effect>
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
                         <Image Name="pause" Height="24"  Width="24" Source="../Images/pause_icon.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Collapsed"/>
                         <Image Name="play" Height="24"  Width="24" Source="../Images/play_icon.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Collapsed"/>
-                </StackPanel>
-            </Button.Content>
-        </Button>
-            <TextBlock x:Name="SkipThisHabitText" AutomationProperties.AutomationId="txtSkipThisHabit" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand" Visibility="Collapsed">
-             <Hyperlink x:Name="btnSkipThisHabit"  Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
-        </TextBlock>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <TextBlock x:Name="SkipThisHabitText" AutomationProperties.AutomationId="txtSkipThisHabit" Margin="0,2,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand" Visibility="Collapsed">
+                <Hyperlink x:Name="btnSkipThisHabit"  Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
+            </TextBlock>
         </StackPanel>
     </Grid>
 </Page>

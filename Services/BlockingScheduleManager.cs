@@ -151,8 +151,11 @@ namespace Focus_Bear.Services
                                     if (item.ContainsKey("metadata"))
                                     {
                                         string sMetadata = item.GetValue("metadata").ToString();
-                                        JObject metadata = JObject.Parse(sMetadata);
-                                        isMicroBreaksEnabled = metadata.ContainsKey("is_micro_breaks_enabled") ? Convert.ToBoolean(metadata.GetValue("is_micro_breaks_enabled")) : false;
+                                        if (sMetadata.Length > 0)
+                                        {
+                                            JObject metadata = JObject.Parse(sMetadata);
+                                            isMicroBreaksEnabled = metadata.ContainsKey("is_micro_breaks_enabled") ? Convert.ToBoolean(metadata.GetValue("is_micro_breaks_enabled")) : false;
+                                        }
                                     }
 
                                     appSettings.arrCustomBlockingSchedules.Add(new CustomBlockingSchedule(id, name, false, startTime, endTime, daysOfWeek, focusModeId, FMS, isAiBlockingEnabled, isMicroBreaksEnabled)); 

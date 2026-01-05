@@ -23,12 +23,12 @@ namespace Focus_Bear.Habits
     public partial class BreakActivityBrainDump : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        private HabitWindow _parentWindow;
+        private FocusBearMainWindow _parentWindow;
         public BreakActivityBrainDump()
         {
 
         }
-        public BreakActivityBrainDump(HabitWindow parentWindow) : this()
+        public BreakActivityBrainDump(FocusBearMainWindow parentWindow) : this()
         {
             InitializeComponent();
 
@@ -93,7 +93,8 @@ namespace Focus_Bear.Habits
                 }
             }
 
-            _parentWindow.ShowStartBreakActivityScreen();
+            
+            _parentWindow.PageHabits.ShowStartBreakActivityScreen();
 
         }
     }

@@ -147,6 +147,7 @@ namespace Focus_Bear.Utils
         public int nMorningRoutineDuration = 0;
         public int nEveningRoutineDuration = 0;
         public int BreaksTimeInterval = 20;
+        public DateTime? NextBreakAt;
 
         public string sUserDetailsInfo; //All user details from API
         public string sUser_id;
@@ -162,7 +163,7 @@ namespace Focus_Bear.Utils
         public string sCurrentDayActivityDataForGraphQuestionsStats;
 
 
-        public string sActivityAllDaySummaryData;
+        public string sActivityAllDaySummaryData = "";
 
         public bool isAppEnable = true;
         public string sDayStartTime;
@@ -282,9 +283,11 @@ namespace Focus_Bear.Utils
         public string sRawFocusModeTemplates = "";
 
         //Super Pomodoro Related
+        public bool bForceClosingFocusMode = false;
         public bool isStartPomodoroWindowOpen = false;
 
         public bool bUseSuperPomodoroMode = false;
+        public bool bEnterSuperPomodoroModeAfterMorningRoutine = false;
 
         public string sMinutesSuperPomodoro = "";
         public string sMinutesBreakPomodoro = "";

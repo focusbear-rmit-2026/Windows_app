@@ -80,27 +80,13 @@ namespace Focus_Bear.FocusMusic
     }
 
 
-    public partial class FocusMusicView : Window
+    public partial class FocusMusicView : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
 
         private MediaPlayer _player = new MediaPlayer();
         private DispatcherTimer _playbackTimer;
         private FocusMusicTrack _currentTrack;
-
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-
-            if (appSettings.sTheme == "Light")
-            {
-                ChangeTheme("Light");
-            }
-            else
-            {
-                ChangeTheme("Dark");
-            }
-        }
 
         public FocusMusicView()
         {
@@ -364,10 +350,10 @@ namespace Focus_Bear.FocusMusic
             }
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            e.Cancel = true;
-            Hide();
-        }
+        //private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        //{
+        //    e.Cancel = true;
+        //    Hide();
+        //}
     }
 }

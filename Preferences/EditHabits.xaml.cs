@@ -28,15 +28,14 @@ namespace Focus_Bear.Preferences
     /// <summary>
     /// Interaction logic for EditHabits.xaml
     /// </summary>
-    public partial class EditHabits : Page
+    public partial class EditHabits : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        PreferencesWindow _ParentWindow = null;
-       
+        FocusBearMainWindow _ParentWindow = null;
         public EditHabits()
         {
         }
-        public EditHabits(PreferencesWindow pp)
+        public EditHabits(FocusBearMainWindow pp)
         {
             InitializeComponent();
             _ParentWindow = pp;
@@ -46,7 +45,6 @@ namespace Focus_Bear.Preferences
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
             App.ThemeChanged += LoadURL;
         }
-
 
         private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
@@ -190,7 +188,6 @@ namespace Focus_Bear.Preferences
         {
             if (e.IsSuccess)
             {
-                Mouse.OverrideCursor = null;
                 LoadSettings();
             }
         }
@@ -220,7 +217,7 @@ namespace Focus_Bear.Preferences
         }
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+             
         }
 
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)

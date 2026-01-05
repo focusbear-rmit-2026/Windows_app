@@ -34,13 +34,13 @@ namespace Focus_Bear.Preferences
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
 
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
         SolidColorBrush BackgroundColor = null;
 
         public FocusPage()
         {
         }
-        public FocusPage(PreferencesWindow pp)
+        public FocusPage(FocusBearMainWindow pp)
         {
             InitializeComponent();
 

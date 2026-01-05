@@ -92,22 +92,22 @@ namespace Focus_Bear.Preferences
                 Debug.WriteLine("PreferencesWindow() texts EX=" + ex.Message);
             }
 
-            PageSettings = new Settings(this);
+            PageSettings = new Settings();
             FrameSettings.Navigate(PageSettings);
 
-            PageEditHabits = new EditHabits(this);
+            PageEditHabits = new EditHabits();
             FrameEditHabits.Navigate(PageEditHabits);
 
-            PageFocusModes = new FocusPage(this);
+            PageFocusModes = new FocusPage();
             FrameFocus.Navigate(PageFocusModes);
 
-            PageBlocks = new BlocksTab(this);
+            PageBlocks = new BlocksTab();
             FrameBlocks.Navigate(PageBlocks);
 
             PageAccountsTab = new AccountTab();
             FrameAccountTab.Navigate(PageAccountsTab);
 
-            PageHelp = new HelpTab(this);
+            PageHelp = new HelpTab();
             FrameHelpTab.Navigate(PageHelp);
 
 

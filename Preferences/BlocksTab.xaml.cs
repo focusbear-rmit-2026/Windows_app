@@ -25,16 +25,16 @@ namespace Focus_Bear.Preferences
     /// <summary>
     /// Interaction logic for BlocksTab.xaml
     /// </summary>
-    public partial class BlocksTab : Page
+    public partial class BlocksTab : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
         FocusPage PageFocusModes = null;
         bool bBlockingScheduleDetailsPageVisible = false;
         public BlocksTab()
         {
         }
-        public BlocksTab(PreferencesWindow ParentWindow)
+        public BlocksTab(FocusBearMainWindow ParentWindow)
         {
             _ParentWindow = ParentWindow;
 

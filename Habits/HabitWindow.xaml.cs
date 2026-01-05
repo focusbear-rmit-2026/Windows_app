@@ -24,13 +24,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using TextBox = System.Windows.Controls.TextBox;
 
 namespace Focus_Bear.Habits
 {
     /// <summary>
     /// Interaction logic for HabitWindow.xaml
     /// </summary>
-    public partial class HabitWindow : FullScreenParent
+    public partial class HabitWindow : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         private HabitActivityFinished nScreenHabitActivityFinished = null;
@@ -39,6 +41,9 @@ namespace Focus_Bear.Habits
         public HabitActivityOnGoing PageHabitActivityOnGoing = null;
         public HabitsWelcomeList PageWelcomeList = null;
         public HabitExtraPersonal PageHabitExtraPersonal;
+
+        HabitsPostponedView PageHabitsPostponedView = new HabitsPostponedView();
+        NoHabitsRunningState PageNoHabitsRunningState = new NoHabitsRunningState();
 
         int nTimer = 5;
        
@@ -50,29 +55,20 @@ namespace Focus_Bear.Habits
         
         DispatcherTimer dispatcherTimerShowReducedHabitsMessage = new DispatcherTimer(DispatcherPriority.Normal);
 
-        protected override async void OnContentRendered(EventArgs e)
-        {
-            base.OnContentRendered(e);
-            try
-            {
-                if (nScreenHabitActivityFinished != null)
-                {
-                    await nScreenHabitActivityFinished.SetWebView();
-                    await nScreenHabitActivityFinished.SetWebView1();
-                
-                }
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-            }
-        }
-
+        FocusBearMainWindow ParentWindow = null;
         public HabitWindow()
         {
+        }
+        public HabitWindow(FocusBearMainWindow _ParentWindow)
+        {
             InitializeComponent();
-            
-            if(appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+
+            ParentWindow = _ParentWindow;
+
+        }
+        public async void InitializeInnerScreens()
+        {
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
                 this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
             }
@@ -80,28 +76,20 @@ namespace Focus_Bear.Habits
             {
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
-            
-            LogWriter.LogWrite("HabitWindow()");
 
-            if(!appSettings.bPlayActivitiesInFullScreenMode)
+            LogWriter.LogWrite("HabitWindow() - InitializeInnerScreens()");
+
+            if (!appSettings.bPlayActivitiesInFullScreenMode)
             {
-                this.WindowState = WindowState.Normal;
-                this.WindowStyle = WindowStyle.ToolWindow;
-                this.Width = 1300;
-                this.Height = 750;
                 btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
             }
             else
             {
                 btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
             }
+            btnPleaseSpareMe.Visibility = Visibility.Visible;
 
-            //Set the minimum so that in non full screen mode we do not go below this.
-            this.MinWidth = 1300;
-            this.MinHeight = 750;
-            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-
-            Time.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
+            TodaysTime.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
 
             dispatcherTimerShowDateTime.Tick += new EventHandler(dispatcherTimerShowDateTime_Tick);
             dispatcherTimerShowDateTime.Interval = new TimeSpan(0, 0, 1);
@@ -109,7 +97,7 @@ namespace Focus_Bear.Habits
 
 
             Heading.Text = "";
-  
+
             //Show the Please Spare Me Button
             btnPleaseSpareMe.Visibility = Visibility.Visible;
 
@@ -118,16 +106,20 @@ namespace Focus_Bear.Habits
             dispatcherTimerSkippingIn.Tick += new EventHandler(dispatcherTimerSkippingIn_Tick);
             dispatcherTimerSkippingIn.Interval = new TimeSpan(0, 0, 1);
 
-            if (nScreenHabitActivityFinished == null)
+            if (nScreenHabitActivityFinished != null) //Will create afresh
             {
-                nScreenHabitActivityFinished = new HabitActivityFinished(this);
+                nScreenHabitActivityFinished.webView.Dispose();
+                nScreenHabitActivityFinished.webView1.Dispose();
+                nScreenHabitActivityFinished = null;
             }
+            
+            nScreenHabitActivityFinished = new HabitActivityFinished(ParentWindow);
 
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
                 //We need to hide the Please SPare Me Button
                 LogWriter.LogWrite("AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(this));");
-                AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(this));
+                AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(ParentWindow));
 
 
                 if (appSettings.isExpired)
@@ -144,21 +136,21 @@ namespace Focus_Bear.Habits
 
                 //If the last activity was postponed after geting started, we must resume that
                 string sPostponedActivityId = RegistryManager.GetCurrentActivityPostponedID();
-                if(sPostponedActivityId != null && sPostponedActivityId.Length > 0)
+                if (sPostponedActivityId != null && sPostponedActivityId.Length > 0)
                 {
-                    if(appSettings.bShowActivitiesFromMid)
+                    if (appSettings.bShowActivitiesFromMid)
                     {
                         //Increment the habit index to show the correct activity ongoing which was postponed
                         appSettings.nHabitIndex++;
                         LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
                     }
                     string sActivityID = (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) ? appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id : ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) ? appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id : "");
-                    if(sPostponedActivityId == sActivityID)
+                    if (sPostponedActivityId == sActivityID)
                     {
-                       
+
                         //Maybe the last aqctivity was a skipped activity but now we are starting a postponed activity..so adjust the vailable
                         appSettings.bShowActivitiesFromMidLastSkipped = false;
-                        appSettings.bShowActivitiesFromMid= false;
+                        appSettings.bShowActivitiesFromMid = false;
                         //
                         //Means it was the same activity that was postponed after starting
                         ShowActivityStartScreen(true);
@@ -171,7 +163,7 @@ namespace Focus_Bear.Habits
                     //Get the stats data from API
                     try
                     {
-                        string sActivityID = (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) ? appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id : ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) ? appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id  : "" );
+                        string sActivityID = (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) ? appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id : ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) ? appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id : "");
                         //Also get the activity data from server  as these will be used to show graph on finish screen
                         FocusBearAPIClient client = new FocusBearAPIClient();
                         _ = client.GetActivityStats(sActivityID, "");
@@ -186,7 +178,7 @@ namespace Focus_Bear.Habits
                 else
                 {
                     LogWriter.LogWrite("Show HabitsWelcomeList Page");
-                    PageWelcomeList = new HabitsWelcomeList(this);
+                    PageWelcomeList = new HabitsWelcomeList(ParentWindow);
                     AppFrameHabitScreens.Navigate(PageWelcomeList); //Normal process
 
                     AskToAnalyzeSleepAndMood();
@@ -196,16 +188,50 @@ namespace Focus_Bear.Habits
 
                     if (appSettings.isExpired)
                     {
-                        if( ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) && appSettings.arrAllMorningHabits.Count > 3 ) ||
+                        if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) && appSettings.arrAllMorningHabits.Count > 3) ||
                             ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) && appSettings.arrAllEveningHabits.Count > 3)
                           )
-                        ShowReducedHabitsMessageOnExpired();
+                            ShowReducedHabitsMessageOnExpired();
                     }
                 }
             }
-
         }
-      
+       
+        public void ShowHabitsPostponedView()
+        {
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageHabitsPostponedView);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
+
+        public void ShowMorningRoutineFinishedState()
+        {
+            PageNoHabitsRunningState.ShowMorningRoutineFinishedState();
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
+        public void ShowAppDeactivatedStateView()
+        {
+            PageNoHabitsRunningState.ShowAppDeactivatedStateView();
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
+        public void ShowShutoffAbortedView()
+        {
+            PageNoHabitsRunningState.ShowShutoffAbortedView();
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
+        public void ShowMicroBreakStatusView()
+        {
+            PageNoHabitsRunningState.ShowMicroBreakStatusView();
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
         public void ShowReducedHabitsMessageOnExpired()
         {
             dispatcherTimerShowReducedHabitsMessage.Tick += new EventHandler(dispatcherTimerShowReducedHabitsMessage_Tick);
@@ -220,17 +246,17 @@ namespace Focus_Bear.Habits
             {
                 dispatcherTimerShowReducedHabitsMessage.Stop();
                 CommandManager.InvalidateRequerySuggested();
-                GridShade.Visibility = Visibility.Visible;
+                ParentWindow.GridShade.Visibility = Visibility.Visible;
 
                 appSettings.CapturePostHog("alert-limited-usage-shown");
 
                 string sTitle = appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["title"].ToString().Replace("<COUNT>", "3");
                 string sSubTitle = appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["subTitle"].ToString().Replace("<COUNT>", "3");
                 FBMessageBox ff = new FBMessageBox(sSubTitle, sTitle, MessageBoxButton.YesNo, appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["buttonUpgradeNowText"].ToString(), appSettings.ConfigFileStrings["alertLimitedUsageVcInfo"]["buttonContinueText"].ToString());
-                ff.Owner = this;
+                ff.Owner = ParentWindow;
                 ff.ShowDialog();
 
-                GridShade.Visibility = Visibility.Collapsed;
+                ParentWindow.GridShade.Visibility = Visibility.Collapsed;
 
                 //if user has cancelled the update process
                 if (ff.btnClicked == MessageBoxResult.Yes)
@@ -253,13 +279,13 @@ namespace Focus_Bear.Habits
 
         public void ShowStartBreakActivityScreen()
         {
-            AppFrameHabitScreens.Navigate(new StartBreakActivity(this));
+            AppFrameHabitScreens.Navigate(new StartBreakActivity(ParentWindow));
         }
         public void ShowExtraPersonalFocus()
         {
             LogWriter.LogWrite("ShowExtraPersonalFocus()");
 
-            PageHabitExtraPersonal = new HabitExtraPersonal(this);
+            PageHabitExtraPersonal = new HabitExtraPersonal(ParentWindow);
             AppFrameHabitScreens.Navigate(PageHabitExtraPersonal);
         }
         public void ShowActivityStartScreen(bool bStartingAfterPostponed = false)
@@ -268,7 +294,7 @@ namespace Focus_Bear.Habits
 
             appSettings.dLastActivityPerformedStartTime = DateTime.Now; //Set the activity Start Time
 
-            PageHabitActivityOnGoing = new HabitActivityOnGoing(this, bStartingAfterPostponed);
+            PageHabitActivityOnGoing = new HabitActivityOnGoing(ParentWindow, bStartingAfterPostponed);
 
             AppFrameHabitScreens.Navigate(PageHabitActivityOnGoing);
         }
@@ -496,6 +522,7 @@ namespace Focus_Bear.Habits
             {
                 PageHabitActivityOnGoing.webView.Dispose();
             }
+            PageHabitActivityOnGoing = null;
 
             bool bMorningHabitsFinished = false;
 
@@ -503,10 +530,15 @@ namespace Focus_Bear.Habits
             {
                 LogWriter.LogWrite("LAST BREAK_ACTIVITY Finished");
                 //Set the current activity type to NONE
-               appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+
+                //enable the left buttons
+                ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
+
+                ((App)(Application.Current)).BringMainWindowToFront(); //Just to resize again
 
                 //Start the break Activities Timer
-                ((App)(Application.Current)).StartBreakActivityTimer();
+               ((App)(Application.Current)).StartBreakActivityTimer();
             }
             else if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
@@ -579,10 +611,13 @@ namespace Focus_Bear.Habits
                 }
             }
 
-            Close();
+            //mj//Close();
+            //mj// todo handling may be main app window - decide what to show when closing ??
 
-            if(bMorningHabitsFinished)
+            if (bMorningHabitsFinished)
             {
+                ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
+
                 ((App)(Application.Current)).ShowSurvey();
 
                 //WE need to show the pomodoro window
@@ -590,17 +625,11 @@ namespace Focus_Bear.Habits
                 {
                     ((App)(Application.Current)).EnterPomodoroModeAfterMorningRoutine();
                 }
+                else
+                {
+                    ((App)(Application.Current)).wndFocusBearMainWindow.Hide();
+                }
             }
-        }
-
-        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-#if DEBUG
-            if (e.Key == Key.Escape)
-            {
-                Close();
-            }
-#endif
         }
 
         //GridLogQuantityNag Event Handlers
@@ -753,6 +782,12 @@ namespace Focus_Bear.Habits
 
             GridShade.Visibility = Visibility.Collapsed;
             GridLogQuantityNag.Visibility = Visibility.Collapsed;
+
+            //We will need to show the webview that we had hidden when showing this box
+            if (nScreenHabitActivityFinished != null)
+            {
+                nScreenHabitActivityFinished.webView.Visibility = Visibility.Visible;
+            }
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
@@ -982,16 +1017,7 @@ namespace Focus_Bear.Habits
         public void SimulatePleaseSpareMeClick()
         {
             LogWriter.LogWrite("Habit Window SimulatePleaseSpareMeClick()");
-            if (!this.IsVisible || GridShade.IsVisible) //Either the window is not visible means its postponsed or the grid share is visible mean either log window or the skip confirm window is there..so return from here
-            {
-                LogWriter.LogWrite("Habit Window Not visible or GridShade.IsVisible, return ");
-                return;
-            }
-            if(!btnPleaseSpareMe.IsVisible)
-            {
-                LogWriter.LogWrite("btnPleaseSpareMe Not visible, return");
-                return;
-            }
+
             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnPleaseSpareMe);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
@@ -1063,12 +1089,12 @@ namespace Focus_Bear.Habits
                             }
                         }
                         AskPassword pwdWnd = new AskPassword();
-                        pwdWnd.Owner = this;
-                        GridShade.Visibility = Visibility.Visible;
+                        pwdWnd.Owner = ParentWindow;
+                        ParentWindow.GridShade.Visibility = Visibility.Visible;
 
                         bool? bResult = pwdWnd.ShowDialog();
 
-                        GridShade.Visibility = Visibility.Collapsed;
+                        ParentWindow.GridShade.Visibility = Visibility.Collapsed;
                         if (nScreenHabitActivityFinished != null)
                         {
                             if (!nScreenHabitActivityFinished.webView.IsVisible)
@@ -1146,12 +1172,12 @@ namespace Focus_Bear.Habits
                         }
 
                         AskPassword pwdWnd = new AskPassword();
-                        pwdWnd.Owner = this;
-                        GridShade.Visibility = Visibility.Visible;
+                        pwdWnd.Owner = ParentWindow;
+                        ParentWindow.GridShade.Visibility = Visibility.Visible;
 
                         bool? bResult = pwdWnd.ShowDialog();
 
-                        GridShade.Visibility = Visibility.Collapsed;
+                        ParentWindow.GridShade.Visibility = Visibility.Collapsed;
                         if (nScreenHabitActivityFinished != null)
                         {
                             if (!nScreenHabitActivityFinished.webView.IsVisible)
@@ -1197,9 +1223,6 @@ namespace Focus_Bear.Habits
                 PageHabitActivityOnGoing.HandleTimerForPostpone(true); //Stop the timer
             }
             LogWriter.LogWrite("Habit Window btnPleaseSpareMe_Click Clicked - Hide() now");
-            Hide();
-
-            appSettings.RemoveSecondaryWindows();
             
             //Show the Easy Postpone 
             ((App)(Application.Current)).ShowEasyPostponeWindow();
@@ -1213,13 +1236,6 @@ namespace Focus_Bear.Habits
                 PageHabitActivityOnGoing.HandleTimerForPostpone(false); //start the timer
             }
         }
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            //If its shutoff window already shown then do not remove secondary monitor windows
-            if(appSettings.nCurrentActivityType != CurrentActivityType.SHUT_OFF)
-                appSettings.RemoveSecondaryWindows();
-        }
-
         public void ShowWhySkipHabitsWindow()
         {
             LogWriter.LogWrite("ShowWhySkipHabitsWindow()");
@@ -1360,7 +1376,16 @@ namespace Focus_Bear.Habits
         
         private void dispatcherTimerShowDateTime_Tick(object sender, EventArgs e)
         {
-            Time.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
+            if (appSettings.bPlayActivitiesInFullScreenMode && !appSettings.bHabitsPostponedState && appSettings.nCurrentActivityType != CurrentActivityType.NONE)
+            {
+                TodaysTime.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                TodaysTime.Visibility = Visibility.Collapsed;
+                return;
+            }
+            TodaysTime.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
             CommandManager.InvalidateRequerySuggested();
         }
 
@@ -1401,77 +1426,6 @@ namespace Focus_Bear.Habits
             }
 
         }
-
-        private void FullScreenParent_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (!appSettings.bPlayActivitiesInFullScreenMode)
-            {
-                this.WindowState = WindowState.Normal;
-                this.WindowStyle = WindowStyle.ToolWindow;
-                this.Width = 1300;
-                this.Height = 750;
-
-                //  Compute how many logical units the screen can show
-                double screenLogicalWidth = SystemParameters.WorkArea.Width;
-                double screenLogicalHeight = SystemParameters.WorkArea.Height;
-
-                //  “ideal” logical minimum
-                const double idealMinW = 1300, idealMinH = 750;
-
-                // Cap the minimum to what actually fits
-                this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
-                this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
-
-                // If you want the window to start at that minimum size:
-                this.Width = this.MinWidth;
-                this.Height = this.MinHeight;
-
-                if (this.Height < idealMinH)
-                {
-                    if (PageWelcomeList != null)
-                    {
-                        PageWelcomeList.TopIcon.Height = 80;
-                        PageWelcomeList.TopIcon.Width = 80;
-                    }
-                }
-                // Center it
-                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
-                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
-
-
-                btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
-                Time.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
-                Time.Visibility = Visibility.Visible;
-
-                this.WindowState = WindowState.Normal;
-                this.WindowState = WindowState.Maximized;
-                this.WindowStyle = WindowStyle.None;
-            }
-
-        }
-
-        private void FullScreenParent_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            bool wasCodeClosed = new StackTrace().GetFrames().FirstOrDefault(x => x.GetMethod() == typeof(Window).GetMethod("Close")) != null;
-            if (wasCodeClosed)
-            {
-                // Closed with this.Close()
-            }
-            else
-            {
-                e.Cancel = true;
-                // Closed some other way - like close button clicked.
-                // first Please spare me button to postpone
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnPleaseSpareMe);
-                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                invokeProv.Invoke();
-            }
-        }
-
         public void HideCloseButton()//need to hide the close button if is the last activity finished screen
         {
             if (appSettings.bPlayActivitiesInFullScreenMode)
@@ -1479,7 +1433,7 @@ namespace Focus_Bear.Habits
                 return;
             }
 
-            this.WindowStyle = WindowStyle.None;
+            //mj// this.WindowStyle = WindowStyle.None; //mj// todo handling may be main app window
         }
 
         private void AskToAnalyzeSleepAndMood()
@@ -1543,11 +1497,11 @@ namespace Focus_Bear.Habits
                         
                         FBMessageBox ff = new FBMessageBox(subTitle, title, MessageBoxButton.YesNo, buttonDo, buttonSkip)
                         {
-                            Owner = this
+                            Owner = ParentWindow
                         };
-                        GridShade.Visibility = Visibility.Visible;
+                        ParentWindow.GridShade.Visibility = Visibility.Visible;
                         ff.ShowDialog();
-                        GridShade.Visibility = Visibility.Collapsed;
+                        ParentWindow.GridShade.Visibility = Visibility.Collapsed;
                         if (ff.btnClicked == MessageBoxResult.Yes) //do habits
                         {
                         }
@@ -1560,7 +1514,8 @@ namespace Focus_Bear.Habits
                             FocusBearAPIClient client = new FocusBearAPIClient();
                             var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
 
-                            Hide();
+                            //mj//Hide(); //mj// todo handling may be main app window
+
                             appSettings.RemoveSecondaryWindows();
                             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
                         }
@@ -1580,15 +1535,15 @@ namespace Focus_Bear.Habits
             {
                 dispatcherTimerAskSleepAndMood.Stop();
                 CommandManager.InvalidateRequerySuggested();
-                GridShade.Visibility = Visibility.Visible;
-                AnalyzeSleepMoodWindow wndAnalyzeSleepMood = new AnalyzeSleepMoodWindow(this);
+                ParentWindow.GridShade.Visibility = Visibility.Visible;
+                AnalyzeSleepMoodWindow wndAnalyzeSleepMood = new AnalyzeSleepMoodWindow(ParentWindow);
                 bool? bResult = wndAnalyzeSleepMood.ShowDialog();
-                GridShade.Visibility = Visibility.Collapsed;
+                ParentWindow.GridShade.Visibility = Visibility.Collapsed;
 
                 if(bResult.Value == true)
                 {
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["preferencesInfo"]["alertChangeLanguageInfoText"].ToString(), "Focus Bear");
-                    ff.Owner = this;
+                    ff.Owner = ParentWindow;
                     ff.ShowDialog();
                     appSettings.bRestartAppNeeded = true;
                     Application.Current.Shutdown(0);
@@ -1605,15 +1560,15 @@ namespace Focus_Bear.Habits
 
         public void ShowChooseHabitsWindow()
         {
-            GridShade.Visibility = Visibility.Visible;
-            ChooseHabits WndChooseHabits = new ChooseHabits(this);
+            ParentWindow.GridShade.Visibility = Visibility.Visible;
+            ChooseHabits WndChooseHabits = new ChooseHabits(ParentWindow);
 
             bool? DialogResult = WndChooseHabits.ShowDialog();
-            GridShade.Visibility = Visibility.Collapsed;
+            ParentWindow.GridShade.Visibility = Visibility.Collapsed;
 
             if (DialogResult.Value == true) //means user wants to skip morning habits completely
             {
-                Hide();
+                //mj// Hide(); //mj// todo handling may be main app window -  what to show?
                 appSettings.RemoveSecondaryWindows();
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
             }
@@ -1622,42 +1577,18 @@ namespace Focus_Bear.Habits
 
         public bool ShowChooseAnotherHabitsWindow()
         {
-            GridShade.Visibility = Visibility.Visible;
+            ParentWindow.GridShade.Visibility = Visibility.Visible;
             
-            ChooseAnotherHabit WndChooseAnotherHabit = new ChooseAnotherHabit(this);
+            ChooseAnotherHabit WndChooseAnotherHabit = new ChooseAnotherHabit(ParentWindow);
 
             bool? DialogResult = WndChooseAnotherHabit.ShowDialog();
-            GridShade.Visibility = Visibility.Collapsed;
+            ParentWindow.GridShade.Visibility = Visibility.Collapsed;
 
             if (DialogResult.Value) //True means user have selected another habit and that is to be done
             {
                 return true;
             }
             return false;
-        }
-
-        private void FullScreenParent_Loaded(object sender, RoutedEventArgs e)
-        {
-           
-            //Compute how many logical units the screen can show
-            double screenLogicalWidth = SystemParameters.WorkArea.Width;
-            double screenLogicalHeight = SystemParameters.WorkArea.Height;
-
-            LogWriter.LogWrite(string.Format("screenLogicalWidth = {0}, screenLogicalHeight = {1}", screenLogicalWidth.ToString(), screenLogicalHeight.ToString()));
-            // “ideal” logical minimum
-            const double idealMinW = 1300, idealMinH = 750;
-
-            //Cap the minimum to what actually fits
-            this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
-            this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
-
-            // If you want the window to start at that minimum size:
-            this.Width = this.MinWidth;
-            this.Height = this.MinHeight;
-
-            //Center it
-            this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
-            this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
         }
 
     }

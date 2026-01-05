@@ -74,12 +74,12 @@ namespace Focus_Bear.Preferences
     {
         AppSettings appSettings = AppSettings.GetInstance;
 
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
 
         private CustomBlockingSchedule _instance;
         private CustomBlockingSchedule _editableCopy;
 
-        public BlockingScheduleDetail(PreferencesWindow ParentWindow, CustomBlockingSchedule instance)
+        public BlockingScheduleDetail(FocusBearMainWindow ParentWindow, CustomBlockingSchedule instance)
         {
             InitializeComponent();
             _ParentWindow = ParentWindow;

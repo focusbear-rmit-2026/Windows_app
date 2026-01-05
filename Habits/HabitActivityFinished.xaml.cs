@@ -32,7 +32,7 @@ namespace Focus_Bear.Habits
     /// </summary>
     public partial class HabitActivityFinished : Page
     {
-        private HabitWindow _parentWindow = null;
+        private FocusBearMainWindow _parentWindow = null;
         AppSettings appSettings = AppSettings.GetInstance;
 
         int nTimer = 30;
@@ -52,7 +52,7 @@ namespace Focus_Bear.Habits
         {
            
         }
-        public HabitActivityFinished(HabitWindow parentWindow) : this()
+        public HabitActivityFinished(FocusBearMainWindow parentWindow) : this()
         {
             InitializeComponent();
 
@@ -68,6 +68,9 @@ namespace Focus_Bear.Habits
 
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView1.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted1;
+
+            SetWebView();
+            SetWebView1();
 
             _parentWindow = parentWindow;
             bBreakActivitiesFinished = false;
@@ -207,7 +210,7 @@ namespace Focus_Bear.Habits
                 if(appSettings.nHabitIndex > appSettings.arrAllMorningHabits.Count())
                 {
                     LogWriter.LogWrite("ActivityFinished LoadData() appSettings.nHabitIndex > appSettings.arrAllMorningHabits.Count() MAKE NONE");
-                    _parentWindow.HideFrameAndClose();
+                    _parentWindow.PageHabits.HideFrameAndClose();
                 }
             }
             else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
@@ -215,7 +218,7 @@ namespace Focus_Bear.Habits
                 if (appSettings.nHabitIndex > appSettings.arrAllEveningHabits.Count())
                 {
                     LogWriter.LogWrite("ActivityFinished LoadData() appSettings.nHabitIndex > appSettings.arrAllEveningHabits.Count() MAKE NONE");
-                    _parentWindow.HideFrameAndClose();
+                    _parentWindow.PageHabits.HideFrameAndClose();
                 }
             }
 
@@ -302,8 +305,8 @@ namespace Focus_Bear.Habits
                         Seperator.Visibility = Visibility.Collapsed;
 
                         //We need to hide the Please SPare Me Button
-                        _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
-                        _parentWindow.HideCloseButton();
+                        _parentWindow.PageHabits.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                        _parentWindow.PageHabits.HideCloseButton();
 
                         //Progress text
                         string sProgressLast = appSettings.ConfigFileStrings["activityInfo"]["habitsCompleteText"].ToString();
@@ -436,8 +439,8 @@ namespace Focus_Bear.Habits
                         Seperator.Visibility = Visibility.Collapsed;
 
                         //We need to hide the Please SPare Me Button
-                        _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
-                        _parentWindow.HideCloseButton();
+                        _parentWindow.PageHabits.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                        _parentWindow.PageHabits.HideCloseButton();
 
                         //Progress text
                         string sProgressLast = appSettings.ConfigFileStrings["activityInfo"]["habitsCompleteText"].ToString();
@@ -532,8 +535,8 @@ namespace Focus_Bear.Habits
                                     sButtonTitle = appSettings.ConfigFileStrings["common"]["unlockMachineButtonText"].ToString();
 
                                     //We need to hide the Please Spare Me Button
-                                    _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
-                                    _parentWindow.HideCloseButton();
+                                    _parentWindow.PageHabits.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                                    _parentWindow.PageHabits.HideCloseButton();
 
                                     var currentActivity = appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex];
                                     if (!currentActivity.isRandomChoice)
@@ -655,8 +658,8 @@ namespace Focus_Bear.Habits
                             sButtonTitle = appSettings.ConfigFileStrings["common"]["unlockMachineButtonText"].ToString();
 
                             //We need to hide the Please Spare Me Button
-                            _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
-                            _parentWindow.HideCloseButton();
+                            _parentWindow.PageHabits.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                            _parentWindow.PageHabits.HideCloseButton();
 
                             var currentActivity = appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex];
                             if (!currentActivity.isRandomChoice)
@@ -675,8 +678,8 @@ namespace Focus_Bear.Habits
                         sButtonTitle = appSettings.ConfigFileStrings["common"]["unlockMachineButtonText"].ToString();
 
                         //We need to hide the Please SPare Me Button
-                        _parentWindow.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
-                        _parentWindow.HideCloseButton();
+                        _parentWindow.PageHabits.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                        _parentWindow.PageHabits.HideCloseButton();
 
                         sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex].name);
                         bLastActivity = true;
@@ -731,7 +734,7 @@ namespace Focus_Bear.Habits
                 try
                 {
                     dispatcherTimer.Stop();
-                    _parentWindow.HideFrameAndClose();
+                    _parentWindow.PageHabits.HideFrameAndClose();
                     CommandManager.InvalidateRequerySuggested();
                 }
                 catch (Exception ex)
@@ -1553,7 +1556,7 @@ namespace Focus_Bear.Habits
                     if(appSettings.sBrainDump.Length > 0) //Only show if there is text.
                         ((App)(Application.Current)).ShowBrainDumpWindow();
                     
-                    _parentWindow.HideFrameAndClose();
+                    _parentWindow.PageHabits.HideFrameAndClose();
                     return;
                 }
 
@@ -1573,33 +1576,39 @@ namespace Focus_Bear.Habits
                     LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex);
 
                 }
-                _parentWindow.ShowActivityStartScreen();
+                _parentWindow.PageHabits.ShowActivityStartScreen();
             }
             else if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
                 if (appSettings.arrAllMorningHabits.Count == (appSettings.nHabitIndex + 1)) //Last Activity
                 {
-                    _parentWindow.HideFrameAndClose();
+                    _parentWindow.PageHabits.HideFrameAndClose();
                 }
                 else
                 {
                     appSettings.nHabitIndex++; //Increment the index to do the next habit
                     LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
-                    _parentWindow.ShowActivityStartScreen();
+                    _parentWindow.PageHabits.ShowActivityStartScreen();
                 }
             }
             else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
             {
                 if (appSettings.arrAllEveningHabits.Count == (appSettings.nHabitIndex + 1)) //Last Activity
                 {
-                    _parentWindow.HideFrameAndClose();
+                    _parentWindow.PageHabits.HideFrameAndClose();
                 }
                 else
                 {
                     appSettings.nHabitIndex++; //Increment the index to do the next habit
                     LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
-                    _parentWindow.ShowActivityStartScreen();
+                    _parentWindow.PageHabits.ShowActivityStartScreen();
                 }
+            }
+            else
+            {
+                //edge Case when few habits are done on windows and then rest are finished on the mobile, the action button on last habit does not do anything.
+                //take to home screen
+                ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
             }
 
             LogWriter.LogWrite("HabitIndex now = " + appSettings.nHabitIndex.ToString());
@@ -1684,7 +1693,7 @@ namespace Focus_Bear.Habits
             ///
 
             webView.Visibility = Visibility.Collapsed; /*When using Webview2 in WPF, unable to overlay WPF controls on the Webview - https://github.com/MicrosoftEdge/WebView2Feedback/issues/286*/
-            _parentWindow.ShowWhySkipHabitsWindow();
+            _parentWindow.PageHabits.ShowWhySkipHabitsWindow();
         }
 
         private void ButtonLeft_Click(object sender, RoutedEventArgs e)
@@ -1703,7 +1712,7 @@ namespace Focus_Bear.Habits
         {
             webView.Visibility = Visibility.Collapsed;
             webView1.Visibility = Visibility.Collapsed;
-            bool bStartHabitNow = _parentWindow.ShowChooseAnotherHabitsWindow();
+            bool bStartHabitNow = _parentWindow.PageHabits.ShowChooseAnotherHabitsWindow();
             webView.Visibility = Visibility.Visible;
             webView1.Visibility = Visibility.Visible;
             if (bStartHabitNow)

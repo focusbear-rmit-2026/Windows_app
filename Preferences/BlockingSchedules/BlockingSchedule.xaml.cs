@@ -23,8 +23,8 @@ namespace Focus_Bear.Preferences
     public partial class BlockingSchedule : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        PreferencesWindow _ParentWindow = null;
-        public BlockingSchedule(PreferencesWindow ParentWindow)
+        FocusBearMainWindow _ParentWindow = null;
+        public BlockingSchedule(FocusBearMainWindow ParentWindow)
         {
             InitializeComponent();
             _ParentWindow = ParentWindow;

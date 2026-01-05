@@ -37,7 +37,7 @@ namespace Focus_Bear.Focus
             this.Owner = ParentWindow;
             InitialSettings();
         }
-        public SelectTasks(StartPomodoro ParentWindow)
+        public SelectTasks(FocusBearMainWindow ParentWindow)
         {
             InitializeComponent();
             this.Owner = ParentWindow;
@@ -56,7 +56,7 @@ namespace Focus_Bear.Focus
         }
 
 
-        public SelectTasks(FocusModeEnd ParentWindow)
+        /**public SelectTasks(FocusModeEnd ParentWindow)
         {
             InitializeComponent();
             this.Owner = ParentWindow;
@@ -67,7 +67,7 @@ namespace Focus_Bear.Focus
 
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
-        }
+        }**/ //mj// todo handling
 
         private async Task SetWebView()
         {
