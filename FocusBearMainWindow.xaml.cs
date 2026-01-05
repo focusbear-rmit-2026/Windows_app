@@ -217,37 +217,37 @@ namespace Focus_Bear
             {
                 new NavCategory
                 {
-                    Title = "MAIN",
+                    Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["titleMain"].ToString(),
                     IsExpanded = true,
                     Items =
                     {
-                        new NavLeaf { Title = "Habits", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/play_circle.png")), ButtonType = LeftButtonType.Habits },
-                        new NavLeaf { Title = "Start Focus Session", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/start-pomodoro.png")), ButtonType = LeftButtonType.StartFocusSession },
-                        new NavLeaf { Title = "Start Micro Break", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/break.png")), ButtonType = LeftButtonType.MicroBreaks }
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuHabits"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/play_circle.png")), ButtonType = LeftButtonType.Habits },
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartFocusSession"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/start-pomodoro.png")), ButtonType = LeftButtonType.StartFocusSession },
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartMicroBreak"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/break.png")), ButtonType = LeftButtonType.MicroBreaks }
                     }
                 },
                 new NavCategory
                 {
-                    Title = "TOOLS",
+                    Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["titleTools"].ToString(),
                     IsExpanded = true,
                     Items =
                     {
-                        new NavLeaf { Title = "To Do List", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/validIcon.png")), ButtonType = LeftButtonType.ToDoList },
-                        new NavLeaf { Title = "Brain Dump", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/brainDump.png")), ButtonType = LeftButtonType.BrainDump },
-                        new NavLeaf { Title = "Focus Music", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/music_albums_fill.png")), ButtonType = LeftButtonType.FocusMusic },
-                        new NavLeaf { Title = "Motivation", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/motivation.png")), ButtonType = LeftButtonType.Motivation }
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuTodoList"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/validIcon.png")), ButtonType = LeftButtonType.ToDoList },
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuBrainDump"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/brainDump.png")), ButtonType = LeftButtonType.BrainDump },
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuFocusMusic"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/music_albums_fill.png")), ButtonType = LeftButtonType.FocusMusic },
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuMotivation"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/motivation.png")), ButtonType = LeftButtonType.Motivation }
                     }
                 },
                 new NavCategory
                 {
-                    Title = "PREFERENCES",
+                    Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["titlePreferences"].ToString(),
                     IsExpanded = true,
                     Items =
                     {
-                        new NavLeaf { Title = "Blocking", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/blocks.png")), ButtonType = LeftButtonType.Blocking },
-                        new NavLeaf { Title = "Settings", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/preferences.png")), ButtonType = LeftButtonType.Settings },
-                        new NavLeaf { Title = "Edit Habits", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/edit.png")), ButtonType = LeftButtonType.EditHabits },
-                        new NavLeaf { Title = "Help & Support", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/help.png")), ButtonType = LeftButtonType.Help, IsLastItemInLastCategory = true },
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuBlocksPreferences"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/blocks.png")), ButtonType = LeftButtonType.Blocking },
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuSettings"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/preferences.png")), ButtonType = LeftButtonType.Settings },
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuEditHabits"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/edit.png")), ButtonType = LeftButtonType.EditHabits },
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuHelpAndSupport"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/help.png")), ButtonType = LeftButtonType.Help, IsLastItemInLastCategory = true },
                     }
                 }
             };
