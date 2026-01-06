@@ -30,6 +30,7 @@ namespace Focus_Bear.Habits
             AppDeactivated,
             BreaksNotEnabled,
             BreaksNotScheduled,
+            ChangeTiming
 
         } 
         ActionState nButtonActionState;
@@ -116,6 +117,25 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("No Habits state ShowShutoffAbortedView() ex = " + ex.Message);
             }
         }
+        public void ShowShutOffFreeTimeView()
+        {
+            try
+            {
+                string sHeading = appSettings.ConfigFileStrings["habitsStateVcInfo"]["freeTimeText"].ToString();
+                Heading.Text = sHeading.Replace("<CUTOFFTIME>", appSettings.sDayCutOffTime);
+
+                btnAction.Visibility = Visibility.Visible;
+                
+                nButtonActionState = ActionState.ChangeTiming;
+                btnActionText.Text = "Change Timing"; //todo win texts //appSettings.ConfigFileStrings["breakStateVcInfo"]["buttonChangeTiming"].ToString();
+
+                Description.Visibility = Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("No Habits state ShowShutoffAbortedView() ex = " + ex.Message);
+            }
+        }
         public void ShowMicroBreakStatusView()
         {
             try
@@ -165,7 +185,7 @@ namespace Focus_Bear.Habits
         }
         private void btnAction_Click(object sender, RoutedEventArgs e)
         {
-            if(nButtonActionState == ActionState.NoEveningHabits)
+            if(nButtonActionState == ActionState.NoEveningHabits || nButtonActionState == ActionState.ChangeTiming)
             {
                 ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.EditHabits);
             }

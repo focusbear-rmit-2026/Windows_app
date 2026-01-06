@@ -1584,6 +1584,10 @@ namespace Focus_Bear
 
             //wndFocusBearMainWindow = new FocusBearMainWindow();
             //wndFocusBearMainWindow.ShowDialog();
+
+            ///
+        
+
 #endif
 
             if (appSettings.IsFirstInstall)
@@ -2710,23 +2714,8 @@ namespace Focus_Bear
                 //This way we will show shut off screen before 4 hours of morning routine so that user can start morning routine or focus sessions.
                 if (CheckIf4HoursBeforeNextMorningRoutine())
                 {
-                    //if focus summary is there, remove that
-                    /***if (wndFocusSummary != null)
-                    {
-                        wndFocusSummary.Close();
-                        wndFocusSummary = null;
-                    }**/ //mj// todo handling may be main app window
                     //Only if evening routine have not started
-                    if (appSettings.nHabitIndex == -1)
-                    {
-                        //mj// todo handling may be main app window
-                        /**if (wndHabits != null) //close evening routine window
-                        {
-                            wndHabits.Close();
-                            wndHabits = null;
-                        }**/
-                    }
-
+                    
                     ShowShutOffScreen();
                     return;
                 }
@@ -3295,19 +3284,45 @@ namespace Focus_Bear
                     }
                 }
             }
-            //If its the expired version, then we need to show top 3 activities only
+            //If its the expired version, then we need to show top 3 activities only but ignore the relax one whereever it is in the list
             if (appSettings.isExpired)
             {
                 appSettings.bShowReducedHabitsOnExpired = false;
-                for (int i = 0; i < appSettings.arrAllEveningHabits.Count; i++)
+           
+                var list = appSettings.arrAllEveningHabits;
+
+                // Find the relax habit (first one with the flag)
+                int relaxIndex = list.FindIndex(h => h.show_saved_distracting_websites);
+
+                List<habit> reduced;
+
+                if (relaxIndex >= 0)
                 {
-                    if (i > 2)
-                    {
-                        appSettings.arrAllEveningHabits.RemoveAt(i);
-                        i--;
-                        appSettings.bShowReducedHabitsOnExpired = true;
-                    }
+                    var relaxHabit = list[relaxIndex];
+
+                    // Take the top 3 *excluding* the special habit
+                    var others = list
+                        .Where(h => !h.show_saved_distracting_websites)
+                        .Take(3)
+                        .ToList();
+
+                    reduced = new List<habit>();
+                    reduced.AddRange(others);
+
+                    // Add the relax habit (ensure it's included)
+                    reduced.Add(relaxHabit);
                 }
+                else
+                {
+                    // No special → only top 3
+                    reduced = list.Take(3).ToList();
+                }
+
+                // Replace original list
+                bool wasReduced = list.Count != reduced.Count;
+                appSettings.arrAllEveningHabits = reduced;
+                appSettings.bShowReducedHabitsOnExpired = wasReduced;
+
             }
 
 
@@ -3347,6 +3362,12 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("ShowShutOffScreen() - appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF return");
                 return; 
+            }
+
+            if(!appSettings.DidCutOffTimePassed())
+            {
+                LogWriter.LogWrite("ShowShutOffScreen() - cutoff time yet to come return");
+                return;
             }
 
             appSettings.nCurrentActivityType = CurrentActivityType.SHUT_OFF;

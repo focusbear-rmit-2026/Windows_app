@@ -510,6 +510,11 @@ namespace Focus_Bear
                             PageHabits.ShowShutoffAbortedView();
                         }
                     }
+                    else
+                    {
+                        //cutoff time is yet to come
+                        PageHabits.ShowShutOffFreeTimeView();
+                    }
                 }
                 else
                 {
@@ -969,6 +974,11 @@ namespace Focus_Bear
         public void ShowShutOffView()
         {
             RightContent.Content = PageShutOffWindow;
+
+            if (appSettings.isFocusModeRunning)
+            {
+                ((App)Application.Current).ForceStopFocusSessionOnHabitsTime();
+            }
         }
         public void ShowPomodoroView()
         {

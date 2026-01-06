@@ -225,6 +225,13 @@ namespace Focus_Bear.Habits
             AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
             btnPleaseSpareMe.Visibility = Visibility.Collapsed;
         }
+        public void ShowShutOffFreeTimeView()
+        {
+            PageNoHabitsRunningState.ShowShutOffFreeTimeView();
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
         public void ShowMicroBreakStatusView()
         {
             PageNoHabitsRunningState.ShowMicroBreakStatusView();
@@ -579,7 +586,7 @@ namespace Focus_Bear.Habits
                     DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
                     Console.WriteLine("{0}", myStartTime.ToString());
 
-                    if (now > myShutOffTime) //Same Day like befoee 12.00 am
+                    if (now > myShutOffTime) //Same Day like before 12.00 am
                     {
                         //Get the morning time and prepare a DT for shutoff aborted till
                         myStartTime = myStartTime.AddDays(1);
@@ -602,7 +609,13 @@ namespace Focus_Bear.Habits
                     LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
                     //Show the Shutoff Screen
-                    ((App)(Application.Current)).ShowShutOffScreen();
+                    if(appSettings.DidCutOffTimePassed())
+                        ((App)(Application.Current)).ShowShutOffScreen();
+                    else
+                    {
+                        ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
+                        ((App)(Application.Current)).wndFocusBearMainWindow.Hide();
+                    }
 
                 }
                 catch (Exception ex)

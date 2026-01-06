@@ -269,9 +269,7 @@ namespace Focus_Bear.Habits
 
                 if (show_saved_distracting_websites)
                 {
-                    //mj// todo handling may be main app window
-                    /**_parentWindow.WindowState = WindowState.Minimized;
-                    _parentWindow.ShowInTaskbar = false;**/
+                    _parentWindow.Hide();
                     //here we also need to remove the secondary screen windows.
                     appSettings.RemoveSecondaryWindows();
 
