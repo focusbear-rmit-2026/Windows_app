@@ -64,7 +64,8 @@ namespace Focus_Bear.Focus
             if (e.IsSuccess)
             {
                 string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"lang\":\"{1}\",\"font\":\"{2}\",\"theme\":{3}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont,sTheme);
+                string webFont = appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont);
+                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"lang\":\"{1}\",\"font\":\"{2}\",\"theme\":{3}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, webFont, sTheme);
 
                 string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForToDo) {{ loadAccessTokenForToDo({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
 
