@@ -1057,18 +1057,6 @@ namespace Focus_Bear
                     LogWriter.LogWrite("ShowBreakActivities()" + ex.Message);
                 }
 
-                //mj// todo handling may be main app window
-                /** if (wndHabits != null) //close any open window
-                 {
-                     wndHabits.Close();
-                     wndHabits = null;
-                 }
-
-                 wndHabits = new HabitWindow();
-                 wndHabits.Topmost = true;
-                 wndHabits.Show();
-                 wndHabits.Activate();
-                 wndHabits.Focus();**/
                 wndFocusBearMainWindow.GridShade.Visibility = Visibility.Collapsed; //May be this was shown from the start break button on no habit status screen
 
                 ShowBlankWindowOnOtherScreens();
@@ -1874,24 +1862,7 @@ namespace Focus_Bear
                             //This way we will show shut ioff screen before 4 hours of morning routine so that user can start morning routine or focus sessions.
                             if (CheckIf4HoursBeforeNextMorningRoutine())
                             {
-                                //if focus summary is there, remove that
-                                //mj// todo handling may be main app window
-                                /**if (wndFocusSummary != null)
-                                {
-                                    wndFocusSummary.Close();
-                                    wndFocusSummary = null;
-                                }**/
-
                                 //Only if evening routine have not started
-
-                                //mj// todo handling may be main app window
-                                /**if (wndHabits != null) //close evening routine window
-                                {
-                                    wndHabits.Close();
-                                    wndHabits = null;
-                                }**/
-
-
                                 ShowShutOffScreen();
                                 return;
                             }
@@ -1935,13 +1906,9 @@ namespace Focus_Bear
                                                 {
                                                     wndRelaxMode.bForceClose = true;
                                                     wndRelaxMode.Close();
-                                                    //mj// todo handling may be main app window
-                                                    //mj//wndHabits.WindowState = WindowState.Maximized;
+
                                                 }
                                                 //If the above is null, finish screen may be visible, as ShowACtivityFinishedScreen() make is null
-                                                LogWriter.LogWrite("wndHabits.Hide()");
-                                                //mj// todo handling may be main app window
-                                                //mj// wndHabits.Hide();
                                                 appSettings.RemoveSecondaryWindows();
 
                                                 LogWriter.LogWrite("EVENING_HABITS STATE - now > myCutoffTime - Show Alert");
@@ -1995,8 +1962,6 @@ namespace Focus_Bear
                                                         {
                                                             wndRelaxMode.bForceClose = true;
                                                             wndRelaxMode.Close();
-                                                            //mj// todo handling may be main app window
-                                                            //mj//wndHabits.WindowState = WindowState.Maximized;
                                                         }
                                                         //If the above is null, finish screen may be visible, as ShowACtivityFinishedScreen() make is null
                                                         LogWriter.LogWrite("wndHabits.Hide()");
@@ -2747,23 +2712,8 @@ namespace Focus_Bear
                             }
                         }
 
-                        LogWriter.LogWrite("wndHabits.Close();");
-                        ///wndHabits.Close();
-                        ///wndHabits = null; //mj// todo handling may be main app window
+                        LogWriter.LogWrite("We need to check if anything is going on and kill that first, MORNING_HABITS OR BREAK_ACTIVITY ");
                     }
-                }
-
-                //In any case if there is a habit window left from system sleep and then wakeup, and if nCurrentActivityType is NONE 
-                //we must check the existing window and close it as we are going to create a new one further.
-                //Deon's logs helped
-                if (appSettings.nCurrentActivityType == CurrentActivityType.NONE)
-                {
-                    //mj// todo handling may be main app window
-                    /**if (wndHabits != null)
-                    {
-                        wndHabits.Close();
-                        wndHabits = null;
-                    }**/
                 }
             }
             catch (Exception ex)

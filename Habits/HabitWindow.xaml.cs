@@ -624,9 +624,6 @@ namespace Focus_Bear.Habits
                 }
             }
 
-            //mj//Close();
-            //mj// todo handling may be main app window - decide what to show when closing ??
-
             if (bMorningHabitsFinished)
             {
                 ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
@@ -1445,8 +1442,6 @@ namespace Focus_Bear.Habits
             {
                 return;
             }
-
-            //mj// this.WindowStyle = WindowStyle.None; //mj// todo handling may be main app window
         }
 
         private void AskToAnalyzeSleepAndMood()
@@ -1527,8 +1522,6 @@ namespace Focus_Bear.Habits
                             FocusBearAPIClient client = new FocusBearAPIClient();
                             var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
 
-                            //mj//Hide(); //mj// todo handling may be main app window
-
                             appSettings.RemoveSecondaryWindows();
                             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
                         }
@@ -1581,7 +1574,8 @@ namespace Focus_Bear.Habits
 
             if (DialogResult.Value == true) //means user wants to skip morning habits completely
             {
-                //mj// Hide(); //mj// todo handling may be main app window -  what to show?
+                ((App)Application.Current).wndFocusBearMainWindow.Hide();
+
                 appSettings.RemoveSecondaryWindows();
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
             }
