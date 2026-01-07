@@ -339,7 +339,7 @@ namespace Focus_Bear.Preferences
                 string sStartAMPM = StartTimePicker.NUDAMPTextBox.Text;
 
                 string combinedStartTime = $"{sStartHours}:{sStartMinutes}:00 {sStartAMPM}";
-                DateTime time = DateTime.ParseExact(combinedStartTime, "hh:mm:ss tt", null);
+                DateTime time = DateTime.ParseExact(combinedStartTime, "h:m:s tt", CultureInfo.InvariantCulture,DateTimeStyles.None);
                 string timeStart24 = time.ToString("HH:mm:ss"); // e.g. "00:15:00"
 
                 string sEndHours = EndTimePicker.NUDHTextBox.Text;
@@ -347,7 +347,7 @@ namespace Focus_Bear.Preferences
                 string sEndAMPM = EndTimePicker.NUDAMPTextBox.Text;
 
                 string combinedEndTime = $"{sEndHours}:{sEndMinutes}:00 {sEndAMPM}";
-                DateTime timeEnd = DateTime.ParseExact(combinedEndTime, "hh:mm:ss tt", null);
+                DateTime timeEnd = DateTime.ParseExact(combinedEndTime, "h:m:s tt", CultureInfo.InvariantCulture, DateTimeStyles.None);
                 string timeEnd24 = timeEnd.ToString("HH:mm:ss"); // e.g. "00:15:00"
 
                 _instance.StartTimeValue = timeStart24;

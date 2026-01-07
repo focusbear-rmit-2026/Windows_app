@@ -431,7 +431,14 @@ namespace Focus_Bear.Habits
 
                         sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name);
 
-                        sButtonTitle = appSettings.ConfigFileStrings["common"]["wrapupButtonText"].ToString();
+                        if (appSettings.DidCutOffTimePassed())
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["common"]["wrapupButtonText"].ToString();
+                        }
+                        else
+                        {
+                            sButtonTitle = appSettings.ConfigFileStrings["common"]["unlockMachineButtonText"].ToString(); //unlock machine
+                        }
 
                         //Hide the skip this habit button on last activity
                         SkipThisHabitText.Visibility = Visibility.Collapsed;

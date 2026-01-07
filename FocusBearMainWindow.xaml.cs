@@ -185,6 +185,8 @@ namespace Focus_Bear
 
         public bool IsSidebarCollapsed = false;
 
+        private bool bKeepCategoryDisabled = false;
+
         AppSettings appSettings = AppSettings.GetInstance;
 
         public BlocksTab PageBlocks;
@@ -257,19 +259,6 @@ namespace Focus_Bear
             LeftTree.PreviewMouseLeftButtonDown += TreeView_PreviewMouseLeftButtonDown;
         }
 
-        //protected override void OnSourceInitialized(EventArgs e)
-        //{
-        //    base.OnSourceInitialized(e);
-
-        //    var source = (HwndSource)PresentationSource.FromVisual(this);
-        //    ((App)Application.Current).UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
-
-        //    var hwnd = new WindowInteropHelper(this).Handle;
-        //    int currentStyle = GetWindowLong(hwnd, GWL_STYLE);
-
-        //    // Disable minimize button by removing WS_MINIMIZEBOX
-        //    SetWindowLong(hwnd, GWL_STYLE, currentStyle & ~WS_MINIMIZEBOX);
-        //}
         private void TreeView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
         
@@ -278,6 +267,16 @@ namespace Focus_Bear
 
             if (treeViewItem != null && treeViewItem.HasItems && treeViewItem.DataContext is NavCategory category)
             {
+                if(bKeepCategoryDisabled && IsSidebarCollapsed)
+                {
+                    e.Handled = true;
+                    return;
+                }
+                if (IsSidebarCollapsed)
+                {
+                    e.Handled = true;
+                    return;
+                }
                 // 1. Store current selection BEFORE any changes
                 var previouslySelected = LeftTree.SelectedItem as NavLeaf;
                 bool wasChildOfClickedCategory = previouslySelected != null &&
@@ -509,6 +508,11 @@ namespace Focus_Bear
                         {
                             PageHabits.ShowShutoffAbortedView();
                         }
+                    }
+                    else
+                    {
+                        //cutoff time is yet to come
+                        PageHabits.ShowShutOffFreeTimeView();
                     }
                 }
                 else
@@ -770,6 +774,7 @@ namespace Focus_Bear
                 }
             }
             ExpandSideBar();
+            bKeepCategoryDisabled = false;
         }
         private void DisableAllButtons()
         {
@@ -784,6 +789,7 @@ namespace Focus_Bear
                         
                 }
             }
+            bKeepCategoryDisabled = true;
         }
         public void DisableAllButtons(LeftButtonType ExceptButtonType)
         {
@@ -800,6 +806,7 @@ namespace Focus_Bear
                     }
                 }
             }
+            bKeepCategoryDisabled = true;
         }
         private void LeftTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
@@ -969,6 +976,11 @@ namespace Focus_Bear
         public void ShowShutOffView()
         {
             RightContent.Content = PageShutOffWindow;
+
+            if (appSettings.isFocusModeRunning)
+            {
+                ((App)Application.Current).ForceStopFocusSessionOnHabitsTime();
+            }
         }
         public void ShowPomodoroView()
         {
@@ -1065,7 +1077,6 @@ namespace Focus_Bear
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            //mj// todo handling
             bool wasCodeClosed = new StackTrace().GetFrames().FirstOrDefault(x => x.GetMethod() == typeof(Window).GetMethod("Close")) != null;
             if (wasCodeClosed)
             {

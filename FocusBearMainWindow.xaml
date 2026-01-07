@@ -57,7 +57,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- TreeView with Categories and Values -->
-                    <TreeView x:Name="LeftTree" Grid.Row="0" SelectedItemChanged="LeftTree_SelectedItemChanged_1" BorderThickness="0" BorderBrush="#CCCCCC" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+                    <TreeView x:Name="LeftTree" Grid.Row="0" SelectedItemChanged="LeftTree_SelectedItemChanged_1" BorderThickness="0" BorderBrush="#CCCCCC" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.PanningMode="VerticalOnly">
 
                         <!-- Custom TreeViewItem style with working expander -->
                         <TreeView.ItemContainerStyle>
@@ -91,7 +91,7 @@
                                                         CornerRadius="4" 
                                                         Cursor="Hand" >
                                                     <!-- Grid to layout header content and toggle button side by side -->
-                                                    <Grid HorizontalAlignment="Stretch" >
+                                                    <Grid HorizontalAlignment="Stretch">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="Auto"/>
@@ -189,7 +189,7 @@
                                                     <!-- Hide selection visuals for categories -->
                                                     <Setter TargetName="Bd" Property="Background" Value="Transparent"/>
                                                     <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent"/>
-                                                    <Setter TargetName="Bd" Property="BorderThickness" Value="0"/>
+                                                    <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
                                                     <!-- Keep text color normal -->
                                                 </MultiTrigger>
                                                 <!-- Show visual selection only for leaf items (no children) -->

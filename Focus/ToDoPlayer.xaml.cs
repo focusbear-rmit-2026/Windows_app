@@ -159,12 +159,6 @@ namespace Focus_Bear.Focus
 
             webView.Source = new System.Uri(sTodoPlayerURL);
         }
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            //mj todo
-            //e.Cancel = true;
-            //this.Hide();
-        }
 
         private void btnEndFocus_Click(object sender, RoutedEventArgs e)
         {
@@ -172,8 +166,6 @@ namespace Focus_Bear.Focus
 
             try
             {
-                //mj// todo Hide();
-
                 //fire the Stop focus session button from the menu
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStopPomodoroMode);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
@@ -232,14 +224,6 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("SelectTasks webView_WebMessageReceived()" + ex.Message);
             }
         }
-        //mj// todo
-        //protected override void OnSourceInitialized(EventArgs e)
-        //{
-        //    base.OnSourceInitialized(e);
-
-        //    var source = (HwndSource)PresentationSource.FromVisual(this);
-        //    app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
-        //}
 
         private void TitleBarThemeChange()
         {
@@ -265,31 +249,5 @@ namespace Focus_Bear.Focus
             }
         }
 
-        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            //mj// todo
-
-            //if (IsVisible)
-            //{
-            //    this.Width = 680;
-            //    this.Height = 650;
-
- 
-            //    // Compute how many logical units the screen can show
-            //    double screenLogicalWidth = SystemParameters.WorkArea.Width;
-            //    double screenLogicalHeight = SystemParameters.WorkArea.Height;
-
-            //    // 3) Your “ideal” logical minimum
-            //    const double idealMinW = 680, idealMinH = 650;
-
-            //    // 4) set to what actually fits
-            //    this.Width = Math.Min(idealMinW, screenLogicalWidth);
-            //    this.Height = Math.Min(idealMinH, screenLogicalHeight);
-
-            //    // 6) Center it
-            //    this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
-            //    this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
-            //}
-        }
     }
 }

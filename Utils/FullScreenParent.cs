@@ -402,16 +402,8 @@ namespace Focus_Bear.Habits
             int windowWidth = rect.Right - rect.Left;
             int windowHeight = rect.Bottom - rect.Top;
 
-            // Get screen dimensions
-            int screenWidth = (int)SystemParameters.PrimaryScreenWidth;
-            int screenHeight = (int)SystemParameters.PrimaryScreenHeight;
-
-            // Calculate center position
-            int x = (screenWidth - windowWidth) / 2;
-            int y = (screenHeight - windowHeight) / 2;
-
             // Refresh frame AND reposition to center // This forces the window frame to update
-            SetWindowPos(hwnd, IntPtr.Zero, x, y, windowWidth, windowHeight,
+            SetWindowPos(hwnd, IntPtr.Zero, rect.Left, rect.Top, windowWidth, windowHeight,
                 SWP_FRAMECHANGED);
 
         }

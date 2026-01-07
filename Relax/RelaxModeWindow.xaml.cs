@@ -143,25 +143,10 @@ namespace Focus_Bear.Relax
 
         private void FinishWork()
         {
-            //mj// todo handling may be main app window
-            /**if (((App)(Application.Current)).wndHabits != null)
-            {
-                //show the habit window
-                ((App)(Application.Current)).wndHabits.Show();
-
-                if (appSettings.bPlayActivitiesInFullScreenMode)
-                {
-                    ((App)(Application.Current)).wndHabits.WindowState = WindowState.Maximized;
-                }
-                else
-                {
-                    ((App)(Application.Current)).wndHabits.WindowState = WindowState.Normal;
-                }
-                //set timer to 0
-                ((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.SetTimerToZeroToFinish(); ;
-
-            }**/
-
+            //set timer to 0
+            if (((App)(Application.Current)).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing != null)
+                ((App)(Application.Current)).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing.SetTimerToZeroToFinish(); 
+            ((App)(Application.Current)).ShowHabitsSectionInMainWindow();
             bForceClose = true;
             Close(); //Best to close here .
         }

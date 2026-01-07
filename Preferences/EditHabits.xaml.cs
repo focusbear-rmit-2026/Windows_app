@@ -32,6 +32,8 @@ namespace Focus_Bear.Preferences
     {
         AppSettings appSettings = AppSettings.GetInstance;
         FocusBearMainWindow _ParentWindow = null;
+
+        private bool bWebViewInitialized = false;
         public EditHabits()
         {
         }
@@ -177,6 +179,7 @@ namespace Focus_Bear.Preferences
                 if (webView != null)
                 {
                     await webView.EnsureCoreWebView2Async(task);
+                    bWebViewInitialized = true;
                 }
             }
             catch (Exception ex)
@@ -228,8 +231,11 @@ namespace Focus_Bear.Preferences
         {
             try
             {
-                var sTemp = webView.ExecuteScriptAsync("refreshSettingPage();");
-                LoadSettings();
+                if (bWebViewInitialized) //not first time when creating, only when webview is initialized
+                {
+                    var sTemp = webView.ExecuteScriptAsync("refreshSettingPage();");
+                    LoadSettings();
+                }
             }
             catch (Exception ex)
             {

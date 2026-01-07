@@ -661,12 +661,6 @@ namespace Focus_Bear
 
             Hide();
             /**
-            if (appSettings.isStartPomodoroWindowOpen || isFocusModeWindowOpen || appSettings.isFocusModeRunning)
-            {
-                LogWriter.LogWrite("isStartPomodoroWindowOpen || isFocusModeWindowOpen || appSettings.isFocusModeRunning - return");
-                return;
-            }
-
             if ((appSettings.isFocusModeRunning ||
                appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
                appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||

@@ -225,6 +225,13 @@ namespace Focus_Bear.Habits
             AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
             btnPleaseSpareMe.Visibility = Visibility.Collapsed;
         }
+        public void ShowShutOffFreeTimeView()
+        {
+            PageNoHabitsRunningState.ShowShutOffFreeTimeView();
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+        }
         public void ShowMicroBreakStatusView()
         {
             PageNoHabitsRunningState.ShowMicroBreakStatusView();
@@ -579,7 +586,7 @@ namespace Focus_Bear.Habits
                     DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
                     Console.WriteLine("{0}", myStartTime.ToString());
 
-                    if (now > myShutOffTime) //Same Day like befoee 12.00 am
+                    if (now > myShutOffTime) //Same Day like before 12.00 am
                     {
                         //Get the morning time and prepare a DT for shutoff aborted till
                         myStartTime = myStartTime.AddDays(1);
@@ -602,7 +609,13 @@ namespace Focus_Bear.Habits
                     LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
                     //Show the Shutoff Screen
-                    ((App)(Application.Current)).ShowShutOffScreen();
+                    if(appSettings.DidCutOffTimePassed())
+                        ((App)(Application.Current)).ShowShutOffScreen();
+                    else
+                    {
+                        ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
+                        ((App)(Application.Current)).wndFocusBearMainWindow.Hide();
+                    }
 
                 }
                 catch (Exception ex)
@@ -610,9 +623,6 @@ namespace Focus_Bear.Habits
                     LogWriter.LogWrite("HideFrameAndClose()" + ex.Message); 
                 }
             }
-
-            //mj//Close();
-            //mj// todo handling may be main app window - decide what to show when closing ??
 
             if (bMorningHabitsFinished)
             {
@@ -1432,8 +1442,6 @@ namespace Focus_Bear.Habits
             {
                 return;
             }
-
-            //mj// this.WindowStyle = WindowStyle.None; //mj// todo handling may be main app window
         }
 
         private void AskToAnalyzeSleepAndMood()
@@ -1514,8 +1522,6 @@ namespace Focus_Bear.Habits
                             FocusBearAPIClient client = new FocusBearAPIClient();
                             var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
 
-                            //mj//Hide(); //mj// todo handling may be main app window
-
                             appSettings.RemoveSecondaryWindows();
                             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
                         }
@@ -1568,7 +1574,8 @@ namespace Focus_Bear.Habits
 
             if (DialogResult.Value == true) //means user wants to skip morning habits completely
             {
-                //mj// Hide(); //mj// todo handling may be main app window -  what to show?
+                ((App)Application.Current).wndFocusBearMainWindow.Hide();
+
                 appSettings.RemoveSecondaryWindows();
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
             }
