@@ -2041,10 +2041,7 @@ namespace Focus_Bear
                         LogWriter.LogWrite("appSettings.IsAppDeactivated() - DO not show morning routine");
                         return;
                     }
-                    if(appSettings.bHabitsPostponedState)//Case user postponed morning habit and started break.
-                    {
-                        return;
-                    }
+                    
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                     {
                         if(appSettings.bHabitsPostponedState)
