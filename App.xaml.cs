@@ -867,6 +867,7 @@ namespace Focus_Bear
                     return;
                 }
                 //We should also check if the morning routine has not been show, should return from here - case found from logs of #256
+
                 /**if (RegistryManager.GetMorningHabitsShownTillDate())
                 {
                     if (appSettings.MorningHabitsShownTillDate < DateTime.Now)
@@ -876,6 +877,11 @@ namespace Focus_Bear
                     }
                 }**/
 
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS && !appSettings.bHabitsPostponedState)
+                {
+                    LogWriter.LogWrite("MorningHabits ongoing, return");
+                    return;
+                }
 
                 if (appSettings.bSkipMicroBreaksDuringFocus && (appSettings.isFocusModeRunning || appSettings.bUseSuperPomodoroMode))
                 {

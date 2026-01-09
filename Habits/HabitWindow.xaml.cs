@@ -1524,6 +1524,9 @@ namespace Focus_Bear.Habits
 
                             appSettings.RemoveSecondaryWindows();
                             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
+
+                            //be sure to refresh the window as background timer may take few seconds
+                            ((App)Application.Current).ShowHabitsSectionInMainWindow();
                         }
                     };
 
