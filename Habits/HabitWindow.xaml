@@ -25,6 +25,12 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="FocusManager.FocusedElement"
+                            Value="{Binding ElementName=Quantity}"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </UserControl.Resources>
     <Grid>
@@ -82,7 +88,7 @@
                                     <ColumnDefinition Width="150"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{Binding minValueDescription, StringFormat=\{0\}}" FontSize="12" Foreground="{DynamicResource ForegroundColor}"  TextWrapping="Wrap"   VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                                <TextBox  Grid.Column="0" TabIndex="0"  x:Name="Quantity" AutomationProperties.AutomationId="txtBoxQuantity" Text="{Binding quantity, StringFormat=\{0\}}"   MinHeight="25" Height="30" Margin="5,0,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Visibility="{Binding Path=bShowTextBox, Converter={StaticResource BoolToVis}}" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown" PreviewKeyUp="Quantity_PreviewKeyUp">
+                                <TextBox  Grid.Column="0" TabIndex="0"  x:Name="Quantity" AutomationProperties.AutomationId="txtBoxQuantity" Text="{Binding quantity, StringFormat=\{0\}}"   MinHeight="25" Height="30" Margin="5,0,0,0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Visibility="{Binding Path=bShowTextBox, Converter={StaticResource BoolToVis}}" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown" PreviewKeyUp="Quantity_PreviewKeyUp" FocusManager.FocusedElement="{Binding RelativeSource={RelativeSource Self}}">
                                     <TextBox.Effect>
                                         <DropShadowEffect ShadowDepth="3"
                                                           Direction="330"

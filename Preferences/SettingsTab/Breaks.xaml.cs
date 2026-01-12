@@ -93,5 +93,14 @@ namespace Focus_Bear.Preferences.SettingsTab
             appSettings.bShowBreaksWhileInCall = false;
             appSettings.CapturePostHog("settings-changed-disable-breaks-while-call");
         }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (IsVisible)
+            {
+                EnableBreaksCheckbox.IsChecked = appSettings.bAreBreaksEnabled;
+                btnShowBreaksWhileInCall.IsChecked = appSettings.bShowBreaksWhileInCall;
+            }
+        }
     }
 }

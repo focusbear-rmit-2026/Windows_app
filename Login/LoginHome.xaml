@@ -69,6 +69,16 @@
                 </TextBlock>
 
             </StackPanel>
+            <StackPanel Orientation="Horizontal"  Margin="30,0,0,0">
+
+                <Border BorderThickness="1" Background="LightGray" CornerRadius="50" Height="40" Width="40">
+                    <Image Source="/Images/apple_logo.png" Margin="0,0,0,0" Height="24" Width="24" />
+                </Border>
+                <TextBlock x:Name="SignInApple" AutomationProperties.AutomationId="btnSignInGoogle" Margin="7,10" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="22" Height="30" Cursor="Hand">
+                     <Hyperlink x:Name="btnSignInWithApple" Click="btnSignInWithApple_Click" TextDecorations="Underline" Foreground="Orange" ><Run x:Name="btnSignInWithAppleText" Text="xSign In With Apple"/></Hyperlink>
+                </TextBlock>
+
+            </StackPanel>
             <TextBlock x:Name="CancelButton" Visibility="Collapsed" AutomationProperties.AutomationId="txtCancelGoogle" Grid.Row="3" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" MinHeight="22" Cursor="Hand">
                     <Hyperlink x:Name="btnCancel" Click="btnCancel_Click"   TextDecorations="Underline" ><Run x:Name="CancelTXT" Text="xCancel"/></Hyperlink>
             </TextBlock>

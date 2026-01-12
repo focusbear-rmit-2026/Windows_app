@@ -984,7 +984,12 @@ namespace Focus_Bear.Habits
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite("appSettings.ReadCSV().ToList<LogEntry>() FAILED" + ex.Message);
-
+                    //best to delete the file as it cannot be red further.
+                    if (File.Exists(appSettings.sLogQuantityCSVPath))
+                    {
+                        Global.DeleteFile(appSettings.sLogQuantityCSVPath, false);
+                    }
+                    
                 }
 
                 if (!bLogQuantity)

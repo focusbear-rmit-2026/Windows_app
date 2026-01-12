@@ -57,7 +57,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- TreeView with Categories and Values -->
-                    <TreeView x:Name="LeftTree" Grid.Row="0" SelectedItemChanged="LeftTree_SelectedItemChanged_1" BorderThickness="0" BorderBrush="#CCCCCC" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.PanningMode="VerticalOnly">
+                    <TreeView x:Name="LeftTree" Grid.Row="0" Margin="7,0,1,0" SelectedItemChanged="LeftTree_SelectedItemChanged_1" BorderThickness="0" BorderBrush="#CCCCCC" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.PanningMode="VerticalOnly">
 
                         <!-- Custom TreeViewItem style with working expander -->
                         <TreeView.ItemContainerStyle>
@@ -67,7 +67,7 @@
                                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                                 <Setter Property="Background" Value="Transparent"/>
                                 <Setter Property="BorderThickness" Value="1"/>
-                                <Setter Property="Margin" Value="5,0,5,0"/>
+                                <Setter Property="Margin" Value="0,0,0,0"/>
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                 <!-- Bind TreeViewItem.IsEnabled to NavLeaf.IsEnabled -->
                                 <Setter Property="IsEnabled" Value="{Binding IsEnabled}"/>
@@ -314,7 +314,6 @@
                                 </HierarchicalDataTemplate.ItemTemplate>
                             </HierarchicalDataTemplate>
                         </TreeView.ItemTemplate>
- 
                     </TreeView>
 
                 </Grid>

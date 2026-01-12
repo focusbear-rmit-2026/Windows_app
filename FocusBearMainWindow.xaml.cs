@@ -259,6 +259,10 @@ namespace Focus_Bear
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuSettings"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/preferences.png")), ButtonType = LeftButtonType.Settings },
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuEditHabits"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/edit.png")), ButtonType = LeftButtonType.EditHabits },
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuHelpAndSupport"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/help.png")), ButtonType = LeftButtonType.Help, IsLastItemInLastCategory = true },
+                        new NavLeaf { Title = "Blocking", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/blocks.png")), ButtonType = LeftButtonType.Blocking },
+                        new NavLeaf { Title = "Settings", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/preferences.png")), ButtonType = LeftButtonType.Settings },
+                        new NavLeaf { Title = "Edit Habits", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/edit.png")), ButtonType = LeftButtonType.EditHabits },
+                        new NavLeaf { Title = "Help & Support", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/help.png")), ButtonType = LeftButtonType.Help},
                     }
                 }
             };
@@ -791,7 +795,9 @@ namespace Focus_Bear
             {
                 foreach (NavLeaf leaf in category.Items)
                 {
-                   if(leaf.ButtonType != LeftButtonType.Help) //Help is always active
+                   if(leaf.ButtonType != LeftButtonType.Help &&
+                        leaf.ButtonType != LeftButtonType.BrainDump &&
+                        leaf.ButtonType != LeftButtonType.ToDoList ) //Help, brain dump, todo list is always active
                    {
                         leaf.IsEnabled = false;
                    }
@@ -808,7 +814,9 @@ namespace Focus_Bear
                 {
                     if (leaf.ButtonType != ExceptButtonType)
                     {
-                        if (leaf.ButtonType != LeftButtonType.Help) //Help is always active
+                        if (leaf.ButtonType != LeftButtonType.Help &&
+                        leaf.ButtonType != LeftButtonType.BrainDump &&
+                        leaf.ButtonType != LeftButtonType.ToDoList) //Help, brain dump, todo list is always active
                         {
                             leaf.IsEnabled = false;
                         }
@@ -902,16 +910,32 @@ namespace Focus_Bear
                 // Expand sidebar
                 LeftColumn.Width = new GridLength(235);
                 IsSidebarCollapsed = false;
+
+                // Show scrollbar
+                ScrollViewer.SetVerticalScrollBarVisibility(LeftTree, ScrollBarVisibility.Auto);
+
+                LeftTree.Margin = new Thickness(7, 0, 7, 0);
             }
             else
             {
                 // Collapse sidebar
                 LeftColumn.Width = new GridLength(45);
                 IsSidebarCollapsed = true;
+
+                // Hide scrollbar
+                ScrollViewer.SetVerticalScrollBarVisibility(LeftTree, ScrollBarVisibility.Hidden);
+
+                LeftTree.Margin = new Thickness(7, 0, 1, 0);
+
             }
         }
         public void ExpandSideBar()
         {
+            // Show scrollbar
+            ScrollViewer.SetVerticalScrollBarVisibility(LeftTree, ScrollBarVisibility.Auto);
+
+            LeftTree.Margin = new Thickness(7, 0, 7, 0);
+
             IsSidebarCollapsed = true; //Force expand 
             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnSideBar);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
@@ -923,6 +947,11 @@ namespace Focus_Bear
             ButtonAutomationPeer peer = new ButtonAutomationPeer(btnSideBar);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
+
+            LeftTree.Margin = new Thickness(7, 0, 1, 0);
+
+            // Hide scrollbar
+            ScrollViewer.SetVerticalScrollBarVisibility(LeftTree, ScrollBarVisibility.Hidden);
         }
         public void RepositionWindow()
         {

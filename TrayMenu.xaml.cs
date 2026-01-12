@@ -121,6 +121,8 @@ namespace Focus_Bear
 
                 BlockingScheduleText.Text = appSettings.ConfigFileStrings["menuInfo"]["titleBlockingSchedule"].ToString();
 
+                WFHMode.Checked -= WFHMode_Checked;
+                OfficeMode.Checked -= OfficeMode_Checked;
                 if (appSettings.isOfficeModeEnabled)
                 {
                     OfficeMode.IsChecked = true;
@@ -129,6 +131,8 @@ namespace Focus_Bear
                 {
                     WFHMode.IsChecked = true;
                 }
+                OfficeMode.Checked += OfficeMode_Checked;
+                WFHMode.Checked += WFHMode_Checked;
 
                 if (appSettings.bIsGeekModeEnabled)
                 {

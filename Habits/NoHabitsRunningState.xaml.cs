@@ -198,6 +198,7 @@ namespace Focus_Bear.Habits
             else if (nButtonActionState == ActionState.BreaksNotEnabled)
             {
                 appSettings.bAreBreaksEnabled = true;
+                ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.MicroBreaks);
             }
             else if (nButtonActionState == ActionState.BreaksNotScheduled)
             {

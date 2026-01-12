@@ -867,6 +867,7 @@ namespace Focus_Bear
                     return;
                 }
                 //We should also check if the morning routine has not been show, should return from here - case found from logs of #256
+
                 /**if (RegistryManager.GetMorningHabitsShownTillDate())
                 {
                     if (appSettings.MorningHabitsShownTillDate < DateTime.Now)
@@ -876,6 +877,11 @@ namespace Focus_Bear
                     }
                 }**/
 
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS && !appSettings.bHabitsPostponedState)
+                {
+                    LogWriter.LogWrite("MorningHabits ongoing, return");
+                    return;
+                }
 
                 if (appSettings.bSkipMicroBreaksDuringFocus && (appSettings.isFocusModeRunning || appSettings.bUseSuperPomodoroMode))
                 {
@@ -2041,10 +2047,7 @@ namespace Focus_Bear
                         LogWriter.LogWrite("appSettings.IsAppDeactivated() - DO not show morning routine");
                         return;
                     }
-                    if(appSettings.bHabitsPostponedState)//Case user postponed morning habit and started break.
-                    {
-                        return;
-                    }
+                    
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                     {
                         if(appSettings.bHabitsPostponedState)
@@ -2440,13 +2443,14 @@ namespace Focus_Bear
 
                                                                             //Now we do not need to start normal but need to show the finish screen of this
                                                                             appSettings.bShowActivitiesFromMid = true;
-
+                                                                            LogWriter.LogWrite("appSettings.bShowActivitiesFromMid = true; arrAllMorningHabits");
                                                                             for (int m = 0; m < appSettings.arraySkipped.Count; m++)
                                                                             {
                                                                                 //Check if the last activity was in the array skipped list
                                                                                 if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllMorningHabits[i - 1].id)
                                                                                 {
                                                                                     appSettings.bShowActivitiesFromMidLastSkipped = true;
+                                                                                    LogWriter.LogWrite("appSettings.bShowActivitiesFromMidLastSkipped = true; arrAllMorningHabits");
                                                                                     break;
                                                                                 }
                                                                             }
@@ -3069,6 +3073,7 @@ namespace Focus_Bear
 
                                                                         //Now we do not need to start normal but need to show the finish screen of this
                                                                         appSettings.bShowActivitiesFromMid = true;
+                                                                        LogWriter.LogWrite("appSettings.bShowActivitiesFromMid = true; arrAllEveningHabits");
 
                                                                         for (int m = 0; m < appSettings.arraySkipped.Count; m++)
                                                                         {
@@ -3076,6 +3081,7 @@ namespace Focus_Bear
                                                                             if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllEveningHabits[i - 1].id)
                                                                             {
                                                                                 appSettings.bShowActivitiesFromMidLastSkipped = true;
+                                                                                LogWriter.LogWrite("appSettings.bShowActivitiesFromMidLastSkipped = true; arrAllEveningHabits");
                                                                                 break;
                                                                             }
                                                                         }

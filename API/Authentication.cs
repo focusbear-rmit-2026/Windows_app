@@ -430,7 +430,7 @@ namespace Focus_Bear.API
 
         }
         private CancellationTokenSource _loginCts;
-        public async Task<bool> LoginWithGoogle(LoginMain ParentWindow)
+        public async Task<bool> LoginWithGoogle(LoginMain ParentWindow, bool bLoginWithApple = false)
         {
             LogWriter.LogWrite("async Task<bool> LoginWithGoogle()");
 
@@ -454,12 +454,17 @@ namespace Focus_Bear.API
                 
                 try
                 {
-                    var loginResult = await client.LoginAsync(new Dictionary<string, string>
+                    string sConnection = "google-oauth2";
+                    if (bLoginWithApple)
                     {
-                        { "connection", "google-oauth2" },
-                        { "audience", "https://auth.focusbear.io/api/v2/" }
-                    },
-                     _loginCts.Token
+                        sConnection = "apple";
+                    }
+                    var loginResult = await client.LoginAsync(new Dictionary<string, string>
+                        {
+                            { "connection", sConnection },
+                            { "audience", "https://auth.focusbear.io/api/v2/" }
+                        },
+                        _loginCts.Token
                     );
 
                     if (!loginResult.IsError)
