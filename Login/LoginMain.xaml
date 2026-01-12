@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Login"
          xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        Title="Focus Bear" MinHeight="720" MinWidth="945"  Closed="Window_Closed" Loaded="Window_Loaded" >
+        Title="Focus Bear" MinHeight="720" MinWidth="945" Height="720" Width="945"  Closed="Window_Closed" Loaded="Window_Loaded" >
     <!--<local1:DpiDecorator>-->
     <Grid>
         <Frame x:Name="AppFrameLogin" Margin="0" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" />

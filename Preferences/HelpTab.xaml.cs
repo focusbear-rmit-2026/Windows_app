@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +14,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -81,7 +81,8 @@ namespace Focus_Bear.Preferences
                 GetSupport.Header = appSettings.ConfigFileStrings["helpVcInfo"]["tabGetSupport"].ToString(); 
                 Tutorials.Header = appSettings.ConfigFileStrings["helpVcInfo"]["tabCourses"].ToString();
 
-                DragDesc.Text = "Drag and drop screenshots here that you want to share"; //todo win texts
+                DragDesc.Text = appSettings.ConfigFileStrings["helpVcInfo"]["titleAddScreenshots"].ToString(); //"Drag and drop screenshots here that you want to share"; 
+                btnSelectScreenshotsTXT.Text =  appSettings.ConfigFileStrings["helpVcInfo"]["buttonSelectScreenshots"].ToString();
             }
             catch (Exception ex)
             {
@@ -302,6 +303,29 @@ namespace Focus_Bear.Preferences
             }
         }
 
-
+        private void btnSelectScreenshots_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = appSettings.ConfigFileStrings["helpVcInfo"]["buttonSelectScreenshots"].ToString(),
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp",
+                Multiselect = true
+            };
+            bool? bResult = dialog.ShowDialog();
+            if (bResult.Value == true)
+            {
+                // Array of selected image file paths
+                string[] imagesArray = dialog.FileNames;
+ 
+                foreach (var file in dialog.FileNames)
+                {
+                    var df = new DroppedFile(file);
+                    appSettings.droppedFiles.Add(df);
+                }
+                RefreshScreenshots();
+            }
+            
+        }
     }
 }
