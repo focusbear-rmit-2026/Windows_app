@@ -259,10 +259,6 @@ namespace Focus_Bear
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuSettings"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/preferences.png")), ButtonType = LeftButtonType.Settings },
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuEditHabits"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/edit.png")), ButtonType = LeftButtonType.EditHabits },
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuHelpAndSupport"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/help.png")), ButtonType = LeftButtonType.Help, IsLastItemInLastCategory = true },
-                        new NavLeaf { Title = "Blocking", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/blocks.png")), ButtonType = LeftButtonType.Blocking },
-                        new NavLeaf { Title = "Settings", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/preferences.png")), ButtonType = LeftButtonType.Settings },
-                        new NavLeaf { Title = "Edit Habits", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/edit.png")), ButtonType = LeftButtonType.EditHabits },
-                        new NavLeaf { Title = "Help & Support", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/help.png")), ButtonType = LeftButtonType.Help},
                     }
                 }
             };
