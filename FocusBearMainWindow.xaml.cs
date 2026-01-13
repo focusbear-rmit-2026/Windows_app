@@ -904,7 +904,7 @@ namespace Focus_Bear
             if (IsSidebarCollapsed)
             {
                 // Expand sidebar
-                LeftColumn.Width = new GridLength(235);
+                LeftColumn.Width = new GridLength(250);
                 IsSidebarCollapsed = false;
 
                 // Show scrollbar

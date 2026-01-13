@@ -19,7 +19,7 @@
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="LeftColumn" MaxWidth="235" MinWidth="45"/>
+            <ColumnDefinition x:Name="LeftColumn" MaxWidth="250" MinWidth="45" Width="250"/>
             <ColumnDefinition Width="2" />
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>

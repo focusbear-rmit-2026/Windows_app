@@ -48,7 +48,7 @@
                  HorizontalAlignment="Right"
                  Cursor="Hand"
                  ToolTip="Click to end the focus session early"
-                 Margin="85,0,0,0" Grid.Row="1" Width="81" Height="30"/>
+                 Margin="85,0,0,0" Grid.Row="1" Width="95" Height="30"/>
                 
             </StackPanel>
 

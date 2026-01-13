@@ -58,7 +58,7 @@
                 <Grid Margin="20" Background="{DynamicResource SoftCreamColor}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
-                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="40"/>
                         <RowDefinition Height="120"/>
                         <RowDefinition Height="150"/>
                         <RowDefinition Height="50"/>
