@@ -918,7 +918,7 @@
     "enterPasswordViewInfo": {
         "title": "Por favor ingresa la contraseña para continuar",
         "passwordPlaceholderText": "Contraseña",
-        "buttonResetPasswordText": "Restablecer la contraseña",
+        "buttonResetPasswordText": "Restablecer contraseña",
         "blankPasswordErrorTitle": "La contraseña no puede estar en blanco.",
         "blankPasswordErrorSubTitle": "Por favor introduce una contraseña válida.",
         "incorrectPasswordErrorTitle": "Contraseña no válida.",
