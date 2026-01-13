@@ -259,14 +259,19 @@
                                             <!-- Value Item with hover effect -->
                                             <Border Padding="8,4" 
                                                 CornerRadius="4"
-                                                Height="32"
+                                                Height="34"
                                                 Background="Transparent" 
                                                 BorderThickness="1"
                                                 HorizontalAlignment="Stretch"
                                                 MouseLeftButtonDown="NavLeaf_Click" >
-                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Grid VerticalAlignment="Center">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+
                                                     <!-- Icon from Images folder -->
-                                                    <Image Width="18" Height="18" Source="{Binding IconSource}" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Image Grid.Column="0" Width="18" Height="18" Source="{Binding IconSource}" Margin="0,0,8,0" VerticalAlignment="Center">
                                                         <Image.Style>
                                                             <Style TargetType="Image">
                                                                 <Style.Triggers>
@@ -280,8 +285,15 @@
                                                     </Image>
 
                                                     <!-- Value Text -->
-
-                                                    <TextBlock x:Name="ItemTitle" Text="{Binding Title}" FontSize="13" FontWeight="Medium">
+                                                    <TextBlock Grid.Column="1"
+                                                                 x:Name="ItemTitle"
+                                                                 Text="{Binding Title}"
+                                                                 FontSize="13"
+                                                                 FontWeight="Medium"
+                                                                 TextWrapping="Wrap"
+                                                                 LineHeight="15"
+                                                                 LineStackingStrategy="BlockLineHeight"
+                                                                 VerticalAlignment="Center">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
                                                                 <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
@@ -299,14 +311,11 @@
                                                                         <Setter Property="Foreground" Value="Gray"/>
                                                                         <Setter Property="Cursor" Value="Arrow"/>
                                                                     </DataTrigger>
-                                                                    
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </TextBlock.Style>
                                                     </TextBlock>
-
-
-                                                </StackPanel>
+                                                </Grid>
                                             </Border>
                                         </StackPanel>
 
