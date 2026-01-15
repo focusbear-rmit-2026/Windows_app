@@ -27,7 +27,7 @@ namespace Focus_Bear.Preferences
         public AddFocusType()
         {
         }
-        public AddFocusType(PreferencesWindow _ParentWindow)
+        public AddFocusType(FocusBearMainWindow _ParentWindow)
         {
             InitializeComponent();
             Title = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAddFocusType"].ToString();

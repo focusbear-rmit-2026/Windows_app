@@ -22,7 +22,7 @@ namespace Focus_Bear.Preferences.SettingsTab
     /// </summary>
     public partial class UI : UserControl
     {
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
         private bool bDarkModeVisible = true;
@@ -30,7 +30,7 @@ namespace Focus_Bear.Preferences.SettingsTab
         {
             InitializeComponent();
         }
-        public UI(PreferencesWindow ParentWindow)
+        public UI(FocusBearMainWindow ParentWindow)
         {
             InitializeComponent();
             _ParentWindow = ParentWindow;

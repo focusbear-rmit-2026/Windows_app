@@ -3561,7 +3561,7 @@ namespace Focus_Bear.API
                             var responseCode = await response.Content.ReadAsStringAsync();
                             appSettings.sRawFocusMusicTracks = responseCode.ToString();
 
-                            LogWriter.LogWrite("GetAllTracks() - " + appSettings.sRawFocusMusicTracks);
+                            LogWriter.LogWrite("GetAllTracks() - success");
 
                             RegistryManager.SaveFocusMusicTracks();
                             return 1;

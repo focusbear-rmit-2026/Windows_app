@@ -22,13 +22,13 @@ namespace Focus_Bear.Preferences.SettingsTab
     /// </summary>
     public partial class Breaks : UserControl
     {
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
         public Breaks()
         {
         }
-        public Breaks(PreferencesWindow ParentWindow)
+        public Breaks(FocusBearMainWindow ParentWindow)
         {
             InitializeComponent();
             _ParentWindow = ParentWindow;
@@ -92,6 +92,15 @@ namespace Focus_Bear.Preferences.SettingsTab
         {
             appSettings.bShowBreaksWhileInCall = false;
             appSettings.CapturePostHog("settings-changed-disable-breaks-while-call");
+        }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (IsVisible)
+            {
+                EnableBreaksCheckbox.IsChecked = appSettings.bAreBreaksEnabled;
+                btnShowBreaksWhileInCall.IsChecked = appSettings.bShowBreaksWhileInCall;
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Focus_Bear.Preferences
         public FocusAdvanced()
         {
         }
-        public FocusAdvanced(PreferencesWindow ParentWindow, FocusMode sFocusMode)
+        public FocusAdvanced(FocusBearMainWindow ParentWindow, FocusMode sFocusMode)
         {
             InitializeComponent();
 

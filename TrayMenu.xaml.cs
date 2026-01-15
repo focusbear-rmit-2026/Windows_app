@@ -121,6 +121,8 @@ namespace Focus_Bear
 
                 BlockingScheduleText.Text = appSettings.ConfigFileStrings["menuInfo"]["titleBlockingSchedule"].ToString();
 
+                WFHMode.Checked -= WFHMode_Checked;
+                OfficeMode.Checked -= OfficeMode_Checked;
                 if (appSettings.isOfficeModeEnabled)
                 {
                     OfficeMode.IsChecked = true;
@@ -129,6 +131,8 @@ namespace Focus_Bear
                 {
                     WFHMode.IsChecked = true;
                 }
+                OfficeMode.Checked += OfficeMode_Checked;
+                WFHMode.Checked += WFHMode_Checked;
 
                 if (appSettings.bIsGeekModeEnabled)
                 {
@@ -298,7 +302,7 @@ namespace Focus_Bear
                         }
                         else
                         {
-                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString(); //todo win texts
+                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString(); 
                         }
                     }
                     else
@@ -571,20 +575,8 @@ namespace Focus_Bear
                 //Call api top finish focus mode
                 if (appSettings.isFocusModeRunning)
                 {
-                    // Sync the todo tasks first
-                    try
-                    { 
-                        await((App)Application.Current).SyncTodoTasksFromPlayer(); 
-                    }
-                    catch (Exception ex)
-                    {                        
-                         LogWriter.LogWrite("btnQuit_Click sync: " + ex.Message); 
-                    }
-
-                    appSettings.isFocusModeRunning = false;
-                    ((App)Application.Current).CloseFocusProgressWindow();
-                    ((App)Application.Current).HideToDoPlayer();
-
+                    ((App)Application.Current).FinishFocusModeCommonTasks();
+                    
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
                 }
@@ -640,12 +632,6 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("btnSettings_Click() Tray Menu");
 
-            //if (appSettings.isExpired)
-            //{
-            //    Hide();
-            //    ((App)(Application.Current)).ShowExpiredNag();
-            //    return;
-            //}
             Hide();
 
             appSettings.CapturePostHog("open-preferences");
@@ -678,13 +664,7 @@ namespace Focus_Bear
             //}
 
             Hide();
-
-            if (appSettings.isStartPomodoroWindowOpen || isFocusModeWindowOpen || appSettings.isFocusModeRunning)
-            {
-                LogWriter.LogWrite("isStartPomodoroWindowOpen || isFocusModeWindowOpen || appSettings.isFocusModeRunning - return");
-                return;
-            }
-
+            /**
             if ((appSettings.isFocusModeRunning ||
                appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
                appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
@@ -694,7 +674,7 @@ namespace Focus_Bear
             {
                 //do not start if some habits or breaks are running. Case is when 5 mins break ends, we start the focus session back but if habits have resumed by then, then do not show it
                 return;
-            }
+            }**/ //mj //todo handling
 
             if (appSettings.bIsGeekModeEnabled)
             {
@@ -734,55 +714,22 @@ namespace Focus_Bear
                         {
                             FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
 
-                            if (((App)(Application.Current)).wndStartPomodoro != null)
-                            {
-                                ((App)(Application.Current)).wndStartPomodoro.Hide();
-                                appSettings.isStartPomodoroWindowOpen = false;
-                            }
-                            //Stop the focus mode
-                            //Show WIndow here - Removed 3 oct 2025 
-
-                            //Show the Focusmode end dialog
-                            ((App)(Application.Current)).ShowFocusEndWindow();
-
                             OnUntill.Content = "";
                             CurrentRunningFocusMode.isOn = false;
-                            Sounds.PlayFocusModeEndSound();
-
 
                             if (!appSettings.bIsGeekModeEnabled)//Simple mode
                             {
                                 appSettings.bAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabledLastValueBeforeSimplePomodoro; //resetting the AI value
                             }
 
-                            FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
-                            FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
-
                             //Turn off super pomodoro too as user have manually stopped
                             appSettings.bUseSuperPomodoroMode = false;
 
+                            ((App)(Application.Current)).FinishFocusModeCommonTasks();
 
-                            //Clear the Gentle block temp arrays
-                            appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                            appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+                            //Show the Focusmode end dialog
+                            ((App)(Application.Current)).ShowFocusEndWindow();
 
-                            //Make the global variable false
-                            appSettings.isFocusModeRunning = false;
-
-                            ((App)Application.Current).CloseFocusProgressWindow();
-
-                            //Show and Set on untill value
-                            OnUntill.Visibility = Visibility.Collapsed;
-                            //Increase hearder height
-                            OrangeHeader.Height = 25; //Originally 25
-                            if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                            {
-                                OrangeHeader.Height = 30; //Originally 25
-                            }
-
-                            ((App)(Application.Current)).HideToDoPlayer();
-                            //Deselect the Seleted list view item
-                            //ListFocusModes.SelectedItem = null;
                         }
 
                         if (appSettings.bUseSuperPomodoroMode)
@@ -815,292 +762,6 @@ namespace Focus_Bear
         {
             //Code not used anymore as list of focus mode is not shown anymore
             return;
-            
-
-            LogWriter.LogWrite("ListFocusModes_SelectionChanged Tray Menu");
-            //if(appSettings.isExpired)
-            //{
-            //    Hide();
-            //    ((App)(Application.Current)).ShowExpiredNag();
-            //    return;
-            //}
-
-            try
-            {
-                var selectedItem = ListFocusModes.SelectedItem as FocusMode;
-
-                if (selectedItem != null)
-                {
-                    Hide(); 
-                    //Check is any other FOcus modes is running, if yes, give an alert to stop that mode
-                    //If not we will start the focus mode
-                    //First check if it is already added
-                    var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
-                    if (listItems.Count() == 0)
-                    {
-                        if (appSettings.isStartPomodoroWindowOpen || isFocusModeWindowOpen || appSettings.bUseSuperPomodoroMode)
-                        {
-                            ListFocusModes.SelectedItem = null;
-                            return;
-                        }
-
-                        if ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
-                               appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF ||
-                               appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
-                               appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
-                               !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState)
-                        {
-                            LogWriter.LogWrite("A routine is ongoing, cannot start focus mode");
-                            ListFocusModes.SelectedItem = null;
-                            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["activityRunningCantStartFocusText"].ToString(), "Focus Bear");
-                            ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                            ff.ShowDialog();
-                            return;
-                        }
-
-                        isFocusModeWindowOpen = true;
-
-                        //Check here if the Breaks window is visible, we will hide it.
-                        if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
-                        {
-                            ((App)(Application.Current)).wndTakeABreak.Close();
-                            ((App)(Application.Current)).wndTakeABreak = null;
-                        }
-
-                        if(selectedItem.isRelaxFocus && (appSettings.isPasswordSet && appSettings.bPasswordRequireToUseRelaxFocusMode))
-                        {
-                            AskPassword pwdWnd = new AskPassword();
-                            pwdWnd.Owner = this;
-                            bool? bRes  = pwdWnd.ShowDialog();
-
-                            if (bRes.Value)
-                            {
-                                //Password is correct
-                            }
-                            else
-                            {
-                                //Deselect the Seleted list view item
-                                ListFocusModes.SelectedItem = null;
-                                isFocusModeWindowOpen = false;
-                                return;
-                            }
-
-                        }
-                        //show the start focus window
-                        StartFocusMode wndFocus = new StartFocusMode(selectedItem.name, selectedItem.isDefault, selectedItem.isLockedFocus);
-                        wndFocus.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                        wndFocus.Topmost = true;
-
-                        appSettings.sRawTasks = ""; //reset this as there may be something selected from old focus mode 
-
-                        bool? bResult = wndFocus.ShowDialog();
-
-                        isFocusModeWindowOpen = false;
-
-                        string sIntention = wndFocus.sIntention;
-                        string sHours = wndFocus.sHours;
-                        string sMinutes = wndFocus.sMinutes;
-
-                        if (bResult.Value == true)
-                        {
-                            Sounds.PlayFocusModeStartSound();
-                            //Start the Focus Mode
-                            //Change the play icon for this to STOP icon
-                            selectedItem.isOn = true;
-
-                            //Make the global variable true
-                            appSettings.isFocusModeRunning = true;
-
-                            ((App)Application.Current).ShowFocusProgressWindow();
-
-                            if( ((App) Application.Current).wndBrainDump != null && ((App)Application.Current).wndBrainDump.IsVisible) //Update the window if its made or is visible
-                            {
-                                ((App)Application.Current).wndBrainDump.ShowBrainDumpWindowAndStartTimer();
-                            }
-
-                            //If is the loacked FOcus we need to add the active app and active url in allowed apps/urls
-                            if (selectedItem.isLockedFocus)
-                            {
-                                selectedItem.isAllowedListApproach = true;
-                                selectedItem.isAllowedAllApps = false;
-                                selectedItem.arrAllowedAppsWin.Clear();//Remove old
-                                selectedItem.arrAllowedAppsWin.Add(new AppDetails(appSettings.sLastActiveAppName, appSettings.sLastActiveAppName) ); //Add new
-
-                                selectedItem.arrAllowedUrls.Clear();//Remove old
-                                selectedItem.arrAllowedUrls.Add(appSettings.sLastActiveURL); //Add new
-                            }
-
-                            //Show and Set on untill value
-                            OnUntill.Visibility = Visibility.Visible;
-                            //Increase hearder height
-                            OrangeHeader.Height = 45; //Originally 25
-
-                            if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                            {
-                                OrangeHeader.Height = 70;
-                            }
-
-                            int nHours = int.Parse(sHours);
-                            int nMinutes = int.Parse(sMinutes);
-                            DateTime dTill = DateTime.Now;
-
-                            appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
-                            
-                            dTill = dTill.AddHours(nHours);
-                            dTill = dTill.AddMinutes(nMinutes);
-                            string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
-                            sTill = sTill.Replace("<TIME>", dTill.ToString());
-                            OnUntill.Content = sTill;
-
-                            appSettings.sRunningFocusModeID = selectedItem.id;
-                            appSettings.sRunningFocusModeName = selectedItem.name;
-                            appSettings.sRunningFocusModeEndTime = dTill.ToString();
-                            appSettings.sRunningFocusModeIntention = sIntention;
-
-                            //Clear any old stuff for gentle blocking
-                            appSettings.TemporaryAllowedAppsGentleBlock.Clear();
-                            appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                            appSettings.TemporaryAllowedURLsGentleBlock.Clear();
-                            appSettings.TemporarryBlockedURLsGentleBlock.Clear();
-
-                            appSettings.TemporaryAllowedKeywords.Clear();
-                            appSettings.TemporaryAllowedURLsTabTitles.Clear();
-                            //Start the Focus Mode Timer to end after x hours / minutes
-                            StartFocusModeTimer(nHours, nMinutes);
-
-                            //Reposition 
-                            SetTrayMenuPosition();
-
-                            FocusBearAPIClient client = new FocusBearAPIClient();
-                            var xResponse = client.StartFocusMode(selectedItem.id);
-
-                        }
-                        //Deselect the Seleted list view item
-                        ListFocusModes.SelectedItem = null;
-
-                    }
-                    else
-                    {
-                        try
-                        {
-
-                            //Check if its the same focusmode that is running, then let's stop it.
-                            FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
-                            if (CurrentRunningFocusMode.id == selectedItem.id)
-                            {
-                                if (((App)(Application.Current)).wndStartPomodoro != null)
-                                {
-                                    ((App)(Application.Current)).wndStartPomodoro.Hide();
-                                    appSettings.isStartPomodoroWindowOpen = false;
-                                }
-                                //Stop the focus mode
-                                //Show WIndow here
-                                StopFocusMode ss = new StopFocusMode();
-                                bool? bResult = ss.ShowDialog();
-                                if (bResult.Value == false)
-                                {
-                                    //Cancel CLicked, nothing to do
-                                    //Deselect the Seleted list view item
-                                    ListFocusModes.SelectedItem = null;
-                                    return;
-                                }
-                              
-                                OnUntill.Content = "";
-                                selectedItem.isOn = false;
-                                Sounds.PlayFocusModeEndSound();
-
-                                FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
-                                FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
-
-                                //Turn off super pomodoro too as user have manually stopped
-                                appSettings.bUseSuperPomodoroMode = false;
-                                
-
-                                //Clear the Gentle block temp arrays
-                                appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                                appSettings.TemporarryBlockedURLsGentleBlock.Clear();
-
-                                //Make the global variable false
-                                appSettings.isFocusModeRunning = false;
-
-                                ((App)Application.Current).CloseFocusProgressWindow();
-
-                                //Show and Set on untill value
-                                OnUntill.Visibility = Visibility.Collapsed;
-                                //Increase hearder height
-                                OrangeHeader.Height = 25; //Originally 25
-                                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                                {
-                                    OrangeHeader.Height = 30; //Originally 25
-                                }
-
-                                //Deselect the Seleted list view item
-                                ListFocusModes.SelectedItem = null;
-
-                            }
-                            else
-                            {
-                                FocusMode NewSelectedFocusMode = ListFocusModes.SelectedItem as FocusMode; 
-                                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusInfo"]["focusAlreadyRunningText"].ToString(), "Focus Bear",MessageBoxButton.YesNo, appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString(), appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["buttonStopFocusText"].ToString());
-                                ff.ShowDialog();
-                                if(ff.btnClicked == MessageBoxResult.No)
-                                {
-                                    //Stop the current focus mode and start new
-                                    OnUntill.Content = "";
-                                    CurrentRunningFocusMode.isOn = false;
-                                    Sounds.PlayFocusModeEndSound();
-
-                                    FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
-                                    FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
-
-                                    //Clear the Gentle block temp arrays
-                                    appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                                    appSettings.TemporarryBlockedURLsGentleBlock.Clear();
-
-                                    //Make the global variable false
-                                    appSettings.isFocusModeRunning = false;
-
-                                    ((App)Application.Current).CloseFocusProgressWindow();
-
-                                    //Show and Set on untill value
-                                    OnUntill.Visibility = Visibility.Collapsed;
-                                    //Increase hearder height
-                                    OrangeHeader.Height = 25; //Originally 25
-                                    if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                                    {
-                                        OrangeHeader.Height = 30; //Originally 25
-                                    }
-
-                                    //Now open the New selected Focus mode start window
-                                    //Deselect the Seleted list view item
-                                    ListFocusModes.SelectedItem = null;
-
-                                    ListFocusModes.SelectedItem = NewSelectedFocusMode;
-                                }
-                                else
-                                {
-                                    //OK clicked, do nothing
-                                    //Deselect the Seleted list view item
-                                    ListFocusModes.SelectedItem = null;
-                                    ListFocusModes.SelectedItem = CurrentRunningFocusMode.id;
-                                }
-
-                            }
-
-                        }
-                        catch (Exception ex)
-                        {
-                            LogWriter.LogWrite("ListFocusModes_SelectionChanged = " + ex.Message);
-                        }
-
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("ListFocusModes_SelectionChanged = " + ex.Message);
-            }
-
         }
 
         public void StartFocusModeTimer(int nHours, int nMinutes)
@@ -1139,7 +800,23 @@ namespace Focus_Bear
                 CommandManager.InvalidateRequerySuggested();
 
                 //Start the todo player
-                ((App)(Application.Current)).ShowToDoPlayer();
+                Task.Run(async () =>
+                {
+                    await Task.Delay(1000);
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        ((App)(Application.Current)).ShowToDoPlayer();
+                    });
+                });
+
+                if (appSettings.isFocusModeRunning)
+                {
+                    //change the title of the start focus session button
+                    if (appSettings.bUseSuperPomodoroMode)
+                        ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopSuperFocusSession"].ToString());
+                    else
+                        ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopFocusSession"].ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -1164,13 +841,8 @@ namespace Focus_Bear
                 {
                     try
                     {
-                        Sounds.PlayFocusModeEndSound();
-
-                        FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
-                        FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
-
+                        
                         //Stop the focus mode
-                        //Show WIndow here
                         OnUntill.Content = "";
                         listItems.First<FocusMode>().isOn = false;
 
@@ -1178,33 +850,12 @@ namespace Focus_Bear
                         {
                             appSettings.nSuperPomodoroCountCompleted++;
                         }
-                        //Make the global variable false
-                        appSettings.isFocusModeRunning = false;
 
-                        ((App)Application.Current).CloseFocusProgressWindow();
+                        ((App)(Application.Current)).FinishFocusModeCommonTasks();
 
-                        //Clear the Gentle block temp arrays
-                        appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                        appSettings.TemporarryBlockedURLsGentleBlock.Clear();
-
-                        //Show and Set on untill value
-                        OnUntill.Visibility = Visibility.Collapsed;
-                        //Increase hearder height
-                        OrangeHeader.Height = 25; //Originally 25
-                        if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                        {
-                            OrangeHeader.Height = 30; //Originally 25
-                        }
-                        //Reposition 
-                        SetTrayMenuPosition();
-
-                        ((App)(Application.Current)).HideToDoPlayer();
-
-                        if (appSettings.bShowFocusModeEnd) //Only if the user have selected the setting to show Focus mode end window
-                        {
-                            //Show the Focusmode end dialog
-                            ((App)(Application.Current)).ShowFocusEndWindow();
-                        }
+                        //Show the Focusmode end dialog
+                        ((App)(Application.Current)).ShowFocusEndWindow();
+                        
                     }
                     catch (Exception ex)
                     {
@@ -1364,9 +1015,9 @@ namespace Focus_Bear
                 ff.ShowDialog();
             }
             appSettings.bIsGeekModeEnabled = true;
-            if(((App)(Application.Current)).wndPreferences != null)
+            if(((App)(Application.Current)).wndFocusBearMainWindow != null)
             {
-                ((App)(Application.Current)).wndPreferences.PageSettings.SetGeekModeStatus();
+                ((App)(Application.Current)).wndFocusBearMainWindow.PageSettings.SetGeekModeStatus();
 
             }
             appSettings.CapturePostHog("switch-to-geek-mode");
@@ -1384,9 +1035,9 @@ namespace Focus_Bear
                 ff1.ShowDialog();
             }
             appSettings.bIsGeekModeEnabled = false;
-            if (((App)(Application.Current)).wndPreferences != null)
+            if (((App)(Application.Current)).wndFocusBearMainWindow != null)
             {
-                ((App)(Application.Current)).wndPreferences.PageSettings.SetGeekModeStatus();
+                ((App)(Application.Current)).wndFocusBearMainWindow.PageSettings.SetGeekModeStatus();
 
             }
             appSettings.CapturePostHog("switch-to-simple-mode");
@@ -1410,7 +1061,7 @@ namespace Focus_Bear
         private void btnLimitedBlockingEdit_Click(object sender, RoutedEventArgs e)
         {
             ((App)(Application.Current)).ShowPreferencesWindow();
-            ((App)(Application.Current)).wndPreferences.ShowBlocksTab();
+            ((App)(Application.Current)).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Blocking);
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -1581,7 +1232,7 @@ namespace Focus_Bear
         }
 
         private void btnPlayPauseMusic_Click(object sender, RoutedEventArgs e)
-        {
+        { //mj// todo
             //Focus Music icon
             if (appSettings.arrFocusMusicTracks.Count > 0)
             {

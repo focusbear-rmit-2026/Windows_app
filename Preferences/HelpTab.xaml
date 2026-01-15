@@ -1,4 +1,4 @@
-﻿<Page x:Class="Focus_Bear.Preferences.HelpTab"
+﻿<UserControl x:Class="Focus_Bear.Preferences.HelpTab"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -6,8 +6,7 @@
       xmlns:local="clr-namespace:Focus_Bear.Preferences"
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
-      d:DesignHeight="550" d:DesignWidth="800" 
-      Title="HelpTab">
+      d:DesignHeight="550" d:DesignWidth="800" >
 
     <Grid>
         <Grid.Resources>
@@ -62,6 +61,7 @@
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="120"/>
                         <RowDefinition Height="150"/>
+                        <RowDefinition Height="50"/>
                         <RowDefinition Height="50"/>
                     </Grid.RowDefinitions>
                     <TextBlock  Grid.Row="0" Name="Heading" Margin="20,20,20,0"   Text="xFocus Bear is still a new app and you might encounter issues (or have great ideas on how to make it better). We'd really appreciate your feedback. You can email us at team@focusbear.io. Screenshots are really helpful to let us understand the problem. Also if you had a problem, please export your logs (use the link below) and attach it to the email." TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
@@ -130,13 +130,19 @@
                                         Visibility="Visible"
                                         IsHitTestVisible="False">
                                 <TextBlock Text="➕" FontSize="20" Margin="0,0,10,0"/>
-                                <TextBlock x:Name="DragDesc" Text="Drag and drop screenshots here that you want to share"
+                                <TextBlock x:Name="DragDesc" Text="xDrag and drop screenshots here that you want to share"
                                     FontSize="14" Foreground="Gray" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Grid>
                     </Border>
-
-                    <Button   Grid.Row="4"  x:Name="ExportLogs" AutomationProperties.AutomationId="btnExportLogs"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" MinWidth="200" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnExportLogs_Click" >
+                    <Button   Grid.Row="4"  x:Name="btnSelectScreenshots" AutomationProperties.AutomationId="btnSelectScreenshots"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="27" MinWidth="150" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnSelectScreenshots_Click" >
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock x:Name="btnSelectScreenshotsTXT" Margin="20,0,20,0" Text="xxSelect Screenshots" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button   Grid.Row="5"  x:Name="ExportLogs" AutomationProperties.AutomationId="btnExportLogs"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" MinWidth="200" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnExportLogs_Click" >
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
                                 <TextBlock x:Name="btnExportLogsTXT" Margin="20,0,20,0" Text="xxClick here to export logs to share with Support Team." Style="{DynamicResource ButtonTextBlockStyle}"/>
@@ -148,4 +154,4 @@
             </TabItem>
         </TabControl>
     </Grid>
-</Page>
+</UserControl>

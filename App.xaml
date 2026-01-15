@@ -137,7 +137,7 @@
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
                             <Path x:Name="path" Stretch="Fill" Fill="Transparent" Data="M 1369.01,305.002L 1403,305.002L 1403.01,339.002L 1369.02,339.002L 1369.01,305.002 Z " HorizontalAlignment="Center" Height="34" Margin="0" VerticalAlignment="Center" Width="34"  SnapsToDevicePixels="True"/>
-                            <Path x:Name="path1" Stretch="Fill" StrokeThickness="1.5" StrokeLineJoin="Round" Stroke="White" Data="M 1476.47,192.998L 1476.83,193.354L 1486.67,203.198L 1487.36,203.886M 1487.21,193.129L 1486.85,193.486L 1477.01,203.33L 1476.32,204.018" Margin="0" Width="12" Height="11.04" HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="True"/>
+                            <Path x:Name="path1" Stretch="Fill" StrokeThickness="1.5" StrokeLineJoin="Round" Stroke="Gray" Data="M 1476.47,192.998L 1476.83,193.354L 1486.67,203.198L 1487.36,203.886M 1487.21,193.129L 1486.85,193.486L 1477.01,203.33L 1476.32,204.018" Margin="0" Width="12" Height="11.04" HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="True"/>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True"/>
@@ -1135,5 +1135,61 @@
             <Setter Property="Foreground"  Value="#000" />
         </Style>
 
+        <Style x:Key="ImageButtonStyle" TargetType="Button">
+
+            <!-- Base -->
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="False"/>
+
+            <!-- Custom Template -->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="4">
+
+                            <ContentPresenter
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+
+                            <!-- Hover -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root"
+                                Property="Background"
+                                Value="#22FFFFFF"/>
+                            </Trigger>
+
+                            <!-- Press -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root"
+                                Property="RenderTransform">
+                                    <Setter.Value>
+                                        <TranslateTransform Y="1"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Root"
+                                Property="Background"
+                                Value="#33FFFFFF"/>
+                            </Trigger>
+
+                            <!-- Disabled -->
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        
     </Application.Resources>
 </Application>

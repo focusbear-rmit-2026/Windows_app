@@ -20,7 +20,7 @@ namespace Focus_Bear.Preferences
     /// <summary>
     /// Interaction logic for Stats.xaml
     /// </summary>
-    public partial class Stats : Page
+    public partial class Stats : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         public Stats()
@@ -67,8 +67,7 @@ namespace Focus_Bear.Preferences
             if (e.IsSuccess)
             {
                 LogWriter.LogWrite("stats CoreWebView2NavigationCompleted() Success, Load Access token");
-                Mouse.OverrideCursor = null;
-
+ 
                 string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
 
                 string Settings = string.Format("{{\"access_token\":\"{0}\",\"type\":\"win\",\"lang\":\"{1}\",\"font\":\"{2}\",\"theme\":{3}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont),sTheme);
@@ -76,7 +75,7 @@ namespace Focus_Bear.Preferences
 
                 var ss = webView.ExecuteScriptAsync(settingsFunc);
                 LogWriter.LogWrite(ss.ToString());
-            }
+             }
         }
         private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
@@ -106,7 +105,7 @@ namespace Focus_Bear.Preferences
         }
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+             
         }
     }
 }

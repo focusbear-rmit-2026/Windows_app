@@ -30,23 +30,23 @@ namespace Focus_Bear.Focus
     /// <summary>
     /// Interaction logic for FocusModeEnd.xaml
     /// </summary>
-    public partial class FocusModeEnd : Window
+    public partial class FocusModeEnd : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
         DispatcherTimer dispatcherTimerShowTasksEndWindow = new DispatcherTimer(DispatcherPriority.Normal);
-        bool bForceClosingFocusMode = false;
+        
         bool bDoNotShowBreak = false; 
+
+        bool bUserClickedTake5MinBreak = false;
+        bool bUserClickedContinue = false;
 
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
-        public FocusModeEnd(bool bForceClosingFocusModeLocal = false)
+        public FocusModeEnd()
         {
             InitializeComponent();
             LogWriter.LogWrite("FocusModeEnd()");
-
-            
-            bForceClosingFocusMode = bForceClosingFocusModeLocal;
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
@@ -58,11 +58,6 @@ namespace Focus_Bear.Focus
             }
 
             appSettings.bStartingAnotherFocusMode = false;
-           
-            this.Topmost = true;
-            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-
-            App.ThemeChanged += TitleBarThemeChange;       
         }
 
 
@@ -80,6 +75,12 @@ namespace Focus_Bear.Focus
         }
         private void btnTakeBreak_Click(object sender, RoutedEventArgs e)
         {
+            bUserClickedTake5MinBreak = true;
+
+            ((App)Application.Current).wndFocusBearMainWindow.RightContent.Content = null; //We need to empty the view so that isVisible is not invoked when the window is shown after break
+
+            ((App)Application.Current).wndFocusBearMainWindow.Hide();
+
             Take5MinsBreak();
         }
 
@@ -88,7 +89,14 @@ namespace Focus_Bear.Focus
             if (appSettings.bStartingAnotherFocusMode)
                 LogWriter.LogWrite("Take5MinsBreak() called from bStartingAnotherFocusMode");
             else
+            {
                 LogWriter.LogWrite("Take5MinsBreak() Clicked");
+
+                if(appSettings.bUseSuperPomodoroMode) //If super pomodoro is still running we keep the title as Stop Super focus session
+                    ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopSuperFocusSession"].ToString());
+                else
+                    ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartFocusSession"].ToString());
+            }
 
 
             DateTime now = DateTime.Now;
@@ -105,6 +113,7 @@ namespace Focus_Bear.Focus
                 if (appSettings.nSuperPomodoroCountCompleted >= appSettings.NumberOfSuperPomodorosToRun) //check if all pomodoros have been finished.
                 {
                     appSettings.bUseSuperPomodoroMode = false;
+                    ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartFocusSession"].ToString());
                 }
             }
 
@@ -128,16 +137,18 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("Focus Mode end window client.FinishFocusMode API EX - " + ex.Message);
             }
 
-            if(bForceClosingFocusMode)
+            if(appSettings.bForceClosingFocusMode)
             {
-                Close();
+                appSettings.bForceClosingFocusMode = false; ///Reset
+
+                //Also fire the habits button to show the required screen
+                ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+
                 return;
             }
 
             if (appSettings.bStartingAnotherFocusMode)
                 return;
-
-            Hide();
 
             //Since the user is taking a few minutes break, we need to push back the micro breaks
             //Only if morning habits have been done
@@ -149,10 +160,6 @@ namespace Focus_Bear.Focus
                 //Show the Break Window
                 ((App)(Application.Current)).ShowBreakWindow();
             }
-
-            //Show the brain dump window
-            if (appSettings.sBrainDump.Length > 0) //Only show if there is text.
-                ((App)(Application.Current)).ShowBrainDumpWindow();
 
                 //Ask the user for adding temp apps / urls
             if (appSettings.TemporaryAllowedAppsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsTabTitles.Count != 0)
@@ -244,8 +251,20 @@ namespace Focus_Bear.Focus
                 try
                 {
                     bDoNotShowBreak = false;
+                    bUserClickedTake5MinBreak = false;
+                    appSettings.bStartingAnotherFocusMode = false;
+                    bUserClickedContinue = false;
 
-                    btnContinueText.Text = appSettings.ConfigFileStrings["common"]["buttonContinueText"].ToString();
+                    //if a break is running and focus session ends, the button should be Continue Break
+                    if(appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                    {
+                        btnContinueText.Text = "Continue Break";//appSettings.ConfigFileStrings["focusCompletedInfo"]["buttonContinueMicroBreak"].ToString();
+                    }
+                    else
+                    {
+                        btnContinueText.Text = appSettings.ConfigFileStrings["common"]["buttonContinueText"].ToString();
+                    }
+                    
                     Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["title"].ToString();
 
                     string sDescription = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["subTitle"].ToString();
@@ -318,18 +337,7 @@ namespace Focus_Bear.Focus
                     TxtAchieve.Text = "";
                     TxtDistractions.Text = "";
 
-                    
-                    if (appSettings.isStartPomodoroWindowOpen)
-                    {
-                        //Let's close the start pomodoro window 
-                        if (((App)(Application.Current)).wndStartPomodoro != null)
-                        {
-                            ((App)(Application.Current)).wndStartPomodoro.Hide();
-                        }
-                        appSettings.isStartPomodoroWindowOpen = false;
-                    }
-
-                    if(!appSettings.bIsGeekModeEnabled) //simple mode
+                    if (!appSettings.bIsGeekModeEnabled) //simple mode
                     {
                         btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
                     }
@@ -345,64 +353,44 @@ namespace Focus_Bear.Focus
                         }
                     }
 
-                    if (bForceClosingFocusMode)//Only show continue
+                    if (appSettings.bForceClosingFocusMode)//Only show continue
                     {
                         btnContinue.Visibility = Visibility.Visible;
+
                         btnTakeBreak.Visibility = Visibility.Collapsed;
                         btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
                     }
-
-                    //Resize if needed
-                    this.Width = 954;
-                    this.Height = 740;
-
-                   
-                    //Compute how many logical units the screen can show
-                    double screenLogicalWidth = SystemParameters.WorkArea.Width ;
-                    double screenLogicalHeight = SystemParameters.WorkArea.Height ;
-
-                    //“ideal” logical minimum
-                    const double idealMinW = 954, idealMinH = 740;
-
-                    //set to what actually fits
-                    this.Width = Math.Min(idealMinW, screenLogicalWidth);
-                    this.Height = Math.Min(idealMinH, screenLogicalHeight);
-
-                    //Center it
-                    this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
-                    this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
+                    else
+                    {
+                        //if a break is running and focus session ends, the button should be Continue Break
+                        if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                        {
+                            btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
+                            btnTakeBreak.Visibility = Visibility.Collapsed;
+                            btnContinue.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            btnTakeBreak.Visibility = Visibility.Visible;
+                            btnContinue.Visibility = Visibility.Collapsed;
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite("FocusModeEnd Window_IsVisibleChanged EX = " + ex.Message);
                 }
             }
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if(bForceClosingFocusMode)
+            else
             {
-                return;
+                //when user is moving away without any actions
+                if(!bUserClickedTake5MinBreak && !appSettings.bStartingAnotherFocusMode && !bUserClickedContinue)
+                {
+                    bDoNotShowBreak = true;
+                    appSettings.bUseSuperPomodoroMode = false; //Force stop the super focus session
+                    Take5MinsBreak();
+                }
             }
-
-            bool wasCodeClosed = new StackTrace().GetFrames().FirstOrDefault(x => x.GetMethod() == typeof(Window).GetMethod("Close")) != null;
-            if (!wasCodeClosed)
-            {
-                // Closed with Default Cross button, now we do not need to show the Break Window
-                LogWriter.LogWrite("Focusmode End Window_Closing() : User clicked default Close button");
-                bDoNotShowBreak = true; 
-            }
-
-            e.Cancel = true;
-            if(!appSettings.bStartingAnotherFocusMode)
-                Take5MinsBreak();
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (null != e)
-                e.Handled = true;
         }
 
         private void btnStartAnotherFocusMode_Click(object sender, RoutedEventArgs e)
@@ -410,8 +398,6 @@ namespace Focus_Bear.Focus
             appSettings.bStartingAnotherFocusMode = true;
 
             Take5MinsBreak();//needed to execute the finish focus mode api
-
-            Hide();
 
             //fire the start focus session button again
             ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
@@ -424,50 +410,6 @@ namespace Focus_Bear.Focus
             //14 May 2025 - Jeremy wants not to show the taks end window for now,
             //So, just returning from here, the timers are intact, when needed back, remove this return statement.
             return;
-
-
-            GridShade.Visibility = Visibility.Visible;
-            appSettings.sRawTasksDone = ""; //Reinitialize
-            SelectTasks wndSelectTasks = new SelectTasks(this);
-            wndSelectTasks.ShowDialog();
-            GridShade.Visibility = Visibility.Collapsed;
-
-            try
-            {
-                if (appSettings.sRawTasksDone != null && appSettings.sRawTasksDone.Length > 2)
-                {
-                    string arrTaskNames = "";
-                    JArray array = (JArray)JsonConvert.DeserializeObject(appSettings.sRawTasksDone);
-
-                    for (int i = 0; i < array.Count(); i++)
-                    {
-                        JObject TodoItem = JObject.Parse(array[i].ToString());
-                        string sName = TodoItem.ContainsKey("title") ? TodoItem["title"].ToString() : "";
-                        arrTaskNames += sName;
-                        string sStatus = TodoItem.ContainsKey("status") ? TodoItem["status"].ToString() : "";
-                        arrTaskNames += " (" + GetStatusText(sStatus) + ")" + "\n";                        
-                    }
-                    TxtAchieve.Text = arrTaskNames;
-
-                    //Now we need to remove the completed ones from the RawTasks
-                    for (int i = 0; i < array.Count(); i++)
-                    {
-                        JObject TodoItem = JObject.Parse(array[i].ToString());
-                        string sStatus = TodoItem.ContainsKey("status") ? TodoItem["status"].ToString() : "";
-                        if (sStatus == "COMPLETED")
-                        {
-                            array.RemoveAt(i);
-                            i--;
-                        }
-                    }
-                    appSettings.sRawTasks = JsonConvert.SerializeObject(array);//Now copy to Raw Tasks and save back to focus mode
-                }
-              
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("btnSelectTasks_Click() sRawTasks Exception - " + ex.Message);
-            }
         }
 
         private string GetStatusText(string sStatusConstant)
@@ -489,22 +431,20 @@ namespace Focus_Bear.Focus
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
-            Take5MinsBreak();
-        }
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
+            bUserClickedContinue = true;
+            bDoNotShowBreak = true;
 
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
-        }
-        private void TitleBarThemeChange()
-        {
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            if (source != null)
+            if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
-                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                //go to micro breaks screen
+                ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.MicroBreaks);
             }
+            else
+            {
+                appSettings.bUseSuperPomodoroMode = false; //Force stop the super focus session
+            }
+
+            Take5MinsBreak();
         }
     }
 }

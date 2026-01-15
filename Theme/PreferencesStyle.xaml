@@ -28,7 +28,11 @@
         <Style TargetType="CheckBox">
             <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
         </Style>
-        
+        <Style TargetType="TreeView">
+            <Setter Property="Background" Value="{DynamicResource BackgroundColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
+        </Style>
+ 
     <Style x:Key="BtnStylePlusMinus" TargetType="{x:Type Button}">
             <Setter Property="Template">
                 <Setter.Value>

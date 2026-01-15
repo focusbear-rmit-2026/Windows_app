@@ -22,7 +22,7 @@ namespace Focus_Bear.Focus
     /// <summary>
     /// Interaction logic for ToDoList.xaml
     /// </summary>
-    public partial class ToDoList : Window
+    public partial class ToDoList : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
@@ -34,7 +34,7 @@ namespace Focus_Bear.Focus
         public ToDoList()
         {
             InitializeComponent();
-            WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            
             SetWebView();
 
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
@@ -101,63 +101,6 @@ namespace Focus_Bear.Focus
             string sTodoPlayerURL = "https://dashboard.focusbear.io/webview/tools-todo-list?bust_cache=" + DateTime.UtcNow.ToString();
 
             webView.Source = new System.Uri(sTodoPlayerURL);
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            e.Cancel = true;
-            Hide();
-        }
-
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            var isLightTheme = Global.IsLightTheme();
-            if (appSettings.bAutoTheme)
-            {
-                if (source != null)
-                {
-                    app.UseImmersiveDarkMode(source.Handle, !isLightTheme);
-                }
-            }
-            else
-            {
-                if (appSettings.sTheme == "Light")
-                {
-                    app.UseImmersiveDarkMode(source.Handle, false);
-                }
-                else if (appSettings.sTheme == "Dark")
-                {
-                    app.UseImmersiveDarkMode(source.Handle, true);
-                }
-            }
-        }
-
-        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (IsVisible)
-            {
-                this.Width = 680;
-                this.Height = 650;
-
-                // Compute how many logical units the screen can show
-                //    (SystemParameters.WorkArea is in physical pixels)
-                double screenLogicalWidth = SystemParameters.WorkArea.Width;
-                double screenLogicalHeight = SystemParameters.WorkArea.Height;
-
-                //  “ideal” logical minimum
-                const double idealMinW = 680, idealMinH = 650;
-
-                // set to what actually fits
-                this.Width = Math.Min(idealMinW, screenLogicalWidth);
-                this.Height = Math.Min(idealMinH, screenLogicalHeight);
-
-                // Center it
-                this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
-                this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
-            }
         }
     }
 }

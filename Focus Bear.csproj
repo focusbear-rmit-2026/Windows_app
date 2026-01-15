@@ -398,6 +398,9 @@
     <Compile Include="Habits\ChooseHabits.xaml.cs">
       <DependentUpon>ChooseHabits.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Habits\HabitsPostponedView.xaml.cs">
+      <DependentUpon>HabitsPostponedView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Habits\HabitsResumeInPopup.xaml.cs">
       <DependentUpon>HabitsResumeInPopup.xaml</DependentUpon>
     </Compile>
@@ -421,6 +424,9 @@
     </Compile>
     <Compile Include="Habits\NaturalBreaks\NaturalBreakDetectionWindow.xaml.cs">
       <DependentUpon>NaturalBreakDetectionWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\NoHabitsRunningState.xaml.cs">
+      <DependentUpon>NoHabitsRunningState.xaml</DependentUpon>
     </Compile>
     <Compile Include="Habits\PostponeHabits.xaml.cs">
       <DependentUpon>PostponeHabits.xaml</DependentUpon>
@@ -828,6 +834,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Habits\HabitsPostponedView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Habits\HabitsResumeInPopup.xaml">
       <SubType>Designer</SubType>
       <Generator>XamlIntelliSenseFileGenerator</Generator>
@@ -860,6 +870,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Habits\NoHabitsRunningState.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Habits\PostponeHabits.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -888,7 +902,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="FocusBearMainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -896,8 +910,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="FocusBearMainWindow.xaml.cs">
+      <DependentUpon>FocusBearMainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Onboarding\AfterLogin\OnboardingAskProcrastinatingWindow.xaml">
@@ -1321,6 +1335,14 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\apple_logo.png" />
+    <Resource Include="Images\help.png" />
+    <Resource Include="Images\break.png" />
+    <Resource Include="Images\fb_white.png" />
+    <Resource Include="Images\motivation.png" />
+    <Resource Include="Images\blocks.png" />
+    <Resource Include="Images\MainAppWindow\sidebar_black.png" />
+    <Resource Include="Images\MainAppWindow\sidebar_white.png" />
     <Resource Include="Images\Settings\password_black.png" />
     <Resource Include="Images\Settings\strictness_black.png" />
     <Resource Include="Images\Settings\strictness_white.png" />

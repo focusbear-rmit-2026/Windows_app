@@ -34,13 +34,13 @@ namespace Focus_Bear.Preferences
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
 
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
         SolidColorBrush BackgroundColor = null;
 
         public FocusPage()
         {
         }
-        public FocusPage(PreferencesWindow pp)
+        public FocusPage(FocusBearMainWindow pp)
         {
             InitializeComponent();
 
@@ -533,21 +533,45 @@ namespace Focus_Bear.Preferences
                     }
                     else
                     {
-                        //First check if it is already added
-                        var listItems = selectedFocusMode.arrBlockedUrls.Where(i => i == url);
-                        if (listItems.Count() == 0)
+                        if (selectedFocusMode.isDefault)
                         {
-                            selectedFocusMode.arrBlockedUrls.Add(url);
-                            appSettings.CapturePostHog("add-blocked-url-in-focus-mode");
+                            //add to always blocked list array
+                            //First check if it is already added
+                            var listItems = appSettings.arrAlwaysBlockedURLs.Where(i => i == url);
+                            if (listItems.Count() == 0)
+                            {
+                                appSettings.arrAlwaysBlockedURLs.Add(url);
+                                appSettings.CapturePostHog("add-always-blocked-url");
+                                appSettings.bHasEditedBlockedURLs = true;
+                            }
+                            else
+                            {
+                                string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
+                                sErr = sErr.Replace("<APPNAME>", url);
+
+                                FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                                ff.Owner = _ParentWindow;
+                                ff.ShowDialog();
+                            }
                         }
                         else
                         {
-                            string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
-                            sErr = sErr.Replace("<APPNAME>", url);
-                            ///MessageBox.Show(sErr, "");
-                            FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
-                            ff.Owner = _ParentWindow;
-                            ff.ShowDialog();
+                            //First check if it is already added
+                            var listItems = selectedFocusMode.arrBlockedUrls.Where(i => i == url);
+                            if (listItems.Count() == 0)
+                            {
+                                selectedFocusMode.arrBlockedUrls.Add(url);
+                                appSettings.CapturePostHog("add-blocked-url-in-focus-mode");
+                            }
+                            else
+                            {
+                                string sErr = appSettings.ConfigFileStrings["focusPreferencesInfo"]["urlAlreadyExistsText"].ToString();
+                                sErr = sErr.Replace("<APPNAME>", url);
+                                ///MessageBox.Show(sErr, "");
+                                FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
+                                ff.Owner = _ParentWindow;
+                                ff.ShowDialog();
+                            }
                         }
                     }
                 }

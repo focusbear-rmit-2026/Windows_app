@@ -28,7 +28,7 @@ namespace Focus_Bear.ShutOff
     /// <summary>
     /// Interaction logic for ShutOffWindow.xaml
     /// </summary>
-    public partial class ShutOffWindow : FullScreenParent
+    public partial class ShutOffWindow : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
@@ -43,15 +43,15 @@ namespace Focus_Bear.ShutOff
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         DispatcherTimer dispatcherTimerUnlock = new DispatcherTimer(DispatcherPriority.Normal);
         DispatcherTimer dispatcherTimerShowDateTime = new DispatcherTimer(DispatcherPriority.Normal);
-        [DllImport("dwmapi.dll")]
-        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
         int nTimer = 10;
         int[] nDurationUnlockMins = new int[] { 15, 30, 60, 120, 240, 480 };
-
-        public ShutOffWindow()
+        FocusBearMainWindow ParentWindow = null;
+        public ShutOffWindow(FocusBearMainWindow _ParentWindow)
         {
             InitializeComponent();
 
+            ParentWindow = _ParentWindow;
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
@@ -65,20 +65,9 @@ namespace Focus_Bear.ShutOff
 
             if (!appSettings.bPlayActivitiesInFullScreenMode)
             {
-                this.WindowState = WindowState.Normal;
-                this.WindowStyle = WindowStyle.ToolWindow;
-                this.Width = 1300;
-                this.Height = 750;
-
                 Time.Visibility = Visibility.Collapsed;
                 MainGrid.RowDefinitions[0].MinHeight = 5;
             }
-
-            //Set the minimum so that in non full screen mode we do not go below this.
-            this.MinWidth = 1300;
-            this.MinHeight = 750;
-            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            App.ThemeChanged += TitleBarThemeChange;
 
             Time.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
 
@@ -173,12 +162,12 @@ namespace Focus_Bear.ShutOff
                             if (appSettings.bPasswordRequireInAbortShutoff)
                             {
                                 AskPassword pwdWnd = new AskPassword();
-                                pwdWnd.Owner = this;
-                                GridShade.Visibility = Visibility.Visible;
+                                pwdWnd.Owner = ParentWindow;
+                                ParentWindow.GridShade.Visibility = Visibility.Visible;
 
                                 bool? bResult = pwdWnd.ShowDialog();
 
-                                GridShade.Visibility = Visibility.Collapsed;
+                                ParentWindow.GridShade.Visibility = Visibility.Collapsed;
 
                                 if (bResult.Value)
                                 {
@@ -200,7 +189,7 @@ namespace Focus_Bear.ShutOff
                             //(If password not in place)
                             //If it's after the cutoff time and they request to unlock, have a button to immediately unlock for 30 minutes. (Only available once per night)
                             
-                            //26 Sep 2025 Removing teh check for cutoff time passed
+                            //26 Sep 2025 Removing the check for cutoff time passed
                             
                             {
                                 LogWriter.LogWrite("GET_ACCESS - isPasswordSet FASLE  ");
@@ -215,11 +204,11 @@ namespace Focus_Bear.ShutOff
                                     }
                                     else
                                     {
-                                        GridShade.Visibility = Visibility.Visible;
+                                        ParentWindow.GridShade.Visibility = Visibility.Visible;
                                         FBMessageBox ff = new FBMessageBox("", appSettings.ConfigFileStrings["shutOffTimeInfo"]["unlockingFirstTimeText"].ToString());
-                                        ff.Owner = this;
+                                        ff.Owner = ParentWindow;
                                         ff.ShowDialog();
-                                        GridShade.Visibility = Visibility.Collapsed;
+                                        ParentWindow.GridShade.Visibility = Visibility.Collapsed;
                                         AbortShutoffForMinutes(30);
                                     }
                                 }
@@ -249,7 +238,7 @@ namespace Focus_Bear.ShutOff
         }
         private void StartTimer()
         {
-            LogWriter.LogWrite("StartTimer()");
+            LogWriter.LogWrite("Shutoff window StartTimer()");
 
             try
             { 
@@ -458,32 +447,6 @@ namespace Focus_Bear.ShutOff
             CommandManager.InvalidateRequerySuggested();
         }
 
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            appSettings.RemoveSecondaryWindows();
-        }
-
-        private void FullScreenParent_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            bool wasCodeClosed = new StackTrace().GetFrames().FirstOrDefault(x => x.GetMethod() == typeof(Window).GetMethod("Close")) != null;
-            if (wasCodeClosed)
-            {
-                // Closed with this.Close()
-                LogWriter.LogWrite("FullScreenParent_Closing() : wasCodeClosed ");
-            }
-            else
-            {
-                e.Cancel = true;
-                // Closed some other way - like close button clicked.
-                // first Please spare me button to postpone
-                LogWriter.LogWrite("FullScreenParent_Closing() : Closed some other way - like close button clicked. Invoke Action ");
-
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnAction);
-                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                invokeProv.Invoke();
-            }
-        }
-
         void AbortShutoffForMinutes( int nMinutesToAbort)
         {
             LogWriter.LogWrite("AbortShutoffForMinutes() : " + nMinutesToAbort.ToString());
@@ -522,7 +485,9 @@ namespace Focus_Bear.ShutOff
             }
             RegistryManager.SetShutOffAbortedFor30MinsTillDate();
 
-            Close();
+            //Hide main window and enable buttons
+            ParentWindow.EnableAllButtons();
+            ParentWindow.Hide();
         }
 
         void AbortShutoff()
@@ -557,7 +522,9 @@ namespace Focus_Bear.ShutOff
 
             RegistryManager.SetShutOffAbortedTillDate();
 
-            Close();
+            //Hide main window and enable buttons
+            ParentWindow.EnableAllButtons();
+            ParentWindow.Hide();
         }
         public void ShowUpEarlySection()
         {
@@ -593,12 +560,12 @@ namespace Focus_Bear.ShutOff
                 if (appSettings.bPasswordRequireInAbortShutoff)
                 {
                     AskPassword pwdWnd = new AskPassword();
-                    pwdWnd.Owner = this;
-                    GridShade.Visibility = Visibility.Visible;
+                    pwdWnd.Owner = ParentWindow;
+                    ParentWindow.GridShade.Visibility = Visibility.Visible;
 
                     bool? bResult = pwdWnd.ShowDialog();
 
-                    GridShade.Visibility = Visibility.Collapsed;
+                    ParentWindow.GridShade.Visibility = Visibility.Collapsed;
 
                     if (bResult.Value)
                     {
@@ -615,7 +582,10 @@ namespace Focus_Bear.ShutOff
             appSettings.ChangeStartupTimeToCurrentTimeAndSaveSettings();
             appSettings.nCurrentActivityType = CurrentActivityType.NONE;
             LogWriter.LogWrite("btnStartMorningRoutine_Click set appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
-            Close();
+
+            //take to habits screen
+            ParentWindow.HandleLeafSelection(LeftButtonType.Habits);
+            
         }
 
         private void btnWorkEmergency_Click(object sender, RoutedEventArgs e)
@@ -628,12 +598,12 @@ namespace Focus_Bear.ShutOff
                 if (appSettings.bPasswordRequireInAbortShutoff)
                 {
                     AskPassword pwdWnd = new AskPassword();
-                    pwdWnd.Owner = this;
-                    GridShade.Visibility = Visibility.Visible;
+                    pwdWnd.Owner = ParentWindow;
+                    ParentWindow.GridShade.Visibility = Visibility.Visible;
 
                     bool? bResult = pwdWnd.ShowDialog();
 
-                    GridShade.Visibility = Visibility.Collapsed;
+                    ParentWindow.GridShade.Visibility = Visibility.Collapsed;
 
                     if (bResult.Value)
                     {
@@ -660,7 +630,8 @@ namespace Focus_Bear.ShutOff
             appSettings.bCompleteYourEveningRoutineClicked = true;
             appSettings.nCurrentActivityType = CurrentActivityType.NONE;
             LogWriter.LogWrite("btnCompleteEveningRoutine_Click set appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
-            Close();
+            //take to habits screen
+            ParentWindow.HandleLeafSelection(LeftButtonType.Habits);
         }
         private void TitleBarThemeChange()
         {
@@ -677,36 +648,6 @@ namespace Focus_Bear.ShutOff
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
             }
-        }
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
-        }
-
-        private void FullScreenParent_Loaded(object sender, RoutedEventArgs e)
-        {
-            //Compute how many logical units the screen can show
-            double screenLogicalWidth = SystemParameters.WorkArea.Width;
-            double screenLogicalHeight = SystemParameters.WorkArea.Height;
-
-            LogWriter.LogWrite(string.Format("screenLogicalWidth = {0}, screenLogicalHeight = {1}", screenLogicalWidth.ToString(), screenLogicalHeight.ToString()));
-            // “ideal” logical minimum
-            const double idealMinW = 1300, idealMinH = 750;
-
-            //Cap the minimum to what actually fits
-            this.MinWidth = Math.Min(idealMinW, screenLogicalWidth);
-            this.MinHeight = Math.Min(idealMinH, screenLogicalHeight);
-
-            // If you want the window to start at that minimum size:
-            this.Width = this.MinWidth;
-            this.Height = this.MinHeight;
-
-            //Center it
-            this.Left = Math.Max(0, (screenLogicalWidth - this.Width) / 2);
-            this.Top = Math.Max(0, (screenLogicalHeight - this.Height) / 2);
         }
     }
 }

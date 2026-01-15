@@ -2,33 +2,21 @@
 using Focus_Bear.Models;
 using Focus_Bear.Preferences.SettingsTab;
 using Focus_Bear.Utils;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using System.Windows;
-using System.Windows.Automation.Peers;
-using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
 using Application = System.Windows.Application;
 using Image = System.Windows.Controls.Image;
-using MessageBox = System.Windows.MessageBox;
+ 
 
 namespace Focus_Bear.Preferences
 {
@@ -80,10 +68,10 @@ namespace Focus_Bear.Preferences
     /// <summary>
     /// Interaction logic for Settings.xaml
     /// </summary>
-    public partial class Settings : Page
+    public partial class Settings : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
 
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
@@ -137,7 +125,7 @@ namespace Focus_Bear.Preferences
         public Settings()
         {
         }
-        public Settings(PreferencesWindow pp)
+        public Settings(FocusBearMainWindow pp)
         {
             InitializeComponent();
 
@@ -291,12 +279,12 @@ namespace Focus_Bear.Preferences
         {
             try
             {
-                var folderBrowserDialog1 = new FolderBrowserDialog();
+                var folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
                 folderBrowserDialog1.Description = appSettings.ConfigFileStrings["menuInfo"]["menuItemExportStatisticsTitle"].ToString();
 
                 // Show the FolderBrowserDialog.
-                DialogResult result = folderBrowserDialog1.ShowDialog();
-                if (result == DialogResult.OK)
+                System.Windows.Forms.DialogResult result = folderBrowserDialog1.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK)
                 {
                     string startPath = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FocusBearStats.CSV");
 
@@ -395,7 +383,7 @@ namespace Focus_Bear.Preferences
                 _ParentWindow.PageEditHabits.RefreshOnModeChange();
             }
 
-            _ParentWindow.SetFocusButtonState();//set the state of the main tab
+            //mj//_ParentWindow.SetFocusButtonState();//set the state of the main tab
 
             //Save the local settings and upload to server
             LocalSettingsManager.PutLocalSettings();
@@ -411,6 +399,15 @@ namespace Focus_Bear.Preferences
             if (ListLeftButtons.SelectedItem is LeftButtonItem item)
             {
                 RightContent.Content = _views[item.ButtonType]; // Swap existing view
+            }
+        }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(!IsVisible)
+            {
+                //save the local settings and upload to server
+                LocalSettingsManager.PutLocalSettings();
             }
         }
     }

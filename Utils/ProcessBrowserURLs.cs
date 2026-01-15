@@ -5,6 +5,7 @@ using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -1182,8 +1183,19 @@ namespace Focus_Bear.Utils
                     }
                     else
                     {
-                        DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
-                        string sEndTime = end.ToString("o");
+                        string sEndTime = null;
+
+                        if (DateTime.TryParse(appSettings.sRunningFocusModeEndTime,
+                                              out DateTime endT))
+                        {
+                            sEndTime = endT.ToUniversalTime().ToString("o");
+                        }
+                        else
+                        {
+                            // handle invalid value
+                            sEndTime = "";
+                        }
+
                         string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, HttpUtility.UrlEncode(val), sEndTime, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.AppVersion.ToString());
                         // "https://focus-bear.github.io/assets/focus-blocked/?old_url={0)&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
 

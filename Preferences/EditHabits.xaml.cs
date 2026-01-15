@@ -28,15 +28,16 @@ namespace Focus_Bear.Preferences
     /// <summary>
     /// Interaction logic for EditHabits.xaml
     /// </summary>
-    public partial class EditHabits : Page
+    public partial class EditHabits : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        PreferencesWindow _ParentWindow = null;
-       
+        FocusBearMainWindow _ParentWindow = null;
+
+        private bool bWebViewInitialized = false;
         public EditHabits()
         {
         }
-        public EditHabits(PreferencesWindow pp)
+        public EditHabits(FocusBearMainWindow pp)
         {
             InitializeComponent();
             _ParentWindow = pp;
@@ -46,7 +47,6 @@ namespace Focus_Bear.Preferences
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
             App.ThemeChanged += LoadURL;
         }
-
 
         private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
@@ -179,6 +179,7 @@ namespace Focus_Bear.Preferences
                 if (webView != null)
                 {
                     await webView.EnsureCoreWebView2Async(task);
+                    bWebViewInitialized = true;
                 }
             }
             catch (Exception ex)
@@ -190,7 +191,6 @@ namespace Focus_Bear.Preferences
         {
             if (e.IsSuccess)
             {
-                Mouse.OverrideCursor = null;
                 LoadSettings();
             }
         }
@@ -220,7 +220,7 @@ namespace Focus_Bear.Preferences
         }
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+             
         }
 
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -231,8 +231,11 @@ namespace Focus_Bear.Preferences
         {
             try
             {
-                var sTemp = webView.ExecuteScriptAsync("refreshSettingPage();");
-                LoadSettings();
+                if (bWebViewInitialized) //not first time when creating, only when webview is initialized
+                {
+                    var sTemp = webView.ExecuteScriptAsync("refreshSettingPage();");
+                    LoadSettings();
+                }
             }
             catch (Exception ex)
             {

@@ -1,13 +1,12 @@
-﻿ <Window x:Class="Focus_Bear.FocusMusic.FocusMusicView"
+﻿ <UserControl x:Class="Focus_Bear.FocusMusic.FocusMusicView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.FocusMusic"
         xmlns:Models="clr-namespace:Focus_Bear.Models"
-        mc:Ignorable="d"
-        Title="FocusMusic" Height="650" Width="800" MinHeight="603" MinWidth="702" Closing="Window_Closing">
-    <Window.Resources>
+        mc:Ignorable="d">
+    <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
         <local:PlayPauseTextConverter x:Key="PlayPauseTextConverter" />
@@ -28,7 +27,7 @@
                             <Trigger Property="IsMouseOver" Value="true">
                                 <Setter TargetName="IconBorder" Property="Background">
                                     <Setter.Value>
-                                        <SolidColorBrush Color="#e9912c" Opacity="1"/>
+                                        <SolidColorBrush Color="#FFDC8C11" Opacity="1"/>
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
@@ -39,7 +38,7 @@
             
         </Style>
 
-    </Window.Resources>
+    </UserControl.Resources>
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -58,9 +57,9 @@
                     Width="200"
                     ValueChanged="VolumeSlider_ValueChanged" />
             </StackPanel>
-            <TextBlock  DockPanel.Dock="Top" Name="Heading" Margin="20,10,20,0" TextWrapping="Wrap" Text="xxHere are some focus music tracks (some are binaural beats) you can use to help you focus. FYI the research is ambivalent about binaural beats - you'll likely get similar benefits from using your own music. Just make sure the music doesn't have lyrics otherwise you'll get distracted." FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+            <TextBlock  DockPanel.Dock="Top" Name="Heading" Margin="20,20,20,0" TextWrapping="Wrap" Text="xxHere are some focus music tracks (some are binaural beats) you can use to help you focus. FYI the research is ambivalent about binaural beats - you'll likely get similar benefits from using your own music. Just make sure the music doesn't have lyrics otherwise you'll get distracted." FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
             <!-- List of Tracks -->
-            <ListView   Grid.Row="0"   x:Name="ListTracks" AutomationProperties.AutomationId="lvListTracks" SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" >
+            <ListView   Grid.Row="0"   x:Name="ListTracks" AutomationProperties.AutomationId="lvListTracks" SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="20,20,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" >
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid x:Name="ItemHeader"  Height="75" Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -138,4 +137,4 @@
 
         </DockPanel>
     </Grid>
-</Window>
+</UserControl>

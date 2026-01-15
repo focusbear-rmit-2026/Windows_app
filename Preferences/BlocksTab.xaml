@@ -1,4 +1,4 @@
-﻿<Page x:Class="Focus_Bear.Preferences.BlocksTab"
+﻿<UserControl x:Class="Focus_Bear.Preferences.BlocksTab"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -7,7 +7,7 @@
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
       d:DesignHeight="750" d:DesignWidth="800"
-      Title="BlocksTab">
+      >
 
     <Grid>
         <Grid.Resources>
@@ -70,7 +70,7 @@
                 <RowDefinition Height="1"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xBlocking" FontSize="15" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,10,0,0" TextWrapping="Wrap" Text="xBlocking" FontSize="13" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
             <Grid Grid.Row="1" ></Grid>
 
             <Border  Grid.Row="2" CornerRadius="8" ClipToBounds="True" Background="#F4F5F5"  BorderBrush="LightGray" BorderThickness="1">
@@ -85,7 +85,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Image Source="{DynamicResource FocusModeDark}" Margin="10,4,0,0" Height="24" Width="24" Grid.Column="0"/>
-                                <TextBlock Name="btnBlockListsText" Margin="8,0,0,0" Text="xBlock Lists" Foreground="Black" VerticalAlignment="Center" Grid.Column="1"/>
+                                <TextBlock Name="btnBlockListsText" Margin="8,0,0,0" FontSize="13" Text="xBlock Lists" Foreground="Black" VerticalAlignment="Center" Grid.Column="1"/>
                                 <TextBlock Text="❯" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" Foreground="#333" Grid.Column="2" Margin="0,0,10,0"/>
                             </Grid>
                         </Button.Content>
@@ -101,7 +101,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Image Source="{DynamicResource BlockImage}" Margin="10,4,0,0" Height="24" Width="24" Grid.Column="0"/>
-                                <TextBlock Name="btnBlockingScheduleText" Margin="8,0,0,0" Text="xBlocking Schedule" Foreground="Black" VerticalAlignment="Center" Grid.Column="1"/>
+                                <TextBlock Name="btnBlockingScheduleText" Margin="8,0,0,0"  FontSize="13" Text="xBlocking Schedule" Foreground="Black" VerticalAlignment="Center" Grid.Column="1"/>
                                 <TextBlock Text="❯" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" Foreground="#333" Grid.Column="2" Margin="0,0,10,0"/>
                             </Grid>
                         </Button.Content>
@@ -117,7 +117,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Image Source="{DynamicResource GlobeImage}" Margin="10,4,0,0" Height="24" Width="24" Grid.Column="0"/>
-                                <TextBlock Name="btnDistractingSitesText" Margin="8,0,0,0" Text="xDistracting Sites" Foreground="Black" VerticalAlignment="Center" Grid.Column="1"/>
+                                <TextBlock Name="btnDistractingSitesText" Margin="8,0,0,0"  FontSize="13" Text="xDistracting Sites" Foreground="Black" VerticalAlignment="Center" Grid.Column="1"/>
                                 <TextBlock Text="❯" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" Foreground="#333" Grid.Column="2" Margin="0,0,10,0"/>
                             </Grid>
                         </Button.Content>
@@ -132,12 +132,12 @@
         <Grid x:Name="SubViewContainer" Visibility="Collapsed" Grid.Row="2" >
              
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="40"/>
                     <!-- Back button row -->
                     <RowDefinition Height="*"/>
                     <!-- Subview fills remaining space -->
                 </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,10,0,0" >
                 <Button x:Name="btnBack"  AutomationProperties.AutomationId="btnBack" Width="25" Height="25" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  HorizontalAlignment="Left" VerticalAlignment="Center" Padding="0" Margin="20,5,0,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnBack_Click"  >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
@@ -145,7 +145,7 @@
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <TextBlock  Grid.Row="0"  Name="SubViewHeading" Margin="10,6,0,0" TextWrapping="Wrap" Text="xBlocking Schedule" FontSize="15" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                <TextBlock  Grid.Row="0"  Name="SubViewHeading" Margin="10,6,0,0" TextWrapping="Wrap" Text="xBlocking Schedule" FontSize="13" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
             </StackPanel>
                 
             <ContentControl Grid.Row="1" x:Name="ContentArea" Margin="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
@@ -153,4 +153,4 @@
        
 
     </Grid>
-</Page>
+</UserControl>

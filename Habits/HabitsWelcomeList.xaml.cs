@@ -51,11 +51,11 @@ namespace Focus_Bear.Habits
         private DispatcherTimer popupTimer;
         private ObservableCollection<HabitList> _ObjListActivityModel = null;
         AppSettings appSettings = AppSettings.GetInstance;
-        private HabitWindow _parentWindow;
+        private FocusBearMainWindow _parentWindow;
         public HabitsWelcomeList()
         {
         }
-        public HabitsWelcomeList(HabitWindow parentWindow) : this()
+        public HabitsWelcomeList(FocusBearMainWindow parentWindow) : this()
         {
             InitializeComponent();
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
@@ -108,8 +108,7 @@ namespace Focus_Bear.Habits
                     nCount = appSettings.arrAllEveningHabitsFiltered.Count;
                     if(appSettings.bSomeHabitsRemovedDueToCutOffTime)
                     {
-                        PopupTitle.Text = appSettings.ConfigFileStrings["activityInfo"]["cutoffHabitPopupText"].ToString(); //todo win texts
-
+                        PopupTitle.Text = "Some habits which are past the cutoff time you set have been removed from the list."; //todo win texts
                         MyPopup.IsOpen = true;
                         // Create and start a timer to trigger fade-out after 5 seconds.
                         popupTimer = new DispatcherTimer();
@@ -137,7 +136,7 @@ namespace Focus_Bear.Habits
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("HabitsWelcomeList initialization" + ex.Message);
+                LogWriter.LogWrite("HabitsWelcomeList initialization ex - " + ex.Message);
             }
             Sounds.PlayRoutineStartSound();
         }
@@ -240,8 +239,8 @@ namespace Focus_Bear.Habits
                         appSettings.arrAllEveningHabits.Insert(0, itemToMove);
                     }
                 }
-                 
-                _parentWindow.ShowExtraPersonalFocus();
+
+                _parentWindow.PageHabits.ShowExtraPersonalFocus();
             }
             catch (Exception ex)
             {
@@ -276,7 +275,7 @@ namespace Focus_Bear.Habits
             }
 
             //change the button text to back tomy habits
-            _parentWindow.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonBackToMyHabitsText"].ToString();  
+            _parentWindow.PageHabits.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonBackToMyHabitsText"].ToString();  
             WebGrid.Visibility = Visibility.Visible;
             Normal.Visibility = Visibility.Collapsed;
         }
@@ -433,11 +432,11 @@ namespace Focus_Bear.Habits
 
                 if (!appSettings.bPlayActivitiesInFullScreenMode)
                 {
-                    _parentWindow.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
+                    _parentWindow.PageHabits.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonPostponeText"].ToString();
                 }
                 else
                 {
-                    _parentWindow.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
+                    _parentWindow.PageHabits.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
                 }
 
             }
@@ -501,7 +500,7 @@ namespace Focus_Bear.Habits
 
         private void btnDoNoHaveTime_Click(object sender, RoutedEventArgs e)
         {
-            _parentWindow.ShowChooseHabitsWindow();
+            _parentWindow.PageHabits.ShowChooseHabitsWindow();
             UpdateHabitsList();
         }
 

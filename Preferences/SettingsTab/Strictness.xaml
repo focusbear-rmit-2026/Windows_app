@@ -21,13 +21,13 @@
                 <RowDefinition Height="1"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xStrictness" FontSize="15" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xStrictness" FontSize="13" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
             <Grid Grid.Row="1" ></Grid>
 
             <Border  Grid.Row="2" CornerRadius="8" ClipToBounds="True" Background="#F4F5F5"  BorderBrush="LightGray" BorderThickness="1" >
                 <StackPanel Orientation="Vertical" >
                     
-                    <Button x:Name="btnPassword"  AutomationProperties.AutomationId="btnPassword" Margin="2,2,2,0" Style="{StaticResource  BtnMacStyleSettingsGray}" IsEnabled="True" Height="45"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0"  FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnPassword_Click">
+                    <Button x:Name="btnPassword"  AutomationProperties.AutomationId="btnPassword" Margin="2,2,2,0" Style="{StaticResource  BtnMacStyleSettingsGray}" IsEnabled="True" Height="45"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0"  FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnPassword_Click">
                         <Button.Content>
                             <Grid  Background="{x:Null}">
                                 <Grid.ColumnDefinitions>
@@ -43,7 +43,7 @@
                         </Button.Content>
                     </Button>
                     <Grid Background="LightGray" Height="1" Margin="10,1,10,0"></Grid>
-                    <Button x:Name="btnFocusMode"  AutomationProperties.AutomationId="btnFocusMode" Margin="2,2,2,0" Style="{StaticResource  BtnMacStyleSettingsGray}" IsEnabled="True" Height="45"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0"  FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnFocusMode_Click">
+                    <Button x:Name="btnFocusMode"  AutomationProperties.AutomationId="btnFocusMode" Margin="2,2,2,0" Style="{StaticResource  BtnMacStyleSettingsGray}" IsEnabled="True" Height="45"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0"  FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnFocusMode_Click">
                         <Button.Content>
                             <Grid  Background="{x:Null}">
                                 <Grid.ColumnDefinitions>
@@ -59,7 +59,7 @@
                         </Button.Content>
                     </Button>
                     <Grid Background="LightGray" Height="1" Margin="10,1,10,0"></Grid>
-                    <Button x:Name="btnDistractingSites"  AutomationProperties.AutomationId="btnDistractingSites" Margin="2,2,2,0" Style="{StaticResource  BtnMacStyleSettingsGray}" IsEnabled="True" Height="45"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0"  FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnDistractingSites_Click">
+                    <Button x:Name="btnDistractingSites"  AutomationProperties.AutomationId="btnDistractingSites" Margin="2,2,2,0" Style="{StaticResource  BtnMacStyleSettingsGray}" IsEnabled="True" Height="45"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0"  FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnDistractingSites_Click">
                         <Button.Content>
                             <Grid  Background="{x:Null}">
                                 <Grid.ColumnDefinitions>
@@ -89,11 +89,11 @@
                 <RowDefinition Height="*"/>
                 <!-- Subview fills remaining space -->
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" >
                 <Button x:Name="btnBack"  AutomationProperties.AutomationId="btnBack" Width="25" Height="25" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  HorizontalAlignment="Left" VerticalAlignment="Center" Padding="0" Margin="20,5,0,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnBack_Click"  >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
-                            <TextBlock x:Name="btnbtnBackTXT" Text="❮" FontSize="15" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                            <TextBlock x:Name="btnbtnBackTXT" Text="❮" FontSize="13" Style="{DynamicResource ButtonTextBlockStyle}"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>

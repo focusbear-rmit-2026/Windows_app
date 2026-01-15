@@ -32,7 +32,7 @@ namespace Focus_Bear
         CancellationTokenSource _tokenSource = null;
         CancellationToken _cancelToken;
         AppUpdater _appUpdater = null;
-        MainWindow mainWin = null;
+        FocusBearMainWindow mainWin = null;
 
         public UpdateWin()
         {
@@ -55,7 +55,7 @@ namespace Focus_Bear
         {
             try
             {
-                mainWin = Application.Current.MainWindow as MainWindow;
+                mainWin = Application.Current.MainWindow as FocusBearMainWindow;
                 Owner = mainWin;
                 WindowStartupLocation = WindowStartupLocation.CenterOwner;
 

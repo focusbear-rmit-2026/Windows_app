@@ -48,6 +48,10 @@
     
     <SolidColorBrush x:Key="ExpanderBackground" Color="White"/>
 
+    <!-- Main Window Icon -->
+    <BitmapImage x:Key="SidebarButton" UriSource="../Images/MainAppWindow/sidebar_black.png" />
+    <BitmapImage x:Key="FocusBearLogoMain" UriSource="../Images/fb.png" />
+    
     <!-- Tooltip Base colors -->
     <Color x:Key="TooltipBackgroundColor">#F5F5F5</Color>
     <Color x:Key="TooltipForegroundColor">#1E1E1E</Color>

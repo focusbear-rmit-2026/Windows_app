@@ -183,6 +183,12 @@ namespace Focus_Bear.Focus
                     //We will need to start the focus mode again after the focus session and X min break is over
                     if(!appSettings.bHabitwithAllowedAppsRunning && !bIamDoneTypeActivity ) //make sure break window is not shown for habits with allowed apps
                     {
+
+                        if (appSettings.bUseSuperPomodoroMode) //If super pomodoro is still running we keep the title as Stop Super focus session
+                            ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopSuperFocusSession"].ToString());
+                        else
+                            ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartFocusSession"].ToString());
+             
                         //Removing the super pomodoro check, we need to show start focus mode window after the break ends.
                         {
                             ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
@@ -214,10 +220,13 @@ namespace Focus_Bear.Focus
         private void btnIAmDone_Click(object sender, RoutedEventArgs e)
         {
             dispatcherTimer.Stop();
-            if (((App)(Application.Current)).wndHabits != null )
+            if (((App)(Application.Current)).wndFocusBearMainWindow != null )
             {
-                     //CLick the I am done button on the main window
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndHabits.PageHabitActivityOnGoing.btnIAmDone);
+                //Select the habits tab
+                ((App)(Application.Current)).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+
+                //CLick the I am done button on the main window
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing.btnIAmDone);//V2
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
 

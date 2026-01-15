@@ -4,11 +4,14 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -24,11 +27,11 @@ namespace Focus_Bear.Focus
     /// <summary>
     /// Interaction logic for StopFocusMode.xaml
     /// </summary>
-    public partial class StopFocusMode : Window
+    public partial class StopFocusMode : UserControl
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
-        DispatcherTimer dispatcherTimerDeactivate = new DispatcherTimer(DispatcherPriority.Normal);
+        DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         int nTimer = 0;
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
@@ -44,155 +47,46 @@ namespace Focus_Bear.Focus
             {
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
-
-            App.ThemeChanged += TitleBarThemeChange;
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+        }
+         public void StartTimer()
+        {
             try
             {
-                this.Topmost = true;
-                this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                string sHeading = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["title"].ToString();
+                string sHeading = appSettings.ConfigFileStrings["common"]["focusEndsText"].ToString();
 
-                Heading.Text = sHeading.Replace("<FOCUSTYPE>", appSettings.sRunningFocusModeName);
-                WhyDeactivating.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["questionText"].ToString();
+                Heading.Text = appSettings.sRunningFocusModeName + " " + sHeading + ":";
 
-                //Force user to actively make a choice from dropdown : 26 June 2023
-                //Adding an empty item on 0 index
-                ComboBoxReason.Items.Add("");
-
-                //We still need random items in the combox box everytime
-                Random rnd = new Random();
-                int nRandom = rnd.Next(1, 3);
-                if (nRandom == 1)
-                {
-                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString());
-                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsSecondText"].ToString());
-                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsThirdText"].ToString());
-                }
-                else if (nRandom == 2)
-                {
-                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsThirdText"].ToString());
-                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString());
-                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsSecondText"].ToString());
-                }
+                if(appSettings.bUseSuperPomodoroMode)
+                    btnStopFocusText.Text = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopSuperFocusSession"].ToString();
                 else
-                {
-                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsSecondText"].ToString());
-                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsThirdText"].ToString());
-                    ComboBoxReason.Items.Add(appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString());
-                }
+                    btnStopFocusText.Text = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopFocusSession"].ToString();
 
-                ComboBoxReason.SelectedIndex = 0;
-
-                btnCancelText.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["buttonCancelText"].ToString();
-                btnStopFocusText.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["buttonAbortFocusText"].ToString();
-
-                btnStopFocus.IsEnabled = false;
-                //Removed the 5 second timer from build v 108
                 Timer.Text = "";
 
-                LogWriter.LogWrite("Deactivate Focus Mode Window shown");
+                LogWriter.LogWrite("Stop Focus Mode View shown");
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("StopFocusMode()" + ex.Message);
             }
 
+            dispatcherTimer.Start();
+            CommandManager.InvalidateRequerySuggested();
         }
-
-        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        private void btnStopFocus_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = false;
-            Close();
-        }
-
-        private async void btnStopFocus_Click(object sender, RoutedEventArgs e)
-        {
+            LogWriter.LogWrite("StopFocusMode() btnStopFocus_Click()");
             try
             {
-                await ((App)(Application.Current)).SyncTodoTasksFromPlayer(); // sync todo tasks
+                dispatcherTimer.Stop();
 
-                if (!appSettings.bIsGeekModeEnabled)//Simple mode
-                {
-                    appSettings.bAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabledLastValueBeforeSimplePomodoro; //resetting the AI value
-                }
-                //If super pomodoro was running and user manually stopped the focus mode, we will reset the variable
-                appSettings.bUseSuperPomodoroMode = false;
+                //fire the Stop focus session button from the menu common for super focus session too
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStopPomodoroMode);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
 
-                ((App)(Application.Current)).HideToDoPlayer();
-
-                bool bCallFocusEndAPI = false;
-
-                FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
-                FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
-
-                DateTime now = DateTime.Now;
-                TimeSpan difference = now.Subtract(DateTime.Parse(appSettings.sRunningFocusModeStartTime)); // could also write `now - otherTime`
-                var durationSeconds = difference.TotalSeconds;
-                int nSeconds = Convert.ToInt32(durationSeconds);
-
-
-                string sOption = ComboBoxReason.SelectedValue.ToString();
-                if (sOption == appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["reasonsFirstText"].ToString()) //"reasonsFirstText": "I achieved what I wanted to.",
-                {
-                    if(appSettings.bShowFocusModeEnd) //Only if the user have selected the setting to show Focus mode end window
-                    {
-                        //Show the Focusmode end dialog
-                        ((App)(Application.Current)).ShowFocusEndWindow();
-                    }
-                    else
-                    {
-                        //Call the API to finish focus mode here:
-                        bCallFocusEndAPI = true;
-                        
-                        appSettings.AddEntryInCSV("focus block", appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, "", "", "", "");
-
-                        appSettings.CapturePostHog("completed-focus-session", string.Format("\"focus-type\":\"manual_focus\",\"focusDurationMinutes\":{0}", (nSeconds / 60)));
-                    }
-                }
-                else
-                {
-                    //14 May 2025 - Jeremy wants not to show the taks end window for now, so commenting this out
-                    //if (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 2) //Now the empty array [] is retuned
-                    //{
-                    //    //Show the Focusmode end dialog
-                    //    ((App)(Application.Current)).ShowFocusEndWindow();
-                    //}
-                    //else
-                    {
-                        LogWriter.LogWrite("Focus mode Aborted()");
-
-                        bCallFocusEndAPI = true;
-
-                        appSettings.AddEntryInCSV("focus mode abort", "focus block - " + appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, "", "", sOption, "");
-                        appSettings.CapturePostHog("completed-focus-session", string.Format("\"focus-type\":\"manual_focus\",\"focusDurationMinutes\":{0}", (nSeconds / 60)));
-                    }
-                }
-
-                if (bCallFocusEndAPI)
-                {
-                    //We need to add it back to the focus mode
-                    var FocusModeRunning = appSettings.arrFocusModes.Where(i => i.id == appSettings.sRunningFocusModeID);
-                    FocusMode CurrentRunningFocusMode = FocusModeRunning.First<FocusMode>();
-                    CurrentRunningFocusMode.lastTaskUsed = (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0) ? appSettings.sRawTasks : "[]";
-
-
-                    //Call api top finish focus mode
-                    FocusBearAPIClient client = new FocusBearAPIClient();
-                    try
-                    {
-                        var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
-
-                        var response = client.UpdateAllFocusModes();
-                    }
-                    catch (Exception ex)
-                    {
-                        LogWriter.LogWrite("Focus Mode stop focus mode widow FinishFocusMode API EX - " + ex.Message);
-                    }
-                }
-
-                DialogResult = true;
-                Close();
-                
             }
             catch (Exception ex)
             {
@@ -200,61 +94,40 @@ namespace Focus_Bear.Focus
             }
         }
 
-        private void dispatcherTimer_Deactivate(object sender, EventArgs e)
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            LogWriter.LogWrite("dispatcherTimer_Deactivate()");
             try
             {
-                nTimer--;
-                string msg = "00:" + nTimer.ToString("D2");
-                Timer.Text = msg;
-
-                CommandManager.InvalidateRequerySuggested();
-
-                if (nTimer < 0)
+                try
                 {
-                    dispatcherTimerDeactivate.Stop(); //Tick Once only
+                    DateTime now = DateTime.Now;
+                    TimeSpan difference = DateTime.Parse(appSettings.sRunningFocusModeEndTime).Subtract(now); // could also write `now - otherTime`
+                    var durationSeconds = difference.TotalSeconds;
+                    string ss = appSettings.SecondsToTextHMS(Convert.ToInt32(durationSeconds));
 
-                    Timer.Text = "";
-
-                    if (ComboBoxReason.SelectedIndex != 0)
-                        btnStopFocus.IsEnabled = true;
-
-                    LogWriter.LogWrite("Enable the the Deactivate Focus Mode button");
+                    Timer.Text = ss ;
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("StopFocusMode dispatcherTimer_Tick ex = " + ex.Message);
                 }
 
                 CommandManager.InvalidateRequerySuggested();
-
+               
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("dispatcherTimer_Deactivate" + ex.Message);
+                LogWriter.LogWrite("StopFocusMode ex = " + ex.Message);
             }
+
         }
 
-        private void ComboBoxReason_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (ComboBoxReason.SelectedIndex != 0)
-                btnStopFocus.IsEnabled = true;
-            else
-                btnStopFocus.IsEnabled = false;
-        }
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
-        }
-
-        private void TitleBarThemeChange()
-        {
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            if (source != null)
+            if(!IsVisible)
             {
-                app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
+                dispatcherTimer.Stop();
             }
         }
-
     }
 }

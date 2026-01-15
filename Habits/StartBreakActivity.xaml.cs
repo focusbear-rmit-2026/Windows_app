@@ -22,12 +22,12 @@ namespace Focus_Bear.Habits
     public partial class StartBreakActivity : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        private HabitWindow _parentWindow;
+        private FocusBearMainWindow _parentWindow;
         public StartBreakActivity()
         {
 
         }
-        public StartBreakActivity(HabitWindow parentWindow) : this()
+        public StartBreakActivity(FocusBearMainWindow parentWindow) : this()
         {
        
             InitializeComponent();
@@ -127,7 +127,7 @@ namespace Focus_Bear.Habits
 
         private void btnStartNextActivity_Click(object sender, RoutedEventArgs e)
         {
-            _parentWindow.ShowActivityStartScreen();
+            _parentWindow.PageHabits.ShowActivityStartScreen();
         }
     }
 }

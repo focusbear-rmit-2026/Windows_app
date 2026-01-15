@@ -24,13 +24,13 @@ namespace Focus_Bear.Preferences
     {
         AppSettings appSettings = AppSettings.GetInstance;
 
-        PreferencesWindow _ParentWindow = null;
+        FocusBearMainWindow _ParentWindow = null;
 
         public AlwaysBlockedURLs()
         {
             
         }
-        public AlwaysBlockedURLs(PreferencesWindow pp)
+        public AlwaysBlockedURLs(FocusBearMainWindow pp)
         {
             InitializeComponent();
             _ParentWindow = pp;

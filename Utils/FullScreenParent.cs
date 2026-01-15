@@ -27,6 +27,44 @@ namespace Focus_Bear.Habits
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
         private const int WM_SETTINGCHANGE = 0x001A;
 
+        /// <summary>
+        /// New implementation for min/max/close handling
+        /// </summary>
+        private const int GWL_STYLE = -16;
+        private const int WS_MINIMIZEBOX = 0x00020000;
+        private const int WS_MAXIMIZEBOX = 0x00010000;
+
+        [DllImport("user32.dll")]
+        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll")]
+        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter,
+            int X, int Y, int cx, int cy, uint uFlags);
+
+        private const int SWP_FRAMECHANGED = 0x0020;
+        private const int SWP_NOMOVE = 0x0002;
+        private const int SWP_NOSIZE = 0x0001;
+        private const int SWP_NOZORDER = 0x0004;
+        private const int SWP_NOACTIVATE = 0x0010;
+
+        // Struct for GetWindowRect
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        /// 
+
         internal class InterceptKeys
         {
             #region Delegates
@@ -308,5 +346,67 @@ namespace Focus_Bear.Habits
 
             return IntPtr.Zero;
         }
+
+
+        // Method to toggle minimize button at runtime
+        public void SetMinimizeButtonEnabled(bool enabled)
+        {
+            var hwnd = new WindowInteropHelper(this).Handle;
+            if (hwnd == IntPtr.Zero) return;
+
+            int currentStyle = GetWindowLong(hwnd, GWL_STYLE);
+
+            if (enabled)
+            {
+                // Enable minimize button
+                SetWindowLong(hwnd, GWL_STYLE, currentStyle | WS_MINIMIZEBOX);
+            }
+            else
+            {
+                // Disable minimize button
+                SetWindowLong(hwnd, GWL_STYLE, currentStyle & ~WS_MINIMIZEBOX);
+            }
+
+            // Force window to redraw non-client area (title bar)
+            RefreshWindowFrame(hwnd);
+        }
+
+        // Method to toggle maximize button at runtime
+        public void SetMaximizeButtonEnabled(bool enabled)
+        {
+            var hwnd = new WindowInteropHelper(this).Handle;
+            if (hwnd == IntPtr.Zero) return;
+
+            int currentStyle = GetWindowLong(hwnd, GWL_STYLE);
+
+            if (enabled)
+            {
+                // Enable maximize button
+                SetWindowLong(hwnd, GWL_STYLE, currentStyle | WS_MAXIMIZEBOX);
+            }
+            else
+            {
+                // Disable maximize button
+                SetWindowLong(hwnd, GWL_STYLE, currentStyle & ~WS_MAXIMIZEBOX);
+            }
+
+            // Force window to redraw non-client area
+            RefreshWindowFrame(hwnd);
+        }
+
+        private void RefreshWindowFrame(IntPtr hwnd)
+        {
+            // Get current window dimensions
+            GetWindowRect(hwnd, out RECT rect);
+
+            int windowWidth = rect.Right - rect.Left;
+            int windowHeight = rect.Bottom - rect.Top;
+
+            // Refresh frame AND reposition to center // This forces the window frame to update
+            SetWindowPos(hwnd, IntPtr.Zero, rect.Left, rect.Top, windowWidth, windowHeight,
+                SWP_FRAMECHANGED);
+
+        }
+
     }
 }

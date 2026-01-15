@@ -35,7 +35,7 @@ namespace Focus_Bear.Habits
         {
         }
 
-        public ChooseAnotherHabit(HabitWindow ParentWindow)
+        public ChooseAnotherHabit(FocusBearMainWindow ParentWindow)
         {
             InitializeComponent();
             this.Owner = ParentWindow;

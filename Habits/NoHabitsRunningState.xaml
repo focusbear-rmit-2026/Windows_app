@@ -1,0 +1,41 @@
+﻿<Page x:Class="Focus_Bear.Habits.NoHabitsRunningState"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Habits"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="NoHabitsRunningState" Background="{DynamicResource BackgroundColor}">
+
+    <Grid>
+
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MinHeight="200" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+       
+            <TextBlock Grid.Row="0" Name="Heading" Margin="50,50,50,0" TextWrapping="Wrap" Text="xGreat job staying on track! Your next scheduled routine (ROUTINE) is set for TIME. Be ready to jump back in and continue building those healthy habits. You've got this!... " FontSize="22" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+            <StackPanel Grid.Row="1"  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+            <TextBlock Grid.Row="0" Name="Description" Margin="50,0,50,0" TextWrapping="Wrap" Text="x.. " FontSize="18" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                
+            <Button  x:Name="btnAction" AutomationProperties.AutomationId="btnAction"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="45" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,40,0,40" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnActionText" Margin="15,0,15,0" Text="xAct" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+
+    </Grid>
+</Page>

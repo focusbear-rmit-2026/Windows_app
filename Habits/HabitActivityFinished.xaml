@@ -34,10 +34,10 @@
                         <Image Source="../Images/Back.png"/>
                     </Button.Content>
                 </Button>
-                <DockPanel Margin="50,25,20,25" Width="853" Height="495">
+                <DockPanel Margin="50,25,20,25" Width="853" Height="495" Background="White">
                     <wv2:WebView2 Name="webView" Visibility="Collapsed" />
                 </DockPanel>
-                <DockPanel Name="BreakGraph2" Margin="20,25,50,25" Width="853" Height="495"  Visibility="Collapsed">
+                <DockPanel Name="BreakGraph2" Margin="20,25,50,25" Width="853" Height="495" Background="White" Visibility="Collapsed">
                     <wv2:WebView2 Name="webView1"  />
                 </DockPanel>
                 <Button x:Name="ButtonRight" AutomationProperties.AutomationId="btnRight" Height="30" Width="30" Cursor="Hand" Background="Transparent" BorderThickness="0" Visibility="Collapsed" Click="ButtonRight_Click">

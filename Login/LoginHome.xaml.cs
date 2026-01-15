@@ -46,6 +46,7 @@ namespace Focus_Bear.Login
                 
                 btnSignInText.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonSignInEmailText"].ToString();
                 btnSignInWithGoogleText.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonSignInGoogleText"].ToString();
+                btnSignInWithAppleText.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonSignInAppleText"].ToString();
 
                 btnSignUpText.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCreateAccountText"].ToString();
 
@@ -113,6 +114,7 @@ namespace Focus_Bear.Login
         private async void btnSignInWithGoogle_Click(object sender, RoutedEventArgs e)
         {
             btnSignInWithGoogle.IsEnabled = false;
+            btnSignInWithApple.IsEnabled = false;
             btnSignIn.IsEnabled = false;
             btnSignUp.IsEnabled = false;
             CancelButton.Visibility = Visibility.Visible;
@@ -129,6 +131,7 @@ namespace Focus_Bear.Login
 
                     CancelButton.Visibility = Visibility.Collapsed;
                     btnSignInWithGoogle.IsEnabled = true;
+                    btnSignInWithApple.IsEnabled = true;
                     btnSignIn.IsEnabled = true;
                     btnSignUp.IsEnabled = true;
                     _parentWindow.bDoNotShutDown = true;
@@ -142,6 +145,7 @@ namespace Focus_Bear.Login
             finally
             {
                 btnSignInWithGoogle.IsEnabled = true;
+                btnSignInWithApple.IsEnabled = true;
                 btnSignIn.IsEnabled = true;
                 btnSignUp.IsEnabled = true;
                 CancelButton.Visibility = Visibility.Collapsed;
@@ -151,10 +155,52 @@ namespace Focus_Bear.Login
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             btnSignInWithGoogle.IsEnabled = true;
+            btnSignInWithApple.IsEnabled = true;
             btnSignIn.IsEnabled = true;
             btnSignUp.IsEnabled = true;
             CancelButton.Visibility = Visibility.Collapsed;
             authenticator.CancelGoogleLogin();
+        }
+
+        private async void btnSignInWithApple_Click(object sender, RoutedEventArgs e)
+        {
+            btnSignInWithGoogle.IsEnabled = false;
+            btnSignInWithApple.IsEnabled = false;
+            btnSignIn.IsEnabled = false;
+            btnSignUp.IsEnabled = false;
+            CancelButton.Visibility = Visibility.Visible;
+            appSettings.CapturePostHog("button-signin-with-apple-click");
+
+            try
+            {
+
+                if (await authenticator.LoginWithGoogle(_parentWindow, true))
+                {
+                    //Login Success
+                    appSettings.GetLoginAndTokenValidSettings();
+                    appSettings.CapturePostHog("login-homemade");
+
+                    CancelButton.Visibility = Visibility.Collapsed;
+                    btnSignInWithGoogle.IsEnabled = true;
+                    btnSignInWithApple.IsEnabled = true;
+                    btnSignIn.IsEnabled = true;
+                    btnSignUp.IsEnabled = true;
+                    _parentWindow.bDoNotShutDown = true;
+                    _parentWindow.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnSignInWithApple_Click EX - " + ex.Message);
+            }
+            finally
+            {
+                btnSignInWithGoogle.IsEnabled = true;
+                btnSignInWithApple.IsEnabled = true;
+                btnSignIn.IsEnabled = true;
+                btnSignUp.IsEnabled = true;
+                CancelButton.Visibility = Visibility.Collapsed;
+            }
         }
     }
 }

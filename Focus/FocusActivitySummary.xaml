@@ -1,4 +1,4 @@
-﻿<src:FullScreenParent x:Class="Focus_Bear.Focus.FocusActivitySummary"
+﻿<UserControl x:Class="Focus_Bear.Focus.FocusActivitySummary"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,8 +8,8 @@
         xmlns:Models="clr-namespace:Focus_Bear.Models"
         mc:Ignorable="d" 
         d:DesignHeight="1080" d:DesignWidth="1920"
-        Title="Focus Bear" WindowState="Maximized" WindowStyle="None" Closed="Window_Closed" Closing="FullScreenParent_Closing" IsVisibleChanged="FullScreenParent_IsVisibleChanged">
-    <src:FullScreenParent.Resources>
+        IsVisibleChanged="FullScreenParent_IsVisibleChanged">
+    <UserControl.Resources>
         <Style TargetType="ListViewItem">
             <Style.Triggers>
                 <Trigger Property="ItemsControl.AlternationIndex"  Value="0">
@@ -22,9 +22,9 @@
             <Setter Property="Focusable" Value="false"/>
         </Style>
 
-    </src:FullScreenParent.Resources>
-    
-    <Grid Background="{DynamicResource SoftCreamColor}">
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource BackgroundColor}">
 
         <Grid.Resources>
             <ResourceDictionary>
@@ -34,108 +34,59 @@
             </ResourceDictionary>
         </Grid.Resources>
         <ScrollViewer>
-         <Grid  x:Name="MainGrid">
-            <Grid.RowDefinitions>
-            <RowDefinition Height="140" />
-            <RowDefinition Height="60"   />
-            <RowDefinition Height="180"  />
-            <RowDefinition Height="250"  />
-            <RowDefinition Height="60"  />
+            <Grid  x:Name="MainGrid" HorizontalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="140" />
+                    <RowDefinition Height="60"   />
+                    <RowDefinition Height="180"  />
+                    <RowDefinition Height="250"  />
+                    <RowDefinition Height="60"  />
 
-        </Grid.RowDefinitions>
-       
-        <Image Name="TopIcon" Grid.Row="0"  Margin="0,0,0,0" Height="130" Width="130" Models:ImageBehavior.AnimatedSource="../Images/gifs/random/1.gif"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xYou have completed 2 Focus blocks today" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                </Grid.RowDefinitions>
 
-        <Grid  Grid.Row="2" Width="auto" Name="GridSummarySimpleMode" Margin="50,0,50,0" >
-            <Border  Grid.Row="1"  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}">
-                <StackPanel Orientation="Vertical">
-                    <TextBlock  Name="TotalDistractingSitesBlocked" Margin="20,10,0,0" TextWrapping="NoWrap" Text="xTotal distracting sites blocked:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
-                    <TextBlock  Name="TimeSpentBlockingDistractingSites" Margin="20,10,0,0" TextWrapping="NoWrap" Text="xTime spent on super distracting sites:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
-                    <TextBlock  Name="TimeSpentBlockingActivated" Margin="20,10,0,0" TextWrapping="NoWrap" Text="xTime spent with blocking activated:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
-                    <TextBlock  Name="TimeSpentBlockingDeactivated" Margin="20,10,0,0" TextWrapping="NoWrap" Text="xTime spent with blocking deactivated:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
-                </StackPanel>
-            </Border>
-        </Grid>
-        
-        <Grid  Grid.Row="2" Width="auto" Name="GridFocusSummary" Visibility="Collapsed" HorizontalAlignment="Center" >
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
-                <RowDefinition Height="25"  />
-                <RowDefinition Height="120"  />
-            </Grid.RowDefinitions>
-            <TextBlock  Grid.Row="0"  Name="FocusSummaryTxt" Margin="2,0,0,0" TextWrapping="NoWrap" Text="xFocus Summary" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
-            <TextBlock  Grid.Row="0"  Name="TotalTime" Margin="0,0,2,0" TextWrapping="NoWrap" Text="xTotal Time"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Right"/>
+                <Image Name="TopIcon" Grid.Row="0"  Margin="0,0,0,0" Height="130" Width="130" Models:ImageBehavior.AnimatedSource="../Images/gifs/random/1.gif"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xYou have completed 2 Focus blocks today" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <Border  Grid.Row="1"  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}">
-                <Border.Effect>
-                    <DropShadowEffect ShadowDepth="2"
+                <Grid  Grid.Row="2" Width="auto" Name="GridSummarySimpleMode" Margin="50,0,50,0"  >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="139*"/>
+                        <ColumnDefinition Width="320*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Grid.ColumnSpan="2" >
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock  Name="TotalDistractingSitesBlocked" Margin="20,10,0,0" TextWrapping="NoWrap" Text="xTotal distracting sites blocked:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                            <TextBlock  Name="TimeSpentBlockingDistractingSites" Margin="20,10,0,0" TextWrapping="NoWrap" Text="xTime spent on super distracting sites:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                            <TextBlock  Name="TimeSpentBlockingActivated" Margin="20,10,0,0" TextWrapping="NoWrap" Text="xTime spent with blocking activated:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                            <TextBlock  Name="TimeSpentBlockingDeactivated" Margin="20,10,0,0" TextWrapping="NoWrap" Text="xTime spent with blocking deactivated:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid  Grid.Row="2" Name="GridFocusSummary" Visibility="Collapsed" HorizontalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="25"  />
+                        <RowDefinition Height="120"  />
+                    </Grid.RowDefinitions>
+                    <TextBlock  Grid.Row="0"  Name="FocusSummaryTxt" Margin="2,0,0,0" TextWrapping="NoWrap" Text="xFocus Summary" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+                    <TextBlock  Grid.Row="0"  Name="TotalTime" Margin="0,0,2,0" TextWrapping="NoWrap" Text="xTotal Time"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Right"/>
+
+                    <Border  Grid.Row="1"  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}">
+                        <Border.Effect>
+                            <DropShadowEffect ShadowDepth="2"
                           Direction="0"
                           Color="Gray"
                           Opacity="0.5"
                           BlurRadius="6"
                            />
-                </Border.Effect>
-                <Grid  HorizontalAlignment="Left" >
+                        </Border.Effect>
+                        <Grid  HorizontalAlignment="Left" >
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="23"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" Width="auto"  Height="30" VerticalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="160" />
-                            <ColumnDefinition Width="160"/>
-                            <ColumnDefinition Width="160"/>
-                            <ColumnDefinition Width="240"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.Resources>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Margin" Value="7,2" />
-                                <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}" />
-                                <Setter Property="FontWeight" Value="Normal" />
-                            </Style>
-                            <Style TargetType="Border">
-                                <Setter Property="BorderThickness" Value="1" />
-                                <Setter Property="BorderBrush" Value="LightGray" />
-                                <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
-                            </Style>
-                        </Grid.Resources>
-                        <Border Grid.Column="0" >
-                            <TextBlock x:Name="FocusType" >xFocus Type</TextBlock>
-                        </Border>
-                        <Border Grid.Column="1">
-                            <TextBlock x:Name="StartTime">xStart Time</TextBlock>
-                        </Border>
-                        <Border Grid.Column="2">
-                            <TextBlock x:Name="DurationTxt">xDuration</TextBlock>
-                        </Border>
-                        <Border Grid.Column="3">
-                            <TextBlock x:Name="Work">xWork Achieved</TextBlock>
-                        </Border>
-                        <Border Grid.Column="4">
-                            <TextBlock x:Name="Distractions" >xDistractions</TextBlock>
-                        </Border>
-
-                    </Grid>
-   
-                </Grid>
-            </Border >
-            <Border Grid.Row="2" BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}">
-                <Border.Effect>
-                    <DropShadowEffect ShadowDepth="3"
-                          Direction="330"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="6"
-                           />
-                </Border.Effect>
-                <ListView x:Name="ListFocusSummary" AutomationProperties.AutomationId="lvFocusSummary" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
-                    
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid x:Name="ItemHeader"    Margin="0,0,0,0" IsHitTestVisible="True"   >
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="23"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" Width="auto"  Height="30" VerticalAlignment="Center">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="160" />
                                     <ColumnDefinition Width="160"/>
@@ -143,52 +94,6 @@
                                     <ColumnDefinition Width="240"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
-
-                                <TextBlock Grid.Column="1" Text="{Binding start_time, StringFormat=\{0\}}"   FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
-                                <TextBlock Grid.Column="2" Text="{Binding duration, StringFormat=\{0\}}"     FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
-                                <TextBlock Grid.Column="3" Text="{Binding achievements, StringFormat=\{0\}}" FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
-                                <TextBlock Grid.Column="4" Text="{Binding distractions, StringFormat=\{0\}}" FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </Border>
-        </Grid>
-
-        <Grid  Grid.Row="3" Width="auto"  Margin="0,20" HorizontalAlignment="Center">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
-                <RowDefinition Height="155"  />
-            </Grid.RowDefinitions>
-            <TextBlock  Grid.Row="0"  Name="ActivitySummaryTxt" Margin="2,0,0,0" TextWrapping="NoWrap" Text="Activity Summary" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
-
-            <StackPanel  Grid.Row="1" Orientation="Horizontal" >
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="25"  />
-                        <RowDefinition Height="120"  />
-                    </Grid.RowDefinitions>
-
-                    <Border  Grid.Row="0"  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="333" Margin="0,0,10,0" >
-                        <Border.Effect>
-                            <DropShadowEffect ShadowDepth="2"
-                              Direction="0"
-                              Color="Gray"
-                              Opacity="0.5"
-                              BlurRadius="6"
-                               />
-                        </Border.Effect>
-                        <Grid HorizontalAlignment="Left" >
-
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="25"/>
-                            </Grid.RowDefinitions>
-                            <Grid Grid.Row="0" Width="auto"  Height="30" VerticalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150" />
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
                                 <Grid.Resources>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Margin" Value="7,2" />
@@ -201,18 +106,27 @@
                                         <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
                                     </Style>
                                 </Grid.Resources>
-                                <Border Grid.Column="0">
-                                    <TextBlock x:Name="Activity1" >xActivity</TextBlock>
+                                <Border Grid.Column="0" >
+                                    <TextBlock x:Name="FocusType" >xFocus Type</TextBlock>
                                 </Border>
                                 <Border Grid.Column="1">
-                                    <TextBlock x:Name="Quantity">xSTotal Quantity88</TextBlock>
+                                    <TextBlock x:Name="StartTime">xStart Time</TextBlock>
+                                </Border>
+                                <Border Grid.Column="2">
+                                    <TextBlock x:Name="DurationTxt">xDuration</TextBlock>
+                                </Border>
+                                <Border Grid.Column="3">
+                                    <TextBlock x:Name="Work">xWork Achieved</TextBlock>
+                                </Border>
+                                <Border Grid.Column="4">
+                                    <TextBlock x:Name="Distractions" >xDistractions</TextBlock>
                                 </Border>
 
                             </Grid>
 
                         </Grid>
-                    </Border>
-                    <Border  Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="333" Margin="0,0,10,0" >
+                    </Border >
+                    <Border Grid.Row="2" Width="920" BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" HorizontalAlignment="Center">
                         <Border.Effect>
                             <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -221,198 +135,288 @@
                           BlurRadius="6"
                            />
                         </Border.Effect>
-                        <ListView x:Name="ListQuantity"  AutomationProperties.AutomationId="lvQuantity" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
+                        <ListView x:Name="ListFocusSummary" AutomationProperties.AutomationId="lvFocusSummary" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
 
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid x:Name="ItemHeader"    Margin="0,0,0,0" IsHitTestVisible="True"   >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="160" />
+                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="240"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+
+                                        <TextBlock Grid.Column="1" Text="{Binding start_time, StringFormat=\{0\}}"   FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding duration, StringFormat=\{0\}}"     FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding achievements, StringFormat=\{0\}}" FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding distractions, StringFormat=\{0\}}" FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Border>
+                </Grid>
+
+                <Grid  Grid.Row="3" Width="auto"  Margin="0,20" HorizontalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="155"  />
+                    </Grid.RowDefinitions>
+                    <TextBlock  Grid.Row="0"  Name="ActivitySummaryTxt" Margin="2,0,0,0" TextWrapping="NoWrap" Text="Activity Summary" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+
+                    <StackPanel  Grid.Row="1" Orientation="Horizontal" >
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"  />
+                                <RowDefinition Height="120"  />
+                            </Grid.RowDefinitions>
+
+                            <Border  Grid.Row="0"  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="333" Margin="0,0,10,0" >
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="2"
+                              Direction="0"
+                              Color="Gray"
+                              Opacity="0.5"
+                              BlurRadius="6"
+                               />
+                                </Border.Effect>
+                                <Grid HorizontalAlignment="Left" >
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="25"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid Grid.Row="0" Width="auto"  Height="30" VerticalAlignment="Center">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="150" />
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding name, StringFormat=\{0\}}"     FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding duration, StringFormat=\{0\}}" FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left"/>
+                                        <Grid.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Margin" Value="7,2" />
+                                                <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}" />
+                                                <Setter Property="FontWeight" Value="Normal" />
+                                            </Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="BorderThickness" Value="1" />
+                                                <Setter Property="BorderBrush" Value="LightGray" />
+                                                <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
+                                            </Style>
+                                        </Grid.Resources>
+                                        <Border Grid.Column="0">
+                                            <TextBlock x:Name="Activity1" >xActivity</TextBlock>
+                                        </Border>
+                                        <Border Grid.Column="1">
+                                            <TextBlock x:Name="Quantity">xSTotal Quantity88</TextBlock>
+                                        </Border>
+
                                     </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Border>
-                </Grid>
 
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="25"  />
-                        <RowDefinition Height="120"  />
-                    </Grid.RowDefinitions>
-
-                    <Border  Grid.Row="0"  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="330" Margin="0,0,10,0" >
-                        <Border.Effect>
-                            <DropShadowEffect ShadowDepth="2"
-                              Direction="0"
-                              Color="Gray"
-                              Opacity="0.5"
-                              BlurRadius="6"
-                               />
-                        </Border.Effect>
-                        <Grid HorizontalAlignment="Left" >
-
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="25"/>
-                            </Grid.RowDefinitions>
-                            <Grid Grid.Row="0" Width="auto"  Height="30" VerticalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150" />
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Margin" Value="7,2" />
-                                        <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}" />
-                                        <Setter Property="FontWeight" Value="Normal" />
-                                    </Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="BorderThickness" Value="1" />
-                                        <Setter Property="BorderBrush" Value="LightGray" />
-                                        <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
-                                    </Style>
-                                </Grid.Resources>
-                                <Border Grid.Column="0">
-                                    <TextBlock x:Name="Activity2" >xActivity</TextBlock>
-                                </Border>
-                                <Border Grid.Column="1">
-                                    <TextBlock x:Name="Average">xAverage</TextBlock>
-                                </Border>
-
-                            </Grid>
-
-                        </Grid>
-                    </Border>
-                    <Border  Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="330" Margin="0,0,10,0" >
-                        <Border.Effect>
-                            <DropShadowEffect ShadowDepth="3"
+                                </Grid>
+                            </Border>
+                            <Border  Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="333" Margin="0,0,10,0" >
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="3"
                           Direction="330"
                           Color="Gray"
                           Opacity="0.5"
                           BlurRadius="6"
                            />
-                        </Border.Effect>
-                        <ListView x:Name="ListAverage" AutomationProperties.AutomationId="lvAverage" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
+                                </Border.Effect>
+                                <ListView x:Name="ListQuantity"  AutomationProperties.AutomationId="lvQuantity" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
 
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid x:Name="ItemHeader"    Margin="0,0,0,0" IsHitTestVisible="True"   >
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid x:Name="ItemHeader"    Margin="0,0,0,0" IsHitTestVisible="True"   >
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150" />
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding name, StringFormat=\{0\}}"     FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding duration, StringFormat=\{0\}}" FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Border>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"  />
+                                <RowDefinition Height="120"  />
+                            </Grid.RowDefinitions>
+
+                            <Border  Grid.Row="0"  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="330" Margin="0,0,10,0" >
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="2"
+                              Direction="0"
+                              Color="Gray"
+                              Opacity="0.5"
+                              BlurRadius="6"
+                               />
+                                </Border.Effect>
+                                <Grid HorizontalAlignment="Left" >
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="25"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid Grid.Row="0" Width="auto"  Height="30" VerticalAlignment="Center">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="150" />
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding name, StringFormat=\{0\}}"       FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding duration, StringFormat=\{0\}}"   FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left"/>
+                                        <Grid.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Margin" Value="7,2" />
+                                                <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}" />
+                                                <Setter Property="FontWeight" Value="Normal" />
+                                            </Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="BorderThickness" Value="1" />
+                                                <Setter Property="BorderBrush" Value="LightGray" />
+                                                <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
+                                            </Style>
+                                        </Grid.Resources>
+                                        <Border Grid.Column="0">
+                                            <TextBlock x:Name="Activity2" >xActivity</TextBlock>
+                                        </Border>
+                                        <Border Grid.Column="1">
+                                            <TextBlock x:Name="Average">xAverage</TextBlock>
+                                        </Border>
+
                                     </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Border>
-                </Grid>
 
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="25"  />
-                        <RowDefinition Height="120"  />
-                    </Grid.RowDefinitions>
-
-                    <Border  Grid.Row="0"  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="325" Margin="0,0,10,0" >
-                        <Border.Effect>
-                            <DropShadowEffect ShadowDepth="2"
-                              Direction="0"
-                              Color="Gray"
-                              Opacity="0.5"
-                              BlurRadius="6"
-                               />
-                        </Border.Effect>
-                        <Grid HorizontalAlignment="Left" >
-
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="25"/>
-                            </Grid.RowDefinitions>
-                            <Grid Grid.Row="0" Width="auto"  Height="30" VerticalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150" />
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Margin" Value="7,2" />
-                                        <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}" />
-                                        <Setter Property="FontWeight" Value="Normal" />
-                                    </Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="BorderThickness" Value="1" />
-                                        <Setter Property="BorderBrush" Value="LightGray" />
-                                        <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
-                                    </Style>
-                                </Grid.Resources>
-                                <Border Grid.Column="0">
-                                    <TextBlock x:Name="Activity3" >xActivity</TextBlock>
-                                </Border>
-                                <Border Grid.Column="1">
-                                    <TextBlock x:Name="TotalDuration">xDuration</TextBlock>
-                                </Border>
-
-                            </Grid>
-
-                        </Grid>
-                    </Border>
-                    <Border  Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="325" Margin="0,0,10,0" >
-                        <Border.Effect>
-                            <DropShadowEffect ShadowDepth="3"
+                                </Grid>
+                            </Border>
+                            <Border  Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="330" Margin="0,0,10,0" >
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="3"
                           Direction="330"
                           Color="Gray"
                           Opacity="0.5"
                           BlurRadius="6"
                            />
-                        </Border.Effect>
-                        <ListView x:Name="ListDuration" AutomationProperties.AutomationId="lvDuration" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
+                                </Border.Effect>
+                                <ListView x:Name="ListAverage" AutomationProperties.AutomationId="lvAverage" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
 
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid x:Name="ItemHeader"    Margin="0,0,0,0" IsHitTestVisible="True"   >
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid x:Name="ItemHeader"    Margin="0,0,0,0" IsHitTestVisible="True"   >
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150" />
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding name, StringFormat=\{0\}}"       FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding duration, StringFormat=\{0\}}"   FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Border>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"  />
+                                <RowDefinition Height="120"  />
+                            </Grid.RowDefinitions>
+
+                            <Border  Grid.Row="0"  BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="325" Margin="0,0,10,0" >
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="2"
+                              Direction="0"
+                              Color="Gray"
+                              Opacity="0.5"
+                              BlurRadius="6"
+                               />
+                                </Border.Effect>
+                                <Grid HorizontalAlignment="Left" >
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="25"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid Grid.Row="0" Width="auto"  Height="30" VerticalAlignment="Center">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="150" />
-                                               <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding name, StringFormat=\{0\}}"     FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding duration, StringFormat=\{0\}}" FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Border>
-                </Grid>
-            </StackPanel>
-        </Grid>
+                                        <Grid.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Margin" Value="7,2" />
+                                                <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}" />
+                                                <Setter Property="FontWeight" Value="Normal" />
+                                            </Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="BorderThickness" Value="1" />
+                                                <Setter Property="BorderBrush" Value="LightGray" />
+                                                <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
+                                            </Style>
+                                        </Grid.Resources>
+                                        <Border Grid.Column="0">
+                                            <TextBlock x:Name="Activity3" >xActivity</TextBlock>
+                                        </Border>
+                                        <Border Grid.Column="1">
+                                            <TextBlock x:Name="TotalDuration">xDuration</TextBlock>
+                                        </Border>
 
-        
-            <StackPanel Grid.Row="4" Orientation="Horizontal"   HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button  IsDefault="True" x:Name="btnNeedOneMinute" AutomationProperties.AutomationId="btnNeedOneMinute" Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" Padding="0" Margin="0,0,30,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNeedOneMinute_Click" >
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
-                        <TextBlock x:Name="btnNeedOneMinuteTXT" Text="xI need One More Minute" Foreground="Black"/>
+                                    </Grid>
+
+                                </Grid>
+                            </Border>
+                            <Border  Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Background="{DynamicResource BackgroundColor}" Width="325" Margin="0,0,10,0" >
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="3"
+                          Direction="330"
+                          Color="Gray"
+                          Opacity="0.5"
+                          BlurRadius="6"
+                           />
+                                </Border.Effect>
+                                <ListView x:Name="ListDuration" AutomationProperties.AutomationId="lvDuration" AlternationCount="2" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="#fff" BorderThickness="1" Foreground="{x:Null}"  >
+
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid x:Name="ItemHeader"    Margin="0,0,0,0" IsHitTestVisible="True"   >
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150" />
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding name, StringFormat=\{0\}}"     FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding duration, StringFormat=\{0\}}" FontSize="13" FontWeight="Normal"  VerticalAlignment="Center" Margin="0,0,7,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Border>
+                        </Grid>
                     </StackPanel>
-                </Button.Content>
-            </Button>
-            <Button  IsDefault="True" x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="200"  HorizontalAlignment="Center"   Padding="0" Margin="30,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
-                        <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-            
-        </StackPanel>
-        </Grid>
+                </Grid>
+
+
+                <StackPanel Grid.Row="4" Orientation="Horizontal"   HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button  IsDefault="True" x:Name="btnNeedOneMinute" AutomationProperties.AutomationId="btnNeedOneMinute" Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="350"  HorizontalAlignment="Center" Padding="0" Margin="0,0,30,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNeedOneMinute_Click" >
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
+                                <TextBlock x:Name="btnNeedOneMinuteTXT" Text="xI need One More Minute" Foreground="Black"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button  IsDefault="True" x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="200"  HorizontalAlignment="Center"   Padding="0" Margin="30,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
+                                <TextBlock x:Name="btnContinueTXT" Text="xContinue" Foreground="Black"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+
+                </StackPanel>
+            </Grid>
         </ScrollViewer>
         <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
-        
+
     </Grid>
-   
-</src:FullScreenParent>
+
+</UserControl>
