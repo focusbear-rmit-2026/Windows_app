@@ -4633,6 +4633,32 @@ namespace Focus_Bear
             wndFocusBearMainWindow.PageToDoPlayer?.webView?.Reload(); // Refresh webview to stop background execution  
             bLoadURLAgainInToDoPlayer = true;
         }
+        public void NotifyToDoPlayerPauseState(bool isPaused)
+        {
+            try
+            {
+                var webView = wndFocusBearMainWindow?.PageToDoPlayer?.webView;
+                if (webView?.CoreWebView2 == null)
+                {
+                    return;
+                }
+
+                string pausedValue = isPaused ? "true" : "false";
+                string script = $@"
+                    (function() {{
+                        if (window.setFocusPausedFromDesktopApp) {{
+                        window.setFocusPausedFromDesktopApp({pausedValue});
+                        }}
+                    }})();
+                ";
+
+                var _ = webView.ExecuteScriptAsync(script);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("NotifyToDoPlayerPauseState ex - " + ex.Message);
+            }
+        }
 
         public void ShowNaturalBreakDetectionWindow()
         {

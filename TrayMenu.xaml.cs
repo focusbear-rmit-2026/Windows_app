@@ -1016,6 +1016,10 @@ namespace Focus_Bear
 
                     LogWriter.LogWrite("ToggleFocusPauseFromUI() - Resumed focus mode, new end time = " + appSettings.sRunningFocusModeEndTime);
                 }
+
+                // Notify the ToDo Player of the new pause state
+                ((App)Application.Current).NotifyToDoPlayerPauseState(appSettings.isFocusModePaused);
+
                 return true;
             }
             catch (Exception ex)
