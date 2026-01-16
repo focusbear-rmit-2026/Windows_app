@@ -151,6 +151,17 @@ namespace Focus_Bear.Habits
                     nButtonActionState = ActionState.BreaksNotEnabled;
                     btnActionText.Text = appSettings.ConfigFileStrings["breakStateVcInfo"]["buttonEnableBreaks"].ToString();
                 }
+                else if(appSettings.arrAllbreakActivities.Count == 0)
+                {
+                    string sHeading = appSettings.ConfigFileStrings["breakStateVcInfo"]["noBreakAddedText"].ToString();
+                    Heading.Text = sHeading;
+
+                    btnAction.Visibility = Visibility.Visible;
+                    Description.Visibility = Visibility.Collapsed;
+
+                    nButtonActionState = ActionState.ChangeTiming; //will take to edit habits
+                    btnActionText.Text = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuEditHabits"].ToString();
+                }
                 else if(appSettings.NextBreakAt.HasValue)//break time has been set
                 {
                     TimeSpan durationUntilBreak = appSettings.NextBreakAt.Value - DateTime.Now;

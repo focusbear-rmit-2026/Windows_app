@@ -124,7 +124,7 @@ namespace Focus_Bear.Pomodoro
             ComboBoxFocusModes.Items.Clear();
             for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
             {
-                if (!(appSettings.arrFocusModes[i].isMeetings || appSettings.arrFocusModes[i].isLockedFocus))
+                if (!(appSettings.arrFocusModes[i].isMeetings))
                     ComboBoxFocusModes.Items.Add(appSettings.arrFocusModes[i].name);
             }
             if (ComboBoxFocusModes.Items.Count > 0)
