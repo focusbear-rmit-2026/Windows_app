@@ -74,6 +74,22 @@
                             </Grid>
                         </Button.Content>
                     </Button>
+                    <Grid Background="LightGray" Height="1" Margin="10,1,10,0"></Grid>
+                    <Button x:Name="btnAlwaysAllowedApps"  AutomationProperties.AutomationId="btnAlwaysAllowedApps" Margin="2,2,2,0" Style="{StaticResource  BtnMacStyleSettingsGray}" IsEnabled="True" Height="45"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0"  FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAlwaysAllowedApps_Click">
+                        <Button.Content>
+                            <Grid  Background="{x:Null}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Image Source="{DynamicResource AppImage}" Margin="10,4,0,0" Height="24" Width="24" Grid.Column="0"/>
+                                <TextBlock Name="btnAlwaysAllowedAppsText" Margin="8,0,0,0" Text="Always Allowed Apps" Foreground="Black" VerticalAlignment="Center" Grid.Column="1"/>
+                                <TextBlock Text="❯" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" Foreground="#333" Grid.Column="2" Margin="0,0,10,0"/>
+                            </Grid>
+                        </Button.Content>
+                    </Button>
 
                 </StackPanel>
             </Border>

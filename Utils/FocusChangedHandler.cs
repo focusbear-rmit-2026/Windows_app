@@ -855,6 +855,20 @@ namespace FocusBear.Utils
                             return;
                         }
 
+                        // Check global whitelist (Always Allowed Apps) - these apps should never be blocked
+                        if (appSettings.arrAlwaysAllowedApps != null && appSettings.arrAlwaysAllowedApps.Count > 0)
+                        {
+                            foreach (string allowedApp in appSettings.arrAlwaysAllowedApps)
+                            {
+                                string appName = System.IO.Path.GetFileNameWithoutExtension(allowedApp).ToLower();
+                                if (appName == process.ProcessName.ToLower())
+                                {
+                                    LogWriter.LogWrite("App " + process.ProcessName + " is in Always Allowed Apps list - ALLOW");
+                                    return;
+                                }
+                            }
+                        }
+
                         /////  string fullPath = ProcessExecutablePath(process);
                         List<FocusMode> listItems = new List<FocusMode>();
 
