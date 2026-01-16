@@ -173,7 +173,7 @@ namespace Focus_Bear.Focus
 
             try
             {
-                this.Visibility = Visibility.Collapsed;
+                app.HideToDoPlayer();
 
                 var tray = ((App)Application.Current).wndTrayMenu;
                 if (tray != null)
