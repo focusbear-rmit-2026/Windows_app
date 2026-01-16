@@ -2199,12 +2199,16 @@ namespace Focus_Bear.API
                     if (language == "es")
                         lang = "spanish";
 
+                    // In super strict mode (Grizzly mode, nFocusBearMode == 2), pass task_must_align_to_focus_intention=true
+                    bool isSuperStrictMode = appSettings.nFocusBearMode == 2;
+                    string taskMustAlignParam = isSuperStrictMode ? ",\"task_must_align_to_focus_intention\":true" : "";
+
                     string addItemJsonString = $"{{\"url\":\"{url}\"," +
                         $"\"tab_title\":\"{tab_title}\"," +
                         $"\"meta_description\":\"{meta_description}\"," +
                         $"\"focus_mode\":\"{focus_mode}\"," +
                         $"\"intention\":\"{intention}\"," +
-                        $"\"language\":\"{lang}\"}}";
+                        $"\"language\":\"{lang}\"{taskMustAlignParam}}}";
 
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
