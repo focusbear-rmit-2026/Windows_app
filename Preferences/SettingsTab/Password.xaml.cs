@@ -126,6 +126,7 @@ namespace Focus_Bear.Preferences.SettingsTab
                 CheckQuittingApp.IsEnabled = false;
                 CheckUseRelaxMode.IsEnabled = false;
                 CheckSkipEveningAfterCutOff.IsEnabled = false;
+                CheckStopSuperPomodoro.IsEnabled = false;
             }
 
         }
