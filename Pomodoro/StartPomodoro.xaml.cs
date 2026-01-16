@@ -429,6 +429,10 @@ namespace Focus_Bear.Pomodoro
                         //Make the global variable true
                         appSettings.isFocusModeRunning = true;
 
+                        // Reset pause state when a new focus mode starts
+                        appSettings.isFocusModePaused = false;
+                        appSettings.nPausedFocusRemainingSeconds = 0;
+
                         ((App)Application.Current).ShowFocusProgressWindow();
 
                        

@@ -128,6 +128,15 @@ namespace Focus_Bear.Utils
                             {
                                 sMacOSSettingsOBJ.Add("kIsPasswordRequireInAbortShutoff", (appSettings.bPasswordRequireInAbortShutoff));
                             }
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInStopPomodoro"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsPasswordRequireInStopPomodoro");
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInStopPomodoro", appSettings.bPasswordRequireInStopPomodoro);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInStopPomodoro", appSettings.bPasswordRequireInStopPomodoro);
+                            }
                             if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp"))
                             {
                                 sMacOSSettingsOBJ.Remove("kIsPasswordRequireInQuitApp"); //Remove  

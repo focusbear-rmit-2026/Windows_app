@@ -54,7 +54,8 @@ namespace Focus_Bear.Preferences.SettingsTab
                 CheckQuittingApp.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonQuitAppText"].ToString();
                 CheckUseRelaxMode.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonUseRelaxFocusModeText"].ToString();
                 CheckSkipEveningAfterCutOff.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonSkipEveningHabitAfterCutOffText"].ToString();
-
+                CheckStopSuperPomodoro.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                CheckStopSuperPomodoro.ToolTip = appSettings.ConfigFileStrings["tooltips"]["strictness_Password_StopSuperPomodoro"].ToString();
             }
             catch (Exception ex)
             {
@@ -96,6 +97,7 @@ namespace Focus_Bear.Preferences.SettingsTab
                 CheckQuittingApp.IsEnabled = true;
                 CheckUseRelaxMode.IsEnabled = true;
                 CheckSkipEveningAfterCutOff.IsEnabled = true;
+                CheckStopSuperPomodoro.IsEnabled = true;
 
                 CheckChangingSettings.IsChecked = appSettings.bPasswordRequireInChangeSettings;
                 CheckPostponingMorningRoutine.IsChecked = appSettings.bPasswordRequireInSkipMorning;
@@ -104,6 +106,7 @@ namespace Focus_Bear.Preferences.SettingsTab
                 CheckQuittingApp.IsChecked = appSettings.bPasswordRequireInQuitApp;
                 CheckUseRelaxMode.IsChecked = appSettings.bPasswordRequireToUseRelaxFocusMode;
                 CheckSkipEveningAfterCutOff.IsChecked = appSettings.bPasswordRequireToSkipEveningAfterCutOff;
+                CheckStopSuperPomodoro.IsChecked = appSettings.bPasswordRequireInStopPomodoro;
             }
             else
             {
@@ -354,6 +357,16 @@ namespace Focus_Bear.Preferences.SettingsTab
         private void CheckSkipEveningAfterCutOff_Unchecked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireToSkipEveningAfterCutOff = false;
+        }
+
+        private void CheckStopSuperPomodoro_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireInStopPomodoro = true;
+        }
+
+        private void CheckStopSuperPomodoro_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireInStopPomodoro = false;
         }
     }
 }

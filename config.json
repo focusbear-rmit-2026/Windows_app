@@ -84,6 +84,11 @@
         "actionBarItemDone": "Done",
         "actionBarItemSkip": "Skip"
     },
+    "focusProgressInfo": {
+        "pauseText": "Pause",
+        "resumeText": "Resume",
+        "endFocusSessionText": "End Session"
+    },
     "common": {
         "emailId": "support@focusbear.io",
         "unlockMachineButtonText": "Unlock the machine",

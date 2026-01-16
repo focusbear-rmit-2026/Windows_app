@@ -84,6 +84,11 @@
         "actionBarItemDone": "Hecho",
         "actionBarItemSkip": "Saltar"
     },
+    "focusProgressInfo": {
+        "pauseText": "Pausar",
+        "resumeText": "Reanudar",
+        "endFocusSessionText": "Terminar Sesión"
+    },
     "common": {
         "emailId": "support@focusbear.io",
         "unlockMachineButtonText": "Desbloquear la computadora",

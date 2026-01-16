@@ -54,6 +54,8 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("FocusProgress() ex = " + ex.Message);
             }
 
+            UpdatePauseControls(); // Initial update of pause controls
+
             Page_Theme();
             App.ThemeChanged += Page_Theme;
         }
@@ -69,6 +71,8 @@ namespace Focus_Bear.Focus
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
             CommandManager.InvalidateRequerySuggested();
+
+            UpdatePauseControls(); // Update pause controls when starting the timer
 
             if (appSettings.bAiCheckUrlEnabled)
             {
@@ -100,6 +104,12 @@ namespace Focus_Bear.Focus
         }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
+            UpdatePauseControls();
+            // If focus mode is paused, do nothing
+            if (appSettings.isFocusModePaused)
+            {
+                return;
+            }
 #if DEBUG
             int val = nTimer--;
 #else
@@ -110,13 +120,20 @@ namespace Focus_Bear.Focus
             {
                 try
                 {
+                    // Update remaining time
+                    DateTime parsedEnd;
+                    if (DateTime.TryParse(appSettings.sRunningFocusModeEndTime, out parsedEnd))
+                    {
+                        endTime = parsedEnd;
+                    }
+
                     DateTime now = DateTime.Now;
-                    TimeSpan difference = DateTime.Parse(appSettings.sRunningFocusModeEndTime).Subtract(now); // could also write `now - otherTime`
+                    TimeSpan difference = endTime - now; // could also write `now - otherTime`
                     var durationSeconds = difference.TotalSeconds;
                     string ss = sRemaining + " " + appSettings.SecondsToTextHMS(Convert.ToInt32(durationSeconds));
 
                     string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
-                    sTill = sTill.Replace("<TIME>", DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToString("HH:mm tt"));
+                    sTill = sTill.Replace("<TIME>", endTime.ToString("HH:mm tt"));
                     OnUntill.Text = ss + " (" + sTill + ")";
 
                     if (appSettings.bAiCheckUrlEnabled)
@@ -136,8 +153,8 @@ namespace Focus_Bear.Focus
                 CommandManager.InvalidateRequerySuggested();
  
                 UpdateUI();
-               
-                if (nTimer < 0)
+
+                if (!appSettings.isFocusModePaused && DateTime.Now >= endTime)
                 {
                     OnUntill.Text = "";
                     dispatcherTimer.Stop();
@@ -176,7 +193,7 @@ namespace Focus_Bear.Focus
             ((App)(Application.Current)).CloseFocusProgressWindow();
         }
 
-        private void btnEndFocus_Click(object sender, RoutedEventArgs e)
+        private async void btnEndFocus_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Focus Progress window - btnEndFocus_Click - Stopping Focus Session");
 
@@ -184,10 +201,11 @@ namespace Focus_Bear.Focus
             {
                 Hide();
 
-                //fire the Stop focus session button from the menu
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStopPomodoroMode);
-                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                invokeProv.Invoke();
+                var tray = ((App)Application.Current).wndTrayMenu;
+                if (tray != null)
+                {
+                    await tray.StopFocusSessionRealAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -266,6 +284,79 @@ namespace Focus_Bear.Focus
             return new Point(
                 Center + Radius * Math.Cos(rad),
                 Center + Radius * Math.Sin(rad));
+        }
+
+        private void btnPauseResume_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                LogWriter.LogWrite("FocusProgress btnPauseResume_Click Clicked");
+
+                App app = (App)Application.Current;
+                var trayMenu = app.wndTrayMenu;
+
+                bool toggled = trayMenu?.ToggleFocusPauseFromUI() ?? false;
+                if (toggled)
+                {
+                    trayMenu.UpdateTrayMenu();
+                }
+                UpdatePauseControls();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnPauseResume_Click ex = " + ex.Message);
+            }
+        }
+
+        public void UpdatePauseControls()
+        {
+            try
+            {
+                string pauseText = appSettings.ConfigFileStrings["focusProgressInfo"]["pauseText"].ToString();
+                string resumeText = appSettings.ConfigFileStrings["focusProgressInfo"]["resumeText"].ToString();
+                string pausedEndText = appSettings.ConfigFileStrings["focusProgressInfo"]["endFocusSessionText"].ToString();
+
+                bool isPaused = appSettings.isFocusModePaused;
+
+                bool isSuper = appSettings.bUseSuperPomodoroMode;
+
+                // Update button and link visibility and text
+                if (btnPauseResume != null)
+                {
+                    btnPauseResume.Visibility = isSuper ? Visibility.Collapsed : Visibility.Visible;
+                    if (!isSuper)
+                    {
+                        btnPauseResume.Content = isPaused ? resumeText : pauseText;
+                    }
+                }
+
+                // Update End Session link visibility and text  
+                if (txtEndSession != null && lnkEndSession != null)
+                {
+                    if (isSuper)
+                    {
+                        txtEndSession.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        if (isPaused)
+                        {
+                            lnkEndSession.Inlines.Clear();
+                            lnkEndSession.Inlines.Add(pausedEndText);
+                            txtEndSession.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            txtEndSession.Visibility = Visibility.Collapsed;
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpdatePauseControls() ex = " + ex.Message);
+            }
         }
     }
 }

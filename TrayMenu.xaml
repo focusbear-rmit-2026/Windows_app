@@ -8,7 +8,7 @@
         Title="Focus Bear" AutomationProperties.AutomationId="TrayMenu" Height="auto"  MinWidth="330"  Width="330" MaxWidth="330" WindowStyle="None" Deactivated="Window_Deactivated" >
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
-        
+
         <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}" />
@@ -208,19 +208,36 @@
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="24"  Height="24" Source="images/start-pomodoro.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <TextBlock Margin="8" Name="PomodoroMode">xStart Pomodoro Mode</TextBlock>
+                        <TextBlock Margin="8" Name="PomodoroMode">xStart Focus Session</TextBlock>
                     </StackPanel>
                 </Button.Content>
 
             </Button>
             <Button   x:Name="btnStopPomodoroMode" AutomationProperties.AutomationId="btnStopPomodoroMode" Visibility="Collapsed"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click='btnStopPomodoroMode_Click'>
+                <Button.ContextMenu>
+                    <ContextMenu x:Name="FocusSessionContextMenu">
+                        <MenuItem x:Name="PauseResumeFocusMenuItem">
+                            <MenuItem.Icon>
+                                <Image Width="16" Height="16" Source="pack://application:,,,/Focus Bear;component/images/pause_icon.png" />
+                            </MenuItem.Icon>
+                            <MenuItem.Header>xPause Focus Session</MenuItem.Header>
+                        </MenuItem>
+
+                        <MenuItem x:Name="StopFocusSessionMenuItem">
+                            <MenuItem.Icon>
+                                <Image Width="16" Height="16" Source="pack://application:,,,/Focus Bear;component/images/stop_icon.png" />
+                            </MenuItem.Icon>
+                            <MenuItem.Header>xStop Focus Session</MenuItem.Header>
+                        </MenuItem>
+                    </ContextMenu>
+                </Button.ContextMenu>
+
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="24"  Height="24" Source="images/start-pomodoro.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <TextBlock Margin="8" Name="btnStopPomodoroModetxt">xStop Pomodoro Mode</TextBlock>
+                        <Image x:Name="StopPomodoroModeMainIcon" Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="24"  Height="24" Source="images/start-pomodoro.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                        <TextBlock Margin="8" Name="btnStopPomodoroModetxt">xStop Focus Session</TextBlock>
                     </StackPanel>
                 </Button.Content>
-
             </Button>
             <Grid Name="ToolsSection"  Grid.Row="2"   Grid.ColumnSpan="2" Visibility="Visible">
                 <Rectangle  Grid.Row="2" Height="auto"   Margin="14,7"  Fill="#ffe4c6"  RadiusX="7" RadiusY="7" Grid.ColumnSpan="2" />
