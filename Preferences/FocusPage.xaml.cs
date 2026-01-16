@@ -990,5 +990,19 @@ namespace Focus_Bear.Preferences
             }
            
         }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(!IsVisible)
+            {
+                //If the Focus FRAME is hiding we will call the API to update all the focus modes.
+                //call the API and remove from backend
+                FocusBearAPIClient client = new FocusBearAPIClient();
+
+                LogWriter.LogWrite("attempt to UpdateAllFocusModes() API");
+                _ = client.UpdateAllFocusModes();
+            }
+
+        }
     }
 }

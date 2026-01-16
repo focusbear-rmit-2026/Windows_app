@@ -55,102 +55,104 @@
 
 
             <TabItem Name="ReportProblemTab" AutomationProperties.AutomationId="tabReportProblem" Header="xReport Problem" Style="{DynamicResource TabItemStyle}">
-                <Grid Margin="20" Background="{DynamicResource SoftCreamColor}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="40"/>
-                        <RowDefinition Height="120"/>
-                        <RowDefinition Height="150"/>
-                        <RowDefinition Height="50"/>
-                        <RowDefinition Height="50"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock  Grid.Row="0" Name="Heading" Margin="20,20,20,0"   Text="xFocus Bear is still a new app and you might encounter issues (or have great ideas on how to make it better). We'd really appreciate your feedback. You can email us at team@focusbear.io. Screenshots are really helpful to let us understand the problem. Also if you had a problem, please export your logs (use the link below) and attach it to the email." TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+                <ScrollViewer>
+                    <Grid Margin="20" Background="{DynamicResource SoftCreamColor}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="120"/>
+                            <RowDefinition Height="150"/>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="50"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock  Grid.Row="0" Name="Heading" Margin="20,20,20,0"   Text="xFocus Bear is still a new app and you might encounter issues (or have great ideas on how to make it better). We'd really appreciate your feedback. You can email us at team@focusbear.io. Screenshots are really helpful to let us understand the problem. Also if you had a problem, please export your logs (use the link below) and attach it to the email." TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-                    <TextBlock  Grid.Row="1" Name="WhatHappened" Margin="20,10,0,0"   Text="xWhat Happened?" TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
-                    <TextBox  Grid.Row="2" Name="TxtFeedback" AutomationProperties.AutomationId="txtBoxFeedback" TextWrapping="Wrap" AcceptsReturn="True"  Height="90"   VerticalAlignment="Top"  FontSize="15" Margin="20,10,20,20">
-                        <TextBox.Effect>
-                            <DropShadowEffect ShadowDepth="3"
+                        <TextBlock  Grid.Row="1" Name="WhatHappened" Margin="20,10,0,0"   Text="xWhat Happened?" TextWrapping="Wrap" FontSize="16" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
+                        <TextBox  Grid.Row="2" Name="TxtFeedback" AutomationProperties.AutomationId="txtBoxFeedback" TextWrapping="Wrap" AcceptsReturn="True"  Height="90"   VerticalAlignment="Top"  FontSize="15" Margin="20,10,20,20">
+                            <TextBox.Effect>
+                                <DropShadowEffect ShadowDepth="3"
                               Direction="330"
                               Color="Gray"
                               Opacity="0.5"
                               BlurRadius="6"
                                />
-                        </TextBox.Effect>
-                        <TextBox.FocusVisualStyle>
-                            <Style>
-                                <Setter Property="Control.Template">
-                                    <Setter.Value>
-                                        <ControlTemplate/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </TextBox.FocusVisualStyle>
-                    </TextBox>
+                            </TextBox.Effect>
+                            <TextBox.FocusVisualStyle>
+                                <Style>
+                                    <Setter Property="Control.Template">
+                                        <Setter.Value>
+                                            <ControlTemplate/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.FocusVisualStyle>
+                        </TextBox>
 
-                    <!-- Drag and drop area -->
-                    <Border Grid.Row="3" Margin="20,10,20,20" BorderThickness="2" BorderBrush="Gray" CornerRadius="8"
+                        <!-- Drag and drop area -->
+                        <Border Grid.Row="3" Margin="20,10,20,20" BorderThickness="2" BorderBrush="Gray" CornerRadius="8"
                             Background="#f8f8f8" Padding="10" AllowDrop="True"
-                            Drop="Border_Drop" DragOver="Border_DragOver" Height="120">             
+                            Drop="Border_Drop" DragOver="Border_DragOver" Height="120">
 
-                        <Grid>
-                            <!-- ItemsControl with horizontal scrolling -->
-                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                                <ItemsControl x:Name="ScreenshotsList">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Horizontal"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
+                            <Grid>
+                                <!-- ItemsControl with horizontal scrolling -->
+                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                    <ItemsControl x:Name="ScreenshotsList">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
 
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="3">
-                                                <Border BorderThickness="1" BorderBrush="LightGray">
-                                                    <Image Source="{Binding Thumbnail}"
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="3">
+                                                    <Border BorderThickness="1" BorderBrush="LightGray">
+                                                        <Image Source="{Binding Thumbnail}"
                                                        Width="80" Height="80"
-                                                       Stretch="UniformToFill"/>        
-                                                </Border>
-                                                <Button Content="✖" FontSize="8" Cursor="Hand"
+                                                       Stretch="UniformToFill"/>
+                                                    </Border>
+                                                    <Button Content="✖" FontSize="8" Cursor="Hand"
                                                         Width="16" Height="16"
                                                         HorizontalAlignment="Right"
                                                         VerticalAlignment="Top"
                                                         Click="RemoveScreenshot_Click"
-                                                        Tag="{Binding}"/>       
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
+                                                        Tag="{Binding}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
 
-                            <!-- Placeholder when empty -->
-                            <StackPanel x:Name="PlaceholderPanel" 
+                                <!-- Placeholder when empty -->
+                                <StackPanel x:Name="PlaceholderPanel" 
                                         HorizontalAlignment="Center" 
                                         VerticalAlignment="Center" 
                                         Orientation="Horizontal"
                                         Visibility="Visible"
                                         IsHitTestVisible="False">
-                                <TextBlock Text="➕" FontSize="20" Margin="0,0,10,0"/>
-                                <TextBlock x:Name="DragDesc" Text="xDrag and drop screenshots here that you want to share"
+                                    <TextBlock Text="➕" FontSize="20" Margin="0,0,10,0"/>
+                                    <TextBlock x:Name="DragDesc" Text="xDrag and drop screenshots here that you want to share"
                                     FontSize="14" Foreground="Gray" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                    <Button   Grid.Row="4"  x:Name="btnSelectScreenshots" AutomationProperties.AutomationId="btnSelectScreenshots"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="27" MinWidth="150" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnSelectScreenshots_Click" >
-                        <Button.Content>
-                            <StackPanel  Orientation="Horizontal">
-                                <TextBlock x:Name="btnSelectScreenshotsTXT" Margin="20,0,20,0" Text="xxSelect Screenshots" Style="{DynamicResource ButtonTextBlockStyle}"/>
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
-                    <Button   Grid.Row="5"  x:Name="ExportLogs" AutomationProperties.AutomationId="btnExportLogs"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" MinWidth="200" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnExportLogs_Click" >
-                        <Button.Content>
-                            <StackPanel  Orientation="Horizontal">
-                                <TextBlock x:Name="btnExportLogsTXT" Margin="20,0,20,0" Text="xxClick here to export logs to share with Support Team." Style="{DynamicResource ButtonTextBlockStyle}"/>
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Button   Grid.Row="4"  x:Name="btnSelectScreenshots" AutomationProperties.AutomationId="btnSelectScreenshots"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="27" MinWidth="150" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnSelectScreenshots_Click" >
+                            <Button.Content>
+                                <StackPanel  Orientation="Horizontal">
+                                    <TextBlock x:Name="btnSelectScreenshotsTXT" Margin="20,0,20,0" Text="xxSelect Screenshots" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <Button   Grid.Row="5"  x:Name="ExportLogs" AutomationProperties.AutomationId="btnExportLogs"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" MinWidth="200" HorizontalAlignment="Left" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnExportLogs_Click" >
+                            <Button.Content>
+                                <StackPanel  Orientation="Horizontal">
+                                    <TextBlock x:Name="btnExportLogsTXT" Margin="20,0,20,0" Text="xxClick here to export logs to share with Support Team." Style="{DynamicResource ButtonTextBlockStyle}"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
 
-                </Grid>
+                    </Grid>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
     </Grid>

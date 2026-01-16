@@ -2112,6 +2112,15 @@ namespace Focus_Bear
 
                         return;
                     }
+                    else
+                    {
+                        //it might be possible that user have postponed mornign routine and started breaks
+                        if(appSettings.bHabitsPostponedState && appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY )
+                        {
+                            LogWriter.LogWrite("morning habits are postponed and user is doing break activity..so donot show morning routine, return");
+                            return;
+                        }
+                    }
 
                     if (!isMorningHabitsAlreadyShown)
                     {
