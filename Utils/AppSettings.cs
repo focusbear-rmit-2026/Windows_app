@@ -1677,6 +1677,21 @@ namespace Focus_Bear.Utils
                         AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, true, false, false, false, false));
 
                     }
+                    else if(listItemsD.Count() > 1) //addressing problems where we are seeing duplicate default focus modes
+                    {
+                        // Remove items in reverse order to avoid index issues
+                        for (int i = arrFocusModes.Count - 1; i >= 0; i--)
+                        {
+                            if (arrFocusModes[i].isDefault && arrFocusModes[i].name != ConfigFileStrings["focusPreferencesInfo"]["defaultFocusText"].ToString()) //Block super distracting sites/apps
+                            {
+                                //call the API and remove from backend
+                                FocusBearAPIClient client = new FocusBearAPIClient();
+                                var response = client.DeleteFocusMode(arrFocusModes[i].id);
+
+                                arrFocusModes.RemoveAt(i);
+                            }
+                        }
+                    }
                     //Check Meetings Focus Mode
                     var listItemsM = arrFocusModes.Where(m => m.isMeetings == true);
                     if (listItemsM.Count() == 0)
