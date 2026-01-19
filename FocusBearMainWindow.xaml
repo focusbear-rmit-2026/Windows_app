@@ -281,8 +281,11 @@
                                                     <!-- Value Text -->
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                                                     <TextBlock x:Name="ItemTitle" Text="{Binding Title}" FontSize="13" FontWeight="Medium">
 =======
+=======
+>>>>>>> Stashed changes
                                                     <TextBlock x:Name="ItemTitle" Text="{Binding Title}" Width="160" LineStackingStrategy="BlockLineHeight" LineHeight="15" TextWrapping="Wrap" FontSize="13" FontWeight="Medium"  
                                                                  VerticalAlignment="Center">
 >>>>>>> Stashed changes
