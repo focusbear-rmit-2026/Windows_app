@@ -1,3 +1,4 @@
+using Focus_Bear.Models;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
@@ -33,59 +34,102 @@ namespace Focus_Bear.Preferences
             InitializeComponent();
             _ParentWindow = pp;
 
-            try
-            {
-                Heading.Text = "Always Allowed Apps";
-                Description.Text = "These apps will never be blocked, regardless of focus mode, blocking schedules, or strictness settings. Use this for essential apps that you always need access to.";
-
-                btnAddApp.ToolTip = "Add an app to the always allowed list";
-                btnDeleteApp.ToolTip = "Remove the selected app from the always allowed list";
-
-                btnAddAppTXT.Text = "Add App";
-                btnDeleteAppTXT.Text = "Remove";
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("AlwaysAllowedApps text setting ex - " + ex.Message);
-            }
+            LoadTexts();
 
             ListAllowedApps.ItemsSource = appSettings.arrAlwaysAllowedApps;
             
+        }
+
+        void LoadTexts()
+        {
+            try
+            {
+                Heading.Text = appSettings.ConfigFileStrings["alwaysAllowedAppsViewInfo"]["title"].ToString();
+                Description.Text = appSettings.ConfigFileStrings["alwaysAllowedAppsViewInfo"]["subTitleText"].ToString();
+
+                btnAddAppTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddText"].ToString();
+                btnDeleteAppTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonRemoveText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AlwaysAllowedApps LoadTexts ex - " + ex.Message);
+            }
         }
 
         private void btnAddApp_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Filter = "Executable files (*.exe)|*.exe|All files (*.*)|*.*";
-                openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-                openFileDialog.Title = "Select an application to always allow";
+                _ParentWindow.RepositionWindow();
+                _ParentWindow.GridShade.Visibility = Visibility.Visible;
+                AddAppForAlwaysAllowed aa = new AddAppForAlwaysAllowed(_ParentWindow);
+                aa.Topmost = true;
+                bool? DialogResult = aa.ShowDialog();
 
-                if (openFileDialog.ShowDialog() == true)
+                _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                if (DialogResult.Value == false)
                 {
-                    string appPath = openFileDialog.FileName;
-                    string appName = System.IO.Path.GetFileNameWithoutExtension(appPath);
-
-                    var listItems = appSettings.arrAlwaysAllowedApps.Where(i => System.IO.Path.GetFileNameWithoutExtension(i).ToLower() == appName.ToLower());
-                    if (listItems.Count() == 0)
-                    {
-                        appSettings.arrAlwaysAllowedApps.Add(appPath);
-                        appSettings.CapturePostHog("add-always-allowed-app");
-                    }
-                    else
-                    {
-                        string sErr = "This app is already in the always allowed list.";
-                        
-                        FBMessageBox ff = new FBMessageBox(sErr, "Focus Bear");
-                        ff.Owner = _ParentWindow;
-                        ff.ShowDialog();
-                    }
+                    ShowAddAppManuallyWindow();
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("btnAddApp_Click in Always allowed apps List" + ex.Message);
+                LogWriter.LogWrite("AlwaysAllowedApps btnAddApp_Click ex - " + ex.Message);
+            }
+        }
+
+        private void ShowAddAppManuallyWindow()
+        {
+            LogWriter.LogWrite("AlwaysAllowedApps ShowAddAppManuallyWindow()");
+
+            try
+            {
+                _ParentWindow.RepositionWindow();
+                _ParentWindow.GridShade.Visibility = Visibility.Visible;
+                AddAppsManually aa = new AddAppsManually(_ParentWindow);
+                aa.Topmost = true;
+                bool? DialogResult = aa.ShowDialog();
+
+                _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                string sApps = "";
+
+                switch (DialogResult)
+                {
+                    case true:
+                        sApps = aa.sAppsToAdd;
+                        break;
+                    case false:
+                        return;
+                    default:
+                        return;
+                }
+
+                if (!string.IsNullOrEmpty(sApps))
+                {
+                    string[] apps = sApps.Split(',');
+                    bool bAppAdded = false;
+                    foreach (string app in apps)
+                    {
+                        string trimmedApp = app.Trim();
+                        if (!string.IsNullOrEmpty(trimmedApp))
+                        {
+                            var listItems = appSettings.arrAlwaysAllowedApps.Where(i => i.ToLower() == trimmedApp.ToLower());
+                            if (listItems.Count() == 0)
+                            {
+                                appSettings.arrAlwaysAllowedApps.Add(trimmedApp);
+                                bAppAdded = true;
+                            }
+                        }
+                    }
+                    if (bAppAdded)
+                        appSettings.CapturePostHog("add-always-allowed-app-manually");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AlwaysAllowedApps ShowAddAppManuallyWindow ex - " + ex.Message);
             }
         }
 
@@ -102,7 +146,7 @@ namespace Focus_Bear.Preferences
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("Always allowed apps btnDeleteApp_Click + " + ex.Message);
+                LogWriter.LogWrite("AlwaysAllowedApps btnDeleteApp_Click ex - " + ex.Message);
             }
         }
     }
