@@ -40,11 +40,20 @@ namespace Focus_Bear.Preferences
 
             InitializeComponent();
 
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
             try
             {
                 //todo win texts
                 Heading.Text = "Blocking";
-                btnBlockListsText.Text = "Block Lists";// appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["titleFocusMode"].ToString();
+                btnBlockListsText.Text = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["titleFocusMode"].ToString();
                 btnBlockingScheduleText.Text = appSettings.ConfigFileStrings["settingsNew"]["blockingScheduleSettingTitle"].ToString();
                 btnDistractingSitesText.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
                 
@@ -106,7 +115,7 @@ namespace Focus_Bear.Preferences
             MainMenuPanel.Visibility = Visibility.Collapsed;
             SubViewContainer.Visibility = Visibility.Visible;
 
-            SubViewHeading.Text = "Block Lists"; //todo win texts
+            SubViewHeading.Text = appSettings.ConfigFileStrings["settingsNew"]["titleBlockLists"].ToString();
             // Load yourFocus modes page here
             PageFocusModes = new FocusPage(_ParentWindow);
             ContentArea.Content = PageFocusModes;

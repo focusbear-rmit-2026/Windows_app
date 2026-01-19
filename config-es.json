@@ -605,7 +605,7 @@
         "privacyAdvanceAanalytics": "Los datos sólo se almacenan en tu computador y no se envían a nuestros servidores."
     },
     "focusPreferencesInfo": {
-        "titleFocusType": "Utiliza los Modos de Enfoque para concentrarte en un determinado tipo de trabajo. Inicia un modo de enfoque desde el menú de Focus Bear.",
+        "titleFocusType": "Utiliza las Listas de Bloqueos para concentrarte en un determinado tipo de trabajo. Inicia un modo de enfoque desde el menú de Focus Bear o utiliza un Horario de Bloqueo.",
         "titleAllowedAllApps": "Permitir todas las aplicaciones",
         "titleAllowedSelectedApps": "Permitir aplicaciones seleccionadas",
         "titleAllowedAllUrls": "Permitir todas las URL",
@@ -918,7 +918,7 @@
     "enterPasswordViewInfo": {
         "title": "Por favor ingresa la contraseña para continuar",
         "passwordPlaceholderText": "Contraseña",
-        "buttonResetPasswordText": "Restablecer la contraseña",
+        "buttonResetPasswordText": "Restablecer contraseña",
         "blankPasswordErrorTitle": "La contraseña no puede estar en blanco.",
         "blankPasswordErrorSubTitle": "Por favor introduce una contraseña válida.",
         "incorrectPasswordErrorTitle": "Contraseña no válida.",
@@ -1528,7 +1528,8 @@
     },
     "allTracksVcInfo": {
         "title": "Aquí hay algunas pistas de música de enfoque (algunas son ritmos binaurales) que puedes usar para ayudarte a concentrarte. Para tu información, la investigación es ambivalente sobre los ritmos binaurales - es probable que obtengas beneficios similares al usar tu propia música. Solo asegúrate que la música no tenga letra, de lo contrario te distraerás.",
-        "titleVolumeText": "Volumen:"
+        "titleVolumeText": "Volumen:",
+        "downloadButtonText": "Descargar"
     },
     "setUpVcInfo": {
         "title": "Configuración",

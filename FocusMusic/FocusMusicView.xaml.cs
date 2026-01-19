@@ -94,6 +94,15 @@ namespace Focus_Bear.FocusMusic
 
             InitializeComponent();
 
+            if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+            {
+                this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
+            }
+            else
+            {
+                this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
+            }
+
             //DataContext = this;
             ListTracks.ItemsSource = appSettings.arrFocusMusicTracks;
 
@@ -106,7 +115,7 @@ namespace Focus_Bear.FocusMusic
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["allTracksVcInfo"]["title"].ToString();
-                Volume.Text = appSettings.ConfigFileStrings["allTracksVcInfo"]["titleVolumeText"].ToString();
+                Volume.Text = appSettings.ConfigFileStrings["allTracksVcInfo"]["titleVolumeText"].ToString();   
             }
             catch (Exception ex)
             {

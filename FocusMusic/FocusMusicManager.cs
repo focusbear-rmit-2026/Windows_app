@@ -51,7 +51,9 @@ namespace Focus_Bear.FocusMusic
                                     string duration = item.ContainsKey("duration") ? item.GetValue("duration").ToString() : "";
                                     string durationFormatted = appSettings.SecondsToTextHMS(Convert.ToInt32(duration));
 
-                                    appSettings.arrFocusMusicTracks.Add(new FocusMusicTrack(id, name, downloadUrl, thumbnailDownloadUrl, duration, durationFormatted));
+                                    var track = new FocusMusicTrack(id, name, downloadUrl, thumbnailDownloadUrl, duration, durationFormatted);
+                                    track.DownloadButtonText = appSettings.ConfigFileStrings["allTracksVcInfo"]["downloadButtonText"].ToString();
+                                    appSettings.arrFocusMusicTracks.Add(track);
                                 }
                                 catch (Exception ex)
                                 {
