@@ -62,7 +62,7 @@ namespace Focus_Bear.Preferences
             {
                 _ParentWindow.RepositionWindow();
                 _ParentWindow.GridShade.Visibility = Visibility.Visible;
-                AddAppForAlwaysAllowed aa = new AddAppForAlwaysAllowed(_ParentWindow);
+                AddApp aa = new AddApp(_ParentWindow, true);
                 aa.Topmost = true;
                 bool? DialogResult = aa.ShowDialog();
 

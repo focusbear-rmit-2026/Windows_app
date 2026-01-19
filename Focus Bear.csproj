@@ -578,9 +578,6 @@
     <Compile Include="Preferences\AddApp.xaml.cs">
       <DependentUpon>AddApp.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Preferences\AddAppForAlwaysAllowed.xaml.cs">
-      <DependentUpon>AddAppForAlwaysAllowed.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Preferences\AddAppsManually.xaml.cs">
       <DependentUpon>AddAppsManually.xaml</DependentUpon>
     </Compile>
@@ -1069,10 +1066,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Preferences\AddApp.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Preferences\AddAppForAlwaysAllowed.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
