@@ -58,8 +58,7 @@ namespace Focus_Bear.Preferences
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleFocusType"].ToString();
-                Heading.Text = "Use Block Lists to stay focused on a certain type of work.Start a focus session from the focus bear menu or use a blocking schedule."; //todo win texts
-
+                
                 AllowAllApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedAllApps"].ToString();
                 AllowSelectedApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedSelectedApps"].ToString();
 

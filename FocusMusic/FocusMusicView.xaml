@@ -89,7 +89,7 @@
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
 
                                 <!-- DOWNLOAD BUTTON -->
-                                <Button x:Name="Download" Content="Download" Style="{StaticResource BtnStyleLightOrangeBordered}"
+                                <Button x:Name="Download" Content="{Binding DownloadButtonText}" Style="{StaticResource BtnStyleLightOrangeBordered}"
                                         Margin="5" Width="100" Height="25" Cursor="Hand"
                                         Click="Download_Click">     
 

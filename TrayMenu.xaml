@@ -183,11 +183,43 @@
 
             <Border  x:Name="BlockingScheduleSection" Visibility="Collapsed" BorderThickness="1"   VerticalAlignment="Top"  Margin="14,10,14,14" CornerRadius="5,5,5,5" BorderBrush="Gray"  Grid.ColumnSpan="2">
                 <StackPanel  Orientation="Vertical" >
-                    <StackPanel  Orientation="Horizontal" >
-                        <TextBlock   Name="BlockingScheduleText"  Margin="15,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Foreground="{DynamicResource ForegroundColor}" >xBlocking Schedule</TextBlock>
-                        <ToggleButton x:Name="btnPauseBlockingSchedule" AutomationProperties.AutomationId="tglbtnPauseBlockingSchedule" Style="{DynamicResource MacStyleToggleSwitch}" Margin="25,3,0,0" VerticalAlignment="Center" Cursor="Hand" Focusable="True" Checked="btnPauseBlockingSchedule_Checked" Unchecked="btnPauseBlockingSchedule_Unchecked"/>
-                        <TextBlock   Name="BlockingScheduleState"  Margin="10,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Foreground="{DynamicResource ForegroundColor}" >xActive</TextBlock>
-                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock x:Name="BlockingScheduleText"
+                             Grid.Column="0"
+                             Margin="15,10,10,5"
+                             FontSize="14"
+                             Cursor="Hand"
+                             FontWeight="Semibold"
+                             Foreground="{DynamicResource ForegroundColor}"
+                             TextWrapping="NoWrap"
+                             TextTrimming="CharacterEllipsis">xBlocking Schedule</TextBlock>
+
+                        <ToggleButton x:Name="btnPauseBlockingSchedule"
+                            Grid.Column="1"
+                            AutomationProperties.AutomationId="tglbtnPauseBlockingSchedule"
+                            Style="{DynamicResource MacStyleToggleSwitch}"
+                            Margin="0,3,0,0"
+                            VerticalAlignment="Center"
+                            Cursor="Hand"
+                            Focusable="True"
+                            Checked="btnPauseBlockingSchedule_Checked"
+                            Unchecked="btnPauseBlockingSchedule_Unchecked"/>
+
+                        <TextBlock x:Name="BlockingScheduleState"
+                             Grid.Column="2"
+                             Margin="8,10,15,5"
+                             FontSize="14"
+                             Cursor="Hand"
+                             FontWeight="Semibold"
+                             Foreground="{DynamicResource ForegroundColor}">xActive</TextBlock>
+                    </Grid>
+                    
                     <TextBlock   Name="BlockingScheduleName"  Margin="15,5,0,5" FontSize="14"  FontWeight="Semibold" Foreground="{DynamicResource ForegroundColor}" >xBlocking Schedule Name</TextBlock>
                     <TextBlock   Name="BlockingScheduleTime"  Margin="15,5,0,5" FontSize="12"  FontWeight="Normal" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource ForegroundColor}" >xBlocking Schedule Time </TextBlock>
                 </StackPanel>
