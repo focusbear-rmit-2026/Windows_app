@@ -35,7 +35,7 @@ namespace Focus_Bear.Focus
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
         bool bNeedMoreTime = false;
-
+        bool bNeed1MinuteClicked = false;
         struct FocusSummary
         {
             public string name { get; set; }
@@ -93,7 +93,10 @@ namespace Focus_Bear.Focus
         {
             try
             {
-
+                if(bNeed1MinuteClicked)
+                {
+                    bNeedMoreTime = true; //case is user clicks need a minutes then comeback to this screen, then need 1 min should not be availble but postpone should
+                }
                 if (!appSettings.bPlayActivitiesInFullScreenMode)
                 {
                     MainGrid.RowDefinitions[0].Height = new GridLength(100);
@@ -297,6 +300,7 @@ namespace Focus_Bear.Focus
                 }
             }
 
+            bNeed1MinuteClicked = true;
 
             if (bNeedMoreTime)
             {

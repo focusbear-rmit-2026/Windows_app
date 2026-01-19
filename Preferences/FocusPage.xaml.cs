@@ -680,7 +680,13 @@ namespace Focus_Bear.Preferences
                     }
                     if(selectedItem.isDefault)
                     {
+                        //Disable the adanced button for the default focus mode
+                        btnAdvanced.IsEnabled = false;
                         selectedItem.isAllowedAllApps = false;//The default focus mode will now have the list of apps user want to block
+                    }
+                    else
+                    {
+                        btnAdvanced.IsEnabled = true;
                     }
                     //check the appropriate radio boxes for apps
                     if (selectedItem.isAllowedAllApps)

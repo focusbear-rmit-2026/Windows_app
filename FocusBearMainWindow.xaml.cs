@@ -1114,16 +1114,19 @@ namespace Focus_Bear
 
                 //Jump to Help tab
                 // Fire function after 1 second without blocking
-                Task.Delay(100).ContinueWith(t =>
+                if (!appSettings.bRestartAppNeeded)
                 {
-                    Application.Current.Dispatcher.Invoke(() =>
+                    Task.Delay(100).ContinueWith(t =>
                     {
-                        // This runs after 1 second on a thread pool thread
-                        // fire Please spare me button to postpone
-                        ((App)(Application.Current)).SimulatePleaseSpareMe();
-                    });
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            // This runs after 1 second on a thread pool thread
+                            // fire Please spare me button to postpone
+                            ((App)(Application.Current)).SimulatePleaseSpareMe();
+                        });
 
-                });
+                    });
+                }
 
                 
             } 

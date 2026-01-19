@@ -161,8 +161,16 @@ namespace Focus_Bear.Focus
                 ((App)(Application.Current)).ShowBreakWindow();
             }
 
-                //Ask the user for adding temp apps / urls
-            if (appSettings.TemporaryAllowedAppsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsTabTitles.Count != 0)
+            //Ask the user for adding temp apps / urls but should not be Super distracting URLs focus mode
+            bool bRunningDefaultFocusMode = false;
+            var listItemsDefault = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
+            if (listItemsDefault.Count() != 0)
+            {
+                FocusMode ff = listItemsDefault.First();
+                bRunningDefaultFocusMode = ff.isDefault ? true : false;
+            }
+
+            if (!bRunningDefaultFocusMode && (appSettings.TemporaryAllowedAppsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsGentleBlock.Count != 0 || appSettings.TemporaryAllowedURLsTabTitles.Count != 0))
             {
                 if(appSettings.TemporaryAllowedURLsTabTitles.Count > 0)
                 {
