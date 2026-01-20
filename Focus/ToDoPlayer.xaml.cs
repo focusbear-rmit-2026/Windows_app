@@ -107,7 +107,7 @@ namespace Focus_Bear.Focus
                     tasks = appSettings?.sRawTasks ?? null,
                     total_duration = durationInMinutes,
                     lang = appSettings.sLangCode,
-                    font = appSettings.sSelectedAppFont,
+                    font = appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont),
                     theme = sTheme,
                     intention = appSettings.sRunningFocusModeIntention,
                     brain_dump = appSettings.sBrainDump

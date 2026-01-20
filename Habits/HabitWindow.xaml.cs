@@ -536,16 +536,35 @@ namespace Focus_Bear.Habits
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
                 LogWriter.LogWrite("LAST BREAK_ACTIVITY Finished");
-                //Set the current activity type to NONE
-                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                if(appSettings.bHabitsPostponedState)
+                {
+                    //possibly user postponed habits and started breaks, so we need to set the state back
+                    if(appSettings.IsShutOffTime())
+                    {
+                        //evening routine time
+                        appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;
+                    }
+                    else
+                    {
+                        //morning routine time
+                        appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;
+                    }
+
+                }
+                else
+                {
+                    //Set the current activity type to NONE
+                    appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                }
+                
+                //Start the break Activities Timer
+                ((App)(Application.Current)).StartBreakActivityTimer();
 
                 //enable the left buttons
                 ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
 
-                ((App)(Application.Current)).BringMainWindowToFront(); //Just to resize again
-
-                //Start the break Activities Timer
-               ((App)(Application.Current)).StartBreakActivityTimer();
+                ((App)(Application.Current)).ShowPomodoroWindow(); //Lets show pomodoro view same as mac app
+                
             }
             else if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {

@@ -58,10 +58,10 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button Grid.Row="5" x:Name="btnCustomizeHabits" AutomationProperties.AutomationId="btnCustomizeHabits"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="40" Width="300" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCustomizeHabits_Click">
+            <Button Grid.Row="5" x:Name="btnCustomizeHabits" AutomationProperties.AutomationId="btnCustomizeHabits"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="40" MinWidth="300" HorizontalAlignment="Center"  HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,80" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCustomizeHabits_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
-                        <TextBlock x:Name="btnCustomizeHabitsTXT" Text="xCustomize my habits first" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                        <TextBlock Padding="10,0" x:Name="btnCustomizeHabitsTXT" Text="xCustomize my habits first" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </StackPanel>
             </Button.Content>
             </Button>

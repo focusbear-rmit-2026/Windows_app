@@ -610,7 +610,7 @@
         "privacyAdvanceAanalytics": "Los datos sólo se almacenan en tu computador y no se envían a nuestros servidores."
     },
     "focusPreferencesInfo": {
-        "titleFocusType": "Utiliza los Modos de Enfoque para concentrarte en un determinado tipo de trabajo. Inicia un modo de enfoque desde el menú de Focus Bear.",
+        "titleFocusType": "Utiliza las Listas de Bloqueos para concentrarte en un determinado tipo de trabajo. Inicia un modo de enfoque desde el menú de Focus Bear o utiliza un Horario de Bloqueo.",
         "titleAllowedAllApps": "Permitir todas las aplicaciones",
         "titleAllowedSelectedApps": "Permitir aplicaciones seleccionadas",
         "titleAllowedAllUrls": "Permitir todas las URL",
@@ -744,7 +744,7 @@
             "titleStrictnessLevel": "Nivel de Rigor:",
             "strictnessSuperStrictClickedText": "Entiendo que no puedo detener esta sesión de enfoque hasta que termine. Me comprometo a evitar las distracciones y a trabajar mucho.",
             "warningDefaultFocusMode": "Atención: esto no utilizará el bloqueo IA. Focus Bear solo bloqueará los sitios de tu lista de sitios superdistractores.",
-            "strictnessSuperStrictClickedNewText": "Entiendo que no puedo detener esta sesión de enfoque sin una contraseña. Estoy comprometid@ a evitar distracciones y a lograr mucho trabajo."
+            "strictnessSuperStrictClickedNewText": "Entiendo que no puedo detener esta sesión de enfoque. Me comprometo a evitar distracciones y a avanzar muchísimo en mi trabajo."
         },
         "abortingFocusModeInfo": {
             "title": "Desactivación del tipo de enfoque - <FOCUSTYPE>",
@@ -923,7 +923,7 @@
     "enterPasswordViewInfo": {
         "title": "Por favor ingresa la contraseña para continuar",
         "passwordPlaceholderText": "Contraseña",
-        "buttonResetPasswordText": "Restablecer la contraseña",
+        "buttonResetPasswordText": "Restablecer contraseña",
         "blankPasswordErrorTitle": "La contraseña no puede estar en blanco.",
         "blankPasswordErrorSubTitle": "Por favor introduce una contraseña válida.",
         "incorrectPasswordErrorTitle": "Contraseña no válida.",
@@ -1035,7 +1035,11 @@
         "linkSentTitle": "Enlace de restablecimiento enviado",
         "linkSentDescription": "Hemos enviado un enlace para restablecer la contraseña a tu correo. Revisa tu bandeja de entrada.",
         "linkSendFailedTitle": "No se pudo enviar el correo de restablecimiento",
-        "linkSendFailedDescription": "Algo salió mal al enviar el enlace de restablecimiento. Revisa tu conexión a internet e intenta de nuevo."
+        "linkSendFailedDescription": "Algo salió mal al enviar el enlace de restablecimiento. Revisa tu conexión a internet e intenta de nuevo.",
+        "subscriptionDetails": "Detalles de la suscripción",
+        "status": "Estado:",
+        "emailNotVerified": "Correo no verificado",
+        "buttonResendConfirmation": "Reenviar correo de confirmación"
     },
     "activityPostponeInfo": {
         "postponeHabitsText": "Si tienes alguna urgencia, puedes pausar tus hábitos por algunos minutos.",
@@ -1083,7 +1087,13 @@
         "buttonSignInGoogleText": "Registrarse con Google",
         "buttonSignInAppleText": "Registrarse con Apple",
         "loginComingSoonTitle": "Próximamente - por ahora registrate de nuevo con una contraseña para vincular tu cuenta existente.",
-        "loginComingSoonDescription": "Todavía no tenemos soporte para inicio de sesión único en escritorio. Si ya te registraste para obtener una cuenta a través de Google/Apple en el móvil, tendrás que registrarte de nuevo con un correo electrónico y contraseña, y se vinculará a la cuenta existente que tengas."
+        "loginComingSoonDescription": "Todavía no tenemos soporte para inicio de sesión único en escritorio. Si ya te registraste para obtener una cuenta a través de Google/Apple en el móvil, tendrás que registrarte de nuevo con un correo electrónico y contraseña, y se vinculará a la cuenta existente que tengas.",
+        "buttonSignUpWithGoogle": "Regístrate con Google",
+        "buttonSignUpWithApple": "Regístrate con Apple",
+        "buttonSignUpWithEmail": "Regístrate con correo electrónico",
+        "buttonSignInOldAccountText": "¿Ya tienes una cuenta de Focus Bear? Inicia sesión",
+        "buttonCreateAccount": "Crea tu cuenta",
+        "orText": "O"
     },
     "upgradeNowVcInfo": {
         "pointFirstText": "Rutinas de hábitos personalizadas",
@@ -1171,7 +1181,13 @@
         "tooltipShowPassword": "Mostrar Contraseña",
 		"tooltipHidePassword": "Ocultar Contraseña",
         "passwordGenerateText": "Hemos generado una contraseña para ti",
-        "makeSureSaveText": "Asegúrate de guardarla en un lugar seguro"
+        "makeSureSaveText": "Asegúrate de guardarla en un lugar seguro",
+        "orText": "O",
+        "titleSignInAccount": "¿Ya tienes una cuenta?",
+        "buttonContinueWithGoogle": "Continuar con Google",
+        "buttonContinueWithApple": "Continuar con Apple",
+        "titleDontHaveAccount": "¿No tienes una cuenta?",
+        "subTitleSignIn": "Inicia sesión con una cuenta de Focus Bear"
     },
     "loginHelpVcInfo": {
         "title": "Debería abrirse una ventana de incógnito donde puedes iniciar sesión o registrarte. Si no la ves, intenta abrir Safari manualmente. Si aún no puedes verla:",
@@ -1347,7 +1363,10 @@
         "gladText": "¡Nos alegra que te apasione construir una rutina tanto como a nosotros!",
         "selectGoalsText": "Selecciona todo lo que corresponda",
         "titleActivateFeatures": "Activar funciones",
-        "subTitleActivateFeatures": "Haremos lo mejor para ayudarte a conseguir tus objetivos 🤩 ¿Qué funciones de Focus Bear quieres activar?"
+        "subTitleActivateFeatures": "Haremos lo mejor para ayudarte a conseguir tus objetivos 🤩 ¿Qué funciones de Focus Bear quieres activar?",
+        "titleSetHabits": "¿Quieres configurar hábitos ahora? (toma 5 minutos)",
+        "buttonDoItLater": "Eh… lo haré más tarde",
+        "buttonSetHabits": "¡Sí! Los hábitos son lo mío"
     },
     "toolBoxVcInfo": {
         "title": "La caja de herramientas facilita la apertura de las aplicaciones y sitios web que has permitido en el modo de enfoque <FOCUS_NAME>. Puedes acceder desde el Menú en Herramientas.",
@@ -1432,8 +1451,8 @@
     },
     "onboardingBlockedUrlsInfo": {
         "title": "Bienvenido a Focus Bear",
-        "questionText": "¿En qué sitios te distraes?",
-        "description": "Puedes bloquear ciertos sitios por defecto para evitar entrar en agujeros negros. Marca los sitios que no quieras usar nunca en tu computadora.",
+        "questionText": "¿Qué sitios quieres bloquear?",
+        "description": "(Decidirás más adelante a qué hora del día bloquearlos)",
         "bottomText": "(Puedes cambiar esto después)",
         "buttonContinueText": "Continuar",
         "enterUrlText": "Ingresa la URL para bloquear:",
@@ -1514,7 +1533,8 @@
     },
     "allTracksVcInfo": {
         "title": "Aquí hay algunas pistas de música de enfoque (algunas son ritmos binaurales) que puedes usar para ayudarte a concentrarte. Para tu información, la investigación es ambivalente sobre los ritmos binaurales - es probable que obtengas beneficios similares al usar tu propia música. Solo asegúrate que la música no tenga letra, de lo contrario te distraerás.",
-        "titleVolumeText": "Volumen:"
+        "titleVolumeText": "Volumen:",
+        "downloadButtonText": "Descargar"
     },
     "setUpVcInfo": {
         "title": "Configuración",
@@ -1583,8 +1603,8 @@
         "buttonAlreadyHaveAccountText": "Ya tengo una cuenta de Focus Bear"
     },
     "onboardingControllingBrowserVcInfo": {
-        "title": "Permiso para bloquear distracciones",
-        "descriptionText": "Bien, ahora necesitas darle permiso a Focus Bear para bloquear distracciones.",
+        "title": "Permisos del navegador para bloquear sitios web",
+        "descriptionText": "Configura el bloqueo en todos tus navegadores para evitar distracciones por completo",
         "buttonPermissionGrantedText": "Continuar",
         "buttonRequestPermissionText": "Solicitar Permiso",
         "enabledText": "✅  ¡Activado!",
@@ -1619,7 +1639,7 @@
         "buttonViewPrivacyPolicyNewText": "Política de Privacidad"
     },
     "tryBlockUrlVcInfo": {
-        "titleShieldActivated": "¡Escudo antidistracción activado!",
+        "titleShieldActivated": "Prueba el bloqueo de sitios web",
         "descriptionTryBlockText": "Pruébalo: intenta acceder a <BLOCKED_URL> a través de tu navegador. Debería bloquear el sitio.",
         "buttonItBlockedText": "¡Lo bloqueó!",
         "buttonDidNotBlockedText": "No lo bloqueó 😒",
@@ -1629,7 +1649,7 @@
         "buttonStillNotBlockedText": "Aún no funciona",
         "buttonNowBlockedText": "Acabo de probar esos navegadores y ¡funcionó!",
         "emailUsText": "Lo siento 😓 ¿Hay alguna posibilidad de que nos envíes un correo electrónico (support@focusbear.io) e intentaremos solucionarlo?",
-        "descriptionTryIntentionText": "Intenta abrir <BLOCKED_URL>. Focus Bear te ayudará a utilizar el sitio de forma más intencional.",
+        "descriptionTryIntentionText": "Prueba abrir <BLOCKED_URL>. Deberías ver la experiencia de bloqueo suave.",
         "buttonItBlockedNewText": "Me hizo más intencional",
         "buttonDidNotBlockedNewText": "No me detuvo para nada",
         "buttonOpenUrlText": "Haz clic aquí para abrir <BLOCKED_URL> ahora",
@@ -1847,7 +1867,7 @@
         "lateNoMoreAlreadyInstalledText": "Late No More ya está instalado",
         "descriptionGetLateNoMore": "Late No More emite notificaciones que aumentan de intensidad a medida que se acerca la hora de inicio de las reuniones. Si ignoras las ventanas emergentes, recibirás alertas verbales (o una canción).",
         "permissionsSettingTitle": "Permisos",
-        "descriptionPermissions": "El acceso a todo el sistema es esencial para que Focus Bear evite eficazmente las distracciones en navegadores web. A continuación se describe el estado actual de los permisos de los navegadores instalados.",
+        "descriptionPermissions": "Para ayudarte a mantenerte enfocado/a, Focus Bear necesita permiso para funcionar con tus navegadores web. Esto permite que la app mantenga las distracciones a raya de forma suave mientras estás en modo enfoque.",
         "titleStrictnessLevel": "Nivel de Rigidez:",
         "titleSuperGentle": "Super suave",
         "titleGentle": "Suave",
@@ -2055,7 +2075,8 @@
     },
     "selectHabitsLaterInfo": {
         "title": "Si alguna vez decides que quieres activar hábitos en el futuro, puedes abrir Preferencias en la barra de menús y hacer clic en Editar Hábitos",
-        "buttonContinueText": "Continuar"
+        "buttonContinueText": "Continuar",
+        "titleNew": "Si decides activar hábitos en el futuro, puedes hacer clic en Editar hábitos en el menú izquierdo de la ventana principal."
     },
     "createTaskVcInfo": {
         "title": "Focus Bear - Crear Nueva Tarea",
@@ -2093,7 +2114,8 @@
         "occupationOther": "Otro",
         "occupationFreelancer": "Freelancer",
         "titleFreelancerType": "Tipo de Trabajo:",
-        "studentInfoText": "Por cierto, tu universidad quizá pueda pagar por el acceso premium a Focus Bear. Envía un email a support@focusbear.io para más detalles."
+        "studentInfoText": "Por cierto, tu universidad quizá pueda pagar por el acceso premium a Focus Bear. Envía un email a support@focusbear.io para más detalles.",
+        "titleBlockingProfile": "Crea tu perfil de bloqueo de distracciones"
     },
     "geekModeInfo": {
         "titleGeekMode": "🤓 Modo Geek",
@@ -2349,11 +2371,11 @@
         "title": "Conceder permisos para bloquear distracciones",
         "subTitle": "Focus Bear necesita permisos del sistema para activar el bloqueo de distracciones:",
         "pointAccessibilityPermission": "Permisos de accesibilidad:",
-        "descriptionAccessibilityPermission": "necesario para compatibilidad con Firefox y bloquear distracciones mientras el navegador está en modo de pantalla completa.",
+        "descriptionAccessibilityPermission": "Necesario para compatibilidad con Firefox y bloquear distracciones mientras el navegador está en modo de pantalla completa.",
         "pointSystemEventPermission": "Permiso de eventos del sistema:",
-        "descriptionSystemEventPermission": "necesario para difuminar las distracciones",
+        "descriptionSystemEventPermission": "Necesario para difuminar las distracciones.",
         "pointBrowserPermission": "Permisos específicos del navegador:",
-        "descriptionBrowserPermission": "necesario para redirigir el navegador a la página bloqueada cuando visitas un sitio distractor",
+        "descriptionBrowserPermission": "Necesario para redirigir el navegador a la página bloqueada cuando visitas un sitio distractor.",
         "infoBannerText": "Tu privacidad está preservada (más información en la sig. pantalla)"
     },
     "webViewLoadFailedVcInfo":{
@@ -2383,15 +2405,15 @@
         "toolTipBellIcon": "Comparte tu opinión o sugerencias"
     },
     "onboardingDistractionTypesVcInfo":{
-        "title": "¿Qué te distrae de tu trabajo?",
+        "title": "¿Qué tipo de distracciones quieres bloquear?",
         "optionWebsitesText": "Sitios web en mi computador (ej. Reddit, Youtube, Instagram)",
         "optionAppsText": "Apps en mi computador (ej. juegos, apps de mensajería)",
         "optionPhoneText": "Mi celular",
         "descriptionPhoneText": "La app móvil Focus Bear puede ayudarte. Descárgala desde focusbear.io en tu teléfono."
     },
     "onboardingBlockedAppsVcInfo":{
-        "title": "¿Qué apps te distraen más?",
-        "subTitle": "¿En qué apps pierdes el tiempo? Focus Bear te ayudará a ser más consciente del uso que haces de estas apps. Se bloquearán durante las sesiones de enfoque. El resto del tiempo, Focus Bear te preguntará por qué quieres usarlas.",
+        "title": "¿Qué apps quieres bloquear?",
+        "subTitle": "(Decidirás más adelante a qué hora del día bloquearlas)",
         "blockAppsCountText": "<COUNT> apps serán bloqueadas.",
         "oneAppBlockText": "1 app será bloqueada.",
         "tipText": "Por si tienes curiosidad, no rastreamos las apps que usas."
@@ -2509,7 +2531,8 @@
         "titleEnableBreaks": "Los descansos están desactivados. Activa los descansos a intervalos regulares para aumentar tu productividad, energía y enfoque.",
         "pausedBreaksText": "Has pausado los descansos por hoy. Mañana volverán para ayudarte a recargar energías y mantener el enfoque.",
         "shutoffTimeText": "La app está en estado de apagado",
-        "noBreakScheduledText": "Aún no se ha programado ningún descanso próximo."
+        "noBreakScheduledText": "Aún no se ha programado ningún descanso próximo.",
+        "noBreakAddedText": "Aún no se han agregado actividades de descanso."
     },
     "leftMenuVcInfo":{
         "titleMain": "PRINCIPAL",
@@ -2583,7 +2606,11 @@
         "alertSelectBlockList": "Por favor, selecciona una lista de bloqueo.",
         "titleScheduleOverlapAlert": "Se detectó un solapamiento de horarios.",
         "subTitleScheduleOverlapAlert": "El horario de bloqueo se superpone con uno existente. ¿Quieres guardarlo de todos modos?",
-        "buttonSaveBlockAnyway": "Guardar de todos modos"
+        "buttonSaveBlockAnyway": "Guardar de todos modos",
+        "permissionsMessageText": "Permite los permisos para bloquear sitios web y apps distractoras.",
+        "permissionsInformativeText": "Necesitarás permitir los permisos para bloquear sitios web y apps distractoras.",
+        "permissionsButtonGrantPermissions": "Conceder permisos",
+        "permissionsButtonNo": "No, gracias"
     },
     "abortingCustomScheduleBlockingVcInfo":{
         "titlePauseText": "Pausando horario personalizado - <SCHEDULE>",
@@ -2608,6 +2635,32 @@
         "titleTask": "Tarea actual:",
         "toolTipIncreaseDuration": "Aumentar la duración en 1 minuto",
         "toolTipDecreaseDuration": "Reducir la duración en 1 minuto"
+    },
+    "enableAIBlockingVcInfo": {
+        "title": "¿Quieres usar IA para bloquear distracciones?",
+        "subTitle": "Focus Bear puede usar IA para detectar si te estás distrayendo y ayudarte a volver al enfoque.",
+        "headingFirstPoint": "Anónimo:",
+        "descriptionFirstPoint": "no le decimos a la IA quién eres.",
+        "headingSecondPoint": "Privado:",
+        "descriptionSecondPoint": "no rastreamos el uso de tus sitios web ni permitimos que el proveedor de IA entrene modelos con tus datos.",
+        "headingThirdPoint": "Desactívalo en cualquier momento:",
+        "descriptionThirdPoint": "puedes dejar de usar la IA en cualquier momento",
+        "buttonNoThanks": "No, gracias",
+        "buttonContinue": "Hazme indistraíble"
+    },
+    "confirmBlockingScheduleCreationVcInfo": {
+        "title": "¿Quieres configurar el bloqueo programado de distracciones?",
+        "subTitle": "Puedes bloquear sitios y apps distractoras durante el horario de trabajo o por la noche.",
+        "buttonNo": "No, gracias",
+        "buttonYes": "¡Sí! Guarda mi enfoque"
+    },
+    "createBlockingProfileVcInfo": {
+        "title": "Crea tu perfil de bloqueo de distracciones",
+        "subTitle": "Dale a la IA un poco más de contexto para que detecte mejor las distracciones.",
+        "headingFirst": "¿Qué tipo de sitios son relevantes para tu trabajo?",
+        "exampleFirst": "(P. ej., herramientas de gestión de proyectos, repositorios de código)",
+        "headingSecond": "¿Qué tipo de cosas te distraen?",
+        "exampleSecond": "(P. ej., redes sociales, streaming de video)"
     },
     "discordUrl": "https://discord.gg/VZdv3ZjhSq",
     "whatsAppUrl": "https://chat.whatsapp.com/FV0oTbCUWpILBYif7CP6UD",

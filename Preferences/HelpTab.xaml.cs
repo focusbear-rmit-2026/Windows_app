@@ -95,6 +95,10 @@ namespace Focus_Bear.Preferences
             _ParentWindow.IsEnabled = false;
             bool xResponseUnused = await UploadLogs.UploadLogsToServer(TxtFeedback.Text);
             _ParentWindow.IsEnabled = true;
+            //Once the logs are uploaded, cler the previous message
+            TxtFeedback.Text = "";
+            appSettings.droppedFiles.Clear();
+            RefreshScreenshots();
         }
 
         

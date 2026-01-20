@@ -86,6 +86,10 @@ namespace Focus_Bear.FocusMusic
             get => _pausedOffset;
             set { _pausedOffset = value; OnPropertyChanged(nameof(PausedOffset)); }
         }
+
+        private string _downloadButtonText;
+        public string DownloadButtonText { get => _downloadButtonText; set { _downloadButtonText = value; OnPropertyChanged(nameof(DownloadButtonText)); } }
+
         public DateTime StartTime { get; set; }
         // convenience / formatted values
         public string DurationFormatted { get; set; } = "00:00"; 

@@ -58,8 +58,7 @@ namespace Focus_Bear.Preferences
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleFocusType"].ToString();
-                Heading.Text = "Use Block Lists to stay focused on a certain type of work.Start a focus session from the focus bear menu or use a blocking schedule."; //todo win texts
-
+                
                 AllowAllApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedAllApps"].ToString();
                 AllowSelectedApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedSelectedApps"].ToString();
 
@@ -680,7 +679,13 @@ namespace Focus_Bear.Preferences
                     }
                     if(selectedItem.isDefault)
                     {
+                        //Disable the adanced button for the default focus mode
+                        btnAdvanced.IsEnabled = false;
                         selectedItem.isAllowedAllApps = false;//The default focus mode will now have the list of apps user want to block
+                    }
+                    else
+                    {
+                        btnAdvanced.IsEnabled = true;
                     }
                     //check the appropriate radio boxes for apps
                     if (selectedItem.isAllowedAllApps)
@@ -990,6 +995,20 @@ namespace Focus_Bear.Preferences
                 app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
            
+        }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(!IsVisible)
+            {
+                //If the Focus FRAME is hiding we will call the API to update all the focus modes.
+                //call the API and remove from backend
+                FocusBearAPIClient client = new FocusBearAPIClient();
+
+                LogWriter.LogWrite("attempt to UpdateAllFocusModes() API");
+                _ = client.UpdateAllFocusModes();
+            }
+
         }
     }
 }

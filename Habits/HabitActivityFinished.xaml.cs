@@ -1565,9 +1565,6 @@ namespace Focus_Bear.Habits
                 
                 if (bBreakActivitiesFinished)
                 {
-                    if(appSettings.sBrainDump.Length > 0) //Only show if there is text.
-                        ((App)(Application.Current)).ShowBrainDumpWindow();
-                    
                     _parentWindow.PageHabits.HideFrameAndClose();
                     return;
                 }
