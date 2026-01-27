@@ -62,7 +62,6 @@
                         <!-- Custom TreeViewItem style with working expander -->
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="{x:Type TreeViewItem}">
-                                <Setter Property="MaxWidth" Value="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type TreeView}}}"/>
                                 <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
                                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                                 <Setter Property="Background" Value="Transparent"/>
@@ -264,14 +263,9 @@
                                                 BorderThickness="1"
                                                 HorizontalAlignment="Stretch"
                                                 MouseLeftButtonDown="NavLeaf_Click" >
-                                                <Grid VerticalAlignment="Center">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                     <!-- Icon from Images folder -->
-                                                    <Image Grid.Column="0" Width="18" Height="18" Source="{Binding IconSource}" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Image Width="18" Height="18" Source="{Binding IconSource}" Margin="0,0,8,0" VerticalAlignment="Center">
                                                         <Image.Style>
                                                             <Style TargetType="Image">
                                                                 <Style.Triggers>
@@ -285,6 +279,7 @@
                                                     </Image>
 
                                                     <!-- Value Text -->
+
                                                     <TextBlock x:Name="ItemTitle" Text="{Binding Title}" Width="160" LineStackingStrategy="BlockLineHeight" LineHeight="15" TextWrapping="Wrap" FontSize="13" FontWeight="Medium"  
                                                                  VerticalAlignment="Center">
                                                         <TextBlock.Style>
@@ -304,11 +299,14 @@
                                                                         <Setter Property="Foreground" Value="Gray"/>
                                                                         <Setter Property="Cursor" Value="Arrow"/>
                                                                     </DataTrigger>
+                                                                    
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </TextBlock.Style>
                                                     </TextBlock>
-                                                </Grid>
+
+
+                                                </StackPanel>
                                             </Border>
                                         </StackPanel>
 

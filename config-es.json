@@ -1421,7 +1421,11 @@
         "infoTemporaryAllow": "Este sitio ha sido marcado como una distracción 🧠❗Puedes desbloquearlo por ahora, pero se registrará como tiempo no productivo en tu informe.",
         "currentTaskText": "La tarea actual es \"<TASK>\"",
         "pickTaskText": "La IA no puede determinar si esto encaja con tu trabajo. ¡Elige una tarea para guiar a Focus Bear!",
-        "buttonConvinceAgain": "Déjame convencer a la IA otra vez"
+        "buttonConvinceAgain": "Déjame convencer a la IA otra vez",
+        "titleChangedFocus": "¿Has cambiado de enfoque?",
+        "changeTaskText": "¿Quieres cambiar tu tarea actual?",
+        "suggestedTaskText": "Parece que ahora estás trabajando en <TASK>.",
+        "buttoWorkingOnOldTask": "No, sigo trabajando en <TASK>"
     },
     "easyPostponeVcInfo": {
         "title": "Entendido – ahora no es un buen momento. Voy a esperar 5 minutos. Puedes posponer por más tiempo si asi lo necesitas.",
@@ -2503,7 +2507,8 @@
         "SavingTaskText": "Guardando tarea...",
         "buttonMarkCurrentTaskAsCompleted": "Marcar la tarea anterior como completada",
         "titleNewTask": "Nueva tarea:",
-        "titlePreviousTask": "Tarea anterior:"
+        "titlePreviousTask": "Tarea anterior:",
+        "cannotChangeIntentionInSuperStrictText": "El objetivo de enfoque no se puede cambiar en el modo súper estricto"
     },
     "popUpSaveThisTaskForLaterVcInfo":{
         "title": "¿Quieres guardar esto como una tarea para más tarde?",

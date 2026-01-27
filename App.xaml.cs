@@ -3817,7 +3817,7 @@ namespace Focus_Bear
             try
             { //Just make sure that we have the habits time or breaks time
                 if ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS || appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS || appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
-                    !appSettings.bHabitsPostponedState)
+                    !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState)
                 {
                     if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && wndFocusSummary != null && wndFocusSummary.IsVisible)
                     {
