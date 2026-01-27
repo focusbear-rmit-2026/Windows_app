@@ -86,7 +86,6 @@ namespace Focus_Bear.Focus
             LogWriter.LogWrite("StopFocusMode() btnStopFocus_Click()");
             try
             {
-                dispatcherTimer.Stop();
 
                 //fire the Stop focus session button from the menu common for super focus session too
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStopPomodoroMode);
@@ -146,6 +145,14 @@ namespace Focus_Bear.Focus
             if(!IsVisible)
             {
                 dispatcherTimer.Stop();
+            }
+            else
+            {
+                // Restart timer when becoming visible again
+                if (!dispatcherTimer.IsEnabled)
+                {
+                    dispatcherTimer.Start();
+                }
             }
         }
     }
