@@ -1416,7 +1416,11 @@
         "infoTemporaryAllow": "This site’s been flagged as a distraction 🧠❗You can unlock it for now — just know it’ll be logged as non-productive time in your report.",
         "currentTaskText": "Current task is \"<TASK>\"",
         "pickTaskText": "AI can’t tell if this fits your work. Pick a task to guide Focus Bear!",
-        "buttonConvinceAgain": "Let me convince the AI again"
+        "buttonConvinceAgain": "Let me convince the AI again",
+        "titleChangedFocus": "Have you changed focus?",
+        "changeTaskText": "Want to change your current task?",
+        "suggestedTaskText": "It looks like you're now working on <TASK>.",
+        "buttoWorkingOnOldTask": "No I'm still working on <TASK>"
     },
     "easyPostponeVcInfo": {
         "title": "Ok I get it - now's not a good time. I'll try again in 5 minutes. You can postpone for longer if you need to.",
@@ -2498,7 +2502,8 @@
         "SavingTaskText": "Saving task...",
         "buttonMarkCurrentTaskAsCompleted": "Mark the previous task as complete",
         "titleNewTask": "New task:",
-        "titlePreviousTask": "Previous task:"
+        "titlePreviousTask": "Previous task:",
+        "cannotChangeIntentionInSuperStrictText": "Focus goal cannot be changed in super strict mode"
     },
     "popUpSaveThisTaskForLaterVcInfo":{
         "title": "Do you want to save this as a task for later?",
