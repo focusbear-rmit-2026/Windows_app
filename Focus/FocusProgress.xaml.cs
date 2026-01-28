@@ -336,7 +336,7 @@ namespace Focus_Bear.Focus
                 {
                     if (isSuper)
                     {
-                        txtEndSession.Visibility = Visibility.Collapsed;
+                        txtEndSession.Visibility = Visibility.Hidden;
                     }
                     else
                     {
@@ -348,7 +348,7 @@ namespace Focus_Bear.Focus
                         }
                         else
                         {
-                            txtEndSession.Visibility = Visibility.Collapsed;
+                            txtEndSession.Visibility = Visibility.Hidden;
                         }
 
                     }
