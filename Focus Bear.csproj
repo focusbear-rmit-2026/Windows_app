@@ -52,7 +52,7 @@
     <WarningLevel>4</WarningLevel>
     <DebugSymbols>true</DebugSymbols>
     <!-- Configure Sentry org and project -->
-    <SentryOrg>focus-bear-pty-ltd</SentryOrg>
+    <SentryOrg>focus-bear</SentryOrg>
     <!-- Automatically creates a release when building your application. -->
     <SentryCreateRelease>true</SentryCreateRelease>
     <!-- Automatically associates commits with the release. -->

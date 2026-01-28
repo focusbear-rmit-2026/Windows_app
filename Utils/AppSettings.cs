@@ -25,6 +25,8 @@ using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using Focus_Bear.FocusMusic;
 using Focus_Bear.AccountabilityBuddy;
+using System.Windows.Shapes;
+using Path = System.IO.Path;
 
 namespace Focus_Bear.Utils          
 {
@@ -2547,6 +2549,7 @@ namespace Focus_Bear.Utils
                     try
                     {
                         File.Move(DebugLogsFilePath, oldLogPath);
+                        File.SetCreationTime(oldLogPath, DateTime.Now); //we will need to set the CreationDate as File.Move() preserves the original CreationTime Only the path changes
                     }
                     catch (Exception ex)
                     {

@@ -3018,6 +3018,8 @@ namespace Focus_Bear.API
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
+                        LogWriter.LogWrite("ResetPassword() addItemJsonString - " + addItemJsonString);
+
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
 
                         //Make the data for Focus Mode

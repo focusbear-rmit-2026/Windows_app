@@ -1070,7 +1070,7 @@ namespace Focus_Bear
 
                 ShowBreaksSectionInMainWindow();
 
-                // Update the tray menu for current activity
+                // Pedro: Update the tray menu for current activity
                 if (appSettings.isFocusModePaused && appSettings.isFocusModeRunning)
                 {
                     HideFocusUIForRoutine();
@@ -3432,12 +3432,13 @@ namespace Focus_Bear
                     wndFocusBearMainWindow.WindowStyle = WindowStyle.None;
                     wndFocusBearMainWindow.WindowState = WindowState.Maximized;
                 }
-
+                wndFocusBearMainWindow.Topmost = true; //when user is in habits we will keep topmost
                 wndFocusBearMainWindow.SetMinimizeButtonEnabled(false);
                 wndFocusBearMainWindow.SetMaximizeButtonEnabled(false);
             }
             else
             {
+                wndFocusBearMainWindow.Topmost = false; //when user is not in habits we will remove topmost
                 wndFocusBearMainWindow.WindowStyle = WindowStyle.SingleBorderWindow;
                 // Restore window if minimized
                 ShowWindow(hWnd, SW_RESTORE);
@@ -3815,8 +3816,16 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("SimulatePleaseSpareMe()");
             try
-            { //Just make sure that we have the habits time or breaks time
-                if ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS || appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS || appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
+            {
+                //Just make sure that we have the habits time or breaks time
+                if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                {
+                    //Show habits view it it was elsewhere
+                    if (!wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.MicroBreaks))
+                        wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.MicroBreaks);
+                    wndFocusBearMainWindow.PageHabits.SimulatePleaseSpareMeClick();
+                }
+                else if ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS || appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) &&
                     !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState)
                 {
                     if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && wndFocusSummary != null && wndFocusSummary.IsVisible)
@@ -3825,18 +3834,10 @@ namespace Focus_Bear
                     }
                     else 
                     {
-                        if(appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
-                        {
-                            //Show habits view it it was elsewhere
-                            if (!wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.MicroBreaks))
-                                wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.MicroBreaks);
-                        }
-                        else
-                        {
-                            //Show habits view it it was elsewhere
-                            if (!wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.Habits))
-                                wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
-                        }
+                      
+                        //Show habits view it it was elsewhere
+                        if (!wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.Habits))
+                            wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
                         
                         wndFocusBearMainWindow.PageHabits.SimulatePleaseSpareMeClick();
                     }

@@ -312,9 +312,10 @@ namespace Focus_Bear.Focus
         {
             try
             {
-                string pauseText = appSettings.ConfigFileStrings["focusProgressInfo"]["pauseText"].ToString();
-                string resumeText = appSettings.ConfigFileStrings["focusProgressInfo"]["resumeText"].ToString();
-                string pausedEndText = appSettings.ConfigFileStrings["focusProgressInfo"]["endFocusSessionText"].ToString();
+                //todo win texts
+                string pauseText = "Pause";// appSettings.ConfigFileStrings["focusProgressInfo"]["pauseText"].ToString();
+                string resumeText = "Resume";//appSettings.ConfigFileStrings["focusProgressInfo"]["resumeText"].ToString();
+                string pausedEndText = "End Session";//appSettings.ConfigFileStrings["focusProgressInfo"]["endFocusSessionText"].ToString();
 
                 bool isPaused = appSettings.isFocusModePaused;
 
