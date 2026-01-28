@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls.Adapters;
 using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
@@ -160,17 +161,25 @@ namespace Focus_Bear.Focus
             webView.Source = new System.Uri(sTodoPlayerURL);
         }
 
-        private void btnEndFocus_Click(object sender, RoutedEventArgs e)
+        private async void btnEndFocus_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Todo Player btnEndFocus_Click - Stopping Focus Session");
 
+            if (appSettings.IsRoutineBlockingFocusControls)
+            {
+                LogWriter.LogWrite("ToDoPlayer btnEndFocus_Click - blocked while routine is active");
+                return;
+            }
+
             try
             {
-                //fire the Stop focus session button from the menu
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStopPomodoroMode);
-                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                invokeProv.Invoke();
+                app.HideToDoPlayer();
 
+                var tray = ((App)Application.Current).wndTrayMenu;
+                if (tray != null)
+                {
+                    await tray.StopFocusSessionRealAsync();
+                }
             }
             catch (Exception ex)
             {

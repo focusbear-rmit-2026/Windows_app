@@ -65,6 +65,12 @@ namespace Focus_Bear.Focus
 
                 Timer.Text = "";
 
+                // this help to show the paused remaining time if the focus mode is paused
+                if (appSettings.isFocusModePaused && appSettings.nPausedFocusRemainingSeconds > 0)
+                {
+                    Timer.Text = appSettings.SecondsToTextHMS(appSettings.nPausedFocusRemainingSeconds);
+                }
+
                 LogWriter.LogWrite("Stop Focus Mode View shown");
             }
             catch (Exception ex)
@@ -80,7 +86,6 @@ namespace Focus_Bear.Focus
             LogWriter.LogWrite("StopFocusMode() btnStopFocus_Click()");
             try
             {
-                dispatcherTimer.Stop();
 
                 //fire the Stop focus session button from the menu common for super focus session too
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStopPomodoroMode);
@@ -100,6 +105,19 @@ namespace Focus_Bear.Focus
             {
                 try
                 {
+                    if (appSettings.isFocusModePaused)
+                    {
+                        int remainingSeconds = appSettings.nPausedFocusRemainingSeconds;
+                        if (remainingSeconds < 0)
+                        {
+                            remainingSeconds = 0;
+                        }
+
+                        Timer.Text = appSettings.SecondsToTextHMS(remainingSeconds);
+                        CommandManager.InvalidateRequerySuggested();
+                        return;
+                    }
+
                     DateTime now = DateTime.Now;
                     TimeSpan difference = DateTime.Parse(appSettings.sRunningFocusModeEndTime).Subtract(now); // could also write `now - otherTime`
                     var durationSeconds = difference.TotalSeconds;
@@ -127,6 +145,14 @@ namespace Focus_Bear.Focus
             if(!IsVisible)
             {
                 dispatcherTimer.Stop();
+            }
+            else
+            {
+                // Restart timer when becoming visible again
+                if (!dispatcherTimer.IsEnabled)
+                {
+                    dispatcherTimer.Start();
+                }
             }
         }
     }

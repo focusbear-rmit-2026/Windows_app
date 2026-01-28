@@ -1069,10 +1069,18 @@ namespace Focus_Bear
                 wndFocusBearMainWindow.PageHabits.InitializeInnerScreens(); //V2 most important to load all screens as required.
 
                 ShowBreaksSectionInMainWindow();
+
+                // Update the tray menu for current activity
+                if (appSettings.isFocusModePaused && appSettings.isFocusModeRunning)
+                {
+                    HideFocusUIForRoutine();
+                }
             }
             else
             {
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+
+                RestoreFocusUIAfterRoutine();
             }
         }
         public void ShowWelcomeAbordOnBoradingFlow()
@@ -1881,6 +1889,7 @@ namespace Focus_Bear
                                 //Kick the user off at the cutoff time
                                 appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                                 LogWriter.LogWrite("Kick the user off at the cutoff time as it was postponed before cutoff time elapsed");
+
                                 return;
                             }
 
@@ -2285,6 +2294,8 @@ namespace Focus_Bear
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                     LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
+                    RestoreFocusUIAfterRoutine();
+
                     //Start the break Activities Timer
                     StartBreakActivityTimer();
 
@@ -2372,6 +2383,8 @@ namespace Focus_Bear
 
                                                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                                                     LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+
+                                                    RestoreFocusUIAfterRoutine();
 
                                                     //Start the break Activities Timer
                                                     StartBreakActivityTimer();
@@ -2517,6 +2530,8 @@ namespace Focus_Bear
                                                                 appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                                                                 LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
+                                                                RestoreFocusUIAfterRoutine();
+
                                                                 return;
                                                             }
                                                         }
@@ -2658,14 +2673,17 @@ namespace Focus_Bear
                     ShowHabitsSectionInMainWindow(); //V2
                 }
 
+                if (appSettings.isFocusModePaused && appSettings.isFocusModeRunning)
+                {
+                    HideFocusUIForRoutine();
+                }
+
+
                 if (appSettings.isFocusModeRunning)
                 {
                     ForceStopFocusSessionOnHabitsTime();
                 }
 
-                //Make the global variable false
-                appSettings.isFocusModeRunning = false;
-                appSettings.bUseSuperPomodoroMode = false;
             }
             catch (Exception ex)
             {
@@ -3007,6 +3025,9 @@ namespace Focus_Bear
 
                                             appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                                             LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+
+                                            RestoreFocusUIAfterRoutine();
+
                                             return;
                                         }
 
@@ -3304,14 +3325,15 @@ namespace Focus_Bear
                     ShowHabitsSectionInMainWindow(); //V2
                 }
 
+                if (appSettings.isFocusModePaused && appSettings.isFocusModeRunning)
+                {
+                    HideFocusUIForRoutine();
+                }
+
                 if (appSettings.isFocusModeRunning)
                 {
                     ForceStopFocusSessionOnHabitsTime();
                 }
-
-                //Make the global variable false
-                appSettings.isFocusModeRunning = false;
-                appSettings.bUseSuperPomodoroMode = false;
             }
             catch (Exception ex)
             {
@@ -3348,6 +3370,17 @@ namespace Focus_Bear
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ShowShutOffScreen() ex - " + ex.Message);
+            }
+
+            if (appSettings.isFocusModeRunning)
+            {
+                if (appSettings.isFocusModePaused)
+                {
+                    appSettings.isFocusModePaused = false;
+                    appSettings.nPausedFocusRemainingSeconds = 0;
+                }
+
+                ForceStopFocusSessionOnHabitsTime(); // Use the same function as morning routine
             }
         }
 
@@ -3598,8 +3631,15 @@ namespace Focus_Bear
                         }
                     }
 
+                    // If a focus session exists (paused or running), restore UI after postponing
+                    if (appSettings.isFocusModeRunning)
+                    {
+                        appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                        RestoreFocusUIAfterRoutine();
+                    }
+
                     //V2: we need to show the Start Focus session Section if its Geek mode OR the Resume habits window secion.
-                    if(appSettings.bIsGeekModeEnabled)
+                    if (appSettings.bIsGeekModeEnabled)
                     {
                         ShowPomodoroWindow();
                     }
@@ -3743,6 +3783,8 @@ namespace Focus_Bear
                 //Simply set the activity type to NONE and the background thread will take care.
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                 LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+
+                RestoreFocusUIAfterRoutine();
             }
             catch (Exception ex)
             {
@@ -3931,6 +3973,23 @@ namespace Focus_Bear
                 wndFocusProgress = null;
             }
         }
+
+        public void HideFocusUIForRoutine()
+        {
+            // Hide contronls during routine
+            wndTrayMenu?.UpdateTrayMenu();
+            HideToDoPlayer();
+            wndFocusProgress?.Hide();
+        }
+
+        public void RestoreFocusUIAfterRoutine()
+        {
+            // Restore controls after routine
+            wndTrayMenu?.UpdateTrayMenu();
+            wndFocusProgress?.UpdatePauseControls();
+            wndFocusProgress?.Show();
+        }
+
         private void Application_Exit(object sender, ExitEventArgs e)
         {
             LogWriter.LogWrite("Application_Exit()");
@@ -4583,6 +4642,32 @@ namespace Focus_Bear
             wndFocusBearMainWindow.PageToDoPlayer?.webView?.Reload(); // Refresh webview to stop background execution  
             bLoadURLAgainInToDoPlayer = true;
         }
+        public void NotifyToDoPlayerPauseState(bool isPaused)
+        {
+            try
+            {
+                var webView = wndFocusBearMainWindow?.PageToDoPlayer?.webView;
+                if (webView?.CoreWebView2 == null)
+                {
+                    return;
+                }
+
+                string pausedValue = isPaused ? "true" : "false";
+                string script = $@"
+                    (function() {{
+                        if (window.setFocusPausedFromDesktopApp) {{
+                        window.setFocusPausedFromDesktopApp({pausedValue});
+                        }}
+                    }})();
+                ";
+
+                var _ = webView.ExecuteScriptAsync(script);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("NotifyToDoPlayerPauseState ex - " + ex.Message);
+            }
+        }
 
         public void ShowNaturalBreakDetectionWindow()
         {
@@ -4605,6 +4690,21 @@ namespace Focus_Bear
         public void ForceStopFocusSessionOnHabitsTime()
         {
             LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime() - Stop the Focus Mode as Habits time had arrieved.");
+
+            if (appSettings.isFocusModePaused)
+            {
+                LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime() - Focus paused, skip auto - stop.");
+                if (appSettings.IsRoutineBlockingFocusControls)
+                {
+                    wndTrayMenu?.UpdateTrayMenu();
+                    wndFocusProgress?.UpdatePauseControls();
+                    if (wndToDoPlayer != null)
+                        wndToDoPlayer.Visibility = Visibility.Collapsed;
+                    return;
+                }
+                return;
+            }
+
             try
             {
                 //Double check
