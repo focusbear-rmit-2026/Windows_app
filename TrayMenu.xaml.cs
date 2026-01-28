@@ -71,6 +71,28 @@ namespace Focus_Bear
             SetTrayMenuPosition();
             ShowInTaskbar = false;
             this.Loaded += MainWindow_Loaded;
+
+            PauseResumeFocusMenuItem.Click += (s, e) =>
+            {
+                bool toggled = ToggleFocusPauseFromUI();
+                if (!toggled)
+                {
+                    return;
+                }
+
+                UpdateTrayMenu();
+
+                App app = (App)Application.Current;
+                if (app.wndFocusProgress != null)
+                {
+                    app.wndFocusProgress.UpdatePauseControls();
+                }
+            };
+
+            StopFocusSessionMenuItem.Click += async (s, e) =>
+            {
+                await StopFocusSessionRealAsync();
+            };
         }
 
         public void SetTrayMenuPosition()
@@ -170,10 +192,12 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("UpdateTrayMenu()");
 
+            bool blockFocusControls = appSettings.IsRoutineBlockingFocusControls; // block focus controls during
+
             try
             {
                 //Focus Music icon
-                if(appSettings.arrFocusMusicTracks.Count > 0)
+                if (appSettings.arrFocusMusicTracks.Count > 0)
                 {
                     var current = appSettings.arrFocusMusicTracks.FirstOrDefault(t => t.IsPlaying || t.IsPaused);
                     if (current != null)
@@ -205,10 +229,12 @@ namespace Focus_Bear
                     {
                         btnPlayPauseMusic.Visibility = Visibility.Collapsed;
                     }
-                       
+
                 }
 
-                if(appSettings.arrCustomBlockingSchedules.Count == 0)
+                UpdatePomodoroPauseButtonText();
+
+                if (appSettings.arrCustomBlockingSchedules.Count == 0)
                 {
                     LimitedBlockingSection.Visibility = Visibility.Visible;
                 }
@@ -291,6 +317,46 @@ namespace Focus_Bear
                             OrangeHeader.Height = 70;
                     }
 
+                    if (blockFocusControls)
+                    {
+                        btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                    }
+                    else // not blocking focus controls
+                    {
+                        // Focus mode running
+                        if (appSettings.isFocusModeRunning)
+                        {
+                            btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                            btnStopPomodoroMode.Visibility = Visibility.Visible;
+                            //show the stop focus session button
+                            if (appSettings.bUseSuperPomodoroMode)
+                            {
+                                btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                            }
+                            else
+                            {
+                                string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
+                                string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
+                                btnStopPomodoroModetxt.Text = appSettings.isFocusModePaused ? resumeTitle : stopTitle;
+                            }
+                        }
+                        else
+                        {
+                            //if focus session is not running, possible a super pomodoro break time
+                            if (appSettings.bUseSuperPomodoroMode)
+                            {
+                                btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                                btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                                btnStopPomodoroMode.Visibility = Visibility.Visible;
+                            }
+                            else
+                            {
+                                btnStartPomodoroMode.Visibility = Visibility.Visible;
+                                btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                            }
+                        }
+                    }
+
                     if (appSettings.isFocusModeRunning)
                     {
                         btnStartPomodoroMode.Visibility = Visibility.Collapsed;
@@ -302,13 +368,15 @@ namespace Focus_Bear
                         }
                         else
                         {
-                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString(); 
+                            string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
+                            string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
+                            btnStopPomodoroModetxt.Text = appSettings.isFocusModePaused ? resumeTitle : stopTitle;
                         }
                     }
                     else
                     {
                         //if focus session is not running, possible a super pomodoro break time
-                        if(appSettings.bUseSuperPomodoroMode)
+                        if (appSettings.bUseSuperPomodoroMode)
                         {
                             btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
                             btnStartPomodoroMode.Visibility = Visibility.Collapsed;
@@ -387,7 +455,7 @@ namespace Focus_Bear
                     OfficeModeSection.Visibility = Visibility.Visible;
 
                     //Focus Alignment score
-                    if (appSettings.isFocusModeRunning || 
+                    if (appSettings.isFocusModeRunning ||
                         (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled))
                     {
                         AlignmentScoreText.Visibility = Visibility.Visible;
@@ -401,74 +469,99 @@ namespace Focus_Bear
                 }
                 else //Simple mode
                 {
-                    ///FocusSection.Visibility = Visibility.Collapsed;
                     btnBrainDump.Visibility = Visibility.Collapsed;
 
-                    if (appSettings.isFocusModeRunning)
+                    if (blockFocusControls) // blocking focus controls
                     {
-                        btnStartPomodoroMode.Visibility = Visibility.Collapsed;
-                        btnStopPomodoroMode.Visibility = Visibility.Visible;
-                        //show the stop focus session button
-                        if (appSettings.bUseSuperPomodoroMode)
+                        btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                    }
+                    else // not blocking focus controls
+                    {
+                        if (appSettings.isFocusModeRunning)
                         {
-                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                            btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                            btnStopPomodoroMode.Visibility = Visibility.Visible;
+                            if (appSettings.bUseSuperPomodoroMode)
+                            {
+                                btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                            }
+                            else
+                            {
+                                // Normal focus mode:
+                                // When running and not paused: show Stop Focusation (Windows string)
+                                // When paused: show Resume Focus Session (Windows/Mac shared string)
+                                string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
+                                string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
+
+                                btnStopPomodoroModetxt.Text = appSettings.isFocusModePaused ? resumeTitle : stopTitle;
+                            }
                         }
                         else
                         {
-                            btnStopPomodoroModetxt.Text =  btnStopPomodoroModetxt.Text =  btnStopPomodoroModetxt.Text = "Stop Focus Session"; //todo win texts
+                            if (appSettings.bUseSuperPomodoroMode)
+                            {
+                                btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                                btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                                btnStopPomodoroMode.Visibility = Visibility.Visible;
+                            }
+                            else
+                            {
+                                btnStartPomodoroMode.Visibility = Visibility.Visible;
+                                btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                            }
                         }
+
                     }
-                    else
+
+                    try
                     {
-                        btnStartPomodoroMode.Visibility = Visibility.Visible;
-                        btnStopPomodoroMode.Visibility = Visibility.Collapsed;
-                    }
-                    if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
-                       appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
-                       appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
-                       !appSettings.bHabitsPostponedState))
-                    {
-                        btnStartPomodoroMode.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        if (!appSettings.isFocusModeRunning)
+                        // Update main button icon to match Pause/Resume state 
+                        if (StopPomodoroModeMainIcon != null &&
+                            appSettings.isFocusModeRunning &&
+                            !appSettings.bUseSuperPomodoroMode)
                         {
-                            btnStartPomodoroMode.Visibility = Visibility.Visible; //both start and stop
+                            bool isPaused = appSettings.isFocusModePaused;
+
+                            string iconPath = isPaused
+                                ? "pack://application:,,,/Focus Bear;component/images/play_circle.png"
+                                : "pack://application:,,,/Focus Bear;component/images/stop_circle.png";
+
+                            StopPomodoroModeMainIcon.Source =
+                                new System.Windows.Media.Imaging.BitmapImage(new Uri(iconPath));
                         }
                     }
-
-                    OfficeModeSection.Visibility = Visibility.Collapsed;
-
-                    AlignmentScoreText.Visibility = Visibility.Collapsed;
-                }
-
-                if (appSettings.isFocusModeRunning)
-                {
-                    btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
-                }
-                else
-                {
-                    btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString();
-                }
-
-                if(appSettings.isBlockingScheduleRunning)
-                {
-                    BlockingScheduleSection.Visibility = Visibility.Visible;
-                    BlockingScheduleName.Text = appSettings.ActiveSchedule.name;
-                    BlockingScheduleTime.Text = appSettings.ActiveSchedule.BlockingScheduleDaysTime;
-                    if(appSettings.ActiveSchedule.isPaused)
+                    catch (Exception ex)
                     {
-                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
+                        LogWriter.LogWrite("UpdateTrayMenu main icon swap ex = " + ex.Message);
+                    }
+
+                    if (appSettings.isFocusModeRunning)
+                    {
+                        btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
                     }
                     else
                     {
-                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+                        btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString();
                     }
-                }
-                else
-                {
-                    BlockingScheduleSection.Visibility = Visibility.Collapsed;
+
+                    if (appSettings.isBlockingScheduleRunning)
+                    {
+                        BlockingScheduleSection.Visibility = Visibility.Visible;
+                        BlockingScheduleName.Text = appSettings.ActiveSchedule.name;
+                        BlockingScheduleTime.Text = appSettings.ActiveSchedule.BlockingScheduleDaysTime;
+                        if (appSettings.ActiveSchedule.isPaused)
+                        {
+                            BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
+                        }
+                        else
+                        {
+                            BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+                        }
+                    }
+                    else
+                    {
+                        BlockingScheduleSection.Visibility = Visibility.Collapsed;
+                    }
                 }
             }
             catch (Exception ex)
@@ -481,6 +574,65 @@ namespace Focus_Bear
                 //when the user is opening menu for the first time we need to highlight the start piomodoro button and show a tooltip
                 appSettings.bMenuOpeningFirstTime = false;
                 FlashStartPomodoroButton();
+            }
+        }
+
+        private void btnStopPomodoroMode_OpenContextMenu(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                UpdateFocusSessionContextMenuItems();
+
+                if (btnStopPomodoroMode?.ContextMenu != null)
+                {
+                    btnStopPomodoroMode.ContextMenu.PlacementTarget = btnStopPomodoroMode;
+                    btnStopPomodoroMode.ContextMenu.IsOpen = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnStopPomodoroMode_OpenContextMenu ex = " + ex.Message);
+            }
+        }
+
+        private void UpdateFocusSessionContextMenuItems()
+        {
+            if (PauseResumeFocusMenuItem == null || StopFocusSessionMenuItem == null)
+                return;
+
+            try
+            {
+                string pauseTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemPauseFocusTitle"].ToString();
+                string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
+                string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
+
+                bool isPaused = appSettings.isFocusModePaused;
+
+                // Check if focus controls should be blocked due to routines
+                bool blockFocusControls = appSettings.IsRoutineBlockingFocusControls;
+                PauseResumeFocusMenuItem.IsEnabled = !blockFocusControls;
+                StopFocusSessionMenuItem.IsEnabled = !blockFocusControls;
+                if (blockFocusControls)
+                {
+                    return; // menu items disabled, no need to update further
+                }
+
+                PauseResumeFocusMenuItem.Header = isPaused ? resumeTitle : pauseTitle;
+                StopFocusSessionMenuItem.Header = stopTitle;
+
+                // Update the menu icon to match Pause/Resume state
+                if (PauseResumeFocusMenuItem.Icon is Image iconImage)
+                {
+                    string iconPath = isPaused
+                        ? "pack://application:,,,/Focus Bear;component/images/play_icon.png"
+                        : "pack://application:,,,/Focus Bear;component/images/pause_icon.png";
+
+                    iconImage.Source = new BitmapImage(new Uri(iconPath));
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpdateFocusSessionContextMenuItems ex = " + ex.Message);
             }
         }
 
@@ -688,7 +840,7 @@ namespace Focus_Bear
 
         }
 
-        private async void btnStopPomodoroMode_Click(object sender, RoutedEventArgs e)
+        public async Task StopFocusSessionRealAsync()
         {
             
             //stop the current running focus session
@@ -697,7 +849,25 @@ namespace Focus_Bear
    
             try
             {
-                
+                bool needsPassword = appSettings.bUseSuperPomodoroMode &&
+                       appSettings.isPasswordSet &&
+                       appSettings.bPasswordRequireInStopPomodoro;
+                if (needsPassword)
+                {
+                    var pwdWnd = new AskPassword { Owner = this };
+                    bool? ok = pwdWnd.ShowDialog();
+                    if (!ok.GetValueOrDefault())
+                    {
+                        return; // no password entered, do not stop
+                    }
+                }
+
+                if (appSettings.IsRoutineBlockingFocusControls)
+                {
+                    LogWriter.LogWrite("StopFocusSessionRealAsync() - Routine screen active, stop blocked until habits finish");
+                    return;
+                }
+
                 Hide();
                 //Check is any other FOcus modes is running, if yes, give an alert to stop that mode
                 //If not we will start the focus mode
@@ -753,6 +923,118 @@ namespace Focus_Bear
             }
 
         }
+
+        private async void btnStopPomodoroMode_Click(object sender, RoutedEventArgs e)
+        {
+            // In normal focus mode, main button click opens the context menu
+            if (appSettings.isFocusModeRunning && !appSettings.bUseSuperPomodoroMode)
+            {
+                btnStopPomodoroMode_OpenContextMenu(sender, e);
+                return;
+            }
+
+            // Otherwise, perform the real stop
+            await StopFocusSessionRealAsync();
+        }
+
+        public bool ToggleFocusPauseFromUI()
+        {
+            try
+            {
+                LogWriter.LogWrite("ToggleFocusPauseFromUI()");
+
+                // Check if focus controls should be blocked due to routines
+                if (appSettings.IsRoutineBlockingFocusControls)
+                {
+                    LogWriter.LogWrite("ToggleFocusPauseFromUI() - Routine screen active, resume blocked until habits finish");
+                    return false;
+                }
+
+                if (!appSettings.isFocusModeRunning)
+                {
+                    LogWriter.LogWrite("ToggleFocusPauseFromUI() - No focus mode running, returning false");
+                    return false;
+                }
+
+                if (appSettings.bUseSuperPomodoroMode)
+                {
+                    LogWriter.LogWrite("ToggleFocusPauseFromUI() - Super Pomodoro mode active, pause not allowed, returning false");
+                    return false;
+                }
+
+                if (!DateTime.TryParse(appSettings.sRunningFocusModeEndTime, out DateTime endTime))
+                {
+                    LogWriter.LogWrite("ToggleFocusPauseFromUI() - Could not parse sRunningFocusModeEndTime, returning false");
+                    return false;
+                }
+
+                if (!appSettings.isFocusModePaused)
+                {
+                    // ----------- PAUSE -----------
+                    TimeSpan remaining = endTime - DateTime.Now;
+                    int remainingSeconds = (int)remaining.TotalSeconds;
+                    if (remainingSeconds <= 0)
+                    {
+                        LogWriter.LogWrite("ToggleFocusPauseFromUI() - Remaining seconds <= 0, nothing to pause, returning false");
+                        return false;
+                    }
+
+                    appSettings.nPausedFocusRemainingSeconds = remainingSeconds;
+                    appSettings.isFocusModePaused = true;
+
+                    dispatcherTimerFocus.Stop();
+
+                    UpdatePomodoroPauseButtonText();
+
+                    LogWriter.LogWrite("ToggleFocusPauseFromUI() - Paused focus mode, remainingSeconds = " + appSettings.nPausedFocusRemainingSeconds);
+                }
+                else
+                {
+                    // ----------- RESUME -----------
+                    if (appSettings.nPausedFocusRemainingSeconds <= 0)
+                    {
+                        LogWriter.LogWrite("ToggleFocusPauseFromUI() - Resume requested but nPausedFocusRemainingSeconds <= 0, returning false");
+                        return false;
+                    }
+
+                    // New end time = now + what was left when we paused
+                    int remainingSeconds = appSettings.nPausedFocusRemainingSeconds;
+                    DateTime newEnd = DateTime.Now.AddSeconds(remainingSeconds);
+                    appSettings.sRunningFocusModeEndTime = newEnd.ToString();
+
+                    appSettings.nPausedFocusRemainingSeconds = 0;
+                    appSettings.isFocusModePaused = false;
+
+                    string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
+                    sTill = sTill.Replace("<TIME>", newEnd.ToString());
+                    OnUntill.Content = sTill;
+
+                    dispatcherTimerFocus.Interval = TimeSpan.FromSeconds(remainingSeconds);
+                    dispatcherTimerFocus.Start();
+
+                    UpdatePomodoroPauseButtonText();
+
+                    LogWriter.LogWrite("ToggleFocusPauseFromUI() - Resumed focus mode, new end time = " + appSettings.sRunningFocusModeEndTime);
+                }
+
+                // Notify the ToDo Player of the new pause state
+                ((App)Application.Current).NotifyToDoPlayerPauseState(appSettings.isFocusModePaused);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ToggleFocusPauseFromUI() exception = " + ex.Message);
+                return false;
+            }
+        }
+
+        private void btnPauseFocusSession_Click(object sender, RoutedEventArgs e)
+        {
+            // Delegate to the shared pause/resume logic
+            ToggleFocusPauseFromUI();
+        }
+
         private void Window_Deactivated(object sender, EventArgs e)
         {
             Hide(); 
@@ -1223,6 +1505,29 @@ namespace Focus_Bear
 
                 }
 
+            }
+        }
+
+        private void UpdatePomodoroPauseButtonText()
+        {
+            try
+            {
+                if (btnStopPomodoroMode == null || btnStopPomodoroModetxt == null)
+                    return;
+
+                // If no focus session is running, leave the default text or visibility logic
+                if (!appSettings.isFocusModeRunning)
+                    return;
+
+                string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
+                string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
+
+                // If focus is paused → show "Resume", else "Stop"
+                btnStopPomodoroModetxt.Text = appSettings.isFocusModePaused ? resumeTitle : stopTitle;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpdatePomodoroPauseButtonText() ex = " + ex.Message);
             }
         }
 

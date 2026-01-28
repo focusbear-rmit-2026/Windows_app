@@ -25,6 +25,8 @@ using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using Focus_Bear.FocusMusic;
 using Focus_Bear.AccountabilityBuddy;
+using System.Windows.Shapes;
+using Path = System.IO.Path;
 
 namespace Focus_Bear.Utils          
 {
@@ -261,6 +263,19 @@ namespace Focus_Bear.Utils
         public string sBrainDump = "";
 
         public bool isFocusModeRunning = false;
+
+        public bool isFocusModePaused = false;
+
+        // This property checks if the current routine is blocking focus controls
+        public bool IsRoutineBlockingFocusControls =>
+            isFocusModePaused &&
+            !bHabitsPostponedState &&
+            (nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+             nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
+             nCurrentActivityType == CurrentActivityType.SHUT_OFF);
+
+        public int nPausedFocusRemainingSeconds = 0;
+
         public string sRunningFocusModeID = "";
         public string sRunningFocusModeName = "";
         public string sRunningFocusModeStartTime = "";
@@ -1531,7 +1546,7 @@ namespace Focus_Bear.Utils
                             bPasswordRequireInSkipMorning = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipMorning") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipMorning") : false;
                             bPasswordRequireInSkipEvening = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipEvening") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipEvening") : false;
                             bPasswordRequireInAbortShutoff = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInAbortShutoff") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInAbortShutoff") : false;
-                            // bPasswordRequireInStopPomodoro = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInStopPomodoro") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInStopPomodoro") : false;
+                            bPasswordRequireInStopPomodoro = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInStopPomodoro") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInStopPomodoro") : false;
                             bPasswordRequireInQuitApp = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInQuitApp") : false;
                             bPasswordRequireToUseRelaxFocusMode = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireToUseRelaxFocusMode") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireToUseRelaxFocusMode") : false;
                             bPasswordRequireToSkipEveningAfterCutOff = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipEveningAfterCutOff") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipEveningAfterCutOff") : false;
@@ -2534,6 +2549,7 @@ namespace Focus_Bear.Utils
                     try
                     {
                         File.Move(DebugLogsFilePath, oldLogPath);
+                        File.SetCreationTime(oldLogPath, DateTime.Now); //we will need to set the CreationDate as File.Move() preserves the original CreationTime Only the path changes
                     }
                     catch (Exception ex)
                     {

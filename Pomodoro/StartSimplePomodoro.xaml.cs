@@ -306,6 +306,9 @@ namespace Focus_Bear.Pomodoro
                         //Make the global variable true
                         appSettings.isFocusModeRunning = true;
 
+                        appSettings.isFocusModePaused = false;
+                        appSettings.nPausedFocusRemainingSeconds = 0;
+
                         ((App)Application.Current).ShowFocusProgressWindow();
 
                         if (((App)Application.Current).wndBrainDump != null && ((App)Application.Current).wndBrainDump.IsVisible) //Update the window if its made or is visible

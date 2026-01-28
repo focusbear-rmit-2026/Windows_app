@@ -208,12 +208,18 @@ namespace Focus_Bear.Preferences
                 {
                     LogWriter.LogWrite("GetUserDetailsInfo Success");
                     //User Settings retrieved Successfully, Process them.
-                    appSettings.ReadAndParseUserDetailsJson();
+                    Dispatcher.Invoke(() =>
+                    {
+                        appSettings.ReadAndParseUserDetailsJson();
+                    });
                 }
                 else
                 {
                     LogWriter.LogWrite("GetUserDetailsInfo Failed");
-                    appSettings.ReadAndParseUserDetailsJson();
+                    Dispatcher.Invoke(() =>
+                    {
+                        appSettings.ReadAndParseUserDetailsJson();
+                    });
                 }
                 CommandManager.InvalidateRequerySuggested();
             });

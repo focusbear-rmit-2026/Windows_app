@@ -2523,7 +2523,9 @@
         "titleAppDisabled": "El bloqueo de distracciones está en pausa. Puedes volver a activarlo en cualquier momento para mantenerte enfocado.",
         "freeTimeText": "¡Bien hecho! Tienes tiempo libre hasta las <CUTOFFTIME>.",
         "buttonChangeTiming": "Cambiar horario",
-        "resumeAfterCall": "La rutina matutina se reanudará después de que termine la llamada."
+        "resumeAfterCall": "La rutina matutina se reanudará después de que termine la llamada.",
+        "setSleepTime": "No tienes configurado un horario de sueño.",
+        "buttonSetTiming": "Configurar horario"
     },
     "breakStateVcInfo":{
         "buttonEnableBreaks": "Activar descansos",

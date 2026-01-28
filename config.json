@@ -2523,7 +2523,9 @@
         "titleAppDisabled": "Distraction Blocking is currently paused. You can turn it back on anytime to stay focused.",
         "freeTimeText": "Well done! You've got free time until <CUTOFFTIME>",
         "buttonChangeTiming": "Change timing",
-        "resumeAfterCall": "Morning routine will resume after the call ends."
+        "resumeAfterCall": "Morning routine will resume after the call ends.",
+        "setSleepTime": "You do not have sleep time set.",
+        "buttonSetTiming": "Set timing"
     },
     "breakStateVcInfo":{
         "buttonEnableBreaks": "Enable Breaks",
