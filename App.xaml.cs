@@ -4694,16 +4694,9 @@ namespace Focus_Bear
 
             if (appSettings.isFocusModePaused)
             {
-                LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime() - Focus paused, skip auto - stop.");
-                if (appSettings.IsRoutineBlockingFocusControls)
-                {
-                    wndTrayMenu?.UpdateTrayMenu();
-                    wndFocusProgress?.UpdatePauseControls();
-                    if (wndToDoPlayer != null)
-                        wndToDoPlayer.Visibility = Visibility.Collapsed;
-                    return;
-                }
-                return;
+                LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime() - Focus was paused, resetting pause state before stopping.");
+                appSettings.isFocusModePaused = false;
+                appSettings.nPausedFocusRemainingSeconds = 0;
             }
 
             try

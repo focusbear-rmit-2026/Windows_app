@@ -192,8 +192,6 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("UpdateTrayMenu()");
 
-            bool blockFocusControls = appSettings.IsRoutineBlockingFocusControls; // block focus controls during
-
             try
             {
                 //Focus Music icon
@@ -317,41 +315,34 @@ namespace Focus_Bear
                             OrangeHeader.Height = 70;
                     }
 
-                    if (blockFocusControls)
+                    // Focus mode running
+                    if (appSettings.isFocusModeRunning)
                     {
-                        btnStopPomodoroMode.Visibility = Visibility.Collapsed;
-                    }
-                    else // not blocking focus controls
-                    {
-                        // Focus mode running
-                        if (appSettings.isFocusModeRunning)
+                        btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                        btnStopPomodoroMode.Visibility = Visibility.Visible;
+                        //show the stop focus session button
+                        if (appSettings.bUseSuperPomodoroMode)
                         {
-                            btnStartPomodoroMode.Visibility = Visibility.Collapsed;
-                            btnStopPomodoroMode.Visibility = Visibility.Visible;
-                            //show the stop focus session button
-                            if (appSettings.bUseSuperPomodoroMode)
-                            {
-                                btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
-                            }
-                            else
-                            {
-                                btnStopPomodoroModetxt.Text = appSettings.GetFocusPauseButtonText();
-                            }
+                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
                         }
                         else
                         {
-                            //if focus session is not running, possible a super pomodoro break time
-                            if (appSettings.bUseSuperPomodoroMode)
-                            {
-                                btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
-                                btnStartPomodoroMode.Visibility = Visibility.Collapsed;
-                                btnStopPomodoroMode.Visibility = Visibility.Visible;
-                            }
-                            else
-                            {
-                                btnStartPomodoroMode.Visibility = Visibility.Visible;
-                                btnStopPomodoroMode.Visibility = Visibility.Collapsed;
-                            }
+                            btnStopPomodoroModetxt.Text = appSettings.GetFocusPauseButtonText();
+                        }
+                    }
+                    else
+                    {
+                        //if focus session is not running, possible a super pomodoro break time
+                        if (appSettings.bUseSuperPomodoroMode)
+                        {
+                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                            btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                            btnStopPomodoroMode.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            btnStartPomodoroMode.Visibility = Visibility.Visible;
+                            btnStopPomodoroMode.Visibility = Visibility.Collapsed;
                         }
                     }
 
@@ -467,41 +458,33 @@ namespace Focus_Bear
                 {
                     btnBrainDump.Visibility = Visibility.Collapsed;
 
-                    if (blockFocusControls) // blocking focus controls
+                    if (appSettings.isFocusModeRunning)
                     {
-                        btnStopPomodoroMode.Visibility = Visibility.Collapsed;
-                    }
-                    else // not blocking focus controls
-                    {
-                        if (appSettings.isFocusModeRunning)
+                        btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                        btnStopPomodoroMode.Visibility = Visibility.Visible;
+                        if (appSettings.bUseSuperPomodoroMode)
                         {
-                            btnStartPomodoroMode.Visibility = Visibility.Collapsed;
-                            btnStopPomodoroMode.Visibility = Visibility.Visible;
-                            if (appSettings.bUseSuperPomodoroMode)
-                            {
-                                btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
-                            }
-                            else
-                            {
-                                // show the stop focus session button
-                                btnStopPomodoroModetxt.Text = appSettings.GetFocusPauseButtonText();
-                            }
+                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
                         }
                         else
                         {
-                            if (appSettings.bUseSuperPomodoroMode)
-                            {
-                                btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
-                                btnStartPomodoroMode.Visibility = Visibility.Collapsed;
-                                btnStopPomodoroMode.Visibility = Visibility.Visible;
-                            }
-                            else
-                            {
-                                btnStartPomodoroMode.Visibility = Visibility.Visible;
-                                btnStopPomodoroMode.Visibility = Visibility.Collapsed;
-                            }
+                            // show the stop focus session button
+                            btnStopPomodoroModetxt.Text = appSettings.GetFocusPauseButtonText();
                         }
-
+                    }
+                    else
+                    {
+                        if (appSettings.bUseSuperPomodoroMode)
+                        {
+                            btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                            btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                            btnStopPomodoroMode.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            btnStartPomodoroMode.Visibility = Visibility.Visible;
+                            btnStopPomodoroMode.Visibility = Visibility.Collapsed;
+                        }
                     }
 
                     try
@@ -599,15 +582,6 @@ namespace Focus_Bear
                 string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
 
                 bool isPaused = appSettings.isFocusModePaused;
-
-                // Check if focus controls should be blocked due to routines
-                bool blockFocusControls = appSettings.IsRoutineBlockingFocusControls;
-                PauseResumeFocusMenuItem.IsEnabled = !blockFocusControls;
-                StopFocusSessionMenuItem.IsEnabled = !blockFocusControls;
-                if (blockFocusControls)
-                {
-                    return; // menu items disabled, no need to update further
-                }
 
                 PauseResumeFocusMenuItem.Header = isPaused ? resumeTitle : pauseTitle;
                 StopFocusSessionMenuItem.Header = stopTitle;
@@ -854,12 +828,6 @@ namespace Focus_Bear
                     }
                 }
 
-                if (appSettings.IsRoutineBlockingFocusControls)
-                {
-                    LogWriter.LogWrite("StopFocusSessionRealAsync() - Routine screen active, stop blocked until habits finish");
-                    return;
-                }
-
                 Hide();
                 //Check is any other FOcus modes is running, if yes, give an alert to stop that mode
                 //If not we will start the focus mode
@@ -934,13 +902,6 @@ namespace Focus_Bear
             try
             {
                 LogWriter.LogWrite("ToggleFocusPauseFromUI()");
-
-                // Check if focus controls should be blocked due to routines
-                if (appSettings.IsRoutineBlockingFocusControls)
-                {
-                    LogWriter.LogWrite("ToggleFocusPauseFromUI() - Routine screen active, resume blocked until habits finish");
-                    return false;
-                }
 
                 if (!appSettings.isFocusModeRunning)
                 {

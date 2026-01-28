@@ -266,14 +266,6 @@ namespace Focus_Bear.Utils
 
         public bool isFocusModePaused = false;
 
-        // This property checks if the current routine is blocking focus controls
-        public bool IsRoutineBlockingFocusControls =>
-            isFocusModePaused &&
-            !bHabitsPostponedState &&
-            (nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
-             nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
-             nCurrentActivityType == CurrentActivityType.SHUT_OFF);
-
         public int nPausedFocusRemainingSeconds = 0;
 
         public string sRunningFocusModeID = "";
