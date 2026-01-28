@@ -50,7 +50,7 @@ namespace Focus_Bear.Focus
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
         }
-         public void StartTimer()
+        public void StartTimer()
         {
             try
             {
@@ -78,8 +78,17 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("StopFocusMode()" + ex.Message);
             }
 
+            UpdatePauseButtonText();
             dispatcherTimer.Start();
             CommandManager.InvalidateRequerySuggested();
+        }
+
+        public void UpdatePauseButtonText()
+        {
+            if (btnStopFocusText != null && appSettings.isFocusModeRunning)
+            {
+                btnStopFocusText.Text = appSettings.GetFocusPauseButtonText();
+            }
         }
         private void btnStopFocus_Click(object sender, RoutedEventArgs e)
         {

@@ -335,9 +335,7 @@ namespace Focus_Bear
                             }
                             else
                             {
-                                string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
-                                string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
-                                btnStopPomodoroModetxt.Text = appSettings.isFocusModePaused ? resumeTitle : stopTitle;
+                                btnStopPomodoroModetxt.Text = appSettings.GetFocusPauseButtonText();
                             }
                         }
                         else
@@ -368,9 +366,7 @@ namespace Focus_Bear
                         }
                         else
                         {
-                            string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
-                            string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
-                            btnStopPomodoroModetxt.Text = appSettings.isFocusModePaused ? resumeTitle : stopTitle;
+                            btnStopPomodoroModetxt.Text = appSettings.GetFocusPauseButtonText();
                         }
                     }
                     else
@@ -487,13 +483,8 @@ namespace Focus_Bear
                             }
                             else
                             {
-                                // Normal focus mode:
-                                // When running and not paused: show Stop Focusation (Windows string)
-                                // When paused: show Resume Focus Session (Windows/Mac shared string)
-                                string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
-                                string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
-
-                                btnStopPomodoroModetxt.Text = appSettings.isFocusModePaused ? resumeTitle : stopTitle;
+                                // show the stop focus session button
+                                btnStopPomodoroModetxt.Text = appSettings.GetFocusPauseButtonText();
                             }
                         }
                         else
@@ -602,6 +593,7 @@ namespace Focus_Bear
 
             try
             {
+                // Context menu item titles
                 string pauseTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemPauseFocusTitle"].ToString();
                 string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
                 string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
@@ -1019,6 +1011,8 @@ namespace Focus_Bear
 
                 // Notify the ToDo Player of the new pause state
                 ((App)Application.Current).NotifyToDoPlayerPauseState(appSettings.isFocusModePaused);
+
+                ((App)Application.Current).wndFocusBearMainWindow?.PageStopFocusMode?.UpdatePauseButtonText();
 
                 return true;
             }
@@ -1519,11 +1513,7 @@ namespace Focus_Bear
                 if (!appSettings.isFocusModeRunning)
                     return;
 
-                string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
-                string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
-
-                // If focus is paused → show "Resume", else "Stop"
-                btnStopPomodoroModetxt.Text = appSettings.isFocusModePaused ? resumeTitle : stopTitle;
+                btnStopPomodoroModetxt.Text = appSettings.GetFocusPauseButtonText();
             }
             catch (Exception ex)
             {

@@ -2217,6 +2217,21 @@ namespace Focus_Bear.Utils
 
             return "";
         }
+
+        public string GetFocusPauseButtonText()
+        {
+            try
+            {
+                string stopTitle = ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
+                string resumeTitle = ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
+                return isFocusModePaused ? resumeTitle : stopTitle;
+            }
+            catch
+            {
+                return "Stop Focus Session";
+            }
+        }
+
         public void GetCurrentAppVersion()
         {
             LogWriter.LogWrite("GetCurrentAppVersion()");
