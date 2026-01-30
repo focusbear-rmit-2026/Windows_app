@@ -497,7 +497,7 @@ namespace Focus_Bear
                         LogWriter.LogWrite("UpdateTrayMenu main icon swap ex = " + ex.Message);
                     }
 
-                    if (appSettings.isFocusModeRunning)
+                    if (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused)
                     {
                         btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
                     }

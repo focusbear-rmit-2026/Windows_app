@@ -653,7 +653,7 @@ namespace Focus_Bear
         private void ShowToDoListView()
         {
             LogWriter.LogWrite("Showing ToDo List View");
-            RightContent.Content = appSettings.isFocusModeRunning
+            RightContent.Content = (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused)
                 ? _views[LeftButtonType.ToDoPlayer]
                 : _views[LeftButtonType.ToDoList];
         }

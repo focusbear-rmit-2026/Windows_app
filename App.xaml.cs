@@ -4645,6 +4645,18 @@ namespace Focus_Bear
         }
         public void NotifyToDoPlayerPauseState(bool isPaused)
         {
+            // Update title and refresh view based on pause state
+            string toDoTitle = isPaused
+                ? appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString()
+                : appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
+
+            wndFocusBearMainWindow?.UpdateLeafTitle(LeftButtonType.ToDoList, toDoTitle);
+
+            if (wndFocusBearMainWindow?.IsLeafSelected(LeftButtonType.ToDoList) == true)
+            {
+                wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.ToDoList);
+            }
+
             try
             {
                 var webView = wndFocusBearMainWindow?.PageToDoPlayer?.webView;
