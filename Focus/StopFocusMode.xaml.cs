@@ -90,17 +90,64 @@ namespace Focus_Bear.Focus
                 btnStopFocusText.Text = appSettings.GetFocusPauseButtonText();
             }
         }
+        private void UpdateContextMenuItems()
+        {
+            try
+            {
+                if (PauseResumeMenuItem == null || StopSessionMenuItem == null)
+                    return;
+
+                string pauseTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemPauseFocusTitle"].ToString();
+                string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
+                string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
+
+                PauseResumeMenuItem.Header = appSettings.isFocusModePaused ? resumeTitle : pauseTitle;
+                StopSessionMenuItem.Header = stopTitle;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StopFocusMode UpdateContextMenuItems ex = " + ex.Message);
+            }
+        }
+        private void PauseResumeMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var trayMenu = ((App)(Application.Current)).wndTrayMenu;
+                trayMenu?.ToggleFocusPauseFromUI();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("PauseResumeMenuItem_Click ex = " + ex.Message);
+            }
+        }
+        private async void StopSessionMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var trayMenu = ((App)(Application.Current)).wndTrayMenu;
+                if (trayMenu != null)
+                {
+                    await trayMenu.StopFocusSessionRealAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StopSessionMenuItem_Click ex = " + ex.Message);
+            }
+        }
         private void btnStopFocus_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("StopFocusMode() btnStopFocus_Click()");
             try
             {
+                UpdateContextMenuItems();
 
-                //fire the Stop focus session button from the menu common for super focus session too
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStopPomodoroMode);
-                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                invokeProv.Invoke();
-
+                if (btnStopFocus?.ContextMenu != null)
+                {
+                    btnStopFocus.ContextMenu.PlacementTarget = btnStopFocus;
+                    btnStopFocus.ContextMenu.IsOpen = true;
+                }
             }
             catch (Exception ex)
             {

@@ -74,19 +74,7 @@ namespace Focus_Bear
 
             PauseResumeFocusMenuItem.Click += (s, e) =>
             {
-                bool toggled = ToggleFocusPauseFromUI();
-                if (!toggled)
-                {
-                    return;
-                }
-
-                UpdateTrayMenu();
-
-                App app = (App)Application.Current;
-                if (app.wndFocusProgress != null)
-                {
-                    app.wndFocusProgress.UpdatePauseControls();
-                }
+                ToggleFocusPauseFromUI();
             };
 
             StopFocusSessionMenuItem.Click += async (s, e) =>
@@ -937,8 +925,6 @@ namespace Focus_Bear
 
                     dispatcherTimerFocus.Stop();
 
-                    UpdatePomodoroPauseButtonText();
-
                     LogWriter.LogWrite("ToggleFocusPauseFromUI() - Paused focus mode, remainingSeconds = " + appSettings.nPausedFocusRemainingSeconds);
                 }
                 else
@@ -965,15 +951,16 @@ namespace Focus_Bear
                     dispatcherTimerFocus.Interval = TimeSpan.FromSeconds(remainingSeconds);
                     dispatcherTimerFocus.Start();
 
-                    UpdatePomodoroPauseButtonText();
-
                     LogWriter.LogWrite("ToggleFocusPauseFromUI() - Resumed focus mode, new end time = " + appSettings.sRunningFocusModeEndTime);
                 }
 
-                // Notify the ToDo Player of the new pause state
-                ((App)Application.Current).NotifyToDoPlayerPauseState(appSettings.isFocusModePaused);
+                // Notify all UI components of the pause state change
+                var app = (App)Application.Current;
 
-                ((App)Application.Current).wndFocusBearMainWindow?.PageStopFocusMode?.UpdatePauseButtonText();
+                UpdateTrayMenu();
+                app.wndFocusProgress?.UpdatePauseControls();
+                app.wndFocusBearMainWindow?.PageStopFocusMode?.UpdatePauseButtonText();
+                app.NotifyToDoPlayerPauseState(appSettings.isFocusModePaused);
 
                 return true;
             }

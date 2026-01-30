@@ -295,12 +295,7 @@ namespace Focus_Bear.Focus
                 App app = (App)Application.Current;
                 var trayMenu = app.wndTrayMenu;
 
-                bool toggled = trayMenu?.ToggleFocusPauseFromUI() ?? false;
-                if (toggled)
-                {
-                    trayMenu.UpdateTrayMenu();
-                }
-                UpdatePauseControls();
+                trayMenu?.ToggleFocusPauseFromUI();
             }
             catch (Exception ex)
             {
