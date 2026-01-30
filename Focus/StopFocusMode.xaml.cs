@@ -58,11 +58,6 @@ namespace Focus_Bear.Focus
 
                 Heading.Text = appSettings.sRunningFocusModeName + " " + sHeading + ":";
 
-                if(appSettings.bUseSuperPomodoroMode)
-                    btnStopFocusText.Text = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopSuperFocusSession"].ToString();
-                else
-                    btnStopFocusText.Text = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopFocusSession"].ToString();
-
                 Timer.Text = "";
 
                 // this help to show the paused remaining time if the focus mode is paused
@@ -92,23 +87,27 @@ namespace Focus_Bear.Focus
         }
         private void UpdateContextMenuItems()
         {
-            try
-            {
-                if (PauseResumeMenuItem == null || StopSessionMenuItem == null)
-                    return;
+            if (PauseResumeMenuItem == null || StopSessionMenuItem == null)
+                return;
 
-                string pauseTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemPauseFocusTitle"].ToString();
-                string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
-                string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
+            string pauseTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemPauseFocusTitle"].ToString();
+            string resumeTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
+            string stopTitle = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
 
-                PauseResumeMenuItem.Header = appSettings.isFocusModePaused ? resumeTitle : pauseTitle;
-                StopSessionMenuItem.Header = stopTitle;
-            }
-            catch (Exception ex)
+            bool isPaused = appSettings.isFocusModePaused;
+
+            PauseResumeMenuItem.Header = isPaused ? resumeTitle : pauseTitle;
+            StopSessionMenuItem.Header = stopTitle;
+
+            if (PauseResumeMenuItem.Icon is Image iconImage)
             {
-                LogWriter.LogWrite("StopFocusMode UpdateContextMenuItems ex = " + ex.Message);
+                string iconPath = isPaused
+                    ? "pack://application:,,,/Focus Bear;component/images/play_icon.png"
+                    : "pack://application:,,,/Focus Bear;component/images/pause_icon.png";
+
+                iconImage.Source = new BitmapImage(new Uri(iconPath));
             }
-        }
+        }    
         private void PauseResumeMenuItem_Click(object sender, RoutedEventArgs e)
         {
             try

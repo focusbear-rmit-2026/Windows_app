@@ -2214,6 +2214,11 @@ namespace Focus_Bear.Utils
         {
             try
             {
+                if (bUseSuperPomodoroMode)
+                {
+                    return ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                }
+
                 string stopTitle = ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
                 string resumeTitle = ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
                 return isFocusModePaused ? resumeTitle : stopTitle;
