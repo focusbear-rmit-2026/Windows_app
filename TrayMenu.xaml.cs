@@ -962,6 +962,20 @@ namespace Focus_Bear
                 app.wndFocusBearMainWindow?.PageStopFocusMode?.UpdatePauseButtonText();
                 app.NotifyToDoPlayerPauseState(appSettings.isFocusModePaused);
 
+                // Update left menu title based on pause state
+                if (appSettings.isFocusModePaused)
+                {
+                    ((App)Application.Current).wndFocusBearMainWindow?.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuResumeFocusSession"].ToString());
+                }
+                else
+                {
+                    string leafTitle = appSettings.bUseSuperPomodoroMode
+                        ?appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopSuperFocusSession"].ToString()
+                        :appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopFocusSession"].ToString();
+
+                    ((App)Application.Current).wndFocusBearMainWindow?.UpdateLeafTitle(LeftButtonType.StartFocusSession, leafTitle);
+                }
+
                 return true;
             }
             catch (Exception ex)
