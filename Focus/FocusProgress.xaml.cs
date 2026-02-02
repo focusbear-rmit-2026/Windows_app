@@ -295,12 +295,7 @@ namespace Focus_Bear.Focus
                 App app = (App)Application.Current;
                 var trayMenu = app.wndTrayMenu;
 
-                bool toggled = trayMenu?.ToggleFocusPauseFromUI() ?? false;
-                if (toggled)
-                {
-                    trayMenu.UpdateTrayMenu();
-                }
-                UpdatePauseControls();
+                trayMenu?.ToggleFocusPauseFromUI();
             }
             catch (Exception ex)
             {
@@ -336,7 +331,7 @@ namespace Focus_Bear.Focus
                 {
                     if (isSuper)
                     {
-                        txtEndSession.Visibility = Visibility.Collapsed;
+                        txtEndSession.Visibility = Visibility.Hidden;
                     }
                     else
                     {
@@ -348,7 +343,7 @@ namespace Focus_Bear.Focus
                         }
                         else
                         {
-                            txtEndSession.Visibility = Visibility.Collapsed;
+                            txtEndSession.Visibility = Visibility.Hidden;
                         }
 
                     }

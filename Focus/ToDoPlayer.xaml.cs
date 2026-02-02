@@ -165,12 +165,6 @@ namespace Focus_Bear.Focus
         {
             LogWriter.LogWrite("Todo Player btnEndFocus_Click - Stopping Focus Session");
 
-            if (appSettings.IsRoutineBlockingFocusControls)
-            {
-                LogWriter.LogWrite("ToDoPlayer btnEndFocus_Click - blocked while routine is active");
-                return;
-            }
-
             try
             {
                 app.HideToDoPlayer();

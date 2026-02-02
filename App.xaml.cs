@@ -4645,6 +4645,18 @@ namespace Focus_Bear
         }
         public void NotifyToDoPlayerPauseState(bool isPaused)
         {
+            // Update title and refresh view based on pause state
+            string toDoTitle = isPaused
+                ? appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString()
+                : appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
+
+            wndFocusBearMainWindow?.UpdateLeafTitle(LeftButtonType.ToDoList, toDoTitle);
+
+            if (wndFocusBearMainWindow?.IsLeafSelected(LeftButtonType.ToDoList) == true)
+            {
+                wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.ToDoList);
+            }
+
             try
             {
                 var webView = wndFocusBearMainWindow?.PageToDoPlayer?.webView;
@@ -4694,16 +4706,9 @@ namespace Focus_Bear
 
             if (appSettings.isFocusModePaused)
             {
-                LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime() - Focus paused, skip auto - stop.");
-                if (appSettings.IsRoutineBlockingFocusControls)
-                {
-                    wndTrayMenu?.UpdateTrayMenu();
-                    wndFocusProgress?.UpdatePauseControls();
-                    if (wndToDoPlayer != null)
-                        wndToDoPlayer.Visibility = Visibility.Collapsed;
-                    return;
-                }
-                return;
+                LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime() - Focus was paused, resetting pause state before stopping.");
+                appSettings.isFocusModePaused = false;
+                appSettings.nPausedFocusRemainingSeconds = 0;
             }
 
             try
