@@ -113,8 +113,10 @@ namespace Focus_Bear.Preferences
                     {
                         foreach (AppDetails sApp in ll)
                         {
-                            foreach (string exeName in sApp.ExeNames)
+                            // Only add the first exe name (main executable), not all helper executables
+                            if (sApp.ExeNames.Count > 0)
                             {
+                                string exeName = sApp.ExeNames[0];
                                 if (!appSettings.arrAlwaysAllowedApps.Any(i => i.ToLower() == exeName.ToLower()))
                                 {
                                     appSettings.arrAlwaysAllowedApps.Add(exeName);
