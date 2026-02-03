@@ -48,7 +48,7 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding ., StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                    <TextBlock Grid.Column="0" Text="{Binding AppName, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>

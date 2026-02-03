@@ -858,13 +858,16 @@ namespace FocusBear.Utils
                         // Check global whitelist (Always Allowed Apps) - these apps should never be blocked
                         if (appSettings.arrAlwaysAllowedApps != null && appSettings.arrAlwaysAllowedApps.Count > 0)
                         {
-                            foreach (string allowedApp in appSettings.arrAlwaysAllowedApps)
+                            foreach (AppDetails allowedApp in appSettings.arrAlwaysAllowedApps)
                             {
-                                string appName = System.IO.Path.GetFileNameWithoutExtension(allowedApp).ToLower();
-                                if (appName == process.ProcessName.ToLower())
+                                foreach (string sAppExe in allowedApp.ExeNames)
                                 {
-                                    LogWriter.LogWrite("App " + process.ProcessName + " is in Always Allowed Apps list - ALLOW");
-                                    return;
+                                    string appName = sAppExe.Replace(".exe", "").ToLower();
+                                    if (appName == process.ProcessName.ToLower())
+                                    {
+                                        LogWriter.LogWrite("App " + process.ProcessName + " is in Always Allowed Apps list - ALLOW");
+                                        return;
+                                    }
                                 }
                             }
                         }

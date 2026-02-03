@@ -343,7 +343,7 @@ namespace Focus_Bear.Utils
 
         public ObservableCollection<string> arrAlwaysBlockedURLs = new ObservableCollection<string>();
 
-        public ObservableCollection<string> arrAlwaysAllowedApps = new ObservableCollection<string>();
+        public ObservableCollection<AppDetails> arrAlwaysAllowedApps = new ObservableCollection<AppDetails>();
 
         public ObservableCollection<DistractingURL> arrDistractingURLs = new ObservableCollection<DistractingURL>();
 
@@ -1510,7 +1510,12 @@ namespace Focus_Bear.Utils
 
                                 if (jarrAlwaysAllowedApps != null && jarrAlwaysAllowedApps.Count() > 0)
                                 {
-                                    arrAlwaysAllowedApps = jarrAlwaysAllowedApps.ToObject<ObservableCollection<string>>();
+                                    arrAlwaysAllowedApps.Clear();
+                                    foreach (string appPath in jarrAlwaysAllowedApps.ToObject<List<string>>())
+                                    {
+                                        string appName = System.IO.Path.GetFileNameWithoutExtension(appPath);
+                                        arrAlwaysAllowedApps.Add(new AppDetails(appName, appPath));
+                                    }
                                 }
                             }
 

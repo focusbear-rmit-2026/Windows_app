@@ -113,15 +113,11 @@ namespace Focus_Bear.Preferences
                     {
                         foreach (AppDetails sApp in ll)
                         {
-                            // Only add the first exe name (main executable), not all helper executables
-                            if (sApp.ExeNames.Count > 0)
+                            // Check if app is already in the list by comparing AppName
+                            if (!appSettings.arrAlwaysAllowedApps.Any(i => i.AppName == sApp.AppName))
                             {
-                                string exeName = sApp.ExeNames[0];
-                                if (!appSettings.arrAlwaysAllowedApps.Any(i => i.ToLower() == exeName.ToLower()))
-                                {
-                                    appSettings.arrAlwaysAllowedApps.Add(exeName);
-                                    appSettings.CapturePostHog("add-always-allowed-app");
-                                }
+                                appSettings.arrAlwaysAllowedApps.Add(sApp);
+                                appSettings.CapturePostHog("add-always-allowed-app");
                             }
                         }
                         DialogResult = true;

@@ -115,10 +115,11 @@ namespace Focus_Bear.Preferences
                         string trimmedApp = app.Trim();
                         if (!string.IsNullOrEmpty(trimmedApp))
                         {
-                            var listItems = appSettings.arrAlwaysAllowedApps.Where(i => i.ToLower() == trimmedApp.ToLower());
+                            string appName = System.IO.Path.GetFileNameWithoutExtension(trimmedApp);
+                            var listItems = appSettings.arrAlwaysAllowedApps.Where(i => i.AppName.ToLower() == appName.ToLower());
                             if (listItems.Count() == 0)
                             {
-                                appSettings.arrAlwaysAllowedApps.Add(trimmedApp);
+                                appSettings.arrAlwaysAllowedApps.Add(new AppDetails(appName, trimmedApp));
                                 bAppAdded = true;
                             }
                         }
@@ -137,7 +138,7 @@ namespace Focus_Bear.Preferences
         {
             try
             {
-                var selectedItem = ListAllowedApps.SelectedItem as string;
+                var selectedItem = ListAllowedApps.SelectedItem as AppDetails;
                 if (selectedItem != null)
                 {
                     appSettings.arrAlwaysAllowedApps.Remove(selectedItem);
