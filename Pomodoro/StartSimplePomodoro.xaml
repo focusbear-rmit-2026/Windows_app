@@ -16,6 +16,7 @@
         <ScrollViewer>
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="80" />
                     <RowDefinition Height="50" />
                     <RowDefinition Height="Auto" />
@@ -24,10 +25,17 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
+                <!-- Warning banner for strict blocking schedule -->
+                <Border x:Name="StrictBlockingWarningBanner" Grid.Row="0" Background="#FFF3CD" BorderBrush="#FFECB5" BorderThickness="1" CornerRadius="5" Margin="20,10,20,5" Padding="10" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="⚠" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="StrictBlockingWarningText" TextWrapping="Wrap" FontSize="13" Foreground="#856404" VerticalAlignment="Center" MaxWidth="500"/>
+                    </StackPanel>
+                </Border>
 
-                <TextBlock Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xPomodoro Time" Foreground="#e88800" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xPomodoro Time" Foreground="#e88800" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-                <StackPanel Grid.Row="1"  Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+                <StackPanel Grid.Row="2"  Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
                     <TextBlock  Name="HowMuchTime" Text="xFocus duration" Margin="10,0,10,0" TextWrapping="Wrap"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" />
                     <TextBox      x:Name="Minutes" AutomationProperties.AutomationId="txtBoxMinutes"  MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="Minutes_TextChanged">
                         <TextBox.Effect>
@@ -52,7 +60,7 @@
                     <Image x:Name="FocusDurationInfo" Source="../images/info-dark.png" Width="20"  Margin="0,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Cursor="Hand"/>
                 </StackPanel>
 
-                <Expander Grid.Row="2" x:Name="MoreOptionsExpander" Padding="0" Width="600" Margin="0,20,0,0" HorizontalAlignment="Stretch" Cursor="Hand" Style="{StaticResource PomodoroOptionsExpanderStyle}">
+                <Expander Grid.Row="3" x:Name="MoreOptionsExpander" Padding="0" Width="600" Margin="0,20,0,0" HorizontalAlignment="Stretch" Cursor="Hand" Style="{StaticResource PomodoroOptionsExpanderStyle}">
                     <Expander.Header>
                         <TextBlock FontSize="14" Padding="20,0,0,0" Width="600" FontWeight="Normal" TextAlignment="Left"/>
                     </Expander.Header>
@@ -128,9 +136,9 @@
                         </StackPanel>
                     </StackPanel>
                 </Expander>
-                <TextBlock Visibility="Collapsed" Grid.Row="4" Name="TimeUnfocusedText" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center" VerticalAlignment="Center" Text="xxTime spent unfocused: [TIME]" />
+                <TextBlock Visibility="Collapsed" Grid.Row="5" Name="TimeUnfocusedText" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center" VerticalAlignment="Center" Text="xxTime spent unfocused: [TIME]" />
 
-                <Button  Grid.Row="5" x:Name="btnStartSession" AutomationProperties.AutomationId="btnStartSession"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" Height="45" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,50" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartSession_Click">
+                <Button  Grid.Row="6" x:Name="btnStartSession" AutomationProperties.AutomationId="btnStartSession"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" Height="45" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,50" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartSession_Click">
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Name="btnStartSessionText" Margin="8" Text="xStart Session" Foreground="Black"/>

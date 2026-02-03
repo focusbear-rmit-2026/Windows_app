@@ -215,15 +215,27 @@ namespace Focus_Bear.Pomodoro
                     {
                         ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
                         ComboBoxFocusModes.IsEnabled = false;
+                        StrictBlockingWarningBanner.Visibility = Visibility.Visible;
+                        StrictBlockingWarningText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["superStrictBlockingActiveMessage"].ToString();
+                    }
+                    else if(appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
+                    {
+                        ComboBoxFocusModes.IsEnabled = false;
+                        ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
+                        StrictBlockingWarningBanner.Visibility = Visibility.Visible;
+                        StrictBlockingWarningText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingCannotChangeMessage"].ToString();
                     }
                     else
                     {
                         ComboBoxFocusModes.IsEnabled = true;
+                        StrictBlockingWarningBanner.Visibility = Visibility.Visible;
+                        StrictBlockingWarningText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingActiveMessage"].ToString();
                     }
                 }
                 else
                 {
                     ComboBoxFocusModes.IsEnabled = true;
+                    StrictBlockingWarningBanner.Visibility = Visibility.Collapsed;
                 }
             }
             catch (Exception ex)

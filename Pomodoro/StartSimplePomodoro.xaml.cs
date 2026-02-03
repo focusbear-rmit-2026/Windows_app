@@ -184,6 +184,29 @@ namespace Focus_Bear.Pomodoro
 
                 //Should empty the value for tasks here
                 appSettings.sRawTasks = "";
+
+                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+                {
+                    if(appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+                    {
+                        StrictBlockingWarningBanner.Visibility = Visibility.Visible;
+                        StrictBlockingWarningText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["superStrictBlockingActiveMessage"].ToString();
+                    }
+                    else if(appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
+                    {
+                        StrictBlockingWarningBanner.Visibility = Visibility.Visible;
+                        StrictBlockingWarningText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingCannotChangeMessage"].ToString();
+                    }
+                    else
+                    {
+                        StrictBlockingWarningBanner.Visibility = Visibility.Visible;
+                        StrictBlockingWarningText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingActiveMessage"].ToString();
+                    }
+                }
+                else
+                {
+                    StrictBlockingWarningBanner.Visibility = Visibility.Collapsed;
+                }
             }
             catch (Exception ex)
             {
