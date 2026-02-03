@@ -84,7 +84,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Image Source="{DynamicResource AppImage}" Margin="10,4,0,0" Height="24" Width="24" Grid.Column="0"/>
+                                <Image Source="{DynamicResource AlwaysAllowedAppsImage}" Margin="10,4,0,0" Height="24" Width="24" Grid.Column="0"/>
                                 <TextBlock Name="btnAlwaysAllowedAppsText" Margin="8,0,0,0" Text="Always Allowed Apps" Foreground="Black" VerticalAlignment="Center" Grid.Column="1"/>
                                 <TextBlock Text="❯" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" Foreground="#333" Grid.Column="2" Margin="0,0,10,0"/>
                             </Grid>
