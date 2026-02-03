@@ -113,11 +113,13 @@ namespace Focus_Bear.Preferences
                     {
                         foreach (AppDetails sApp in ll)
                         {
-                            var listItems = appSettings.arrAlwaysAllowedApps.Where(i => i.ToLower() == sApp.ExeName.ToLower());
-                            if (listItems.Count() == 0)
+                            foreach (string exeName in sApp.ExeNames)
                             {
-                                appSettings.arrAlwaysAllowedApps.Add(sApp.ExeName);
-                                appSettings.CapturePostHog("add-always-allowed-app");
+                                if (!appSettings.arrAlwaysAllowedApps.Any(i => i.ToLower() == exeName.ToLower()))
+                                {
+                                    appSettings.arrAlwaysAllowedApps.Add(exeName);
+                                    appSettings.CapturePostHog("add-always-allowed-app");
+                                }
                             }
                         }
                         DialogResult = true;
