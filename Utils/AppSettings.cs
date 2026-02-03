@@ -1736,6 +1736,7 @@ namespace Focus_Bear.Utils
                         arrAllowedAppsWin.Add(new AppDetails("Mozilla Firefox", "firefox.exe"));
                         arrAllowedAppsWin.Add(new AppDetails("Google Chrome", "chrome.exe"));
                         arrAllowedAppsWin.Add(new AppDetails("Brave Browser", "brave.exe"));
+                        arrAllowedAppsWin.Add(new AppDetails("Vivaldi Browser", "vivaldi.exe"));
                         arrAllowedAppsWin.Add(new AppDetails("Slack", "slack.exe"));
 
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusText"].ToString(); //"meetingsFocusText":"Meetings",

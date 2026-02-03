@@ -123,11 +123,12 @@ namespace Focus_Bear
                 if ((sAppName == "firefox.exe" && appSettings.sLastActiveAppName != "firefox.exe") ||
                     (sAppName == "chrome.exe" && appSettings.sLastActiveAppName != "chrome.exe") ||
                     (sAppName == "msedge.exe" && appSettings.sLastActiveAppName != "msedge.exe") ||
-                    (sAppName == "brave.exe" && appSettings.sLastActiveAppName != "brave.exe"))
+                    (sAppName == "brave.exe" && appSettings.sLastActiveAppName != "brave.exe") ||
+                    (sAppName == "vivaldi.exe" && appSettings.sLastActiveAppName != "vivaldi.exe"))
                 {
                     appSettings.Hide_SetIntentionWindow();
                 }
-                else if(sAppName != "firefox.exe" && sAppName != "chrome.exe" && sAppName != "msedge.exe" && sAppName != "brave.exe")
+                else if(sAppName != "firefox.exe" && sAppName != "chrome.exe" && sAppName != "msedge.exe" && sAppName != "brave.exe" && sAppName != "vivaldi.exe")
                 {
                     appSettings.Hide_SetIntentionWindow();
                 }
@@ -209,7 +210,7 @@ namespace Focus_Bear
                         }
                     }
                 }
-                else if (appSettings.sLastActiveAppName == "chrome.exe" || appSettings.sLastActiveAppName == "msedge.exe" || appSettings.sLastActiveAppName == "brave.exe")
+                else if (appSettings.sLastActiveAppName == "chrome.exe" || appSettings.sLastActiveAppName == "msedge.exe" || appSettings.sLastActiveAppName == "brave.exe" || appSettings.sLastActiveAppName == "vivaldi.exe")
                 {
                     int nRet;
                     // Pre-allocate 256 characters, since this is the maximum class name length.
