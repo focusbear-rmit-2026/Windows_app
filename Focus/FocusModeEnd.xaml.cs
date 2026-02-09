@@ -503,7 +503,9 @@ namespace Focus_Bear.Focus
                 ((App)Application.Current).wndFocusBearMainWindow.RightContent.Content = null;
                 ((App)Application.Current).wndFocusBearMainWindow.Hide();
 
-                ((App)(Application.Current)).StartFocusModeTimer();
+                int nHours = nMinutesToExtend / 60;
+                int nMinutes = nMinutesToExtend % 60;
+                ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes);
             }
             catch (Exception ex)
             {
