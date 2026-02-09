@@ -504,6 +504,8 @@ namespace Focus_Bear.Focus
                 ((App)Application.Current).wndFocusBearMainWindow.Hide();
 
                 appSettings.isFocusModeRunning = true;
+                appSettings.isFocusModePaused = false;
+                appSettings.nPausedFocusRemainingSeconds = 0;
 
                 var focusModeRunning = appSettings.arrFocusModes.Where(i => i.id == appSettings.sRunningFocusModeID);
                 if (focusModeRunning.Any())
