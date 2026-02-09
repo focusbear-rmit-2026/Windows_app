@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="121" Width="323" ResizeMode="NoResize" Closing="Window_Closing">
+        Title="Focus Bear" Height="145" Width="323" ResizeMode="NoResize" Closing="Window_Closing">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -24,16 +24,24 @@
             </Grid.ColumnDefinitions>
 
             <Image Name="TopIcon" Grid.Column="0"  Margin="0,0,0,10" Height="64" Width="64" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <Grid Grid.Column="1" x:Name="UseTimerRelated" Visibility="Collapsed">
+            <Grid Grid.Column="1" x:Name="UseTimerRelated" Visibility="visible">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="50" />
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="45" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="40" />
                 </Grid.RowDefinitions>
                 <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xYour break ends in:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
                 <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="05:00"  Padding="0" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Top" />
-
+                <StackPanel  Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock x:Name="Skip" AutomationProperties.AutomationId="txtRefreshRequestUpdate" Grid.Row="4" Margin="0,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                        <Hyperlink x:Name="btnSkip" Click="btnSkip_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipTXT" Text="xSkip"/></Hyperlink>
+                    </TextBlock>
+                    <TextBlock x:Name="Postpone" AutomationProperties.AutomationId="txtRefreshRequestUpdate" Grid.Row="4" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                        <Hyperlink x:Name="btnPostpone" Click="btnPostpone_Click"   TextDecorations="Underline" ><Run x:Name="btnPostponeTXT" Text="xPostpone"/></Hyperlink>
+                    </TextBlock>
+                </StackPanel>
             </Grid>
-            <Grid Grid.Column="1" x:Name="DoNotUseTimerRelated" Visibility="Visible">
+            <Grid Grid.Column="1" x:Name="DoNotUseTimerRelated" Visibility="collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition MinHeight="48" />
                     <RowDefinition Height="*" />

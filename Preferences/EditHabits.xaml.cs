@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -222,11 +223,44 @@ namespace Focus_Bear.Preferences
         {
              
         }
-
-        private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private async void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
+            if (!IsVisible)
+            {
+                if (!appSettings.bProgrammaticSelectioninLeftTree) //Only when user clicks
+                { 
+                    appSettings.bProgrammaticSelectioninLeftTree = false;
+                    string GetCheckUserSettingsModifiedDirectReturn = @"
+                                        (function() {
+                                            try {
+                                                const data = window?.hasUserModifiedSettings?.();
+                                                return data?.isUserSettingsModified ?? false;
+                                            } catch (e) {
+                                                return false;
+                                            }
+                                        })();
+                                        ";
+                    string jsResult = await webView.ExecuteScriptAsync(GetCheckUserSettingsModifiedDirectReturn);
 
+                    bool hasModified = System.Text.Json.JsonSerializer.Deserialize<bool>(jsResult);
+
+                    if (hasModified)
+                    {
+                        FBMessageBox messageBox = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingsEditedButNotSavedText"].ToString(), "Focus Bear", MessageBoxButton.YesNo, appSettings.ConfigFileStrings["settings"]["buttonReviewSettingsText"].ToString(), appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString());
+                        messageBox.Owner = _ParentWindow;
+                        ((App)(Application.Current)).wndFocusBearMainWindow.GridShade.Visibility = Visibility.Visible;
+                        messageBox.ShowDialog();
+                        ((App)(Application.Current)).wndFocusBearMainWindow.GridShade.Visibility = Visibility.Collapsed;
+                        if (messageBox.btnClicked == MessageBoxResult.Yes)
+                        {
+                            ((App)(Application.Current)).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.EditHabits);
+                            return;
+                        }
+                    }
+                }
+            }
         }
+
         public void RefreshOnModeChange()
         {
             try
@@ -285,6 +319,11 @@ namespace Focus_Bear.Preferences
                 ff.Owner = _ParentWindow;
                 ff.ShowDialog();
             }
+        }
+
+        private void UserControl_IsHitTestVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+
         }
     }
 }

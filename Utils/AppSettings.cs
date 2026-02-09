@@ -112,7 +112,7 @@ namespace Focus_Bear.Utils
         public int OnboardingActivityDurationSeconds;
         public string OnboardingVideoUrl = "";
         public bool bOnboardingActivitySkipped = false;
-
+        public bool bProgrammaticSelectioninLeftTree; //
         public bool bGoalHealthyHabits { get; set; }
         public bool bGoalStayFocused { get; set; }
         public string sCareFactorString = "";
