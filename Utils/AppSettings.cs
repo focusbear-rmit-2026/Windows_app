@@ -112,7 +112,7 @@ namespace Focus_Bear.Utils
         public int OnboardingActivityDurationSeconds;
         public string OnboardingVideoUrl = "";
         public bool bOnboardingActivitySkipped = false;
-
+        public bool bProgrammaticSelectioninLeftTree; //
         public bool bGoalHealthyHabits { get; set; }
         public bool bGoalStayFocused { get; set; }
         public string sCareFactorString = "";
@@ -265,14 +265,6 @@ namespace Focus_Bear.Utils
         public bool isFocusModeRunning = false;
 
         public bool isFocusModePaused = false;
-
-        // This property checks if the current routine is blocking focus controls
-        public bool IsRoutineBlockingFocusControls =>
-            isFocusModePaused &&
-            !bHabitsPostponedState &&
-            (nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
-             nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
-             nCurrentActivityType == CurrentActivityType.SHUT_OFF);
 
         public int nPausedFocusRemainingSeconds = 0;
 
@@ -2217,6 +2209,26 @@ namespace Focus_Bear.Utils
 
             return "";
         }
+
+        public string GetFocusPauseButtonText()
+        {
+            try
+            {
+                if (bUseSuperPomodoroMode)
+                {
+                    return ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
+                }
+
+                string stopTitle = ConfigFileStrings["menuInfo"]["menuItemStopPomodoroTitle"].ToString();
+                string resumeTitle = ConfigFileStrings["menuInfo"]["menuItemResumeFocusTitle"].ToString();
+                return isFocusModePaused ? resumeTitle : stopTitle;
+            }
+            catch
+            {
+                return "Stop Focus Session";
+            }
+        }
+
         public void GetCurrentAppVersion()
         {
             LogWriter.LogWrite("GetCurrentAppVersion()");

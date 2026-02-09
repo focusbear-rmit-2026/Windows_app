@@ -632,6 +632,19 @@ namespace Focus_Bear.Habits
                 Global.DisableSystemSleep();
 
                 appSettings.CapturePostHog("resume-activity");
+
+                if (appSettings.bHabitwithAllowedAppsRunning) //if app was an allowed app
+                {
+                    _parentWindow.Hide();
+                   
+                    //here we also need to remove the secondary screen windows.
+                    appSettings.RemoveSecondaryWindows();
+
+                    //we will need to show the break window with the duration and the timer
+                    //Show the Break Window
+                    //If its a non timer (86400) activity, pass the completre after text, else pass the heading text (activity name)
+                    ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (nTimer == appSettings.nTimerValForNonTimerActivities) ? CompleteAfter.Text : Heading.Text);
+                }
             }
         }
 
@@ -673,6 +686,19 @@ namespace Focus_Bear.Habits
                 {
                     dispatcherTimer.Start();
                     CommandManager.InvalidateRequerySuggested();
+
+                    if (appSettings.bHabitwithAllowedAppsRunning) //if app was an allowed app
+                    {
+                        _parentWindow.Hide();
+
+                        //here we also need to remove the secondary screen windows.
+                        appSettings.RemoveSecondaryWindows();
+
+                        //we will need to show the break window with the duration and the timer
+                        //Show the Break Window
+                        //If its a non timer (86400) activity, pass the completre after text, else pass the heading text (activity name)
+                        ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (nTimer == appSettings.nTimerValForNonTimerActivities) ? CompleteAfter.Text : Heading.Text);
+                    }
                 }
             }
         }

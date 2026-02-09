@@ -187,6 +187,7 @@ namespace Focus_Bear
 
         private bool bKeepCategoryDisabled = false;
 
+
         AppSettings appSettings = AppSettings.GetInstance;
 
         public BlocksTab PageBlocks;
@@ -361,8 +362,10 @@ namespace Focus_Bear
             // The sender is the Border, not a Button
             if (sender is Border border && border.DataContext is NavLeaf leaf)
             {
+                appSettings.bProgrammaticSelectioninLeftTree = false;
                 // Handle content based on button type
                 HandleContentForButtonType(leaf.ButtonType);
+                
             }
         }
 
@@ -409,7 +412,9 @@ namespace Focus_Bear
                     if (leaf.ButtonType == buttonType)
                     {
                         category.IsExpanded = true;
+                        appSettings.bProgrammaticSelectioninLeftTree = true;
                         leaf.IsSelected = true;
+                        
                     }
                 }
             }
@@ -653,7 +658,7 @@ namespace Focus_Bear
         private void ShowToDoListView()
         {
             LogWriter.LogWrite("Showing ToDo List View");
-            RightContent.Content = appSettings.isFocusModeRunning
+            RightContent.Content = (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused)
                 ? _views[LeftButtonType.ToDoPlayer]
                 : _views[LeftButtonType.ToDoList];
         }
@@ -821,19 +826,6 @@ namespace Focus_Bear
             }
             bKeepCategoryDisabled = true;
         }
-        private void LeftTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (e.NewValue is NavLeaf leaf)
-            {
-                foreach (var cat in NavigationItems)
-                    foreach (var i in cat.Items)
-                        i.IsSelected = false;
-
-                leaf.IsSelected = true;
-                RightContent.Content = _views[leaf.ButtonType];
-            }
-        }
-
         private void LeftTree_SelectedItemChanged_1(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (e.NewValue is NavCategory category)
