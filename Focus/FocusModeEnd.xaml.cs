@@ -511,6 +511,20 @@ namespace Focus_Bear.Focus
                     focusModeRunning.First().isOn = true;
                 }
 
+                ((App)Application.Current).ShowFocusProgressWindow();
+
+                ((App)(Application.Current)).wndTrayMenu.OnUntill.Visibility = Visibility.Visible;
+                ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 45;
+
+                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                {
+                    ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 70;
+                }
+
+                string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
+                sTill = sTill.Replace("<TIME>", newEndTime.ToString());
+                ((App)(Application.Current)).wndTrayMenu.OnUntill.Content = sTill;
+
                 int nHours = nMinutesToExtend / 60;
                 int nMinutes = nMinutesToExtend % 60;
                 ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes);
