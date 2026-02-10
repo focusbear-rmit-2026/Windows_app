@@ -423,39 +423,21 @@ namespace Focus_Bear.Habits
 
                         LogWriter.LogWrite("HabitActivityOnGoing attempt to load video URL - " + videoUrl);
 
-                        if (videoUrl.Contains("&")) //Fix for URLS like https://www.youtube.com/watch?v=vNeRn90QjyA&pp=ygUQbWVkaXRhdGlvbiBtdXNpYw%3D%3D
+                        // Convert youtu.be short URLs to regular YouTube watch URLs
+                        if (videoUrl.ToLower().Contains("youtu.be/"))
                         {
-                            videoUrl = videoUrl.Substring(0, videoUrl.IndexOf("&", 1));
-                        }
-                 
-                        if (videoUrl.Contains("watch?v="))
-                        {
-                            videoUrl = videoUrl.Replace("watch?v=", "embed/");
-                        }
-                        else
-                        {
-                            if (videoUrl.ToLower().Contains("https://youtu.be/"))
-                            {
-                                //Handle non permitted embedded videos
-                                //https://youtu.be/lExuhKRS8vo
-                                string lastItem = videoUrl.Split('/').Last();
-                                if (lastItem.Length > 0)
-                                {
-                                    videoUrl = "https://www.youtube.com/embed/" + lastItem;
-                                }
-
-                            }
-                        }
-                        if (videoUrl.Contains("?"))
-                        {
-                            videoUrl = videoUrl + "&autoplay=1&rel=0";
-                        }
-                        else
-                        {
-                            videoUrl = videoUrl + "?autoplay=1&rel=0";
+                            string videoId = videoUrl.Split('/').Last();
+                            if (videoId.Contains("?"))
+                                videoId = videoId.Substring(0, videoId.IndexOf("?"));
+                            videoUrl = "https://www.youtube.com/watch?v=" + videoId;
                         }
 
-                        videoUrl = videoUrl.Replace("youtube.com", "youtube-nocookie.com");
+                        // Clean extra parameters
+                        if (videoUrl.Contains("&"))
+                        {
+                            videoUrl = videoUrl.Substring(0, videoUrl.IndexOf("&"));
+                        }
+
                         LogWriter.LogWrite("HabitActivityOnGoing Final URL trying to video URL - " + videoUrl);
 
                         webView.Source = new System.Uri(videoUrl);
