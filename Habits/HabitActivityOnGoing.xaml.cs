@@ -458,22 +458,47 @@ namespace Focus_Bear.Habits
                 }
             }
         }
-        private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        private async void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
-            //We need to remove this (if (e.IsSuccess)) as in offline the timer did not start, possibly wont start when the video is not available.
             {
                 Debug.Print("NavigationId: " + e.NavigationId.ToString());
                 Debug.Print("URL: " + this.webView.CoreWebView2.Source);
-                if (!(this.webView.CoreWebView2.Source == "about:blank")) //this is set when ending the ongoing screen so avoid restarting timer here
+                if (!(this.webView.CoreWebView2.Source == "about:blank"))
                 {
-                    //we will start the timer here after youtube video has been loaded
+                    if (isVideoPresent)
+                    {
+                        string script = @"
+                              var style = document.createElement('style');
+                              style.textContent = `
+                                  body { overflow: hidden !important; }
+                                  #cinematics, #below, #secondary, #related,
+                                  #comments, #chat, #head, #masthead-container,
+                                  ytd-masthead, #header, #guide-button,
+                                  tp-yt-app-drawer, #contentContainer > *:not(#page-manager),
+                                  ytd-mini-guide-renderer, #guide-content,
+                                  .ytp-chrome-top, .ytp-pause-overlay,
+                                  .ytp-endscreen-content, #end,
+                                  ytd-watch-metadata, #above-the-fold,
+                                  #bottom-row, #info-contents, #meta,
+                                  .ytd-watch-flexy #columns #secondary,
+                                  #panels, #panels-full-bleed-container,
+                                  ytd-engagement-panel-section-list-renderer
+                                  { display: none !important; }
+                                  #movie_player { position: fixed !important; top: 0; left: 0; width: 100vw !important; height: 100vh !important; z-index: 9999; }
+                                  #player { position: fixed !important; top: 0; left: 0; width: 100vw !important; height: 100vh !important; }
+                                  ytd-watch-flexy { padding: 0 !important; margin: 0 !important; }
+                              `;
+                              document.head.appendChild(style);
+                          ";
+                        await webView.CoreWebView2.ExecuteScriptAsync(script);
+                    }
+
                     dispatcherTimer.Start();
                     CommandManager.InvalidateRequerySuggested();
                 }
-
             }
         }
-            
+
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
