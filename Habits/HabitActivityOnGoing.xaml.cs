@@ -431,7 +431,7 @@ namespace Focus_Bear.Habits
 
                         LogWriter.LogWrite("HabitActivityOnGoing attempt to load video URL - " + videoUrl);
 
-                        if (videoUrl.Contains("&"))
+                        if (videoUrl.Contains("&")) // Fix for URLS like https://www.youtube.com/watch?v=vNeRn90QjyA&pp=ygUQbWVkaXRhdGlvbiBtdXNpYw%3D%3D 
                         {
                             videoUrl = videoUrl.Substring(0, videoUrl.IndexOf("&", 1));
                         }
@@ -445,6 +445,7 @@ namespace Focus_Bear.Habits
                             string lastItem = videoUrl.Split('/').Last();
                             if (lastItem.Length > 0)
                             {
+                                //Handle non permitted embedded videos
                                 videoUrl = "https://www.youtube.com/embed/" + lastItem;
                             }
                         }
@@ -483,7 +484,7 @@ namespace Focus_Bear.Habits
             {
                 Debug.Print("NavigationId: " + e.NavigationId.ToString());
                 Debug.Print("URL: " + this.webView.CoreWebView2.Source);
-                if (!(this.webView.CoreWebView2.Source == "about:blank"))
+                if (!(this.webView.CoreWebView2.Source == "about:blank")) //this is set when ending the ongoing screen so avoid restarting timer here
                 {
                     dispatcherTimer.Start();
                     CommandManager.InvalidateRequerySuggested();
