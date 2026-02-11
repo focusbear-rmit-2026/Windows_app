@@ -383,7 +383,23 @@ namespace Focus_Bear.Focus
                         {
                             btnTakeBreak.Visibility = Visibility.Visible;
                             btnContinue.Visibility = Visibility.Collapsed;
-                            ExtendSessionPanel.Visibility = Visibility.Visible;
+
+                            // Only show extend option if the timer actually expired (not manual stop)
+                            bool bTimerExpired = false;
+                            try
+                            {
+                                if (!string.IsNullOrEmpty(appSettings.sRunningFocusModeEndTime))
+                                {
+                                    DateTime endTime = DateTime.Parse(appSettings.sRunningFocusModeEndTime);
+                                    bTimerExpired = DateTime.Now >= endTime;
+                                }
+                            }
+                            catch (Exception exTimer)
+                            {
+                                LogWriter.LogWrite("FocusModeEnd timer check EX = " + exTimer.Message);
+                            }
+
+                            ExtendSessionPanel.Visibility = bTimerExpired ? Visibility.Visible : Visibility.Collapsed;
                         }
                     }
 
