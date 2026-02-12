@@ -922,7 +922,10 @@ namespace FocusBear.Utils
                                         if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
                                         {
                                             string sTitle = Buff.ToString().ToLower();
-                                            string allowedAppTitle = "*" + sApp.AppName.ToLower() + "*";
+                                            // Strip .exe so "whatsapp.exe" matches window title "WhatsApp"
+                                            string appNameClean = sApp.AppName.ToLower().Replace(".exe", "");
+                                            string allowedAppTitle = "*" + appNameClean + "*";
+
                                             if (MatchWildcardString(sTitle, allowedAppTitle))
                                             {
                                                 LogWriter.LogWrite(sTitle + "title found in ALLOWED apps  apps with window title matched in focus mode - ALLOW");

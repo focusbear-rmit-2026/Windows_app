@@ -187,6 +187,33 @@ namespace Focus_Bear.Utils
             return value is int i && i > 0;
         }
 
+        public static string TryDetectRealProcessName(string userInput)
+        {
+            try
+            {
+                string searchName = userInput.ToLower().Replace(".exe", "");
+
+                // Obtain a list of all running processes
+                Process[] allProcesses = Process.GetProcesses();
+
+                foreach (Process process in allProcesses)
+                {
+                    string processName = process.ProcessName.ToLower();
+
+                    // If there's an exact match, return immediately    
+                    if (processName == searchName)
+                        return process.ProcessName + ".exe";
+
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("TryDetectRealProcessName exception: " + ex.Message);
+            }
+            // Process not found while running
+            return string.Empty;
+        }
+
     }
 
     public struct SKIPPED_ACTIVITY
