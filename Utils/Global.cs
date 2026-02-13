@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Management;
 using System.Net.Mail;
@@ -193,26 +194,162 @@ namespace Focus_Bear.Utils
             {
                 string searchName = userInput.ToLower().Replace(".exe", "");
 
-                // Obtain a list of all running processes
+                // Check if process is currently running
                 Process[] allProcesses = Process.GetProcesses();
-
                 foreach (Process process in allProcesses)
                 {
                     string processName = process.ProcessName.ToLower();
-
-                    // If there's an exact match, return immediately    
                     if (processName == searchName)
                         return process.ProcessName + ".exe";
+                }
 
+                // Search in common installation folders
+                string realExeName = SearchInCommonFolders(searchName);
+                if (!string.IsNullOrEmpty(realExeName))
+                {
+                    LogWriter.LogWrite("Auto-detected process name from file system: " + realExeName);
+                    return realExeName;
+                }
+
+                // Search in Windows Registry Uninstall key
+                realExeName = SearchInRegistry(searchName);
+                if (!string.IsNullOrEmpty(realExeName))
+                {
+                    LogWriter.LogWrite("Auto-detected process name from registry: " + realExeName);
+                    return realExeName;
                 }
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("TryDetectRealProcessName exception: " + ex.Message);
             }
-            // Process not found while running
+
+            // Process not found in any method
             return string.Empty;
         }
+
+        private static string SearchInCommonFolders(string searchName)
+        {
+            try
+            {
+                // Common installation paths to search
+                string[] commonPaths = new string[]
+                {
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs"),
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
+                };
+
+                foreach (string basePath in commonPaths)
+                {
+                    if (!Directory.Exists(basePath))
+                        continue;
+
+                    try
+                    {
+                        // Search for matching .exe files
+                        var files = Directory.GetFiles(basePath, searchName + ".exe", SearchOption.AllDirectories);
+                        if (files.Length > 0)
+                        {
+                            return Path.GetFileName(files[0]);
+                        }
+
+                        // Also search for similar names (case-insensitive variations)
+                        var allExes = Directory.GetFiles(basePath, "*.exe", SearchOption.AllDirectories);
+                        foreach (string exePath in allExes)
+                        {
+                            string exeName = Path.GetFileNameWithoutExtension(exePath).ToLower();
+                            if (exeName == searchName)
+                            {
+                                return Path.GetFileName(exePath);
+                            }
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        // Skip folders we don't have permission to access
+                        continue;
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SearchInCommonFolders exception: " + ex.Message);
+            }
+
+            return string.Empty;
+        }
+
+        private static string SearchInRegistry(string searchName)
+        {
+            try
+            {
+                string root = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+
+                // Search in both 64-bit and 32-bit registry
+                RegistryView[] views = new RegistryView[] { RegistryView.Registry64, RegistryView.Registry32 };
+
+                foreach (RegistryView view in views)
+                {
+                    using (RegistryKey key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view))
+                    {
+                        using (RegistryKey uninstallKey = key.OpenSubKey(root))
+                        {
+                            if (uninstallKey == null)
+                                continue;
+
+                            var subkeys = uninstallKey.GetSubKeyNames();
+                            foreach (string subKey in subkeys)
+                            {
+                                try
+                                {
+                                    using (RegistryKey childKey = uninstallKey.OpenSubKey(subKey))
+                                    {
+                                        var installLocation = childKey?.GetValue("InstallLocation")?.ToString();
+                                        if (string.IsNullOrEmpty(installLocation) || !Directory.Exists(installLocation))
+                                            continue;
+
+                                        // Look for matching exe in the install location
+                                        var files = Directory.GetFiles(installLocation, searchName + ".exe", SearchOption.AllDirectories);
+                                        if (files.Length > 0)
+                                        {
+                                            return Path.GetFileName(files[0]);
+                                        }
+
+                                        // Also check for case-insensitive matches
+                                        var allExes = Directory.GetFiles(installLocation, "*.exe", SearchOption.AllDirectories);
+                                        foreach (string exePath in allExes)
+                                        {
+                                            string exeName = Path.GetFileNameWithoutExtension(exePath).ToLower();
+                                            if (exeName == searchName)
+                                            {
+                                                return Path.GetFileName(exePath);
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SearchInRegistry exception: " + ex.Message);
+            }
+
+            return string.Empty;
+        }
+
 
     }
 
