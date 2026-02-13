@@ -350,6 +350,8 @@ namespace Focus_Bear.Utils
 
         public ObservableCollection<string> arrAlwaysBlockedURLs = new ObservableCollection<string>();
 
+        public ObservableCollection<AppDetails> arrAlwaysAllowedApps = new ObservableCollection<AppDetails>();
+
         public ObservableCollection<DistractingURL> arrDistractingURLs = new ObservableCollection<DistractingURL>();
 
         //Set intention for super distrating urls related
@@ -1506,6 +1508,21 @@ namespace Focus_Bear.Utils
                                 if (jarrALwaysBlockedURLs != null && jarrALwaysBlockedURLs.Count() > 0)
                                 {
                                     arrAlwaysBlockedURLs = jarrALwaysBlockedURLs.ToObject<ObservableCollection<string>>(); ;
+                                }
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kArrAlwaysAllowedApps"))
+                            {
+                                JArray jarrAlwaysAllowedApps = sMacOSSettingsOBJ.ContainsKey("kArrAlwaysAllowedApps") ? (JArray)sMacOSSettingsOBJ["kArrAlwaysAllowedApps"] : null;
+
+                                if (jarrAlwaysAllowedApps != null && jarrAlwaysAllowedApps.Count() > 0)
+                                {
+                                    arrAlwaysAllowedApps.Clear();
+                                    foreach (string appPath in jarrAlwaysAllowedApps.ToObject<List<string>>())
+                                    {
+                                        string appName = System.IO.Path.GetFileNameWithoutExtension(appPath);
+                                        arrAlwaysAllowedApps.Add(new AppDetails(appName, appPath));
+                                    }
                                 }
                             }
 
