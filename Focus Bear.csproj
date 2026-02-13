@@ -723,6 +723,7 @@
     </Compile>
     <Compile Include="Utils\IdleDetector.cs" />
     <Compile Include="Utils\IdleWaiter.cs" />
+    <Compile Include="Utils\ImageExtractor.cs" />
     <Compile Include="Utils\LocalSettingsManager.cs" />
     <Compile Include="Utils\LogWriter.cs" />
     <Compile Include="Utils\OfflineActivities.cs" />
