@@ -903,7 +903,9 @@ namespace FocusBear.Utils
                                     foreach (string sAppExe in sApp.ExeNames)
                                     {
                                         string App = sAppExe.Replace(".exe", "").ToLower();
-                                        if (App == process.ProcessName.ToLower())
+                                        string processName = process.ProcessName.ToLower();
+                                        // Check if app name is contained in process name (handles "whatsapp" vs "WhatsApp.Root")
+                                        if (App == processName || processName.Contains(App))
                                         {
                                             bAllowedAppFound = true;
                                             break;
