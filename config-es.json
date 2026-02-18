@@ -84,6 +84,11 @@
         "actionBarItemDone": "Hecho",
         "actionBarItemSkip": "Saltar"
     },
+    "focusProgressInfo": {
+        "pauseText": "Pausar",
+        "resumeText": "Reanudar",
+        "endFocusSessionText": "Terminar Sesión"
+    },
     "common": {
         "emailId": "support@focusbear.io",
         "unlockMachineButtonText": "Desbloquear la computadora",
@@ -1948,6 +1953,7 @@
         "buttonContinueText": "Continuar"
     },
     "helpVcInfo": {
+        "shareLogsValidationText": "Por favor, describa el problema que está experimentando para que nuestros desarrolladores puedan investigarlo adecuadamente. Los registros sin contexto no pueden ser procesados.",
         "shareLogsText": "Focus Bear sigue siendo una aplicación nueva y es posible que encuentres problemas (o tengas grandes ideas para mejorarla). Agradeceríamos mucho tu opinión. Puedes escribirnos a team@focusbear.io. Las capturas de pantalla son muy útiles para que podamos entender el problema. Además, si tuviste un problema, por favor comparte tus registros con el equipo de soporte de Focus Bear (utiliza el siguiente enlace)",
         "buttonShareLogsText": "Compartir registros con el Equipo de Soporte de Focus Bear",
         "placeHolderLogsFeedback": "¿Qué ha sucedido?",

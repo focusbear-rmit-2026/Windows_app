@@ -946,6 +946,85 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        internal async Task<int> ExtendFocusMode(string sId, int nMinutesToExtend)
+        {
+            LogWriter.LogWrite("ExtendFocusMode()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    DateTime newEndTime = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
+
+                    string extendFocusJsonString = $"{{\"finish_time\":\"{newEndTime.ToString("o")}\"}}";
+
+                    if (!string.IsNullOrEmpty(extendFocusJsonString))
+                    {
+                        StringContent content = new StringContent(extendFocusJsonString, Encoding.UTF8, "application/json");
+
+                        string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/extend", sId);
+
+                        LogWriter.LogWrite("ExtendFocusMode() JSON: = " + extendFocusJsonString);
+
+                        var response = await client.PostAsync(apiPath, content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.Created)
+                        {
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                LogWriter.LogWrite("ExtendFocusMode() GOT Success");
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                try
+                                {
+                                    JObject resJson = JObject.Parse(responseCode);
+                                    string sErrorMessage = resJson["message"].ToString();
+                                    LogWriter.LogWrite("ExtendFocusMode() FAILED: " + sErrorMessage);
+                                }
+                                catch
+                                {
+                                    LogWriter.LogWrite("ExtendFocusMode() FAILED: " + responseCode);
+                                }
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("ExtendFocusMode() WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ExtendFocusMode() Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
         internal async Task<int> GetKeywords()
         {
             LogWriter.LogWrite("GetKeywords()");

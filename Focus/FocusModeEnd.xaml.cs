@@ -367,6 +367,7 @@ namespace Focus_Bear.Focus
 
                         btnTakeBreak.Visibility = Visibility.Collapsed;
                         btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
+                        ExtendSessionPanel.Visibility = Visibility.Collapsed;
                     }
                     else
                     {
@@ -376,12 +377,40 @@ namespace Focus_Bear.Focus
                             btnStartAnotherFocusMode.Visibility = Visibility.Collapsed;
                             btnTakeBreak.Visibility = Visibility.Collapsed;
                             btnContinue.Visibility = Visibility.Visible;
+                            ExtendSessionPanel.Visibility = Visibility.Collapsed;
                         }
                         else
                         {
                             btnTakeBreak.Visibility = Visibility.Visible;
                             btnContinue.Visibility = Visibility.Collapsed;
+
+                            // Only show extend option if the timer actually expired (not manual stop)
+                            bool bTimerExpired = false;
+                            try
+                            {
+                                if (!string.IsNullOrEmpty(appSettings.sRunningFocusModeEndTime))
+                                {
+                                    DateTime endTime = DateTime.Parse(appSettings.sRunningFocusModeEndTime);
+                                    bTimerExpired = DateTime.Now >= endTime;
+                                }
+                            }
+                            catch (Exception exTimer)
+                            {
+                                LogWriter.LogWrite("FocusModeEnd timer check EX = " + exTimer.Message);
+                            }
+
+                            ExtendSessionPanel.Visibility = bTimerExpired ? Visibility.Visible : Visibility.Collapsed;
                         }
+                    }
+
+                    try
+                    {
+                        ExtendSessionLabel.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["askExtendFocusText"].ToString();
+                        btnExtendSessionText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonExtendSessionText"].ToString();
+                    }
+                    catch (Exception exLoc)
+                    {
+                        LogWriter.LogWrite("FocusModeEnd extend session localization EX = " + exLoc.Message);
                     }
                 }
                 catch (Exception ex)
@@ -453,6 +482,75 @@ namespace Focus_Bear.Focus
             }
 
             Take5MinsBreak();
+        }
+
+        private async void btnExtendSession_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                LogWriter.LogWrite("btnExtendSession_Click()");
+
+                int nMinutesToExtend = 15;
+                if (cmbExtendMinutes.SelectedItem != null)
+                {
+                    ComboBoxItem selectedItem = (ComboBoxItem)cmbExtendMinutes.SelectedItem;
+                    int.TryParse(selectedItem.Content.ToString(), out nMinutesToExtend);
+                }
+
+                LogWriter.LogWrite("Extending focus session by " + nMinutesToExtend + " minutes");
+
+                appSettings.CapturePostHog("extend-focus-session-from-complete-screen", string.Format("\"extendMinutes\":{0}", nMinutesToExtend));
+
+                DateTime newEndTime = DateTime.Now.AddMinutes(nMinutesToExtend);
+                appSettings.sRunningFocusModeEndTime = newEndTime.ToString();
+
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var response = await client.ExtendFocusMode(appSettings.sRunningFocusModeID, nMinutesToExtend);
+
+                if (response == 1)
+                {
+                    LogWriter.LogWrite("ExtendFocusMode API success");
+                }
+                else
+                {
+                    LogWriter.LogWrite("ExtendFocusMode API failed, continuing with local extension");
+                }
+
+                ((App)Application.Current).wndFocusBearMainWindow.RightContent.Content = null;
+                ((App)Application.Current).wndFocusBearMainWindow.Hide();
+
+                appSettings.isFocusModeRunning = true;
+                appSettings.isFocusModePaused = false;
+                appSettings.nPausedFocusRemainingSeconds = 0;
+
+                var focusModeRunning = appSettings.arrFocusModes.Where(i => i.id == appSettings.sRunningFocusModeID);
+                if (focusModeRunning.Any())
+                {
+                    focusModeRunning.First().isOn = true;
+                }
+
+                ((App)Application.Current).ShowFocusProgressWindow();
+
+                ((App)(Application.Current)).wndTrayMenu.OnUntill.Visibility = Visibility.Visible;
+                ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 45;
+
+                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
+                {
+                    ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 70;
+                }
+
+                string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
+                sTill = sTill.Replace("<TIME>", newEndTime.ToString());
+                ((App)(Application.Current)).wndTrayMenu.OnUntill.Content = sTill;
+
+                int nHours = nMinutesToExtend / 60;
+                int nMinutes = nMinutesToExtend % 60;
+                ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnExtendSession_Click EX = " + ex.Message);
+            }
         }
     }
 }

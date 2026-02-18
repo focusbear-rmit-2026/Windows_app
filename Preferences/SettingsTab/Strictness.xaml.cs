@@ -108,6 +108,17 @@ namespace Focus_Bear.Preferences.SettingsTab
             ContentArea.Content = new AlwaysBlockedURLs(_ParentWindow);
         }
 
+        private void btnAlwaysAllowedApps_Click(object sender, RoutedEventArgs e)
+        {
+            // Hide main menu
+            MainMenuPanel.Visibility = Visibility.Collapsed;
+            SubViewContainer.Visibility = Visibility.Visible;
+
+            SubViewHeading.Text = "Always Allowed Apps";
+            // Load the AlwaysAllowedApps class here
+            ContentArea.Content = new AlwaysAllowedApps(_ParentWindow);
+        }
+
         private void btnBack_Click(object sender, RoutedEventArgs e)
         {
             // Hide subview, show main menu

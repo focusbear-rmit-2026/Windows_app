@@ -73,12 +73,12 @@ namespace Focus_Bear.Focus
                 this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
                 if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
                 {
-                    this.Height = 141;
+                    this.Height = 151;
                 }
             }
             else
             {
-                this.Height = 121;
+                this.Height = 145;
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
@@ -86,6 +86,9 @@ namespace Focus_Bear.Focus
             {
                 Description.Text = appSettings.ConfigFileStrings["common"]["focusBreakNotificationTitle"].ToString();
                 btnIAmDoneTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonActivityDoneText"].ToString();
+
+                btnSkipTXT.Text = appSettings.ConfigFileStrings["customRoutineTimeVcInfo"]["buttonSkipText"].ToString();
+                btnPostponeTXT.Text = appSettings.ConfigFileStrings["customRoutineTimeVcInfo"]["buttonPostponeText"].ToString();
             }
             catch (Exception ex)
             {
@@ -236,5 +239,36 @@ namespace Focus_Bear.Focus
             ((App)(Application.Current)).wndTakeABreak = null;
         }
 
+        private void btnSkip_Click(object sender, RoutedEventArgs e)
+        {
+            
+           
+            ((App)(Application.Current)).ShowHabitsSectionInMainWindow();
+
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing.btnPausePlay);//V2
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
+
+            Hyperlink link = ((App)Application.Current).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing.btnSkipThisHabit;   //  Hyperlink control
+            var peerH = new HyperlinkAutomationPeer(link);
+            var invokeProvH = peerH.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProvH?.Invoke();
+
+            Close(); //Best to close here and open new when we have the activity with completion requirement.
+            ((App)(Application.Current)).wndTakeABreak = null;
+        }
+
+        private void btnPostpone_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)(Application.Current)).ShowHabitsSectionInMainWindow();
+
+            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndFocusBearMainWindow.PageHabits.btnPleaseSpareMe); 
+            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+            invokeProv.Invoke();
+
+            Close(); //Best to close here and open new when we have the activity with completion requirement.
+            ((App)(Application.Current)).wndTakeABreak = null;
+
+        }
     }
 }

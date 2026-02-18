@@ -44,6 +44,7 @@
     <BitmapImage x:Key="Strictness" UriSource="../Images/Settings/strictness_white.png" />
     <BitmapImage x:Key="Password" UriSource="../Images/Settings/password_black.png" />  <!-- //intentionally black -->
     <BitmapImage x:Key="FocusModeDark" UriSource="../Images/eye.png" />     <!-- //intentionally black -->
+    <BitmapImage x:Key="AlwaysAllowedAppsImage" UriSource="../Images/checkmark_rectangle-dark.png" />
 
     <!-- Main Window Icon -->
     <BitmapImage x:Key="SidebarButton" UriSource="../Images/MainAppWindow/sidebar_white.png" />

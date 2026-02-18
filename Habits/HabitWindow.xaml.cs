@@ -1051,7 +1051,7 @@ namespace Focus_Bear.Habits
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
             invokeProv.Invoke();
         }
-        private void btnPleaseSpareMe_Click(object sender, RoutedEventArgs e)
+        private async void btnPleaseSpareMe_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Habit Window btnPleaseSpareMe_Click Clicked");
             //WE may have edit habits screen visible and user may have clicked Backt o my habits
@@ -1061,6 +1061,34 @@ namespace Focus_Bear.Habits
             {
                 if (PageWelcomeList.WebGrid.IsVisible)
                 {
+                    string GetCheckUserSettingsModifiedDirectReturn = @"
+                                        (function() {
+                                            try {
+                                                const data = window?.hasUserModifiedSettings?.();
+                                                return data?.isUserSettingsModified ?? false;
+                                            } catch (e) {
+                                                return false;
+                                            }
+                                        })();
+                                        ";
+                    string jsResult = await PageWelcomeList.webView.ExecuteScriptAsync(GetCheckUserSettingsModifiedDirectReturn);
+
+                    bool hasModified = System.Text.Json.JsonSerializer.Deserialize<bool>(jsResult);
+                    if (hasModified)
+                    {
+                        FBMessageBox messageBox = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingsEditedButNotSavedText"].ToString(), "Focus Bear", MessageBoxButton.YesNo, appSettings.ConfigFileStrings["settings"]["buttonReviewSettingsText"].ToString(), appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString());
+                        messageBox.Owner = ParentWindow;
+                        PageWelcomeList.WebGrid.Visibility = Visibility.Collapsed;
+                        ParentWindow.GridShade.Visibility = Visibility.Visible;
+                        messageBox.ShowDialog();
+                        ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+                        PageWelcomeList.WebGrid.Visibility = Visibility.Visible;
+                        if (messageBox.btnClicked == MessageBoxResult.Yes)
+                        {
+                            return;
+                        }
+                    }
+
                     PageWelcomeList.WebGrid.Visibility = Visibility.Collapsed;
                     PageWelcomeList.Normal.Visibility = Visibility.Visible;
 
