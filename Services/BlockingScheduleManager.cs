@@ -94,7 +94,7 @@ namespace Focus_Bear.Services
                 }
                 if (appSettings.sRawBlockingSchedules.Length > 0)
                 {
-
+                    appSettings.arrCustomBlockingSchedules.Clear(); // Clear existing list before repopulating to avoid duplicates on re-sync
                     //Parse the JSON string
                     try
                     {
