@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Focus;
 using Focus_Bear.Models;
+using Focus_Bear.Services;
 using Focus_Bear.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -170,6 +171,9 @@ namespace Focus_Bear.Pomodoro
             LogWriter.LogWrite("Start Simple Pomodoro - Pomodoro window UpdateValues()" );
             try
             {
+                // Ensure blocking schedule state is current before checking banner visibility
+                BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+
                 if (appSettings.isExpired)
                 {
                     RadioSuperDistracting.IsChecked = true;

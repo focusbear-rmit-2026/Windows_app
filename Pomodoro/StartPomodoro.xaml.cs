@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Focus;
 using Focus_Bear.Models;
+using Focus_Bear.Services;
 using Focus_Bear.Utils;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -140,6 +141,9 @@ namespace Focus_Bear.Pomodoro
             LogWriter.LogWrite("Start Pomodoro - Pomodoro window UpdateValues()" );
             try
             {
+                // Ensure blocking schedule state is current before checking banner visibility
+                BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+
                 Minutes.Text = appSettings.PomodoroMinutes;
                 MinutesBreak.Text = appSettings.PomodoroBreakMinutes;
 
