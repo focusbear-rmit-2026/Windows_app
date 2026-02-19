@@ -25,13 +25,17 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <!-- Warning banner for strict blocking schedule -->
-                <Border x:Name="StrictBlockingWarningBanner" Grid.Row="0" Background="#FFF3CD" BorderBrush="#FFECB5" BorderThickness="1" CornerRadius="5" Margin="20,10,20,5" Padding="10" Visibility="Collapsed">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="⚠" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock x:Name="StrictBlockingWarningText" TextWrapping="Wrap" FontSize="13" Foreground="#856404" VerticalAlignment="Center" MaxWidth="500"/>
-                    </StackPanel>
-                </Border>
+                <!-- Popup notification for active blocking schedule, auto-dismisses after 10 seconds -->
+                <Popup x:Name="BlockingSchedulePopup" AutomationProperties.AutomationId="popupBlockingScheduleWarning" Placement="Right" HorizontalOffset="8" PlacementTarget="{Binding ElementName=Minutes}" StaysOpen="True" AllowsTransparency="True">
+                    <Grid Width="320" Background="{x:Null}">
+                        <Border x:Name="BlockingSchedulePopupBorder" Background="LightGoldenrodYellow" BorderBrush="Orange" BorderThickness="1" CornerRadius="7">
+                            <StackPanel Orientation="Horizontal" Margin="10,10">
+                                <TextBlock Text="&#x26A0;" FontSize="16" Foreground="#856404" VerticalAlignment="Top" Margin="0,0,8,0"/>
+                                <TextBlock x:Name="BlockingSchedulePopupTitle" TextWrapping="Wrap" FontWeight="Bold" FontSize="13" Foreground="#856404" MaxWidth="250"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Popup>
 
                 <TextBlock Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xPomodoro Time" Foreground="#e88800" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
