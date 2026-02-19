@@ -119,6 +119,17 @@ namespace Focus_Bear.Pomodoro
                 }
             };
 
+            _ParentWindow.Deactivated += (s, e) =>
+            {
+                BlockingSchedulePopup.IsOpen = false;
+            };
+
+            _ParentWindow.Activated += (s, e) =>
+            {
+                if (this.IsVisible)
+                    UpdateValues();
+            };
+
             //Removing the tour popup as now the UI has changed to show minimal options: 10 Oct 2025
 
         }

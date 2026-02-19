@@ -135,6 +135,17 @@ namespace Focus_Bear.Pomodoro
                 }
             };
 
+            _ParentWindow.Deactivated += (s, e) =>
+            {
+                BlockingSchedulePopup.IsOpen = false;
+            };
+
+            _ParentWindow.Activated += (s, e) =>
+            {
+                if (this.IsVisible)
+                    UpdateValues();
+            };
+
             ChkShowAdvanced.Checked += (s, e) => ShowAdvancedOptionsControls(true);
             ChkShowAdvanced.Unchecked += (s, e) => ShowAdvancedOptionsControls(false);
             ShowAdvancedOptionsControls(ChkShowAdvanced.IsChecked == true);
