@@ -88,6 +88,12 @@ namespace Focus_Bear.Onboarding
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
+                    webView.CoreWebView2.AddWebResourceRequestedFilter("https://www.youtube.com/embed/*", CoreWebView2WebResourceContext.Document);
+                    webView.CoreWebView2.WebResourceRequested += (s, args) =>
+                    {
+                        args.Request.Headers.SetHeader("Referer", "https://www.focusbear.io/");
+                    };
+
                     string videoUrl = appSettings.ConfigFileStrings["onboardingHabitExplainVcInfo"]["video_url"].ToString();
 
                     if (videoUrl.Contains("watch?v="))

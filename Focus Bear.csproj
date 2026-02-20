@@ -596,6 +596,9 @@
     <Compile Include="Preferences\AlwaysBlockedURLs.xaml.cs">
       <DependentUpon>AlwaysBlockedURLs.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\AlwaysAllowedApps.xaml.cs">
+      <DependentUpon>AlwaysAllowedApps.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Preferences\AskPassword.xaml.cs">
       <DependentUpon>AskPassword.xaml</DependentUpon>
     </Compile>
@@ -1087,6 +1090,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Preferences\AlwaysBlockedURLs.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\AlwaysAllowedApps.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

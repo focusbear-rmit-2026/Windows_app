@@ -86,6 +86,13 @@ namespace Focus_Bear.Login
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
+                    // Set the Referer header for YouTube embed requests
+                    webView.CoreWebView2.AddWebResourceRequestedFilter("https://www.youtube.com/embed/*", CoreWebView2WebResourceContext.Document);
+                    webView.CoreWebView2.WebResourceRequested += (s, args) =>
+                    {
+                        args.Request.Headers.SetHeader("Referer", "https://www.focusbear.io/");
+                    };
+
                     try
                     {
                        
@@ -117,7 +124,7 @@ namespace Focus_Bear.Login
                         {
                             videoUrl = videoUrl + "?autoplay=1&rel=0";
                         }
-                        videoUrl = videoUrl.Replace("youtube.com", "youtube-nocookie.com");
+                        
                         webView.Source = new System.Uri(videoUrl);
  
                     }

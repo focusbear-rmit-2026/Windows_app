@@ -400,6 +400,14 @@ namespace Focus_Bear.Habits
 
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+
+                    // Set the Referer header for YouTube embed requests
+                    webView.CoreWebView2.AddWebResourceRequestedFilter("https://www.youtube.com/embed/*", CoreWebView2WebResourceContext.Document);
+                    webView.CoreWebView2.WebResourceRequested += (s, args) =>
+                    {
+                        args.Request.Headers.SetHeader("Referer", "https://www.focusbear.io/");
+                    };
+
                     if (nVideoUrlsCount > 0)
                     {
                         webView.Visibility = Visibility.Visible;
@@ -423,29 +431,25 @@ namespace Focus_Bear.Habits
 
                         LogWriter.LogWrite("HabitActivityOnGoing attempt to load video URL - " + videoUrl);
 
-                        if (videoUrl.Contains("&")) //Fix for URLS like https://www.youtube.com/watch?v=vNeRn90QjyA&pp=ygUQbWVkaXRhdGlvbiBtdXNpYw%3D%3D
+                        if (videoUrl.Contains("&")) // Fix for URLS like https://www.youtube.com/watch?v=vNeRn90QjyA&pp=ygUQbWVkaXRhdGlvbiBtdXNpYw%3D%3D 
                         {
                             videoUrl = videoUrl.Substring(0, videoUrl.IndexOf("&", 1));
                         }
-                 
+
                         if (videoUrl.Contains("watch?v="))
                         {
                             videoUrl = videoUrl.Replace("watch?v=", "embed/");
                         }
-                        else
+                        else if (videoUrl.ToLower().Contains("youtu.be/"))
                         {
-                            if (videoUrl.ToLower().Contains("https://youtu.be/"))
+                            string lastItem = videoUrl.Split('/').Last();
+                            if (lastItem.Length > 0)
                             {
                                 //Handle non permitted embedded videos
-                                //https://youtu.be/lExuhKRS8vo
-                                string lastItem = videoUrl.Split('/').Last();
-                                if (lastItem.Length > 0)
-                                {
-                                    videoUrl = "https://www.youtube.com/embed/" + lastItem;
-                                }
-
+                                videoUrl = "https://www.youtube.com/embed/" + lastItem;
                             }
                         }
+
                         if (videoUrl.Contains("?"))
                         {
                             videoUrl = videoUrl + "&autoplay=1&rel=0";
@@ -455,7 +459,6 @@ namespace Focus_Bear.Habits
                             videoUrl = videoUrl + "?autoplay=1&rel=0";
                         }
 
-                        videoUrl = videoUrl.Replace("youtube.com", "youtube-nocookie.com");
                         LogWriter.LogWrite("HabitActivityOnGoing Final URL trying to video URL - " + videoUrl);
 
                         webView.Source = new System.Uri(videoUrl);
