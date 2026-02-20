@@ -217,9 +217,20 @@ namespace Focus_Bear
                     StringBuilder ClassName = new StringBuilder(256);
                     //Get the window class name
                     nRet = GetClassName(hwnd, ClassName, ClassName.Capacity);
+                    // Vivaldi fires events from a child hwnd with no class name, so we walk up to the root window
+                    if (nRet == 0 && appSettings.sLastActiveAppName == "vivaldi.exe")
+                    {
+                        IntPtr rootHwnd = GetAncestor(hwnd, GA_ROOT);
+                        nRet = GetClassName(rootHwnd, ClassName, ClassName.Capacity);
+                        if (nRet != 0)
+                            hwnd = rootHwnd;
+                    }
+
                     if (nRet != 0)
                     {
-                        if (string.Compare(ClassName.ToString(), "Chrome_WidgetWin_1", true, CultureInfo.InvariantCulture) == 0)
+                        // For Vivaldi, events can also fire from Chrome_RenderWidgetHostHWND instead of Chrome_WidgetWin_1
+                        bool isVivaldiRenderHost = appSettings.sLastActiveAppName == "vivaldi.exe" && string.Compare(ClassName.ToString(), "Chrome_RenderWidgetHostHWND", true, CultureInfo.InvariantCulture) == 0;
+                        if (string.Compare(ClassName.ToString(), "Chrome_WidgetWin_1", true, CultureInfo.InvariantCulture) == 0 || isVivaldiRenderHost)
                         {
                             object objChild = null;
                             IAccessible accWindow = null;
@@ -288,6 +299,10 @@ namespace Focus_Bear
             PROCESS_VM_READ = 0x00000010,
             PROCESS_VM_WRITE = 0x00000020
         }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetAncestor(IntPtr hwnd, uint gaFlags);
+        private const uint GA_ROOT = 2; // Get the root window in the hierarchy
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
