@@ -34,6 +34,9 @@ namespace FocusBear.Utils
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
         //  private readonly MenuOptions listener;
 
         public static readonly List<string> BROWSERS = new List<string> { "chrome", "firefox", "msedge" };
@@ -66,6 +69,24 @@ namespace FocusBear.Utils
             "focus-bear.github.io",
             "focus-block.html",};
 
+
+        private IntPtr GetEffectiveWindowHandle(IntPtr processMainWindowHandle)
+        {
+            if (processMainWindowHandle != IntPtr.Zero && IsWindowVisible(processMainWindowHandle))
+            {
+                return processMainWindowHandle;
+            }
+            return GetForegroundWindow();
+        }
+
+        private void MinimizeBlockedAppWindow(IntPtr processMainWindowHandle)
+        {
+            IntPtr hwnd = GetEffectiveWindowHandle(processMainWindowHandle);
+            if (hwnd != IntPtr.Zero && IsWindowVisible(hwnd))
+            {
+                ShowWindow(hwnd, SW_FORCEMINIMIZE);
+            }
+        }
 
         private Boolean MatchWildcardString(String input, String pattern)
         {
@@ -173,7 +194,7 @@ namespace FocusBear.Utils
                         }
 
                         LogWriter.LogWrite(process.ProcessName + " Not allowed app When in shutOff State -  BLOCK");
-                        ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
+                        MinimizeBlockedAppWindow(process.MainWindowHandle);
                         appSettings.CapturePostHog("block-distracting-app");
                     }
                 }
@@ -236,7 +257,7 @@ namespace FocusBear.Utils
                             if (!bAllowedAppFound)
                             {
                                 LogWriter.LogWrite(process.ProcessName + " Not allowed app found in MORNING_HABITS activity - BLOCK");
-                                ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
+                                MinimizeBlockedAppWindow(process.MainWindowHandle);
                                 appSettings.CapturePostHog("block-distracting-app");
                             }
                         }
@@ -278,7 +299,7 @@ namespace FocusBear.Utils
                             if (!bAllowedAppFound)
                             {
                                 LogWriter.LogWrite(process.ProcessName + " Not allowed app found in EVENING_HABITS activity - BLOCK");
-                                ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
+                                MinimizeBlockedAppWindow(process.MainWindowHandle);
                                 appSettings.CapturePostHog("block-distracting-app");
                             }
                         }
@@ -324,7 +345,7 @@ namespace FocusBear.Utils
                                 if (!bAllowedAppFound)
                                 {
                                     LogWriter.LogWrite(process.ProcessName + " Not allowed app found in BREAK_ACTIVITY activity - BLOCK");
-                                    ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
+                                    MinimizeBlockedAppWindow(process.MainWindowHandle);
                                     appSettings.CapturePostHog("block-distracting-app");
                                 }
                             }
@@ -366,7 +387,7 @@ namespace FocusBear.Utils
                                 if (!bAllowedAppFound)
                                 {
                                     LogWriter.LogWrite(process.ProcessName + " Not allowed app found in BREAK_ACTIVITY activity - BLOCK");
-                                    ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
+                                    MinimizeBlockedAppWindow(process.MainWindowHandle);
                                     appSettings.CapturePostHog("block-distracting-app");
                                 }
                             }
@@ -747,7 +768,7 @@ namespace FocusBear.Utils
                         {
                             if (sApp == process.ProcessName)
                             {
-                                ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
+                                MinimizeBlockedAppWindow(process.MainWindowHandle);
                             }
                         }
 
@@ -899,7 +920,9 @@ namespace FocusBear.Utils
                                     foreach (string sAppExe in sApp.ExeNames)
                                     {
                                         string App = sAppExe.Replace(".exe", "").ToLower();
-                                        if (App == process.ProcessName.ToLower())
+                                        string processName = process.ProcessName.ToLower();
+                                        // Check if app name is contained in process name (handles "whatsapp" vs "WhatsApp.Root")
+                                        if (App == processName || processName.Contains(App))
                                         {
                                             bAllowedAppFound = true;
                                             break;
@@ -918,7 +941,10 @@ namespace FocusBear.Utils
                                         if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
                                         {
                                             string sTitle = Buff.ToString().ToLower();
-                                            string allowedAppTitle = "*" + sApp.AppName.ToLower() + "*";
+                                            // Strip .exe so "whatsapp.exe" matches window title "WhatsApp"
+                                            string appNameClean = sApp.AppName.ToLower().Replace(".exe", "");
+                                            string allowedAppTitle = "*" + appNameClean + "*";
+
                                             if (MatchWildcardString(sTitle, allowedAppTitle))
                                             {
                                                 LogWriter.LogWrite(sTitle + "title found in ALLOWED apps  apps with window title matched in focus mode - ALLOW");
@@ -990,8 +1016,7 @@ namespace FocusBear.Utils
 
                                 if (!bAllowedAppFound)
                                 {
-                                    if (IsWindowVisible(process.MainWindowHandle))
-                                        ShowWindow(process.MainWindowHandle, SW_FORCEMINIMIZE);
+                                    MinimizeBlockedAppWindow(process.MainWindowHandle);
 
                                     string sTemp = appSettings.ConfigFileStrings["common"]["appBlockNotificationTitle"].ToString();
                                     sTemp = sTemp.Replace("<APP_NAME>", process.ProcessName);
