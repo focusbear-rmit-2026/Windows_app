@@ -84,6 +84,11 @@
         "actionBarItemDone": "Done",
         "actionBarItemSkip": "Skip"
     },
+    "focusProgressInfo": {
+        "pauseText": "Pause",
+        "resumeText": "Resume",
+        "endFocusSessionText": "End Session"
+    },
     "common": {
         "emailId": "support@focusbear.io",
         "unlockMachineButtonText": "Unlock the machine",
@@ -1843,6 +1848,10 @@
         "addBrowserAlertText": "Sorry you can't choose browser apps here. Instead put distracting websites in the Super Distracting URLs section.",
         "subTitleTextNew": "Which apps do you waste time on? Focus Bear will help you be more intentional about how you use these apps. They will be blocked during focus sessions and blocking schedules."
     },
+    "alwaysAllowedAppsViewInfo": {
+        "title": "Always Allowed Apps",
+        "subTitleText": "Apps added here will never be blocked, regardless of focus mode, blocking schedules, or strictness settings. Use this for essential apps that you always need access to."
+    },
     "settingsNew": {
         "uiSettingTitle": "UI",
         "accessibilitySettingTitle": "Accessibility",
@@ -1948,6 +1957,7 @@
         "buttonContinueText": "Continue"
     },
     "helpVcInfo": {
+        "shareLogsValidationText": "Please describe the issue you’re experiencing so our developers can investigate it properly. Logs without context cannot be processed.",
         "shareLogsText": "Focus Bear is still a new app and you might encounter issues (or have great ideas on how to make it better). We'd really appreciate your feedback. You can email us at team@focusbear.io. Screenshots are really helpful to let us understand the problem. Also if you had a problem, please share your logs with Focus Bear Support Team (use the link below)",
         "buttonShareLogsText": "Share logs with Focus Bear Support Team",
         "placeHolderLogsFeedback": "What happened?",

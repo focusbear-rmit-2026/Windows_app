@@ -26,6 +26,7 @@ namespace Focus_Bear.Preferences
         AppSettings appSettings = AppSettings.GetInstance;
 
         FocusMode selectedFocusMode = null;
+        bool isForAlwaysAllowedApps = false;
 
         List<AppDetails> FilteredList = new List<AppDetails>();
         public AddApp()
@@ -50,6 +51,19 @@ namespace Focus_Bear.Preferences
             InitializeComponent();
 
             selectedFocusMode = sFocusMode;
+
+            this.Owner = ParentWindow;
+
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+            LoadTexts();
+        }
+
+        public AddApp(FocusBearMainWindow ParentWindow, bool forAlwaysAllowedApps)
+        {
+            InitializeComponent();
+
+            isForAlwaysAllowedApps = forAlwaysAllowedApps;
 
             this.Owner = ParentWindow;
 
@@ -92,21 +106,37 @@ namespace Focus_Bear.Preferences
             LogWriter.LogWrite("Add Apps btnAdd_Click()");
             try
             {
-
                 List<AppDetails> ll = appSettings.InstalledApps.Where(item => item.IsSelected).ToList();
-                if (selectedFocusMode != null && ll.Count() > 0)
+                if (ll.Count() > 0)
                 {
-                    foreach (AppDetails sApp in ll)
+                    if (isForAlwaysAllowedApps)
                     {
-                        var listItems = selectedFocusMode.arrAllowedAppsWin.Where(i => i.AppName == sApp.AppName);
-                        if (listItems.Count() == 0)
+                        foreach (AppDetails sApp in ll)
                         {
-                            selectedFocusMode.arrAllowedAppsWin.Add(sApp);
-                            appSettings.CapturePostHog("add-allowed-app-in-focus-mode");
+                            // Check if app is already in the list by comparing AppName
+                            if (!appSettings.arrAlwaysAllowedApps.Any(i => i.AppName == sApp.AppName))
+                            {
+                                appSettings.arrAlwaysAllowedApps.Add(sApp);
+                                appSettings.CapturePostHog("add-always-allowed-app");
+                            }
                         }
+                        DialogResult = true;
+                        Close();
                     }
-                    DialogResult = true;
-                    Close();
+                    else if (selectedFocusMode != null)
+                    {
+                        foreach (AppDetails sApp in ll)
+                        {
+                            var listItems = selectedFocusMode.arrAllowedAppsWin.Where(i => i.AppName == sApp.AppName);
+                            if (listItems.Count() == 0)
+                            {
+                                selectedFocusMode.arrAllowedAppsWin.Add(sApp);
+                                appSettings.CapturePostHog("add-allowed-app-in-focus-mode");
+                            }
+                        }
+                        DialogResult = true;
+                        Close();
+                    }
                 }
                 else
                 {

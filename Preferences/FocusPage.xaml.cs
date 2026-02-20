@@ -416,7 +416,17 @@ namespace Focus_Bear.Preferences
                                     var listItems = selectedFocusMode.arrAllowedAppsWin.Where(i => i.AppName == app);
                                     if (listItems.Count() == 0)
                                     {
-                                        selectedFocusMode.arrAllowedAppsWin.Add(new AppDetails(app, app));
+                                        AppDetails newApp = new AppDetails(app, app);
+
+                                        // Try to detect the real process if it's running.
+                                        string realProcessName = Global.TryDetectRealProcessName(app);
+                                        if (!string.IsNullOrEmpty(realProcessName) && realProcessName.ToLower() != app)
+                                        {
+                                            newApp.ExeNames.Add(realProcessName);
+                                            LogWriter.LogWrite("Auto-detected alternative process name for manual app: " + realProcessName);
+                                        }
+
+                                        selectedFocusMode.arrAllowedAppsWin.Add(newApp);
                                         bAppAdded = true;
                                     }
                                 }
