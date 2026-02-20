@@ -209,7 +209,7 @@ namespace Focus_Bear.Pomodoro
                     ShowFocusModeEnd.IsChecked = false;
                 }
 
-                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused)
                 {
                     if(appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
                     {
@@ -399,6 +399,7 @@ namespace Focus_Bear.Pomodoro
         {
             if (ComboBoxFocusModes.SelectedItem == null)
             {
+                LogWriter.LogWrite("StartFocusMode() - No focus mode selected, return");
                 return;
             }
             string sFocusModeToStart = ComboBoxFocusModes.SelectedItem?.ToString();

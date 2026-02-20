@@ -302,9 +302,11 @@ namespace Focus_Bear.Services
                 //Start it
                 appSettings.ActiveSchedule.isOn = true;
                 appSettings.isBlockingScheduleRunning = true;
-                appSettings.ActiveSchedule.isPaused = false;
 
-                ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = true; //Active
+                if(!appSettings.ActiveSchedule.isPaused) //check if it was running and paused
+                    ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = true; //Active
+                else
+                    ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = false; //Paused
             }
         }
 

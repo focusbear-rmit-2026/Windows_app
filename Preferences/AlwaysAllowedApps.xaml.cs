@@ -48,7 +48,7 @@ namespace Focus_Bear.Preferences
                 Description.Text = appSettings.ConfigFileStrings["alwaysAllowedAppsViewInfo"]["subTitleText"].ToString();
 
                 btnAddAppTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddText"].ToString();
-                btnDeleteAppTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonRemoveText"].ToString();
+                btnDeleteAppTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["toolTipRemove"].ToString();
             }
             catch (Exception ex)
             {

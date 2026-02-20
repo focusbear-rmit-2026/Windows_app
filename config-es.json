@@ -1848,6 +1848,10 @@
         "addBrowserAlertText": "Lo sentimos, no puedes elegir aplicaciones de navegador aquí. En su lugar, pon los sitios web que te distraen en la sección URLs superdistractoras.",
         "subTitleTextNew": "¿En qué apps pierdes tiempo? Focus Bear te ayudará a usar estas apps de manera más intencional. Se bloquearán durante las sesiones de enfoque y los horarios de bloqueo."
     },
+    "alwaysAllowedAppsViewInfo": {
+        "title": "Aplicaciones Siempre Permitidas",
+        "subTitleText": "Las aplicaciones añadidas aquí nunca serán bloqueadas, independientemente del modo de enfoque, los horarios de bloqueo o la configuración de restricción. Usa esto para aplicaciones esenciales a las que siempre necesitas acceso."
+    },
     "settingsNew": {
         "uiSettingTitle": "IU",
         "accessibilitySettingTitle": "Accesibilidad",
