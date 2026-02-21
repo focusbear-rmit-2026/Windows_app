@@ -57,8 +57,8 @@ namespace Focus_Bear.FocusMusic
                                 }
                                 catch (Exception ex)
                                 {
-                                    LogWriter.LogWrite("ReadAndParseUserDetailsJson() Reading item in BlockingSchedules failed ex = " + ex.Message);
-                                    continue; //Even if one focus mode have failed we will read the next one
+                                    LogWriter.LogWrite("ReadAndParseFocusMusicTracks() Reading item in arrFocusMusicTracks failed ex = " + ex.Message);
+                                    continue; 
                                 }
                             }
 

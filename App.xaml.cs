@@ -123,11 +123,12 @@ namespace Focus_Bear
                 if ((sAppName == "firefox.exe" && appSettings.sLastActiveAppName != "firefox.exe") ||
                     (sAppName == "chrome.exe" && appSettings.sLastActiveAppName != "chrome.exe") ||
                     (sAppName == "msedge.exe" && appSettings.sLastActiveAppName != "msedge.exe") ||
-                    (sAppName == "brave.exe" && appSettings.sLastActiveAppName != "brave.exe"))
+                    (sAppName == "brave.exe" && appSettings.sLastActiveAppName != "brave.exe") ||
+                    (sAppName == "vivaldi.exe" && appSettings.sLastActiveAppName != "vivaldi.exe"))
                 {
                     appSettings.Hide_SetIntentionWindow();
                 }
-                else if(sAppName != "firefox.exe" && sAppName != "chrome.exe" && sAppName != "msedge.exe" && sAppName != "brave.exe")
+                else if(sAppName != "firefox.exe" && sAppName != "chrome.exe" && sAppName != "msedge.exe" && sAppName != "brave.exe" && sAppName != "vivaldi.exe")
                 {
                     appSettings.Hide_SetIntentionWindow();
                 }
@@ -209,16 +210,27 @@ namespace Focus_Bear
                         }
                     }
                 }
-                else if (appSettings.sLastActiveAppName == "chrome.exe" || appSettings.sLastActiveAppName == "msedge.exe" || appSettings.sLastActiveAppName == "brave.exe")
+                else if (appSettings.sLastActiveAppName == "chrome.exe" || appSettings.sLastActiveAppName == "msedge.exe" || appSettings.sLastActiveAppName == "brave.exe" || appSettings.sLastActiveAppName == "vivaldi.exe")
                 {
                     int nRet;
                     // Pre-allocate 256 characters, since this is the maximum class name length.
                     StringBuilder ClassName = new StringBuilder(256);
                     //Get the window class name
                     nRet = GetClassName(hwnd, ClassName, ClassName.Capacity);
+                    // Vivaldi fires events from a child hwnd with no class name, so we walk up to the root window
+                    if (nRet == 0 && appSettings.sLastActiveAppName == "vivaldi.exe")
+                    {
+                        IntPtr rootHwnd = GetAncestor(hwnd, GA_ROOT);
+                        nRet = GetClassName(rootHwnd, ClassName, ClassName.Capacity);
+                        if (nRet != 0)
+                            hwnd = rootHwnd;
+                    }
+
                     if (nRet != 0)
                     {
-                        if (string.Compare(ClassName.ToString(), "Chrome_WidgetWin_1", true, CultureInfo.InvariantCulture) == 0)
+                        // For Vivaldi, events can also fire from Chrome_RenderWidgetHostHWND instead of Chrome_WidgetWin_1
+                        bool isVivaldiRenderHost = appSettings.sLastActiveAppName == "vivaldi.exe" && string.Compare(ClassName.ToString(), "Chrome_RenderWidgetHostHWND", true, CultureInfo.InvariantCulture) == 0;
+                        if (string.Compare(ClassName.ToString(), "Chrome_WidgetWin_1", true, CultureInfo.InvariantCulture) == 0 || isVivaldiRenderHost)
                         {
                             object objChild = null;
                             IAccessible accWindow = null;
@@ -287,6 +299,10 @@ namespace Focus_Bear
             PROCESS_VM_READ = 0x00000010,
             PROCESS_VM_WRITE = 0x00000020
         }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetAncestor(IntPtr hwnd, uint gaFlags);
+        private const uint GA_ROOT = 2; // Get the root window in the hierarchy
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
@@ -1895,7 +1911,7 @@ namespace Focus_Bear
 
                             if (appSettings.bFocusSummaryPostponedState && !appSettings.bEveningHabitsPostponedAfterCutoffTime)
                             {
-                                ((App)(Application.Current)).wndFocusSummary.ResumeFocusSummary();
+                                ((App)(Application.Current)).wndFocusBearMainWindow.PageFocusSummary.ResumeFocusSummary();
                                 LogWriter.LogWrite("Kick the user off at the cutoff time as Focus Summary was postponed before cutoff time elapsed");
                                 return;
                             }
@@ -2009,7 +2025,21 @@ namespace Focus_Bear
 
                             }
                         }
-
+                        if (appSettings.bFocusSummaryPostponedState || appSettings.bHabitsPostponedState)
+                        {
+                            if (!appSettings.isBlockingScheduleRunning)
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                            }
+                            else
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                            }
+                        }
+                        else
+                        {
+                            BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                        }
                         return;
                     }
                     //Check if shutoff time is aborted, if not show the shutoff screen
@@ -2023,6 +2053,14 @@ namespace Focus_Bear
                         else
                         {
                             //Nothing to do as shutoff is aborted for the day
+                            if (!appSettings.isBlockingScheduleRunning)
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                            }
+                            else
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                            }
                             return;
                         }
                     }

@@ -290,7 +290,7 @@ namespace Focus_Bear.Services
                 ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
                 appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
                 appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
-                !appSettings.bHabitsPostponedState))
+                (!appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState)))
             {
                 //If we are in an activity state or focus mode already running, do not check for custom blocking schedule
                 return;
@@ -324,7 +324,7 @@ namespace Focus_Bear.Services
                 else
                 {
                     //if a focusmode is running then also we need to stop it
-                    if(appSettings.isFocusModeRunning)
+                    if(appSettings.isFocusModeRunning || ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) && (!appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState)))
                     {
                         appSettings.ActiveSchedule.isOn = false;
                         appSettings.isBlockingScheduleRunning = false;
