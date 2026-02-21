@@ -481,17 +481,20 @@ namespace Focus_Bear.Habits
         }
         private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
+            //We need to remove this (if (e.IsSuccess)) as in offline the timer did not start, possibly wont start when the video is not available.
             {
                 Debug.Print("NavigationId: " + e.NavigationId.ToString());
                 Debug.Print("URL: " + this.webView.CoreWebView2.Source);
                 if (!(this.webView.CoreWebView2.Source == "about:blank")) //this is set when ending the ongoing screen so avoid restarting timer here
                 {
+                    //we will start the timer here after youtube video has been loaded
                     dispatcherTimer.Start();
                     CommandManager.InvalidateRequerySuggested();
                 }
+
             }
         }
-
+            
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
@@ -613,7 +616,7 @@ namespace Focus_Bear.Habits
                 {
                     SkipThisHabitText.Visibility = Visibility.Visible;//Only show in paused mode
                 }
-                
+                PauseVideo();
                 appSettings.CapturePostHog("pause-activity");
             }
             else
@@ -630,6 +633,8 @@ namespace Focus_Bear.Habits
                 CommandManager.InvalidateRequerySuggested();
 
                 Global.DisableSystemSleep();
+                
+                ResumeVideo();
 
                 appSettings.CapturePostHog("resume-activity");
 
@@ -647,7 +652,73 @@ namespace Focus_Bear.Habits
                 }
             }
         }
+        public async void PauseVideo()
+        {
+            await webView.ExecuteScriptAsync(@"
+                        (function () {
+                        try {
 
+                            // Pause HTML5 videos
+                            document.querySelectorAll('video').forEach(function (v) {
+                                try { v.pause(); } catch (e) {}
+                            });
+
+                            // Pause YouTube
+                            document.querySelectorAll('iframe').forEach(function (f) {
+                                try {
+                                    if (f.src && (f.src.includes('youtube.com') || f.src.includes('youtu.be'))) {
+                                        f.contentWindow.postMessage('{""event"":""command"",""func"":""pauseVideo"",""args"":""""}', '*');
+                                    }
+                                } catch (e) {}
+                            });
+
+                            // Pause Vimeo
+                            document.querySelectorAll('iframe').forEach(function (f) {
+                                try {
+                                    if (f.src && f.src.includes('vimeo.com')) {
+                                        f.contentWindow.postMessage('{""method"":""pause""}', '*');
+                                    }
+                                } catch (e) {}
+                            });
+
+                        } catch (err) {}
+
+                    })();");    
+        }
+
+        public async void ResumeVideo()
+        {
+            await webView.ExecuteScriptAsync(@"
+                    (function () {
+                        try {
+
+                            // Play HTML5 videos
+                            document.querySelectorAll('video').forEach(function (v) {
+                                try { v.play(); } catch (e) {}
+                            });
+
+                            // Play YouTube
+                            document.querySelectorAll('iframe').forEach(function (f) {
+                                try {
+                                    if (f.src && (f.src.includes('youtube.com') || f.src.includes('youtu.be'))) {
+                                        f.contentWindow.postMessage('{""event"":""command"",""func"":""playVideo"",""args"":""""}', '*');
+                                    }
+                                } catch (e) {}
+                            });
+
+                            // Play Vimeo
+                            document.querySelectorAll('iframe').forEach(function (f) {
+                                try {
+                                    if (f.src && f.src.includes('vimeo.com')) {
+                                        f.contentWindow.postMessage('{""method"":""play""}', '*');
+                                    }
+                                } catch (e) {}
+                            });
+
+                        } catch (err) {}
+
+                    })();");
+        }
         public void StopTimerOfRunningActivity()
         {
             if (bTimerRunning)
@@ -670,6 +741,7 @@ namespace Focus_Bear.Habits
                     dispatcherTimer.Stop();
                     Global.EnableSystemSleep();
                     CommandManager.InvalidateRequerySuggested();
+                    PauseVideo();
                 }
 
                 //It might be an allowed app habit, so need to remove the break window too
@@ -686,6 +758,8 @@ namespace Focus_Bear.Habits
                 {
                     dispatcherTimer.Start();
                     CommandManager.InvalidateRequerySuggested();
+
+                    ResumeVideo();
 
                     if (appSettings.bHabitwithAllowedAppsRunning) //if app was an allowed app
                     {

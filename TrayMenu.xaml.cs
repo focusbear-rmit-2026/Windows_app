@@ -1114,7 +1114,7 @@ namespace Focus_Bear
             Hide();
             if (appSettings.bFocusSummaryPostponedState)
             {
-                ((App)(Application.Current)).wndFocusSummary.ResumeFocusSummary();
+                ((App)(Application.Current)).wndFocusBearMainWindow.PageFocusSummary.ResumeFocusSummary();
             }
             else
             {
@@ -1368,7 +1368,7 @@ namespace Focus_Bear
 
         private void btnPauseBlockingSchedule_Checked(object sender, RoutedEventArgs e)
         {
-            LogWriter.LogWrite("BlockingSchedule Reactiveted from menu");
+            LogWriter.LogWrite("BlockingSchedule Reactivated from menu");
             if (appSettings.ActiveSchedule != null)
             {
                 appSettings.ActiveSchedule.isPaused = false;

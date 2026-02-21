@@ -1911,7 +1911,7 @@ namespace Focus_Bear
 
                             if (appSettings.bFocusSummaryPostponedState && !appSettings.bEveningHabitsPostponedAfterCutoffTime)
                             {
-                                ((App)(Application.Current)).wndFocusSummary.ResumeFocusSummary();
+                                ((App)(Application.Current)).wndFocusBearMainWindow.PageFocusSummary.ResumeFocusSummary();
                                 LogWriter.LogWrite("Kick the user off at the cutoff time as Focus Summary was postponed before cutoff time elapsed");
                                 return;
                             }
@@ -2025,7 +2025,21 @@ namespace Focus_Bear
 
                             }
                         }
-
+                        if (appSettings.bFocusSummaryPostponedState || appSettings.bHabitsPostponedState)
+                        {
+                            if (!appSettings.isBlockingScheduleRunning)
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                            }
+                            else
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                            }
+                        }
+                        else
+                        {
+                            BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                        }
                         return;
                     }
                     //Check if shutoff time is aborted, if not show the shutoff screen
@@ -2039,6 +2053,14 @@ namespace Focus_Bear
                         else
                         {
                             //Nothing to do as shutoff is aborted for the day
+                            if (!appSettings.isBlockingScheduleRunning)
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                            }
+                            else
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                            }
                             return;
                         }
                     }
