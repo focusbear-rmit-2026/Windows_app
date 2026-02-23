@@ -222,7 +222,7 @@ namespace Focus_Bear.Pomodoro
                 //Should empty the value for tasks here
                 appSettings.sRawTasks = "";
 
-                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused)
                 {
                     if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
                     {
@@ -299,6 +299,7 @@ namespace Focus_Bear.Pomodoro
         private void HandleStartFocusEnableDisable()
         {
             if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning &&
+                !appSettings.ActiveSchedule.isPaused &&
                 appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
             {
                 btnStartSession.IsEnabled = false;

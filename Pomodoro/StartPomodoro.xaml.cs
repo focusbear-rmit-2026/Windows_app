@@ -245,7 +245,7 @@ namespace Focus_Bear.Pomodoro
                     ShowFocusModeEnd.IsChecked = false;
                 }
 
-                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused)
                 {
                     if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
                     {
