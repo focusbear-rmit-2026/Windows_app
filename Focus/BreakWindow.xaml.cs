@@ -122,21 +122,23 @@ namespace Focus_Bear.Focus
 
                 if (sTitle.Length > 0) //Set the activity title if thelength is > 0
                     DescriptionNoTimer.Text = sTitle;
-
-                SkipPostponeSection.Visibility = Visibility.Visible;//Show skip postpone buttons
             }
             else
             {
                 UseTimerRelated.Visibility = Visibility.Visible;
                 DoNotUseTimerRelated.Visibility = Visibility.Collapsed;
-
-                SkipPostponeSection.Visibility = Visibility.Collapsed; //Hide skip postpone buttons
             }
 
             if (sTitle.Length > 0) //Set the activity title if thelength is > 0
+            {
                 Description.Text = sTitle;
-            else
+                SkipPostponeSection.Visibility = Visibility.Visible;//Show skip postpone buttons
+            }
+            else //break timing
+            {
                 Description.Text = appSettings.ConfigFileStrings["common"]["focusBreakNotificationTitle"].ToString();// default your breaks ends in
+                SkipPostponeSection.Visibility = Visibility.Collapsed; //Hide skip postpone buttons
+            }
 
             var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
             this.Left = (desktopWorkingArea.Right - this.Width);

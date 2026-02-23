@@ -113,9 +113,22 @@ namespace Focus_Bear.Services
                                     string startTime = item.ContainsKey("start_time") ? item.GetValue("start_time").ToString() : "";
                                     string endTime = item.ContainsKey("end_time") ? item.GetValue("end_time").ToString() : "";
 
-                                    JArray tempblockedUrls = (JArray)item.GetValue("days_of_week");
-                                    int[] activeDays = tempblockedUrls.ToObject<int[]>();
-                                    
+                                    JArray daysArray = (JArray)item.GetValue("days_of_week");
+
+                                    int[] activeDays = daysArray
+                                        .Where(t => t.Type == JTokenType.Integer)
+                                        .Select(t => t.Value<int>())
+                                        .ToArray();
+
+                                    bool isAll = daysArray
+                                        .Any(t => t.Type == JTokenType.String &&
+                                                  t.ToString().Equals("ALL", StringComparison.OrdinalIgnoreCase));
+
+                                    if (isAll)
+                                    {
+                                        activeDays = new int[] { 0, 1, 2, 3, 4, 5, 6 };
+                                    }
+
                                     //convert to bool array that we are using
                                     bool[] daysOfWeek = new bool[7];
                                     foreach (int idx in activeDays)
