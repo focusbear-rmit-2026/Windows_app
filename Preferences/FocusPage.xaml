@@ -44,8 +44,7 @@
             </Setter>
             <Setter Property="Visibility" Value="{Binding isShowAbleInList, Converter={StaticResource BoolToVis}}" />
         </Style>
-        <utils:IconToImage x:Key="IconConverter"/>
-        <utils:UrlToIcon x:Key="UrlConverter"/>
+        <utils:SmartKeywordIcon x:Key="SmartConverter"/>
     </UserControl.Resources>
 
     <Grid >
@@ -153,7 +152,7 @@
                                                 </Grid.ColumnDefinitions>
 
                                                 <Image Grid.Column="0" 
-                                                       Source="{Binding DisplayIcon, Converter={StaticResource IconConverter}}" 
+                                                       Source="{Binding DisplayIcon, Converter={StaticResource SmartConverter}}" 
                                                        Width="18" 
                                                        Height="18" 
                                                        Margin="5,0,5,0"
@@ -209,7 +208,7 @@
                                                         <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
                                                     <Image Grid.Column="0" 
-                                                           Source="{Binding ., Converter={StaticResource UrlConverter}}" 
+                                                           Source="{Binding ., Converter={StaticResource SmartConverter}}" 
                                                            Width="16" 
                                                            Height="16" 
                                                            VerticalAlignment="Center"

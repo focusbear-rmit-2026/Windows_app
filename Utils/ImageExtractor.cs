@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 
 namespace Focus_Bear.Utils
 {
+    // Method for URL to Icon using Google's favicon service
     internal class UrlToIcon : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -26,7 +27,7 @@ namespace Focus_Bear.Utils
                 string domain = uri.Host;
 
                 // Google favicon service
-                string faviconUrl = $"https://www.google.com/s2/favicons?domain={domain}&sz=32";
+                string faviconUrl = $"https://www.google.com/s2/favicons?domain={domain}&sz=64";
 
                 // Create BitmapImage from the favicon URL
                 BitmapImage bitmap = new BitmapImage();
@@ -44,12 +45,10 @@ namespace Focus_Bear.Utils
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 
+    // Method for File Path to Icon using Windows API
     internal class IconToImage : IValueConverter 
     {
         public object Convert(Object value, Type targetType, object parameter, CultureInfo culture)
@@ -75,9 +74,30 @@ namespace Focus_Bear.Utils
             }
         }
 
-        public object ConvertBack(Object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(Object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+        
+    }
+
+    internal class SmartKeywordIcon : IValueConverter
+    {
+
+        private readonly UrlToIcon _urlConverter = new UrlToIcon();
+        private readonly IconToImage _fileConverter = new IconToImage();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            string input = value as string;
+            if (string.IsNullOrEmpty(input)) return null;
+
+            if (input.Contains("\\") || input.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                return _fileConverter.Convert(input, targetType, parameter, culture);
+
+            if (input.Contains("."))
+                return _urlConverter.Convert(input, targetType, parameter, culture);
+
+            return null;
         }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 }
