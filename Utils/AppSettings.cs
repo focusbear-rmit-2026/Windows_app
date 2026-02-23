@@ -1753,6 +1753,7 @@ namespace Focus_Bear.Utils
                         arrAllowedAppsWin.Add(new AppDetails("Mozilla Firefox", "firefox.exe"));
                         arrAllowedAppsWin.Add(new AppDetails("Google Chrome", "chrome.exe"));
                         arrAllowedAppsWin.Add(new AppDetails("Brave Browser", "brave.exe"));
+                        arrAllowedAppsWin.Add(new AppDetails("Vivaldi Browser", "vivaldi.exe"));
                         arrAllowedAppsWin.Add(new AppDetails("Slack", "slack.exe"));
 
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusText"].ToString(); //"meetingsFocusText":"Meetings",
@@ -2555,7 +2556,7 @@ namespace Focus_Bear.Utils
             });
         }
 
-        public void CheckLogFileRotation()
+        public async void CheckLogFileRotation()
         {
 
             LogWriter.LogWrite("CheckLogFileRotation() ");
@@ -2578,11 +2579,15 @@ namespace Focus_Bear.Utils
                     try
                     {
                         File.Move(DebugLogsFilePath, oldLogPath);
-                        File.SetCreationTime(oldLogPath, DateTime.Now); //we will need to set the CreationDate as File.Move() preserves the original CreationTime Only the path changes
+
+                        //Need to create teh debug file and wait a while
+                        LogWriter.LogWrite("CheckLogFileRotation :- create / write to Debug_Logs.txt");
+                        await Task.Delay(2);
+                        File.SetCreationTime(DebugLogsFilePath, DateTime.Now); //we will need to set the CreationDate as File.Move() preserves the original CreationTime Only the path changes
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex);
+                        LogWriter.LogWrite("CheckLogFileRotation ex - " + ex);
                     }
                 }
             }
