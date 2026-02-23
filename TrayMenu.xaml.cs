@@ -505,26 +505,27 @@ namespace Focus_Bear
                     {
                         btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString();
                     }
+                }
 
-                    if (appSettings.isBlockingScheduleRunning)
+                if (appSettings.isBlockingScheduleRunning)
+                {
+                    BlockingScheduleSection.Visibility = Visibility.Visible;
+                    BlockingScheduleName.Text = appSettings.ActiveSchedule.name;
+                    BlockingScheduleTime.Text = appSettings.ActiveSchedule.BlockingScheduleDaysTime;
+                    if (appSettings.ActiveSchedule.isPaused)
                     {
-                        BlockingScheduleSection.Visibility = Visibility.Visible;
-                        BlockingScheduleName.Text = appSettings.ActiveSchedule.name;
-                        BlockingScheduleTime.Text = appSettings.ActiveSchedule.BlockingScheduleDaysTime;
-                        if (appSettings.ActiveSchedule.isPaused)
-                        {
-                            BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
-                        }
-                        else
-                        {
-                            BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
-                        }
+                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
                     }
                     else
                     {
-                        BlockingScheduleSection.Visibility = Visibility.Collapsed;
+                        BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
                     }
                 }
+                else
+                {
+                    BlockingScheduleSection.Visibility = Visibility.Collapsed;
+                }
+
             }
             catch (Exception ex)
             {
@@ -1113,7 +1114,7 @@ namespace Focus_Bear
             Hide();
             if (appSettings.bFocusSummaryPostponedState)
             {
-                ((App)(Application.Current)).wndFocusSummary.ResumeFocusSummary();
+                ((App)(Application.Current)).wndFocusBearMainWindow.PageFocusSummary.ResumeFocusSummary();
             }
             else
             {
@@ -1367,17 +1368,23 @@ namespace Focus_Bear
 
         private void btnPauseBlockingSchedule_Checked(object sender, RoutedEventArgs e)
         {
-            LogWriter.LogWrite("BlockingSchedule Paused from menu");
+            LogWriter.LogWrite("BlockingSchedule Reactivated from menu");
             if (appSettings.ActiveSchedule != null)
             {
                 appSettings.ActiveSchedule.isPaused = false;
                 BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
+
+                //In case the pomodoro page is visible, lets reload it
+                if (((App)Application.Current).wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.StartFocusSession))
+                {
+                    ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.StartFocusSession);
+                }
             }
         }
 
         private void btnPauseBlockingSchedule_Unchecked(object sender, RoutedEventArgs e)
         {
-            LogWriter.LogWrite("BlockingSchedule Reactiveted from menu");
+            LogWriter.LogWrite("BlockingSchedule Paused from menu");
             if (appSettings.ActiveSchedule != null)
             {
                 if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.CHILL_MODE)
@@ -1461,6 +1468,11 @@ namespace Focus_Bear
 
                 }
 
+                //In case the pomodoro page is visible, lets reload it
+                if(((App)Application.Current).wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.StartFocusSession))
+                {
+                    ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.StartFocusSession);
+                }
             }
         }
 

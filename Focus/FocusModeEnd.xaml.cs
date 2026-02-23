@@ -282,6 +282,8 @@ namespace Focus_Bear.Focus
                     Achieve.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["questionFirstText"].ToString();
                     Distractions.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["questionSecondText"].ToString();
 
+                    SelectMinsLabel.Text = appSettings.ConfigFileStrings["common"]["extendFocusMinutesText"].ToString();
+
                     string sBreakMinutes = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonTakeBreakText"].ToString();
                     if(appSettings.sMinutesBreakPomodoro.Length > 0 && appSettings.sMinutesBreakPomodoro != "0")
                     {

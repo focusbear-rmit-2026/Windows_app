@@ -1074,6 +1074,7 @@ namespace Focus_Bear.Utils
                                             sTitle = sTitle.Replace(" - Google Chrome", "");
                                             sTitle = sTitle.Replace(" — Mozilla Firefox", "");
                                             sTitle = sTitle.Replace(" - Microsoft? Edge", "");
+                                            sTitle = sTitle.Replace(" - Vivaldi", "");
 
                                             if (sTitle.Length > 0)
                                             {
@@ -1118,6 +1119,7 @@ namespace Focus_Bear.Utils
                                             sTitle = sTitle.Replace(" - Google Chrome", "");
                                             sTitle = sTitle.Replace(" — Mozilla Firefox", "");
                                             sTitle = sTitle.Replace(" - Microsoft? Edge", "");
+                                            sTitle = sTitle.Replace(" - Vivaldi", "");
 
                                             if (sTitle.Length > 0)
                                             {

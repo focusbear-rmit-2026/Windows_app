@@ -113,9 +113,22 @@ namespace Focus_Bear.Services
                                     string startTime = item.ContainsKey("start_time") ? item.GetValue("start_time").ToString() : "";
                                     string endTime = item.ContainsKey("end_time") ? item.GetValue("end_time").ToString() : "";
 
-                                    JArray tempblockedUrls = (JArray)item.GetValue("days_of_week");
-                                    int[] activeDays = tempblockedUrls.ToObject<int[]>();
-                                    
+                                    JArray daysArray = (JArray)item.GetValue("days_of_week");
+
+                                    int[] activeDays = daysArray
+                                        .Where(t => t.Type == JTokenType.Integer)
+                                        .Select(t => t.Value<int>())
+                                        .ToArray();
+
+                                    bool isAll = daysArray
+                                        .Any(t => t.Type == JTokenType.String &&
+                                                  t.ToString().Equals("ALL", StringComparison.OrdinalIgnoreCase));
+
+                                    if (isAll)
+                                    {
+                                        activeDays = new int[] { 0, 1, 2, 3, 4, 5, 6 };
+                                    }
+
                                     //convert to bool array that we are using
                                     bool[] daysOfWeek = new bool[7];
                                     foreach (int idx in activeDays)
@@ -290,7 +303,7 @@ namespace Focus_Bear.Services
                 ((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
                 appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
                 appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) &&
-                !appSettings.bHabitsPostponedState))
+                (!appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState)))
             {
                 //If we are in an activity state or focus mode already running, do not check for custom blocking schedule
                 return;
@@ -302,9 +315,11 @@ namespace Focus_Bear.Services
                 //Start it
                 appSettings.ActiveSchedule.isOn = true;
                 appSettings.isBlockingScheduleRunning = true;
-                appSettings.ActiveSchedule.isPaused = false;
 
-                ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = true; //Active
+                if(!appSettings.ActiveSchedule.isPaused) //check if it was running and paused
+                    ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = true; //Active
+                else
+                    ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = false; //Paused
             }
         }
 
@@ -322,7 +337,7 @@ namespace Focus_Bear.Services
                 else
                 {
                     //if a focusmode is running then also we need to stop it
-                    if(appSettings.isFocusModeRunning)
+                    if(appSettings.isFocusModeRunning || ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) && (!appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState)))
                     {
                         appSettings.ActiveSchedule.isOn = false;
                         appSettings.isBlockingScheduleRunning = false;

@@ -460,6 +460,7 @@ namespace Focus_Bear.Pomodoro
         {
             if (ComboBoxFocusModes.SelectedItem == null)
             {
+                LogWriter.LogWrite("StartFocusMode() - No focus mode selected, return");
                 return;
             }
             string sFocusModeToStart = ComboBoxFocusModes.SelectedItem?.ToString();

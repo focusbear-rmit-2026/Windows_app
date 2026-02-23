@@ -1001,6 +1001,7 @@ namespace Focus_Bear
 
         public void ShowShutOffView()
         {
+            PageShutOffWindow = new ShutOffWindow(this);
             RightContent.Content = PageShutOffWindow;
 
             if (appSettings.isFocusModeRunning)

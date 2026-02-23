@@ -32,7 +32,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xYour break ends in:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
                 <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="05:00"  Padding="0" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Top" />
-                <StackPanel  Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                <StackPanel x:Name="SkipPostponeSection" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock x:Name="Skip" AutomationProperties.AutomationId="txtRefreshRequestUpdate" Grid.Row="4" Margin="0,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
                         <Hyperlink x:Name="btnSkip" Click="btnSkip_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipTXT" Text="xSkip"/></Hyperlink>
                     </TextBlock>

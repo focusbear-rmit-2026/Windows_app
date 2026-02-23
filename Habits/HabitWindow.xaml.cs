@@ -181,6 +181,8 @@ namespace Focus_Bear.Habits
                     PageWelcomeList = new HabitsWelcomeList(ParentWindow);
                     AppFrameHabitScreens.Navigate(PageWelcomeList); //Normal process
 
+                    ParentWindow.GridShade.Visibility = Visibility.Collapsed; //safety
+                    
                     AskToAnalyzeSleepAndMood();
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
@@ -575,7 +577,7 @@ namespace Focus_Bear.Habits
                 //We need to hide the Please SPare Me Button
                 btnPleaseSpareMe.Visibility = Visibility.Collapsed;
                 
-                await Task.Delay(3000);
+                await Task.Delay(1000);
 
                 //WE will set the morning habits shown date for today
                 RegistryManager.SetMorningHabitsShownTillDate();
