@@ -227,14 +227,17 @@ namespace Focus_Bear.Pomodoro
                     if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
                     {
                         BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["superStrictBlockingActiveMessage"].ToString();
+                        btnStartSession.IsEnabled = false;
                     }
                     else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
                     {
                         BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingCannotChangeMessage"].ToString();
+                        HandleStartFocusEnableDisable();
                     }
                     else
                     {
                         BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingActiveMessage"].ToString();
+                        HandleStartFocusEnableDisable();
                     }
 
                     // Show popup and auto-dismiss after 10 seconds
@@ -251,6 +254,10 @@ namespace Focus_Bear.Pomodoro
                     blockingSchedulePopupTimer.Interval = TimeSpan.FromSeconds(10);
                     blockingSchedulePopupTimer.Tick += BlockingSchedulePopupTimer_Tick;
                     blockingSchedulePopupTimer.Start();
+                }
+                else
+                {
+                    HandleStartFocusEnableDisable();
                 }
 
             }
@@ -291,6 +298,13 @@ namespace Focus_Bear.Pomodoro
 
         private void HandleStartFocusEnableDisable()
         {
+            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning &&
+                appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+            {
+                btnStartSession.IsEnabled = false;
+                return;
+            }
+
             string MinutesText = Minutes.Text;
             string MinutesBreakText = MinutesBreak.Text;
 

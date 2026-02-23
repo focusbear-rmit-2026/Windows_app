@@ -26,7 +26,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Popup notification for active blocking schedule, auto-dismisses after 10 seconds -->
-                <Popup x:Name="BlockingSchedulePopup" AutomationProperties.AutomationId="popupBlockingScheduleWarning" Placement="Right" HorizontalOffset="8" PlacementTarget="{Binding ElementName=Minutes}" StaysOpen="True" AllowsTransparency="True">
+                <Popup x:Name="BlockingSchedulePopup" AutomationProperties.AutomationId="popupBlockingScheduleWarning" Placement="Right" HorizontalOffset="8" PlacementTarget="{Binding ElementName=btnStartSession}" StaysOpen="True" AllowsTransparency="True">
                     <Grid Width="320" Background="{x:Null}">
                         <Border x:Name="BlockingSchedulePopupBorder" Background="LightGoldenrodYellow" BorderBrush="Orange" BorderThickness="1" CornerRadius="7">
                             <StackPanel Orientation="Horizontal" Margin="10,10">
