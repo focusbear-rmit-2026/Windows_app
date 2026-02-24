@@ -2199,8 +2199,9 @@ namespace Focus_Bear.API
                     if (language == "es")
                         lang = "spanish";
 
-                    // In super strict mode (Grizzly mode, nFocusBearMode == 2), pass task_must_align_to_focus_intention=true
-                    bool isSuperStrictMode = appSettings.nFocusBearMode == 2;
+                    // Pass task_must_align_to_focus_intention=true when a blocking schedule is running in super strict mode
+                    bool isSuperStrictMode = appSettings.isBlockingScheduleRunning &&
+                        appSettings.ActiveSchedule?.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS;
                     string taskMustAlignParam = isSuperStrictMode ? ",\"task_must_align_to_focus_intention\":true" : "";
 
                     string addItemJsonString = $"{{\"url\":\"{url}\"," +
