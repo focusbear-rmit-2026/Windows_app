@@ -910,10 +910,7 @@
         "pinWindowText": "Click to pin the window (keep on top)",
         "titleAfterPostpone": "What do you want to do instead of your habits?",
         "buttonEditBlockListsText": "Edit block lists",
-        "titleSelectBlockList": "Which block list do you want to use?",
-        "strictBlockingActiveMessage": "A blocking schedule is active. Your focus session will use the block list from the active schedule.",
-        "strictBlockingCannotChangeMessage": "You can't change the block list while a strict blocking schedule is active. Pause the schedule from the tray menu if you need to use a different block list.",
-        "superStrictBlockingActiveMessage": "A super strict blocking schedule is active. The block list is fixed and can't be changed. Pause the schedule from the tray menu if you need to make changes."
+        "titleSelectBlockList": "Which block list do you want to use?"
     },
     "logQuantityInfo": {
         "title": "Log Quantity of activity",

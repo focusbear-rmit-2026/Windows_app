@@ -226,17 +226,17 @@ namespace Focus_Bear.Pomodoro
                 {
                     if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
                     {
-                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["superStrictBlockingActiveMessage"].ToString();
+                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["simpleSuperStrictBlockingActiveMessage"].ToString();
                         btnStartSession.IsEnabled = false;
                     }
                     else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
                     {
-                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingCannotChangeMessage"].ToString();
+                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["simpleBlockingActiveMessage"].ToString();
                         HandleStartFocusEnableDisable();
                     }
                     else
                     {
-                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingActiveMessage"].ToString();
+                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["simpleBlockingActiveMessage"].ToString();
                         HandleStartFocusEnableDisable();
                     }
 

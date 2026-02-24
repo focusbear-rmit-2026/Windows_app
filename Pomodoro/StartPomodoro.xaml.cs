@@ -257,7 +257,7 @@ namespace Focus_Bear.Pomodoro
                     {
                         ComboBoxFocusModes.IsEnabled = false;
                         ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
-                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingCannotChangeMessage"].ToString();
+                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingActiveMessage"].ToString();
                     }
                     else
                     {

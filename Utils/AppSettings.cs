@@ -713,7 +713,7 @@ namespace Focus_Bear.Utils
             LogWriter.LogWrite("DownloadAndLoadConfigFile");
             try
             {
-                var status = await DownloadConfigFile();
+                var status = false;
                 if (status)
                 {
                     LogWriter.LogWrite("DownloadAndLoadConfigFile Success - Proceed to read");
