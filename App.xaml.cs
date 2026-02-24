@@ -2749,7 +2749,7 @@ namespace Focus_Bear
                 if (CheckIf4HoursBeforeNextMorningRoutine())
                 {
                     //Only if evening routine have not started
-                    
+
                     ShowShutOffScreen();
                     return;
                 }
@@ -2769,7 +2769,7 @@ namespace Focus_Bear
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
                     appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
-                    
+
                     if (wndFocusBearMainWindow != null)
                     {
                         //It might be possible that the break activity is running..
@@ -2788,6 +2788,12 @@ namespace Focus_Bear
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ShowEveningRoutine() func - trying to close old windows" + ex.Message);
+            }
+            //check if there are evening habits otherwise return from here
+            if (appSettings.arrGLOBALAllEveningHabits == null || appSettings.arrGLOBALAllEveningHabits.Count == 0)
+            {
+                LogWriter.LogWrite("ShowEveningRoutine() func - No evening habits, returning");
+                return;
             }
 
             appSettings.nCurrentActivityType = CurrentActivityType.EVENING_HABITS; //We use this for Focus Summary as well, when FOcus summary ends we change this to none
@@ -2832,109 +2838,13 @@ namespace Focus_Bear
 
             appSettings.arrAllEveningHabits.Clear();
             DayOfWeek Today = DateTime.Now.DayOfWeek;
-            for (int i = 0; i < appSettings.arrGLOBALAllEveningHabits.Count; i++)
-            {
-                for (int m = 0; m < appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek.Count(); m++)
+            if(appSettings.arrGLOBALAllEveningHabits != null)
+            { 
+                for (int i = 0; i < appSettings.arrGLOBALAllEveningHabits.Count; i++)
                 {
-                    if (appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek[m].ToLower() == "all")
+                    for (int m = 0; m < appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek.Count(); m++)
                     {
-                        //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
-                        if (appSettings.DidCutOffTimePassed())
-                        {
-                            if (appSettings.arrGLOBALAllEveningHabits[i].bHighPriorityActivity)
-                            {
-                                if (appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime != "")
-                                {
-                                    DateTime now = DateTime.Now;
-                                    TimeSpan tsTime = TimeSpan.Parse(appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime);
-                                    DateTime myAvtivityStartTime = new DateTime(now.Year, now.Month, now.Day, tsTime.Hours, tsTime.Minutes, 00);
-                                    if (now < myAvtivityStartTime)
-                                    {
-                                        appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
-                                    }
-                                    else
-                                    {
-                                        appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
-                                    }
-                                }
-                                else
-                                {
-                                    appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]); //Add if there is no 
-                                }
-                            }
-                        }
-                        else
-                        {
-                            appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
-                        }
-                        break;
-                    }
-                    else
-                    {
-                        bool bfound = false;
-                        string day = appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek[m].ToLower();
-                        switch (Today)
-                        {
-                            case DayOfWeek.Sunday:
-                                {
-                                    if (day.ToLower() == "sun")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Monday:
-                                {
-                                    if (day.ToLower() == "mon")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Tuesday:
-                                {
-                                    if (day.ToLower() == "tue")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Wednesday:
-                                {
-                                    if (day.ToLower() == "wed")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Thursday:
-                                {
-                                    if (day.ToLower() == "thu")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Friday:
-                                {
-                                    if (day.ToLower() == "fri")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-                            case DayOfWeek.Saturday:
-                                {
-                                    if (day.ToLower() == "sat")
-                                    {
-                                        bfound = true;
-                                    }
-                                    break;
-                                }
-
-                        }
-
-                        if (bfound)
+                        if (appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek[m].ToLower() == "all")
                         {
                             //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
                             if (appSettings.DidCutOffTimePassed())
@@ -2946,25 +2856,124 @@ namespace Focus_Bear
                                         DateTime now = DateTime.Now;
                                         TimeSpan tsTime = TimeSpan.Parse(appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime);
                                         DateTime myAvtivityStartTime = new DateTime(now.Year, now.Month, now.Day, tsTime.Hours, tsTime.Minutes, 00);
-                                        if (now > myAvtivityStartTime)
+                                        if (now < myAvtivityStartTime)
                                         {
-                                            bfound = false;
+                                            appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
+                                        }
+                                        else
+                                        {
                                             appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    bfound = false;
-                                    appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
+                                    else
+                                    {
+                                        appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]); //Add if there is no 
+                                    }
                                 }
                             }
-                        }
-
-                        if (bfound)
-                        {
-                            appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
+                            else
+                            {
+                                appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
+                            }
                             break;
+                        }
+                        else
+                        {
+                            bool bfound = false;
+                            string day = appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek[m].ToLower();
+                            switch (Today)
+                            {
+                                case DayOfWeek.Sunday:
+                                    {
+                                        if (day.ToLower() == "sun")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Monday:
+                                    {
+                                        if (day.ToLower() == "mon")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Tuesday:
+                                    {
+                                        if (day.ToLower() == "tue")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Wednesday:
+                                    {
+                                        if (day.ToLower() == "wed")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Thursday:
+                                    {
+                                        if (day.ToLower() == "thu")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Friday:
+                                    {
+                                        if (day.ToLower() == "fri")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+                                case DayOfWeek.Saturday:
+                                    {
+                                        if (day.ToLower() == "sat")
+                                        {
+                                            bfound = true;
+                                        }
+                                        break;
+                                    }
+
+                            }
+
+                            if (bfound)
+                            {
+                                //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
+                                if (appSettings.DidCutOffTimePassed())
+                                {
+                                    if (appSettings.arrGLOBALAllEveningHabits[i].bHighPriorityActivity)
+                                    {
+                                        if (appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime != "")
+                                        {
+                                            DateTime now = DateTime.Now;
+                                            TimeSpan tsTime = TimeSpan.Parse(appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime);
+                                            DateTime myAvtivityStartTime = new DateTime(now.Year, now.Month, now.Day, tsTime.Hours, tsTime.Minutes, 00);
+                                            if (now > myAvtivityStartTime)
+                                            {
+                                                bfound = false;
+                                                appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        bfound = false;
+                                        appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
+                                    }
+                                }
+                            }
+
+                            if (bfound)
+                            {
+                                appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
+                                break;
+                            }
                         }
                     }
                 }
@@ -3391,6 +3400,7 @@ namespace Focus_Bear
 
             if(!appSettings.DidCutOffTimePassed())
             {
+                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                 LogWriter.LogWrite("ShowShutOffScreen() - cutoff time yet to come return");
                 return;
             }

@@ -525,8 +525,16 @@ namespace Focus_Bear
                     }
                     else
                     {
-                        //cutoff time is yet to come
-                        PageHabits.ShowShutOffFreeTimeView();
+                        if (appSettings.arrGLOBALAllEveningHabits == null || appSettings.arrGLOBALAllEveningHabits.Count == 0) // means no evening habits
+                        {
+                            PageHabits.ShowMorningRoutineFinishedState();
+                        }
+                        else
+                        {
+                            //cutoff time is yet to come
+                            PageHabits.ShowShutOffFreeTimeView();
+                        }
+                        
                     }
                 }
                 else

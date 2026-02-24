@@ -58,10 +58,10 @@ namespace Focus_Bear.Habits
                 string sHeading = appSettings.ConfigFileStrings["habitsStateVcInfo"]["nextRoutineText"].ToString();
                 sHeading = sHeading.Replace("<ROUTINE>", appSettings.ConfigFileStrings["habitsStateVcInfo"]["titleEveningRoutine"].ToString());
                 sHeading = sHeading.Replace("<TIME>", appSettings.sDayShutOffTime);
-
+                    
                 Heading.Text = sHeading;
 
-                if (appSettings.arrGLOBALAllEveningHabits.Count == 0)
+                if (appSettings.arrGLOBALAllEveningHabits == null || appSettings.arrGLOBALAllEveningHabits.Count == 0)
                 {
                     btnAction.Visibility = Visibility.Visible;
                     Description.Visibility = Visibility.Visible;
