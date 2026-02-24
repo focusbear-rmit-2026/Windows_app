@@ -910,7 +910,9 @@
         "pinWindowText": "Haz clic para anclar la ventana (mantener encima)",
         "titleAfterPostpone": "¿Qué quieres hacer en lugar de tus hábitos?",
         "buttonEditBlockListsText": "Editar listas de bloqueo",
-        "titleSelectBlockList": "¿Qué lista de bloqueo quieres usar?"
+        "titleSelectBlockList": "¿Qué lista de bloqueo quieres usar?",
+        "superStrictBlockingActiveMessage": "Hay un horario de bloqueo muy estricto activo. Deberás pausarlo para usar una lista de bloqueo diferente.",
+        "simpleSuperStrictBlockingActiveMessage": "Hay un horario de bloqueo muy estricto activo. Deberás pausarlo para iniciar una sesión."
     },
     "logQuantityInfo": {
         "title": "Registra la Cantidad de la actividad",

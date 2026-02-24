@@ -245,25 +245,12 @@ namespace Focus_Bear.Pomodoro
                     ShowFocusModeEnd.IsChecked = false;
                 }
 
-                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused)
+                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused
+                    && appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
                 {
-                    if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
-                    {
-                        ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
-                        ComboBoxFocusModes.IsEnabled = false;
-                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["superStrictBlockingActiveMessage"].ToString();
-                    }
-                    else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
-                    {
-                        ComboBoxFocusModes.IsEnabled = false;
-                        ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
-                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingActiveMessage"].ToString();
-                    }
-                    else
-                    {
-                        ComboBoxFocusModes.IsEnabled = true;
-                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["strictBlockingActiveMessage"].ToString();
-                    }
+                    ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
+                    ComboBoxFocusModes.IsEnabled = false;
+                    BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["superStrictBlockingActiveMessage"].ToString();
 
                     // Show popup and auto-dismiss after 10 seconds
                     // Stop any previous timer before starting a new one
@@ -279,7 +266,6 @@ namespace Focus_Bear.Pomodoro
                     blockingSchedulePopupTimer.Interval = TimeSpan.FromSeconds(10);
                     blockingSchedulePopupTimer.Tick += BlockingSchedulePopupTimer_Tick;
                     blockingSchedulePopupTimer.Start();
-
                 }
                 else
                 {

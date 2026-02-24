@@ -910,7 +910,9 @@
         "pinWindowText": "Click to pin the window (keep on top)",
         "titleAfterPostpone": "What do you want to do instead of your habits?",
         "buttonEditBlockListsText": "Edit block lists",
-        "titleSelectBlockList": "Which block list do you want to use?"
+        "titleSelectBlockList": "Which block list do you want to use?",
+        "superStrictBlockingActiveMessage": "A super strict blocking schedule is active. You'll need to pause it to use a different block list.",
+        "simpleSuperStrictBlockingActiveMessage": "A super strict blocking schedule is active. You'll need to pause it to start a session."
     },
     "logQuantityInfo": {
         "title": "Log Quantity of activity",

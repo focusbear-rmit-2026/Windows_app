@@ -222,23 +222,11 @@ namespace Focus_Bear.Pomodoro
                 //Should empty the value for tasks here
                 appSettings.sRawTasks = "";
 
-                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused)
+                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused
+                    && appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
                 {
-                    if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
-                    {
-                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["simpleSuperStrictBlockingActiveMessage"].ToString();
-                        btnStartSession.IsEnabled = false;
-                    }
-                    else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
-                    {
-                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["simpleBlockingActiveMessage"].ToString();
-                        HandleStartFocusEnableDisable();
-                    }
-                    else
-                    {
-                        BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["simpleBlockingActiveMessage"].ToString();
-                        HandleStartFocusEnableDisable();
-                    }
+                    BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["simpleSuperStrictBlockingActiveMessage"].ToString();
+                    btnStartSession.IsEnabled = false;
 
                     // Show popup and auto-dismiss after 10 seconds
                     // Stop any previous timer before starting a new one
