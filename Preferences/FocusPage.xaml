@@ -4,10 +4,10 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Focus_Bear.Preferences"
+      xmlns:utils="clr-namespace:Focus_Bear.Utils" 
       mc:Ignorable="d" 
-      d:DesignHeight="670" d:DesignWidth="670" IsVisibleChanged="UserControl_IsVisibleChanged"
-      >
-
+      d:DesignHeight="670" d:DesignWidth="670" IsVisibleChanged="UserControl_IsVisibleChanged">
+    
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
@@ -44,6 +44,7 @@
             </Setter>
             <Setter Property="Visibility" Value="{Binding isShowAbleInList, Converter={StaticResource BoolToVis}}" />
         </Style>
+        <utils:SmartKeywordIcon x:Key="SmartConverter"/>
     </UserControl.Resources>
 
     <Grid >
@@ -144,11 +145,20 @@
                                 <ListView   Grid.Row="0" Background="{DynamicResource BackgroundColor}"  x:Name="ListApps" AutomationProperties.AutomationId="lvApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}" BorderThickness="0" >
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
+                                            <Grid x:Name="ItemHeader" Background="Transparent" Margin="0,2,0,2" Cursor="Hand">
                                                 <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0" Text="{Binding AppName, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
+
+                                                <Image Grid.Column="0" 
+                                                       Source="{Binding DisplayIcon, Converter={StaticResource SmartConverter}}" 
+                                                       Width="18" 
+                                                       Height="18" 
+                                                       Margin="5,0,5,0"
+                                                       VerticalAlignment="Center"
+                                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding AppName}" FontSize="13" VerticalAlignment="Center" Margin="5,0,0,0" Foreground="{DynamicResource ForegroundColor}"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ListView.ItemTemplate>
@@ -194,9 +204,16 @@
                                             <DataTemplate>
                                                 <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
                                                     <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="24"/>
                                                         <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="{Binding ., StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}"   FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                                    <Image Grid.Column="0" 
+                                                           Source="{Binding ., Converter={StaticResource SmartConverter}}" 
+                                                           Width="16" 
+                                                           Height="16" 
+                                                           VerticalAlignment="Center"
+                                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding ., StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}"   FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </ListView.ItemTemplate>
@@ -249,8 +266,6 @@
                             </Button.Content>
                         </Button>
                     </StackPanel>
-
-
                 </Grid>
             </Border>
         </ScrollViewer>
