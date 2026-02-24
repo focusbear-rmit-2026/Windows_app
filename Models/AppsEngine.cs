@@ -21,7 +21,12 @@ namespace Focus_Bear.Models
         private bool isSelected;
 
         public string AppName { get; set; } //NEED TO show the App Name to the user
-        public string DisplayIcon { get; set; } //need to display icon
+        public string DisplayIcon
+        {
+            get => displayIcon;
+            set { displayIcon = value; OnChanged("DisplayIcon"); }
+        }
+        private string displayIcon;
         public string AppInstallLocation { get; set; }//NEED TO get all executables
   
         public List<string> ExeNames= new List<string>(); //All exes list for a selected app and it install location folder

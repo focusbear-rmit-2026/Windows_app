@@ -2278,12 +2278,17 @@ namespace Focus_Bear.API
                     if (language == "es")
                         lang = "spanish";
 
+                    // Pass task_must_align_to_focus_intention=true when a blocking schedule is running in super strict mode
+                    bool isSuperStrictMode = appSettings.isBlockingScheduleRunning &&
+                        appSettings.ActiveSchedule?.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS;
+                    string taskMustAlignParam = isSuperStrictMode ? ",\"task_must_align_to_focus_intention\":true" : "";
+
                     string addItemJsonString = $"{{\"url\":\"{url}\"," +
                         $"\"tab_title\":\"{tab_title}\"," +
                         $"\"meta_description\":\"{meta_description}\"," +
                         $"\"focus_mode\":\"{focus_mode}\"," +
                         $"\"intention\":\"{intention}\"," +
-                        $"\"language\":\"{lang}\"}}";
+                        $"\"language\":\"{lang}\"{taskMustAlignParam}}}";
 
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
