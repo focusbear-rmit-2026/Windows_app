@@ -38,6 +38,8 @@ namespace Focus_Bear.Pomodoro
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         FocusBearMainWindow _ParentWindow = null;
         private DispatcherTimer blockingSchedulePopupTimer;
+        private EventHandler _parentDeactivatedHandler;
+        private EventHandler _parentActivatedHandler;
         public StartSimplePomodoro()
         { 
         }
@@ -119,15 +121,25 @@ namespace Focus_Bear.Pomodoro
                 }
             };
 
-            _ParentWindow.Deactivated += (s, e) =>
-            {
-                BlockingSchedulePopup.IsOpen = false;
-            };
-
-            _ParentWindow.Activated += (s, e) =>
+            _parentDeactivatedHandler = (s, e) => { BlockingSchedulePopup.IsOpen = false; };
+            _parentActivatedHandler = (s, e) =>
             {
                 if (this.IsVisible)
-                    UpdateValues();
+                {
+                    BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                    UpdateBlockingScheduleUI();
+                }
+            };
+            _ParentWindow.Deactivated += _parentDeactivatedHandler;
+            _ParentWindow.Activated += _parentActivatedHandler;
+
+            this.Unloaded += (s, e) =>
+            {
+                if (_ParentWindow != null)
+                {
+                    _ParentWindow.Deactivated -= _parentDeactivatedHandler;
+                    _ParentWindow.Activated -= _parentActivatedHandler;
+                }
             };
 
             //Removing the tour popup as now the UI has changed to show minimal options: 10 Oct 2025
@@ -222,31 +234,7 @@ namespace Focus_Bear.Pomodoro
                 //Should empty the value for tasks here
                 appSettings.sRawTasks = "";
 
-                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused
-                    && appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
-                {
-                    BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["simpleSuperStrictBlockingActiveMessage"].ToString();
-                    btnStartSession.IsEnabled = false;
-
-                    // Show popup and auto-dismiss after 10 seconds
-                    // Stop any previous timer before starting a new one
-                    if (blockingSchedulePopupTimer != null)
-                    {
-                        blockingSchedulePopupTimer.Stop();
-                        blockingSchedulePopupTimer.Tick -= BlockingSchedulePopupTimer_Tick;
-                    }
-                    BlockingSchedulePopupBorder.BeginAnimation(OpacityProperty, null);
-                    BlockingSchedulePopupBorder.Opacity = 1;
-                    BlockingSchedulePopup.IsOpen = true;
-                    blockingSchedulePopupTimer = new DispatcherTimer();
-                    blockingSchedulePopupTimer.Interval = TimeSpan.FromSeconds(10);
-                    blockingSchedulePopupTimer.Tick += BlockingSchedulePopupTimer_Tick;
-                    blockingSchedulePopupTimer.Start();
-                }
-                else
-                {
-                    HandleStartFocusEnableDisable();
-                }
+                UpdateBlockingScheduleUI();
 
             }
             catch (Exception ex)
@@ -459,6 +447,36 @@ namespace Focus_Bear.Pomodoro
             nStep++;
             UpdateTourPopupTexts();
         }
+        private void UpdateBlockingScheduleUI()
+        {
+            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused
+                && appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+            {
+                BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings?["pomodoroInfo"]?["simpleSuperStrictBlockingActiveMessage"]?.ToString()
+                    ?? "A super strict blocking schedule is active.";
+                btnStartSession.IsEnabled = false;
+
+                // Show popup and auto-dismiss after 10 seconds
+                // Stop any previous timer before starting a new one
+                if (blockingSchedulePopupTimer != null)
+                {
+                    blockingSchedulePopupTimer.Stop();
+                    blockingSchedulePopupTimer.Tick -= BlockingSchedulePopupTimer_Tick;
+                }
+                BlockingSchedulePopupBorder.BeginAnimation(OpacityProperty, null);
+                BlockingSchedulePopupBorder.Opacity = 1;
+                BlockingSchedulePopup.IsOpen = true;
+                blockingSchedulePopupTimer = new DispatcherTimer();
+                blockingSchedulePopupTimer.Interval = TimeSpan.FromSeconds(10);
+                blockingSchedulePopupTimer.Tick += BlockingSchedulePopupTimer_Tick;
+                blockingSchedulePopupTimer.Start();
+            }
+            else
+            {
+                HandleStartFocusEnableDisable();
+            }
+        }
+
         private void BlockingSchedulePopupTimer_Tick(object sender, EventArgs e)
         {
             blockingSchedulePopupTimer.Stop();
