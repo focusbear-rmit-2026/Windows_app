@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Focus;
 using Focus_Bear.Models;
+using Focus_Bear.Services;
 using Focus_Bear.Utils;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -21,8 +22,10 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Focus_Bear.Pomodoro
 {
@@ -36,6 +39,9 @@ namespace Focus_Bear.Pomodoro
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         FocusBearMainWindow _ParentWindow = null;
+        private DispatcherTimer blockingSchedulePopupTimer;
+        private EventHandler _parentDeactivatedHandler;
+        private EventHandler _parentActivatedHandler;
         public StartPomodoro()
         {
         }
@@ -112,10 +118,49 @@ namespace Focus_Bear.Pomodoro
 
             UpdateValues();
 
+            this.IsVisibleChanged += (s, e) =>
+            {
+                if (this.IsVisible)
+                {
+                    UpdateValues();
+                }
+                else
+                {
+                    // Stop timer and close popup when navigating away
+                    if (blockingSchedulePopupTimer != null)
+                    {
+                        blockingSchedulePopupTimer.Stop();
+                        blockingSchedulePopupTimer.Tick -= BlockingSchedulePopupTimer_Tick;
+                        blockingSchedulePopupTimer = null;
+                    }
+                    BlockingSchedulePopup.IsOpen = false;
+                }
+            };
+
+            _parentDeactivatedHandler = (s, e) => { BlockingSchedulePopup.IsOpen = false; };
+            _parentActivatedHandler = (s, e) =>
+            {
+                if (this.IsVisible)
+                {
+                    BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                    UpdateBlockingScheduleUI();
+                }
+            };
+            _ParentWindow.Deactivated += _parentDeactivatedHandler;
+            _ParentWindow.Activated += _parentActivatedHandler;
+
+            this.Unloaded += (s, e) =>
+            {
+                if (_ParentWindow != null)
+                {
+                    _ParentWindow.Deactivated -= _parentDeactivatedHandler;
+                    _ParentWindow.Activated -= _parentActivatedHandler;
+                }
+            };
+
             ChkShowAdvanced.Checked += (s, e) => ShowAdvancedOptionsControls(true);
             ChkShowAdvanced.Unchecked += (s, e) => ShowAdvancedOptionsControls(false);
             ShowAdvancedOptionsControls(ChkShowAdvanced.IsChecked == true);
-
         }
 
         public void AddFocusModesToComboBox()
@@ -140,6 +185,9 @@ namespace Focus_Bear.Pomodoro
             LogWriter.LogWrite("Start Pomodoro - Pomodoro window UpdateValues()" );
             try
             {
+                // Ensure blocking schedule state is current before checking banner visibility
+                BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+
                 Minutes.Text = appSettings.PomodoroMinutes;
                 MinutesBreak.Text = appSettings.PomodoroBreakMinutes;
 
@@ -209,22 +257,8 @@ namespace Focus_Bear.Pomodoro
                     ShowFocusModeEnd.IsChecked = false;
                 }
 
-                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused)
-                {
-                    if(appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
-                    {
-                        ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
-                        ComboBoxFocusModes.IsEnabled = false;
-                    }
-                    else
-                    {
-                        ComboBoxFocusModes.IsEnabled = true;
-                    }
-                }
-                else
-                {
-                    ComboBoxFocusModes.IsEnabled = true;
-                }
+                UpdateBlockingScheduleUI();
+
             }
             catch (Exception ex)
             {
@@ -504,6 +538,52 @@ namespace Focus_Bear.Pomodoro
                     appSettings.arrFocusModes[i].AlignmentScoreThreshold = value;
                 }
             }
+        }
+        private void UpdateBlockingScheduleUI()
+        {
+            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused
+                && appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+            {
+                ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
+                ComboBoxFocusModes.IsEnabled = false;
+                BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings?["pomodoroInfo"]?["superStrictBlockingActiveMessage"]?.ToString()
+                    ?? "A super strict blocking schedule is active.";
+
+                // Show popup and auto-dismiss after 10 seconds
+                // Stop any previous timer before starting a new one
+                if (blockingSchedulePopupTimer != null)
+                {
+                    blockingSchedulePopupTimer.Stop();
+                    blockingSchedulePopupTimer.Tick -= BlockingSchedulePopupTimer_Tick;
+                }
+                BlockingSchedulePopupBorder.BeginAnimation(OpacityProperty, null);
+                BlockingSchedulePopupBorder.Opacity = 1;
+                BlockingSchedulePopup.IsOpen = true;
+                blockingSchedulePopupTimer = new DispatcherTimer();
+                blockingSchedulePopupTimer.Interval = TimeSpan.FromSeconds(10);
+                blockingSchedulePopupTimer.Tick += BlockingSchedulePopupTimer_Tick;
+                blockingSchedulePopupTimer.Start();
+            }
+            else
+            {
+                ComboBoxFocusModes.IsEnabled = true;
+            }
+        }
+
+        private void BlockingSchedulePopupTimer_Tick(object sender, EventArgs e)
+        {
+            blockingSchedulePopupTimer.Stop();
+            blockingSchedulePopupTimer.Tick -= BlockingSchedulePopupTimer_Tick;
+
+            DoubleAnimation fadeOut = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromSeconds(2)
+            };
+
+            fadeOut.Completed += (s, a) => { BlockingSchedulePopup.IsOpen = false; };
+            BlockingSchedulePopupBorder.BeginAnimation(OpacityProperty, fadeOut);
         }
     }
 }
