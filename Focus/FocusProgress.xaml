@@ -29,14 +29,14 @@
                       StrokeStartLineCap="Round"
                       StrokeEndLineCap="Round"/>
 
-                        <!-- Text in center -->
+                        <!-- Text in center — full-width TextBlock so centering works for any time string -->
                         <TextBlock x:Name="OnUntill"
                            FontSize="36" FontWeight="Bold" Foreground="White"
-                           Canvas.Left="65" Canvas.Top="80"
+                           Width="200"
+                           Canvas.Left="0" Canvas.Top="82"
                            Text="25m"
-                           RenderTransformOrigin="0.5,0.5"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"/>
+                           TextAlignment="Center"
+                           RenderTransformOrigin="0.5,0.5"/>
                     </Canvas>
                 </Viewbox>
 
@@ -61,7 +61,7 @@
 
             <Button  Grid.Row="0" x:Name="btnClose" AutomationProperties.AutomationId="btnClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="22" VerticalAlignment="Top" Width="22" ToolTip="Close" Click="btnClose_Click"  Cursor="Hand"/>
 
-            <TextBlock Grid.Row="1" Name="Intention" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0"   VerticalAlignment="Top" TextAlignment="Left" Foreground="White" FontSize="14"  >Intention:  </TextBlock>
+            <TextBlock Grid.Row="1" Name="Intention" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" Foreground="White" FontSize="14">Intention:  </TextBlock>
             <TextBlock Grid.Row="2" Name="AlignmentScore"  Margin="13,0,0,0"   VerticalAlignment="Top"  Foreground="White" FontSize="14"  >xFocus score</TextBlock>
            
         </Grid>
