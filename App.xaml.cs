@@ -522,6 +522,7 @@ namespace Focus_Bear
             RegistryManager.GetTrayModeChangeFB();
 
             appSettings.CheckAndGetGlobalUUID();
+            appSettings.LoadNotificationSoundsSetting();
 
             appSettings.DownloadAndLoadConfigFile(); // TODO: Only allow download in production mode by checking the current environment
 

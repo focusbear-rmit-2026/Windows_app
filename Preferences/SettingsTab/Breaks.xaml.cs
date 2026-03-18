@@ -43,6 +43,10 @@ namespace Focus_Bear.Preferences.SettingsTab
                 ShowBreaksWhileInCallDesc.Text = appSettings.ConfigFileStrings["tooltips"]["advanced_MicroBreak_ShowBreaksInCall"].ToString();
                 btnShowBreaksWhileInCall.IsChecked = appSettings.bShowBreaksWhileInCall;
 
+                DisableSoundsLabel.Text = appSettings.ConfigFileStrings["settingsNew"]["disableNotificationSoundsText"].ToString();
+                DisableSoundsDesc.Text = appSettings.ConfigFileStrings["settingsNew"]["disableNotificationSoundsDescText"].ToString();
+                btnDisableNotificationSounds.IsChecked = appSettings.bDisableNotificationSounds;
+
 
             }
             catch (Exception ex)
@@ -94,12 +98,27 @@ namespace Focus_Bear.Preferences.SettingsTab
             appSettings.CapturePostHog("settings-changed-disable-breaks-while-call");
         }
 
+        private void btnDisableNotificationSounds_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bDisableNotificationSounds = true;
+            RegistryManager.SaveDisableNotificationSounds(true);
+            appSettings.CapturePostHog("settings-changed-disable-notification-sounds");
+        }
+
+        private void btnDisableNotificationSounds_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bDisableNotificationSounds = false;
+            RegistryManager.SaveDisableNotificationSounds(false);
+            appSettings.CapturePostHog("settings-changed-enable-notification-sounds");
+        }
+
         private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (IsVisible)
             {
                 EnableBreaksCheckbox.IsChecked = appSettings.bAreBreaksEnabled;
                 btnShowBreaksWhileInCall.IsChecked = appSettings.bShowBreaksWhileInCall;
+                btnDisableNotificationSounds.IsChecked = appSettings.bDisableNotificationSounds;
             }
         }
     }

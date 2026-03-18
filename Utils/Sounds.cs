@@ -10,8 +10,11 @@ namespace Focus_Bear.Utils
 {
     public static class Sounds
     {
+        private static AppSettings appSettings = AppSettings.GetInstance;
+
         public static void PlayHabitFinishedSound()
         {
+            if (appSettings.bDisableNotificationSounds) return;
             /*Completing_a_Habit_4
                  * grunz__success_low
                  */
@@ -37,6 +40,7 @@ namespace Focus_Bear.Utils
         }
         public static void PlayRoutineStartSound()
         {
+            if (appSettings.bDisableNotificationSounds) return;
             /*StartingMorningEveningRoutine_2
              StartingMorningEveningRoutine_4
              StartingMorningEveningRoutine_5*/
@@ -66,6 +70,7 @@ namespace Focus_Bear.Utils
         }
         public static void PlayMorningRoutineFinishedSound()
         {
+            if (appSettings.bDisableNotificationSounds) return;
             /*CompletingWholeMorningRoutine_2
              CompletingWholeMorningRoutine_3*/
           
@@ -92,6 +97,7 @@ namespace Focus_Bear.Utils
 
         public static void PlayEveningRoutineFinishedSound()
         {
+            if (appSettings.bDisableNotificationSounds) return;
             /*CompletingWholeEveningRoutine_4
              CompletingWholeEveningRoutine_5
              CompletingWholeEveningRoutine_7*/
@@ -122,6 +128,7 @@ namespace Focus_Bear.Utils
 
         public static void PlayFocusModeStartSound()
         {
+            if (appSettings.bDisableNotificationSounds) return;
             /*StartFocus_1
             StartFocus_2*/
             try

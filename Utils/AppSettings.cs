@@ -296,6 +296,12 @@ namespace Focus_Bear.Utils
         public bool bUseSuperPomodoroMode = false;
         public bool bEnterSuperPomodoroModeAfterMorningRoutine = false;
 
+        /// <summary>
+        /// When true, all notification sounds (habits, focus mode, routines) are silenced.
+        /// Does NOT affect focus music.
+        /// </summary>
+        public bool bDisableNotificationSounds = false;
+
         public string sMinutesSuperPomodoro = "";
         public string sMinutesBreakPomodoro = "";
         public string SuperPomodoroFocusedName = "";
@@ -501,6 +507,11 @@ namespace Focus_Bear.Utils
         public void CheckAndGetFBTTStatus()
         {
             bFocusBearTimeTrackerEnabled = RegistryManager.GetFocusBearTimeTrackerStatus();
+        }
+
+        public void LoadNotificationSoundsSetting()
+        {
+            bDisableNotificationSounds = RegistryManager.GetDisableNotificationSounds();
         }
         public void CheckAndGetGlobalUUID()
         {

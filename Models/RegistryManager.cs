@@ -2825,6 +2825,35 @@ namespace Focus_Bear.Models
                 return false;
             }
         }
+
+        internal static void SaveDisableNotificationSounds(bool bDisable)
+        {
+            LogWriter.LogWrite("RM SaveDisableNotificationSounds() = " + bDisable);
+            try
+            {
+                Write("DisableNotificationSounds", bDisable.ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveDisableNotificationSounds - " + ex.Message);
+            }
+        }
+
+        internal static bool GetDisableNotificationSounds()
+        {
+            LogWriter.LogWrite("RM GetDisableNotificationSounds()");
+            try
+            {
+                var val = Read("DisableNotificationSounds");
+                if (val != null && bool.TryParse(val.ToString(), out var result))
+                    return result;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetDisableNotificationSounds - " + ex.Message);
+            }
+            return false;
+        }
     }
 
 
