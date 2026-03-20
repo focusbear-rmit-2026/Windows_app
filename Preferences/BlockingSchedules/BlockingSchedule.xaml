@@ -56,7 +56,7 @@
                     <Grid x:Name="ItemHeader"  Height="60" Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Orientation="Vertical"  >
                             <TextBlock Grid.Column="0" x:Name="BlockingScheduleName" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand" FontWeight="Bold" VerticalAlignment="Center" Margin="5,10,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource PreferenceFocusListItemForegroundColor}"/>

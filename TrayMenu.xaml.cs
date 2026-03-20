@@ -113,7 +113,9 @@ namespace Focus_Bear
                 Preferences.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemPreferencesTitle"].ToString();
                 PomodoroMode.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStartPomodoroTitle"].ToString();
                 btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
-                Quit.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemQuitTitle"].ToString();
+                //set title to Quit
+                Quit.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["buttonQuitText"].ToString();
+
                 UpgradeNow.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemUpgradeNowTitle"].ToString();
                 Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
                 btnResumeHabitsTxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();
@@ -248,15 +250,8 @@ namespace Focus_Bear
                 if (appSettings.IsAppDeactivated())
                 {
                     btnReactivate.Visibility = Visibility.Visible;
-                    //set title to Quit
-                    Quit.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["buttonQuitText"].ToString();
                 }
-                else
-                {
-                    Quit.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemQuitTitle"].ToString();
-                    btnReactivate.Visibility = Visibility.Collapsed;
-                }
-
+                
                 OfficeMode.Content = appSettings.ConfigFileStrings["menuInfo"]["segmentOfficeModeText"].ToString();
                 WFHMode.Content = appSettings.ConfigFileStrings["menuInfo"]["segmentWfhModeText"].ToString();
                 OfficeMode.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipOfficeMode"].ToString();
@@ -1375,9 +1370,12 @@ namespace Focus_Bear
                 BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
 
                 //In case the pomodoro page is visible, lets reload it
-                if (((App)Application.Current).wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.StartFocusSession))
+                if (((App)Application.Current).wndFocusBearMainWindow != null)
                 {
-                    ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.StartFocusSession);
+                    if (((App)Application.Current).wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.StartFocusSession))
+                    {
+                        ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.StartFocusSession);
+                    }
                 }
             }
         }

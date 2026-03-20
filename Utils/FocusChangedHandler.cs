@@ -868,7 +868,7 @@ namespace FocusBear.Utils
                 {
                     if (element != null && process != null)
                     {
-                        // block or Unblock apps
+                        // block or Unblock apps    
                         // block or Unblock apps
                         if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName.ToLower()))
                         {

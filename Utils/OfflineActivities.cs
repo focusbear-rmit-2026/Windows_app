@@ -196,7 +196,7 @@ namespace Focus_Bear.Utils
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("ReadOfflineDataCSV()" + ex.Message);
+                LogWriter.LogWrite("ReadOfflineDataCSV() ex - " + ex.Message);
             }
             return Enumerable.Empty<OfflineEntry>();
         }

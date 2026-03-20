@@ -549,7 +549,7 @@ namespace Focus_Bear.Pomodoro
                 BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings?["pomodoroInfo"]?["superStrictBlockingActiveMessage"]?.ToString()
                     ?? "A super strict blocking schedule is active.";
 
-                // Show popup and auto-dismiss after 10 seconds
+                // Show popup and auto-dismiss after 5 seconds
                 // Stop any previous timer before starting a new one
                 if (blockingSchedulePopupTimer != null)
                 {
@@ -560,7 +560,7 @@ namespace Focus_Bear.Pomodoro
                 BlockingSchedulePopupBorder.Opacity = 1;
                 BlockingSchedulePopup.IsOpen = true;
                 blockingSchedulePopupTimer = new DispatcherTimer();
-                blockingSchedulePopupTimer.Interval = TimeSpan.FromSeconds(10);
+                blockingSchedulePopupTimer.Interval = TimeSpan.FromSeconds(5);
                 blockingSchedulePopupTimer.Tick += BlockingSchedulePopupTimer_Tick;
                 blockingSchedulePopupTimer.Start();
             }

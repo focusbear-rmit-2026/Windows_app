@@ -186,6 +186,8 @@ namespace Focus_Bear
                                     }
                                     else if (sName != null && (sName.Contains("Focus Bear/focus-block.html")) && (sURL != null && sURL.Length > 0 && sURL.Contains("&unblock_it=true")))
                                     {
+                                        LogWriter.LogWrite("App.cs - URL = " + sURL);
+
                                         if (int.Parse(accWindow.accState[objChild].ToString()) == 1074791424) //I just found this to be appropriate and not editable state
                                         {
                                             Debug.WriteLine("accName = " + sName);

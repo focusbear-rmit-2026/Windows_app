@@ -120,7 +120,7 @@ namespace Focus_Bear.Focus
 
             TextReportBadAIDecision.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["reportBadAiTooltip"].ToString();
 
-
+            bool bAICheckRequired = false;
             if (sAppName.Length > 0)
             {
                 ReportBadAIDecision.Visibility = Visibility.Collapsed;
@@ -135,7 +135,32 @@ namespace Focus_Bear.Focus
             else
             {
                 ///////////////////////////////////////////////////////////////////
-                ReportBadAIDecision.Visibility = Visibility.Visible;
+                ///
+                if (appSettings.bAiCheckUrlEnabled)
+                {
+                    ReportBadAIDecision.Visibility = Visibility.Visible;
+                    bAICheckRequired = true;
+                }
+                else
+                {
+                    ReportBadAIDecision.Visibility = Visibility.Collapsed;
+                    bAICheckRequired = false;
+                }
+
+                if(appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+                {
+                    if(appSettings.ActiveSchedule.bAIBlockingEnabled)
+                    {
+                        ReportBadAIDecision.Visibility = Visibility.Visible;
+                        bAICheckRequired = true;
+                    }
+                    else
+                    {
+                        ReportBadAIDecision.Visibility = Visibility.Collapsed;
+                        bAICheckRequired = false;
+                    }
+                }
+
                 AllowThisDomain.Visibility = Visibility.Visible;
                 AllowThisDomainText.Visibility = Visibility.Visible;
                 string sHost = "";
@@ -214,7 +239,7 @@ namespace Focus_Bear.Focus
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
 
-            if (sURL.Length > 0 && appSettings.bAiCheckUrlEnabled) //check settings from AI tab
+            if (sURL.Length > 0 && bAICheckRequired) //check settings from AI tab
             {
                 CheckWithChatGPT();
             }
@@ -264,6 +289,7 @@ namespace Focus_Bear.Focus
 
                     if (xProbability == -1)
                     {
+                        CurrentURLBeingProcessedWithChatGPTAPI = "";
                         await Dispatcher.BeginInvoke((Action)(() =>
                         {
                             //API failed. Nothing to do.
@@ -281,11 +307,15 @@ namespace Focus_Bear.Focus
                             }
 
                             Heading.Text = sHeading;
-
-                            dispatcherTimer.Start();
+                            
                             CommandManager.InvalidateRequerySuggested();
-                            appSettings.ShowBlurWindow(HWND);
-                            this.Show();
+                            
+                            if (appSettings.sLastActiveURLInFirefox == sActiveURL)
+                            {
+                                dispatcherTimer.Start();
+                                appSettings.ShowBlurWindow(HWND);
+                                this.Show();
+                            }
                         }));
                     }
                     else  //we have got the probability
@@ -345,10 +375,13 @@ namespace Focus_Bear.Focus
                                     }
 
                                     Heading.Text = sHeading;
-                                    dispatcherTimer.Start();
                                     CommandManager.InvalidateRequerySuggested();
-                                    appSettings.ShowBlurWindow(HWND);
-                                    this.Show();
+                                    if (appSettings.sLastActiveURLInFirefox == sActiveURL)
+                                    {
+                                        dispatcherTimer.Start();
+                                        appSettings.ShowBlurWindow(HWND);
+                                        this.Show();
+                                    }
                                 }
                             }
                         }));

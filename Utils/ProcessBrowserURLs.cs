@@ -55,9 +55,10 @@ namespace Focus_Bear.Utils
 
             //In case the set intention window is open, we should hide it
             appSettings.Hide_SetIntentionWindow();
+            appSettings.HideGentleBlockWindow();
 
             //If its evening routine and the relax activity is on, no need to check anhything or block anything
-            if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState)
             {
                 if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].show_saved_distracting_websites)
                 {
@@ -65,9 +66,15 @@ namespace Focus_Bear.Utils
                 }
             }
 
-            if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
+            //Only if its not none
+            if (appSettings.nCurrentActivityType != CurrentActivityType.NONE)  
             {
-                ProcessAlloweURLsInActivity(hwnd);
+                if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
+                {
+                    LogWriter.LogWrite("appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning");
+
+                    ProcessAlloweURLsInActivity(hwnd);
+                }
             }
 
             if (appSettings.isFocusModeRunning || appSettings.bHabitwithUseFocusModeRunning || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
@@ -125,6 +132,8 @@ namespace Focus_Bear.Utils
                 //Check if the user is trying to unblock the URL that is blocked using Oops I actually need this
                 if(appSettings.sLastActiveURLInFirefox.Contains("&unblock_it=true"))
                 {
+                    LogWriter.LogWrite("PBU.cs - ProcessCurrentAlwaysBlockedURL - URL = " + appSettings.sLastActiveURLInFirefox);
+
                     string oldURLToOpen = ExtractOldUrl(appSettings.sLastActiveURLInFirefox);
 
                     if (oldURLToOpen != null && oldURLToOpen.Length > 0)
@@ -210,7 +219,14 @@ namespace Focus_Bear.Utils
                         }
                         else
                         {
-                            allowedURL = "*" + allowedURL + "*";
+                            if (sUrlToCheck.Contains("."))
+                            {
+                                allowedURL = allowedURL + "*";
+                            }
+                            else
+                            {
+                                allowedURL = "*" + allowedURL + "*";
+                            }
                             if (MatchWildcardString(sUrlToCheck, allowedURL))
                             {
 
@@ -219,106 +235,84 @@ namespace Focus_Bear.Utils
 
                                 return true;
                             }
-                            else
-                            {
-                                try
-                                {
-                                    //Check title
-                                    const int nChars = 256;
-                                    StringBuilder Buff = new StringBuilder(nChars);
-                                    if (GetWindowText(hwnd, Buff, nChars) > 0)
-                                    {
-                                        string sTitle = Buff.ToString();
-                                        if (MatchWildcardString(sTitle, allowedURL))
-                                        {
-                                            LogWriter.LogWrite(sTitle + "title found in ALWAYS blocked URLS MatchWildcardString - BLOCK");
-                                            suppressURLForFirefox(hwnd, appSettings.sLastActiveURLInFirefox, "blocked");
+                            //We will skip title check for always blocked urls
+                         }
+                     }
+                 }
+             }
 
-                                            return true;
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogWriter.LogWrite("alwaysblockedurls GetWindowText blockedurls EX - " + ex.Message);
-                                }
+             appSettings.Hide_ShowIntentionWindow();
+             Console.WriteLine("Hide_ShowIntentionWindow from processbrowserurl");
 
-                            }
-                        }
-                    }
-                }
-            }
+             return false;
+         }
 
-            appSettings.Hide_ShowIntentionWindow();
-            Console.WriteLine("Hide_ShowIntentionWindow from processbrowserurl");
 
-            return false;
-        }
 
-        
+         private static void ProcessURLForFocusModes(IntPtr hWnd )
+         {
+             AppSettings appSettings = AppSettings.GetInstance;
 
-        private static void ProcessURLForFocusModes(IntPtr hWnd )
-        {
-            AppSettings appSettings = AppSettings.GetInstance;
+             string sURL = "";
+             if (appSettings.FirefoxLastAccWindow != null && (appSettings.sLastActiveURLInFirefox != null && appSettings.sLastActiveURLInFirefox.Length > 0 ))
+             {
+                 sURL = appSettings.sLastActiveURLInFirefox;
+             }
+             else
+             {
+                 if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
+                 {
+                     FocusAlignmentScoreManager.FocusModeCloseCurrentUrlForAlignmentScore();
+                     FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                 }
+                 return;
+             }
 
-            string sURL = "";
-            if (appSettings.FirefoxLastAccWindow != null && (appSettings.sLastActiveURLInFirefox != null && appSettings.sLastActiveURLInFirefox.Length > 0 ))
-            {
-                sURL = appSettings.sLastActiveURLInFirefox;
-            }
-            else
-            {
-                if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
-                {
-                    FocusAlignmentScoreManager.FocusModeCloseCurrentUrlForAlignmentScore();
-                    FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
-                }
-                return;
-            }
-            
-            if (appSettings.nFocusBearMode == 1)
-            {
-                if (sURL.Contains("focus_bear_temporarily_allow=true"))//If user have clicked I need this URL from blocked page, ignore it
-                {
-                    return;
-                }
-            }
+             if (appSettings.nFocusBearMode == 1)
+             {
+                 if (sURL.Contains("focus_bear_temporarily_allow=true"))//If user have clicked I need this URL from blocked page, ignore it
+                 {
+                     return;
+                 }
+             }
 
-            //Check if the user is trying to unblock the URL that is blocked using Oops I actually need this
-            if (sURL.Contains("&unblock_it=true"))
-            {
-                string oldURLToOpen = ExtractOldUrl(sURL);
+             //Check if the user is trying to unblock the URL that is blocked using Oops I actually need this
+             if (sURL.Contains("&unblock_it=true"))
+             {
+                 LogWriter.LogWrite("PBU.cs - ProcessURLForFocusModes - URL = " + sURL);
 
-                if (oldURLToOpen != null && oldURLToOpen.Length > 0)
-                {
-                    //Open the url and also add it to temporary allowed URL list
-                    var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == oldURLToOpen.ToLower());
+                 string oldURLToOpen = ExtractOldUrl(sURL);
 
-                    if (blockedURLs.Count() != 0)
-                    {
-                        appSettings.TemporarryBlockedURLsGentleBlock.RemoveAll(i => i.ToLower() == oldURLToOpen.ToLower()); //We need to remove all instanes
-                    }
+                 if (oldURLToOpen != null && oldURLToOpen.Length > 0)
+                 {
+                     //Open the url and also add it to temporary allowed URL list
+                     var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == oldURLToOpen.ToLower());
 
-                    appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(oldURLToOpen.ToLower(), true));
+                     if (blockedURLs.Count() != 0)
+                     {
+                         appSettings.TemporarryBlockedURLsGentleBlock.RemoveAll(i => i.ToLower() == oldURLToOpen.ToLower()); //We need to remove all instanes
+                     }
 
-                    /////////////////////////////////////////////////////////////////////////
-                    //Might be possible that it was an always blocked URL
-                    string sActiveURL = "";
-                    if (oldURLToOpen.Length > 0)
-                    {
-                        try
-                        {
-                            Uri myUri = new Uri(oldURLToOpen);
-                            string host = myUri.Host; //fails if there is no http://
-                            sActiveURL = host;
-                        }
-                        catch (Exception ex)
-                        {
-                            /*
-                            This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
-                            If uri does not specify a scheme, the scheme defaults to "http:".
-                            */
-                            Uri myUri = new UriBuilder(sURL).Uri;
+                     appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(oldURLToOpen.ToLower(), true));
+
+                     /////////////////////////////////////////////////////////////////////////
+                     //Might be possible that it was an always blocked URL
+                     string sActiveURL = "";
+                     if (oldURLToOpen.Length > 0)
+                     {
+                         try
+                         {
+                             Uri myUri = new Uri(oldURLToOpen);
+                             string host = myUri.Host; //fails if there is no http://
+                             sActiveURL = host;
+                         }
+                         catch (Exception ex)
+                         {
+                             /*
+                             This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                             If uri does not specify a scheme, the scheme defaults to "http:".
+                             */
+                                Uri myUri = new UriBuilder(sURL).Uri;
                             sActiveURL = myUri.Host;
                         }
                     }
@@ -418,6 +412,8 @@ namespace Focus_Bear.Utils
                 {
                     //if its default focus mode, we will keep it false
                     focusType.isAllowedListApproach = false;
+                    focusType.arrBlockedUrls.Clear(); //We just rely on the Always blocked sites
+                    focusType.arrAllowedUrls.Clear();
                 }
 
                 if (focusType != null )
@@ -1027,7 +1023,7 @@ namespace Focus_Bear.Utils
 
                 if (type == "focus")
                 {
-                    if (appSettings.nFocusBearMode == 1)//Cuddly bearMode
+                    if (appSettings.nFocusBearMode == 1 )//Cuddly bearMode
                     {
                         string sURLForFocusMode = "";
                         sURLForFocusMode = val;
