@@ -1317,7 +1317,19 @@ namespace Focus_Bear.Habits
 
             HeadingWhySkip.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["title"].ToString();
             btnAlreadyDidItTXT.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["buttonAlreadyDidItText"].ToString(); 
-            btnCantDoItTodayTXT.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["buttonCanNotDoItText"].ToString(); 
+            btnCantDoItTodayTXT.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["buttonCanNotDoItText"].ToString();
+
+            // Reason input — clear on each show and set placeholder label from config
+            TxtSkipReason.Text = string.Empty;
+            try
+            {
+                TxtSkipReasonLabel.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["reasonPlaceholderText"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShowWhySkipHabitsWindow fallback text - " + ex.Message);
+                TxtSkipReasonLabel.Text = "Optional: add a reason";
+            }
 
             GridShade.Visibility = Visibility.Visible;
             GridWhyDoYouWantToSkip.Visibility = Visibility.Visible;
@@ -1329,6 +1341,7 @@ namespace Focus_Bear.Habits
 
             GridShade.Visibility = Visibility.Collapsed;
             GridWhyDoYouWantToSkip.Visibility = Visibility.Collapsed;
+            TxtSkipReason.Text = string.Empty; // Clear reason so it doesn't persist between habits
 
             if (PageHabitExtraPersonal != null)
             {
@@ -1399,6 +1412,16 @@ namespace Focus_Bear.Habits
             //if not skip and move to next activity
             LogWriter.LogWrite("btnAlreadyDidIt_Click()");
 
+            // Capture optional skip reason before hiding the window
+            string sReason = TxtSkipReason.Text?.Trim() ?? string.Empty;
+            // Use JsonConvert to properly escape all special chars (backslash, quotes, control chars, etc.)
+            string sReasonSafe = Newtonsoft.Json.JsonConvert.SerializeObject(sReason).Trim('"');
+            string sHabitName = appSettings.currentHabitPlaying.name ?? string.Empty;
+            string sHabitNameSafe = Newtonsoft.Json.JsonConvert.SerializeObject(sHabitName).Trim('"');
+            appSettings.CapturePostHog("skip-habit-already-did-it",
+                $"\"habit_name\":\"{sHabitNameSafe}\",\"reason\":\"{sReasonSafe}\"");
+            LogWriter.LogWrite("btnAlreadyDidIt_Click() reason=" + sReason);
+
             HideWhySkipHabitsWindow();
             appSettings.bSkipCurrentActivity = true;
 
@@ -1414,6 +1437,17 @@ namespace Focus_Bear.Habits
         private void btnCantDoItToday_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnCantDoItToday_Click()");
+
+            // Capture optional skip reason before hiding the window
+            string sReason = TxtSkipReason.Text?.Trim() ?? string.Empty;
+            // Use JsonConvert to properly escape all special chars (backslash, quotes, control chars, etc.)
+            string sReasonSafe = Newtonsoft.Json.JsonConvert.SerializeObject(sReason).Trim('"');
+            string sHabitName = appSettings.currentHabitPlaying.name ?? string.Empty;
+            string sHabitNameSafe = Newtonsoft.Json.JsonConvert.SerializeObject(sHabitName).Trim('"');
+            appSettings.CapturePostHog("skip-habit-cant-do-today",
+                $"\"habit_name\":\"{sHabitNameSafe}\",\"reason\":\"{sReasonSafe}\"");
+            LogWriter.LogWrite("btnCantDoItToday_Click() reason=" + sReason);
+
             //Hide why skip and show the skipping-in window
             HideWhySkipHabitsWindow();
 

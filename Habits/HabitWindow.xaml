@@ -160,11 +160,11 @@
  
         </Grid>
 
-        <Grid x:Name="GridWhyDoYouWantToSkip"  ZIndex="9" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="280" Width="498">
+        <Grid x:Name="GridWhyDoYouWantToSkip"  ZIndex="9" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="370" Width="498">
             <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
                 <RowDefinition Height="100"/>
-                 <RowDefinition Height="50"/>
+                 <RowDefinition Height="110"/>
                 <RowDefinition Height="60"/>
                 <RowDefinition Height="60"/>
                 <RowDefinition />
@@ -172,7 +172,23 @@
             <Button  Grid.Row="0" x:Name="btnGridWhyDoYouWantToSkipClose" AutomationProperties.AutomationId="btnWhyDoYouWantToSkipClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="34" VerticalAlignment="Top" Width="34" ToolTip="Close" Click="btnGridWhyDoYouWantToSkipClose_Click"   Cursor="Hand"/>
 
             <TextBlock  Grid.Row="1" Name="HeadingWhySkip" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxWhy do you want to skip?" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            
+
+            <!-- Optional reason text box — Row 2 -->
+            <StackPanel Grid.Row="2" Orientation="Vertical" Margin="20,5,20,15" VerticalAlignment="Center">
+                <TextBlock x:Name="TxtSkipReasonLabel" FontSize="13" Margin="0,0,0,10"
+                           Foreground="Gray" HorizontalAlignment="Left"/>
+                <TextBox x:Name="TxtSkipReason"
+                         AutomationProperties.AutomationId="TxtSkipReason"
+                         MaxLength="250"
+                         FontSize="13"
+                         Padding="6,4"
+                         Height="50"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto"
+                         VerticalContentAlignment="Top"/>
+            </StackPanel>
+
             <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button    x:Name="btnAlreadyDidIt" AutomationProperties.AutomationId="btnAlreadyDidIt"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinWidth="160" MinHeight="35" HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnAlreadyDidIt_Click">
                     <Button.Content>
