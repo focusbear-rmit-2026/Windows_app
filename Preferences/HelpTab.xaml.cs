@@ -93,12 +93,17 @@ namespace Focus_Bear.Preferences
         private async void btnExportLogs_Click(object sender, RoutedEventArgs e)
         {
             _ParentWindow.IsEnabled = false;
-            bool xResponseUnused = await UploadLogs.UploadLogsToServer(TxtFeedback.Text);
+            bool uploadSuccess = await UploadLogs.UploadLogsToServer(TxtFeedback.Text);
             _ParentWindow.IsEnabled = true;
-            //Once the logs are uploaded, cler the previous message
-            TxtFeedback.Text = "";
-            appSettings.droppedFiles.Clear();
-            RefreshScreenshots();
+
+            // Only clear screenshots and message on successful upload.
+            // On failure, retain them so the user can retry without re-adding everything.
+            if (uploadSuccess)
+            {
+                TxtFeedback.Text = string.Empty;
+                appSettings.droppedFiles.Clear();
+                RefreshScreenshots();
+            }
         }
 
         
