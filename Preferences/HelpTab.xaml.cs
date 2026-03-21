@@ -317,24 +317,25 @@ namespace Focus_Bear.Preferences
             var dialog = new OpenFileDialog
             {
                 Title = appSettings.ConfigFileStrings["helpVcInfo"]["buttonSelectScreenshots"].ToString(),
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
+                Filter = "Image Files|*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.webp|All Files|*.*",
                 Multiselect = true
             };
+
             bool? bResult = dialog.ShowDialog();
-            if (bResult.Value == true)
+            if (bResult == true)
             {
-                // Array of selected image file paths
-                string[] imagesArray = dialog.FileNames;
- 
                 foreach (var file in dialog.FileNames)
                 {
-                    var df = new DroppedFile(file);
-                    appSettings.droppedFiles.Add(df);
+                    // Avoid adding the same file twice
+                    if (!appSettings.droppedFiles.Any(f => f.FilePath == file))
+                    {
+                        var df = new DroppedFile(file);
+                        appSettings.droppedFiles.Add(df);
+                    }
                 }
                 RefreshScreenshots();
             }
-            
         }
     }
 }
