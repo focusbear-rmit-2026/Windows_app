@@ -334,6 +334,9 @@
       <DependentUpon>FocusMusicView.xaml</DependentUpon>
     </Compile>
     <Compile Include="FocusMusic\FocusMusicManager.cs" />
+    <Compile Include="Focus\AlertMaxTabLimitWindow.xaml.cs">
+      <DependentUpon>AlertMaxTabLimitWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\AddTempAllowedToFocusModeWindow.xaml.cs">
       <DependentUpon>AddTempAllowedToFocusModeWindow.xaml</DependentUpon>
     </Compile>
@@ -751,6 +754,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="FocusMusic\FocusMusicView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\AlertMaxTabLimitWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

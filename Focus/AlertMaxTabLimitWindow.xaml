@@ -1,0 +1,59 @@
+<Window x:Class="Focus_Bear.Focus.AlertMaxTabLimitWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Focus Bear" SizeToContent="Height" Width="360" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen" Topmost="True"
+        AutomationProperties.AutomationId="AlertMaxTabLimitWindow">
+    <Grid x:Name="MainGrid">
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Image Name="TopIcon" Grid.Row="0" Margin="0,16,0,10" Height="64" Width="64"
+               Source="../Images/FBicon-64.png" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+        <TextBlock Grid.Row="1" x:Name="Heading" Margin="16,0,16,8"
+                   TextWrapping="Wrap" FontSize="15" FontWeight="Bold"
+                   VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"
+                   Text="xOops, you have a limit of X tabs"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,8">
+            <TextBlock x:Name="TabsCountLabel" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"
+                       Text="xNumber of open tabs:"/>
+            <TextBlock x:Name="TabsCount" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"
+                       AutomationProperties.AutomationId="txtTabsCount"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="3" x:Name="CountdownLabel" Margin="16,0,16,16"
+                   TextWrapping="Wrap" FontSize="12" FontStyle="Italic"
+                   TextAlignment="Center" HorizontalAlignment="Center"
+                   Text="xClosing in 15 seconds (or close an existing tab)"/>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+            <Button x:Name="btnOpenBrowser" AutomationProperties.AutomationId="btnOpenBrowserTabAlert"
+                    Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"
+                    Width="280" Height="32" HorizontalContentAlignment="Center"
+                    Padding="0" Margin="0,0,0,0" FontSize="13" Cursor="Hand" FontWeight="Semibold"
+                    Click="btnOpenBrowser_Click">
+                <Button.Content>
+                    <TextBlock x:Name="btnOpenBrowserText" Margin="1" Text="xClose" Foreground="Black"/>
+                </Button.Content>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

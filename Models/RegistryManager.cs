@@ -2802,6 +2802,36 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static void SaveMaxTabLimit(int nLimit)
+        {
+            LogWriter.LogWrite("RM SaveMaxTabLimit() = " + nLimit);
+            try
+            {
+                Write("MaxTabLimit", nLimit.ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveMaxTabLimit - " + ex.Message);
+            }
+        }
+
+        internal static int GetMaxTabLimit()
+        {
+            LogWriter.LogWrite("RM GetMaxTabLimit()");
+            try
+            {
+                var val = Read("MaxTabLimit");
+                if(val != null && int.TryParse(val.ToString(), out int result))
+                   return result;
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetMaxTabLimit - " + ex.Message);
+            }
+            return 0;
+        }
+
         internal static bool GetSavedBuddyList()
         {
             LogWriter.LogWrite("RM GetSavedBuddyList()");

@@ -297,6 +297,11 @@ namespace Focus_Bear.Utils
         public bool bEnterSuperPomodoroModeAfterMorningRoutine = false;
 
         /// <summary>
+        /// Maximum number of browser tabs before an alert is shown. 0 = disabled.
+        /// </summary>
+        public int nMaxTabLimit = 0;
+
+        /// <summary>
         /// When true, all notification sounds (habits, focus mode, routines) are silenced.
         /// Does NOT affect focus music.
         /// </summary>
@@ -509,10 +514,16 @@ namespace Focus_Bear.Utils
             bFocusBearTimeTrackerEnabled = RegistryManager.GetFocusBearTimeTrackerStatus();
         }
 
+        public void LoadMaxTabLimitSetting()
+        {
+            nMaxTabLimit = RegistryManager.GetMaxTabLimit();
+        }
+
         public void LoadNotificationSoundsSetting()
         {
             bDisableNotificationSounds = RegistryManager.GetDisableNotificationSounds();
         }
+
         public void CheckAndGetGlobalUUID()
         {
             try

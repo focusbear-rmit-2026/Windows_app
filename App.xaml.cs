@@ -139,7 +139,14 @@ namespace Focus_Bear
             {
                 appSettings.Hide_SetIntentionWindow();
             }
-            
+
+            // Tab limiter: fire a debounced check whenever the user interacts with a browser
+            if (sAppName == "chrome.exe" || sAppName == "msedge.exe" || sAppName == "firefox.exe" ||
+                sAppName == "brave.exe"  || sAppName == "vivaldi.exe" || sAppName == "opera.exe")
+            {
+                TriggerTabLimitCheck();
+            }
+
 
             try
             {
@@ -321,6 +328,18 @@ namespace Focus_Bear
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        [DllImport("user32.dll")]
+        private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        private const uint KEYEVENTF_KEYUP = 0x0002;
+        private const byte VK_CONTROL      = 0x11;
+        private const byte VK_W            = 0x57;
+        private const uint WM_CLOSE        = 0x0010;
 
 
         private static string GetLastActiveAppName()
@@ -524,6 +543,8 @@ namespace Focus_Bear
             RegistryManager.GetTrayModeChangeFB();
 
             appSettings.CheckAndGetGlobalUUID();
+
+            appSettings.LoadMaxTabLimitSetting();
             appSettings.LoadNotificationSoundsSetting();
 
             appSettings.DownloadAndLoadConfigFile(); // TODO: Only allow download in production mode by checking the current environment
@@ -1751,6 +1772,16 @@ namespace Focus_Bear
         }
         private void dispatcherTimer_Background(object sender, EventArgs e)
         {
+            // Tab limiter fallback check — runs every 5s in case tabs were opened without browser focus
+            try
+            {
+                CheckTabLimitAndAlert();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("CheckTabLimitAndAlert Exception - " + ex.Message);
+            }
+
             try
             {
                 CommandManager.InvalidateRequerySuggested();
@@ -2189,6 +2220,7 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("dispatcherTimer_Background Exception" + ex.Message);
             }
+
         }
         public async void ShowMorningRoutine()
         {
@@ -4569,6 +4601,262 @@ namespace Focus_Bear
         }
 
 
+
+        // True while a tab-limit alert is visible — prevents repeated alerts per breach.
+        // volatile: read/written from WinEvent hook, fallback timer, and Closed event handler.
+        private volatile bool _bTabLimitAlertShowing = false;
+
+        // Throttle flag — true while a tab check is in-flight; incoming events are dropped.
+        // volatile: written from async continuation, read from WinEvent hook thread.
+        private volatile bool _tabCheckPending = false;
+
+        // Snapshot of tab IDs taken the last time the count was at or below the limit.
+        // Tabs NOT in this set are "new" (opened after limit was exceeded) and are closed first.
+        private HashSet<string> _tabSnapshotAtLimit = new HashSet<string>();
+
+        private static string GetTabRuntimeId(AutomationElement tab)
+        {
+            try { return string.Join("-", tab.GetRuntimeId()); }
+            catch { return Guid.NewGuid().ToString(); } // unknown → treat as new tab
+        }
+
+        // Triggered by WinEventHook when user interacts with a browser.
+        // Throttles rapid focus events: the first event triggers a check immediately;
+        // subsequent events during the same check cycle are ignored (not reset like debounce).
+        private async void TriggerTabLimitCheck()
+        {
+            if (_tabCheckPending) return;
+            _tabCheckPending = true;
+            try
+            {
+                await Task.Delay(CHROMIUM_UIA_REGISTRATION_MS);
+                await Dispatcher.InvokeAsync(() => CheckTabLimitAndAlert());
+                await Task.Delay(POST_CHECK_COOLDOWN_MS);
+            }
+            finally
+            {
+                _tabCheckPending = false;
+            }
+        }
+
+        // Browser process names monitored by the tab limiter.
+        private static readonly string[] _tabLimitBrowserNames = { "chrome", "msedge", "firefox", "brave", "vivaldi", "opera" };
+
+        // Time for Chromium-based browsers to register a new tab in the UIA tree after opening.
+        private const int CHROMIUM_UIA_REGISTRATION_MS = 200;
+        // Cooldown after each check cycle — prevents hammering UIA on rapid focus events.
+        private const int POST_CHECK_COOLDOWN_MS = 800;
+        // Brave (and some Edge builds) need extra time to fully activate a tab before Ctrl+W works.
+        private const int BRAVE_TAB_ACTIVATION_MS = 150;
+
+        // Real browser tabs always live within the top strip of the window.
+        // Web-page ARIA tabs (GitHub, Steam, etc.) are in the page content below.
+        private const int TAB_STRIP_HEIGHT_PX = 80;
+
+        // Collects every visible browser tab across all supported browsers.
+        // Returns one entry per tab: tab element, close button (nullable), window handle, browser name.
+        // Close button is null for Vivaldi (HTML-rendered UI) and Brave inactive tabs — callers
+        // must handle null gracefully.
+        private System.Collections.Generic.List<(AutomationElement Tab, AutomationElement CloseBtn, IntPtr Hwnd, string Browser)>
+            CollectBrowserTabs()
+        {
+            var result = new System.Collections.Generic.List<(AutomationElement, AutomationElement, IntPtr, string)>();
+
+            System.Windows.Automation.Condition tabCondition = new PropertyCondition(
+                AutomationElement.ControlTypeProperty, ControlType.TabItem);
+            System.Windows.Automation.Condition btnCondition = new PropertyCondition(
+                AutomationElement.ControlTypeProperty, ControlType.Button);
+
+            foreach (string browser in _tabLimitBrowserNames)
+            {
+                try
+                {
+                    Process[] procs = Process.GetProcessesByName(browser)
+                                              .Where(p => !string.IsNullOrEmpty(p.MainWindowTitle))
+                                              .ToArray();
+
+                    LogWriter.LogWrite($"CollectBrowserTabs: {browser} — {procs.Length} window(s) found");
+
+                    foreach (Process proc in procs)
+                    {
+                        try
+                        {
+                            AutomationElement root = AutomationElement.FromHandle(proc.MainWindowHandle);
+                            if (root == null) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} root is null, skipping"); continue; }
+
+                            Rect winBounds = root.Current.BoundingRectangle;
+
+                            // CacheRequest fetches BoundingRectangle for all tabs in one batch call
+                            // instead of one cross-process call per tab — significantly faster.
+                            var cacheReq = new CacheRequest();
+                            cacheReq.Add(AutomationElement.BoundingRectangleProperty);
+
+                            AutomationElementCollection tabs;
+                            using (cacheReq.Activate())
+                            {
+                                tabs = root.FindAll(System.Windows.Automation.TreeScope.Descendants, tabCondition);
+                            }
+
+                            LogWriter.LogWrite($"CollectBrowserTabs: {browser} — {tabs.Count} TabItem(s) found (before position filter)");
+
+                            foreach (AutomationElement tab in tabs)
+                            {
+                                try
+                                {
+                                    Rect tb = tab.Cached.BoundingRectangle; // no extra cross-process call
+                                    if (tb.Top < winBounds.Top || tb.Top >= winBounds.Top + TAB_STRIP_HEIGHT_PX) continue;
+
+                                    AutomationElement closeBtn = tab.FindFirst(
+                                        System.Windows.Automation.TreeScope.Subtree, btnCondition);
+
+                                    result.Add((tab, closeBtn, proc.MainWindowHandle, browser));
+                                }
+                                catch (Exception ex) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} tab ex — {ex.Message}"); }
+                            }
+                        }
+                        catch (Exception ex) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} window ex — {ex.Message}"); }
+                    }
+                }
+                catch { /* browser not running — skip */ }
+            }
+
+            LogWriter.LogWrite($"CollectBrowserTabs: total tabs collected = {result.Count}");
+
+            return result;
+        }
+
+        private int GetBrowserTabCount() => CollectBrowserTabs().Count;
+
+        // Closes browser tabs that exceed nLimit across ALL browsers combined.
+        // Called on a background thread — must not touch UI.
+        private void CloseExcessTabs(int nLimit)
+        {
+            // Close new tabs (not in snapshot) first, then fall back to rightmost on screen.
+            // This ensures tabs opened before the limit was set are never closed first.
+            var snapshot = _tabSnapshotAtLimit;
+            var allTabs = CollectBrowserTabs()
+                .OrderBy(t => snapshot.Contains(GetTabRuntimeId(t.Tab)) ? 1 : 0) // 0 = new tab → close first
+                .ThenByDescending(t => { try { return t.Tab.Current.BoundingRectangle.X; } catch { return 0.0; } })
+                .ToList();
+            int nToClose = allTabs.Count - nLimit;
+            if (nToClose <= 0) return;
+
+            // Track remaining tabs per window to detect when the last tab is reached.
+            var remainingPerWindow = allTabs
+                .GroupBy(e => e.Hwnd)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            // List is sorted rightmost-first, so index 0 = most recently opened tab.
+            for (int i = 0; i < allTabs.Count && nToClose > 0; i++, nToClose--)
+            {
+                var (tab, closeBtn, hwnd, browser) = allTabs[i];
+                bool bClosed = false;
+
+                remainingPerWindow[hwnd]--;
+                bool isLastTabInWindow = remainingPerWindow[hwnd] == 0;
+
+                // When this is the last tab in the window, close the entire window.
+                // All browsers open a new blank tab if you just close the last tab — WM_CLOSE
+                // avoids that and cleanly removes the browser window.
+                if (isLastTabInWindow)
+                {
+                    try { PostMessage(hwnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero); bClosed = true; }
+                    catch (Exception ex) { LogWriter.LogWrite($"CloseExcessTabs: WM_CLOSE ex — {ex.Message}"); }
+                }
+
+                // Primary: UIA InvokePattern on the × button — no cursor movement (Chrome, Edge, Firefox).
+                if (!bClosed && closeBtn != null)
+                {
+                    try
+                    {
+                        var invokePattern = closeBtn.GetCurrentPattern(
+                            System.Windows.Automation.InvokePattern.Pattern)
+                            as System.Windows.Automation.InvokePattern;
+                        if (invokePattern != null) { invokePattern.Invoke(); bClosed = true; }
+                    }
+                    catch (Exception ex) { LogWriter.LogWrite($"CloseExcessTabs: InvokePattern ex — {ex.Message}"); }
+                }
+
+                // Fallback: SelectionItemPattern + Ctrl+W.
+                // Activates the tab via the accessibility API, then closes it with keyboard.
+                // Covers Brave inactive tabs (no accessible × button) and other edge cases.
+                if (!bClosed)
+                {
+                    try
+                    {
+                        var selectPattern = tab.GetCurrentPattern(
+                            System.Windows.Automation.SelectionItemPattern.Pattern)
+                            as System.Windows.Automation.SelectionItemPattern;
+                        selectPattern?.Select();
+                        System.Threading.Thread.Sleep(BRAVE_TAB_ACTIVATION_MS);
+
+                        SetForegroundWindow(hwnd);
+                        System.Threading.Thread.Sleep(BRAVE_TAB_ACTIVATION_MS);
+                        keybd_event(VK_CONTROL, 0, 0,               UIntPtr.Zero);
+                        keybd_event(VK_W,       0, 0,               UIntPtr.Zero);
+                        keybd_event(VK_W,       0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+                        keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+                    }
+                    catch (Exception ex) { LogWriter.LogWrite($"CloseExcessTabs: Ctrl+W ex — {ex.Message}"); }
+                }
+
+                // Let the browser process each close before moving to the next tab.
+                System.Threading.Thread.Sleep(BRAVE_TAB_ACTIVATION_MS);
+            }
+        }
+
+        private async void CheckTabLimitAndAlert()
+        {
+            LogWriter.LogWrite($"CheckTabLimitAndAlert: limit={appSettings.nMaxTabLimit}, purchased={appSettings.isPurchased}");
+
+            // Pro-only feature: Basic/free users don't get tab limiting
+            if (!appSettings.isPurchased)
+                return;
+
+            if (appSettings.nMaxTabLimit <= 0)
+                return; // Disabled
+
+            if (_bTabLimitAlertShowing)
+                return; // Already showing — don't spam
+
+            System.Collections.Generic.List<(AutomationElement Tab, AutomationElement CloseBtn, IntPtr Hwnd, string Browser)> currentTabs = null;
+            try
+            {
+                currentTabs = await Task.Run(() => CollectBrowserTabs());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite($"CheckTabLimitAndAlert Task.Run ex: {ex.Message}");
+            }
+
+            int nTabCount = currentTabs?.Count ?? 0;
+            LogWriter.LogWrite($"CheckTabLimitAndAlert: tabs={nTabCount}, limit={appSettings.nMaxTabLimit}");
+
+            if (nTabCount > appSettings.nMaxTabLimit)
+            {
+                LogWriter.LogWrite($"CheckTabLimitAndAlert: tab limit exceeded ({nTabCount} > {appSettings.nMaxTabLimit})");
+                _bTabLimitAlertShowing = true;
+                appSettings.CapturePostHog("tab-limit-exceeded");
+
+                AlertMaxTabLimitWindow alertWnd = new AlertMaxTabLimitWindow(
+                    nTabCount,
+                    appSettings.nMaxTabLimit,
+                    GetBrowserTabCount,
+                    CloseExcessTabs);
+                alertWnd.Closed += (s, e) =>
+                {
+                    _bTabLimitAlertShowing = false;
+                };
+                alertWnd.Show();
+            }
+            else
+            {
+                _bTabLimitAlertShowing = false;
+                // Within limit — snapshot current tabs so CloseExcessTabs can identify new ones later
+                if (currentTabs != null)
+                    _tabSnapshotAtLimit = new HashSet<string>(currentTabs.Select(t => GetTabRuntimeId(t.Tab)));
+            }
+        }
 
         public static List<string> GetTabs()
         {
