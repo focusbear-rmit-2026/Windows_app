@@ -278,6 +278,120 @@ namespace Focus_Bear.Focus
             CurrentFocusAlignmentScore = totalAlignmentScore;
             return CurrentFocusAlignmentScore;
         }
+        private static readonly object _lock = new object();
+        public static double GetFocusAlignmentScoreFromLastEntry()
+        {
+            DateTime lastEntryTime = TabMetrics.Instance.lastEntryInProductivityStatsTime ?? DateTime.Now;
+
+            double totalAlignmentScore = 0;
+            int totalSeconds = 0;
+
+            // -------------------------
+            // INLINE SNAPSHOT (thread-safe)
+            // -------------------------
+            Dictionary<string, Dictionary<string, object>> snapshot;
+
+            lock (_lock)
+            {
+                snapshot = DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus
+                    .ToDictionary(
+                        entry => entry.Key,
+                        entry => new Dictionary<string, object>(entry.Value)
+                    );
+            }
+
+            // -------------------------
+            foreach (var kvp in snapshot)
+            {
+                var dictionary = kvp.Value;
+
+                DateTime startTime = dictionary.ContainsKey("startedTime")
+                    ? (DateTime)dictionary["startedTime"]
+                    : DateTime.Now;
+
+                int seconds = dictionary.ContainsKey("totalSeconds")
+                    ? Convert.ToInt32(dictionary["totalSeconds"])
+                    : 0;
+
+                DateTime endTime = dictionary.ContainsKey("endTime")
+                    ? (DateTime)dictionary["endTime"]
+                    : DateTime.Now;
+
+                bool shouldCalculateSeconds = false;
+
+                if (dictionary.ContainsKey("isVisibleApp") &&
+                    dictionary["isVisibleApp"] is bool isVisibleApp && isVisibleApp)
+                {
+                    shouldCalculateSeconds = true;
+                }
+
+                if (dictionary.ContainsKey("isVisibleUrl") &&
+                    dictionary["isVisibleUrl"] is bool isVisibleUrl && isVisibleUrl)
+                {
+                    shouldCalculateSeconds = true;
+                }
+
+                // -------------------------
+                if (startTime < lastEntryTime)
+                {
+                    if (shouldCalculateSeconds)
+                    {
+                        var secondsBetween = (DateTime.Now - lastEntryTime).TotalSeconds;
+                        seconds = (int)secondsBetween;
+                    }
+                }
+
+                if (!shouldCalculateSeconds)
+                {
+                    var secondsBetween = (endTime - lastEntryTime).TotalSeconds;
+                    seconds = (int)secondsBetween;
+
+                    if (seconds < 0)
+                        continue;
+                }
+                else
+                {
+                    DateTime currentDate = DateTime.Now;
+
+                    DateTime timeToCheck = lastEntryTime;
+
+                    if (startTime > lastEntryTime)
+                        timeToCheck = startTime;
+
+                    int secondsBetween = (int)(currentDate - timeToCheck).TotalSeconds;
+
+                    if (seconds > secondsBetween)
+                        seconds = secondsBetween;
+
+                    if (seconds < 0)
+                        continue;
+                }
+
+                if (seconds < 0)
+                    continue;
+
+                double probability = dictionary.ContainsKey("probability")
+                    ? Convert.ToDouble(dictionary["probability"])
+                    : 0;
+
+                double score = 100 * probability * seconds;
+
+                totalSeconds += seconds;
+                totalAlignmentScore += score;
+            }
+
+            if (totalAlignmentScore != 0 && totalSeconds > 0)
+            {
+                totalAlignmentScore = totalAlignmentScore / totalSeconds;
+            }
+
+            if (totalAlignmentScore > 100)
+                totalAlignmentScore = 100;
+
+            totalAlignmentScore = Math.Round(totalAlignmentScore, 2);
+
+            return totalAlignmentScore;
+        }
 
         public static void SetAppIconForFocusModeScore(double? probability)
         {

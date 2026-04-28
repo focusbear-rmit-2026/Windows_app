@@ -5,7 +5,6 @@ using Focus_Bear.Habits;
 using Focus_Bear.Login;
 using Focus_Bear.Models;
 using Focus_Bear.Onboarding;
-using Focus_Bear.Onboarding.AfterLogin;
 using Focus_Bear.Preferences;
 using Focus_Bear.Quit;
 using Focus_Bear.ShutOff;
@@ -36,7 +35,6 @@ using System.Windows.Interop;
 using System.Windows.Threading;
 using WinForms = System.Windows.Forms;
 using Sentry;
-using Focus_Bear.Onboarding.New;
 using Microsoft.Win32;
 using Focus_Bear.Relax;
 using Focus_Bear.Tour;
@@ -47,7 +45,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Web.UI;
 using System.Windows.Controls;
-using Focus_Bear.Onboarding.NEW;
 using Focus_Bear.Habits.NaturalBreaks;
 using Focus_Bear.Services;
 using Focus_Bear.FocusMusic;
@@ -55,6 +52,8 @@ using Focus_Bear.AccountabilityBuddy;
 
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
+using System.Collections.ObjectModel;
+using static Focus_Bear.Focus.TabMetrics;
 
 namespace Focus_Bear
 {
@@ -112,6 +111,8 @@ namespace Focus_Bear
         public bool bUserManuallyClosedNotifierForThisCallSession = false;
 
         bool bLoadURLAgainInToDoPlayer = false;
+
+        public TabMetrics TebMetricsObject = new TabMetrics();
         public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             //Always get the last active app name when the menu is clicked and ignore Focus Bear
@@ -368,13 +369,12 @@ namespace Focus_Bear
         DispatcherTimer dispatcherTimerBackground = new DispatcherTimer(DispatcherPriority.Normal);
         DispatcherTimer dispatcherTimerPostponeHabits = new DispatcherTimer(DispatcherPriority.Normal);
         DispatcherTimer dispatcherTimerResumeHabitsAfterPostpone = new DispatcherTimer(DispatcherPriority.Normal);
-
+        DispatcherTimer dispatcherTimerProductivityStats = new DispatcherTimer(DispatcherPriority.Normal);
 
         public WinForms.NotifyIcon trayIcon = null;
 
         public bool isMorningHabitsAlreadyShown = false;
 
-        //mj//public HabitWindow wndHabits = null;
         ShutOffWindow wndShutOff = null;
         SplashWindow wndSplash = null;
 
@@ -532,7 +532,15 @@ namespace Focus_Bear
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
             //Ensuring Autoplay video in webview
-            Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--autoplay-policy=no-user-gesture-required");
+            //Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--autoplay-policy=no-user-gesture-required");
+            // Enable autoplay in WebView2 and remote debugging when running automated tests
+            var debugPort = Environment.GetEnvironmentVariable("FOCUSBEAR_DEBUG_PORT");
+            var browserArgs = "--autoplay-policy=no-user-gesture-required";
+            if (!string.IsNullOrEmpty(debugPort))
+            {
+                browserArgs += $" --remote-debugging-port={debugPort}";
+            }
+            Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", browserArgs);
 
             RegistryManager.GetLangCode();
 
@@ -657,7 +665,9 @@ namespace Focus_Bear
             dele = new WinEventDelegate(WinEventProc);
             m_hhook = SetWinEventHook(0x8005, 0x800E, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
 
-
+            //Create the Main application Window: V3
+            wndFocusBearMainWindow = new FocusBearMainWindow();
+            
             if (!RegistryManager.GetWelcomeAboardingDoneStatus())
             {
                 LogWriter.LogWrite("GetWelcomeAboardingDoneStatus NO");
@@ -667,7 +677,11 @@ namespace Focus_Bear
                     LogWriter.LogWrite("Hide SplashWindow() to show onboardiong flow");
                     wndSplash.Close();
                 }
-
+                
+                //GEt the list of Installed app
+                var engine = new AppsEngine();
+                engine.GetData();
+                bAppExtracted = true;
 
                 ShowWelcomeAbordOnBoradingFlow();
             }
@@ -1127,37 +1141,25 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("ShowWelcomeAbordOnBoradingFlow");
 
-            NewOnboardingStart windWelcome = new NewOnboardingStart();
-            windWelcome.Topmost = true;
-            windWelcome.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            windWelcome.Show();
-            windWelcome.Activate();
-            windWelcome.Focus();
+            appSettings.nCurrentActivityType = CurrentActivityType.ONBOARDING; //Set the state
+            
+            BringMainWindowToFront();//v3
+
+            wndFocusBearMainWindow.ShowOnboardingViewController();
+
+            //OnboardingViewController PageOnboarding = new OnboardingViewController();
+
+            //NewOnboardingStart windWelcome = new NewOnboardingStart();
+            //windWelcome.Topmost = true;
+            //windWelcome.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            //windWelcome.Show();
+            //windWelcome.Activate();
+            //windWelcome.Focus();
+
+
 
             appSettings.CapturePostHog("welcome-aboard-shown");
 
-        }
-
-        public void ShowOnBoradingFlow(bool bSimulateFlowHidden = false)
-        {
-            LogWriter.LogWrite("ShowOnBoradingFlow");
-
-
-            if (!bSimulateFlowHidden)
-            {
-                OnBoardingWindow windOnBoarding = new OnBoardingWindow();
-                windOnBoarding.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                windOnBoarding.Topmost = true;
-                windOnBoarding.Show();
-                windOnBoarding.Activate();
-                windOnBoarding.Focus();
-            }
-            else
-            {
-                //We need to pass on all screens in hidden window, and collect all defaults
-                OnBoardingWindow windOnBoarding = new OnBoardingWindow(true);
-
-            }
         }
 
         public void ShowLoginWindow()
@@ -1172,12 +1174,11 @@ namespace Focus_Bear
                 wndSplash.Close();
             }
 
-            LoginMain windLogin = new LoginMain();
-            // MainWindow = windLogin;
-            windLogin.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            windLogin.Show();
-            windLogin.Activate();
-            windLogin.Focus();
+
+            BringMainWindowToFront();//v3
+            wndFocusBearMainWindow.ShowLoginViewController();
+
+            wndFocusBearMainWindow.DisableAllButtons(LeftButtonType.None);
         }
 
         public void ShowOnBoradingVideo()
@@ -1212,6 +1213,8 @@ namespace Focus_Bear
         public async void ProceedAfterLogin()
         {
             LogWriter.LogWrite("ProceedAfterLogin");
+            
+            RegistryManager.SetWelcomeAboardingDoneStatus();//Update onboarding before login status now
 
             RegistryManager.GetApplicationFont();
 
@@ -1232,7 +1235,6 @@ namespace Focus_Bear
                 appSettings.ReadAndParseUserLocalDeviceSettingsJson();
             }
 
-
             if (!RegistryManager.GetOnboardingAfterLoginDoneStatus())
             {
                 //Check if the user is an old user and settings already exists, then do not take to onboarding
@@ -1248,12 +1250,21 @@ namespace Focus_Bear
                     //Save the local settings and upload to server
                     LocalSettingsManager.PutLocalSettings();
 
-                    ShowOnBoradingFlow();
+                    ShowWelcomeAbordOnBoradingFlow();//Will show the onboarding view in right content
 
+                    wndFocusBearMainWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._HOLD_ON_);
                     return;
                 }
+                else
+                {
+                    appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set state to none now.
+                    RegistryManager.SetOnboardingVideoShownStatus();//User alredy had done onboarding somewhere as he has settings set
+                }
 
-
+            }
+            else
+            {
+                appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set state to none now.
             }
 
             ExecutePostLoginTasks();
@@ -1261,6 +1272,10 @@ namespace Focus_Bear
 
         public async void ExecutePostLoginTasks()
         {
+            wndFocusBearMainWindow.EnableAllButtons();
+            wndFocusBearMainWindow.Hide(); //Hiding once as it will be shown again
+            ShowSplashWindow(true);
+
             if (!RegistryManager.GetOnboardingVideoShownStatus())
             {
                 FocusBearAPIClient client = new FocusBearAPIClient();
@@ -1277,14 +1292,6 @@ namespace Focus_Bear
                     LogWriter.LogWrite("hide SplashWindow() ExecutePostLoginTasks case");
                     wndSplash.Close();
                 }
-
-
-                OnboardingNotesWindow windOnBoardingNotes = new OnboardingNotesWindow();
-                windOnBoardingNotes.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                windOnBoardingNotes.Topmost = true;
-                windOnBoardingNotes.ShowDialog();
-                windOnBoardingNotes.Activate();
-                windOnBoardingNotes.Focus();
 
                 //We are setting evening routine shown here for thenext 2 hours so that evening routine willnot come for the next 2 hours the video is shown
                 appSettings.ShutOFFAbortedTillDate = DateTime.Now.AddHours(2);
@@ -1308,13 +1315,6 @@ namespace Focus_Bear
                 wndFocusBearMenuTour.ShowDialog();
 
                 appSettings.CapturePostHog("menu_tour_setup_complete");
-
-                OnboardingAskProcrastinatingWindow wndOnboardingAskProcrastinatingWindow = new OnboardingAskProcrastinatingWindow();
-                wndOnboardingAskProcrastinatingWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                wndOnboardingAskProcrastinatingWindow.Topmost = true;
-                wndOnboardingAskProcrastinatingWindow.ShowDialog();
-                wndOnboardingAskProcrastinatingWindow.Activate();
-                wndOnboardingAskProcrastinatingWindow.Focus();
             }
 
             //Check if we have a Devie ID Set, Otherwise generate one and set it
@@ -1563,6 +1563,7 @@ namespace Focus_Bear
                 //One the USer details have been parsed and focus mode names have been fetched, we will check for default focus modes, if not present we will create them
                 appSettings.ReadAndCreateDefaultFocusModes();
 
+                
                 if (!RegistryManager.GetFocusModeSetupDone())
                 {
                     if (appSettings.arrFocusModes.Count <= 5)
@@ -1610,25 +1611,11 @@ namespace Focus_Bear
                 LogWriter.LogWrite("PusherHandler() Initialization EX =" + ex.Message);
             }
 
-            //Create the Main application Window: V2
-            wndFocusBearMainWindow = new FocusBearMainWindow();
 
 #if DEBUG
             //Write any routines or functionality to test in DEBUG mode here
-            ///ShowCallFocusNotifier();
-            ///
-
-            //NewOnboardingStart wnd = new NewOnboardingStart();
-            //wnd.Show();
-            //OnboardingNewWelcome wnd2 = new OnboardingNewWelcome(wnd);
-            ////wnd2.();
-            //ShowShutOffScreen();
-
             //wndFocusBearMainWindow = new FocusBearMainWindow();
             //wndFocusBearMainWindow.ShowDialog();
-
-            ///
-        
 
 #endif
 
@@ -1759,6 +1746,13 @@ namespace Focus_Bear
 
                 dispatcherTimerBackground.Start();
                 CommandManager.InvalidateRequerySuggested();
+
+                dispatcherTimerProductivityStats.Tick += new EventHandler(dispatcherTimer_ProductivityStats);
+                dispatcherTimerProductivityStats.Interval = new TimeSpan(0, 0, 3); //every three seconds 
+
+                dispatcherTimerProductivityStats.Start();
+                CommandManager.InvalidateRequerySuggested();
+
             }
             catch (Exception ex)
             {
@@ -1770,9 +1764,21 @@ namespace Focus_Bear
             //Get total time for distracting sites for today
             appSettings.GetTotalTimeForDistractingSitesToday();
         }
-        private void dispatcherTimer_Background(object sender, EventArgs e)
+        private void dispatcherTimer_ProductivityStats(object sender, EventArgs e)
         {
-            // Tab limiter fallback check — runs every 5s in case tabs were opened without browser focus
+            try
+            {
+                if (appSettings.isFocusModeRunning)
+                {
+                    TabMetrics.Instance.AddEntryInProductivityStatsCsv();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("dispatcherTimer_ProductivityStats Exception - " + ex.Message);
+            }
+
+            // Tab limiter fallback check — runs every 3s in case tabs were opened without browser focus
             try
             {
                 CheckTabLimitAndAlert();
@@ -1781,6 +1787,10 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("CheckTabLimitAndAlert Exception - " + ex.Message);
             }
+        }
+        private void dispatcherTimer_Background(object sender, EventArgs e)
+        {
+           
 
             try
             {
@@ -3497,38 +3507,51 @@ namespace Focus_Bear
 
         public void BringMainWindowToFront()
         {
-            wndFocusBearMainWindow.Show(); 
+            wndFocusBearMainWindow.Show();
 
             WindowInteropHelper helper = new WindowInteropHelper(wndFocusBearMainWindow);
             IntPtr hWnd = helper.Handle;
 
-            ShowWindow(hWnd,SW_SHOW);
+            ShowWindow(hWnd, SW_SHOW);
 
-            if(((appSettings.nCurrentActivityType ==  CurrentActivityType.MORNING_HABITS ||
-                appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
-                appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF 
-                ) && !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState) ||
-                (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY ))
+            if ((appSettings.nCurrentActivityType == CurrentActivityType.ONBOARDING) ||
+                !appSettings.IsLoggedIn) //v3
             {
-                if (appSettings.bPlayActivitiesInFullScreenMode) //Dsiable all in full screen
-                {
-                    wndFocusBearMainWindow.WindowStyle = WindowStyle.None;
-                    wndFocusBearMainWindow.WindowState = WindowState.Maximized;
-                }
-                wndFocusBearMainWindow.Topmost = true; //when user is in habits we will keep topmost
-                wndFocusBearMainWindow.SetMinimizeButtonEnabled(false);
-                wndFocusBearMainWindow.SetMaximizeButtonEnabled(false);
-            }
-            else
-            {
-                wndFocusBearMainWindow.Topmost = false; //when user is not in habits we will remove topmost
-                wndFocusBearMainWindow.WindowStyle = WindowStyle.SingleBorderWindow;
-                // Restore window if minimized
-                ShowWindow(hWnd, SW_RESTORE);
-
+                wndFocusBearMainWindow.Topmost = false;
                 wndFocusBearMainWindow.SetMinimizeButtonEnabled(true);
                 wndFocusBearMainWindow.SetMaximizeButtonEnabled(true);
-                
+                wndFocusBearMainWindow.CollapseSideBar();
+                wndFocusBearMainWindow.DisableAllButtons(LeftButtonType.None);
+            }
+            else 
+            { 
+
+                if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+                appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
+                appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF
+                ) && !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState) ||
+                (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY))
+                {
+                    if (appSettings.bPlayActivitiesInFullScreenMode) //Dsiable all in full screen
+                    {
+                        wndFocusBearMainWindow.WindowStyle = WindowStyle.None;
+                        wndFocusBearMainWindow.WindowState = WindowState.Maximized;
+                    }
+                    wndFocusBearMainWindow.Topmost = true; //when user is in habits we will keep topmost
+                    wndFocusBearMainWindow.SetMinimizeButtonEnabled(false);
+                    wndFocusBearMainWindow.SetMaximizeButtonEnabled(false);
+                }
+                else
+                {
+                    wndFocusBearMainWindow.Topmost = false; //when user is not in habits we will remove topmost
+                    wndFocusBearMainWindow.WindowStyle = WindowStyle.SingleBorderWindow;
+                    // Restore window if minimized
+                    ShowWindow(hWnd, SW_RESTORE);
+
+                    wndFocusBearMainWindow.SetMinimizeButtonEnabled(true);
+                    wndFocusBearMainWindow.SetMaximizeButtonEnabled(true);
+
+                }
             }
             
 
@@ -3694,7 +3717,7 @@ namespace Focus_Bear
                 {
                     dispatcherTimerPostponeHabits.Tick += new EventHandler(dispatcherTimer_Postpone);
 #if DEBUG
-                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 0, nMinutesToPostpone);
+                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 5, nMinutesToPostpone);
 #else
                     dispatcherTimerPostponeHabits.Interval = new TimeSpan(0,  nMinutesToPostpone, 0);
 #endif
@@ -3703,7 +3726,7 @@ namespace Focus_Bear
                     appSettings.bHabitsPostponedState = true;
                     appSettings.bHabitwithAllowedAppsRunning = false; //Reset
                     appSettings.bHabitwithUseFocusModeRunning = false;
-
+                    appSettings.bHabitwithUserActionNonTimerRunning = false;
                     
                     wndFocusBearMainWindow.EnableAllButtons();//Enable all the left menu buttons
 
@@ -3827,7 +3850,7 @@ namespace Focus_Bear
             }
         }
 
-
+          
         private void dispatcherTimer_Postpone(object sender, EventArgs e)
         {
             LogWriter.LogWrite("dispatcherTimer_Postpone()");
@@ -3931,6 +3954,16 @@ namespace Focus_Bear
                     ButtonAutomationPeer peer = new ButtonAutomationPeer(wndFocusBearMainWindow.PageShutOffWindow.btnAction);
                     IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                     invokeProv.Invoke();
+                }
+                else if(appSettings.nCurrentActivityType == CurrentActivityType.ONBOARDING)
+                {
+                    wndFocusBearMainWindow.Close();
+                }
+                else if(!appSettings.IsLoggedIn)
+                {
+                    appSettings.bRestartAppNeeded = false;
+
+                    Application.Current.Shutdown(0);
                 }
                 else
                 {
@@ -4084,6 +4117,9 @@ namespace Focus_Bear
                 RegistryManager.SetTotalTimeForBlockingActivated();
                 RegistryManager.SetTotalTimeForBlockingDeactivated();
                 RegistryManager.SetTotalDistractingSiteBlockedToday();
+
+                appSettings.csvFocusProductivityStats.Dispose();
+                appSettings.csvUsageTimingsExplanation.Dispose();
 
                 if (trayIcon != null)
                 {
@@ -4566,6 +4602,8 @@ namespace Focus_Bear
                         DateTime dTill = DateTime.Now;
 
                         appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
+                        appSettings.focusSessionStartTime = DateTime.Now;
+                        appSettings.CurrentFocusSessionDuration = 0;
 
                         dTill = dTill.AddHours(nHours);
                         dTill = dTill.AddMinutes(nMinutes);
@@ -4600,7 +4638,75 @@ namespace Focus_Bear
             }
         }
 
+        public void StartWorkFocusMode(string sIDToStart)
+        {
+            LogWriter.LogWrite("StartWorkFocusMode()");
 
+            for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
+            {
+                if (appSettings.arrFocusModes[i].id == sIDToStart)
+                {
+                    int TotalMinutes = 25;
+                    int nHours = TotalMinutes / 60;
+                    int nMinutes = TotalMinutes % 60;
+
+                    //used when user starts another focus block
+                    appSettings.sRunningFocusModeHours = nHours.ToString();
+                    appSettings.sRunningFocusModeMinutes = nMinutes.ToString();
+
+                    appSettings.sMinutesBreakPomodoro = "5";
+                    appSettings.sMinutesSuperPomodoro = "5";
+
+
+                    try
+                    {
+                        Sounds.PlayFocusModeStartSound();
+                        //Start the Focus Mode
+                        //Change the play icon for this to STOP icon
+                        appSettings.arrFocusModes[i].isOn = true;
+
+                        //Make the global variable true
+                        appSettings.isFocusModeRunning = true;
+
+                        ((App)Application.Current).ShowFocusProgressWindow();
+
+                        DateTime dTill = DateTime.Now;
+
+                        appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
+                        appSettings.focusSessionStartTime = DateTime.Now;
+                        appSettings.CurrentFocusSessionDuration = 0;
+
+                        dTill = dTill.AddHours(nHours);
+                        dTill = dTill.AddMinutes(nMinutes);
+                        string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
+                        sTill = sTill.Replace("<TIME>", dTill.ToString());
+                        ((App)(Application.Current)).wndTrayMenu.OnUntill.Content = sTill;
+
+                        appSettings.sRunningFocusModeID = appSettings.arrFocusModes[i].id;
+                        appSettings.sRunningFocusModeName = appSettings.arrFocusModes[i].name;
+                        appSettings.sRunningFocusModeEndTime = dTill.ToString();
+
+                        //Clear any old stuff for gentle blocking
+                        appSettings.TemporaryAllowedAppsGentleBlock.Clear();
+                        appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                        appSettings.TemporaryAllowedURLsGentleBlock.Clear();
+                        appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+                        appSettings.TemporaryAllowedKeywords.Clear();
+                        appSettings.TemporaryAllowedURLsTabTitles.Clear();
+                        //Start the Focus Mode Timer to end after x hours / minutes
+                        ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes);
+
+                        FocusBearAPIClient client = new FocusBearAPIClient();
+                        var xResponse = client.StartFocusMode(appSettings.arrFocusModes[i].id);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("Start WORK focus mode from suggestion window Exception - " + ex.Message);
+                    }
+                }
+            }
+        }
 
         // True while a tab-limit alert is visible — prevents repeated alerts per breach.
         // volatile: read/written from WinEvent hook, fallback timer, and Closed event handler.
@@ -4809,16 +4915,7 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite($"CheckTabLimitAndAlert: limit={appSettings.nMaxTabLimit}, purchased={appSettings.isPurchased}");
 
-            // Pro-only feature: Basic/free users don't get tab limiting
-            if (!appSettings.isPurchased)
-                return;
-
-            if (appSettings.nMaxTabLimit <= 0)
-                return; // Disabled
-
-            if (_bTabLimitAlertShowing)
-                return; // Already showing — don't spam
-
+            
             System.Collections.Generic.List<(AutomationElement Tab, AutomationElement CloseBtn, IntPtr Hwnd, string Browser)> currentTabs = null;
             try
             {
@@ -4830,7 +4927,19 @@ namespace Focus_Bear
             }
 
             int nTabCount = currentTabs?.Count ?? 0;
+            appSettings.nCountOpenTabs = nTabCount;
+
             LogWriter.LogWrite($"CheckTabLimitAndAlert: tabs={nTabCount}, limit={appSettings.nMaxTabLimit}");
+
+            // Pro-only feature: Basic/free users don't get tab limiting
+            if (!appSettings.isPurchased)
+                return;
+
+            if (appSettings.nMaxTabLimit <= 0)
+                return; // Disabled
+
+            if (_bTabLimitAlertShowing)
+                return; // Already showing — don't spam
 
             if (nTabCount > appSettings.nMaxTabLimit)
             {
@@ -4957,23 +5066,6 @@ namespace Focus_Bear
 
         public void ShowToDoList()
         {
-            //mj// todo
-            //if (wndToDoList == null)
-            //{
-            //    wndToDoList = new ToDoList();
-            //}
-            //wndToDoList.Show();
-
-            //wndToDoList.LoadURL();
-
-            //WindowInteropHelper helper = new WindowInteropHelper(wndToDoList);
-            //IntPtr hWnd = helper.Handle;
-
-            //// Restore window if minimized
-            //ShowWindow(hWnd, SW_RESTORE);
-
-            //// Bring to foreground
-            //SetForegroundWindow(hWnd);
             BringMainWindowToFront();
             wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.ToDoList);
         }
@@ -5100,9 +5192,23 @@ namespace Focus_Bear
                 }
                 Sounds.PlayFocusModeEndSound();
 
+                appSettings.CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();//calculate before we empty it
+                
+                if (appSettings.focusSessionStartTime != null)
+                {
+                    appSettings.CurrentFocusSessionDuration += (int)(DateTime.Now - appSettings.focusSessionStartTime.Value).TotalSeconds;
+                    appSettings.focusSessionStartTime = null;
+                }
+
                 //Set Alignment score related
                 FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
                 FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
+
+                //Write the usage_timings_explanation CSV: 24 April 2026
+                if (appSettings.bAdvancedAnalyticsInFocusModeEnabled)
+                {
+                    WriteUsageTimingsExplanationCSV();
+                }
 
                 //Make the global variables false
                 appSettings.isFocusModeRunning = false;
@@ -5140,6 +5246,30 @@ namespace Focus_Bear
             }
         }
 
+        public void WriteUsageTimingsExplanationCSV()
+        {
+            LogWriter.LogWrite("WriteUsageTimingsExplanationCSV()");
+
+            var now = DateTime.Now;
+            var AppRecords = TabMetrics.Instance.GetAppRecordsSnapshot();
+            foreach (var r in AppRecords)
+            {
+                var end = r.EndTime ?? now;
+                int duration = r.Duration > 0 ? r.Duration : (int)(end - r.StartTime).TotalSeconds;
+                string csvLine = $"{r.StartTime},{r.EndTime},{r.AppName},{r.Duration}";
+                appSettings.csvUsageTimingsExplanation.Append(csvLine);
+            }
+            
+            var DomainRecords = TabMetrics.Instance.GetDomainRecordsSnapshot();
+            foreach (var r in DomainRecords)
+            {
+                var end = r.EndTime ?? now;
+                int duration = r.Duration > 0 ? r.Duration : (int)(end - r.StartTime).TotalSeconds;
+                string csvLine = $"{r.StartTime},{r.EndTime},{r.Domain},{r.Duration}";
+                appSettings.csvUsageTimingsExplanation.Append(csvLine);
+            }
+
+        }
         public void ChangeTheme(string theme)
         {
             ResourceDictionary newTheme = new ResourceDictionary();

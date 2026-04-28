@@ -82,7 +82,7 @@ namespace Focus_Bear.Utils
                 ProcessURLForFocusModes(hwnd);
             }
 
-            if (appSettings.bHabitwithAllowedAppsRunning || appSettings.isFocusModeRunning)
+            if (appSettings.bHabitwithAllowedAppsRunning || appSettings.isFocusModeRunning || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
                 return;
 
             if(appSettings.IsAppDeactivated())//no need to track always blocked urls
@@ -105,6 +105,13 @@ namespace Focus_Bear.Utils
             //    if (appSettings.arrAlwaysBlockedURLs.Count() > 0 ) //only block when untill I finish work is selected => updated on 22 Aug 2025 to show notification if user settings are set to manul blocking
             //        ProcessCurrentAlwaysBlockedURL(hwnd); //For always Blocked URLS
             //}
+
+            //Finally check the url and if work focus mode has that alowed, suggest starting the work focsu mode
+            //Only if its none
+            if (appSettings.nCurrentActivityType == CurrentActivityType.NONE)
+            {
+                CheckAndSuggestWorkFocusMode(hwnd);
+            }
             
         }
 
@@ -260,7 +267,9 @@ namespace Focus_Bear.Utils
              }
              else
              {
-                 if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
+                TabMetrics.Instance.CloseLastDomainIfStarted_Internal();
+
+                if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
                  {
                      FocusAlignmentScoreManager.FocusModeCloseCurrentUrlForAlignmentScore();
                      FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
@@ -370,6 +379,8 @@ namespace Focus_Bear.Utils
                 string sToCheck = UNBLOCKED_URLS[m];
                 if (sURL.Contains(sToCheck))
                 {
+                    TabMetrics.Instance.CloseLastDomainIfStarted_Internal();
+
                     if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
                     {
                         FocusAlignmentScoreManager.FocusModeCloseCurrentUrlForAlignmentScore();
@@ -378,6 +389,8 @@ namespace Focus_Bear.Utils
                     return;
                 }
             }
+
+            TabMetrics.Instance.FrontDomainChanged(sURL);
 
             FocusAlignmentScoreManager.FocusModeOpenCurrentUrlForAlignmentScore(sURL);
 
@@ -990,6 +1003,138 @@ namespace Focus_Bear.Utils
 
         }
 
+        private static void CheckAndSuggestWorkFocusMode(IntPtr hWnd)
+        {
+            LogWriter.LogWrite("CheckAndSuggestWorkFocusMode () ");
+
+            AppSettings appSettings = AppSettings.GetInstance;
+
+            string sURL = "";
+            if (appSettings.FirefoxLastAccWindow != null && (appSettings.sLastActiveURLInFirefox != null && appSettings.sLastActiveURLInFirefox.Length > 0))
+            {
+                sURL = appSettings.sLastActiveURLInFirefox;
+            }
+            else
+            {
+                return;
+            }
+
+            if (sURL.Contains("focus_bear_temporarily_allow=true"))//If user have clicked I need this URL from blocked page, ignore it
+            {
+                return;
+            }
+
+            //Check if the user is trying to unblock the URL that is blocked using Oops I actually need this
+            if (sURL.Contains("&unblock_it=true"))
+            {
+                return;
+            }
+            else if (appSettings.sLastActiveURLInFirefox.Contains("focus-block.html"))
+            {
+                //return if its a normal block page
+                return;
+            }
+            if (sURL.Contains("file://"))
+            {
+                return;
+            }
+            //Check if its an always unblocked url
+            for (int m = 0; m < UNBLOCKED_URLS.Count(); m++)
+            {
+                string sToCheck = UNBLOCKED_URLS[m];
+                if (sURL.Contains(sToCheck))
+                {
+                    return;
+                }
+            }
+
+            bool bAllowedURLFound = true; //by default allowed url is true
+
+            if (appSettings.arrFocusModes.Count() != 0) //will work with any focus mode
+            {
+                foreach (FocusMode focusType in appSettings.arrFocusModes)
+                {
+                    if (focusType != null && !focusType.bUserClickedNoDoNotSuggestAnymore && focusType.AutoSuggestFocusModeOnAllowedURL)
+                    {
+                        if (focusType.isAllowedListApproach)//Block everything except safe sites I choose
+                        {
+                            LogWriter.LogWrite("isAllowedListApproach - Block everything except safe sites I choose - " + focusType.name);
+
+
+                            bAllowedURLFound = false;
+
+                            //check if the current URL is in the list of allowed urls, then allow else block
+                            foreach (string url in focusType.arrAllowedUrls)
+                            {
+                                {
+                                    var sUrlToCheck = sURL.Replace("http://", "");
+                                    sUrlToCheck = sUrlToCheck.Replace("https://", "");
+                                    sUrlToCheck = sUrlToCheck.Replace("www.", "");
+
+                                    var allowedURL = url.Replace("http://", "");
+                                    allowedURL = allowedURL.Replace("https://", "");
+                                    allowedURL = allowedURL.Replace("www.", "");
+
+                                    //Remove last slash from allowed url
+                                    allowedURL = allowedURL.TrimEnd(new[] { '/' });
+
+                                    if (sUrlToCheck.StartsWith(allowedURL))
+                                    {
+                                        LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of focus mode - ALLOW");
+                                        bAllowedURLFound = true;
+                                    }
+                                    else
+                                    {
+                                        allowedURL = "*" + allowedURL + "*";
+                                        if (MatchWildcardString(sUrlToCheck, allowedURL))
+                                        {
+                                            LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
+
+                                            bAllowedURLFound = true;
+                                        }
+                                        else
+                                        {
+                                            try
+                                            {
+                                                //Check title
+                                                const int nChars = 256;
+                                                StringBuilder Buff = new StringBuilder(nChars);
+                                                if (GetWindowText(hWnd, Buff, nChars) > 0)
+                                                {
+                                                    string sTitle = Buff.ToString();
+                                                    if (MatchWildcardString(sTitle, allowedURL))
+                                                    {
+                                                        LogWriter.LogWrite(sTitle + "title found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
+                                                        bAllowedURLFound = true;
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                LogWriter.LogWrite("processCurrentFocusElement GetWindowText ALLOWED URLS EX - " + ex.Message);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (bAllowedURLFound)
+                                {
+                                    appSettings.ShowSuggestStartWorkFocusModeWindow(hWnd, focusType);
+                                    return;
+                                }
+                            }
+
+                        }
+                        else //Allow everything except districting sites
+                        {
+                            LogWriter.LogWrite("isBlockedListApproach - do not check to suggest");
+                           
+                        }
+                    }
+                }
+            }
+
+        }
         private static Boolean MatchWildcardString(String input, String pattern)
         {
 

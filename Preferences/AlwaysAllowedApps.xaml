@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Focus_Bear.Preferences"
+      xmlns:utils="clr-namespace:Focus_Bear.Utils" 
       mc:Ignorable="d" 
        d:DesignHeight="670" d:DesignWidth="670"
         >
@@ -17,6 +18,7 @@
                 <Style TargetType="Grid">
                     <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
                 </Style>
+                <utils:SmartKeywordIcon x:Key="SmartConverter"/>
             </ResourceDictionary>
         </Grid.Resources>
         <Border 
@@ -27,15 +29,14 @@
         BorderThickness="1">
             <Grid Background="{DynamicResource SoftCreamColor}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="35"/>
-                    <RowDefinition Height="100"/>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0"  Text="Always Allowed Apps" FontSize="16" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
-                <TextBlock  Grid.Row="1" Name="Description" Margin="20,0,20,0"   Text="These apps will never be blocked, regardless of focus mode, blocking schedules, or strictness settings. Use this for essential apps that you always need access to." FontSize="12" TextWrapping="Wrap" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+                
+                <TextBlock  Grid.Row="0" Name="Description" Margin="20,0,20,20"   Text="These apps will never be blocked, regardless of focus mode, blocking schedules, or strictness settings. Use this for essential apps that you always need access to." FontSize="16" TextWrapping="Wrap" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-                <Grid Grid.Row="2"  Margin="20,0,20,20">
+                <Grid Grid.Row="1"  Margin="20,0,20,20">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="1"/>
@@ -46,9 +47,17 @@
                             <DataTemplate>
                                 <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding AppName, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                       <Image Grid.Column="0" 
+                                       Source="{Binding DisplayIcon, Converter={StaticResource SmartConverter}}" 
+                                       Width="18" 
+                                       Height="18" 
+                                       Margin="5,0,5,0"
+                                       VerticalAlignment="Center"
+                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                                       <TextBlock Grid.Column="1" Text="{Binding AppName, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>

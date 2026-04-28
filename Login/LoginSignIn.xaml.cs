@@ -19,6 +19,7 @@ using Newtonsoft.Json.Linq;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using Focus_Bear.Onboarding;
 
 namespace Focus_Bear.Login
 {
@@ -31,26 +32,24 @@ namespace Focus_Bear.Login
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
-        private LoginMain _parentWindow;
+        private FocusBearMainWindow _parentWindow;
         public bool bEyeOnPasswordBox = false;
         public LoginSignIn()
         {
             
         }
 
-        public LoginSignIn(LoginMain parentWindow) : this()
+        public LoginSignIn(FocusBearMainWindow parentWindow) : this()
         {
             InitializeComponent();
             _parentWindow = parentWindow;
           
             try
             {
-                Heading.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleSignIn"].ToString();
-                Description.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["subTitleWelcomeback"].ToString();
+                Heading.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["subTitleSignIn"].ToString();
                 lblEmail.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailAddress"].ToString();
                 lblPassword.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePassword"].ToString();
                 btnSignInText.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonSignInText"].ToString();
-                btnCreateAccountText.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCreateAccountText"].ToString();
                 ForgetPasswordTXT.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonForgotPasswordText"].ToString();
             }
             catch (Exception ex)
@@ -74,11 +73,6 @@ namespace Focus_Bear.Login
             {
                 LogWriter.LogWrite("btnSignUp_Click ex + " + ex.Message);
             }
-        }
-
-        private void btnBack_Click(object sender, RoutedEventArgs e)
-        {
-            _parentWindow.ShowLoginHomeWindow();
         }
 
         private async void btnSignIn_Click(object sender, RoutedEventArgs e)
@@ -111,9 +105,7 @@ namespace Focus_Bear.Login
                                             //Login Success
                                             appSettings.GetLoginAndTokenValidSettings();
                                             appSettings.CapturePostHog("login-homemade");
-                                            
-                                            _parentWindow.bDoNotShutDown = true;
-                                            _parentWindow.Close();
+                                            _parentWindow.Hide();
                                         }));
                                     }
                                     else
@@ -182,9 +174,8 @@ namespace Focus_Bear.Login
             }
             TxtEmailAddress.IsEnabled = bEnable;
             TxtPassword.IsEnabled = bEnable;
-            btnBack.IsEnabled = bEnable;
             btnSignIn.IsEnabled = bEnable;
-            btnCreateAccount.IsEnabled = bEnable;
+
         }
 
         private async void btnForgetPassword_Click(object sender, RoutedEventArgs e)
@@ -314,7 +305,7 @@ namespace Focus_Bear.Login
                 }
                 catch (Exception ex)
                 {
-                    EyePassword.ToolTip = "Show Password"; //for time being
+                    EyePassword.ToolTip = "Show Password"; //for time being  
                     LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
                 }
             }

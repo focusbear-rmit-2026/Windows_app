@@ -1,0 +1,92 @@
+<UserControl x:Class="Focus_Bear.Preferences.AlwaysBlockedApps"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Preferences"
+      xmlns:utils="clr-namespace:Focus_Bear.Utils" 
+      mc:Ignorable="d" 
+       d:DesignHeight="670" d:DesignWidth="670"
+        >
+
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="../../Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+                <Style TargetType="Grid">
+                    <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
+                </Style>
+                <utils:SmartKeywordIcon x:Key="SmartConverter"/>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <Border 
+        Padding="20"
+        Background="{DynamicResource SoftCreamColor}"
+        CornerRadius="12"
+        BorderBrush="#FFF2E1C1"
+        BorderThickness="1">
+            <Grid Background="{DynamicResource SoftCreamColor}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock  Grid.Row="0" Name="Description" Margin="20,0,20,20"   Text="These apps will never be blocked, regardless of focus mode, blocking schedules, or strictness settings. Use this for essential apps that you always need access to." FontSize="16" TextWrapping="Wrap" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"  />
+
+                <Grid Grid.Row="1"  Margin="20,0,20,20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="1"/>
+                        <RowDefinition Height="35"/>
+                    </Grid.RowDefinitions>
+                    <ListView   Grid.Row="0"   x:Name="ListAllowedApps" AutomationProperties.AutomationId="lvAllowedApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" >
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Image Grid.Column="0" 
+                                            Source="{Binding DisplayIcon, Converter={StaticResource SmartConverter}}" 
+                                            Width="18" 
+                                            Height="18" 
+                                            Margin="5,0,5,0"
+                                            VerticalAlignment="Center"
+                                            RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding AppName, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Grid Grid.Row="1" Background="LightGray" ></Grid>
+                    <DockPanel Grid.Row="2" LastChildFill="False">
+                        <Button   x:Name="btnDeleteApp" AutomationProperties.AutomationId="btnDeleteApp" MaxWidth="100" Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" Foreground="#e88800"  Height="27" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="10,0,0,2" FontSize="12" Cursor="Hand" FontWeight="Normal" Click="btnDeleteApp_Click" >
+
+                            <Button.Content>
+                                <StackPanel  Orientation="Horizontal">
+                                    <TextBlock x:Name="btnDeleteAppTXT" Cursor="Hand"  Text="Remove" Style="{DynamicResource ButtonTextBlockStyle}" Margin="10,0,10,0"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                        <Button   x:Name="btnAddApp" AutomationProperties.AutomationId="btnAddApp" MaxWidth="100"   Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True" Foreground="#e88800"  Height="27"  VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="2,0,10,2" FontSize="12" Cursor="Hand" FontWeight="Normal" Click="btnAddApp_Click" DockPanel.Dock="Right" >
+
+                            <Button.Content>
+                                <StackPanel  Orientation="Horizontal">
+                                    <TextBlock x:Name="btnAddAppTXT" Cursor="Hand"  Text="Add App" Style="{DynamicResource ButtonTextBlockStyle}" Margin="10,0,10,0"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                    </DockPanel>
+                </Grid>
+
+                <Border x:Name="GridShadeAdvanced" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.80"   Visibility="Collapsed" />
+
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

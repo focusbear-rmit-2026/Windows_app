@@ -1,19 +1,10 @@
-﻿using Focus_Bear.Onboarding.AfterLogin;
-using Focus_Bear.Utils;
+﻿using Focus_Bear.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+
 
 namespace Focus_Bear.Preferences
 {
@@ -39,16 +30,6 @@ namespace Focus_Bear.Preferences
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
             App.ThemeChanged += TitleBarThemeChange;
-        }
-        public AddWebUrl(OnboardingSetupAndTipsWindow _ParentWindow) :this()
-        {
-            InitializeComponent();
-
-            this.Owner = _ParentWindow;
-            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                       
-            SetTexts();
-
         }
         public AddWebUrl(FocusBearMainWindow _ParentWindow, string sURLToEdit = "", bool bEditURLMode = false, bool isBlockedURLsMode = false) : this()
         {

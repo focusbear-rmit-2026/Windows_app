@@ -1,0 +1,184 @@
+﻿<Page x:Class="Focus_Bear.Onboarding.Privacy"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Onboarding"
+      xmlns:controls="clr-namespace:Focus_Bear.Controls"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Loaded="Page_Loaded" IsVisibleChanged="Page_IsVisibleChanged">
+
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="8*" />
+                <!-- 80% container -->
+                <RowDefinition Height="2*" />
+                <!-- 20% buttons -->
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35*" />
+                    <!-- 28.6% -->
+                    <RowDefinition Height="50*" />
+                    <!-- 54.3% -->
+                    <RowDefinition Height="15*" />
+                    <!-- 17.1% -->
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Vertical" VerticalAlignment="Center">
+                    <TextBlock  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xPrivacy n Security" FontSize="35" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBlock  Name="Description" Margin="0,10,0,0" TextWrapping="Wrap" Text="xWe take your privacy and security very seriously and will never share your data ever." FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" />
+                </StackPanel>
+                <Grid  Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,30">
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <!-- ITEM 1 -->
+                        <Grid Width="195" Height="135" Margin="0,0,20,0">
+
+                            <!-- Rectangle -->
+                            <Border Width="195" 
+                                    Height="110"
+                                    Background="{DynamicResource SoftCreamColor}"
+                                    CornerRadius="15"
+                                    VerticalAlignment="Bottom">     
+                                <TextBlock Name="Item1" Margin="10,32,10,0" TextWrapping="Wrap" Text="xWe never track which sites or apps you visit." FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" />
+                            </Border>
+
+                            <!-- Circle (half out, half in) -->
+                            <Border Width="50"
+                                    Height="50"
+                                    Background="#EB912E"
+                                    CornerRadius="50"
+                                    VerticalAlignment="Top"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,0,0,0"
+                                    Panel.ZIndex="1">
+
+                                <Image Source="../images/new/privacy1.png" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+
+                        </Grid>
+
+                        <!-- ITEM 2 -->
+                        <Grid Width="195" Height="135" Margin="0,0,20,0">
+
+                            <Border Width="195"
+                                    Height="110"
+                                    Background="{DynamicResource SoftCreamColor}"
+                                    CornerRadius="15"
+                                    VerticalAlignment="Bottom">
+                                <TextBlock Name="Item2" Margin="10,32,10,0" TextWrapping="Wrap" Text="xYour data syncs across devices so blocking works everywhere." FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" />
+                            </Border>
+
+                            <Border Width="50"
+                                    Height="50"
+                                    Background="#EB912E"
+                                    CornerRadius="50"
+                                    VerticalAlignment="Top"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,0,0,0"
+                                    Panel.ZIndex="1">
+
+                                <Image Source="../images/new/privacy2.png" Width="20" Height="20"/>
+                            </Border>
+
+                        </Grid>
+
+                        <!-- ITEM 3 -->
+                        <Grid Width="195" Height="135">
+
+                            <Border Width="195"
+                        Height="110"
+                        Background="{DynamicResource SoftCreamColor}"
+                        CornerRadius="15"
+                        VerticalAlignment="Bottom">
+                                <TextBlock Name="Item3" Margin="10,32,10,0" TextWrapping="Wrap" Text="xYour data is encrypted and yours alone." FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" />
+
+                            </Border>
+
+                            <Border Width="50"
+                                    Height="50"
+                                    Background="#EB912E"
+                                    CornerRadius="50"
+                                    VerticalAlignment="Top"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,0,0,0"
+                                    Panel.ZIndex="1">       
+
+                                <Image Source="../images/new/privacy3.png" Width="20" Height="20"/>
+                            </Border>
+
+                        </Grid>
+
+                    </StackPanel>
+
+                </Grid>
+
+
+                <Border Grid.Row="2" Height="50" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Gray" CornerRadius="10" HorizontalAlignment="Center"  >
+                    <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center" Margin="13" >
+                        <CheckBox x:Name="EULA_PP" AutomationProperties.AutomationId="chkEULA_PP" FontSize="15" Checked="EULA_PP_Checked" Unchecked="EULA_PP_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Top" Padding="5,-3,0,0">xI agree to the terms of the</CheckBox>
+                        <TextBlock x:Name="ViewEULA"  Margin="5,-3,0,0"  AutomationProperties.AutomationId="ViewEULA" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
+                            <Hyperlink x:Name="btnViewEULA"  Click="btnViewEULA_Click"   TextDecorations="Underline" ><Run x:Name="btnViewEULAText" Text="xSoftware License Agreement"/></Hyperlink>
+                        </TextBlock>
+
+                        <TextBlock Name="And" Margin="5,-3,5,0" TextWrapping="Wrap" Text="xand" FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" />
+
+                        <TextBlock x:Name="ViewPrivacy"  Margin="0,-3,0,0"  AutomationProperties.AutomationId="ViewPrivacy" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
+                            <Hyperlink x:Name="btnViewPrivacy"  Click="btnViewPrivacy_Click"   TextDecorations="Underline" ><Run x:Name="btnViewPrivacyText" Text="xPrivacy Policy"/></Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+            <Grid Grid.Row="1">
+                <Button x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="7,7" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnContinueText" Margin="8" Text="xContinue" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </Grid>
+        </Grid>
+        <!-- Floating element -->
+        <Grid Height="230" x:Name="SideImage"
+             Background="Transparent"
+             HorizontalAlignment="Right"
+             VerticalAlignment="Top"
+             Panel.ZIndex="99" Margin="0,150,-70,0">      
+            <!-- ensures it's on top -->
+                <Image Source="../Images/new/bear_privacy.png" Stretch="Uniform"/>
+                <!-- SPEECH BUBBLE -->
+                <controls:SpeechBubble x:Name="Bubble1"
+                 Text="xWe will never compromise on your privacy!"
+                 Direction="Right" 
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center" FontSize="13">
+
+                    <controls:SpeechBubble.RenderTransform>
+                        <!-- Move LEFT of image -->
+                        <TranslateTransform X="-150" Y="-40"/>
+                    </controls:SpeechBubble.RenderTransform>
+
+                </controls:SpeechBubble>    
+            
+            
+        </Grid>
+        
+    </Grid>
+    
+</Page>
+

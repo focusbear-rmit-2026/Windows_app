@@ -328,7 +328,7 @@ namespace Focus_Bear.Services
             if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
             {
                 CustomBlockingSchedule TempSchedule = GetActiveSchedule();
-                if(TempSchedule == null) //will be null if no time matches
+                if(TempSchedule == null || appSettings.ActiveSchedule != TempSchedule) //will be null if no time matches
                 {
                     appSettings.ActiveSchedule.isOn = false;
                     appSettings.isBlockingScheduleRunning = false;

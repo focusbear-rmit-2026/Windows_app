@@ -33,7 +33,7 @@ namespace Focus_Bear.Login
 
     public partial class LoginSignUp : Page
     {
-        private LoginMain _parentWindow;
+        private FocusBearMainWindow ParentWindow;
         AppSettings appSettings = AppSettings.GetInstance;
         bool bEyeOnPasswordBox = false;
         App app = (App)Application.Current;
@@ -41,17 +41,15 @@ namespace Focus_Bear.Login
         {
         }
 
-        public LoginSignUp(LoginMain parentWindow) : this()
+        public LoginSignUp(FocusBearMainWindow _parentWindow) : this()
         {
        
             InitializeComponent();
-            _parentWindow = parentWindow;
+            ParentWindow = _parentWindow;
           
             try
             {
-                GeneratePassword.IsChecked = true;
-                TxtPassword.Password = GenerateSecurePassword();
-                Heading.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleSignUp"].ToString();
+                Heading.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["subTitleCreateAccount"].ToString();
                 Description.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["explainCreateAccountText"].ToString();
                 lblEmail.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailAddress"].ToString();
                 lblPassword.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePassword"].ToString();
@@ -68,21 +66,13 @@ namespace Focus_Bear.Login
                 lblPasswordNumbers.Text = " * " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleFifthText"].ToString();
                 lblPasswordSpecialChars.Text = " * " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleSixthText"].ToString();
 
-                GeneratePassword.Content = appSettings.ConfigFileStrings["customLoginVcInfo"]["generatePasswordText"].ToString();
-                OwnPassword.Content = appSettings.ConfigFileStrings["customLoginVcInfo"]["useOwnPasswordText"].ToString();
-                btnCopyTXT.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCopyPasswordText"].ToString();
-                SavedPassword.Content = appSettings.ConfigFileStrings["customLoginVcInfo"]["checkBoxPasswordSavedText"].ToString();
-
-                MakeSureSave.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["makeSureSaveText"].ToString(); //"Make sure to save your password in a safe place, as it will not be shown again!";
-
                 //initially button will be disabled
-                btnCreatAccount.IsEnabled = false;
+                btnCreateAccount.IsEnabled = false;
 
                 Loaded += (sender, e) => TxtEmailAddress.Focus();
 
                 EyePassword.ToolTip = appSettings.ConfigFileStrings["customLoginVcInfo"]["tooltipShowPassword"].ToString();
-                WeGeneratedPassword.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordGenerateText"].ToString();
-                btnBack.ToolTip = appSettings.ConfigFileStrings["activationNagInfo"]["buttonBackText"].ToString();
+
             }
             catch (Exception ex)
             {
@@ -93,7 +83,7 @@ namespace Focus_Bear.Login
             App.ThemeChanged += TitleBarThemeChange;
         }
 
-        private async void btnCreatAccount_Click(object sender, RoutedEventArgs e)
+        private async void btnCreateAccount_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnCreatAccount_Click");
             appSettings.CapturePostHog("button-create-account-clicked");
@@ -148,9 +138,8 @@ namespace Focus_Bear.Login
                                                                 //Login Success
                                                                 appSettings.GetLoginAndTokenValidSettings();
                                                                 appSettings.CapturePostHog("login-homemade");
-                                                                
-                                                                _parentWindow.bDoNotShutDown = true;
-                                                                _parentWindow.Close();
+
+                                                                ParentWindow.Hide();
 
                                                             }));
                                                         }
@@ -163,7 +152,7 @@ namespace Focus_Bear.Login
                                                                 EnablControls(true);
                                                                 
                                                                 FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, "Focus Bear");
-                                                                ff.Owner = _parentWindow;
+                                                                ff.Owner = ParentWindow;
                                                                 ff.ShowDialog();
                                                             }));
                                                         }
@@ -202,7 +191,7 @@ namespace Focus_Bear.Login
                                                     EnablControls(true);
                                                     
                                                     FBMessageBox ff = new FBMessageBox(policy, "Focus Bear");
-                                                    ff.Owner = _parentWindow;
+                                                    ff.Owner = ParentWindow;
                                                     ff.ShowDialog();
                                                 }
                                                 catch (Exception ex)
@@ -212,7 +201,7 @@ namespace Focus_Bear.Login
                                                     LogWriter.LogWrite(ex.Message);
                                                     
                                                     FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, "Focus Bear");
-                                                    ff.Owner = _parentWindow;
+                                                    ff.Owner = ParentWindow;
                                                     ff.ShowDialog();
                                                 }
                                                
@@ -231,21 +220,21 @@ namespace Focus_Bear.Login
                         else
                         {
                             FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordIsBlank"].ToString(), "Focus Bear");
-                            ff.Owner = _parentWindow;
+                            ff.Owner = ParentWindow;
                             ff.ShowDialog();
                         }
                     }
                     else
                     {
                         FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["emailInvalidText"].ToString(), "Focus Bear");
-                        ff.Owner = _parentWindow;
+                        ff.Owner = ParentWindow;
                         ff.ShowDialog();
                     }
                 }
                 else
                 {
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear");
-                    ff.Owner = _parentWindow;
+                    ff.Owner = ParentWindow;
                     ff.ShowDialog();
                 }
             }
@@ -259,10 +248,6 @@ namespace Focus_Bear.Login
             }
         }
 
-        private void btnBack_Click(object sender, RoutedEventArgs e)
-        {
-            _parentWindow.ShowLoginHomeWindow();
-        }
         public void EnablControls(bool bEnable)
         {
             if (bEnable)
@@ -276,8 +261,7 @@ namespace Focus_Bear.Login
             TxtEmailAddress.IsEnabled = bEnable;
             TxtPassword.IsEnabled = bEnable;
             TxtConfirmPassword.IsEnabled = bEnable;
-            btnBack.IsEnabled = bEnable;
-            btnCreatAccount.IsEnabled = bEnable;
+            btnCreateAccount.IsEnabled = bEnable;
         }
 
         private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
@@ -288,20 +272,12 @@ namespace Focus_Bear.Login
             //TxtPassword.Focus();
             if(IsPasswordValid())
             {
-                //check confirm password
-                if (GeneratePassword.IsChecked.Value )
-                {
-                    //if(SavedPassword.IsChecked.Value)
-                        btnCreatAccount.IsEnabled = true;
-                }
-                else
-                {
-                    btnCreatAccount.IsEnabled = true;
-                }
+                btnCreateAccount.IsEnabled = true;
+
             }
             else
             {
-                btnCreatAccount.IsEnabled = false;
+                btnCreateAccount.IsEnabled = false;
             }
         }
 
@@ -424,7 +400,7 @@ namespace Focus_Bear.Login
                 }
                 catch (Exception ex)
                 {
-                    EyePassword.ToolTip = "Hide Password"; //Fore Time Being todo win texts
+                    EyePassword.ToolTip = "Hide Password"; //Fore Time Being //todo win texts
                     LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
                 }
             }
@@ -446,7 +422,7 @@ namespace Focus_Bear.Login
                 }
                 catch (Exception ex)
                 {
-                    EyePassword.ToolTip = "Show Password"; //for time being
+                    EyePassword.ToolTip = "Show Password"; //for time being //todo win texts
                     LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
                 }
             }
@@ -454,87 +430,6 @@ namespace Focus_Bear.Login
 
         private void EyeConfirmPassword_MouseUp(object sender, MouseButtonEventArgs e)
         { 
-        }
-
-        private void OwnPassword_Checked(object sender, RoutedEventArgs e)
-        {
-            appSettings.CapturePostHog("button-use-own-password-clicked");
-            GridGeneratePassRelated.Visibility = Visibility.Collapsed;
-            GridPasswordRules.Visibility = Visibility.Visible;
-            WeGeneratedPassword.Visibility = Visibility.Collapsed;
-            TxtPassword.Password = "";
-        }
-
-        private async void GeneratePassword_Checked(object sender, RoutedEventArgs e)
-        {
-            appSettings.CapturePostHog("button-generate-password-clicked");
-            GridGeneratePassRelated.Visibility = Visibility.Visible;
-            GridPasswordRules.Visibility = Visibility.Collapsed;
-            WeGeneratedPassword.Visibility = Visibility.Visible;
-            TxtPassword.Password = GenerateSecurePassword();
-            WeGeneratedPassword.Background = System.Windows.Media.Brushes.Yellow;
-            for (int i = 1; i < 8; i++)
-            {
-                if (i % 2 == 0)
-                {
-                    WeGeneratedPassword.Background = System.Windows.Media.Brushes.Yellow;
-                    await Task.Delay(500);
-                }
-                else
-                {
-                    WeGeneratedPassword.Background = System.Windows.Media.Brushes.Transparent;
-                    await Task.Delay(500);
-                }
-            }
-            if (GeneratePassword.IsChecked.Value) //Only if it is still checked
-            {
-                btnCreatAccount.IsEnabled = true; //now we enable it by default and just let user know tro save password
-            }
-        }
-
-        private void SavedPassword_Checked(object sender, RoutedEventArgs e)
-        {
-            appSettings.CapturePostHog("saved-password-safe-checked");
-
-            if(GeneratePassword.IsChecked.Value)
-            {
-                btnCreatAccount.IsEnabled = true;
-            }
-
-        }
-
-        private void SavedPassword_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (GeneratePassword.IsChecked.Value)
-            {
-                btnCreatAccount.IsEnabled = false;
-            }
-
-        }
-
-        private void btnCopy_Click(object sender, RoutedEventArgs e)
-        {
-            Clipboard.SetText(TxtPassword.Password);
-
-            btnCopy.ToolTip = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopied"].ToString();
-            var toolTip = new ToolTip();
-
-            if (btnCopy.ToolTip != null)
-            {
-                if (btnCopy.ToolTip is ToolTip)
-                {
-                    var castToolTip = (ToolTip)btnCopy.ToolTip;
-                    castToolTip.IsOpen = true;
-                }
-                else
-                {
-                    toolTip.Content = btnCopy.ToolTip;
-                    toolTip.StaysOpen = false;
-                    toolTip.IsOpen = true;
-                }
-            }
-
-            btnCopy.ToolTip = appSettings.ConfigFileStrings["customLoginVcInfo"]["buttonCopyPasswordText"].ToString();
         }
 
         private string GenerateSecurePassword()
@@ -585,8 +480,6 @@ namespace Focus_Bear.Login
                 Description.Foreground = new SolidColorBrush(Colors.Black);
                 lblEmail.Foreground = new SolidColorBrush(Colors.Black);
                 lblPassword.Foreground = new SolidColorBrush(Colors.Black);
-                SavedPassword.Foreground = new SolidColorBrush(Colors.Black);
-                WeGeneratedPassword.Foreground = new SolidColorBrush(Colors.Black);
             }
             else
             {
@@ -594,9 +487,6 @@ namespace Focus_Bear.Login
                 Description.Foreground = new SolidColorBrush(Colors.LightGray);
                 lblEmail.Foreground = new SolidColorBrush(Colors.LightGray);
                 lblPassword.Foreground = new SolidColorBrush(Colors.LightGray);
-                SavedPassword.Foreground = new SolidColorBrush(Colors.LightGray);
-                WeGeneratedPassword.Foreground = new SolidColorBrush(Colors.LightGray);
-
             }
         }
         

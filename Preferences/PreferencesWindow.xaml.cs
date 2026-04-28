@@ -490,7 +490,6 @@ namespace Focus_Bear.Preferences
                         //Hide show the help tabs views
                         PageHelp.webViewGetSupport.Visibility = Visibility.Collapsed;
                         PageHelp.webViewTutorials.Visibility = Visibility.Collapsed;
-                       //mj// PageBlocks.webViewBlockingSchedule.Visibility = Visibility.Collapsed;
 
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = this;
@@ -510,7 +509,6 @@ namespace Focus_Bear.Preferences
                         //Hide show the help tabs views
                         PageHelp.webViewGetSupport.Visibility = Visibility.Visible;
                         PageHelp.webViewTutorials.Visibility = Visibility.Visible;
-                       //mj// PageBlocks.webViewBlockingSchedule.Visibility = Visibility.Visible;
 
                         if (bResult.Value)
                         {

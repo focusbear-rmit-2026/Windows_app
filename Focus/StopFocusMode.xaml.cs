@@ -32,7 +32,7 @@ namespace Focus_Bear.Focus
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
-        int nTimer = 0;
+
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         public StopFocusMode()

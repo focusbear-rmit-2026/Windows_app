@@ -27,6 +27,9 @@ using Focus_Bear.FocusMusic;
 using Focus_Bear.AccountabilityBuddy;
 using System.Windows.Shapes;
 using Path = System.IO.Path;
+using Focus_Bear.Services;
+using System.Security.Policy;
+using System.Web;
 
 namespace Focus_Bear.Utils          
 {
@@ -113,11 +116,18 @@ namespace Focus_Bear.Utils
         public string OnboardingVideoUrl = "";
         public bool bOnboardingActivitySkipped = false;
         public bool bProgrammaticSelectioninLeftTree; //
+
+        public bool bAlreadyHaveAnAccountClicked = false;
         public bool bGoalHealthyHabits { get; set; }
         public bool bGoalStayFocused { get; set; }
         public string sCareFactorString = "";
 
         public bool bAreBreaksEnabled = true; //default ON
+
+        public string sGeneratedOccupationRelevantSites = "";
+        public ObservableCollection<DistractingURL> AllowedURLsWhileOnboarding = new ObservableCollection<DistractingURL>();
+        public ObservableCollection<DistractingURL> DistractingURLsWhileOnboarding = new ObservableCollection<DistractingURL>();
+        public string sHabitsParam = "";
 
         public bool bExitFullScreenClickedWhileOnboarding { get; set; }
         public DateTime MorningHabitsShownTillDate { get; set; }
@@ -179,8 +189,8 @@ namespace Focus_Bear.Utils
         public breakActivity currentActivityPlaying;
         public habit currentHabitPlaying;
 
-        public List<habit> arrGLOBALAllMorningHabits;
-        public List<habit> arrGLOBALAllEveningHabits;
+        public List<habit> arrGLOBALAllMorningHabits = new List<habit>();
+        public List<habit> arrGLOBALAllEveningHabits = new List<habit>();
 
         public List<habit> arrAllMorningHabitsFiltered = new List<habit>(); //these will now be filtered with the Days Of week
         public List<habit> arrAllEveningHabitsFiltered = new List<habit>();
@@ -194,6 +204,7 @@ namespace Focus_Bear.Utils
 
         public bool bHabitwithAllowedAppsRunning = false;
         public bool bHabitwithUseFocusModeRunning = false;
+        public bool bHabitwithUserActionNonTimerRunning = false;
         public string sUseFocusModeIDInActivity = "";
         public string sCurrentRunningActivity = "";
         public string sHabitTypeForUseFocusModeIDInActivity = "";//evening-habit, morning-habit, break-activity
@@ -275,6 +286,12 @@ namespace Focus_Bear.Utils
         public string sRunningFocusModeIntention = "";
         public double sRunningFocusModeAlignmentScoreThreshold;
 
+        public DateTime? focusSessionStartTime;   // when current active segment started for the current focus session to calculate exact time used, ignoring pause time
+        public double CurrentFocusSessionDuration = 0; //will be used to save in API and show in end window
+
+        public double CurrentFocusAlignmentScore = 100; //will be used to save in API
+        public double TotalDeepFocusedTime = 0;
+
         public bool bSkipMicroBreaksDuringFocus;
         public bool bShowFocusModeEnd; 
         public bool bDontShowModeChangeFB = false;
@@ -300,6 +317,7 @@ namespace Focus_Bear.Utils
         /// Maximum number of browser tabs before an alert is shown. 0 = disabled.
         /// </summary>
         public int nMaxTabLimit = 0;
+        public int nCountOpenTabs = 0;
 
         /// <summary>
         /// When true, all notification sounds (habits, focus mode, routines) are silenced.
@@ -360,6 +378,7 @@ namespace Focus_Bear.Utils
         public bool isOfficeModeEnabled = false;
 
         public ObservableCollection<string> arrAlwaysBlockedURLs = new ObservableCollection<string>();
+        public ObservableCollection<AppDetails> arrAlwaysBlockedApps = new ObservableCollection<AppDetails>();
 
         public ObservableCollection<AppDetails> arrAlwaysAllowedApps = new ObservableCollection<AppDetails>();
 
@@ -399,6 +418,9 @@ namespace Focus_Bear.Utils
 
         public string sOfflineDataCSVPath;
 
+        public CsvLogger csvFocusProductivityStats = null;
+        public CsvLogger csvUsageTimingsExplanation = null;
+
         public bool bStringsLoaded;
 
         public int nTimerValForNonTimerActivities = 86400; //Timer val for non - timer activities
@@ -422,6 +444,8 @@ namespace Focus_Bear.Utils
         public bool bAutomaticallySuggestStartingMeetingsFocus = false;
         public bool bBlockSuperDistractingSitesDuringMeetings = false;
         public bool bShowBreaksWhileInCall = false;
+        public bool bUserClickedNoDoNotSuggestAnymore = false;
+        public bool bAdvancedAnalyticsInFocusModeEnabled = false;
 
         public bool bIsGeekModeEnabled = false;
         //Simple mode Focus summary related
@@ -475,6 +499,9 @@ namespace Focus_Bear.Utils
             sLogQuantityCSVPath = Path.Combine(AppDataDirPath, "FocusBearStats.CSV");
 
             sOfflineDataCSVPath = Path.Combine(AppDataDirPath, "FocusBearOfflineData.CSV");
+
+            csvFocusProductivityStats = new CsvLogger(Path.Combine(AppDataDirPath, "focusProductivityStats.CSV"), true);
+            csvUsageTimingsExplanation = new CsvLogger(Path.Combine(AppDataDirPath, "usage_timings.CSV"), false, true);
 
             isAnyMandatoryActivityIncluded = false;
             isMandatoryActivityGoing = false;
@@ -1359,16 +1386,16 @@ namespace Focus_Bear.Utils
                                     bool isOn = false;
                                     bool isAllowedAllApps = false;
                                     bool isAllowedListApproach = false;
-                                    bool isAllowedAllUrls = false;
-                                    bool isBlockedAllUrls = false;
                                     bool isDefault = false;
                                     bool isMeetings = false;
                                     bool isLockedFocus = false;
                                     bool isRelaxFocus = false;
                                     bool isDeepWorkFocus = false;
+                                    bool isWorkFocus = false;
                                     string sTooltip = "";
                                     string lastTaskUsed = "";
                                     int focusAlignmentScoreThreshold = 80;
+                                    bool isAutoSuggestFocusModeOnAllowedURL = false;
 
                                     if (name == "Free time - block nothing")
                                     {
@@ -1427,9 +1454,11 @@ namespace Focus_Bear.Utils
                                         isLockedFocus = metadata.ContainsKey("isLockedFocus") ? Convert.ToBoolean(metadata.GetValue("isLockedFocus")) : false;
                                         isRelaxFocus = metadata.ContainsKey("isRelaxFocus") ? Convert.ToBoolean(metadata.GetValue("isRelaxFocus")) : false;
                                         isDeepWorkFocus = metadata.ContainsKey("isDeepWorkFocus") ? Convert.ToBoolean(metadata.GetValue("isDeepWorkFocus")) : false;
+                                        isWorkFocus = metadata.ContainsKey("isWorkFocus") ? Convert.ToBoolean(metadata.GetValue("isWorkFocus")) : false;
+                                        isAutoSuggestFocusModeOnAllowedURL = metadata.ContainsKey("autoSuggestFocusModeOnAllowedURL") ? Convert.ToBoolean(metadata.GetValue("autoSuggestFocusModeOnAllowedURL")) : (isWorkFocus ? true : false);
                                     }
 
-                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : sTooltip), lastTaskUsed, focusAlignmentScoreThreshold));
+                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, isWorkFocus, isAutoSuggestFocusModeOnAllowedURL, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : sTooltip), lastTaskUsed, focusAlignmentScoreThreshold));
                                 }
 
                                 catch (Exception ex)
@@ -1533,17 +1562,40 @@ namespace Focus_Bear.Utils
                                 }
                             }
 
-                            if (sMacOSSettingsOBJ.ContainsKey("kArrAlwaysAllowedApps"))
+                            if (sMacOSSettingsOBJ.ContainsKey("kArrAlwaysAllowedAppsWin"))
                             {
-                                JArray jarrAlwaysAllowedApps = sMacOSSettingsOBJ.ContainsKey("kArrAlwaysAllowedApps") ? (JArray)sMacOSSettingsOBJ["kArrAlwaysAllowedApps"] : null;
+                                JArray jarrAlwaysAllowedApps = sMacOSSettingsOBJ.ContainsKey("kArrAlwaysAllowedAppsWin") ? (JArray)sMacOSSettingsOBJ["kArrAlwaysAllowedAppsWin"] : null;
 
                                 if (jarrAlwaysAllowedApps != null && jarrAlwaysAllowedApps.Count() > 0)
                                 {
                                     arrAlwaysAllowedApps.Clear();
-                                    foreach (string appPath in jarrAlwaysAllowedApps.ToObject<List<string>>())
+                                    
+                                    try
                                     {
-                                        string appName = System.IO.Path.GetFileNameWithoutExtension(appPath);
-                                        arrAlwaysAllowedApps.Add(new AppDetails(appName, appPath));
+                                        arrAlwaysAllowedApps = jarrAlwaysAllowedApps.ToObject<ObservableCollection<AppDetails>>();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogWriter.LogWrite("arrAlwaysAllowedApps() Reading FAILED Possibly old data + " + ex.Message);
+                                    }
+                                    
+                                }
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kArrAlwaysBlockedAppsWin"))
+                            {
+                                JArray jarrAlwaysBLockedApps = sMacOSSettingsOBJ.ContainsKey("kArrAlwaysBlockedAppsWin") ? (JArray)sMacOSSettingsOBJ["kArrAlwaysBlockedAppsWin"] : null;
+
+                                if (jarrAlwaysBLockedApps != null && jarrAlwaysBLockedApps.Count() > 0)
+                                {
+                                    arrAlwaysBlockedApps.Clear();
+                                    try
+                                    {
+                                        arrAlwaysBlockedApps = jarrAlwaysBLockedApps.ToObject<ObservableCollection<AppDetails>>();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogWriter.LogWrite("arrAlwaysBlockedApps() Reading FAILED Possibly old data + " + ex.Message);
                                     }
                                 }
                             }
@@ -1605,6 +1657,8 @@ namespace Focus_Bear.Utils
                             bAutomaticallySuggestStartingMeetingsFocus = sMacOSSettingsOBJ.ContainsKey("kShowMeetingDetectionAlert") ? (bool)sMacOSSettingsOBJ.GetValue("kShowMeetingDetectionAlert") : false;
                             bBlockSuperDistractingSitesDuringMeetings = sMacOSSettingsOBJ.ContainsKey("kIsBlockDistractingSitesDuringMeetingsEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsBlockDistractingSitesDuringMeetingsEnabled") : false;
                             bShowBreaksWhileInCall = sMacOSSettingsOBJ.ContainsKey("kIsShowBreaksInCallEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsShowBreaksInCallEnabled") : false;
+                            bAdvancedAnalyticsInFocusModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsAdvancedAnalyticsInFocusModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsAdvancedAnalyticsInFocusModeEnabled") : false;
+
 
                             bIsGeekModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsGeekModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsGeekModeEnabled") : false;
 
@@ -1720,7 +1774,19 @@ namespace Focus_Bear.Utils
                         //add to focus modes  array and Upload to api
                         //#A3FFA1 is the default color
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["defaultFocusText"].ToString(); //Block super distracting sites/apps
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, true, false, false, false, false));
+                        string sId = System.Guid.NewGuid().ToString();
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(sId, sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, true, false, false, false, false, false));
+
+                        //while onboarding we created a blocking schedule, we need to add this id to that
+                        if(arrCustomBlockingSchedules.Count > 0)
+                        {
+                            arrCustomBlockingSchedules[0].SelectedFocusModeId = sId;
+                            _ = Task.Run(async () =>
+                            {
+                                await Task.Delay(TimeSpan.FromSeconds(10));
+                                BlockingScheduleManager.AddBlockingSchedule(arrCustomBlockingSchedules[0]);
+                            });
+                        }
 
                     }
                     else if(listItemsD.Count() > 1) //addressing problems where we are seeing duplicate default focus modes
@@ -1737,7 +1803,7 @@ namespace Focus_Bear.Utils
                                 arrFocusModes.RemoveAt(i);
                             }
                         }
-                    }
+                    } 
                     //Check Meetings Focus Mode
                     var listItemsM = arrFocusModes.Where(m => m.isMeetings == true);
                     if (listItemsM.Count() == 0)
@@ -1779,7 +1845,7 @@ namespace Focus_Bear.Utils
                         arrAllowedAppsWin.Add(new AppDetails("Slack", "slack.exe"));
 
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusText"].ToString(); //"meetingsFocusText":"Meetings",
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, true, false, false, false));
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, true, false, false, false,false));
 
                     }
                     //Check Locked Focus Mode
@@ -1791,7 +1857,7 @@ namespace Focus_Bear.Utils
                         //add to focus modes  array and Upload to api
                         //#A3FFA1 is the default color
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["lockedFocusText"].ToString();//        "lockedFocusText":"Locked Focus on current activity",
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, false, true, false, false, true, false, false));
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, false, true, false, false, true, false, false,false));
                     }
 
                     //Check Relax Focus Mode
@@ -1803,7 +1869,7 @@ namespace Focus_Bear.Utils
                         //add to focus modes  array and Upload to api
                         //#A3FFA1 is the default color
                         string sName = ConfigFileStrings["focusPreferencesInfo"]["relaxFocusText"].ToString(); //"Relax - block nothing"
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, false, false, false, false, true, false));
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, false, false, false, false, true, false, false));
                     }
 
                     //Check Deep Work Focus Mode
@@ -1818,7 +1884,34 @@ namespace Focus_Bear.Utils
                         arrAllowedUrls.Add("google.com");
 
                         string sName = "Deep Work";// todo win texts ConfigFileStrings["focusPreferencesInfo"]["relaxFocusText"].ToString(); //"Relax - block nothing"
-                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, arrAllowedUrls, new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, false, false, false, false, true));
+                        AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, arrAllowedUrls, new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, false, false, false, false, true,false));
+                    }
+
+                    var listItemsWork = arrFocusModes.Where(l => l.isWorkFocus == true);
+                    if (listItemsWork.Count() == 0)
+                    {
+                        string sName = "Work"; //to do win texts
+                        string sId = System.Guid.NewGuid().ToString();
+                        ObservableCollection<string> arrAllowedUrls = new ObservableCollection<string>();
+                        ObservableCollection<string> arrBlockedUrls = new ObservableCollection<string>();
+
+                        //Only create Work focusmode when some values are there
+                        if (AllowedURLsWhileOnboarding.Count() > 0 || DistractingURLsWhileOnboarding.Count() > 0)
+                        {
+                            foreach (DistractingURL item in AllowedURLsWhileOnboarding)
+                            {
+                                if (item.IsItemChecked)
+                                    arrAllowedUrls.Add(item.sURL);
+                            }
+                            foreach (DistractingURL item in DistractingURLsWhileOnboarding)
+                            {
+                                if (item.IsItemChecked)
+                                    arrBlockedUrls.Add(item.sURL);
+                            }
+
+                            AddFocusModeToArrayAndUploadtoAPI(new FocusMode(sId, sName, arrAllowedUrls, arrBlockedUrls, new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true, false, false, false, false, false, true));
+                        }
+
                     }
                 }
 
@@ -2381,6 +2474,35 @@ namespace Focus_Bear.Utils
 
         }
 
+        public void ShowSuggestStartWorkFocusModeWindow(IntPtr hWnd, FocusMode focusType)
+        {
+            if (focusType.bUserClickedNoDoNotSuggestAnymore)
+                return;
+            LogWriter.LogWrite("ShowSuggestStartWorkFocusModeWindow - focus name = " + focusType.name);
+
+            ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
+            {
+                //todo win texts
+                string sTemp = "You’re currently using a website allowed for <WORK> Focus Mode.";
+                sTemp = sTemp.Replace("<WORK>", focusType.name);
+                FBMessageBox msg = new FBMessageBox("Would you like to start Focus Mode now?",
+                    sTemp, 
+                    MessageBoxButton.YesNo, "Yes, Start", "Not Now", "", false, "", true, MessageBoxResult.No);
+                msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                msg.ShowDialog();
+                if (msg.btnClicked == MessageBoxResult.No)
+                {   
+                    focusType.bUserClickedNoDoNotSuggestAnymore = true;
+                    return;
+                }
+                else
+                {
+                    //Start the focus mode
+                    ((App) Application.Current).StartWorkFocusMode(focusType.id);
+                }
+
+            }));
+        }
         public void ShowGentleBlockWindow(IntPtr hWnd, string sEXE, string sURL = "", string sTabTitle = "")
         {
             ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
@@ -2723,6 +2845,54 @@ namespace Focus_Bear.Utils
                 wndReportBadAIDecision.ShowReportBadAIDecisionWithPayload(sPayload, sURL);
                 wndReportBadAIDecision.Show();
             }));
+        }
+
+        public async void GetTotalDeepFocusedTime()
+        {
+            LogWriter.LogWrite("GetTotalDeepFocusedTime()");
+
+            TotalDeepFocusedTime = 0;
+            
+            try
+            {
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var xResponse = await client.GetActivityAllDaySummary();
+
+
+                //Parse the Activity data got from API
+                if (sActivityAllDaySummaryData.Length > 0)
+                {
+                    JObject sActivityData = JObject.Parse(sActivityAllDaySummaryData);
+                    if (sActivityData.ContainsKey("focusSummary"))
+                    {
+                        JArray arrayItems = (JArray)sActivityData["focusSummary"];
+
+                        foreach (JObject item in arrayItems)
+                        {
+                            int durationSeconds = item.ContainsKey("duration") ? (int)item.GetValue("duration") : 0;
+
+                            if (item.TryGetValue("metadata", out JToken metadataToken) &&
+                                    metadataToken is JObject metadataObj &&
+                                    metadataObj.TryGetValue("focus_alignment_score", out JToken fcaToken))
+                            {
+                                double fca = fcaToken.Value<double>();
+                                var deepWorkDuration = (durationSeconds * fca) / 100;
+                                TotalDeepFocusedTime += deepWorkDuration;
+                            }
+                            else
+                            {
+                                TotalDeepFocusedTime += durationSeconds;
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("FocusActivitySummary() InitializeFocusSummaryView ex + " + ex.Message);
+            }
+
         }
     }
 }

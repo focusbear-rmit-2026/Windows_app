@@ -9,6 +9,7 @@
      d:DesignHeight="680" d:DesignWidth="945"
       Title="LoginSignUp" >
     <Grid>
+        <Grid>
         <Grid.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.MergedDictionaries>
@@ -17,26 +18,19 @@
             </ResourceDictionary>
         </Grid.Resources>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100"/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>
-            <RowDefinition Height="80"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="3.5*"/>
+            <RowDefinition Height="6.5*"/>
         </Grid.RowDefinitions>
 
+            <StackPanel Grid.Row="0" Orientation="Vertical" VerticalAlignment="Center">
+                <TextBlock Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xSign Up" FontSize="35" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Name="Description" Margin="0,20,0,0" TextWrapping="Wrap" Text="xCreate an account to sync your habit + block settings across all your devices."  FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" Width="520">
 
-        <Button x:Name="btnBack" AutomationProperties.AutomationId="btnBack" Grid.RowSpan="3" Grid.Column="0" Content="Button" Style="{StaticResource BtnStyleBack}" SnapsToDevicePixels="True" HorizontalAlignment="Center" Height="82" VerticalAlignment="Center" Width="90" ToolTip="xBack" Cursor="Hand" Click="btnBack_Click"/>
-        <TextBlock Width="300" Grid.Row="0" Grid.Column="1" Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xSign Up" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1" Grid.Column="1"  Name="Description" Margin="0,20,0,0" TextWrapping="Wrap" Text="xCreate an account to sync your habit + block settings across all your devices."  FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-
-        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center" Width="420">
-
-            <TextBlock Width="300"  Name="lblEmail" Margin="60,20,40,10" TextWrapping="Wrap" Text="xEmail Address"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
-            <TextBox Width="300" TabIndex="1" x:Name="TxtEmailAddress" AutomationProperties.AutomationId="txtBoxEmailAddress" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"   BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" >
+            <TextBlock Width="400"  Name="lblEmail" Margin="60,20,40,10" TextWrapping="Wrap" Text="xEmail Address"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBox Width="400" TabIndex="1" x:Name="TxtEmailAddress" AutomationProperties.AutomationId="txtBoxEmailAddress" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"   BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" >
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -55,15 +49,11 @@
                     </Style>
                 </TextBox.FocusVisualStyle>
             </TextBox>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
-                <RadioButton x:Name="GeneratePassword" AutomationProperties.AutomationId="rbGeneratePassword" Content="xGenerate Password" Style="{StaticResource SegmentRadioButtonStyle}"  Checked="GeneratePassword_Checked" Cursor="Hand"/>
-                <RadioButton x:Name="OwnPassword" AutomationProperties.AutomationId="rbOwnPassword" Content="xUse own password" Style="{StaticResource SegmentRadioButtonStyle}" Checked="OwnPassword_Checked" Cursor="Hand"/>
-            </StackPanel>
-            <TextBlock Width="300"  Name="WeGeneratedPassword" Margin="60,10,40,0" Padding="0,3,0,3" TextWrapping="Wrap" Text="xWe generated a password for you"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
-            <TextBlock Width="300"  Name="lblPassword" Margin="60,10,40,10" TextWrapping="Wrap" Text="xPassword"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+
+            <TextBlock Width="400"  Name="lblPassword" Margin="60,10,40,10" TextWrapping="Wrap" Text="xPassword"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
 
             <Grid>
-                <PasswordBox Width="300" TabIndex="2" x:Name="TxtPassword" AutomationProperties.AutomationId="passwordBox" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15"  PasswordChanged="TxtPassword_PasswordChanged"   >
+                <PasswordBox Width="400" TabIndex="2" x:Name="TxtPassword" AutomationProperties.AutomationId="passwordBox" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15"  PasswordChanged="TxtPassword_PasswordChanged"   >
                     <PasswordBox.Effect>
                         <DropShadowEffect ShadowDepth="3"
                               Direction="330"
@@ -82,7 +72,7 @@
                         </Style>
                     </PasswordBox.FocusVisualStyle>
                 </PasswordBox>
-                <TextBox Width="300" x:Name="TxtPasswordVisible" AutomationProperties.AutomationId="txtPasswordVisible" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" TextChanged="TxtPasswordVisible_TextChanged" Visibility="Collapsed">
+                <TextBox Width="400" x:Name="TxtPasswordVisible" AutomationProperties.AutomationId="txtPasswordVisible" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" TextChanged="TxtPasswordVisible_TextChanged" Visibility="Collapsed">
                     <TextBox.Effect>
                         <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -101,11 +91,11 @@
                         </Style>
                     </TextBox.FocusVisualStyle>
                 </TextBox>
-                <Image x:Name="EyePassword" Source="../images/eye-dark.png" Width="20" Height="20" Margin="340,0,0,0" Cursor="Hand" MouseUp="EyePassword_MouseUp"></Image>
-                <Image  Name="ImgPasswordValid" Source="../images/validIcon.png" Width="20" Height="20" Margin="390,0,0,0" Visibility="Collapsed"></Image>
+                <Image x:Name="EyePassword" Source="../images/eye-dark.png" Width="20" Height="20" Margin="440,0,0,0" Cursor="Hand" MouseUp="EyePassword_MouseUp"></Image>
+                <Image  Name="ImgPasswordValid" Source="../images/validIcon.png" Width="20" Height="20" Margin="490,0,0,0" Visibility="Collapsed"></Image>
             </Grid>
 
-            <TextBlock Visibility="Collapsed" Width="300"  Name="lblConfirmPassword" Margin="60,20,40,10" TextWrapping="Wrap" Text="xConfirm Password"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+            <TextBlock Visibility="Collapsed" Width="400"  Name="lblConfirmPassword" Margin="60,20,40,10" TextWrapping="Wrap" Text="xConfirm Password"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
             <Grid Visibility="Collapsed">
                 <PasswordBox Width="300" TabIndex="3" x:Name="TxtConfirmPassword" AutomationProperties.AutomationId="passwordBoxConfirm" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"   BorderThickness="1" FontSize="15"  PasswordChanged="TxtConfirmPassword_PasswordChanged"  >
                     <PasswordBox.Effect>
@@ -148,19 +138,8 @@
                 <Image x:Name="EyeConfirmPassword" Source="../images/eye-gray.png" Width="20" Height="20" Margin="340,0,0,0" Cursor="Hand" MouseUp="EyeConfirmPassword_MouseUp"></Image>
                 <Image Name="ImgConfirmPasswordValid" Source="../images/validIcon.png" Width="20" Height="20" Margin="390,0,0,0"  Visibility="Collapsed"></Image>
             </Grid>
-            <Grid x:Name="GridGeneratePassRelated" Visibility="Visible">
 
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="35"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" x:Name="Copy" AutomationProperties.AutomationId="txtCopy" Margin="61,5,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" Height="22" Cursor="Hand">
-                     <Hyperlink x:Name="btnCopy" Click="btnCopy_Click"   TextDecorations="Underline" ><Run x:Name="btnCopyTXT" Text="xCopy"/></Hyperlink>
-                </TextBlock>
-                <TextBlock  Grid.Row="1" Margin="61,5,0,0" x:Name="MakeSureSave" FontSize="15">xMake sure you save it somewhere safe</TextBlock>
-                <CheckBox Visibility="Collapsed" IsEnabled="False" Grid.Row="1"  Margin="61,5,0,0" x:Name="SavedPassword" AutomationProperties.AutomationId="chkSavedPassword" FontSize="15" Checked="SavedPassword_Checked" Unchecked="SavedPassword_Unchecked" Cursor="Hand" HorizontalAlignment="Left" VerticalAlignment="Bottom" Padding="5,-3,0,0">xI saved the password somewhere safe</CheckBox>
-            </Grid>
-            <Grid x:Name="GridPasswordRules" Visibility="Collapsed">
+            <Grid x:Name="GridPasswordRules" Visibility="Visible">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>
@@ -174,28 +153,28 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Width="300"  Name="lblPasswordRules" Margin="60,0,0,0" TextWrapping="Wrap" Text="xPassword Rules:"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Width="300"  Name="lblPassword8Chars" Margin="60,0,0,0" TextWrapping="Wrap" Text="xAt least 8 characters in length " FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Width="400"  Name="lblPasswordRules" Margin="60,0,0,0" TextWrapping="Wrap" Text="xPassword Rules:"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Width="400"  Name="lblPassword8Chars" Margin="60,0,0,0" TextWrapping="Wrap" Text="xAt least 8 characters in length " FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
                 <Image Grid.Row="1" Grid.Column="1" Name="ImgPassword8Chars" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top" Visibility="Collapsed"></Image>
 
-                <TextBlock Grid.Row="2" Grid.Column="0" Width="300"  Name="lblPassword3Types" Margin="60,2,0,0" TextWrapping="Wrap" Text="xContains at least 3 of the following 4 types of characters: " FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Width="400"  Name="lblPassword3Types" Margin="60,2,0,0" TextWrapping="Wrap" Text="xContains at least 3 of the following 4 types of characters: " FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
                 <Image Grid.Row="2" Grid.Column="1" Name="ImgPassword3Types" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,2,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
 
-                <TextBlock Grid.Row="3" Grid.Column="0" Width="300"  Name="lblPasswordLowerCase" Margin="60,2,0,0" TextWrapping="Wrap" Text="xlower case letters (a-z)" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Width="400"  Name="lblPasswordLowerCase" Margin="60,2,0,0" TextWrapping="Wrap" Text="xlower case letters (a-z)" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
                 <Image Grid.Row="3" Grid.Column="1" Name="ImgPasswordLowerCase" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
 
-                <TextBlock Grid.Row="4" Grid.Column="0" Width="300"  Name="lblPasswordUpperCase" Margin="60,2,0,0" TextWrapping="Wrap" Text="xupper case letters (A-Z)"  FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" Width="400"  Name="lblPasswordUpperCase" Margin="60,2,0,0" TextWrapping="Wrap" Text="xupper case letters (A-Z)"  FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
                 <Image Grid.Row="4" Grid.Column="1" Name="ImgPasswordUpperCase" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
 
-                <TextBlock Grid.Row="5" Grid.Column="0" Width="300"  Name="lblPasswordNumbers" Margin="60,2,0,0" TextWrapping="Wrap" Text="xnumbers (i.e. 0-9)" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Row="5" Grid.Column="0" Width="400"  Name="lblPasswordNumbers" Margin="60,2,0,0" TextWrapping="Wrap" Text="xnumbers (i.e. 0-9)" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
                 <Image Grid.Row="5" Grid.Column="1" Name="ImgPasswordNumbers" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
 
-                <TextBlock Grid.Row="6" Grid.Column="0" Width="300"  Name="lblPasswordSpecialChars" Margin="60,2,0,0" TextWrapping="Wrap" Text="xspecial characters (e.g. !@#$%^ *)" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Row="6" Grid.Column="0" Width="400"  Name="lblPasswordSpecialChars" Margin="60,2,0,0" TextWrapping="Wrap" Text="xspecial characters (e.g. !@#$%^ *)" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
                 <Image Grid.Row="6" Grid.Column="1" Name="ImgPasswordSpecialChars" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
 
             </Grid>
 
-            <Button Width="300" TabIndex="4" x:Name="btnCreatAccount" AutomationProperties.AutomationId="btnCreateAccount"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,47,0,20" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreatAccount_Click" >
+            <Button Width="400" TabIndex="4" x:Name="btnCreateAccount" AutomationProperties.AutomationId="btnCreateAccount"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,47,0,20" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreateAccount_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnCreateAccountText" Text="xCreate an account" Foreground="Black"/>
@@ -209,6 +188,8 @@
 
             </StackPanel>
         </StackPanel>
+    </Grid>
+
     </Grid>
 </Page>
 

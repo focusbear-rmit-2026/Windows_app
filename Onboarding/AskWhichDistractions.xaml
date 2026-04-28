@@ -1,0 +1,90 @@
+﻿<Page x:Class="Focus_Bear.Onboarding.AskWhichDistractions"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Onboarding"
+      xmlns:controls="clr-namespace:Focus_Bear.Controls"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      IsVisibleChanged="Page_IsVisibleChanged" >
+
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <!-- Top progress take only required height -->
+                <RowDefinition Height="1.5*" />
+
+                <!-- Content fills remaining space -->
+                <RowDefinition Height="6.5*" />
+
+                <!-- Buttons take only required 15% height -->
+                <RowDefinition Height="1.5*" />
+            </Grid.RowDefinitions>
+
+            <controls:StepProgressBar Grid.Row="0" x:Name="ProgressControl" HorizontalAlignment="Center"
+                        Step1Percentage="15" 
+                        Step2Percentage="0" Step1ImageSource="../images/new/eye_orange.png" Step1LabelColor="#EB912E" />
+            
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="43*" />
+                    <RowDefinition Height="47*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Image MaxHeight="260"  MaxWidth="260" Source="../Images/new/bear_askOccupation.png" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center"  />
+                    <!-- SPEECH BUBBLE -->
+                    <controls:SpeechBubble x:Name="Bubble1"
+                                        Text="xI see far too many distracting websites"
+                                        Direction="Right" FontSize="15"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+
+                        <controls:SpeechBubble.RenderTransform>
+                            <!-- Move LEFT of image -->
+                            <TranslateTransform X="-220" Y="-30"/>
+                        </controls:SpeechBubble.RenderTransform>
+
+                    </controls:SpeechBubble>
+
+                </Grid>
+                <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Center">
+                    <TextBlock  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xNot sure which distractions to block?" FontSize="35" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBlock  Name="Description" Margin="0,10,0,0" TextWrapping="Wrap" Text="xWe can suggest distractions based on your job - so you can stay in the zone." FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" />
+                </StackPanel>
+                
+
+            </Grid>
+
+            <StackPanel  Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Button x:Name="btnPickMyself" AutomationProperties.AutomationId="btnPickMyself"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="7,20,7,7" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnPickMyself_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnPickMyselfText" Margin="8" Text="xI’ll pick them myself" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button x:Name="btnHelpMePick" AutomationProperties.AutomationId="btnHelpMePick"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="7,20,7,7" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnHelpMePick_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnHelpMePickText" Margin="8" Text="xYes, help me pick!" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+
+            </StackPanel>
+        </Grid>
+        
+    </Grid>
+    
+</Page>
+

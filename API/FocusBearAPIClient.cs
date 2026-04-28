@@ -18,6 +18,17 @@ using System.Web;
 
 namespace Focus_Bear.API
 {
+    public static class HttpClientExtensions
+    {
+        public static Task<HttpResponseMessage> PatchAsync(this HttpClient client, string requestUri, HttpContent content)
+        {
+            var request = new HttpRequestMessage(new HttpMethod("PATCH"), requestUri)
+            {
+                Content = content
+            };
+            return client.SendAsync(request);
+        }
+    }
     class FocusBearAPIClient
     {
 
@@ -46,6 +57,8 @@ namespace Focus_Bear.API
         public static string FocusMusicTracks { get { return "https://api.focusbear.io/tracks"; } }
 
         public static string AccountabilityBuddies { get { return "https://api.focusbear.io/accountability-buddy"; } }
+
+        public static string OccupationSpecificRelevantSites { get { return "https://api.focusbear.io/user/generate-occupation-specific-relevant-sites"; } }
         
         internal async Task<int> RenewToken()
         {
@@ -566,6 +579,8 @@ namespace Focus_Bear.API
                    $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
                    $"\"isRelaxFocus\":{JsonConvert.SerializeObject(FF.isRelaxFocus)}," +
                    $"\"isDeepWorkFocus\":{JsonConvert.SerializeObject(FF.isDeepWorkFocus)}," +
+                   $"\"isWorkFocus\":{JsonConvert.SerializeObject(FF.isWorkFocus)}," +
+                   $"\"autoSuggestFocusModeOnAllowedURL\":{JsonConvert.SerializeObject(FF.AutoSuggestFocusModeOnAllowedURL)}," +
                    $"\"focusAlignmentScoreThreshold\":{JsonConvert.SerializeObject(FF.AlignmentScoreThreshold)}," +
                    $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
                    $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
@@ -718,6 +733,8 @@ namespace Focus_Bear.API
                         $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
                         $"\"isRelaxFocus\":{JsonConvert.SerializeObject(FF.isRelaxFocus)}," +
                         $"\"isDeepWorkFocus\":{JsonConvert.SerializeObject(FF.isDeepWorkFocus)}," +
+                        $"\"isWorkFocus\":{JsonConvert.SerializeObject(FF.isWorkFocus)}," +
+                        $"\"autoSuggestFocusModeOnAllowedURL\":{JsonConvert.SerializeObject(FF.AutoSuggestFocusModeOnAllowedURL)}," +
                         $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
                         $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
 
@@ -888,10 +905,16 @@ namespace Focus_Bear.API
                     DateTime end = DateTime.UtcNow;
 
                     string sTasksArray = (appSettings.sRawTasksDone != null && appSettings.sRawTasksDone.Length > 0) ? appSettings.sRawTasksDone : "[]";
-
+                   
+                    string metadata = $"{{}}";
+                    if (appSettings.bAiCheckUrlEnabled) //if activity is skipped just add one second to finish time
+                    {
+                        metadata = $"{{\"focus_alignment_score\":{appSettings.CurrentFocusAlignmentScore},\"focus_duration_seconds\":{appSettings.CurrentFocusSessionDuration}}}";
+                    }
                     string addFocusJsonString = $"{{\"achievements\":\"{ HttpUtility.UrlEncode(achievements)}\"," +
                         $"\"distractions\":\"{distractions}\"," +
-                        $"\"finish_time\":\"{end.ToString("o")}\"," +
+                        $"\"finish_time\":\"{end.ToString("o")}\"," + 
+                        $"\"metadata\":{metadata}," +
                         $"\"to_dos\":{sTasksArray}}}";
 
 
@@ -968,17 +991,17 @@ namespace Focus_Bear.API
 
                     DateTime newEndTime = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
 
-                    string extendFocusJsonString = $"{{\"finish_time\":\"{newEndTime.ToString("o")}\"}}";
+                    string extendFocusJsonString = $"{{\"scheduled_finish_time\":\"{newEndTime.ToString("o")}\"}}";
 
                     if (!string.IsNullOrEmpty(extendFocusJsonString))
                     {
                         StringContent content = new StringContent(extendFocusJsonString, Encoding.UTF8, "application/json");
 
-                        string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/extend", sId);
+                        string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/update_scheduled_finish", sId); 
 
                         LogWriter.LogWrite("ExtendFocusMode() JSON: = " + extendFocusJsonString);
 
-                        var response = await client.PostAsync(apiPath, content);
+                        var response = await client.PatchAsync(apiPath, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.Created)
                         {
                             if (response.Content != null)
@@ -2378,6 +2401,7 @@ namespace Focus_Bear.API
             {
                 LogWriter.LogWrite("ChatGPTIsURLSafe Exception" + ex.Message);
                 Debug.WriteLine(ex.Message);
+                //return 0.70; //mostly timeout case
             }
             return -1;
         }
@@ -3462,13 +3486,12 @@ namespace Focus_Bear.API
                         }
                         else
                         {
-                            //Get Device ID Failed
                             if (response.Content != null)
                             {
                                 var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-                                string sErrorMessage = resJson["message"].ToString();
-                                LogWriter.LogWrite("AddCustomBlockingSchedule() FAILED - " + sErrorMessage);
+                                //JObject resJson = JObject.Parse(responseCode);
+                                //string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("AddCustomBlockingSchedule() FAILED ");
                                 return 0;
                             }
                             return 0;
@@ -3881,7 +3904,81 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        internal async Task<int> GenerateOccupationRelevantSites(string sOccupation) //OK
+        {
+            LogWriter.LogWrite("GenerateOccupationRelevantSites()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
 
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string addItemJsonString = $"{{\"user_occupation\":\"{sOccupation}\"}}";
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        //Make the data for Focus Mode
+                        var response = await client.PostAsync(OccupationSpecificRelevantSites, content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                        {
+                            if (response.Content != null)
+                            {
+                                LogWriter.LogWrite("GenerateOccupationRelevantSites() GOT Success");
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                appSettings.sGeneratedOccupationRelevantSites = responseCode;
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("GenerateOccupationRelevantSites() FAILED" + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GenerateOccupationRelevantSites - WebException" + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GenerateOccupationRelevantSites - Exception" + ex.Message);
+
+            }
+            return 0;
+        }
     }
 
 }

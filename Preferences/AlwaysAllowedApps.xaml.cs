@@ -44,7 +44,6 @@ namespace Focus_Bear.Preferences
         {
             try
             {
-                Heading.Text = appSettings.ConfigFileStrings["alwaysAllowedAppsViewInfo"]["title"].ToString();
                 Description.Text = appSettings.ConfigFileStrings["alwaysAllowedAppsViewInfo"]["subTitleText"].ToString();
 
                 btnAddAppTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddText"].ToString();
@@ -72,6 +71,7 @@ namespace Focus_Bear.Preferences
                 {
                     ShowAddAppManuallyWindow();
                 }
+                LocalSettingsManager.PutLocalSettings();
             }
             catch (Exception ex)
             {
@@ -143,6 +143,7 @@ namespace Focus_Bear.Preferences
                 {
                     appSettings.arrAlwaysAllowedApps.Remove(selectedItem);
                     appSettings.CapturePostHog("remove-always-allowed-app");
+                    LocalSettingsManager.PutLocalSettings();
                 }
             }
             catch (Exception ex)

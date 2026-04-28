@@ -224,17 +224,7 @@
                     <TextBlock   Name="BlockingScheduleTime"  Margin="15,5,0,5" FontSize="12"  FontWeight="Normal" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource ForegroundColor}" >xBlocking Schedule Time </TextBlock>
                 </StackPanel>
             </Border>
-
-            <Button   x:Name="btnSetupFocusMode" AutomationProperties.AutomationId="btnSetupFocusModes" Click="btnSetupFocusMode_Click"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True" MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" >
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Margin="10" Name="btnSetupFocusModeText">xSetup Focus Modes</TextBlock>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-
-
-           
+   
 
             <Button   x:Name="btnStartPomodoroMode" AutomationProperties.AutomationId="btnStartPomodoroMode"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnStartPomodoroMode_Click">
                 <Button.Content>

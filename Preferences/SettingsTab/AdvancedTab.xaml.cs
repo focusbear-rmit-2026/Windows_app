@@ -47,6 +47,10 @@ namespace Focus_Bear.Preferences
                 TabLimitDesc.Text = appSettings.ConfigFileStrings["settingsNew"]["tabLimitDescText"].ToString();
                 btnSaveTabLimitText.Text = appSettings.ConfigFileStrings["postBrowsersTabAuditVcInfo"]["buttonSave"].ToString();
                 txtMaxTabLimit.Text = appSettings.nMaxTabLimit.ToString();
+
+                EnableAdvancedAnalytics.Text = appSettings.ConfigFileStrings["preferencesInfo"]["switchButtonAdvanceAanalyticsText"].ToString();
+                EnableAdvancedAnalyticsDesc.Text = appSettings.ConfigFileStrings["preferencesInfo"]["descriptionAdvanceAanalytics"].ToString();
+                EnableAdvancedAnalyticsDesc2.Text = appSettings.ConfigFileStrings["preferencesInfo"]["privacyAdvanceAanalytics"].ToString();
             }
             catch (Exception ex)
             {
@@ -119,7 +123,8 @@ namespace Focus_Bear.Preferences
             btnEnableMeetingDetection.IsChecked = appSettings.bEnableMeetingsDetection;
             btnSuggestStartMeetingsFocus.IsChecked = appSettings.bAutomaticallySuggestStartingMeetingsFocus;
             btnBlockSuperDistracting.IsChecked = appSettings.bBlockSuperDistractingSitesDuringMeetings;
-            
+            btnEnableAdvancedAnalytics.IsChecked = appSettings.bAdvancedAnalyticsInFocusModeEnabled;
+
             btnEnableFBTT.Checked -= btnEnableFBTT_Checked;
             btnEnableFBTT.Unchecked -= btnEnableFBTT_Unchecked;
             btnEnableFBTT.IsChecked = appSettings.bFocusBearTimeTrackerEnabled;
@@ -186,6 +191,18 @@ namespace Focus_Bear.Preferences
             {
                 txtMaxTabLimit.Text = appSettings.nMaxTabLimit.ToString();
             }
+        }
+
+        private void btnEnableAdvancedAnalytics_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bAdvancedAnalyticsInFocusModeEnabled = true;
+            appSettings.CapturePostHog("settings-changed-enable-advance-analytics");
+        }
+
+        private void btnEnableAdvancedAnalytics_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bAdvancedAnalyticsInFocusModeEnabled = false;
+            appSettings.CapturePostHog("settings-changed-disable-advance-analytics");
         }
     }
 }

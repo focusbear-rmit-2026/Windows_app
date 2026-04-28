@@ -34,7 +34,7 @@ namespace Focus_Bear.Quit
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
         bool bEmergencyTimer = false;
-        string[] stringarr;
+
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
@@ -265,6 +265,7 @@ namespace Focus_Bear.Quit
             string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
             appSettings.CapturePostHog("app-quit", sMetadata);
 
+            ReasonTitle.Text = "";
 
             if ( ComboBoxReason.SelectedItem.ToString() == appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_2"]["title"].ToString()) //app broken
             {

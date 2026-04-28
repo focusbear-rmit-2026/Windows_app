@@ -329,6 +329,12 @@
     </Compile>
     <Compile Include="CallDetection\CameraUtilities.cs" />
     <Compile Include="Constants\Events.cs" />
+    <Compile Include="Controls\SpeechBubble.xaml.cs">
+      <DependentUpon>SpeechBubble.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\StepProgressBar.xaml.cs">
+      <DependentUpon>StepProgressBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="FocusMusic\FocusMusicTrack.cs" />
     <Compile Include="FocusMusic\FocusMusicView.xaml.cs">
       <DependentUpon>FocusMusicView.xaml</DependentUpon>
@@ -374,6 +380,7 @@
     <Compile Include="Focus\StopFocusMode.xaml.cs">
       <DependentUpon>StopFocusMode.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\TabMatrics.cs" />
     <Compile Include="Focus\ToDoList.xaml.cs">
       <DependentUpon>ToDoList.xaml</DependentUpon>
     </Compile>
@@ -440,9 +447,6 @@
     <Compile Include="Login\LoginHome.xaml.cs">
       <DependentUpon>LoginHome.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Login\LoginMain.xaml.cs">
-      <DependentUpon>LoginMain.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Login\LoginSignIn.xaml.cs">
       <DependentUpon>LoginSignIn.xaml</DependentUpon>
     </Compile>
@@ -467,113 +471,74 @@
     <Compile Include="Models\UserAccount.cs" />
     <Compile Include="Models\WebMessageEvent.cs" />
     <Compile Include="Models\WinSecurity.cs" />
-    <Compile Include="Onboarding\AfterLogin\OnboardingAskProcrastinatingWindow.xaml.cs">
-      <DependentUpon>OnboardingAskProcrastinatingWindow.xaml</DependentUpon>
+    <Compile Include="Onboarding\AskOccupation.xaml.cs">
+      <DependentUpon>AskOccupation.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\AfterLogin\OnboardingNotesWindow.xaml.cs">
-      <DependentUpon>OnboardingNotesWindow.xaml</DependentUpon>
+    <Compile Include="Onboarding\AddNewBlockingSchedule.xaml.cs">
+      <DependentUpon>AddNewBlockingSchedule.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\AfterLogin\OnboardingSetupAndTipsWindow.xaml.cs">
-      <DependentUpon>OnboardingSetupAndTipsWindow.xaml</DependentUpon>
+    <Compile Include="Onboarding\AllSetPage.xaml.cs">
+      <DependentUpon>AllSetPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\AfterLogin\OnboardingConfirmForAI.xaml.cs">
-      <DependentUpon>OnboardingConfirmForAI.xaml</DependentUpon>
+    <Compile Include="Onboarding\BlockedAppsPage.xaml.cs">
+      <DependentUpon>BlockedAppsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\NEW\OnboardingDistractingSites.xaml.cs">
-      <DependentUpon>OnboardingDistractingSites.xaml</DependentUpon>
+    <Compile Include="Onboarding\BlockedUrlsPage.xaml.cs">
+      <DependentUpon>BlockedUrlsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\AfterLogin\OnboardingSetupFocusApps.xaml.cs">
-      <DependentUpon>OnboardingSetupFocusApps.xaml</DependentUpon>
+    <Compile Include="Onboarding\AskWhichWebsitesUsedForWork.xaml.cs">
+      <DependentUpon>AskWhichWebsitesUsedForWork.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\AfterLogin\OnboardingSetupFocusTips.xaml.cs">
-      <DependentUpon>OnboardingSetupFocusTips.xaml</DependentUpon>
+    <Compile Include="Onboarding\AskWhichDistractions.xaml.cs">
+      <DependentUpon>AskWhichDistractions.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\AfterLogin\OnboardingSetupFocusUrls.xaml.cs">
-      <DependentUpon>OnboardingSetupFocusUrls.xaml</DependentUpon>
+    <Compile Include="Onboarding\CreateBlockingSchedule.xaml.cs">
+      <DependentUpon>CreateBlockingSchedule.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\AfterLogin\OnboardingSetWorkType.xaml.cs">
-      <DependentUpon>OnboardingSetWorkType.xaml</DependentUpon>
+    <Compile Include="Onboarding\EnableAIBlocking.xaml.cs">
+      <DependentUpon>EnableAIBlocking.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\NEW\NewOnboardingStart.xaml.cs">
-      <DependentUpon>NewOnboardingStart.xaml</DependentUpon>
+    <Compile Include="Onboarding\StartSetUpHabitsPage.xaml.cs">
+      <DependentUpon>StartSetUpHabitsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\NEW\OnboardingNewBlockingSchedule.xaml.cs">
-      <DependentUpon>OnboardingNewBlockingSchedule.xaml</DependentUpon>
+    <Compile Include="Onboarding\SetupDistractionBlocking.xaml.cs">
+      <DependentUpon>SetupDistractionBlocking.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\NEW\OnboardingSetupFocusBearAccount.xaml.cs">
-      <DependentUpon>OnboardingSetupFocusBearAccount.xaml</DependentUpon>
+    <Compile Include="Onboarding\SetupHabitsWebView.xaml.cs">
+      <DependentUpon>SetupHabitsWebView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\NEW\OnboardingNewBuildingHabits.xaml.cs">
-      <DependentUpon>OnboardingNewBuildingHabits.xaml</DependentUpon>
+    <Compile Include="Onboarding\SetupHabits.xaml.cs">
+      <DependentUpon>SetupHabits.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\NEW\OnboardingNewWhichBrowser.xaml.cs">
-      <DependentUpon>OnboardingNewWhichBrowser.xaml</DependentUpon>
+    <Compile Include="Onboarding\OnboardingViewController.xaml.cs">
+      <DependentUpon>OnboardingViewController.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\NEW\OnboardingNewDistractionsShieldActivated.xaml.cs">
-      <DependentUpon>OnboardingNewDistractionsShieldActivated.xaml</DependentUpon>
+    <Compile Include="Onboarding\Privacy.xaml.cs">
+      <DependentUpon>Privacy.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\NEW\OnboardingNewPrivacy.xaml.cs">
-      <DependentUpon>OnboardingNewPrivacy.xaml</DependentUpon>
+    <Compile Include="Onboarding\SetupAccount.xaml.cs">
+      <DependentUpon>SetupAccount.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\NEW\OnboardingNewWelcome.xaml.cs">
-      <DependentUpon>OnboardingNewWelcome.xaml</DependentUpon>
+    <Compile Include="Onboarding\HoldOn.xaml.cs">
+      <DependentUpon>HoldOn.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\OnboardingAchieveWithFocusBear.xaml.cs">
-      <DependentUpon>OnboardingAchieveWithFocusBear.xaml</DependentUpon>
+    <Compile Include="Onboarding\WelcomeLetsDoIt.xaml.cs">
+      <DependentUpon>WelcomeLetsDoIt.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\OnboardingAdditionalGoals.xaml.cs">
-      <DependentUpon>OnboardingAdditionalGoals.xaml</DependentUpon>
+    <Compile Include="Onboarding\WelcomeADHD.xaml.cs">
+      <DependentUpon>WelcomeADHD.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Onboarding\OnboardingAskOccupation.xaml.cs">
-      <DependentUpon>OnboardingAskOccupation.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingBreakReminder.xaml.cs">
-      <DependentUpon>OnboardingBreakReminder.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingAskWorkTime.xaml.cs">
-      <DependentUpon>OnboardingAskWorkTime.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingConfirmBreaks.xaml.cs">
-      <DependentUpon>OnboardingConfirmBreaks.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingConfirmEveningRoutine.xaml.cs">
-      <DependentUpon>OnboardingConfirmEveningRoutine.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingConfirmMorningRoutine.xaml.cs">
-      <DependentUpon>OnboardingConfirmMorningRoutine.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingExplainDeepFocus.xaml.cs">
-      <DependentUpon>OnboardingExplainDeepFocus.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingExplainHabits.xaml.cs">
-      <DependentUpon>OnboardingExplainHabits.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingGoals.xaml.cs">
-      <DependentUpon>OnboardingGoals.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingMindfulBreathing.xaml.cs">
-      <DependentUpon>OnboardingMindfulBreathing.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingSelectHabitPacks.xaml.cs">
-      <DependentUpon>OnboardingSelectHabitPacks.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingSetHabitsLaterInfo.xaml.cs">
-      <DependentUpon>OnboardingSetHabitsLaterInfo.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingWelcome.xaml.cs">
-      <DependentUpon>OnboardingWelcome.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnBoardingWindow.xaml.cs">
-      <DependentUpon>OnBoardingWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\OnboardingWorkType.xaml.cs">
-      <DependentUpon>OnboardingWorkType.xaml</DependentUpon>
+    <Compile Include="Onboarding\Welcome.xaml.cs">
+      <DependentUpon>Welcome.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pomodoro\StartSimplePomodoro.xaml.cs">
       <DependentUpon>StartSimplePomodoro.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pomodoro\StartPomodoro.xaml.cs">
       <DependentUpon>StartPomodoro.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Preferences\AlwaysBlockedApps.xaml.cs">
+      <DependentUpon>AlwaysBlockedApps.xaml</DependentUpon>
     </Compile>
     <Compile Include="Preferences\SettingsTab\AccountTab.xaml.cs">
       <DependentUpon>AccountTab.xaml</DependentUpon>
@@ -675,6 +640,7 @@
       <DependentUpon>RelaxModeWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Services\BlockingScheduleManager.cs" />
+    <Compile Include="Services\CsvLogger.cs" />
     <Compile Include="SetIntention\SetIntention.xaml.cs">
       <DependentUpon>SetIntention.xaml</DependentUpon>
     </Compile>
@@ -718,12 +684,6 @@
     <Compile Include="Utils\FocusChangedHandler.cs" />
     <Compile Include="Utils\FullScreenParent.cs" />
     <Compile Include="Utils\Global.cs" />
-    <Compile Include="Onboarding\WelcomeAbord.xaml.cs">
-      <DependentUpon>WelcomeAbord.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Onboarding\WelcomeAbordPostpone.xaml.cs">
-      <DependentUpon>WelcomeAbordPostpone.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Utils\HourControl.xaml.cs">
       <DependentUpon>HourControl.xaml</DependentUpon>
     </Compile>
@@ -750,6 +710,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CallDetection\CallFocusNotifier.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SpeechBubble.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\StepProgressBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -897,10 +865,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Login\LoginMain.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Login\LoginSignIn.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -925,139 +889,83 @@
       <DependentUpon>FocusBearMainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Onboarding\AfterLogin\OnboardingAskProcrastinatingWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\AfterLogin\OnboardingNotesWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\AfterLogin\OnboardingSetupAndTipsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\AfterLogin\OnboardingConfirmForAI.xaml">
+    <Page Include="Onboarding\AskOccupation.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Onboarding\NEW\OnboardingDistractingSites.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\AfterLogin\OnboardingSetupFocusApps.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\AfterLogin\OnboardingSetupFocusTips.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\AfterLogin\OnboardingSetupFocusUrls.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\AfterLogin\OnboardingSetWorkType.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\NEW\NewOnboardingStart.xaml">
+    <Page Include="Onboarding\AddNewBlockingSchedule.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Onboarding\NEW\OnboardingNewBlockingSchedule.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\NEW\OnboardingSetupFocusBearAccount.xaml">
+    <Page Include="Onboarding\AllSetPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Onboarding\NEW\OnboardingNewBuildingHabits.xaml">
+    <Page Include="Onboarding\BlockedAppsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Onboarding\NEW\OnboardingNewWhichBrowser.xaml">
+    <Page Include="Onboarding\BlockedUrlsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Onboarding\NEW\OnboardingNewDistractionsShieldActivated.xaml">
+    <Page Include="Onboarding\AskWhichWebsitesUsedForWork.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Onboarding\NEW\OnboardingNewPrivacy.xaml">
+    <Page Include="Onboarding\AskWhichDistractions.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Onboarding\NEW\OnboardingNewWelcome.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\OnboardingAchieveWithFocusBear.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\OnboardingAdditionalGoals.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\OnboardingAskOccupation.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\OnboardingBreakReminder.xaml">
+    <Page Include="Onboarding\CreateBlockingSchedule.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Onboarding\OnboardingAskWorkTime.xaml">
+    <Page Include="Onboarding\EnableAIBlocking.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\StartSetUpHabitsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\SetupDistractionBlocking.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\SetupHabitsWebView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\SetupHabits.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Onboarding\OnboardingViewController.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Onboarding\OnboardingConfirmBreaks.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="Onboarding\Privacy.xaml">
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\OnboardingConfirmEveningRoutine.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Onboarding\OnboardingConfirmMorningRoutine.xaml">
+    <Page Include="Onboarding\SetupAccount.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Onboarding\OnboardingExplainDeepFocus.xaml">
+    <Page Include="Onboarding\HoldOn.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Onboarding\OnboardingExplainHabits.xaml">
+    <Page Include="Onboarding\WelcomeLetsDoIt.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Onboarding\OnboardingGoals.xaml">
+    <Page Include="Onboarding\WelcomeADHD.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Onboarding\OnboardingMindfulBreathing.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\OnboardingSelectHabitPacks.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\OnboardingSetHabitsLaterInfo.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\OnboardingWelcome.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\OnBoardingWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\OnboardingWorkType.xaml">
+    <Page Include="Onboarding\Welcome.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1068,6 +976,10 @@
     <Page Include="Pomodoro\StartPomodoro.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\AlwaysBlockedApps.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Preferences\SettingsTab\AccountTab.xaml">
       <SubType>Designer</SubType>
@@ -1241,14 +1153,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Onboarding\WelcomeAbord.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Onboarding\WelcomeAbordPostpone.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="UpdateWin.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1350,6 +1254,33 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\always_blocked_apps.png" />
+    <Resource Include="Images\New\eye_gray.png" />
+    <Resource Include="Images\New\eye_orange.png" />
+    <Resource Include="Images\New\set_schedule_gray.png" />
+    <Resource Include="Images\New\set_schedule_orange.png" />
+    <Resource Include="Images\New\Bear.png" />
+    <Resource Include="Images\New\bear_askBlockingSchedule.png" />
+    <Resource Include="Images\New\bear_startSetHabits.png" />
+    <Resource Include="Images\New\suggestedWebsites.png" />
+    <Resource Include="Images\New\bear_allowedUrls.png" />
+    <Resource Include="Images\New\tick.png" />
+    <Resource Include="Images\New\bear_askOccupation.png" />
+    <Resource Include="Images\New\bear_useAi.png" />
+    <Resource Include="Images\New\privacy4.png" />
+    <Resource Include="Images\New\bear_setDistraction.png" />
+    <Resource Include="Images\New\setDistraction.png" />
+    <Resource Include="Images\New\bear_setHabits.png" />
+    <Resource Include="Images\New\bear_setHabitsAll.png" />
+    <Resource Include="Images\New\bear_hold.png" />
+    <Resource Include="Images\New\bear_createAccount.png" />
+    <Resource Include="Images\New\privacy2.png" />
+    <Resource Include="Images\New\privacy3.png" />
+    <Resource Include="Images\New\privacy1.png" />
+    <Resource Include="Images\New\bear_privacy.png" />
+    <Resource Include="Images\New\bear_letsDoIt.png" />
+    <Resource Include="Images\New\bear_adhd.png" />
+    <Resource Include="Images\New\bear_welcome.png" />
     <Resource Include="Images\stop_circle.png" />
     <Resource Include="Images\apple_logo.png" />
     <Resource Include="Images\help.png" />

@@ -1,0 +1,122 @@
+﻿<Page x:Class="Focus_Bear.Onboarding.AskOccupation"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Onboarding"
+      xmlns:controls="clr-namespace:Focus_Bear.Controls"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      IsVisibleChanged="Page_IsVisibleChanged">
+
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <!-- Top progress take only required height -->
+                <RowDefinition Height="1.5*" />
+
+                <!-- Content fills remaining space -->
+                <RowDefinition Height="6.5*" />
+
+                <!-- Buttons take only required 15% height -->
+                <RowDefinition Height="1.5*" />
+            </Grid.RowDefinitions>
+            <controls:StepProgressBar Grid.Row="0" x:Name="ProgressControl" HorizontalAlignment="Center"
+                                    Step1Percentage="30" 
+                                    Step2Percentage="0" Step1ImageSource="../images/new/eye_orange.png" Step1LabelColor="#EB912E" />
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="34*" />
+                    <RowDefinition Height="33*" />
+                    <RowDefinition Height="33*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Image MaxHeight="260"  MaxWidth="260" Source="../Images/new/bear_askOccupation.png" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center"  />
+                    <!-- SPEECH BUBBLE -->
+                    <controls:SpeechBubble x:Name="Bubble1"
+                                        Text="xTell me your profession and I’ll find them all!"
+                                        Direction="Right" FontSize="15"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+
+                        <controls:SpeechBubble.RenderTransform>
+                            <!-- Move LEFT of image -->
+                            <TranslateTransform X="-220" Y="-30"/>
+                        </controls:SpeechBubble.RenderTransform>
+
+                    </controls:SpeechBubble>
+
+                </Grid>
+                <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Center">
+                    <TextBlock  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWhat type of work do you do?" FontSize="35" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBlock  Name="Description" Margin="0,10,0,0" TextWrapping="Wrap" Text="xI’ll suggest which websites to block and which ones are productive." FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <Border Grid.Row="2" >
+                    <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,0">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"  />
+                            <RowDefinition Height="40" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Grid.Row="0">
+                            <RadioButton x:Name="RadioButton1" AutomationProperties.AutomationId="rbStudent" GroupName="Occupation1" Margin="10,10" Content="xStudent" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton1_Checked" Cursor="Hand"   />
+                            <RadioButton x:Name="RadioButton2" AutomationProperties.AutomationId="rbBusiness owner" GroupName="Occupation1" Margin="10,10"  Content="xBusiness owner" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton2_Checked" Cursor="Hand"  />
+                            <RadioButton x:Name="RadioButton3" AutomationProperties.AutomationId="rbEmployee" GroupName="Occupation1"  Margin="10,10" Content="xEmployee" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton3_Checked" Cursor="Hand"  />
+                            <RadioButton x:Name="RadioButton4" AutomationProperties.AutomationId="rbFreelancer" GroupName="Occupation1" Margin="10,10"  Content="xFreelancer" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton4_Checked" Cursor="Hand"  />
+                            <RadioButton x:Name="RadioButton5" AutomationProperties.AutomationId="rbOther" GroupName="Occupation1" Margin="10,10"  Content="xOther" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton5_Checked" Cursor="Hand"  />
+                        </StackPanel>
+
+                        <TextBox Grid.Row="1" Height="34"  Visibility="Visible" x:Name="TxtDetails" Style="{StaticResource WatermarkTextBoxStyle}"
+                        Tag="✏️ Enter your details here..." AutomationProperties.AutomationId="txtBoxOtherOfficeWork" MaxLength="200"  TextWrapping="Wrap"   BorderBrush="DarkGray" Padding="5,5,5,5" VerticalAlignment="Top"  BorderThickness="1" FontSize="16" TextAlignment="Left" MaxLines="1" HorizontalContentAlignment="Left"  HorizontalAlignment="Stretch" Margin="10,0,10,0" >
+                            <TextBox.Effect>
+                                <DropShadowEffect ShadowDepth="3"
+                                Direction="330"
+                                Color="Gray"
+                                Opacity="0.5"
+                                BlurRadius="6"
+        />
+                            </TextBox.Effect>
+                            <TextBox.FocusVisualStyle>
+                                <Style>
+                                    <Setter Property="Control.Template">
+                                        <Setter.Value>
+                                            <ControlTemplate/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.FocusVisualStyle>
+                        </TextBox>
+
+                    </Grid>
+                </Border>
+
+            </Grid>
+
+            <StackPanel  Grid.Row="2" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Button x:Name="btnThatsMe" AutomationProperties.AutomationId="btnThatsMe"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="7,20,7,7" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnThatsMe_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnThatsMeText" Margin="8" Text="xThat’s me!" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <TextBlock  Grid.Row="2" x:Name="Skip" AutomationProperties.AutomationId="Skip"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
+                    <Hyperlink x:Name="btnSkip"   Click="btnSkip_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipText" Text="xSkip"/></Hyperlink>
+                </TextBlock>
+            </StackPanel>
+        </Grid>
+        
+    </Grid>
+    
+</Page>
+

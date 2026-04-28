@@ -1,11 +1,13 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Constants;
 using Focus_Bear.Models;
+using Focus_Bear.Properties;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -54,43 +56,51 @@ namespace Focus_Bear.Preferences
             try
             {
                 string eventDataJsonString = e.WebMessageAsJson;
-                WebMessageEvent webMessageEvent = JsonConvert.DeserializeObject<WebMessageEvent>(eventDataJsonString);
-
-                if (webMessageEvent?.Event == Events.WindowClosing)
+                if(eventDataJsonString == "user-settings-update-failed" || eventDataJsonString == "\"user-settings-update-failed\"")
                 {
-                    if (webMessageEvent.HasUserModifiedSettings)
-                    {
-                        /* "youAreAboutCloseTheEditHabitsMenu":"You are about to close the Edit habits menu. If you have made any changes, please tap the \"Save Habits\" button.",
-                        "warning":"Warning",
-                        "continue":"Continue",
-                        "cancel":"Cancel"*/ 
-                        //todo win texts
-                        FBMessageBox messageBox = new FBMessageBox("You are about to close the Edit habits menu. If you have made any changes, please tap the \"Save Habits\" button.", "Warning", MessageBoxButton.YesNo, appSettings.ConfigFileStrings["common"]["buttonContinueText"].ToString(), appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString());
-                        messageBox.Owner = _ParentWindow;
-                        messageBox.ShowDialog();
+                    FBMessageBox messageBox = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["tokenErrorText"].ToString());
+                    messageBox.Owner = _ParentWindow;
+                    messageBox.ShowDialog();
 
-                        if (messageBox.btnClicked == MessageBoxResult.Yes)
-                        {
-                            _ParentWindow.Hide();
-                        }
-                        else
-                        {
-                            messageBox.Close(); //WRONG implementation with ShowDialog()
-                        }
-                    }
-                    else
-                    {
-                        _ParentWindow.Hide();
-                    }
+                    //Logout user and restart the app
+                    RegistryManager.RemoveLoggedInStatus();
+
+                    //Disable the focus bear time tracker status
+                    appSettings.bFocusBearTimeTrackerEnabled = false;
+                    RegistryManager.SetFocusBearTimeTrackerStatus();
+
+                    appSettings.bRestartAppNeeded = true;
+
+                    Application.Current.Shutdown(0);
+
                 }
-                else
+                else  if(eventDataJsonString == "\"user-settings-updated\"" || eventDataJsonString == "user-settings-updated")
                 {
-                  await  saveHabits(eventDataJsonString);
+                    appSettings.CapturePostHog("save-edited-habits");
+                    
+                    FBMessageBox messageBox = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear");
+                    messageBox.Owner = _ParentWindow;
+                    messageBox.ShowDialog();
+                   
+                    //Restart the app.
+                    try
+                    {
+                        LogWriter.LogWrite("Edit Habits - Restart app now for settings to take Effect!");
+
+                        appSettings.bRestartAppNeeded = true;
+
+                        Application.Current.Shutdown(0);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Edit Habits - webView_WebMessageReceived app restart= " + ex.Message);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("webView_WebMessageReceived()" + ex.Message);
+                LogWriter.LogWrite("Edit habits webView_WebMessageReceived() ex - " + ex.Message);
             }
         }
 
@@ -114,7 +124,7 @@ namespace Focus_Bear.Preferences
                     {
                         LogWriter.LogWrite("attempt to LoadSettings()");
 
-                        string sFlags = string.Format("[\"{0}\"]", appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode");
+                        string sFlags = string.Format("[\"{0}\", \"save-settings-migrate-to-web\"]", appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode");
 
                         string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
 
@@ -225,7 +235,7 @@ namespace Focus_Bear.Preferences
         }
         private async void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (!IsVisible)
+            if (!IsVisible && bWebViewInitialized)
             {
                 if (!appSettings.bProgrammaticSelectioninLeftTree) //Only when user clicks
                 { 
@@ -277,50 +287,6 @@ namespace Focus_Bear.Preferences
             }
         }
     
-        private async Task saveHabits(string eventDataJsonString)
-        {
-            LogWriter.LogWrite("Edit Habits webView_WebMessageReceived() - settings got from SG");
-            //Set environment in settings page
-            appSettings.sRawUserSettings = eventDataJsonString;
-
-            //We will need to put the settings.
-            FocusBearAPIClient client = new FocusBearAPIClient();
-            var xResponse = await client.PutUserSettings();
-
-            if (xResponse == 1) //valid settings
-            {
-                FBMessageBox messageBox = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsValidText"].ToString(), "Focus Bear");
-                messageBox.Owner = _ParentWindow;
-                messageBox.ShowDialog();
-                appSettings.CapturePostHog("save-edited-habits");
-
-                RegistryManager.SaveUserSettings();//save to local
-
-                //Restart the app.
-                try
-                {
-                    LogWriter.LogWrite("Edit Habits - Restart app now for settings to take Effect!");
-
-                    appSettings.bRestartAppNeeded = true;
-
-                    Application.Current.Shutdown(0);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Edit Habits - webView_WebMessageReceived app restart= " + ex.Message);
-                }
-
-            }
-            else
-            {
-                // TODO: The value of xRenwTokenStatus should not be zero. If it is, prompt the user to sign in again or initiate a token refresh.
-                LogWriter.LogWrite("Settings cannot be validated from API.");
-                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["settings"]["settingIsNotValidText"].ToString(), "Focus Bear");
-                ff.Owner = _ParentWindow;
-                ff.ShowDialog();
-            }
-        }
-
         private void UserControl_IsHitTestVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
 

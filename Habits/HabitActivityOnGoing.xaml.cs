@@ -107,6 +107,7 @@ namespace Focus_Bear.Habits
                 bool show_saved_distracting_websites = false;
 
                 videoUrlsBreaks.Clear();
+                appSettings.bHabitwithUserActionNonTimerRunning = false;
 
                 btnSkipThisHabitTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonSkipHabitText"].ToString();
                 SkipThisHabitText.Visibility = Visibility.Collapsed;
@@ -131,6 +132,8 @@ namespace Focus_Bear.Habits
                     else
                     {
                         nTimer = appSettings.nTimerValForNonTimerActivities;
+                        appSettings.bHabitwithUserActionNonTimerRunning = true;
+
                         SectionNonTimer.Visibility = Visibility.Visible;
                         SectionTimer.Visibility = Visibility.Collapsed;
                         string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();
@@ -166,6 +169,8 @@ namespace Focus_Bear.Habits
                     else
                     {
                         nTimer = appSettings.nTimerValForNonTimerActivities;
+                        appSettings.bHabitwithUserActionNonTimerRunning = true;
+
                         SectionNonTimer.Visibility = Visibility.Visible;
                         SectionTimer.Visibility = Visibility.Collapsed;
                         string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();
@@ -215,6 +220,8 @@ namespace Focus_Bear.Habits
                         else
                         {
                             nTimer = appSettings.nTimerValForNonTimerActivities;
+                            appSettings.bHabitwithUserActionNonTimerRunning = true;
+
                             SectionNonTimer.Visibility = Visibility.Visible;
                             SectionTimer.Visibility = Visibility.Collapsed;
                             string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();
@@ -252,6 +259,8 @@ namespace Focus_Bear.Habits
                             else
                             {
                                 nTimer = appSettings.nTimerValForNonTimerActivities;
+                                appSettings.bHabitwithUserActionNonTimerRunning = true;
+
                                 SectionNonTimer.Visibility = Visibility.Visible;
                                 SectionTimer.Visibility = Visibility.Collapsed;
                                 string sCompleteTxt = appSettings.ConfigFileStrings["activityInfo"]["completionRequirementsText"].ToString();
@@ -293,7 +302,7 @@ namespace Focus_Bear.Habits
                     //we will need to show the break window with the duration and the timer
                     //Show the Break Window
                     //If its a non timer (86400) activity, pass the completre after text, else pass the heading text (activity name)
-                    ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (nTimer == appSettings.nTimerValForNonTimerActivities) ? CompleteAfter.Text : Heading.Text);
+                    ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (appSettings.bHabitwithUserActionNonTimerRunning) ? CompleteAfter.Text : Heading.Text);
                 }
 
             }
@@ -648,7 +657,7 @@ namespace Focus_Bear.Habits
                     //we will need to show the break window with the duration and the timer
                     //Show the Break Window
                     //If its a non timer (86400) activity, pass the completre after text, else pass the heading text (activity name)
-                    ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (nTimer == appSettings.nTimerValForNonTimerActivities) ? CompleteAfter.Text : Heading.Text);
+                    ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (appSettings.bHabitwithUserActionNonTimerRunning) ? CompleteAfter.Text : Heading.Text);
                 }
             }
         }
@@ -771,7 +780,7 @@ namespace Focus_Bear.Habits
                         //we will need to show the break window with the duration and the timer
                         //Show the Break Window
                         //If its a non timer (86400) activity, pass the completre after text, else pass the heading text (activity name)
-                        ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (nTimer == appSettings.nTimerValForNonTimerActivities) ? CompleteAfter.Text : Heading.Text);
+                        ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (appSettings.bHabitwithUserActionNonTimerRunning) ? CompleteAfter.Text : Heading.Text); 
                     }
                 }
             }

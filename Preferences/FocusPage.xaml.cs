@@ -70,6 +70,7 @@ namespace Focus_Bear.Preferences
                 btnAdvancedTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAdvancedText"].ToString();
                 btnAddFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddFocusTypeText"].ToString();
                 btnAddFocusModeTXT.Text = "Add Block List";
+                
             }
             catch (Exception ex)
             {
@@ -93,7 +94,7 @@ namespace Focus_Bear.Preferences
                 var selectedItem = ListFocusModes.SelectedItem as FocusMode;
                 if (selectedItem != null)
                 {
-                    if (selectedItem.isDefault || selectedItem.isMeetings || selectedItem.isLockedFocus || selectedItem.isRelaxFocus || selectedItem.isDeepWorkFocus)
+                    if (selectedItem.isDefault || selectedItem.isMeetings || selectedItem.isLockedFocus || selectedItem.isRelaxFocus || selectedItem.isDeepWorkFocus )
                     {
  
                         FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["focusPreferencesInfo"]["focusCanNotDeleteSubTitle"].ToString(), "Focus Bear");
@@ -166,7 +167,7 @@ namespace Focus_Bear.Preferences
                 }
                 appSettings.CapturePostHog("duplicate-focus-mode");
                 //add to focus modes  array and Upload to api
-                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), newName, selectedFocusMode.arrAllowedUrls, selectedFocusMode.arrBlockedUrls, selectedFocusMode.arrAllowedAppsWin, selectedFocusMode.color, false, selectedFocusMode.isAllowedAllApps, selectedFocusMode.isAllowedListApproach, false, false, false, false, false));
+                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), newName, selectedFocusMode.arrAllowedUrls, selectedFocusMode.arrBlockedUrls, selectedFocusMode.arrAllowedAppsWin, selectedFocusMode.color, false, selectedFocusMode.isAllowedAllApps, selectedFocusMode.isAllowedListApproach, false, false, false, false, false,false));
             }
         }
         void AddFocusModeToArrayAndUploadtoAPI(FocusMode ff)
@@ -662,7 +663,7 @@ namespace Focus_Bear.Preferences
                 //Call the API to upload the newly cread focus mode
                 //add to focus modes  array and Upload to api
                 //#A3FFA1 is the default color
-                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sFocusName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true,   false, false, false, false, false));
+                AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sFocusName, new ObservableCollection<string>(), new ObservableCollection<string>(), new ObservableCollection<AppDetails>(), "#A3FFA1", false, true, true,   false, false, false, false, false, false));
             }
 
         }
@@ -677,9 +678,8 @@ namespace Focus_Bear.Preferences
                
                 if (selectedItem != null)
                 {
-                    
                     TxtFocusName.Text = selectedItem.name;
-                    if(selectedItem.isDefault || selectedItem.isMeetings || selectedItem.isLockedFocus || selectedItem.isRelaxFocus || selectedItem.isDeepWorkFocus)
+                    if(selectedItem.isDefault || selectedItem.isMeetings || selectedItem.isLockedFocus || selectedItem.isRelaxFocus || selectedItem.isDeepWorkFocus )
                     {
                         TxtFocusName.IsEnabled = false;
                     }
@@ -1020,5 +1020,7 @@ namespace Focus_Bear.Preferences
             }
 
         }
+
+        
     }
 }

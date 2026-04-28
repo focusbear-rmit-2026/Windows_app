@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Focus_Bear.Login"
+      xmlns:controls="clr-namespace:Focus_Bear.Controls"
       mc:Ignorable="d" 
       d:DesignHeight="680" d:DesignWidth="945"
       AutomationProperties.AutomationId="LoginHomeWindow"
@@ -19,73 +20,73 @@
         </Grid.Resources>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="188" />
-            <RowDefinition Height="Auto" MinHeight="100" />
-            <RowDefinition Height="Auto" MinHeight="130" />
-            <RowDefinition Height="Auto" />
-
+            <RowDefinition Height="20*" />
+            <!-- 25% -->
+            <RowDefinition Height="40*" />
+            <!-- 37.5% -->
+            <RowDefinition Height="40*" />
+            <!-- 25% -->
         </Grid.RowDefinitions>
 
-        <Image Grid.Row="0" Height="140"  Width="140" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,10" TextWrapping="Wrap" Text="xCreate your account." FontSize="35" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-        <TextBlock  Grid.Row="1"  Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap" Text="xWin your habits.&#10;Amp up your productivity." Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image MaxHeight="260" MaxWidth="260" Source="../Images/new/bear_createAccount.png" Stretch="Uniform" HorizontalAlignment="Center"  />
+            <!-- SPEECH BUBBLE -->
+            <controls:SpeechBubble x:Name="Bubble1"
+                Text="xOne account, all your devices - let's get you set up!"
+                Direction="Right"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
 
-        <StackPanel  Grid.Row="2"  Orientation="Horizontal" HorizontalAlignment="Center">
-            <TextBlock Name="Suggest" Margin="0,0,10,0" TextWrapping="Wrap" Text="xNearly done! Let's grab a few details to save your habits." FontSize="23" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Center"/>
-            <Button x:Name="btnInfo" AutomationProperties.AutomationId="btnInfo" Style="{StaticResource BtnStyleInfo}" Click="btnInfo_Click" MinWidth="35" Height="35" Cursor="Hand" >
-                <StackPanel Orientation="Vertical">
-                    <Image Source="/Images/info.png" Margin="0,0,0,0" Height="24" Width="24" />
-                </StackPanel>
-            </Button>
-        </StackPanel>
-        <TextBlock  Grid.Row="2" Visibility="Collapsed" Name="Descriptiopn" Margin="40,0,40,0" TextWrapping="Wrap" Text="xxSign In with a Focus Bear account to manage your time without thinking about it. Having an account helps you Set your computer use hours, create a custom morning and night routine, and customize your focus modes for different activities."  FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-       
+                <controls:SpeechBubble.RenderTransform>
+                    <!-- Move LEFT of image -->
+                    <TranslateTransform X="-225" Y="0"/>
+                </controls:SpeechBubble.RenderTransform>
+            </controls:SpeechBubble>
+        </Grid>
+        
         <StackPanel  Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center">
-            <Button  Grid.ColumnSpan="2" x:Name="btnSignUp" AutomationProperties.AutomationId="btnSignUp"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="306" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="7,17" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnSignUp_Click">
+           
+            <StackPanel Orientation="Horizontal" Margin="0,30,0,0">
+                <Button  x:Name="btnSignInGoogle" AutomationProperties.AutomationId="btnSignInGoogle" Style="{StaticResource  BtnStyleClearGrayBordered}" IsEnabled="True"   Width="250" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSignInWithGoogle_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <Image Source="/Images/logo_google.png" Margin="0,0,10,0" Height="24" Width="24" />
+                            <TextBlock Name="btnSignInWithGoogleText" Margin="0,2,10,0" Text="xSign up with Google" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+
+                <Button  x:Name="btnSignInApple" AutomationProperties.AutomationId="SignInApple" Style="{StaticResource  BtnStyleClearGrayBordered}" IsEnabled="True"   Width="250" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="17,0,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSignInWithApple_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <Image Source="/Images/apple_logo.png" Margin="0,0,10,0" Height="24" Width="24" />
+                            <TextBlock Name="btnSignInAppleText"  Margin="0,2,10,0" Text="xSign up with Apple" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+
+            <TextBlock Name="OR" Margin="0,15,0,0" TextWrapping="Wrap" Text="xOR" FontSize="15" FontWeight="SemiBold" TextAlignment="Center" HorizontalAlignment="Center" />
+
+            <Button x:Name="btnSignUp" AutomationProperties.AutomationId="btnSignUp" Style="{StaticResource  BtnStyleClearGrayBordered}" IsEnabled="True"   Width="517" Height="43" HorizontalContentAlignment="Center" Padding="0" Margin="0,15,0,0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSignIn_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnSignUpText" Margin="8" Text="xSign Up" Foreground="Black"/>
+                        <Image Source="/Images/email.png" Margin="0,0,10,0" Height="24" Width="24" />
+                        <TextBlock Name="btnSignUpText" Margin="0,2,10,0"  Text="xSign up with Email" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
 
-            <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
-
-                <Border BorderThickness="1" Background="LightGray" CornerRadius="50" Height="40" Width="40">
-                    <Image Source="/Images/email.png" Margin="0,0,0,0" Height="24" Width="24" />
-                </Border>
-                <TextBlock x:Name="SignIn" AutomationProperties.AutomationId="txtSignIn" Margin="7,17" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="22" Height="30" Cursor="Hand">
-                 <Hyperlink x:Name="btnSignIn" Click="btnSignIn_Click"   TextDecorations="Underline" Foreground="Orange" ><Run x:Name="btnSignInText" Text="xSign In"/></Hyperlink>
-                </TextBlock>
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal"  Margin="30,0,0,0">
-
-                <Border BorderThickness="1" Background="LightGray" CornerRadius="50" Height="40" Width="40">
-                    <Image Source="/Images/logo_google.png" Margin="0,0,0,0" Height="24" Width="24" />
-                </Border>
-                <TextBlock x:Name="SignInGoogle" AutomationProperties.AutomationId="btnSignInGoogle" Margin="7,10" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="22" Height="30" Cursor="Hand">
-                 <Hyperlink x:Name="btnSignInWithGoogle" Click="btnSignInWithGoogle_Click"   TextDecorations="Underline" Foreground="Orange" ><Run x:Name="btnSignInWithGoogleText" Text="xSign In With Google"/></Hyperlink>
-                </TextBlock>
-
-            </StackPanel>
-            <StackPanel Orientation="Horizontal"  Margin="30,0,0,0">
-
-                <Border BorderThickness="1" Background="LightGray" CornerRadius="50" Height="40" Width="40">
-                    <Image Source="/Images/apple_logo.png" Margin="0,0,0,0" Height="24" Width="24" />
-                </Border>
-                <TextBlock x:Name="SignInApple" AutomationProperties.AutomationId="btnSignInGoogle" Margin="7,10" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="22" Height="30" Cursor="Hand">
-                     <Hyperlink x:Name="btnSignInWithApple" Click="btnSignInWithApple_Click" TextDecorations="Underline" Foreground="Orange" ><Run x:Name="btnSignInWithAppleText" Text="xSign In With Apple"/></Hyperlink>
-                </TextBlock>
-
-            </StackPanel>
-            <TextBlock x:Name="CancelButton" Visibility="Collapsed" AutomationProperties.AutomationId="txtCancelGoogle" Grid.Row="3" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" MinHeight="22" Cursor="Hand">
+            <TextBlock x:Name="CancelButton" Visibility="Collapsed" AutomationProperties.AutomationId="txtCancelGoogle" Margin="0,20,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand">
                     <Hyperlink x:Name="btnCancel" Click="btnCancel_Click"   TextDecorations="Underline" ><Run x:Name="CancelTXT" Text="xCancel"/></Hyperlink>
             </TextBlock>
-
-
+            
+            <TextBlock  x:Name="HaveAccount" AutomationProperties.AutomationId="txtHaveAccount" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
+                <Hyperlink x:Name="btnHaveAccount"   Click="btnHaveAccount_Click" TextDecorations="Underline" ><Run x:Name="btnHaveAccountText" Text="xI already have a Focus Bear account"/></Hyperlink>
+            </TextBlock>
+            
         </StackPanel>
-      
-
     </Grid>
 </Page>

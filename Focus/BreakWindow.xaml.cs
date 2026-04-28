@@ -111,7 +111,7 @@ namespace Focus_Bear.Focus
             nTimer = nSeconds;
             TxtTimer.Visibility = Visibility.Visible;
             bIamDoneTypeActivity = false;
-            if (nTimer == appSettings.nTimerValForNonTimerActivities) //Means its an activity with no timer
+            if (appSettings.bHabitwithUserActionNonTimerRunning) //Means its an activity with no timer
             {
                 bIamDoneTypeActivity = true;
 

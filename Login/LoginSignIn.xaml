@@ -11,134 +11,127 @@
       Title="LoginSignIn">
 
     <Grid>
-        <Grid.Resources>
-            <ResourceDictionary>
-                <ResourceDictionary.MergedDictionaries>
-                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
-                </ResourceDictionary.MergedDictionaries>
-            </ResourceDictionary>
-        </Grid.Resources>
+        <Grid>
+            <Grid.Resources>
+                <ResourceDictionary>
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </Grid.Resources>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100"/>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="100"/>
-        </Grid.ColumnDefinitions>
-
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-
-
-        <Button x:Name="btnBack" AutomationProperties.AutomationId="btnBack" Grid.Column="0" Content="Button" Style="{StaticResource BtnStyleBack}" SnapsToDevicePixels="True" HorizontalAlignment="Center" Height="74" VerticalAlignment="Center" Width="80" ToolTip="xBack" Cursor="Hand" Click="btnBack_Click"/>
-        <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center" Width="360">
-            <Image Source="../Images/FBicon-256.png" Width="50" HorizontalAlignment="Center" Margin="10,50,10,0" VerticalAlignment="Bottom"/>
-            <TextBlock  Name="Heading" Margin="0,10,0,0" TextWrapping="Wrap" Text="xSign In" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock   Name="Description" Margin="40,20,40,0" TextWrapping="Wrap" Text="xCreate an account" Foreground="#e88800" FontSize="17" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock  Name="lblEmail" Margin="30,40,0,10" TextWrapping="Wrap" Text="xEmail Address" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
-            <TextBox Width="300" TabIndex="0" x:Name="TxtEmailAddress" AutomationProperties.AutomationId="txtBoxEmailAddress" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" >
-                <TextBox.Effect>
-                    <DropShadowEffect ShadowDepth="3"
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Width="520">
+                <!--<Image Source="../Images/FBicon-256.png" Width="50" HorizontalAlignment="Center" Margin="10,50,10,0" VerticalAlignment="Bottom"/>-->
+                <TextBlock  Name="Heading" Margin="0,10,0,0" TextWrapping="Wrap" Text="xSign In" FontSize="35" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <!--<TextBlock   Name="Description" Margin="40,20,40,0" TextWrapping="Wrap" Text="xCreate an account" Foreground="#e88800" FontSize="17" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>-->
+                <TextBlock  Name="lblEmail" Margin="60,40,0,10" TextWrapping="Wrap" Text="xEmail Address" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+                <TextBox Width="400" TabIndex="0" x:Name="TxtEmailAddress" AutomationProperties.AutomationId="txtBoxEmailAddress" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" >
+                    <TextBox.Effect>
+                        <DropShadowEffect ShadowDepth="3"
                           Direction="330"
                           Color="Gray"
                           Opacity="0.5"
                           BlurRadius="6"
                            />
-                </TextBox.Effect>
-                <TextBox.FocusVisualStyle>
-                    <Style>
-                        <Setter Property="Control.Template">
-                            <Setter.Value>
-                                <ControlTemplate/>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </TextBox.FocusVisualStyle>
-            </TextBox>
+                    </TextBox.Effect>
+                    <TextBox.FocusVisualStyle>
+                        <Style>
+                            <Setter Property="Control.Template">
+                                <Setter.Value>
+                                    <ControlTemplate/>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TextBox.FocusVisualStyle>
+                </TextBox>
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="36*" />
-                    <ColumnDefinition Width="185*"/>
-                    <ColumnDefinition Width="10*"/>
-                    <ColumnDefinition Width="16*"/>
-                    <ColumnDefinition Width="94*"/>
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="36*" />
+                        <ColumnDefinition Width="185*"/>
+                        <ColumnDefinition Width="10*"/>
+                        <ColumnDefinition Width="16*"/>
+                        <ColumnDefinition Width="94*"/>
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" Grid.ColumnSpan="5" Margin="20,0,20.5,40" HorizontalAlignment="Center" >
-                    <TextBlock Name="lblPassword" Margin="0,20,0,10" TextWrapping="Wrap" Text="xPassword" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
-                    <PasswordBox Width="300" TabIndex="1" x:Name="TxtPassword" AutomationProperties.AutomationId="passwordBox" Margin="0" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" PasswordChanged="TxtPassword_PasswordChanged">
-                        <PasswordBox.Effect>
-                            <DropShadowEffect ShadowDepth="3"
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="5" Margin="20,0,20.5,40" HorizontalAlignment="Center" >
+                        <TextBlock Name="lblPassword" Margin="0,20,0,10" TextWrapping="Wrap" Text="xPassword" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Left"/>
+                        <PasswordBox Width="400" TabIndex="1" x:Name="TxtPassword" AutomationProperties.AutomationId="passwordBox" Margin="0" Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" PasswordChanged="TxtPassword_PasswordChanged">
+                            <PasswordBox.Effect>
+                                <DropShadowEffect ShadowDepth="3"
                                   Direction="330"
                                   Color="Gray"
                                   Opacity="0.5"
                                   BlurRadius="6"
                                    />
-                        </PasswordBox.Effect>
-                        <PasswordBox.FocusVisualStyle>
-                            <Style>
-                                <Setter Property="Control.Template">
-                                    <Setter.Value>
-                                        <ControlTemplate/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </PasswordBox.FocusVisualStyle>
-                    </PasswordBox>
-                    <TextBox Width="300" x:Name="TxtPasswordVisible" AutomationProperties.AutomationId="txtBoxPasswordVisible" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" TextChanged="TxtPasswordVisible_TextChanged" Visibility="Collapsed">
-                        <TextBox.Effect>
-                            <DropShadowEffect ShadowDepth="3"
+                            </PasswordBox.Effect>
+                            <PasswordBox.FocusVisualStyle>
+                                <Style>
+                                    <Setter Property="Control.Template">
+                                        <Setter.Value>
+                                            <ControlTemplate/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </PasswordBox.FocusVisualStyle>
+                        </PasswordBox>
+                        <TextBox Width="400" x:Name="TxtPasswordVisible" AutomationProperties.AutomationId="txtBoxPasswordVisible" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" TextChanged="TxtPasswordVisible_TextChanged" Visibility="Collapsed">
+                            <TextBox.Effect>
+                                <DropShadowEffect ShadowDepth="3"
                                   Direction="330"
                                   Color="Gray"
                                   Opacity="0.5"
                                   BlurRadius="6"
                                    />
-                        </TextBox.Effect>
-                        <TextBox.FocusVisualStyle>
-                            <Style>
-                                <Setter Property="Control.Template">
-                                    <Setter.Value>
-                                        <ControlTemplate/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </TextBox.FocusVisualStyle>
-                    </TextBox>
-                </StackPanel>
-                <Image x:Name="EyePassword" Grid.Column="4" Source="../images/eye-dark.png" Width="20" Height="20" Margin="70,0,0.5,45" Cursor="Hand" MouseUp="EyePassword_MouseUp" VerticalAlignment="Bottom" Grid.ColumnSpan="2"></Image>
-
-            </Grid>
-
-
-            <Button Width="300" TabIndex="2"  x:Name="btnSignIn" AutomationProperties.AutomationId="btnSignIn"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnSignIn_Click" IsDefault="True" >
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnSignInText"  Text="xSign In" Foreground="Black"/>
+                            </TextBox.Effect>
+                            <TextBox.FocusVisualStyle>
+                                <Style>
+                                    <Setter Property="Control.Template">
+                                        <Setter.Value>
+                                            <ControlTemplate/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.FocusVisualStyle>
+                        </TextBox>
                     </StackPanel>
-                </Button.Content>
-            </Button>
+                    <Image x:Name="EyePassword" Grid.Column="4" Source="../images/eye-dark.png" Width="20" Height="20" Margin="70,0,0.5,45" Cursor="Hand" MouseUp="EyePassword_MouseUp" VerticalAlignment="Bottom" Grid.ColumnSpan="2"></Image>
 
-            <TextBlock x:Name="ForgetPassword" AutomationProperties.AutomationId="txtForgetPassword" Margin="0,20,0,30" TextWrapping="NoWrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}" FontSize="15" Height="22" Cursor="Hand">
+                </Grid>
+
+
+                <Button Width="400" TabIndex="2"  x:Name="btnSignIn" AutomationProperties.AutomationId="btnSignIn"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnSignIn_Click" IsDefault="True" >
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnSignInText"  Text="xSign In" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+
+                <TextBlock x:Name="ForgetPassword" AutomationProperties.AutomationId="txtForgetPassword" Margin="0,20,0,30" TextWrapping="NoWrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}" FontSize="15" Height="22" Cursor="Hand">
                 <Hyperlink x:Name="btnForgetPassword" Click="btnForgetPassword_Click"   TextDecorations="Underline" ><Run x:Name="ForgetPasswordTXT" Text="xForgot Password"/></Hyperlink>
-            </TextBlock>
+                </TextBlock>
 
-            <Button Width="300" TabIndex="3"  x:Name="btnCreateAccount" AutomationProperties.AutomationId="btnCreateAccount"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreateAccount_Click" >
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnCreateAccountText" Text="xCreate an account" Foreground="Black"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
+                <!--<Button Width="400" TabIndex="3"  x:Name="btnCreateAccount" AutomationProperties.AutomationId="btnCreateAccount"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreateAccount_Click" >
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnCreateAccountText" Text="xCreate an account" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>-->
 
-            <StackPanel Orientation="Horizontal" x:Name="StatusAct"  Margin="0,20,0,6" VerticalAlignment="Center" Grid.Column="1" HorizontalAlignment="Center" Visibility="Collapsed">
-                <!--<TextBlock  Foreground="#FF9E9DA2" Name="PleaseWait" Text="xPlease wait" TextWrapping="Wrap" Padding="0"  TextTrimming="CharacterEllipsis" />
+                <StackPanel Orientation="Horizontal" x:Name="StatusAct"  Margin="0,20,0,6" VerticalAlignment="Center" Grid.Column="1" HorizontalAlignment="Center" Visibility="Collapsed">
+                    <!--<TextBlock  Foreground="#FF9E9DA2" Name="PleaseWait" Text="xPlease wait" TextWrapping="Wrap" Padding="0"  TextTrimming="CharacterEllipsis" />
                 <Image x:Name="ImgUpdateAppProgress" Height="22" Width="22" Models:ImageBehavior.AnimatedSource="../Images/progress.gif" HorizontalAlignment="Left" Margin="7,-1,0,0" VerticalAlignment="Bottom" />-->
-                <ProgressBar   x:Name="ProgressLogin"   Height="15" Width="200" IsIndeterminate = "True"  Foreground="DodgerBlue" />
+                    <ProgressBar   x:Name="ProgressLogin"   Height="15" Width="200" IsIndeterminate = "True"  Foreground="DodgerBlue" />
 
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </Grid>
     </Grid>
 </Page>
 

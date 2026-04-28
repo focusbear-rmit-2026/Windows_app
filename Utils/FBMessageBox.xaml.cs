@@ -30,7 +30,7 @@ namespace Focus_Bear.Utils
         public FBMessageBox()
         {
         }
-        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false, string sDontShowCheckboxText = "", bool bAutoClose = false)
+        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false, string sDontShowCheckboxText = "", bool bAutoClose = false, MessageBoxResult btnClicked = MessageBoxResult.Yes)
         {
             InitializeComponent();
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
@@ -41,6 +41,9 @@ namespace Focus_Bear.Utils
             {
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
+
+            this.btnClicked = btnClicked;
+
             string sGeekMode = appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString();
             string sSimpleMode = appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString();
             // if this FB is for mode change in traybar, if clicked show don't show it again, it will close

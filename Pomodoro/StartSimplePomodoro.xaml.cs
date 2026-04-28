@@ -379,6 +379,8 @@ namespace Focus_Bear.Pomodoro
                         DateTime dTill = DateTime.Now;
 
                         appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
+                        appSettings.focusSessionStartTime = DateTime.Now;
+                        appSettings.CurrentFocusSessionDuration = 0;
 
                         dTill = dTill.AddMinutes(TotalMinutes);
                         string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();

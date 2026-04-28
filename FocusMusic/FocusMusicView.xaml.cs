@@ -106,14 +106,16 @@ namespace Focus_Bear.FocusMusic
             //DataContext = this;
             ListTracks.ItemsSource = appSettings.arrFocusMusicTracks;
 
-            _playbackTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
-            _playbackTimer.Tick += PlaybackTimer_Tick;
-            _playbackTimer.Start();  
-
-            _player.MediaEnded += Player_MediaEnded;
+            
 
             try
             {
+                _playbackTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+                _playbackTimer.Tick += PlaybackTimer_Tick;
+                _playbackTimer.Start();
+
+                _player.MediaEnded += Player_MediaEnded;
+
                 Heading.Text = appSettings.ConfigFileStrings["allTracksVcInfo"]["title"].ToString();
                 Volume.Text = appSettings.ConfigFileStrings["allTracksVcInfo"]["titleVolumeText"].ToString();   
             }

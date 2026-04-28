@@ -50,7 +50,29 @@ namespace Focus_Bear.Utils
                             {
                                 sMacOSSettingsOBJ.Add("kArrBlockedUrls", JArray.FromObject(appSettings.arrAlwaysBlockedURLs));
                             }
-                            
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kArrAlwaysAllowedAppsWin"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kArrAlwaysAllowedAppsWin"); 
+                                                                              
+                                sMacOSSettingsOBJ.Add("kArrAlwaysAllowedAppsWin", JArray.FromObject(appSettings.arrAlwaysAllowedApps));
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kArrAlwaysAllowedAppsWin", JArray.FromObject(appSettings.arrAlwaysAllowedApps));
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kArrAlwaysBlockedAppsWin"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kArrAlwaysBlockedAppsWin");
+
+                                sMacOSSettingsOBJ.Add("kArrAlwaysBlockedAppsWin", JArray.FromObject(appSettings.arrAlwaysBlockedApps));
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kArrAlwaysBlockedAppsWin", JArray.FromObject(appSettings.arrAlwaysBlockedApps));
+                            }
+
                             if (sMacOSSettingsOBJ.ContainsKey("kCuddlyModeEnabled"))
                             {
                                 sMacOSSettingsOBJ.Remove("kCuddlyModeEnabled"); //Remove blocked URL
@@ -361,6 +383,17 @@ namespace Focus_Bear.Utils
                             else
                             {
                                 sMacOSSettingsOBJ.Add("kIsShowBreaksInCallEnabled", appSettings.bShowBreaksWhileInCall);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsAdvancedAnalyticsInFocusModeEnabled"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsAdvancedAnalyticsInFocusModeEnabled"); //Remove  
+                                                                                        //Add new  
+                                sMacOSSettingsOBJ.Add("kIsAdvancedAnalyticsInFocusModeEnabled", appSettings.bAdvancedAnalyticsInFocusModeEnabled);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsAdvancedAnalyticsInFocusModeEnabled", appSettings.bAdvancedAnalyticsInFocusModeEnabled);
                             }
 
                             //Simple / geek mode setting

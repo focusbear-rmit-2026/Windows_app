@@ -24,7 +24,6 @@ using Focus_Bear.Models;
 using Focus_Bear.Quit;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using Focus_Bear.Onboarding.AfterLogin;
 using Focus_Bear.Preferences;
 using Focus_Bear.Pomodoro;
 using System.Threading;
@@ -40,9 +39,6 @@ namespace Focus_Bear
     public partial class TrayMenu : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
-        bool isFocusModeWindowOpen = false;
-        
 
         DispatcherTimer dispatcherTimerFocus = new DispatcherTimer(DispatcherPriority.Normal);
 
@@ -124,8 +120,6 @@ namespace Focus_Bear
                 btnBrainDump.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
                 btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
                 btnFocusMusic.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusMusicTitle"].ToString();
-
-                btnSetupFocusModeText.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemSetFocusModesTitle"].ToString();
 
                 LimitedBlocking.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBlockingDisabledTitle"].ToString();
                 LimitedBlockingInfo.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["addBlockingScheduleInfo"].ToString();
@@ -284,9 +278,6 @@ namespace Focus_Bear
                 }
                 GeekMode.Checked += GeekMode_Checked;
                 SimpleMode.Checked += SimpleMode_Checked;
-
-                //8 dec 2025 We are moving the option to setup Focus mode.
-                btnSetupFocusMode.Visibility = Visibility.Collapsed; //hide permanently
 
                 if (appSettings.bIsGeekModeEnabled) //GEEK MODE ENABLED
                 {
@@ -915,6 +906,12 @@ namespace Focus_Bear
                         LogWriter.LogWrite("ToggleFocusPauseFromUI() - Remaining seconds <= 0, nothing to pause, returning false");
                         return false;
                     }
+                    // Calculate active time till now
+                    if (appSettings.focusSessionStartTime != null)
+                    {
+                        int activeSeconds = (int)(DateTime.Now - appSettings.focusSessionStartTime.Value).TotalSeconds;
+                        appSettings.CurrentFocusSessionDuration += activeSeconds;
+                    }
 
                     appSettings.nPausedFocusRemainingSeconds = remainingSeconds;
                     appSettings.isFocusModePaused = true;
@@ -931,6 +928,8 @@ namespace Focus_Bear
                         LogWriter.LogWrite("ToggleFocusPauseFromUI() - Resume requested but nPausedFocusRemainingSeconds <= 0, returning false");
                         return false;
                     }
+                    // Start a new temp active session time
+                    appSettings.focusSessionStartTime = DateTime.Now;
 
                     // New end time = now + what was left when we paused
                     int remainingSeconds = appSettings.nPausedFocusRemainingSeconds;
@@ -998,7 +997,7 @@ namespace Focus_Bear
             return;
         }
 
-        public void StartFocusModeTimer(int nHours, int nMinutes)
+        public void StartFocusModeTimer(int nHours, int nMinutes, bool bExtending = false)
         {
             LogWriter.LogWrite("StartFocusModeTimer() invoked");
 
@@ -1022,6 +1021,14 @@ namespace Focus_Bear
 
             try
             {
+                if (!bExtending)
+                {
+                    TabMetrics.Instance.FocusModeStartedResetAllData();//Reset all data.
+                }
+
+                //we need to fetch all focus mode data to show in focus mode end window
+                appSettings.GetTotalDeepFocusedTime();
+
                 dispatcherTimerFocus.Tick += new EventHandler(dispatcherTimer_Focus);
            
 #if DEBUG
@@ -1131,16 +1138,6 @@ namespace Focus_Bear
 
             Hide();
  
-        }
-
-        private void btnSetupFocusMode_Click(object sender, RoutedEventArgs e)
-        {
-            OnboardingSetupAndTipsWindow windOnBoardingNotes1 = new OnboardingSetupAndTipsWindow();
-            windOnBoardingNotes1.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            windOnBoardingNotes1.Topmost = true;
-            windOnBoardingNotes1.ShowDialog();
-            windOnBoardingNotes1.Activate();
-            windOnBoardingNotes1.Focus();
         }
 
         private void WFHMode_Checked(object sender, RoutedEventArgs e)

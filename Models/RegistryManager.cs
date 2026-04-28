@@ -1153,7 +1153,7 @@ namespace Focus_Bear.Models
             {
                 bool status = true;
                 byte[] regData = new byte[1] { Convert.ToByte(status) };
-                Write("WELCOMEABOARDDONE", regData);
+                WriteGlobal("WELCOMEABOARDDONE", regData);
 
                 regData = null;
             }
@@ -1165,7 +1165,7 @@ namespace Focus_Bear.Models
 
         internal static bool GetWelcomeAboardingDoneStatus()
         {
-            byte[] regData = (byte[])Read("WELCOMEABOARDDONE");
+            byte[] regData = (byte[])ReadGlobal("WELCOMEABOARDDONE");
 
             if (regData == null)
                 return false;

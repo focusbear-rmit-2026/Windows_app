@@ -1,13 +1,16 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
+using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -24,6 +27,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using static Focus_Bear.Focus.TabMetrics;
 
 namespace Focus_Bear.Focus
 {
@@ -43,6 +47,17 @@ namespace Focus_Bear.Focus
 
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+        public string InfoText => "Shows apps and domains usage";
+        public class UsageItem
+        {
+            public string Name { get; set; }
+            public int DurationSeconds { get; set; }
+            public double Percentage { get; set; }
+            public bool IsApp { get; set; }
+
+            public string DurationText => AppSettings.GetInstance.SecondsToTextHMS(DurationSeconds);
+        }
+        public ObservableCollection<UsageItem> UsageItems { get; set; }
         public FocusModeEnd()
         {
             InitializeComponent();
@@ -105,7 +120,7 @@ namespace Focus_Bear.Focus
             int nSeconds = Convert.ToInt32(durationSeconds);
 
             string sAchieve = TxtAchieve.Text.Replace(Environment.NewLine, " ");
-            string sDistractions = TxtDistractions.Text.Replace(Environment.NewLine, " ");
+            string sDistractions = ""; //removed
             appSettings.AddEntryInCSV("focus block", appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, sAchieve, sDistractions, "", "");
 
             if (appSettings.bUseSuperPomodoroMode)
@@ -258,6 +273,24 @@ namespace Focus_Bear.Focus
 
                 try
                 {
+                    //
+                    if (appSettings.bAdvancedAnalyticsInFocusModeEnabled)
+                    {
+                        UsageItems = new ObservableCollection<UsageItem>(GetUsageItems());
+                        ListUsageItems.ItemsSource = UsageItems;
+                        Column1.Header = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleAppOrSite"].ToString();
+                        Column2.Header = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleTime"].ToString();
+                        EnableAdvancedAnalytics.Visibility = Visibility.Collapsed;
+                        ListUsageItems.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        //show hyper link button to enable advanced analytics
+                        btnEnableAdvancedAnalyticsTXT.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonEnableAdvancedAnalyticsText"].ToString();
+                        EnableAdvancedAnalytics.Visibility = Visibility.Visible;
+                        ListUsageItems.Visibility = Visibility.Collapsed;
+                    }
+
                     bDoNotShowBreak = false;
                     bUserClickedTake5MinBreak = false;
                     appSettings.bStartingAnotherFocusMode = false;
@@ -275,13 +308,24 @@ namespace Focus_Bear.Focus
                     
                     Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["title"].ToString();
 
-                    string sDescription = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["subTitle"].ToString();
-                    Description.Text = sDescription.Replace("<FOCUSTYPE>", appSettings.sRunningFocusModeName);
+                    Description.Text = "Focus block complete – log your achievement to track progress!";
+                    StatsText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleStats"].ToString();
+                   
+                    DeepWork.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleDeepWorkTime"].ToString();
+                    InfoDeepWork.ToolTip = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["tooltipDeepWotkTimeThisSession"].ToString();
+                    DeepWorkValue.Text = appSettings.SecondsToTextHMS((int)appSettings.CurrentFocusSessionDuration);
+
+                    TotalDeepWork.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleDeepWorkTimeToday"].ToString();
+                    TotalDeepWorkValue.Text = appSettings.SecondsToTextHMS((int)appSettings.TotalDeepFocusedTime + (int)appSettings.CurrentFocusSessionDuration);
+                    InfoTotalDeepWork.ToolTip = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["tooltipTotalWotkTimeToday"].ToString();
+
+                    FCA.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleFocusAlignmentScore"].ToString();
+                    FCAValue.Text = appSettings.CurrentFocusAlignmentScore.ToString() + "%";
+                    InfoFCA.ToolTip = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["tooltipFocusAlignmentScoreAi"].ToString();
 
                     YourIntention.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleIntention"].ToString();
                     Achieve.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["questionFirstText"].ToString();
-                    Distractions.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["questionSecondText"].ToString();
-
+                    
                     SelectMinsLabel.Text = appSettings.ConfigFileStrings["common"]["extendFocusMinutesText"].ToString();
 
                     string sBreakMinutes = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonTakeBreakText"].ToString();
@@ -329,10 +373,12 @@ namespace Focus_Bear.Focus
                             sIntention = arrTaskNames;
                         }
 
-                        TxtIntention.Text = sIntention;
+                        YourIntention.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleIntention"].ToString() +
+                            ": " + sIntention;
                         if(sFocusModeIntention.Length > 0)
                         {
-                            TxtIntention.Text = sIntention + "\n" + sFocusModeIntention;
+                            YourIntention.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleIntention"].ToString() +
+                                ": " + sIntention + " " + sFocusModeIntention;
                         }
                     }
                     catch (Exception ex)
@@ -345,7 +391,6 @@ namespace Focus_Bear.Focus
 
                     //Empty the boxes
                     TxtAchieve.Text = "";
-                    TxtDistractions.Text = "";
 
                     if (!appSettings.bIsGeekModeEnabled) //simple mode
                     {
@@ -505,6 +550,7 @@ namespace Focus_Bear.Focus
 
                 DateTime newEndTime = DateTime.Now.AddMinutes(nMinutesToExtend);
                 appSettings.sRunningFocusModeEndTime = newEndTime.ToString();
+                appSettings.focusSessionStartTime = DateTime.Now;
 
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 var response = await client.ExtendFocusMode(appSettings.sRunningFocusModeID, nMinutesToExtend);
@@ -547,12 +593,70 @@ namespace Focus_Bear.Focus
 
                 int nHours = nMinutesToExtend / 60;
                 int nMinutes = nMinutesToExtend % 60;
-                ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes);
+                ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes, true);
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("btnExtendSession_Click EX = " + ex.Message);
             }
+        }
+
+        public List<UsageItem> GetUsageItems()
+        {
+            var apps = TabMetrics.Instance.ClubAllSameAppEntries();
+            var domains = TabMetrics.Instance.ClubAllSameDomainEntries();
+
+            var combined = new List<UsageItem>();
+
+            // Apps
+            foreach (var app in apps)
+            {
+                combined.Add(new UsageItem
+                {
+                    Name = app.AppName,
+                    DurationSeconds = app.Duration,
+                    IsApp = true
+                });
+            }
+
+            // Domains
+            foreach (var domain in domains)
+            {
+                combined.Add(new UsageItem
+                {
+                    Name = domain.Domain,
+                    DurationSeconds = domain.Duration,
+                    IsApp = false
+                });
+            }
+
+            // Total time
+            int total = combined.Sum(x => x.DurationSeconds);
+
+            if (total > 0)
+            {
+                foreach (var item in combined)
+                {
+                    item.Percentage = (double)item.DurationSeconds / total * 100;
+                }
+            }
+
+            // Sort descending
+            return combined
+                .OrderByDescending(x => x.DurationSeconds)
+                .ToList();
+        }
+
+        private void btnEnableAdvancedAnalytics_Click(object sender, RoutedEventArgs e)
+        {
+            appSettings.bAdvancedAnalyticsInFocusModeEnabled = true;
+
+            UsageItems = new ObservableCollection<UsageItem>(GetUsageItems());
+            ListUsageItems.ItemsSource = UsageItems;
+            Column1.Header = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleAppOrSite"].ToString();
+            Column2.Header = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleTime"].ToString();
+            EnableAdvancedAnalytics.Visibility = Visibility.Collapsed;
+            ListUsageItems.Visibility = Visibility.Visible;
         }
     }
 }

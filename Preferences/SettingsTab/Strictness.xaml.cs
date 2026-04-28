@@ -41,6 +41,8 @@ namespace Focus_Bear.Preferences.SettingsTab
                 btnPasswordText.Text = appSettings.ConfigFileStrings["settingsNew"]["passwordSettingTitle"].ToString();
                 btnFocusModeText.Text = appSettings.ConfigFileStrings["settingsNew"]["focusModeSettingTitle"].ToString();
                 btnDistractingSitesText.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
+                btnAlwaysAllowedAppsText.Text = appSettings.ConfigFileStrings["alwaysAllowedAppsViewInfo"]["title"].ToString(); 
+                btnAlwaysBlockedAppsText.Text = appSettings.ConfigFileStrings["blockedAppsViewInfo"]["title"].ToString();
             }
             catch (Exception ex)
             {
@@ -53,8 +55,6 @@ namespace Focus_Bear.Preferences.SettingsTab
         {
             if (appSettings.isPasswordSet)
             {
-                //mj//MessageDisplay.Text = "";
-
                 if (!appSettings.bPasswordRequireInChangeSettings)
                 {
                     AskPassword pwdWnd = new AskPassword();
@@ -114,7 +114,7 @@ namespace Focus_Bear.Preferences.SettingsTab
             MainMenuPanel.Visibility = Visibility.Collapsed;
             SubViewContainer.Visibility = Visibility.Visible;
 
-            SubViewHeading.Text = "Always Allowed Apps";
+            SubViewHeading.Text = "Always Allowed Apps"; //todo win texts
             // Load the AlwaysAllowedApps class here
             ContentArea.Content = new AlwaysAllowedApps(_ParentWindow);
         }
@@ -127,6 +127,17 @@ namespace Focus_Bear.Preferences.SettingsTab
 
             // Optionally clear the content
             ContentArea.Content = null;
+        }
+
+        private void btnAlwaysBlockedApps_Click(object sender, RoutedEventArgs e)
+        {
+            // Hide main menu
+            MainMenuPanel.Visibility = Visibility.Collapsed;
+            SubViewContainer.Visibility = Visibility.Visible;
+
+            SubViewHeading.Text = appSettings.ConfigFileStrings["blockedAppsViewInfo"]["title"].ToString(); 
+            // Load the AlwaysAllowedApps class here
+            ContentArea.Content = new AlwaysBlockedApps(_ParentWindow);
         }
     }
 }

@@ -8,149 +8,251 @@
         mc:Ignorable="d"
         Background="{DynamicResource BackgroundColor}"
         IsVisibleChanged="Window_IsVisibleChanged" >
+    <UserControl.Resources>
+        <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
+            <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Border  x:Name="IconBorder" Background="{x:Null}" CornerRadius="5" Margin="0,1" >
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="IconBorder" Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#e9912c" Opacity="1" />
+
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="IconBorder" Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#e9912c" Opacity="1"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
     <!--<local1:DpiDecorator>-->
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.MergedDictionaries>
-                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                    <ResourceDictionary Source="../Theme/PreferencesStyle.xaml" />
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
         <ScrollViewer>
             <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="60" />
-                <RowDefinition Height="60" />
-                <RowDefinition Height="40" />
-                <RowDefinition Height="80" />
-                <RowDefinition Height="40" />
-                <RowDefinition Height="80" />
-                <RowDefinition Height="40" />
-                <RowDefinition Height="80" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="80" />
-                <RowDefinition Height="*" />
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60" />
+                    <RowDefinition Height="60" />
+                    <RowDefinition Height="200" />
+                    <RowDefinition Height="80" />
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="60" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="80" />
+                    <RowDefinition Height="*" />
 
-            </Grid.RowDefinitions>
+                </Grid.RowDefinitions>
 
 
-            <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0"  Width="755" TextWrapping="Wrap" Text="xYou Did it!" Foreground="#e88800" FontSize="35" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0"  Width="755" TextWrapping="Wrap" Text="xYou Did it!" Foreground="#e88800" FontSize="35" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <TextBlock  Grid.Row="1" Name="Description" Margin="0,0,0,0"  Width="755" TextWrapping="Wrap" Text="xxYou have successfully completed the focus block - FOCUSTYPE"  FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock  Grid.Row="1" Name="Description" Margin="0,0,0,0"  Width="755" TextWrapping="Wrap" Text="xxYou have successfully completed the focus block - FOCUSTYPE"  FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Margin="50,0,10,0" >
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="1"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="1"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="1"/>
+                                <RowDefinition Height="30"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" Background="LightGray">
+                                <TextBlock  Name="StatsText" TextWrapping="NoWrap" Foreground="Black" TextTrimming="CharacterEllipsis"  Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" FontSize="14">xstats</TextBlock>
+                            </Grid>
+                            <Grid Grid.Row="1" >
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Name="DeepWork" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" FontSize="14">xDeep work time this session</TextBlock>
+                                    <Image x:Name="InfoDeepWork" Source="{DynamicResource InfoImage}" Width="18"  Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"></Image>
+                                    <TextBlock Name="DeepWorkValue" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" FontSize="14">xv</TextBlock>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Grid.Row="2" Background="Gray"></Grid>
+                            <Grid Grid.Row="3" >
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Name="TotalDeepWork" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" FontSize="14">xTotal Deep work time today</TextBlock>
+                                    <Image x:Name="InfoTotalDeepWork" Source="{DynamicResource InfoImage}" Width="18"  Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"></Image>
+                                    <TextBlock Name="TotalDeepWorkValue" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" FontSize="14">xv</TextBlock>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Grid.Row="5" Background="Gray"></Grid>
+                            <Grid Grid.Row="6" >
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Name="FCA" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" FontSize="14">xFCA</TextBlock>
+                                    <Image x:Name="InfoFCA" Source="{DynamicResource InfoImage}" Width="18"  Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"></Image>
+                                    <TextBlock Name="FCAValue" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" FontSize="14">xv</TextBlock>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Grid.Row="4" Background="Gray"></Grid>
+                            
+                        </Grid>
+                    </Border>
+                    <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="10,0,50,0">
+                        <Grid>
+                            <TextBlock  x:Name="EnableAdvancedAnalytics" AutomationProperties.AutomationId="EnableAdvancedAnalytics" Grid.Row="4" Margin="20,15,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                                <Hyperlink x:Name="btnEnableAdvancedAnalytics" Click="btnEnableAdvancedAnalytics_Click"   TextDecorations="Underline" ><Run x:Name="btnEnableAdvancedAnalyticsTXT" Text="xEnable Advanced Analytics"/></Hyperlink>
+                            </TextBlock>
+                            <ListView Name="ListUsageItems" BorderBrush="Transparent"  Visibility="Collapsed"  Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" Grid.ColumnSpan="2" >
 
-            <TextBlock  Grid.Row="2" Name="YourIntention" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxYour intention was"  FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+                                <ListView.Resources>
+                                    <Style TargetType="GridViewColumnHeader">
+                                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                    </Style>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Focusable" Value="False"/>
+                                        <Setter Property="IsHitTestVisible" Value="False"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListViewItem">
+                                                    <Border BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="6,4">
+                                                        <GridViewRowPresenter
+                                                            Content="{TemplateBinding Content}"
+                                                            Columns="{Binding RelativeSource={RelativeSource AncestorType=ListView}, Path=View.Columns}"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
 
-            <TextBox  Grid.Row="3" Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="70"   VerticalAlignment="Center"  FontSize="15" IsEnabled="False">
-                <TextBox.Effect>
-                    <DropShadowEffect ShadowDepth="3"
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.View>
+                                    <GridView>
+
+                                        <!-- Column 1: App / Site -->
+                                        <GridViewColumn Width="250" x:Name="Column1" Header="xApp or Site">
+                                            <!-- ROW CONTENT (no icon here) -->
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"  />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+
+                                        </GridViewColumn>
+
+                                        <!-- Column 2: Time -->
+                                        <GridViewColumn x:Name="Column2" Header="xTime" Width="auto">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding DurationText}" FontWeight="Bold"/>
+                                                        <ProgressBar Value="{Binding Percentage}"  Maximum="100" Height="6" Width="120" Margin="0,4,0,0"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Grid>
+                    </Border>
+                </Grid>
+                <TextBlock  Grid.Row="3" Name="YourIntention" Margin="50,0,50,0"  TextWrapping="Wrap" Text="xxYour intention was"  FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+                 
+
+                <TextBlock  Grid.Row="4" Name="Achieve" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxWhat did you achieve during this time?"  FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+                <TextBox  Grid.Row="5" Name="TxtAchieve" AutomationProperties.AutomationId="txtBoxAchieve" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="50"   VerticalAlignment="Center"  FontSize="15">
+                    <TextBox.Effect>
+                        <DropShadowEffect ShadowDepth="3"
                               Direction="330"
                               Color="Gray"
                               Opacity="0.5"
                               BlurRadius="6"
                                />
-                </TextBox.Effect>
-                <TextBox.FocusVisualStyle>
-                    <Style>
-                        <Setter Property="Control.Template">
-                            <Setter.Value>
-                                <ControlTemplate/>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </TextBox.FocusVisualStyle>
-            </TextBox>
-
-            <TextBlock  Grid.Row="4" Name="Achieve" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxWhat did you achieve during this time?"  FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-
-            <TextBox  Grid.Row="5" Name="TxtAchieve" AutomationProperties.AutomationId="txtBoxAchieve" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="70"   VerticalAlignment="Center"  FontSize="15">
-                <TextBox.Effect>
-                    <DropShadowEffect ShadowDepth="3"
-                              Direction="330"
-                              Color="Gray"
-                              Opacity="0.5"
-                              BlurRadius="6"
-                               />
-                </TextBox.Effect>
-                <TextBox.FocusVisualStyle>
-                    <Style>
-                        <Setter Property="Control.Template">
-                            <Setter.Value>
-                                <ControlTemplate/>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </TextBox.FocusVisualStyle>
-            </TextBox>
-            <TextBlock  Grid.Row="6" Name="Distractions" Margin="0,0,0,5"  Width="755" TextWrapping="Wrap" Text="xxAny distractions?" FontSize="20" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-
-            <TextBox  Grid.Row="7" Name="TxtDistractions" AutomationProperties.AutomationId="txtBoxDistractions" TextWrapping="Wrap" AcceptsReturn="True"  Width="755" Height="70"  VerticalAlignment="Center"  FontSize="15">
-                <TextBox.Effect>
-                    <DropShadowEffect ShadowDepth="3"
-                              Direction="330"
-                              Color="Gray"
-                              Opacity="0.5"
-                              BlurRadius="6"
-                               />
-                </TextBox.Effect>
-                <TextBox.FocusVisualStyle>
-                    <Style>
-                        <Setter Property="Control.Template">
-                            <Setter.Value>
-                                <ControlTemplate/>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </TextBox.FocusVisualStyle>
-            </TextBox>
-            <StackPanel x:Name="ExtendSessionPanel" Grid.Row="8" Orientation="Vertical" HorizontalAlignment="Center" Margin="0,10,0,0" Visibility="Collapsed">
-                <TextBlock Name="ExtendSessionLabel" Margin="0,0,0,10" Text="xStill in the flow? Extend the session" FontSize="16" FontWeight="Normal" TextAlignment="Center" HorizontalAlignment="Center"/>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Name="SelectMinsLabel" Margin="0,0,0,10" Text="xSelect Minutes to extend" FontSize="14" FontWeight="Normal" TextAlignment="Right" HorizontalAlignment="Center"/>
-                        <ComboBox x:Name="cmbExtendMinutes" AutomationProperties.AutomationId="cmbExtendMinutes" Width="80" Height="30" FontSize="16" VerticalContentAlignment="Center" Margin="0,0,15,0">
-                        <ComboBoxItem Content="5" IsSelected="False"/>
-                        <ComboBoxItem Content="10" IsSelected="False"/>
-                        <ComboBoxItem Content="15" IsSelected="True"/>
-                        <ComboBoxItem Content="20" IsSelected="False"/>
-                        <ComboBoxItem Content="25" IsSelected="False"/>
-                        <ComboBoxItem Content="30" IsSelected="False"/>
-                        <ComboBoxItem Content="45" IsSelected="False"/>
-                        <ComboBoxItem Content="90" IsSelected="False"/>
-                    </ComboBox>
-                    <Button x:Name="btnExtendSession" AutomationProperties.AutomationId="btnExtendSession" Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" MinHeight="35" MinWidth="150" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnExtendSession_Click">
+                    </TextBox.Effect>
+                    <TextBox.FocusVisualStyle>
+                        <Style>
+                            <Setter Property="Control.Template">
+                                <Setter.Value>
+                                    <ControlTemplate/>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TextBox.FocusVisualStyle>
+                </TextBox>
+                 
+                <StackPanel x:Name="ExtendSessionPanel" Grid.Row="6" Orientation="Vertical" HorizontalAlignment="Center" Margin="0,10,0,0" Visibility="Collapsed">
+                    <TextBlock Name="ExtendSessionLabel" Margin="0,0,0,10" Text="xStill in the flow? Extend the session" FontSize="16" FontWeight="Normal" TextAlignment="Center" HorizontalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Name="SelectMinsLabel" Margin="0,0,0,10" Text="xSelect Minutes to extend" FontSize="14" FontWeight="Normal" TextAlignment="Right" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="cmbExtendMinutes" AutomationProperties.AutomationId="cmbExtendMinutes" Width="80" Height="30" FontSize="16" VerticalContentAlignment="Center" Margin="10,0,15,0">
+                            <ComboBoxItem Content="5" IsSelected="False"/>
+                            <ComboBoxItem Content="10" IsSelected="False"/>
+                            <ComboBoxItem Content="15" IsSelected="True"/>
+                            <ComboBoxItem Content="20" IsSelected="False"/>
+                            <ComboBoxItem Content="25" IsSelected="False"/>
+                            <ComboBoxItem Content="30" IsSelected="False"/>
+                            <ComboBoxItem Content="45" IsSelected="False"/>
+                            <ComboBoxItem Content="90" IsSelected="False"/>
+                        </ComboBox>
+                        <Button x:Name="btnExtendSession" AutomationProperties.AutomationId="btnExtendSession" Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True" MinHeight="35" MinWidth="150" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0" FontSize="16" Cursor="Hand" FontWeight="Semibold" Click="btnExtendSession_Click">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Name="btnExtendSessionText" Margin="8" Text="xExtend Session" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel  Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,10">
+                    <Button  x:Name="btnTakeBreak" AutomationProperties.AutomationId="btnTakeBreak"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnTakeBreak_Click">
                         <Button.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Name="btnExtendSessionText" Margin="8" Text="xExtend Session" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock Name="btnTakeBreakText" Margin="8" Text="xTake a 5 minutes break" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button   x:Name="btnStartAnotherFocusMode" AutomationProperties.AutomationId="btnStartAnotherFocusMode" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartAnotherFocusMode_Click">
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock Name="btnStartAnotherFocusModeText" Margin="8" Text="xStart another Focus Mode" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button Visibility="Collapsed"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock Name="btnContinueText" Margin="8" Text="xContinue" Foreground="Black"/>
                             </StackPanel>
                         </Button.Content>
                     </Button>
                 </StackPanel>
-            </StackPanel>
-            <StackPanel  Grid.Row="9" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,10">
-            <Button  x:Name="btnTakeBreak" AutomationProperties.AutomationId="btnTakeBreak"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnTakeBreak_Click">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnTakeBreakText" Margin="8" Text="xTake a 5 minutes break" Style="{DynamicResource ButtonTextBlockStyle}"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-            <Button   x:Name="btnStartAnotherFocusMode" AutomationProperties.AutomationId="btnStartAnotherFocusMode" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartAnotherFocusMode_Click">
-                    <Button.Content>
-                        <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnStartAnotherFocusModeText" Margin="8" Text="xStart another Focus Mode" Style="{DynamicResource ButtonTextBlockStyle}"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-            <Button Visibility="Collapsed"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue" Margin="25,0,0,0"   Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="43" MinWidth="300" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="0"  FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnContinueText" Margin="8" Text="xContinue" Foreground="Black"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-        </StackPanel>
 
-            <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="11" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
+                <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="11" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
             </Grid>
         </ScrollViewer>
     </Grid>

@@ -1,0 +1,77 @@
+﻿<Page x:Class="Focus_Bear.Onboarding.SetupAccount"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Focus_Bear.Onboarding"
+      xmlns:controls="clr-namespace:Focus_Bear.Controls"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      IsVisibleChanged="Page_IsVisibleChanged">
+
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="8*" />
+            <!-- 80% container -->
+            <RowDefinition Height="2*" />
+            <!-- 20% buttons -->
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <!-- Content fills remaining space -->
+                <RowDefinition Height="5*" />
+                <RowDefinition Height="3*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                <Image MaxHeight="260" MaxWidth="260" Source="../Images/new/bear_welcome.png" Stretch="Uniform" HorizontalAlignment="Center"  />
+                <!-- SPEECH BUBBLE -->
+                <controls:SpeechBubble x:Name="Bubble1"
+                            Text="xThat way, we can work together on your computer and phone!"
+                            Direction="Right"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"> 
+
+                    <controls:SpeechBubble.RenderTransform>
+                        <!-- Move LEFT of image -->
+                        <TranslateTransform X="-235" Y="-30"/>
+                    </controls:SpeechBubble.RenderTransform>
+
+                </controls:SpeechBubble>
+            
+            </Grid>
+
+            <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Top" Margin="0,30,0,0">
+                <TextBlock Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xSet up an account" FontSize="35" FontWeight="SemiBold"  TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Name="Description" Margin="0,10,0,0" TextWrapping="Wrap" Text="xStay focused across all your devices - no matter where you work." FontSize="15" FontWeight="Normal" TextAlignment="Center" HorizontalAlignment="Center" />
+            </StackPanel>
+
+        </Grid>
+        <Grid Grid.Row="1">
+            <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="btnStayAnonymous" AutomationProperties.AutomationId="btnStayAnonymous"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="7,7,20,7" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStayAnonymous_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnStayAnonymousText" Margin="8" Text="xI’ll stay anonymous" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button x:Name="btnSignMeUp" AutomationProperties.AutomationId="btnSignMeUp"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="43" HorizontalContentAlignment="Center" VerticalAlignment="Center" Padding="0" Margin="7,7" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnSignMeUp_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnSignMeUpText" Margin="8" Text="xSign me up, Scotty!" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>
+

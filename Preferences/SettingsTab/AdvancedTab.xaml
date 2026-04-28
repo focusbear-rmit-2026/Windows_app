@@ -30,6 +30,8 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="1"/>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="1"/>
+                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
                     <Grid Margin="15,15" Background="{DynamicResource SoftCreamColor}">
                 <Grid.ColumnDefinitions>
@@ -138,8 +140,23 @@
                         </Button>
                     </StackPanel>
                 </Grid>
-            
-            </Grid>
+
+                    <Grid Grid.Row="9"  Margin="15,0,15,0" Background="LightGray" ></Grid>
+
+                    <Grid Margin="15,15" Grid.Row="10" Background="{DynamicResource SoftCreamColor}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="60"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0"  Orientation="Vertical"  >
+                            <TextBlock x:Name="EnableAdvancedAnalytics" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEnable advanced analytics while using focus mode</TextBlock>
+                            <TextBlock x:Name="EnableAdvancedAnalyticsDesc" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xTrack the exact time you spend on each app and browser tab during focus mode. Gain deeper insights into your productivity by understanding how your attention is distributed.</TextBlock>
+                            <TextBlock x:Name="EnableAdvancedAnalyticsDesc2" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Left" TextAlignment="Left">xData is only stored on your computer and not sent to our servers.</TextBlock>
+                        </StackPanel>
+                        <ToggleButton Grid.Column="1" x:Name="btnEnableAdvancedAnalytics" AutomationProperties.AutomationId="tglbtnEnableAdvancedAnalytics" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableAdvancedAnalytics_Checked" Unchecked="btnEnableAdvancedAnalytics_Unchecked"/>
+                    </Grid>
+                
+                </Grid>
             </ScrollViewer>
         </Border>
 

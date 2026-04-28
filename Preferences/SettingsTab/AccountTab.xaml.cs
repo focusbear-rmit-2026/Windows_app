@@ -281,5 +281,13 @@ namespace Focus_Bear.Preferences
 
             btnResetPassword.IsEnabled = true;
         }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(IsVisible)
+            {
+                LoadTexts();
+            }
+        }
     }
 }

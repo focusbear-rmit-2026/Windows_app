@@ -1,20 +1,11 @@
 ﻿using Focus_Bear.Models;
-using Focus_Bear.Onboarding.AfterLogin;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+
 
 namespace Focus_Bear.Preferences
 {
@@ -27,6 +18,7 @@ namespace Focus_Bear.Preferences
 
         FocusMode selectedFocusMode = null;
         bool isForAlwaysAllowedApps = false;
+        bool isForAlwaysBlockedApps = false;
 
         List<AppDetails> FilteredList = new List<AppDetails>();
         public AddApp()
@@ -34,18 +26,6 @@ namespace Focus_Bear.Preferences
 
         }
 
-        public AddApp(OnboardingSetupAndTipsWindow ParentWindow, FocusMode sFocusMode)
-        {
-            InitializeComponent();
-
-            selectedFocusMode = sFocusMode;
-
-            this.Owner = ParentWindow;
-
-            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-
-            LoadTexts();
-        }
         public AddApp(FocusBearMainWindow ParentWindow, FocusMode sFocusMode)
         {
             InitializeComponent();
@@ -63,7 +43,14 @@ namespace Focus_Bear.Preferences
         {
             InitializeComponent();
 
-            isForAlwaysAllowedApps = forAlwaysAllowedApps;
+            if(forAlwaysAllowedApps) //if true, its forAlwaysAllowedApps, if false its ForAlwaysBlockedApps
+            {
+                isForAlwaysAllowedApps = true;
+            }
+            else
+            {
+                isForAlwaysBlockedApps = true;
+            }
 
             this.Owner = ParentWindow;
 
@@ -118,6 +105,20 @@ namespace Focus_Bear.Preferences
                             {
                                 appSettings.arrAlwaysAllowedApps.Add(sApp);
                                 appSettings.CapturePostHog("add-always-allowed-app");
+                            }
+                        }
+                        DialogResult = true;
+                        Close();
+                    }
+                    else if (isForAlwaysBlockedApps)
+                    {
+                        foreach (AppDetails sApp in ll)
+                        {
+                            // Check if app is already in the list by comparing AppName
+                            if (!appSettings.arrAlwaysBlockedApps.Any(i => i.AppName == sApp.AppName))
+                            {
+                                appSettings.arrAlwaysBlockedApps.Add(sApp);
+                                appSettings.CapturePostHog("add-always-blocked-app");
                             }
                         }
                         DialogResult = true;

@@ -430,7 +430,7 @@ namespace Focus_Bear.API
 
         }
         private CancellationTokenSource _loginCts;
-        public async Task<bool> LoginWithGoogle(LoginMain ParentWindow, bool bLoginWithApple = false)
+        public async Task<bool> LoginWithGoogle(FocusBearMainWindow ParentWindow, bool bLoginWithApple = false)
         {
             LogWriter.LogWrite("async Task<bool> LoginWithGoogle()");
 

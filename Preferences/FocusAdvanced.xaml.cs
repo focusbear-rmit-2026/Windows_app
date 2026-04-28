@@ -41,6 +41,8 @@ namespace Focus_Bear.Preferences
 
             selectedFocusMode = sFocusMode;
 
+            CheckAutoSuggestFocusModeOnAllowedURL.IsChecked = selectedFocusMode.AutoSuggestFocusModeOnAllowedURL;
+
             this.Owner = ParentWindow;
 
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -52,6 +54,7 @@ namespace Focus_Bear.Preferences
             btnDeleteURL.ToolTip = appSettings.ConfigFileStrings["focusPreferencesAdvancedInfo"]["toolTipRemove"].ToString();
             
             btnOKTXT.Text = appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString();
+            CheckAutoSuggestFocusModeOnAllowedURLText.Text = "Automatically suggest starting this focus mode when any allowed URL is opened"; //todo win texts
 
             ListBLockedURLs.ItemsSource = selectedFocusMode.arrBlockedUrls;
         }
@@ -218,5 +221,22 @@ namespace Focus_Bear.Preferences
             }
 
         }
+
+        private void CheckAutoSuggestFocusModeOnAllowedURL_Checked(object sender, RoutedEventArgs e)
+        {
+            if (selectedFocusMode != null)
+            {
+                selectedFocusMode.AutoSuggestFocusModeOnAllowedURL = true;
+            }
+        }
+
+        private void CheckAutoSuggestFocusModeOnAllowedURL_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (selectedFocusMode != null )
+            {
+                selectedFocusMode.AutoSuggestFocusModeOnAllowedURL = false;
+            }
+        }
+
     }
 }

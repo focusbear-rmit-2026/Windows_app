@@ -33,7 +33,7 @@ namespace Focus_Bear.Utils
             ES_DISPLAY_REQUIRED = 0x00000002,
             ES_SYSTEM_REQUIRED = 0x00000001
         }
-        public static List<string> BROWSERS = new List<string> { "chrome", "firefox", "opera", "msedge" };
+        public static List<string> BROWSERS = new List<string> { "chrome", "firefox", "msedge", "brave", "vivaldi" };
 
         public static void EnableSystemSleep()
         {
@@ -380,6 +380,7 @@ namespace Focus_Bear.Utils
         BREAK_ACTIVITY = 2,
         EVENING_HABITS = 3,
         SHUT_OFF = 4,
+        ONBOARDING = 5,
     }
 
     public struct habit
@@ -671,6 +672,7 @@ namespace Focus_Bear.Utils
         public bool isLockedFocus;
         public bool isRelaxFocus;
         public bool isDeepWorkFocus;
+        public bool isWorkFocus;
 
         public bool isShowAbleInList
         {
@@ -721,11 +723,28 @@ namespace Focus_Bear.Utils
         public string sToolTip { get; set; }
 
         public string lastTaskUsed { get; set; }
+
+        
+        public bool _AutoSuggestFocusModeOnAllowedURL = false;
+        public bool AutoSuggestFocusModeOnAllowedURL
+        {
+            get { return _AutoSuggestFocusModeOnAllowedURL; }
+            set
+            {
+                if (value != _AutoSuggestFocusModeOnAllowedURL)
+                {
+                    _AutoSuggestFocusModeOnAllowedURL = value;
+                    OnChanged("AutoSuggestFocusModeOnAllowedURL");
+                }
+            }
+        }
+
+        public bool bUserClickedNoDoNotSuggestAnymore { get; set; }
         public FocusMode()
         {
 
         }
-        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, bool isDeepWorkFocus, string sToolTip = "", string lastTaskUsed = "", int AlignmentScoreThreshold = 80)
+        public FocusMode(string id, string name, ObservableCollection<string> allowedUrls, ObservableCollection<string> arrBlockedUrls, ObservableCollection<AppDetails> allowedAppsWin, string color, bool isOn, bool isAllowedAllApps, bool isAllowedListApproach, bool isDefault, bool isMeetings, bool isLockedFocus, bool isRelaxFocus, bool isDeepWorkFocus, bool isWorkFocus, bool isAutoSuggestFocusModeOnAllowedURL = false, string sToolTip = "", string lastTaskUsed = "", int AlignmentScoreThreshold = 80)
         {
             this.id = id;
             this.name = name;
@@ -741,6 +760,8 @@ namespace Focus_Bear.Utils
             this.isLockedFocus = isLockedFocus;
             this.isRelaxFocus = isRelaxFocus;
             this.isDeepWorkFocus = isDeepWorkFocus;
+            this.isWorkFocus = isWorkFocus;
+            this.AutoSuggestFocusModeOnAllowedURL = isAutoSuggestFocusModeOnAllowedURL;
             this.sToolTip = sToolTip;
             this.lastTaskUsed = lastTaskUsed;
             this.AlignmentScoreThreshold = AlignmentScoreThreshold;
@@ -757,7 +778,7 @@ namespace Focus_Bear.Utils
 
     }
 
-    public class DistractingURL
+    public class DistractingURL : INotifyPropertyChanged
     {
         private bool isItemChecked;
         private bool bAllowDomain;
@@ -767,17 +788,23 @@ namespace Focus_Bear.Utils
             get { return isItemChecked; }
             set
             {
-                isItemChecked = value;
-                OnChanged("IsItemChecked");
+                if (isItemChecked != value)   // avoid unnecessary triggers
+                {
+                    isItemChecked = value;
+                    OnChanged(nameof(IsItemChecked));
+                }
             }
         }
         public bool BAllowDomain
         {
-            get { return bAllowDomain; }
+            get => bAllowDomain;
             set
             {
-                bAllowDomain = value;
-                OnChanged("BAllowDomain");
+                if (bAllowDomain != value)
+                {
+                    bAllowDomain = value;
+                    OnChanged(nameof(BAllowDomain));
+                }
             }
         }
         public DistractingURL()

@@ -40,6 +40,8 @@ using Focus_Bear.Habits;
 using Focus_Bear.Models;
 using Focus_Bear.API;
 using Focus_Bear.ShutOff;
+using Focus_Bear.Onboarding;
+using static Focus_Bear.Onboarding.OnboardingViewController;
 
 namespace Focus_Bear
 {
@@ -137,6 +139,7 @@ namespace Focus_Bear
 
     public enum LeftButtonType
     {
+        None,//v3
         Habits,
         StartFocusSession,
         MicroBreaks,
@@ -206,6 +209,8 @@ namespace Focus_Bear
         public FocusActivitySummary PageFocusSummary;
         public ShutOffWindow PageShutOffWindow;
         public HelpTab PageHelp;
+
+        public OnboardingViewController PageOnboardingViewController;
         public FocusBearMainWindow()
         {
             InitializeComponent();
@@ -340,6 +345,8 @@ namespace Focus_Bear
             PageFocusSummary = new FocusActivitySummary(this);
             PageShutOffWindow = new ShutOffWindow(this);
             PageHelp = new HelpTab(this);
+
+            PageOnboardingViewController = new OnboardingViewController(this);
 
             _views = new Dictionary<LeftButtonType, UserControl>
             {
@@ -821,7 +828,11 @@ namespace Focus_Bear
             {
                 foreach (NavLeaf leaf in category.Items)
                 {
-                    if (leaf.ButtonType != ExceptButtonType)
+                    if (ExceptButtonType == LeftButtonType.None)
+                    {
+                        leaf.IsEnabled = false; //All left buttons to be disabled
+                    }
+                    else if (leaf.ButtonType != ExceptButtonType)
                     {
                         if (leaf.ButtonType != LeftButtonType.Help &&
                         leaf.ButtonType != LeftButtonType.BrainDump &&
@@ -1043,6 +1054,19 @@ namespace Focus_Bear
             PageSimplePomodoro.UpdateValues();
             RightContent.Content = PageSimplePomodoro;
         }
+
+        public void ShowOnboardingViewController()
+        {
+            RightContent.Content = PageOnboardingViewController;
+            PageOnboardingViewController.Navigate(ONBOARDINGSTATE._WELCOME_); // Navigate to welcome page initially
+        }
+
+        public void ShowLoginViewController()
+        {
+            RightContent.Content = PageOnboardingViewController;
+            PageOnboardingViewController.Navigate(ONBOARDINGSTATE._CREATE_ACCOUNT_); // Navigate to Login page Directly
+        }
+
         public void ChangeTheme()
         {
             var source = (HwndSource)PresentationSource.FromVisual(this);
@@ -1107,6 +1131,8 @@ namespace Focus_Bear
             else
             {
                 appSettings.RemoveSecondaryWindows();
+
+                LocalSettingsManager.PutLocalSettings();
             }
         }
 

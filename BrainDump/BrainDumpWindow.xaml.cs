@@ -17,7 +17,6 @@ namespace Focus_Bear.BrainDump
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
-        int nTimer = 300; //Five minutes
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);

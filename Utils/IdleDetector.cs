@@ -65,5 +65,24 @@ namespace Focus_Bear.Utils
             // Passed all checks
             return true;
         }
+
+        // -------------------------
+        // Get idle time in seconds
+        // -------------------------
+        public static int GetIdleTimeSeconds()
+        {
+            LASTINPUTINFO lastInputInfo = new LASTINPUTINFO();
+            lastInputInfo.cbSize = (uint)Marshal.SizeOf(lastInputInfo);
+
+            if (!GetLastInputInfo(ref lastInputInfo))
+                return 0;
+
+            uint tickCount = (uint)Environment.TickCount;
+            uint lastInputTick = lastInputInfo.dwTime;
+
+            uint idleTicks = tickCount - lastInputTick;
+
+            return (int)(idleTicks / 1000);
+        }
     }
 }

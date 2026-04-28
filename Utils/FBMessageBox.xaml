@@ -24,9 +24,9 @@
             </Grid.RowDefinitions>
 
             <Image Grid.Row="0" Width="60" Height="60"  Margin="0" Source="../Images/FBicon-64.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" VerticalAlignment="Bottom"   HorizontalAlignment="Center"/>
-            <TextBlock Grid.Row="1" x:Name="Caption" TextWrapping="Wrap" Text="xxThis is a simple caption  else."  VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,10,20,0" MaxWidth="360" FontWeight="Bold"  TextAlignment="Center" Visibility="Collapsed" />
+            <TextBlock Grid.Row="1" x:Name="Caption" TextWrapping="Wrap" Text="xxThis is a simple caption  else."  VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,10,20,0" MaxWidth="360" FontWeight="Bold" FontSize="15" TextAlignment="Center" Visibility="Collapsed" />
 
-            <TextBlock Grid.Row="2" x:Name="MessageText" TextWrapping="Wrap" FontSize="14" Text="xxThis is a simple text for testing and nothing else. This is a simple text for testing and nothing else." MaxWidth="360" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,20,20,0"   TextAlignment="Center" />
+            <TextBlock Grid.Row="2" x:Name="MessageText" TextWrapping="Wrap" FontSize="14" Text="xxThis is a simple text for testing and nothing else. This is a simple text for testing and nothing else."  MaxWidth="360" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,20,20,0"   TextAlignment="Center" />
             <StackPanel Grid.Row="3"  Orientation="Vertical" Margin="0,20,0,10" >
                 <Button  x:Name="btnOK" AutomationProperties.AutomationId="btnOK"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="30" MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="20,20,20,20" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click">
                     <Button.Content>

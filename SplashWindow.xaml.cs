@@ -38,7 +38,7 @@ namespace Focus_Bear
             {
                 if (bProgressIndicator)
                 {
-                    Heading.Text = "Customizing Focus Bear per your needs. Please wait.."; //todo win texts
+                    Heading.Text = appSettings.ConfigFileStrings["common"]["customizingText"].ToString(); //"Customizing Focus Bear per your needs. Please wait..";  
                 }
                 else
                 {

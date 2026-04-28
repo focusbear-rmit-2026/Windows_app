@@ -160,13 +160,13 @@
  
         </Grid>
 
-        <Grid x:Name="GridWhyDoYouWantToSkip"  ZIndex="9" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="370" Width="498">
+        <Grid x:Name="GridWhyDoYouWantToSkip"  ZIndex="9" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Height="310" Width="498">
             <Grid.RowDefinitions>
-                    <RowDefinition Height="30"/>
-                <RowDefinition Height="100"/>
-                 <RowDefinition Height="110"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="110"/>
                 <RowDefinition Height="60"/>
-                <RowDefinition Height="60"/>
+                <RowDefinition Height="20"/>
                 <RowDefinition />
             </Grid.RowDefinitions>
             <Button  Grid.Row="0" x:Name="btnGridWhyDoYouWantToSkipClose" AutomationProperties.AutomationId="btnWhyDoYouWantToSkipClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="34" VerticalAlignment="Top" Width="34" ToolTip="Close" Click="btnGridWhyDoYouWantToSkipClose_Click"   Cursor="Hand"/>

@@ -185,6 +185,8 @@ namespace Focus_Bear.Pomodoro
             LogWriter.LogWrite("Start Pomodoro - Pomodoro window UpdateValues()" );
             try
             {
+                AddFocusModesToComboBox();
+
                 // Ensure blocking schedule state is current before checking banner visibility
                 BlockingScheduleManager.CheckCustomBlockingScheduleTime();
 
@@ -474,6 +476,8 @@ namespace Focus_Bear.Pomodoro
                         DateTime dTill = DateTime.Now;
 
                         appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
+                        appSettings.focusSessionStartTime = DateTime.Now;
+                        appSettings.CurrentFocusSessionDuration = 0;
 
                         dTill = dTill.AddMinutes(TotalMinutes);
                         string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
