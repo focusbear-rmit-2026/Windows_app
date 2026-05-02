@@ -157,20 +157,15 @@
                 <TextBlock Grid.Row="1" Grid.Column="0" Width="400"  Name="lblPassword8Chars" Margin="60,0,0,0" TextWrapping="Wrap" Text="xAt least 8 characters in length " FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
                 <Image Grid.Row="1" Grid.Column="1" Name="ImgPassword8Chars" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top" Visibility="Collapsed"></Image>
 
-                <TextBlock Grid.Row="2" Grid.Column="0" Width="400"  Name="lblPassword3Types" Margin="60,2,0,0" TextWrapping="Wrap" Text="xContains at least 3 of the following 4 types of characters: " FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
-                <Image Grid.Row="2" Grid.Column="1" Name="ImgPassword3Types" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,2,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
+                
+                <TextBlock Grid.Row="2" Grid.Column="0" Width="400"  Name="lblPasswordUpperCase" Margin="60,2,0,0" TextWrapping="Wrap" Text="xupper case letters (A-Z)"  FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                <Image Grid.Row="2" Grid.Column="1" Name="ImgPasswordUpperCase" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
 
-                <TextBlock Grid.Row="3" Grid.Column="0" Width="400"  Name="lblPasswordLowerCase" Margin="60,2,0,0" TextWrapping="Wrap" Text="xlower case letters (a-z)" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
-                <Image Grid.Row="3" Grid.Column="1" Name="ImgPasswordLowerCase" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
+                <TextBlock Grid.Row="3" Grid.Column="0" Width="400"  Name="lblPasswordNumbers" Margin="60,2,0,0" TextWrapping="Wrap" Text="xnumbers (i.e. 0-9)" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                <Image Grid.Row="3" Grid.Column="1" Name="ImgPasswordNumbers" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
 
-                <TextBlock Grid.Row="4" Grid.Column="0" Width="400"  Name="lblPasswordUpperCase" Margin="60,2,0,0" TextWrapping="Wrap" Text="xupper case letters (A-Z)"  FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
-                <Image Grid.Row="4" Grid.Column="1" Name="ImgPasswordUpperCase" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
-
-                <TextBlock Grid.Row="5" Grid.Column="0" Width="400"  Name="lblPasswordNumbers" Margin="60,2,0,0" TextWrapping="Wrap" Text="xnumbers (i.e. 0-9)" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
-                <Image Grid.Row="5" Grid.Column="1" Name="ImgPasswordNumbers" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
-
-                <TextBlock Grid.Row="6" Grid.Column="0" Width="400"  Name="lblPasswordSpecialChars" Margin="60,2,0,0" TextWrapping="Wrap" Text="xspecial characters (e.g. !@#$%^ *)" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
-                <Image Grid.Row="6" Grid.Column="1" Name="ImgPasswordSpecialChars" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
+                <TextBlock Grid.Row="4" Grid.Column="0" Width="400"  Name="lblPasswordSpecialChars" Margin="60,2,0,0" TextWrapping="Wrap" Text="xspecial characters (e.g. !@#$%^ *)" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"/>
+                <Image Grid.Row="4" Grid.Column="1" Name="ImgPasswordSpecialChars" Source="../images/validIcon.png" Width="17" Height="17" Margin="-50,0,0,0" VerticalAlignment="Top"  Visibility="Collapsed"></Image>
 
             </Grid>
 

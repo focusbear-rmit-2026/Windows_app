@@ -420,6 +420,7 @@ namespace Focus_Bear.Utils
 
         public CsvLogger csvFocusProductivityStats = null;
         public CsvLogger csvUsageTimingsExplanation = null;
+        public CsvLogger csvfocusAIDecisions = null;
 
         public bool bStringsLoaded;
 
@@ -502,6 +503,7 @@ namespace Focus_Bear.Utils
 
             csvFocusProductivityStats = new CsvLogger(Path.Combine(AppDataDirPath, "focusProductivityStats.CSV"), true);
             csvUsageTimingsExplanation = new CsvLogger(Path.Combine(AppDataDirPath, "usage_timings.CSV"), false, true);
+            csvfocusAIDecisions = new CsvLogger(Path.Combine(AppDataDirPath, "focusAIDecisions.CSV"), false, false, true);
 
             isAnyMandatoryActivityIncluded = false;
             isMandatoryActivityGoing = false;

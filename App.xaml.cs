@@ -4120,6 +4120,7 @@ namespace Focus_Bear
 
                 appSettings.csvFocusProductivityStats.Dispose();
                 appSettings.csvUsageTimingsExplanation.Dispose();
+                appSettings.csvfocusAIDecisions.Dispose();
 
                 if (trayIcon != null)
                 {

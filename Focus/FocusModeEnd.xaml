@@ -105,15 +105,15 @@
                                     <TextBlock Name="TotalDeepWorkValue" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" FontSize="14">xv</TextBlock>
                                 </StackPanel>
                             </Grid>
-                            <Grid Grid.Row="5" Background="Gray"></Grid>
-                            <Grid Grid.Row="6" >
+                            <Grid Grid.Row="4" Background="Gray"></Grid>
+                            <Grid Grid.Row="5" >
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Name="FCA" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" FontSize="14">xFCA</TextBlock>
                                     <Image x:Name="InfoFCA" Source="{DynamicResource InfoImage}" Width="18"  Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"></Image>
                                     <TextBlock Name="FCAValue" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" FontSize="14">xv</TextBlock>
                                 </StackPanel>
                             </Grid>
-                            <Grid Grid.Row="4" Background="Gray"></Grid>
+                            <Grid Grid.Row="6" Background="Gray"></Grid>
                             
                         </Grid>
                     </Border>
@@ -179,7 +179,7 @@
                         </Grid>
                     </Border>
                 </Grid>
-                <TextBlock  Grid.Row="3" Name="YourIntention" Margin="50,0,50,0"  TextWrapping="Wrap" Text="xxYour intention was"  FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock  Grid.Row="3" Name="YourIntention" Margin="50,0,50,0"  TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="xxYour intention was"  FontSize="20" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
                  
 

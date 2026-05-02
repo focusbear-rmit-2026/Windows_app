@@ -2320,7 +2320,7 @@ namespace Focus_Bear.API
                         
                         appSettings.sChatGPTPayLoad = addItemJsonString;
 
-                        client.Timeout = TimeSpan.FromSeconds(5); // 5 seconds time out
+                        client.Timeout = TimeSpan.FromSeconds(15); // 15 seconds time out
 
                         var response = await client.PostAsync("https://api.focusbear.io/user/is-url-safe-to-use", content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
@@ -2352,20 +2352,6 @@ namespace Focus_Bear.API
                                     appSettings.dProbablity = dProbability;
 
                                     return appSettings.dProbablity;
-
-                                    //if (dProbability >= 0.80)
-                                    //{
-                                    //    return 1; // Safe URL
-                                    //}
-                                    //else if(dProbability >= 0.50 && dProbability < 0.80)
-                                    //{
-                                    //    //Ask user
-                                    //    return 2;//we will check with "2" if we need to ask user
-                                    //}
-                                    //else
-                                    //{
-                                    //    return 0; //Unsafe url
-                                    //}
                                 }
                                
                                 return 1;
@@ -2401,7 +2387,7 @@ namespace Focus_Bear.API
             {
                 LogWriter.LogWrite("ChatGPTIsURLSafe Exception" + ex.Message);
                 Debug.WriteLine(ex.Message);
-                //return 0.70; //mostly timeout case
+                return 0.70; //mostly timeout case
             }
             return -1;
         }

@@ -44,6 +44,7 @@ namespace Focus_Bear.Focus
 
         bool bUserClickedTake5MinBreak = false;
         bool bUserClickedContinue = false;
+        bool bUserClickedExtendSession = false;
 
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
@@ -295,9 +296,10 @@ namespace Focus_Bear.Focus
                     bUserClickedTake5MinBreak = false;
                     appSettings.bStartingAnotherFocusMode = false;
                     bUserClickedContinue = false;
+                    bUserClickedExtendSession = false;
 
                     //if a break is running and focus session ends, the button should be Continue Break
-                    if(appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                     {
                         btnContinueText.Text = "Continue Break";//appSettings.ConfigFileStrings["focusCompletedInfo"]["buttonContinueMicroBreak"].ToString();
                     }
@@ -313,7 +315,8 @@ namespace Focus_Bear.Focus
                    
                     DeepWork.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleDeepWorkTime"].ToString();
                     InfoDeepWork.ToolTip = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["tooltipDeepWotkTimeThisSession"].ToString();
-                    DeepWorkValue.Text = appSettings.SecondsToTextHMS((int)appSettings.CurrentFocusSessionDuration);
+                    var duration = (appSettings.CurrentFocusSessionDuration * appSettings.CurrentFocusAlignmentScore) / 100;
+                    DeepWorkValue.Text = appSettings.SecondsToTextHMS((int)duration);
 
                     TotalDeepWork.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleDeepWorkTimeToday"].ToString();
                     TotalDeepWorkValue.Text = appSettings.SecondsToTextHMS((int)appSettings.TotalDeepFocusedTime + (int)appSettings.CurrentFocusSessionDuration);
@@ -380,6 +383,7 @@ namespace Focus_Bear.Focus
                             YourIntention.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleIntention"].ToString() +
                                 ": " + sIntention + " " + sFocusModeIntention;
                         }
+                        YourIntention.ToolTip = YourIntention.Text;
                     }
                     catch (Exception ex)
                     {
@@ -468,7 +472,7 @@ namespace Focus_Bear.Focus
             else
             {
                 //when user is moving away without any actions
-                if(!bUserClickedTake5MinBreak && !appSettings.bStartingAnotherFocusMode && !bUserClickedContinue)
+                if(!bUserClickedTake5MinBreak && !appSettings.bStartingAnotherFocusMode && !bUserClickedContinue && !bUserClickedExtendSession)
                 {
                     bDoNotShowBreak = true;
                     appSettings.bUseSuperPomodoroMode = false; //Force stop the super focus session
@@ -549,6 +553,7 @@ namespace Focus_Bear.Focus
                 appSettings.CapturePostHog("extend-focus-session-from-complete-screen", string.Format("\"extendMinutes\":{0}", nMinutesToExtend));
 
                 DateTime newEndTime = DateTime.Now.AddMinutes(nMinutesToExtend);
+                appSettings.sRunningFocusModeMinutes = nMinutesToExtend.ToString();
                 appSettings.sRunningFocusModeEndTime = newEndTime.ToString();
                 appSettings.focusSessionStartTime = DateTime.Now;
 
@@ -563,7 +568,7 @@ namespace Focus_Bear.Focus
                 {
                     LogWriter.LogWrite("ExtendFocusMode API failed, continuing with local extension");
                 }
-
+                bUserClickedExtendSession = true;
                 ((App)Application.Current).wndFocusBearMainWindow.RightContent.Content = null;
                 ((App)Application.Current).wndFocusBearMainWindow.Hide();
 

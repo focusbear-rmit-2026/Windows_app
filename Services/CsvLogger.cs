@@ -23,11 +23,13 @@ namespace Focus_Bear.Services
         private const int FlushIntervalMs = 2000;
         private bool _bFocusProductivityStats = false;
         private bool _bUsageTimingsExplanation = false;
-        public CsvLogger(string filePath, bool bFocusProductivityStats = false, bool bsageTimingsExplanation = false)
+        private bool _bFocusAIDecisions = false;
+        public CsvLogger(string filePath, bool bFocusProductivityStats = false, bool bUsageTimingsExplanation = false, bool bFocusAIDecisions = false)
         {
             _filePath = filePath;
             this._bFocusProductivityStats = bFocusProductivityStats;
-            this._bUsageTimingsExplanation = bsageTimingsExplanation;
+            this._bUsageTimingsExplanation = bUsageTimingsExplanation;
+            this._bFocusAIDecisions = bFocusAIDecisions;
 
             _queue = new BlockingCollection<string>(new ConcurrentQueue<string>());
 
@@ -48,32 +50,46 @@ namespace Focus_Bear.Services
         // -------------------------
         private void InitWriter()
         {
-            var dir = Path.GetDirectoryName(_filePath);
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-
-            bool fileExists = File.Exists(_filePath);
-            bool isEmpty = !fileExists || new FileInfo(_filePath).Length == 0;
-
-            _writer = new StreamWriter(_filePath, true, Encoding.UTF8)
+            try
             {
-                AutoFlush = false
-            };
+                _writer?.Dispose();
+                _writer = null;
 
-            if (isEmpty)
+                var dir = Path.GetDirectoryName(_filePath);
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                bool fileExists = File.Exists(_filePath);
+                bool isEmpty = !fileExists || new FileInfo(_filePath).Length == 0;
+
+                _writer = new StreamWriter(_filePath, true, Encoding.UTF8)
+                {
+                    AutoFlush = false
+                };
+
+                if (isEmpty)
+                {
+                    string headers = "Timestamp,OverallFocusAlignmentScore,IdleTimeSeconds,CurrentFocusAlignmentScore,CurrentTabCount";
+                    if(_bFocusProductivityStats)
+                    {
+                        headers = "Timestamp,OverallFocusAlignmentScore,IdleTimeSeconds,CurrentFocusAlignmentScore,CurrentTabCount";
+                    }
+                    else if(_bUsageTimingsExplanation)
+                    {
+                        headers = "start_time,end_time,tab_url_app_name,duration_seconds";
+                    }
+                    else if(_bFocusAIDecisions)
+                    {
+                        headers = "Timestamp,Url,Domain,TabTitle,AIRelevanceScore,AdditionalUserJustification,currentTaskName,focusIntention,AIReason";
+                    }
+
+                    _writer.WriteLine(headers);
+                    _writer.Flush(); // ensure header is written immediately
+                }
+            }
+            catch (Exception ex)
             {
-                string headers = "Timestamp,OverallFocusAlignmentScore,IdleTimeSeconds,CurrentFocusAlignmentScore,CurrentTabCount";
-                if(_bFocusProductivityStats)
-                {
-                    headers = "Timestamp,OverallFocusAlignmentScore,IdleTimeSeconds,CurrentFocusAlignmentScore,CurrentTabCount";
-                }
-                else if(_bUsageTimingsExplanation)
-                {
-                    headers = "start_time,end_time,tab_url_app_name,duration_seconds";
-                }
-
-                _writer.WriteLine(headers);
-                _writer.Flush(); // ensure header is written immediately
+                Console.WriteLine("InitWriter failed: " + ex.Message);
             }
         }
         // -------------------------
@@ -112,6 +128,8 @@ namespace Focus_Bear.Services
 
                     if (shouldFlush)
                     {
+                        EnsureWriter();
+
                         _writer.Write(buffer.ToString());
                         buffer.Clear();
                         _writer.Flush();
@@ -122,17 +140,39 @@ namespace Focus_Bear.Services
                 catch (Exception ex)
                 {
                     Console.WriteLine("CSV Logger error: " + ex.Message);
+                    // Try to recover
+                    TryRecreateWriter();
                 }
             }
 
             // Final flush
             if (buffer.Length > 0)
             {
-                _writer.Write(buffer.ToString());
-                _writer.Flush();
+                try
+                {
+                    EnsureWriter();
+                    _writer.Write(buffer.ToString());
+                    _writer.Flush();
+                }
+                catch { }
             }
         }
 
+        private void EnsureWriter()
+        {
+            if (_writer == null || !File.Exists(_filePath))
+            {
+                InitWriter();
+            }
+        }
+        private void TryRecreateWriter()
+        {
+            try
+            {
+                InitWriter();
+            }
+            catch { }
+        }
         // -------------------------
         // Shutdown
         // -------------------------

@@ -4,6 +4,7 @@ using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -104,16 +105,6 @@ namespace Focus_Bear.Focus
                 MainGrid.RowDefinitions[1].Height = new GridLength(180);
             }
             string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
-
-            if (sURL.Length > 0)
-            {
-                if (appSettings.bAiCheckUrlEnabled)
-                    sHeading = sHeading + "\n\n" + appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["checkingUrlText"].ToString();
-            }
-            else
-            {
-
-            }
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
             btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
@@ -283,7 +274,45 @@ namespace Focus_Bear.Focus
                     var nResponse = await client.ChatGPTIsURLSafe(sActiveURL, sCurrentTabTitle, "", appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
                     double xProbability = double.Parse(nResponse.ToString());
 
+                    if (CurrentURLBeingProcessedWithChatGPTAPI != sActiveURL) //If user have moved to another url, do not do anything
+                        return;
+
                     await Task.Delay(20);
+
+                    //Write to focus ai decisions csv
+                    string sHost = "";
+                    try
+                    {
+                        Uri myUri = new Uri(sActiveURL);
+                        sHost = myUri.Host; //fails if there is no http://
+                    }
+                    catch (Exception ex)
+                    {
+                        /*
+                        This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                        If uri does not specify a scheme, the scheme defaults to "http:".
+                        */
+                        // Ensure it has a scheme, otherwise UriBuilder will throw
+                        Uri myUri = new UriBuilder(sActiveURL).Uri;
+                        sHost = myUri.Host;
+
+                        Debug.WriteLine(ex.Message);
+                    }
+
+                    try
+                    {
+                        var currentDate = DateTime.UtcNow;
+
+                        string isoString = currentDate.ToString("o", CultureInfo.InvariantCulture); // ISO 8601
+
+                        //"Timestamp,Url,Domain,TabTitle,AIRelevanceScore,AdditionalUserJustification,currentTaskName,focusIntention,AIReason”
+                        string csvLine = $"{isoString},\"{sActiveURL}\",{sHost},\"{sCurrentTabTitle}\",{xProbability}, {""}, {""}, \"{appSettings.sRunningFocusModeIntention}\", \"{appSettings.sChatGPTReasonForCurrentURL}\" ";
+                        appSettings.csvfocusAIDecisions.Append(csvLine);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("csvfocusAIDecisions write error: " + ex.Message);
+                    }
 
                     string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
 

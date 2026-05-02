@@ -686,7 +686,7 @@ namespace Focus_Bear.Utils
                             if (!bAllowedURLFound)
                             {
                                 LogWriter.LogWrite("processCurrentFocusElement isBlockedListApproach - Attempt to Suppress URL");
-                                suppressURLForFirefox(hWnd, sURL, "focus");
+                                suppressURLForFirefox(hWnd, sURL, "focus", focusType.name, true);
                                
                                 return;
                             }
@@ -1157,7 +1157,7 @@ namespace Focus_Bear.Utils
             }
             return new Regex(regexPattern + "$").IsMatch(input);
         }
-        public static void suppressURLForFirefox(IntPtr hWnd, string val, string type, string focusMode = null)
+        public static void suppressURLForFirefox(IntPtr hWnd, string val, string type, string focusMode = null, bool bFocusModeBlockedListApproach = false)
         {
             AppSettings appSettings = AppSettings.GetInstance;
 
@@ -1168,7 +1168,7 @@ namespace Focus_Bear.Utils
 
                 if (type == "focus")
                 {
-                    if (appSettings.nFocusBearMode == 1 )//Cuddly bearMode
+                    if (appSettings.nFocusBearMode == 1 )//Cuddly bearMode and not bFocusModeBlockedListApproach
                     {
                         string sURLForFocusMode = "";
                         sURLForFocusMode = val;
@@ -1339,7 +1339,21 @@ namespace Focus_Bear.Utils
                             sEndTime = "";
                         }
 
-                        string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, HttpUtility.UrlEncode(val), sEndTime, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.AppVersion.ToString());
+                        if(appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+                        {
+                            if (DateTime.TryParse(appSettings.ActiveSchedule.EndTimeValue,
+                                              out DateTime endTBS))
+                            {
+                                sEndTime = endTBS.ToUniversalTime().ToString("o");
+                            }
+                            else
+                            {
+                                // handle invalid value
+                                sEndTime = "";
+                            }
+                        }
+
+                        string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, HttpUtility.UrlEncode(val), sEndTime, (appSettings.sRunningFocusModeName.Length > 0 ? appSettings.sRunningFocusModeName : focusMode), appSettings.sRunningFocusModeIntention, appSettings.AppVersion.ToString());
                         // "https://focus-bear.github.io/assets/focus-blocked/?old_url={0)&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
 
                         if (appSettings.nFocusBearMode == 1)//cuddly mode

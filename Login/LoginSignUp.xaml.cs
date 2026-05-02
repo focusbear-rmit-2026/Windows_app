@@ -59,9 +59,7 @@ namespace Focus_Bear.Login
                 lblPasswordRules.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["titlePasswordRules"].ToString();
 
                 lblPassword8Chars.Text = "- " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleFirstText"].ToString();
-                lblPassword3Types.Text = "- " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleSecondText"].ToString();
-
-                lblPasswordLowerCase.Text = " * " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleThirdText"].ToString();
+                
                 lblPasswordUpperCase.Text = " * " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleFourthText"].ToString();
                 lblPasswordNumbers.Text = " * " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleFifthText"].ToString();
                 lblPasswordSpecialChars.Text = " * " + appSettings.ConfigFileStrings["customLoginVcInfo"]["passwordRuleSixthText"].ToString();
@@ -321,17 +319,6 @@ namespace Focus_Bear.Login
                 ImgPasswordUpperCase.Visibility = Visibility.Collapsed;
             }  
             
-            Regex regex1 = new Regex(@".*[a-z]+.*");
-            if(regex1.IsMatch(TxtPassword.Password))
-            {
-                passwordRuleAppliedCount += 1;
-                ImgPasswordLowerCase.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                ImgPasswordLowerCase.Visibility = Visibility.Collapsed;
-            }
-
             Regex regex2 = new Regex(@".*[0-9]+.*");
             if(regex2.IsMatch(TxtPassword.Password))
             {
@@ -357,7 +344,6 @@ namespace Focus_Bear.Login
 
             if (passwordRuleAppliedCount >= 3)
             {
-                ImgPassword3Types.Visibility = Visibility.Visible;
                 if (isPasswordFirstRuleValid)
                 {
                     ImgPasswordValid.Visibility = Visibility.Visible;
@@ -371,7 +357,6 @@ namespace Focus_Bear.Login
             }
             else
             {
-                ImgPassword3Types.Visibility = Visibility.Collapsed;
                 ImgPasswordValid.Visibility = Visibility.Collapsed;
                 return false;
            }
