@@ -62,8 +62,8 @@ namespace Focus_Bear.Preferences
                 AllowAllApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedAllApps"].ToString();
                 AllowSelectedApps.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowedSelectedApps"].ToString();
 
-                BlockEverything.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowUrlListApproch"].ToString();
-                AllowEverything.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockUrlListApproch"].ToString();
+                AllowList.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleAllowUrlList"].ToString();//"Allow List:"
+                BlockList.Content = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleBlockUrlList"].ToString();//"Block List:"
 
                 btnDeleteFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonDeleteFocusTypeText"].ToString();
                 btnDuplicateFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["duplicateText"].ToString();
@@ -237,9 +237,9 @@ namespace Focus_Bear.Preferences
             }
         }
 
-        private void BlockEverything_Checked(object sender, RoutedEventArgs e)
+        private void AllowList_Checked(object sender, RoutedEventArgs e)
         {
-            LogWriter.LogWrite("BlockEverything_Checked");
+            LogWriter.LogWrite("AllowList_Checked");
 
             HowDoYouWant.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["allowUrlsQuestionText"].ToString();
 
@@ -270,9 +270,9 @@ namespace Focus_Bear.Preferences
             btnAdvanced.IsEnabled = true; //Enable the advanced button to show the blocked list
         }
 
-        private void AllowEverything_Checked(object sender, RoutedEventArgs e)
+        private void BlockList_Checked(object sender, RoutedEventArgs e)
         {
-            LogWriter.LogWrite("AllowEverything_Checked");
+            LogWriter.LogWrite("BlockList_Checked");
 
             HowDoYouWant.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["blockUrlsQuestionText"].ToString();
 
@@ -709,13 +709,13 @@ namespace Focus_Bear.Preferences
                     //check the appropriate radio boxes for URLs
                     if (selectedItem.isAllowedListApproach)
                     {
-                        BlockEverything.IsChecked = true;
+                        AllowList.IsChecked = true;
                       
                         ListURLs.ItemsSource = selectedItem.arrAllowedUrls;
                     }
                     else
                     {
-                        AllowEverything.IsChecked = true;
+                        BlockList.IsChecked = true;
                        
                         ListURLs.ItemsSource = selectedItem.arrBlockedUrls;
                     }
@@ -726,8 +726,8 @@ namespace Focus_Bear.Preferences
                     {
                         AllowSelectedApps.Visibility = Visibility.Collapsed;
 
-                        BlockEverything.Visibility = Visibility.Collapsed;
-                        AllowEverything.Visibility = Visibility.Collapsed;
+                        AllowList.Visibility = Visibility.Collapsed;
+                        BlockList.Visibility = Visibility.Collapsed;
 
                         ListURLs.IsEnabled = false;
                         btnAddAllowedURLs.IsEnabled = false;
@@ -753,8 +753,8 @@ namespace Focus_Bear.Preferences
                         AllowSelectedApps.Visibility = Visibility.Collapsed;
                         AllowAllApps.Visibility = Visibility.Collapsed;
 
-                        BlockEverything.Visibility = Visibility.Collapsed;
-                        AllowEverything.Visibility = Visibility.Collapsed;
+                        AllowList.Visibility = Visibility.Collapsed;
+                        BlockList.Visibility = Visibility.Collapsed;
 
                         ListURLs.IsEnabled = true;
                         btnAddAllowedURLs.IsEnabled = true;
@@ -785,8 +785,8 @@ namespace Focus_Bear.Preferences
                     {
                         AllowSelectedApps.Visibility = Visibility.Visible;
                         AllowAllApps.Visibility = Visibility.Visible;
-                        BlockEverything.Visibility = Visibility.Visible;
-                        AllowEverything.Visibility = Visibility.Visible;
+                        AllowList.Visibility = Visibility.Visible;
+                        BlockList.Visibility = Visibility.Visible;
 
                         ListURLs.IsEnabled = true;
                         btnAddAllowedURLs.IsEnabled = true;

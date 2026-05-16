@@ -266,14 +266,10 @@ namespace Focus_Bear.Preferences
                     return;
                 }
 
-                if (_editableCopy.StartTimeValue == default || _editableCopy.EndTimeValue == default)
-                {
-                    //Need to place check here for overlapping schedule times
-                    return;
-                }
                 if (_editableCopy.SelectedFocusModeId == null || ComboBoxFocusModes.SelectedIndex == -1)
                 {
-                    FBMessageBox msg = new FBMessageBox("Please select a block list.", "Missing block list");
+                    
+                    FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["alertSelectBlockList"].ToString(), "Missing block list");
                     msg.Owner = _ParentWindow;
                     msg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                     _ParentWindow.GridShade.Visibility = Visibility.Visible;
@@ -300,8 +296,12 @@ namespace Focus_Bear.Preferences
                 {
                     if (BlockingScheduleManager.DoesNewScheduleOverlap(_editableCopy.DaysOfWeek, _editableCopy.StartTimeValue, _editableCopy.EndTimeValue))
                     {
-                        //todo win texts
-                        FBMessageBox msg = new FBMessageBox("This blocking schedule's time overlaps with an existing one. Do you want to save it anyway?", "Time Overlap Detected", MessageBoxButton.YesNo, "Save Anyway", "Cancel");
+                        //"This blocking schedule's time overlaps with an existing one. Do you want to save it anyway?"
+                        FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["subTitleScheduleOverlapAlert"].ToString(),
+                            appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["titleScheduleOverlapAlert"].ToString(), 
+                            MessageBoxButton.YesNo,
+                            appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["buttonSaveBlockAnyway"].ToString(),
+                            appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString());
                         msg.Owner = _ParentWindow;
                         msg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                         _ParentWindow.GridShade.Visibility = Visibility.Visible;
@@ -317,8 +317,16 @@ namespace Focus_Bear.Preferences
                 {
                     if (BlockingScheduleManager.HasOverlappingSchedules(_instance.id))
                     {
-                        //todo win texts
-                        FBMessageBox msg = new FBMessageBox("This blocking schedule's time overlaps with an existing one. Do you want to save it anyway?", "Time Overlap Detected", MessageBoxButton.YesNo, "Save Anyway", "Cancel");
+                        //"titleScheduleOverlapAlert": "Time Overlap Detected",
+                        //"subTitleScheduleOverlapAlert": "This blocking schedule's time overlaps with an existing one. Do you want to save it anyway?",
+                        //"buttonSaveBlockAnyway": "Save Anyway",
+                        //"This blocking schedule's time overlaps with an existing one. Do you want to save it anyway?"
+                        FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["subTitleScheduleOverlapAlert"].ToString(),
+                            appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["titleScheduleOverlapAlert"].ToString(),
+                            MessageBoxButton.YesNo,
+                            appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["buttonSaveBlockAnyway"].ToString(),
+                            appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString());
+
                         msg.Owner = _ParentWindow;
                         msg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                         _ParentWindow.GridShade.Visibility = Visibility.Visible;

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Configuration;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -54,6 +55,15 @@ namespace Focus_Bear.Preferences.SettingsTab
         private void CuddlyMode_Checked(object sender, RoutedEventArgs e)
         {
             appSettings.nFocusBearMode = 1;//1 is cuddly bear mode
+        }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(IsVisible)
+            {
+                CuddlyMode.IsChecked = (appSettings.nFocusBearMode == 1) ? true : false;//1 is cuddly bear mode
+                GrizzlyMode.IsChecked = (appSettings.nFocusBearMode == 2) ? true : false;//2 is grizzly bear mode
+            }
         }
     }
 }

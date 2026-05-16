@@ -459,6 +459,7 @@ namespace Focus_Bear.Pomodoro
                         //Start the Focus Mode
                         //Change the play icon for this to STOP icon
                         appSettings.arrFocusModes[i].isOn = true;
+                        appSettings.sMostRecentFocusmodeDoneID = appSettings.arrFocusModes[i].id;
 
                         //Check if there are Last Task list saved, add it to raw tasks
                         appSettings.sRawTasks = appSettings.arrFocusModes[i].lastTaskUsed;

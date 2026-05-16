@@ -31,7 +31,11 @@ namespace Focus_Bear.Preferences
         public AdvancedTab(FocusBearMainWindow _parentWindow)
         {
             InitializeComponent();
+            LoadTexts();
+        }
 
+        private void LoadTexts()
+        {
             try
             {
                 EnableMeetingDetection.Text = appSettings.ConfigFileStrings["preferencesInfo"]["checkBoxMeetingDetectionText"].ToString();
@@ -57,7 +61,6 @@ namespace Focus_Bear.Preferences
                 LogWriter.LogWrite("AdvancedTab load text ex =" + ex.Message);
             }
         }
-
         private void btnEnableMeetingDetection_Checked(object sender, RoutedEventArgs e)
         {
             appSettings.bEnableMeetingsDetection = true;
@@ -119,19 +122,24 @@ namespace Focus_Bear.Preferences
 
         private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            //Initialize the check box states
-            btnEnableMeetingDetection.IsChecked = appSettings.bEnableMeetingsDetection;
-            btnSuggestStartMeetingsFocus.IsChecked = appSettings.bAutomaticallySuggestStartingMeetingsFocus;
-            btnBlockSuperDistracting.IsChecked = appSettings.bBlockSuperDistractingSitesDuringMeetings;
-            btnEnableAdvancedAnalytics.IsChecked = appSettings.bAdvancedAnalyticsInFocusModeEnabled;
+            if (IsVisible)
+            {
+                LoadTexts();
+                RegistryManager.GetFocusBearTimeTrackerStatus();
+                //Initialize the check box states
+                btnEnableMeetingDetection.IsChecked = appSettings.bEnableMeetingsDetection;
+                btnSuggestStartMeetingsFocus.IsChecked = appSettings.bAutomaticallySuggestStartingMeetingsFocus;
+                btnBlockSuperDistracting.IsChecked = appSettings.bBlockSuperDistractingSitesDuringMeetings;
+                btnEnableAdvancedAnalytics.IsChecked = appSettings.bAdvancedAnalyticsInFocusModeEnabled;
 
-            btnEnableFBTT.Checked -= btnEnableFBTT_Checked;
-            btnEnableFBTT.Unchecked -= btnEnableFBTT_Unchecked;
-            btnEnableFBTT.IsChecked = appSettings.bFocusBearTimeTrackerEnabled;
-            btnEnableFBTT.Checked += btnEnableFBTT_Checked;
-            btnEnableFBTT.Unchecked += btnEnableFBTT_Unchecked;
-
-            txtMaxTabLimit.Text = appSettings.nMaxTabLimit.ToString();
+                btnEnableFBTT.Checked -= btnEnableFBTT_Checked;
+                btnEnableFBTT.Unchecked -= btnEnableFBTT_Unchecked;
+                btnEnableFBTT.IsChecked = appSettings.bFocusBearTimeTrackerEnabled;
+                btnEnableFBTT.Checked += btnEnableFBTT_Checked;
+                btnEnableFBTT.Unchecked += btnEnableFBTT_Unchecked;
+                appSettings.nMaxTabLimit = RegistryManager.GetMaxTabLimit();
+                txtMaxTabLimit.Text = appSettings.nMaxTabLimit.ToString();
+            }
         }
 
         private void txtMaxTabLimit_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)

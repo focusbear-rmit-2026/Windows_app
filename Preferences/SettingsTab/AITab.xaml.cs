@@ -64,7 +64,11 @@ namespace Focus_Bear.Preferences
 
         private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            
+            if (IsVisible)
+            {
+                PersonalisedMotivationCheckBox.IsChecked = appSettings.bMotivationalMessageEnabled;
+                UseAIToDecideCheckBox.IsChecked = appSettings.bAiCheckUrlEnabled;
+            }
         }
     }
 }

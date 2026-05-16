@@ -641,6 +641,7 @@
     </Compile>
     <Compile Include="Services\BlockingScheduleManager.cs" />
     <Compile Include="Services\CsvLogger.cs" />
+    <Compile Include="Services\FocusButton\FocusButtonService.cs" />
     <Compile Include="SetIntention\SetIntention.xaml.cs">
       <DependentUpon>SetIntention.xaml</DependentUpon>
     </Compile>

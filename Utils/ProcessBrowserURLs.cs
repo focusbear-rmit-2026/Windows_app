@@ -294,8 +294,14 @@ namespace Focus_Bear.Utils
 
                  if (oldURLToOpen != null && oldURLToOpen.Length > 0)
                  {
-                     //Open the url and also add it to temporary allowed URL list
-                     var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == oldURLToOpen.ToLower());
+                     if(appSettings.isFocusModeRunning && !appSettings.isFocusModePaused)
+                     {
+                        //check if url is listed as blocked url then do not allow to open and show message: 
+                        //"common""unblockNotAvailableForFocusBlockedUrlText": "You can't unblock this site because it's currently listed under the blocked URLs for your focus session",
+
+                    }
+                    //Open the url and also add it to temporary allowed URL list
+                    var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == oldURLToOpen.ToLower());
 
                      if (blockedURLs.Count() != 0)
                      {
@@ -431,7 +437,7 @@ namespace Focus_Bear.Utils
 
                 if (focusType != null )
                 {
-                    if (focusType.isAllowedListApproach)//Block everything except safe sites I choose
+                    if (focusType.isAllowedListApproach)//Block everything except safe sites I choose - Allow List
                     {
                         LogWriter.LogWrite("isAllowedListApproach - Block everything except safe sites I choose - " + focusType.name);
 
@@ -440,7 +446,7 @@ namespace Focus_Bear.Utils
                             //We will first check if the url is in the blocked urls list of the focusmode, then we will not check allowed
                             bAllowedURLFound = true; //allowed unless we find it in the blocked urls array
 
-                               //check if the current URL is in the list of Blocked urls, then block else allow
+                            //check if the current URL is in the list of Blocked urls, then block else allow
                             foreach (string url in focusType.arrBlockedUrls)
                             {
                                 
@@ -497,6 +503,12 @@ namespace Focus_Bear.Utils
                                         }
                                     }
                                 }
+                            }
+                            bool bBlockImmediately = false;
+
+                            if (!bAllowedURLFound)
+                            {
+                                bBlockImmediately = true;
                             }
 
                             if (bAllowedURLFound)//Means it was not found in the blocked urls..now let's check Allowed URLs
@@ -613,7 +625,7 @@ namespace Focus_Bear.Utils
                                     }
                                 }
 
-                                suppressURLForFirefox(hWnd, sURL, "focus");
+                                suppressURLForFirefox(hWnd, sURL, "focus", null, bBlockImmediately);
                                 return;
                             }
                         }
@@ -698,6 +710,34 @@ namespace Focus_Bear.Utils
                                     // if returned true means it was blocked by always blocked url
                                     return;
                                 }
+
+                                string sHeading = appSettings.ConfigFileStrings["common"]["appAllowedInFocusModeText"].ToString();
+                                sHeading = sHeading.Replace("<APP>", sURL);
+                                sHeading = sHeading.Replace("<FOCUSMODE>", appSettings.sRunningFocusModeName);
+
+                                //Safe URL, need to allow.
+                                if (!FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.ContainsKey(sURL))
+                                {
+
+                                    FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sURL] = new Dictionary<string, object>
+                                            {
+                                                { "probability", 1.0 },
+                                                { "isVisibleUrl", true },
+                                                { "totalSeconds", 0 },
+                                                { "startedTime", DateTime.Now },
+                                                { "reason", sHeading }
+                                            };
+
+                                    FocusAlignmentScoreManager.CustomToolTip = sHeading;
+                                    FocusAlignmentScoreManager.SetAppIconForFocusModeScore(1);
+                                }
+
+                                double currentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
+                                Console.WriteLine("*****************************currentFocusAlignmentScore");
+                                Console.WriteLine(currentFocusAlignmentScore);
+
+                                Task.Delay(1000);
+                                return;
                             }
                         }
                     }
@@ -1157,7 +1197,7 @@ namespace Focus_Bear.Utils
             }
             return new Regex(regexPattern + "$").IsMatch(input);
         }
-        public static void suppressURLForFirefox(IntPtr hWnd, string val, string type, string focusMode = null, bool bFocusModeBlockedListApproach = false)
+        public static void suppressURLForFirefox(IntPtr hWnd, string val, string type, string focusMode = null, bool bBlockImmediately = false)
         {
             AppSettings appSettings = AppSettings.GetInstance;
 
@@ -1168,7 +1208,7 @@ namespace Focus_Bear.Utils
 
                 if (type == "focus")
                 {
-                    if (appSettings.nFocusBearMode == 1 )//Cuddly bearMode and not bFocusModeBlockedListApproach
+                    if (appSettings.nFocusBearMode == 1 && !bBlockImmediately)//Cuddly bearMode and not bFocusModeBlockedListApproach
                     {
                         string sURLForFocusMode = "";
                         sURLForFocusMode = val;

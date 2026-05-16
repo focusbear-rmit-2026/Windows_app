@@ -872,7 +872,7 @@ namespace Focus_Bear
             await StopFocusSessionRealAsync();
         }
 
-        public bool ToggleFocusPauseFromUI()
+        public bool ToggleFocusPauseFromUI(bool bComingFromPhysicalDevice = false)
         {
             try
             {
@@ -947,6 +947,11 @@ namespace Focus_Bear
                     dispatcherTimerFocus.Start();
 
                     LogWriter.LogWrite("ToggleFocusPauseFromUI() - Resumed focus mode, new end time = " + appSettings.sRunningFocusModeEndTime);
+                }
+
+                if (!bComingFromPhysicalDevice) //Only when instructions not coming from device
+                {
+                    App.FocusButton.PauseFocusSession();
                 }
 
                 // Notify all UI components of the pause state change
@@ -1037,6 +1042,8 @@ namespace Focus_Bear
                  dispatcherTimerFocus.Interval = new TimeSpan(nHours, nMinutes, 0);
 #endif
 
+                App.FocusButton.StartFocusSession(nMinutes * 60);
+
                 dispatcherTimerFocus.Start();
                 CommandManager.InvalidateRequerySuggested();
 
@@ -1068,7 +1075,7 @@ namespace Focus_Bear
 
         private void dispatcherTimer_Focus(object sender, EventArgs e)
         {
-            LogWriter.LogWrite("dispatcherTimer_Focus()");
+            LogWriter.LogWrite("dispatcherTimer_Focus() ended");
             try
             {
                 dispatcherTimerFocus.Stop(); //Tick Once only

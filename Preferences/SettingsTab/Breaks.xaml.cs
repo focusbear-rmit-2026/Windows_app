@@ -118,6 +118,7 @@ namespace Focus_Bear.Preferences.SettingsTab
             {
                 EnableBreaksCheckbox.IsChecked = appSettings.bAreBreaksEnabled;
                 btnShowBreaksWhileInCall.IsChecked = appSettings.bShowBreaksWhileInCall;
+                RegistryManager.GetDisableNotificationSounds();
                 btnDisableNotificationSounds.IsChecked = appSettings.bDisableNotificationSounds;
             }
         }

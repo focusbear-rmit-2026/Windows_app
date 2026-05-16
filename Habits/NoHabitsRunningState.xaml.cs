@@ -106,7 +106,10 @@ namespace Focus_Bear.Habits
         {
             try
             {
-                string sHeading = appSettings.ConfigFileStrings["habitsStateVcInfo"]["shutoffAbortedText"].ToString();
+                //"nextRoutineText": "Great job staying on track! Your next scheduled routine (<ROUTINE>) is set for <TIME>. Be ready to jump back in and continue building those healthy habits. You've got this!",
+                string sHeading = appSettings.ConfigFileStrings["habitsStateVcInfo"]["nextRoutineText"].ToString();
+                sHeading = sHeading.Replace("<ROUTINE>", appSettings.ConfigFileStrings["quitInfo"]["askQuitVcInfo"]["routineMorningText"].ToString()); //morning
+                sHeading = sHeading.Replace("<TIME>", appSettings.sDayStartTime);
                 Heading.Text = sHeading;
 
                 btnAction.Visibility = Visibility.Collapsed;

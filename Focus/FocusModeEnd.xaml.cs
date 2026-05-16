@@ -62,7 +62,7 @@ namespace Focus_Bear.Focus
         public FocusModeEnd()
         {
             InitializeComponent();
-            LogWriter.LogWrite("FocusModeEnd()");
+            LogWriter.LogWrite("FocusModeEnd() Init");
 
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
@@ -173,6 +173,8 @@ namespace Focus_Bear.Focus
 
             if (!bDoNotShowBreak)
             {
+                appSettings.bHabitwithAllowedAppsRunning = false; //reset
+                appSettings.bHabitwithUserActionNonTimerRunning = false; //reset
                 //Show the Break Window
                 ((App)(Application.Current)).ShowBreakWindow();
             }
@@ -310,7 +312,7 @@ namespace Focus_Bear.Focus
                     
                     Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["title"].ToString();
 
-                    Description.Text = "Focus block complete – log your achievement to track progress!";
+                    Description.Text = "Focus block complete – log your achievement to track progress!"; //todo win texts
                     StatsText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleStats"].ToString();
                    
                     DeepWork.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleDeepWorkTime"].ToString();

@@ -186,10 +186,10 @@
                             <StackPanel Grid.Row="5" Orientation="Vertical">
                                 <TextBlock   Name="HowDoYouWant" Margin="20,0,0,0" TextWrapping="Wrap"  Text="xHow do you want to block URLs"   FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-                                <RadioButton   Name="BlockEverything" AutomationProperties.AutomationId="rbBlockEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="BlockEverything_Checked">
+                                <RadioButton   Name="AllowList" AutomationProperties.AutomationId="rbAllowList" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="AllowList_Checked">
                                     xBlock everything except safe sites that I choose sdsdsd sdsdsd sdsdsdsd
                                 </RadioButton>
-                                <RadioButton  Name="AllowEverything"  AutomationProperties.AutomationId="rbAllowEverything" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="AllowEverything_Checked">
+                                <RadioButton  Name="BlockList"  AutomationProperties.AutomationId="rbBlockList" Margin="20,10,0,0" GroupName="URLsEverything"  FontSize="13" Checked="BlockList_Checked">
                                     xAllow everything except certain distracting sites
                                 </RadioButton>
                                 <Grid  x:Name="SelectedURLsListBG" Margin="20,5,20,8">

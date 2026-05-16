@@ -152,12 +152,6 @@ namespace Focus_Bear.Onboarding
                     return;
                 }
 
-                if (_editableCopy.StartTimeValue == default || _editableCopy.EndTimeValue == default)
-                {
-                    //Need to place check here for overlapping schedule times
-                    return;
-                }
-
                 //Check that at least one day is selected
                  bool anyDaySelected = _editableCopy.DaysOfWeek.Any(d => d == true);
                 if (!anyDaySelected)

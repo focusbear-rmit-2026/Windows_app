@@ -196,7 +196,8 @@ namespace Focus_Bear.Utils
                             //Start the Focus Mode
                             //Change the play icon for this to STOP icon
                             appSettings.arrFocusModes[i].isOn = true;
-                            
+                            appSettings.sMostRecentFocusmodeDoneID = appSettings.arrFocusModes[i].id;
+
                             //Make the global variable true
                             appSettings.isFocusModeRunning = true;
                             appSettings.sRunningFocusModeStartTime = StartTimeLocal.ToString("yyyy-MM-dd HH:mm:ss");

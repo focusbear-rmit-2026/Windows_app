@@ -33,19 +33,10 @@ namespace Focus_Bear.Tour
 
             try
             {
-                btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonGetStartedText"].ToString();
+                btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonFinishText"].ToString();
                 Heading.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["title"].ToString();
 
-                
-
                 Description.Text = "Focus Bear keeps running in System Tray. Click on the icon to bring up the Focus Bear Menu.";
-
-                string sStep = appSettings.ConfigFileStrings["menuTourVcInfo"]["indexText"].ToString();
-                sStep = sStep.Replace("<CURRENTINDEX>", (nStep + 2).ToString()); //1
-                sStep = sStep.Replace("<TOTALCOUNT>", "4");
-                Steps.Text = sStep;
-
-                //SetTexts();
             }
             catch (Exception ex)
             {
@@ -93,48 +84,9 @@ namespace Focus_Bear.Tour
         }
         private void btnNext_Click(object sender, RoutedEventArgs e)
         {
-            nStep++;
-            if (nStep == 0) //we started with -1 for system tray info
-            {
-                string imagePath = ("pack://application:,,,/Focus Bear;component/images/fbmenu.png");
-                var image = new BitmapImage();
-                image.BeginInit();
-                image.UriSource = new Uri(imagePath);
-                image.EndInit();
-
-                FBMenu.Source = image;
-
-                btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonNextText"].ToString();
-                SetTexts();
-                GridPopup.Margin = new Thickness(0, 0, 370, 200);
-                Arrow.Margin = new Thickness(0, 0, 350, 320);
-
-                appSettings.CapturePostHog("menu_tour_next_clicked");
-            }
-            else if (nStep == 1)
-            {
-                btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonNextText"].ToString();
-                SetTexts();
-                GridPopup.Margin = new Thickness(0, 0, 370, 150);
-                Arrow.Margin = new Thickness(0,0,350,210);
-
-                appSettings.CapturePostHog("menu_tour_next_clicked");
-            }
-            else if (nStep == 2)
-            {
-                btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonFinishText"].ToString();
-                SetTexts();
-                GridPopup.Margin = new Thickness(0, 0, 370, 120);
-                Arrow.Margin = new Thickness(0, 0, 350, 165);
-
-                appSettings.CapturePostHog("menu_tour_next_clicked");
-            }
-            else
-            {
-                appSettings.bMenuOpeningFirstTime = true;
-                Close();
-            }
-            
+            appSettings.bMenuOpeningFirstTime = true;
+            Close();
+            return;
         }
     }
 }

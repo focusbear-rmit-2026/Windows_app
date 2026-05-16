@@ -40,8 +40,6 @@ namespace Focus_Bear.Preferences.SettingsTab
                 FullScreen.Text = appSettings.ConfigFileStrings["preferencesInfo"]["checkBoxFullScreenEnabledText"].ToString();
                 FullScreenDesc.Text = appSettings.ConfigFileStrings["tooltips"]["ui_ActivitiesFullScreen"].ToString();
 
-                FullScreenCheckbox.IsChecked = appSettings.bPlayActivitiesInFullScreenMode;
-
                 //Fonts related
                 SelectFont.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleFont"].ToString();
                 SelectFontDesc.Text = appSettings.ConfigFileStrings["tooltips"]["accessibility_Font"].ToString();
@@ -49,11 +47,7 @@ namespace Focus_Bear.Preferences.SettingsTab
                 {
                     Fonts.Items.Add(sFont);
                 }
-
-                Fonts.SelectionChanged -= Fonts_SelectionChanged;
-                Fonts.SelectedItem = appSettings.sSelectedAppFont;
-                Fonts.SelectionChanged += Fonts_SelectionChanged;
-
+                
                 //Language Related
                 SelectLanguage.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleSelectLanguage"].ToString();
                 SelectLanguageDesc.Text = appSettings.ConfigFileStrings["tooltips"]["ui_SelectLanguage"].ToString();
@@ -61,18 +55,7 @@ namespace Focus_Bear.Preferences.SettingsTab
                 Language.Items.Add(appSettings.ConfigFileStrings["languageInfo"]["languageEnglish"].ToString());
                 Language.Items.Add(appSettings.ConfigFileStrings["languageInfo"]["languageSpanish"].ToString());
 
-                if (appSettings.sLangCode == "en")
-                {
-                    Language.SelectedIndex = 0;
-                }
-                else if (appSettings.sLangCode == "es")
-                {
-                    Language.SelectedIndex = 1;
-                }
-
-                //Dark mode realted
-                DarkMode.Visibility = bDarkModeVisible ? Visibility.Visible : Visibility.Collapsed;
-                SelectDarkMode.Visibility = bDarkModeVisible ? Visibility.Visible : Visibility.Collapsed;
+               
 
                 SelectDarkMode.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleDarkMode"].ToString();
                 SelectDarkModeDesc.Text = appSettings.ConfigFileStrings["tooltips"]["ui_DarkMode"].ToString();
@@ -81,25 +64,47 @@ namespace Focus_Bear.Preferences.SettingsTab
                 DarkMode.Items.Add(appSettings.ConfigFileStrings["preferencesInfo"]["appAppearanceOptions"][1].ToString());
                 DarkMode.Items.Add(appSettings.ConfigFileStrings["preferencesInfo"]["appAppearanceOptions"][0].ToString());
 
-                if (appSettings.sTheme == "Light" && appSettings.bAutoTheme == false)
-                {
-                    DarkMode.SelectedIndex = 0;
-                }
-                else if (appSettings.sTheme == "Dark" && appSettings.bAutoTheme == false)
-                {
-                    DarkMode.SelectedIndex = 1;
-                }
-                else if (appSettings.bAutoTheme == true)
-                {
-                    DarkMode.SelectedIndex = 2;
-                }
+                UpdateControls();
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("Settings UI Page text setting ex -" + ex.Message);
             }
         }
+        private void UpdateControls()
+        {
+            FullScreenCheckbox.IsChecked = appSettings.bPlayActivitiesInFullScreenMode;
 
+            Fonts.SelectionChanged -= Fonts_SelectionChanged;
+            Fonts.SelectedItem = appSettings.sSelectedAppFont;
+            Fonts.SelectionChanged += Fonts_SelectionChanged;
+
+            if (appSettings.sLangCode == "en")
+            {
+                Language.SelectedIndex = 0;
+            }
+            else if (appSettings.sLangCode == "es")
+            {
+                Language.SelectedIndex = 1;
+            }
+
+            //Dark mode realted
+            DarkMode.Visibility = bDarkModeVisible ? Visibility.Visible : Visibility.Collapsed;
+            SelectDarkMode.Visibility = bDarkModeVisible ? Visibility.Visible : Visibility.Collapsed;
+
+            if (appSettings.sTheme == "Light" && appSettings.bAutoTheme == false)
+            {
+                DarkMode.SelectedIndex = 0;
+            }
+            else if (appSettings.sTheme == "Dark" && appSettings.bAutoTheme == false)
+            {
+                DarkMode.SelectedIndex = 1;
+            }
+            else if (appSettings.bAutoTheme == true)
+            {
+                DarkMode.SelectedIndex = 2;
+            }
+        }
         private void FullScreenCheckbox_Checked(object sender, RoutedEventArgs e)
         {
             appSettings.bPlayActivitiesInFullScreenMode = true;
@@ -114,6 +119,9 @@ namespace Focus_Bear.Preferences.SettingsTab
         {
             appSettings.sSelectedAppFont = Fonts.SelectedItem.ToString();
             RegistryManager.SetApplicationFont();
+
+            LocalSettingsManager.PutLocalSettings();
+
             FBMessageBox msgBox = new FBMessageBox(appSettings.ConfigFileStrings["preferencesInfo"]["alertChangeLanguageInfoText"].ToString());
             msgBox.Owner = _ParentWindow;
             msgBox.ShowDialog();
@@ -158,6 +166,9 @@ namespace Focus_Bear.Preferences.SettingsTab
                         appSettings.sLangCode = "es";
                     }
                     RegistryManager.SetLangCode();
+                    
+                    LocalSettingsManager.PutLocalSettings();
+
                     appSettings.bRestartAppNeeded = true;
                     Application.Current.Shutdown(0);
                 }
@@ -194,6 +205,14 @@ namespace Focus_Bear.Preferences.SettingsTab
                 RegistryManager.SetThemeMode();
                 RegistryManager.SetAutoThemeMode();
                 ((App)Application.Current).ChangeTheme(selectedTheme);
+            }
+        }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(IsVisible)
+            {
+                UpdateControls();
             }
         }
     }

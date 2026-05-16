@@ -979,31 +979,27 @@ namespace Focus_Bear
 
         public void ShowFocusMode(string sFocusMode = "")
         {
-            //todo mj
-            /**
-            if (btnBlocks.IsEnabled) //only if the button is not already active
-            {
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnBlocks);
-                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                invokeProv.Invoke();
-            }**/
-
             PageBlocks.ShowFocusMode(sFocusMode);
         }
 
         public void ShowStopFocusModeView()
         {
+            LogWriter.LogWrite("FocusBear Main Window - ShowStopFocusModeView()");
+
             RightContent.Content = PageStopFocusMode;
             PageStopFocusMode.StartTimer();
         }
 
         public void ShowFocusModeEndView()
         {
+            LogWriter.LogWrite("FocusBear Main Window - ShowFocusModeEndView()");
             RightContent.Content = PageFocusModeEnd;
         }
 
         public async void ShowFocusSummaryView()
         {
+            LogWriter.LogWrite("FocusBear Main Window - ShowFocusSummaryView()");
+
             if (appSettings.sActivityAllDaySummaryData.Length == 0)
             {
                 FocusBearAPIClient client = new FocusBearAPIClient();
@@ -1020,6 +1016,8 @@ namespace Focus_Bear
 
         public void ShowShutOffView()
         {
+            LogWriter.LogWrite("FocusBear Main Window - ShowShutOffView()");
+
             PageShutOffWindow = new ShutOffWindow(this);
             RightContent.Content = PageShutOffWindow;
 
@@ -1030,6 +1028,8 @@ namespace Focus_Bear
         }
         public void ShowPomodoroView()
         {
+            LogWriter.LogWrite("FocusBear Main Window - ShowPomodoroView()");
+
             //Check here if the Breaks window is visible, we will hide it.
             if (((App)(Application.Current)).wndTakeABreak != null && ((App)(Application.Current)).wndTakeABreak.IsVisible)
             {

@@ -369,5 +369,10 @@ namespace Focus_Bear.Preferences.SettingsTab
         {
             appSettings.bPasswordRequireInStopPomodoro = false;
         }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            SetPasswordTabTexts();
+        }
     }
 }

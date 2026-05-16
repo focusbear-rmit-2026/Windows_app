@@ -31,9 +31,6 @@ namespace Focus_Bear.Preferences
             InitializeComponent();
             ParentWindow = _parentWindow;
 
-            PomodoroMinutes.Text = appSettings.PomodoroMinutes;
-            BreakMinutes.Text = appSettings.PomodoroBreakMinutes;
-
             PomodoroMinutes.GotFocus += RemovePlaceholder;
             PomodoroMinutes.LostFocus += SetPlaceholder;
             BreakMinutes.GotFocus += RemovePlaceholder;
@@ -49,7 +46,6 @@ namespace Focus_Bear.Preferences
                 
                 btnAdvancedTXT.Text = appSettings.ConfigFileStrings["preferencesInfo"]["buttonAdvancedText"].ToString();
 
-                EnterPomodoroCheck.IsChecked = appSettings.bEnterPomodoroModeAfterMorningRoutine;
                 UpdateTextsAndButtons();
 
                 PomodoroModeDuration.Text = appSettings.ConfigFileStrings["preferencesInfo"]["pomodoroModeDurationText"].ToString();
@@ -120,6 +116,10 @@ namespace Focus_Bear.Preferences
 
         private void UpdateTextsAndButtons()
         {
+            PomodoroMinutes.Text = appSettings.PomodoroMinutes;
+            BreakMinutes.Text = appSettings.PomodoroBreakMinutes;
+            EnterPomodoroCheck.IsChecked = appSettings.bEnterPomodoroModeAfterMorningRoutine;
+
             if (appSettings.bEnterPomodoroModeAfterMorningRoutine)
             {
                 if (appSettings.bAutomaticUseSuperPomodoroModeSetting)
@@ -292,6 +292,15 @@ namespace Focus_Bear.Preferences
                 ValidateBreakMinutes(true);
             }
             SetPlaceholder(sender, e);
+        }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(IsVisible)
+            {
+                UpdateTextsAndButtons();
+            }
+
         }
     }
 }

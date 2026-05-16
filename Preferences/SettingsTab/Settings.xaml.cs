@@ -348,6 +348,9 @@ namespace Focus_Bear.Preferences
             SetGeekModeStatus();
             appSettings.CapturePostHog("switch-to-geek-mode");
 
+            //Save the local settings and upload to server
+            LocalSettingsManager.PutLocalSettings();
+
             CreateLeftMenuButtons();
             ListLeftButtons.SelectedIndex = 0;
         }
@@ -360,6 +363,9 @@ namespace Focus_Bear.Preferences
             appSettings.bIsGeekModeEnabled = false;
             SetGeekModeStatus();
             appSettings.CapturePostHog("switch-to-simple-mode");
+
+            //Save the local settings and upload to server
+            LocalSettingsManager.PutLocalSettings();
 
             CreateLeftMenuButtons();
             ListLeftButtons.SelectedIndex = 0;
@@ -385,9 +391,6 @@ namespace Focus_Bear.Preferences
 
             //mj//_ParentWindow.SetFocusButtonState();//set the state of the main tab
 
-            //Save the local settings and upload to server
-            LocalSettingsManager.PutLocalSettings();
-
             GeekMode.Checked += GeekMode_Checked;
             SimpleMode.Checked += SimpleMode_Checked;
         }
@@ -408,6 +411,11 @@ namespace Focus_Bear.Preferences
             {
                 //save the local settings and upload to server
                 LocalSettingsManager.PutLocalSettings();
+            }
+            else
+            {
+                SetGeekModeStatus();
+                CreateLeftMenuButtons();
             }
         }
     }

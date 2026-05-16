@@ -54,6 +54,7 @@ using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
 using System.Collections.ObjectModel;
 using static Focus_Bear.Focus.TabMetrics;
+using Focus_Bear.Services.FocusButton;
 
 namespace Focus_Bear
 {
@@ -113,6 +114,8 @@ namespace Focus_Bear
         bool bLoadURLAgainInToDoPlayer = false;
 
         public TabMetrics TebMetricsObject = new TabMetrics();
+
+        public static FocusButtonService FocusButton = new FocusButtonService();
         public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             //Always get the last active app name when the menu is clicked and ignore Focus Bear
@@ -732,6 +735,14 @@ namespace Focus_Bear
                         wndSplash.Close();
                     }
 
+                    if (appSettings.IsFirstInstall)
+                    {
+                        LogWriter.LogWrite("Show FocusBearMenuTour");
+                        //Whether the user had opted to see the video or not, this tour will come here.
+                        FocusBearMenuTour wndFocusBearMenuTour = new FocusBearMenuTour();
+                        wndFocusBearMenuTour.ShowDialog();
+                    }
+
                     if (!appSettings.bStartingAfterDeactivated)//do not show if starting after deactivated
                     {
                         new TrayBalloon(0, appSettings.ConfigFileStrings["WindowsSpecific"]["runningbg"].ToString()).Show();
@@ -1287,12 +1298,6 @@ namespace Focus_Bear
 
                 var EnrolForCoursesUnused = await client.EnrollForCourses(); //Enroll for courses 
 
-                if (wndSplash != null)
-                {
-                    LogWriter.LogWrite("hide SplashWindow() ExecutePostLoginTasks case");
-                    wndSplash.Close();
-                }
-
                 //We are setting evening routine shown here for thenext 2 hours so that evening routine willnot come for the next 2 hours the video is shown
                 appSettings.ShutOFFAbortedTillDate = DateTime.Now.AddHours(2);
 
@@ -1308,11 +1313,6 @@ namespace Focus_Bear
 
                 if (appSettings.bShowOnBoardingVideo) //If user had agreed to see the video
                     ShowOnBoradingVideo();//Show Onboarding Video
-
-                LogWriter.LogWrite("Show FocusBearMenuTour");
-                //Whether the user had opted to see the video or not, this tour will come here.
-                FocusBearMenuTour wndFocusBearMenuTour = new FocusBearMenuTour();
-                wndFocusBearMenuTour.ShowDialog();
 
                 appSettings.CapturePostHog("menu_tour_setup_complete");
             }
@@ -1437,48 +1437,7 @@ namespace Focus_Bear
 
                 CommandManager.InvalidateRequerySuggested();
 
-                //If its the first install time, we will need to put the user settings back if the startup or shutoff time is changed
-                if (appSettings.IsFirstInstall)
-                {
-                    String jsonString = appSettings.sRawUserSettings;
-
-                    JObject UserSettings = JObject.Parse(appSettings.sRawUserSettings);
-
-                    if (UserSettings.ContainsKey("startup_time"))
-                    {
-                        UserSettings.Remove("startup_time");
-                        UserSettings.Add("startup_time", appSettings.InitialStartupTimeValue.ToString("HH:mm"));
-                    }
-                    if (UserSettings.ContainsKey("shutdown_time"))
-                    {
-                        UserSettings.Remove("shutdown_time");
-                        UserSettings.Add("shutdown_time", appSettings.InitialShutoffTimeValue.ToString("HH:mm"));
-                    }
-                    if (UserSettings.ContainsKey("sleep_time"))
-                    {
-                        UserSettings.Remove("sleep_time");
-                        UserSettings.Add("sleep_time", appSettings.InitialSleepTimeValue.ToString("HH:mm"));
-                    }
-                    else
-                    {
-                        UserSettings.Add("sleep_time", appSettings.InitialSleepTimeValue.ToString("HH:mm"));
-                    }
-                    if (UserSettings.ContainsKey("break_after_minutes"))
-                    {
-                        UserSettings.Remove("break_after_minutes");
-                        UserSettings.Add("break_after_minutes", appSettings.BreaksTimeInterval);
-                    }
-                    appSettings.sDayStartTime = appSettings.InitialStartupTimeValue.ToString("HH:mm");
-                    appSettings.sDayShutOffTime = appSettings.InitialShutoffTimeValue.ToString("HH:mm");
-
-                    //Also save the udpated settings to Registry
-                    appSettings.sRawUserSettings = UserSettings.ToString();
-                    RegistryManager.SaveUserSettings();
-
-                    //We will need to put the settings.
-                    var y = client.PutUserSettings();
-                }
-
+                
                 //IF its the onboarding time, we have already extracted thelist above
                 if (!bAppExtracted)
                 {
@@ -1763,6 +1722,8 @@ namespace Focus_Bear
 
             //Get total time for distracting sites for today
             appSettings.GetTotalTimeForDistractingSitesToday();
+
+            FocusButton.Start();
         }
         private void dispatcherTimer_ProductivityStats(object sender, EventArgs e)
         {
@@ -3570,24 +3531,32 @@ namespace Focus_Bear
         }
         public void ShowHabitsSectionInMainWindow()
         {
+            LogWriter.LogWrite("ShowHabitsSectionInMainWindow ()");
+
             BringMainWindowToFront();
 
             wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
         }
         public void ShowBreaksSectionInMainWindow()
         {
+            LogWriter.LogWrite("ShowBreaksSectionInMainWindow ()");
+
             BringMainWindowToFront();
 
             wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.MicroBreaks);
         }
         public void ShowPreferencesWindow()
         {
+            LogWriter.LogWrite("ShowPreferencesWindow ()");
+
             BringMainWindowToFront();
 
             wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Settings);
         }
         public void ShowFocusEndWindow()
         {
+            LogWriter.LogWrite("ShowFocusEndWindow ()");
+
             BringMainWindowToFront();
             //Just select the Start focus session button in left tree
             wndFocusBearMainWindow.SelectLeafInTreeView(LeftButtonType.StartFocusSession);
@@ -3745,17 +3714,8 @@ namespace Focus_Bear
                         RestoreFocusUIAfterRoutine();
                     }
 
-                    //V2: we need to show the Start Focus session Section if its Geek mode OR the Resume habits window secion.
-                    if (appSettings.bIsGeekModeEnabled)
-                    {
-                        ShowPomodoroWindow();
-                    }
-                    else
-                    {
-                        //V2 todo - in simple mode, show morning habits view again with button - resume habits
-                        wndFocusBearMainWindow.PageHabits.ShowHabitsPostponedView();
-                    }
-
+                    ShowPomodoroWindow();
+                   
 
                     LogWriter.LogWrite("appSettings.bHabitsPostponedState = true;");
 
@@ -4084,6 +4044,8 @@ namespace Focus_Bear
         }
         public void CloseFocusProgressWindow()
         {
+            LogWriter.LogWrite("CloseFocusProgressWindow()");
+
             if (wndFocusProgress != null)
             {
                 wndFocusProgress.Close();
@@ -4165,6 +4127,8 @@ namespace Focus_Bear
                 {
                     LogWriter.LogWrite("Todo Player webView.Dispose(); - " + ex.Message);
                 }
+                
+                FocusButton.Stop();
 
                 LogWriter.LogWrite("Application_Exit() done");
 
@@ -4579,6 +4543,7 @@ namespace Focus_Bear
                         //Start the Focus Mode
                         //Change the play icon for this to STOP icon
                         appSettings.arrFocusModes[i].isOn = true;
+                        appSettings.sMostRecentFocusmodeDoneID = appSettings.arrFocusModes[i].id;
 
                         //Make the global variable true
                         appSettings.isFocusModeRunning = true;
@@ -4665,6 +4630,7 @@ namespace Focus_Bear
                         //Start the Focus Mode
                         //Change the play icon for this to STOP icon
                         appSettings.arrFocusModes[i].isOn = true;
+                        appSettings.sMostRecentFocusmodeDoneID = appSettings.arrFocusModes[i].id;
 
                         //Make the global variable true
                         appSettings.isFocusModeRunning = true;
@@ -4782,7 +4748,7 @@ namespace Focus_Bear
                                               .Where(p => !string.IsNullOrEmpty(p.MainWindowTitle))
                                               .ToArray();
 
-                    LogWriter.LogWrite($"CollectBrowserTabs: {browser} — {procs.Length} window(s) found");
+                    //LogWriter.LogWrite($"CollectBrowserTabs: {browser} — {procs.Length} window(s) found");
 
                     foreach (Process proc in procs)
                     {
@@ -4804,7 +4770,7 @@ namespace Focus_Bear
                                 tabs = root.FindAll(System.Windows.Automation.TreeScope.Descendants, tabCondition);
                             }
 
-                            LogWriter.LogWrite($"CollectBrowserTabs: {browser} — {tabs.Count} TabItem(s) found (before position filter)");
+                            //LogWriter.LogWrite($"CollectBrowserTabs: {browser} — {tabs.Count} TabItem(s) found (before position filter)");
 
                             foreach (AutomationElement tab in tabs)
                             {
@@ -4827,7 +4793,7 @@ namespace Focus_Bear
                 catch { /* browser not running — skip */ }
             }
 
-            LogWriter.LogWrite($"CollectBrowserTabs: total tabs collected = {result.Count}");
+            //LogWriter.LogWrite($"CollectBrowserTabs: total tabs collected = {result.Count}");
 
             return result;
         }
@@ -4914,7 +4880,7 @@ namespace Focus_Bear
 
         private async void CheckTabLimitAndAlert()
         {
-            LogWriter.LogWrite($"CheckTabLimitAndAlert: limit={appSettings.nMaxTabLimit}, purchased={appSettings.isPurchased}");
+           // LogWriter.LogWrite($"CheckTabLimitAndAlert: limit={appSettings.nMaxTabLimit}, purchased={appSettings.isPurchased}");
 
             
             System.Collections.Generic.List<(AutomationElement Tab, AutomationElement CloseBtn, IntPtr Hwnd, string Browser)> currentTabs = null;
@@ -4930,7 +4896,7 @@ namespace Focus_Bear
             int nTabCount = currentTabs?.Count ?? 0;
             appSettings.nCountOpenTabs = nTabCount;
 
-            LogWriter.LogWrite($"CheckTabLimitAndAlert: tabs={nTabCount}, limit={appSettings.nMaxTabLimit}");
+            //LogWriter.LogWrite($"CheckTabLimitAndAlert: tabs={nTabCount}, limit={appSettings.nMaxTabLimit}");
 
             // Pro-only feature: Basic/free users don't get tab limiting
             if (!appSettings.isPurchased)
@@ -5182,6 +5148,8 @@ namespace Focus_Bear
         {
             try
             {
+                LogWriter.LogWrite("FinishFocusModeCommonTasks()");
+
                 // Sync the todo tasks first
                 try
                 {
@@ -5213,6 +5181,8 @@ namespace Focus_Bear
 
                 //Make the global variables false
                 appSettings.isFocusModeRunning = false;
+
+                App.FocusButton.FinishFocusSession();
 
                 //Clear the Gentle block temp arrays
                 appSettings.TemporarryBlockedAppsGentleBlock.Clear();

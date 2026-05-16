@@ -60,14 +60,14 @@ namespace Focus_Bear.Onboarding
         private void btnGiveMeSomeIdeas_Click(object sender, RoutedEventArgs e)
         {
             appSettings.CapturePostHog("button-give-me-some-ideas-clicked");
-            appSettings.sHabitsParam = "&add-habits-mode=import";
+            appSettings.sHabitsParam = "&add-habits-mode=recommend";
             _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._INSTALL_HABIT_PACKS_);
         }
 
         private void btnAlreadyHaveHabits_Click(object sender, RoutedEventArgs e)
         {
             appSettings.CapturePostHog("button-already-have-habits-clicked");
-            appSettings.sHabitsParam = "&add-habits-mode=recommend";
+            appSettings.sHabitsParam = "&add-habits-mode=import";
             _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._INSTALL_HABIT_PACKS_);
         }
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)

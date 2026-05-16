@@ -285,6 +285,7 @@ namespace Focus_Bear.Utils
         public string sRunningFocusModeEndTime = "";
         public string sRunningFocusModeIntention = "";
         public double sRunningFocusModeAlignmentScoreThreshold;
+        public string sMostRecentFocusmodeDoneID = "";
 
         public DateTime? focusSessionStartTime;   // when current active segment started for the current focus session to calculate exact time used, ignoring pause time
         public double CurrentFocusSessionDuration = 0; //will be used to save in API and show in end window
