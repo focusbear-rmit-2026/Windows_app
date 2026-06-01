@@ -88,12 +88,15 @@ namespace Focus_Bear.Services.FocusButton
 
             try
             {
-                _port = new SerialPort(portName, 2_000_000)
+
+                Disconnect();
+                _port = new SerialPort(portName, 2000000)
                 {
                     NewLine = "\n",
                     ReadTimeout = 500,
                     WriteTimeout = 2000,
                 };
+               
                 _port.Open();
 
                 _rxRunning = true;
@@ -114,6 +117,10 @@ namespace Focus_Bear.Services.FocusButton
 
                 ApplyState(DeviceState.Idle);
                 //BtnConnect.Content = "Disconnect";
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                LogWriter.LogWrite("Port is already in use: " + ex.Message);
             }
             catch (Exception ex)
             {
@@ -593,6 +600,9 @@ namespace Focus_Bear.Services.FocusButton
 
         public void StartFocusSession(int nSeconds)
         {
+            if (_port == null || !_port.IsOpen)
+                return;
+
             LogWriter.LogWrite("FocusButton: StartFocusSession()");
 
             SendCmd($"SET|START|{nSeconds}");
@@ -601,6 +611,9 @@ namespace Focus_Bear.Services.FocusButton
         }
         public void PauseFocusSession()
         {
+            if (_port == null || !_port.IsOpen)
+                return;
+
             LogWriter.LogWrite("FocusButton: PauseFocusSession()");
 
             if (appSettings.isFocusModePaused)
@@ -616,6 +629,9 @@ namespace Focus_Bear.Services.FocusButton
         }
         public void FinishFocusSession()
         {
+            if (_port == null || !_port.IsOpen)
+                return;
+
             LogWriter.LogWrite("FocusButton: FinishFocusSession()");
 
             SendCmd("SET|DONE");
@@ -624,16 +640,19 @@ namespace Focus_Bear.Services.FocusButton
 
         public void SendHabits()
         {
+            if (_port == null || !_port.IsOpen)
+                return;
+
             RemoveHabits(); //Remove if there is an old list of habits
 
             Task.Delay(2000);
 
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
-                if(appSettings.arrAllMorningHabitsFiltered.Count > 0)
+                if(appSettings.arrAllMorningHabits.Count > 0)
                 {
                     //todo: need a check for non timer habits
-                    var entries = appSettings.arrAllMorningHabitsFiltered.Select(h => $"{h.id},{h.name},{h.durationSeconds * 60}");
+                    var entries = appSettings.arrAllMorningHabits.Select(h => $"{h.id},{h.name},{h.durationSeconds * 60}");
                     SendCmd("SET|HABITS|" + string.Join("|", entries));
                 }
                 else
@@ -644,10 +663,10 @@ namespace Focus_Bear.Services.FocusButton
             }
             else if(appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
             {
-                if (appSettings.arrAllEveningHabitsFiltered.Count > 0)
+                if (appSettings.arrAllEveningHabits.Count > 0)
                 {
                     //todo: need a check for non timer habits
-                    var entries = appSettings.arrAllEveningHabitsFiltered.Select(h => $"{h.id},{h.name},{h.durationSeconds * 60}");
+                    var entries = appSettings.arrAllEveningHabits.Select(h => $"{h.id},{h.name},{h.durationSeconds * 60}");
                     SendCmd("SET|HABITS|" + string.Join("|", entries));
                 }
                 else
@@ -664,6 +683,9 @@ namespace Focus_Bear.Services.FocusButton
         }
         public void StartHabit(string sHabitId)
         {
+            if (_port == null || !_port.IsOpen)
+                return;
+
             LogWriter.LogWrite("FocusButton: StartHabit() - " + sHabitId);
 
             SendCmd($"SET|STARTHB|{sHabitId}");
@@ -674,6 +696,9 @@ namespace Focus_Bear.Services.FocusButton
         }
         public void RemoveHabits() //case is like habits paused, remove them from device
         {
+            if (_port == null || !_port.IsOpen)
+                return;
+
             LogWriter.LogWrite("FocusButton: RemoveHabits()");
 
             //now we have a function to remove all in one go

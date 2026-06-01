@@ -1031,6 +1031,14 @@ namespace Focus_Bear
                     TabMetrics.Instance.FocusModeStartedResetAllData();//Reset all data.
                 }
 
+                appSettings._last5Justifications.Clear();//reset
+
+                appSettings.sCurrentTaskPlayingInToDoPlayer = ""; //reset
+
+                //We will need to get the list of all the tasks to show in gentle block
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                _ = client.GetAllTasks();
+
                 //we need to fetch all focus mode data to show in focus mode end window
                 appSettings.GetTotalDeepFocusedTime();
 

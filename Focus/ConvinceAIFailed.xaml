@@ -1,0 +1,134 @@
+﻿<Window x:Class="Focus_Bear.Focus.ConvinceAIFailed"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Focus"
+        mc:Ignorable="d"
+        Title="ConvinceAIFailed" Height="490" Width="340" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" WindowStyle="None">
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Name="Heading"  Margin="10,20,10,0" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="xFocus Bear still thinks this site is distracting"  FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+        <TextBlock Grid.Row="1" Name="Reason" Margin="10,20,10,10" TextWrapping="Wrap" Text="xIt looks like you're now working on :"  FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Visible"/>
+        <TextBlock Grid.Row="2" Name="Score" Margin="10,20,10,10" TextWrapping="Wrap" Text="xAI relevance score for this site:"  FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Visible"/>
+        <TextBlock Grid.Row="3" x:Name="AskNeed" Margin="20,20,20,10" HorizontalAlignment="Center" TextWrapping="Wrap"  FontSize="13"> xFocus Bear's AI still thinks...</TextBlock>
+
+        <TextBlock Grid.Row="4" x:Name="TxtTimer" Margin="0,20,0,0" TextWrapping="NoWrap" Text="00:30" Padding="0" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Center" />
+
+        <StackPanel Grid.Row="5" Name="ButtonsSection" Orientation="Vertical" Margin="20,20,20,20">
+            <Button  x:Name="btnYes" AutomationProperties.AutomationId="btnYes"  Style="{StaticResource BtnStyleLightOrangeBordered }" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnYes_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnYesText" Margin="1" Text="xYes" Foreground="Black"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button   x:Name="btnNo" AutomationProperties.AutomationId="btnNo"  Style="{StaticResource BtnStyleClearOrangeBordered    }" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnNo_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnNoText" Margin="1" Text="xNo" Foreground="Black"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <TextBlock x:Name="ConvinceAI" AutomationProperties.AutomationId="BlockThisPage" Margin="15,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" FontWeight="Bold" MinHeight="22" Cursor="Hand">
+                <Hyperlink x:Name="btnConvinceAI" Click="btnConvinceAI_Click"   TextDecorations="Underline" ><Run x:Name="btnConvinceAIText" Text="xLet me convince the AI again"/></Hyperlink>
+            </TextBlock>
+            
+            <TextBlock x:Name="ReportBadAIDecision" AutomationProperties.AutomationId="txtReportBadAIDecision" Margin="15,10,0,20" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="13" MinHeight="22" Cursor="Hand">
+                👎 <Hyperlink x:Name="BtnReportBadAIDecision" Click="BtnReportBadAIDecision_Click"   TextDecorations="Underline" ><Run x:Name="TextReportBadAIDecision" Text="xReport Bad AI Decision"/></Hyperlink>
+            </TextBlock>
+            
+        </StackPanel>
+
+        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="10" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
+        <Grid x:Name="GridLetMeConvinceAgain" Visibility="Collapsed" Grid.RowSpan="10" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="100" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Name="HeadingStillWorking"  Margin="10,0,10,0" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="xFocus Bear still thinks this site is distracting"  FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <StackPanel Grid.Row="1" Orientation="Vertical" Margin="20,20,20,20">
+                <Button  x:Name="btnWorkingOnSomethingElse" AutomationProperties.AutomationId="btnWorkingOnSomethingElse"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnWorkingOnSomethingElse_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnWorkingOnSomethingElseText" Margin="1" Text="xNo I'm working on something else" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button   x:Name="btnYesThisSiteIsRelevant" AutomationProperties.AutomationId="btnYesThisSiteIsRelevant"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnYesThisSiteIsRelevant_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnYesThisSiteIsRelevantText" Margin="1" Text="xYes and this site is relevant" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Grid x:Name="GridWantToSaveTaskForLater" Visibility="Collapsed" Grid.RowSpan="10" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="100" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Name="HeadingSave"  Margin="10,20,10,0" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="xDo you want to save this task for later?"  FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <TextBlock Grid.Row="1" x:Name="TaskTitle" Margin="13,0,0,0" TextWrapping="Wrap"  FontSize="13" VerticalAlignment="Bottom"> xTask Title</TextBlock>
+            <TextBox  Grid.Row="2"  Name="TxtTaskToSave" AutomationProperties.AutomationId="TxtTaskToSave" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"    Height="70" Margin="15" VerticalAlignment="Top"  FontSize="15"  >
+                <TextBox.Effect>
+                    <DropShadowEffect ShadowDepth="3"
+                                  Direction="330"
+                                  Color="Gray"
+                                  Opacity="0.5"
+                                  BlurRadius="6"
+                                   />
+                </TextBox.Effect>
+                <TextBox.FocusVisualStyle>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.FocusVisualStyle>
+            </TextBox>
+            
+            <StackPanel Grid.Row="3" Orientation="Vertical" Margin="20,20,20,20">
+                <Button  x:Name="btnYesPleaseSaveTaskForLater" AutomationProperties.AutomationId="btnYesPleaseSaveTaskForLater"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnYesPleaseSaveTaskForLater_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnYesPleaseSaveTaskForLaterText" Margin="1" Text="xYes please" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button   x:Name="btnNoBlockIt" AutomationProperties.AutomationId="btnNoBlockIt"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnNoBlockIt_Click">
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Name="btnNoBlockItText" Margin="1" Text="xNo, just block it" Foreground="Black"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Grid>
+        
+        
+    </Grid>
+</Window>

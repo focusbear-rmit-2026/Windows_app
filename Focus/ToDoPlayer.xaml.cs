@@ -1,3 +1,4 @@
+using Focus_Bear.API;
 using Focus_Bear.Models;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
@@ -216,6 +217,23 @@ namespace Focus_Bear.Focus
                         CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
                     }
 
+                    //Find the isPlaying task
+                    if (appSettings.sRawTasks.Length > 0)
+                    {
+                        JArray tasks = (JArray)sContentJson["tasks"];
+
+                        JObject playingTask = tasks.FirstOrDefault(t => (bool?)t["isPlaying"] == true) as JObject;
+
+                        if (playingTask != null)
+                        {
+                            appSettings.sCurrentTaskPlayingInToDoPlayer = (string)playingTask["title"];
+                        }
+                    }
+
+                    //If we find a change in tasks, we should call the Get all tasks API to get the list of updated tasks
+                    //We will need to get the list of all the tasks to show in gentle block
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    _ = client.GetAllTasks();
                 }
                 if (sContentJson.ContainsKey("intention"))
                 {
@@ -251,6 +269,86 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("UpdateBrainDumpContent ex- " + ex.Message);
             }
         }
+        public void UpdateIntentionForToDoPlayer()
+        {
+            try
+            {
+                string escapedIntention = JsonSerializer.Serialize(appSettings.sRunningFocusModeIntention);
+                string UpdateFunc = $"loadIntentionForToDoPlayer({escapedIntention});";
 
+                var sReturn = webView.ExecuteScriptAsync(UpdateFunc);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpdateBrainDumpContent ex- " + ex.Message);
+            }
+        }
+        public async void AddAndPlayTaskInCurrentList(bool bMarkCurrentTaskAsComplete = false) //OK 
+        {
+            try
+            {
+                if (appSettings.sCurrentTaskCreated.Length > 0)
+                {
+                    LogWriter.LogWrite("AddAndPlayTaskInCurrentList - " + appSettings.sCurrentTaskCreated);
+
+                    JObject currentTask = JObject.Parse(appSettings.sCurrentTaskCreated);
+
+                    JObject selectedTaskDic = new JObject
+                    {
+                        ["id"] = currentTask["id"],
+                        ["title"] = currentTask["title"],
+                        ["duration"] = currentTask["duration"],
+                        ["isPlaying"] = true
+                    };
+
+                    if (bMarkCurrentTaskAsComplete)
+                    {
+                        selectedTaskDic["markCurrentTaskAsComplete"] = true;
+                    }
+
+                    JObject payload = new JObject
+                    {
+                        ["todoPlayer"] = new JObject
+                        {
+                            ["selectedTask"] = selectedTaskDic
+                        }
+                    };
+
+                    string payloadString = payload.ToString();
+                    string jsFunction = $@"
+                                (function() {{
+                                    if (window.__taskInterval) {{
+                                        clearInterval(window.__taskInterval);
+                                    }}
+
+                                    window.__taskInterval = setInterval(() => {{
+                                        if (window.syncWithDevices) {{
+                                            try {{
+                                                const data = {payloadString};
+                                                syncWithDevices(data);
+
+                                                clearInterval(window.__taskInterval);
+                                                delete window.__taskInterval;
+                                            }}
+                                            catch (error) {{
+                                                console.error('JS Error:', error);
+
+                                                clearInterval(window.__taskInterval);
+                                                delete window.__taskInterval;
+                                            }}
+                                        }}
+                                    }}, 100);
+                                }})();
+                                ";
+
+                    // Example WebView2 execution
+                    await webView.ExecuteScriptAsync(jsFunction);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AddAndPlayTaskInCurrentList ex- " + ex.Message);
+            }
+        }
     }
 }

@@ -168,7 +168,7 @@ namespace Focus_Bear.Utils
         public bool bEmailVerified = false;
 
         public string sUserLocalDeviceSettings; // All local user device settings.
-
+        public string sFocusModes; //array of all focus modes
 
         public string sOneMonthActivityDataForGraph;
         public string sCurrentDayActivityDataForGraph;
@@ -217,6 +217,11 @@ namespace Focus_Bear.Utils
 
         public string sRawTasks = "";
         public string sRawTasksDone = ""; //used to get a list of tasks done from focus mode end window.
+        public string sCurrentTaskPlayingInToDoPlayer = "";
+        public string sAllTasks = "";
+        public string sCurrentTaskCreated = "";
+        public string sExtraJustificationForThisSite = "";
+        public string sConvincingAIForURL = "";
 
         public JArray arraySkipped = new JArray();
         public JArray arrayCompletedActivities = new JArray();
@@ -286,6 +291,9 @@ namespace Focus_Bear.Utils
         public string sRunningFocusModeIntention = "";
         public double sRunningFocusModeAlignmentScoreThreshold;
         public string sMostRecentFocusmodeDoneID = "";
+
+        public readonly Queue<string> _last5Justifications = new Queue<string>();
+        public const int MaxJustifications = 5;
 
         public DateTime? focusSessionStartTime;   // when current active segment started for the current focus session to calculate exact time used, ignoring pause time
         public double CurrentFocusSessionDuration = 0; //will be used to save in API and show in end window
@@ -1368,7 +1376,41 @@ namespace Focus_Bear.Utils
                         LogWriter.LogWrite("USER Name is:" + sUser_name);
                         LogWriter.LogWrite("USER ID is:" + sUser_id);
 
-                        JArray jarrFocusModes = UserSettings.ContainsKey("focus_modes") ? (JArray)UserSettings["focus_modes"] : null;
+                        bEmailVerified = UserSettings.ContainsKey("email_verified") ? Convert.ToBoolean(UserSettings["email_verified"]) : false;
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("ReadAndParseUserDetailsJson() + " + ex.Message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ReadAndParseUserDetailsJson() top" + ex.Message);
+            }
+        }
+        public void ReadAndParseFocusModes()
+        {
+            LogWriter.LogWrite("ReadAndParseFocusModes()");
+
+            try
+            {
+                //Check is settings are there
+                if (sFocusModes == null || sFocusModes.Length == 0)
+                {
+                    LogWriter.LogWrite("sFocusModes == null - Read previously saved in registry");
+                    //Read previously saved in registry
+                    RegistryManager.GetSavedFocusModes();
+                }
+                if (sFocusModes.Length > 0)
+                {
+
+                    //Parse the JSON string
+                    try
+                    {
+
+                        JArray jarrFocusModes = JArray.Parse(sFocusModes); 
 
                         if (jarrFocusModes != null && jarrFocusModes.Count() > 0)
                         {
@@ -1466,7 +1508,7 @@ namespace Focus_Bear.Utils
 
                                 catch (Exception ex)
                                 {
-                                    LogWriter.LogWrite("ReadAndParseUserDetailsJson() Reading jarrFocusModes + " + ex.Message);
+                                    LogWriter.LogWrite("ReadAndParseFocusModes() Reading jarrFocusModes + " + ex.Message);
                                     continue; //Even if one focus mode have failed we will read the next one
                                 }
                             }
@@ -1494,21 +1536,18 @@ namespace Focus_Bear.Utils
                             }
 
                         }
-                        bEmailVerified = UserSettings.ContainsKey("email_verified") ? Convert.ToBoolean(UserSettings["email_verified"]) : false;
-
                     }
                     catch (Exception ex)
                     {
-                        LogWriter.LogWrite("ReadAndParseUserDetailsJson() + " + ex.Message);
+                        LogWriter.LogWrite("ReadAndParseFocusModes() + " + ex.Message);
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("ReadAndParseUserDetailsJson() top" + ex.Message);
+                LogWriter.LogWrite("ReadAndParseFocusModes() top" + ex.Message);
             }
         }
-
         public void ReadAndParseUserLocalDeviceSettingsJson()
         {
             LogWriter.LogWrite("ReadAndParseUserLocalDeviceSettingsJson()");
@@ -2534,7 +2573,7 @@ namespace Focus_Bear.Utils
                 {
                     if (wndGentleBlock.IsVisible)
                         HideBlurWindow();
-                    wndGentleBlock.StopTimer();
+                    wndGentleBlock.StopTimer(); //also take care of closing modal popups over it
                     wndGentleBlock.Hide();
                     
                 }
@@ -2896,6 +2935,16 @@ namespace Focus_Bear.Utils
                 LogWriter.LogWrite("FocusActivitySummary() InitializeFocusSummaryView ex + " + ex.Message);
             }
 
+        }
+
+        public void AddJustification(string justification)
+        {
+            _last5Justifications.Enqueue(justification);
+
+            while (_last5Justifications.Count > MaxJustifications)
+            {
+                _last5Justifications.Dequeue();
+            }
         }
     }
 }

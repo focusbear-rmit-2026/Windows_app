@@ -1278,6 +1278,21 @@ namespace Focus_Bear.Utils
                             }
 
                         }
+
+                        ///
+                        //If a URL was temporarily allowed in the focus mode, we will check that URL if in allowed array and allow it for respective time
+                        //30 May 2026
+                        var allowedTempURLs = appSettings.TemporaryAllowedURLsWithSetIntention.Where(i => i.sURL.ToLower() == sURLForFocusMode.ToLower());
+                        if (allowedTempURLs.Count() != 0)
+                        {
+                            //found in allowed url
+                            if (DateTime.Now < allowedTempURLs.First().EndTime)
+                            {
+                                return;//allow the url
+                            }
+                        }
+                        ///
+
                         //if the control is not returned from above, we still need to check the full urls
                         {
 

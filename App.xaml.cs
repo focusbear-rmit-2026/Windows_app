@@ -408,9 +408,6 @@ namespace Focus_Bear
 
         public CallFocusNotifier wndCallFocusNotifier = null;
 
-        public ToDoPlayer wndToDoPlayer = null;
-        public ToDoList wndToDoList = null;
-        
         public NaturalBreakDetectionWindow wndNaturalBreakDetectionWindow = null;
 
         bool bAppExtracted = false;
@@ -1373,7 +1370,26 @@ namespace Focus_Bear
                 }
                 CommandManager.InvalidateRequerySuggested();
             });
-
+            
+            await Task.Run(async () =>
+            {
+                CommandManager.InvalidateRequerySuggested();
+                LogWriter.LogWrite("attempt to Get Focus Modes");
+                var focusModesResponse = await client.GetFocusModes();
+                int y = int.Parse(focusModesResponse.ToString());
+                if (y == 1)
+                {
+                    LogWriter.LogWrite("GetFocusModes Success");
+                    //Focus Modes retrieved Successfully, Process them.
+                    appSettings.ReadAndParseFocusModes();
+                }
+                else
+                {
+                    LogWriter.LogWrite("GetFocusModes Failed");
+                    appSettings.ReadAndParseFocusModes();
+                }
+                CommandManager.InvalidateRequerySuggested();
+            });
 
 
             if (appSettings.isExpired)
@@ -2703,6 +2719,8 @@ namespace Focus_Bear
                     }
                 }
             }
+            
+            FocusButton.SendHabits();
 
             try
             {
@@ -4120,8 +4138,10 @@ namespace Focus_Bear
 
                 try
                 {
-                    if (wndToDoPlayer != null)
-                        wndToDoPlayer.webView.Dispose();
+                    if (wndFocusBearMainWindow.PageToDoPlayer != null)
+                        wndFocusBearMainWindow.PageToDoPlayer.webView.Dispose();
+                    if (wndFocusBearMainWindow.PageToDoList != null)
+                        wndFocusBearMainWindow.PageToDoList.webView.Dispose();
                 }
                 catch (Exception ex)
                 {
@@ -5210,9 +5230,9 @@ namespace Focus_Bear
         */
         public async Task SyncTodoTasksFromPlayer()
         {
-            if (wndToDoPlayer != null)
+            if (wndFocusBearMainWindow.PageToDoPlayer != null)
             {
-                var tasksArray = await wndToDoPlayer.webView.ExecuteScriptAsync("getToDosFromPlayer()");
+                var tasksArray = await wndFocusBearMainWindow.PageToDoPlayer.webView.ExecuteScriptAsync("getToDosFromPlayer()");
                 appSettings.sRawTasks = tasksArray?.ToString() ?? "[]";
             }
         }

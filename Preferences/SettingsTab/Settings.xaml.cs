@@ -348,6 +348,10 @@ namespace Focus_Bear.Preferences
             SetGeekModeStatus();
             appSettings.CapturePostHog("switch-to-geek-mode");
 
+            if (_ParentWindow.PageEditHabits != null)
+            {
+                _ParentWindow.PageEditHabits.RefreshOnModeChange();
+            }
             //Save the local settings and upload to server
             LocalSettingsManager.PutLocalSettings();
 
@@ -364,6 +368,10 @@ namespace Focus_Bear.Preferences
             SetGeekModeStatus();
             appSettings.CapturePostHog("switch-to-simple-mode");
 
+            if (_ParentWindow.PageEditHabits != null)
+            {
+                _ParentWindow.PageEditHabits.RefreshOnModeChange();
+            }
             //Save the local settings and upload to server
             LocalSettingsManager.PutLocalSettings();
 
@@ -383,13 +391,6 @@ namespace Focus_Bear.Preferences
             {
                 SimpleMode.IsChecked = true;
             }
-
-            if (_ParentWindow.PageEditHabits != null)
-            {
-                _ParentWindow.PageEditHabits.RefreshOnModeChange();
-            }
-
-            //mj//_ParentWindow.SetFocusButtonState();//set the state of the main tab
 
             GeekMode.Checked += GeekMode_Checked;
             SimpleMode.Checked += SimpleMode_Checked;

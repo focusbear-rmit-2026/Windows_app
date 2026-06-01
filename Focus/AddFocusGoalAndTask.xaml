@@ -1,0 +1,80 @@
+﻿<Window x:Class="Focus_Bear.Focus.AddFocusGoalAndTask"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Focus"
+        mc:Ignorable="d"
+        Title="AddFocusGoalAndTask" Height="380" Width="340" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" WindowStyle="None">
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="90" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Name="Heading"  Margin="20,20,20,0" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="xWhat's your new focus goal?"  FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            
+        <Grid Margin="20" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="220"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" x:Name="PreviousTask" Visibility="Visible" Margin="0,0,0,10" TextWrapping="Wrap"  FontSize="13"> xPrevious Task: </TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="PreviousTaskValue" Visibility="Visible" Margin="10,0,0,10" TextWrapping="Wrap"  FontSize="13"> xPrevious Task:</TextBlock>
+            
+            <TextBlock Grid.Row="1" Grid.Column="0" x:Name="FocusGoal" Margin="0,10,0,10" TextWrapping="Wrap"  FontSize="13"> xFocus Goal:</TextBlock>
+            <TextBox  Grid.Row="1" Grid.Column="1"   Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True" Height="70" Margin="10,10,0,10" VerticalAlignment="Top"  FontSize="15">
+                <TextBox.Effect>
+                    <DropShadowEffect ShadowDepth="3"
+                      Direction="330"
+                      Color="Gray"
+                      Opacity="0.5"
+                      BlurRadius="6"
+                       />
+                </TextBox.Effect>
+                <TextBox.FocusVisualStyle>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.FocusVisualStyle>
+            </TextBox>
+            
+            <TextBlock Grid.Row="2" Grid.Column="0" x:Name="NewTask" Margin="0,0,0,10" TextWrapping="Wrap"  FontSize="13"> xNew Task:</TextBlock>
+            <ComboBox Grid.Row="2" Grid.Column="1" Name="ComboBoxTasks" AutomationProperties.AutomationId="cmbComboBoxTasks" Width="210" Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" DisplayMemberPath="Name" IsEditable="True" SelectedIndex="0" FontSize="15" >
+            </ComboBox>
+
+        </Grid>
+
+        <CheckBox Grid.Row="2" x:Name="MarkPreviousTaskComplete" AutomationProperties.AutomationId="chkMarkPreviousTaskComplete" FontSize="15" Margin="20,10,20,5"   Cursor="Hand" HorizontalAlignment="Left" VerticalAlignment="Bottom" Padding="5,-3,0,0">
+            <TextBlock TextWrapping="Wrap" x:Name="MarkPreviousTaskCompleteText" FontSize="13"> xMark the previous task as complete</TextBlock>
+        </CheckBox>
+
+        <Button Grid.Row="3" x:Name="btnSave" AutomationProperties.AutomationId="btnSave"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0"  FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSave_Click">
+            <Button.Content>
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock Name="btnSaveText" Margin="1" Text="xSave" Foreground="Black"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+    </Grid>
+</Window>

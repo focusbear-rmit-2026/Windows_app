@@ -1916,6 +1916,47 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static bool GetSavedFocusModes()
+        {
+            LogWriter.LogWrite("RM GetSavedFocusModes()");
+
+            try
+            {
+                byte[] sFocusModesData = (byte[])Read("focusmodes");
+
+                if (sFocusModesData == null)
+                    return false;
+
+                appSettings.sFocusModes = Encoding.Unicode.GetString(sFocusModesData);
+
+                sFocusModesData = null;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSavedFocusModes - " + ex.Message);
+                return false;
+            }
+        }
+        internal static void SaveFocusModes()
+        {
+            LogWriter.LogWrite("RM SaveFocusModes()");
+            try
+            {
+                Encoding unicode = Encoding.Unicode;
+                // Convert unicode string into a byte array.  
+                byte[] sFocusModesData = unicode.GetBytes(appSettings.sFocusModes);
+                Write("focusmodes", sFocusModesData);
+
+                sFocusModesData = null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveFocusModes - " + ex.Message);
+            }
+        }
+
         internal static bool GetLocalDeviceSettings()
         {
             LogWriter.LogWrite("RM GetLocalDeviceSettings()");

@@ -99,9 +99,9 @@ namespace Focus_Bear.BrainDump
             appSettings.sBrainDump = TxtDumpDown.Text;
             RegistryManager.SaveBrainDump();
 
-            if (((App)(Application.Current)).wndToDoPlayer != null)
+            if (((App)(Application.Current)).wndFocusBearMainWindow.PageToDoPlayer != null)
             {
-                ((App)(Application.Current)).wndToDoPlayer.UpdateBrainDumpContent(TxtDumpDown.Text);
+                ((App)(Application.Current)).wndFocusBearMainWindow.PageToDoPlayer.UpdateBrainDumpContent(TxtDumpDown.Text);
             }
         }
     }

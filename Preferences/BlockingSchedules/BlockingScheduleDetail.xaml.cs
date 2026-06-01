@@ -392,7 +392,7 @@ namespace Focus_Bear.Preferences
                 {
                     BlockingScheduleManager.AddBlockingSchedule(_instance, true); //send true when updating a blocking schedule
                 }
-
+                
                 ButtonAutomationPeer peer = new ButtonAutomationPeer(_ParentWindow.PageBlocks.btnBlockingSchedule);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();

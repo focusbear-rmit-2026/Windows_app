@@ -48,7 +48,7 @@ namespace Focus_Bear.Preferences
 
             webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
             webView.NavigationCompleted += CoreWebView2NavigationCompleted;
-            App.ThemeChanged += LoadURL;
+            
         }
 
         private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
@@ -220,6 +220,8 @@ namespace Focus_Bear.Preferences
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
                     webView.WebMessageReceived += webView_WebMessageReceived;
+
+                    App.ThemeChanged += LoadURL;
 
                     LoadURL();
                 }

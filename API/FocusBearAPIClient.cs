@@ -41,9 +41,11 @@ namespace Focus_Bear.API
         public static string SkipActivity { get { return "https://api.focusbear.io/completed-activity/skip"; } }
         public static string CurrentActivityProps { get { return "https://api.focusbear.io/user/details/current-activity-props"; } }
 
-        public static string GetUserDetails { get { return "https://api.focusbear.io/user/details"; } }
+        public static string GetUserDetails { get { return "https://api.focusbear.io/user/details/summary"; } }
 
         public static string FocusMode { get { return "https://api.focusbear.io/focus-mode"; } }
+
+        public static string FocusModes { get { return "https://api.focusbear.io/user/focus-modes"; } }
 
         public static string GetUserLocalDeviceSettings { get { return "https://api.focusbear.io/user-local-device-settings"; } }
 
@@ -59,6 +61,8 @@ namespace Focus_Bear.API
         public static string AccountabilityBuddies { get { return "https://api.focusbear.io/accountability-buddy"; } }
 
         public static string OccupationSpecificRelevantSites { get { return "https://api.focusbear.io/user/generate-occupation-specific-relevant-sites"; } }
+
+        public static string AllTasks { get { return "https://api.focusbear.io/to-do"; } }
         
         internal async Task<int> RenewToken()
         {
@@ -2301,6 +2305,16 @@ namespace Focus_Bear.API
                     if (language == "es")
                         lang = "spanish";
 
+                    JArray rawTasks = JArray.Parse(appSettings.sRawTasks);
+
+                    JArray sRawTasksToPassInSafeAPI = new JArray(
+                        rawTasks.Select(task => new JObject
+                        {
+                            ["task_name"] = task["title"],
+                            ["task_id"] = task["id"]
+                        })
+                    );
+
                     // Pass task_must_align_to_focus_intention=true when a blocking schedule is running in super strict mode
                     bool isSuperStrictMode = appSettings.isBlockingScheduleRunning &&
                         appSettings.ActiveSchedule?.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS;
@@ -2311,7 +2325,16 @@ namespace Focus_Bear.API
                         $"\"meta_description\":\"{meta_description}\"," +
                         $"\"focus_mode\":\"{focus_mode}\"," +
                         $"\"intention\":\"{intention}\"," +
+                        $"\"current_tasks\":{sRawTasksToPassInSafeAPI.ToString(Formatting.None)}," +
+                        $"\"currentTaskInToDoPlayer\":\"{appSettings.sCurrentTaskPlayingInToDoPlayer}\"," +
+                        $"\"extraJustificationForThisSite\":\"{appSettings.sExtraJustificationForThisSite}\"," +
+                        $"\"lastFiveJustificationsInThisFocusSession\":{JsonConvert.SerializeObject(appSettings._last5Justifications.ToArray())}," +
                         $"\"language\":\"{lang}\"{taskMustAlignParam}}}";
+
+                    //"lastFiveJustificationsInThisFocusSession": other_explanations_including_domains,
+                    //if let currentHabitName = currentHabitName{
+                    //    json["habit_name"] = currentHabitName
+                    //}
 
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
@@ -2390,6 +2413,157 @@ namespace Focus_Bear.API
                 return 0.70; //mostly timeout case
             }
             return -1;
+        }
+
+        private DateTime _lastGetAllTasksCall = DateTime.MinValue;
+        internal async Task<int> GetAllTasks() //OK
+        {
+            LogWriter.LogWrite("GetAllTasks()");
+
+            try
+            {
+                // Debounce for 15 seconds
+                if ((DateTime.UtcNow - _lastGetAllTasksCall).TotalSeconds < 15)
+                {
+                    return 0;
+                }
+
+                _lastGetAllTasksCall = DateTime.UtcNow;
+
+
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    var response = await client.GetAsync(AllTasks);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            appSettings.sAllTasks = responseCode.ToString();
+
+                            LogWriter.LogWrite("GetAllTasks() GOT Success");
+
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+
+                        //GetLastActivityInfo Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            JObject resJson = JObject.Parse(responseCode);
+                            string sErrorMessage = resJson["message"].ToString();
+                            LogWriter.LogWrite("GetAllTasks() FAILED - " + sErrorMessage);
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetAllTasks WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetAllTasks Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+        internal async Task<int> AddTask(string sTaskTitle) // OK
+        {
+            LogWriter.LogWrite("AddTask()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    DateTime dueDate = DateTime.UtcNow.AddDays(7);
+     
+                    string addItemJsonString = $"{{\"title\":\"{sTaskTitle}\"," +
+                           $"\"eisenhower_quadrant\":1," +
+                           $"\"due_date\":\"{dueDate.ToString("o")}\"}}";
+
+                    if (!string.IsNullOrEmpty(addItemJsonString))
+                    {
+                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                        //Make the data for Focus Mode
+                        var response = await client.PutAsync(AllTasks, content);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                        {
+                            if (response.Content != null)
+                            {
+                                LogWriter.LogWrite("AddTask() GOT Success");
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                appSettings.sCurrentTaskCreated = responseCode.ToString();
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            //Get Device ID Failed
+                            if (response.Content != null)
+                            {
+                                var responseCode = await response.Content.ReadAsStringAsync();
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"].ToString();
+                                LogWriter.LogWrite("AddTask() FAILED" + sErrorMessage);
+                                return 0;
+                            }
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("AddTask WebException - " + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AddTask Exception - " + ex.Message);
+
+            }
+            return 0;
         }
 
         internal async Task<int> PostAppLogs(string sFeedbackMessage = "")
@@ -3965,6 +4139,73 @@ namespace Focus_Bear.API
             }
             return 0;
         }
+
+        internal async Task<int> GetFocusModes() //OK
+        {
+            LogWriter.LogWrite("GetFocusModes()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    var response = await client.GetAsync(FocusModes);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            appSettings.sFocusModes = responseCode.ToString();
+
+                            LogWriter.LogWrite("GetFocusModes() GOT Success");
+
+                            RegistryManager.SaveFocusModes();
+
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        //GetLastActivityInfo Failed
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            JObject resJson = JObject.Parse(responseCode);
+                            string sErrorMessage = resJson["message"].ToString();
+                            LogWriter.LogWrite("GetFocusModes() FAILED - " + sErrorMessage);
+                            return 0;
+                        }
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetFocusModes WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetFocusModes Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
     }
 
 }

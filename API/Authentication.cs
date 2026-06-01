@@ -194,7 +194,6 @@ namespace Focus_Bear.API
     {
        
         private String sClientId;
-        private String sClientSecret;
         private String sRealm;
         private String sAudience;
         public string sErrorMessage;
@@ -204,7 +203,7 @@ namespace Focus_Bear.API
         public Authentication()
         {
             sClientId = "YAYPDa7sAVKuheZy3dYWyzNncOSZq98I";
-            sClientSecret = "at1yjtbt6GKH03Pez05Tu5SxljduNMwOf1gkOZqe3WNb46UbnRoxHhvPiIkirlXA";
+            //sClientSecret = "at1yjtbt6GKH03Pez05Tu5SxljduNMwOf1gkOZqe3WNb46UbnRoxHhvPiIkirlXA";
             sRealm = "Username-Password-Authentication";
             sAudience = "https://auth.focusbear.io/api/v2/";
         }
@@ -261,7 +260,6 @@ namespace Focus_Bear.API
                 var authenticationResponse = await authenticationApiClient.GetTokenAsync(new ResourceOwnerTokenRequest
                 {
                     ClientId = sClientId,
-                    ClientSecret = sClientSecret,
                     Realm = sRealm,
                     Scope = "openid profile offline_access", // Here you can set the scope
                     Username = sUsername,
@@ -314,7 +312,6 @@ namespace Focus_Bear.API
                 var authenticationResponse = await authenticationApiClient.GetTokenAsync(new RefreshTokenRequest
                 {
                     ClientId = sClientId,
-                    ClientSecret = sClientSecret,
                     RefreshToken = sRefreshToken,
                     Scope = "openid profile offline_access", // Here you can set the scope
                     Audience = sAudience

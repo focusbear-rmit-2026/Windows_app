@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Utils;
+using Newtonsoft.Json.Linq;
 using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
@@ -8,8 +9,10 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.ModelBinding;
 using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Automation.Peers;
@@ -31,6 +34,12 @@ namespace Focus_Bear.Focus
     /// </summary>
     public partial class GentleBlock : Window
     {
+        public class TaskItem
+        {
+            public string Id { get; set; }
+            public string Name { get; set; }
+        }
+
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
         int nTimer = 30; //30 Seconds
@@ -65,6 +74,12 @@ namespace Focus_Bear.Focus
         IntPtr HWND = IntPtr.Zero;
 
         public string CurrentURLBeingProcessedWithChatGPTAPI = "";
+
+        ConvinceAIFailed wndConvinceAiFailed = null;
+        TemporaryAccess wndTemporaryAccess = null;
+        AddFocusGoalAndTask wndAddGoal = null;
+        ConvinceAI wndConvince = null;
+
         public GentleBlock()
         {
             InitializeComponent();
@@ -104,21 +119,24 @@ namespace Focus_Bear.Focus
                 this.Height = 600;
                 MainGrid.RowDefinitions[1].Height = new GridLength(180);
             }
-            string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
+            Heading.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["titleChangedFocus"].ToString();
+            WantToChangeCurrentTask.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["changeTaskText"].ToString();
+            MarkPreviousTaskCompleteText.Text = appSettings.ConfigFileStrings["popUpAddNewFocusGoalVcInfo"]["buttonMarkCurrentTaskAsCompleted"].ToString();
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
-            btnGettingDistractedText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockText"].ToString();
+            TextBlockThisPage.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockUrlText"].ToString();
 
             TextReportBadAIDecision.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["reportBadAiTooltip"].ToString();
+            btnSetTaskText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["buttonSetTask"].ToString();
 
             bool bAICheckRequired = false;
             if (sAppName.Length > 0)
             {
                 ReportBadAIDecision.Visibility = Visibility.Collapsed;
-                AllowThisDomain.Visibility = Visibility.Collapsed;
-                AllowThisDomainText.Visibility = Visibility.Collapsed;
+                ////AllowThisDomain.Visibility = Visibility.Collapsed;
+               ///// AllowThisDomainText.Visibility = Visibility.Collapsed;
 
-                sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
+                ////sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
                 appSettings.ShowBlurWindow(HWND);
 
                 this.Show(); //Will show this window for apps
@@ -152,8 +170,7 @@ namespace Focus_Bear.Focus
                     }
                 }
 
-                AllowThisDomain.Visibility = Visibility.Visible;
-                AllowThisDomainText.Visibility = Visibility.Visible;
+                
                 string sHost = "";
                 try
                 {
@@ -175,39 +192,59 @@ namespace Focus_Bear.Focus
 
                 string sDomain = appSettings.ConfigFileStrings["common"]["allowAllUrlsFromDomainText"].ToString();
                 sDomain = sDomain.Replace("<DOMAIN>", sHost);
-                AllowThisDomainText.Text = sDomain;
+
                 ////////////////////////////////////////////////////
 
-                sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
+                ////sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
+                ///
+                //Close all existing popups if any which is handled by Stop timer function
+                StopTimer();
+
                 appSettings.HideBlurWindow();
                 this.Hide(); //Will keep this window hidden will we get response from API
             }
 
-
-
-            if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+            if (appSettings.sAllTasks.Length > 0)
             {
-                sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
-            }
-            else
-            {
-                sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeTitle);
-            }
+                //File the tasks combo box
+                JObject obj = JObject.Parse(appSettings.sAllTasks);
 
-            //sHeading = sHeading.Length > 108 ? sHeading.Substring(0, 108) : sHeading; //If there are more characters, take only first 100 approx
-            Heading.Text = sHeading;
+                JArray tasks = (JArray)obj["data"];
 
-            if (sIntention.Length > 0) //Set the activity title if thelength is > 0
-            {
-                string sInt = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["intentionText"].ToString();
-                sInt = sInt.Replace("<INTENTION>",sIntention);
-                Intention.Text = sInt;
-                Intention.Visibility = Visibility.Visible;
+                var taskList = tasks
+                    .Select(t => new TaskItem
+                    {
+                        Id = t["id"]?.ToString(),
+                        Name = t["title"]?.ToString()
+                    })
+                    .ToList();
+
+                ComboBoxTasks.ItemsSource = taskList;
+                ComboBoxTasks.DisplayMemberPath = "Name";
             }
-            else
-            {
-                Intention.Visibility = Visibility.Collapsed;
-            }
+            /** if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+             {
+                 sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
+             }
+             else
+             {
+                 sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeTitle);
+             }
+
+             //sHeading = sHeading.Length > 108 ? sHeading.Substring(0, 108) : sHeading; //If there are more characters, take only first 100 approx
+             Heading.Text = sHeading;
+
+             if (sIntention.Length > 0) //Set the activity title if thelength is > 0
+             {
+                 string sInt = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["intentionText"].ToString();
+                 sInt = sInt.Replace("<INTENTION>",sIntention);
+                 Intention.Text = sInt;
+                 Intention.Visibility = Visibility.Visible;
+             }
+             else
+             {
+                 Intention.Visibility = Visibility.Collapsed;
+             }**/
             dispatcherTimer.Stop();
             //Remove the previous event handler so that new can be set
             try
@@ -250,6 +287,12 @@ namespace Focus_Bear.Focus
             if (CurrentURLBeingProcessedWithChatGPTAPI == sActiveURL)
                 return;
             CurrentURLBeingProcessedWithChatGPTAPI = sActiveURL;
+
+            if(appSettings.sConvincingAIForURL != sActiveURL)
+            {
+                appSettings.sExtraJustificationForThisSite = ""; //empty the extra justification if the url is changed.
+                appSettings.sConvincingAIForURL = ""; //reset
+            }
 
             await Task.Run(async () =>
             {
@@ -382,18 +425,174 @@ namespace Focus_Bear.Focus
 
                             if (xProbability >= 0.80)
                             {
-                                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnJustThisTime);
+                                /**ButtonAutomationPeer peer = new ButtonAutomationPeer(btnJustThisTime);
                                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                                invokeProv.Invoke();
+                                invokeProv.Invoke();**/
+
+                                appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
+
+                                appSettings.CapturePostHog("block-popup-allow-automatically");
+
+                                sCurrentTabTitle = sCurrentTabTitle.Replace(" - Google Chrome", "");
+                                sCurrentTabTitle = sCurrentTabTitle.Replace(" — Mozilla Firefox", "");
+                                sCurrentTabTitle = sCurrentTabTitle.Replace(" - Microsoft? Edge", "");
+                                //Lets add it to keyword array, if its not already there
+                                if (sCurrentTabTitle.Length > 0)
+                                {
+                                    var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sCurrentTabTitle.ToLower());
+                                    if (titleExists.Count() == 0)
+                                    {
+                                        //add to list
+                                        appSettings.TemporaryAllowedURLsTabTitles.Add(sCurrentTabTitle);
+                                    }
+                                }
+                                dispatcherTimer.Stop();
+                                appSettings.HideBlurWindow();
+                                Hide();
+
                             }
                             else if (currentFocusAlignmentScore < 80 /*minFocusAlignmentScoreToShowDistractingPopUp*/)// Need to ASk USER if probability is < 0
                             {
-                                if (appSettings.sChatGPTReasonForCurrentURL.Length > 0) //add reason from chat gpt
+                                if (appSettings.sCurrentTaskPlayingInToDoPlayer.Length == 0 && appSettings.sRunningFocusModeIntention.Length == 0)
                                 {
+                                    //Mean there is no task and no intention
+                                    //Fire the yes button to ask for goal and intention
+                                    ButtonAutomationPeer peer = new ButtonAutomationPeer(btnJustThisTime);
+                                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                                    invokeProv.Invoke();
+
+                                }
+                                else if (appSettings.sConvincingAIForURL == sActiveURL)
+                                {
+                                    //Means AI was not convinced and we need to show a different popup to user that AI is not convinced and allow to convince again
+                                    
+                                    wndConvinceAiFailed = new ConvinceAIFailed(xProbability, nTimer);
+                                    wndConvinceAiFailed.Owner = this;
+
+                                    //Show the main window first
+                                    appSettings.ShowBlurWindow(HWND);
+                                    this.Show();
+                                    dispatcherTimer.Stop();//stop the timer here as the convince failed will start it.
+
+                                    GridShade.Visibility = Visibility.Visible;
+                                    bool? bResult = wndConvinceAiFailed.ShowDialog(); //yeh beechmein hai
+                                    GridShade.Visibility = Visibility.Collapsed;
+
+                                    appSettings.sConvincingAIForURL = ""; //reset
+
+                                    if (bResult.Value)
+                                    {
+                                        if (wndConvinceAiFailed.bReportBadAIDecision)
+                                        {
+                                            Hyperlink link = BtnReportBadAIDecision;   //  Hyperlink control
+                                            var peerH = new HyperlinkAutomationPeer(link);
+                                            var invokeProvH = peerH.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                                            invokeProvH?.Invoke();
+                                        }
+                                        else if (wndConvinceAiFailed.bShowConvincePopupAgain) //Let me convince AI again -> Yes this site is relevant
+                                        {
+                                            //This button click will automatically take care of firing the convince aI as task is already there
+                                            ButtonAutomationPeer peer = new ButtonAutomationPeer(btnJustThisTime);
+                                            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                                            invokeProv.Invoke();
+                                        }
+                                        else if (wndConvinceAiFailed.bShowAskNewGoalPopup) //Let me convince AI again -> I am working on something else
+                                        {
+                                            ShowAskNewGoalPopup();
+                                        }
+                                        else if (wndConvinceAiFailed.bShowTemporaryAccessPopup)
+                                        {
+                                            wndTemporaryAccess = new TemporaryAccess(sActiveURL);
+                                            wndTemporaryAccess.Owner = this;
+
+                                            GridShade.Visibility = Visibility.Visible;
+                                            bool? bResultTemp = wndTemporaryAccess.ShowDialog();
+                                            GridShade.Visibility = Visibility.Collapsed;
+                                            if (bResult.Value) //User temporarily allowed the url
+                                            {
+                                                dispatcherTimer.Stop();
+                                                appSettings.HideBlurWindow();
+                                                Hide();
+                                                return;//allow the url
+                                            }
+                                            else //BLock this page
+                                            {
+                                                BlockSiteWork();
+                                            }
+                                            wndTemporaryAccess = null;
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        BlockSiteWork();
+                                    }
+                                    wndConvinceAiFailed = null;
+                                }
+                                else if (appSettings.sChatGPTReasonForCurrentURL.Length > 0) //add reason from chat gpt
+                                {
+                                    JObject obj = JObject.Parse(appSettings.sChatGPTResponse);
+
+                                    string suggestedTask = obj["suggested_task"]?.ToString();
+                                    if(suggestedTask != null)
+                                    {
+                                        string suggestedTaskId = obj["suggested_task_id"]?.ToString();
+
+                                        string sTask = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["suggestedTaskText"].ToString();
+                                        WorkingOnTask.Text = sTask.Replace("<TASK>", suggestedTask);
+
+                                        ComboBoxTasks.Text = suggestedTask; //Add the suggested task to the textview of the combo box
+
+                                        WantToChangeCurrentTask.Visibility = Visibility.Visible;
+                                        MarkPreviousTaskComplete.Visibility = Visibility.Visible;
+                                        ComboxBoxSection.Visibility = Visibility.Visible;
+
+                                        btnNoIamWorkingOnSomethingElse.Visibility = Visibility.Collapsed;
+                                    }
+                                    else
+                                    {
+                                        WantToChangeCurrentTask.Visibility = Visibility.Collapsed;
+                                        MarkPreviousTaskComplete.Visibility = Visibility.Collapsed;
+                                        ComboxBoxSection.Visibility = Visibility.Collapsed;
+
+                                        string sHead = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["titleGoal"].ToString();
+                                        if(appSettings.sCurrentTaskPlayingInToDoPlayer.Length > 0)
+                                        {
+                                            sHead = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["titleGoalAndTask"].ToString();
+                                            sHead = sHead.Replace("<TASK>", appSettings.sCurrentTaskPlayingInToDoPlayer);
+                                        }
+                                        sHead = sHead.Replace("<GOAL>", appSettings.sRunningFocusModeIntention );
+                                        Heading.Text = sHead;
+
+                                        btnNoIamWorkingOnSomethingElse.Visibility = Visibility.Visible;
+                                        btnNoIamWorkingOnSomethingElseText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["buttonWorkingSomethingElseText"].ToString();
+                                        
+                                        btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["buttonSiteRelevantText"].ToString();
+                                    }
+
+                                    string sScore = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["aiRelevanceScoreText"].ToString();
+                                    AIRelevanceScore.Text = sScore.Replace("<SCORE>", ((int)(xProbability * 100)).ToString());
+
+                                    InfoIcon.ToolTip = appSettings.sChatGPTReasonForCurrentURL;
+                                    if (suggestedTask != null) //only if there was a suggested task
+                                    {
+                                        string sStillWorking = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttoWorkingOnOldTask"].ToString();
+                                        if (appSettings.sCurrentTaskPlayingInToDoPlayer.Length > 0)
+                                        {
+                                            sStillWorking = sStillWorking.Replace("<TASK>", appSettings.sCurrentTaskPlayingInToDoPlayer);
+                                            btnJustThisTimeText.Text = sStillWorking;
+                                        }
+                                        else if (appSettings.sRunningFocusModeIntention.Length > 0)
+                                        {
+                                            sStillWorking = sStillWorking.Replace("<TASK>", appSettings.sRunningFocusModeIntention);
+                                            btnJustThisTimeText.Text = sStillWorking;
+                                        }
+                                    }
+                                    /***
                                     sHeading = sHeading + "\n\n" + appSettings.sChatGPTReasonForCurrentURL;
                                     sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
 
-
+                                    
                                     if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
                                     {
                                         sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
@@ -403,7 +602,8 @@ namespace Focus_Bear.Focus
                                         sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
                                     }
 
-                                    Heading.Text = sHeading;
+                                    Heading.Text = sHeading;***/
+
                                     CommandManager.InvalidateRequerySuggested();
                                     if (appSettings.sLastActiveURLInFirefox == sActiveURL)
                                     {
@@ -428,6 +628,29 @@ namespace Focus_Bear.Focus
             });
         }
 
+        private void ShowAskNewGoalPopup()
+        {
+            dispatcherTimer.Stop();
+
+            wndAddGoal = new AddFocusGoalAndTask(false); //true for bNoGoalNoTask
+            wndAddGoal.Owner = this;
+
+            GridShade.Visibility = Visibility.Visible;
+            wndAddGoal.ShowDialog();
+            GridShade.Visibility = Visibility.Collapsed;
+
+            wndAddGoal = null;
+
+            //Reset the same url to force check again
+            CurrentURLBeingProcessedWithChatGPTAPI = "";
+
+            //now we need to call the chatGPT safe URL api again for this domain
+            appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
+
+            dispatcherTimer.Stop();
+            appSettings.HideBlurWindow();
+            Hide();
+        }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
@@ -459,6 +682,10 @@ namespace Focus_Bear.Focus
                     appSettings.HideBlurWindow();
                     Hide();
                 }
+                else if(nTimer == 15)
+                {
+                    BorderTimer.Background = new SolidColorBrush(Colors.Orange);
+                }
             }
             catch (Exception ex)
             {
@@ -475,47 +702,101 @@ namespace Focus_Bear.Focus
             }
             else
             {
-                if(AllowThisDomain.IsChecked.Value)
+                //If the task name and intention are empty, we will ask the user the new goal and the task
+                if (appSettings.sCurrentTaskPlayingInToDoPlayer.Length > 0 || appSettings.sRunningFocusModeIntention.Length > 0)
                 {
-                    string sHost = "";
-                    try
-                    {
-                        Uri myUri = new Uri(sActiveURL);
-                        sHost = myUri.Host; //fails if there is no http://
-                    }
-                    catch (Exception ex)
-                    {
-                        /*
-                        This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
-                        If uri does not specify a scheme, the scheme defaults to "http:".
-                        */
-                        Uri myUri = new UriBuilder(sActiveURL).Uri;
-                        sHost = myUri.Host;
-                        Debug.WriteLine(ex.Message);
-                    }
+                    //ask user to convinve the AI
 
-                    appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sHost.ToLower(), true, true));
-                }
-                else
-                {
-                    appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
-                }
-                
-                appSettings.CapturePostHog("block-popup-allow-automatically");
+                    dispatcherTimer.Stop();
+                    appSettings.sExtraJustificationForThisSite = ""; //Reset
+                    //Ask the user to convinve the AI
+                    wndConvince = new ConvinceAI(nTimer); //Pass the current timer value
+                    wndConvince.Owner = this;
 
-                sCurrentTabTitle = sCurrentTabTitle.Replace(" - Google Chrome", "");
-                sCurrentTabTitle = sCurrentTabTitle.Replace(" — Mozilla Firefox", "");
-                sCurrentTabTitle = sCurrentTabTitle.Replace(" - Microsoft? Edge", "");
-                //Lets add it to keyword array, if its not already there
-                if (sCurrentTabTitle.Length > 0)
-                {
-                    var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sCurrentTabTitle.ToLower());
-                    if (titleExists.Count() == 0)
+                    GridShade.Visibility = Visibility.Visible;
+                    bool? bResult = wndConvince.ShowDialog();
+                    GridShade.Visibility = Visibility.Collapsed;
+
+                    if (bResult.Value == true) //Convince clicked, get the reason
                     {
-                        //add to list
-                        appSettings.TemporaryAllowedURLsTabTitles.Add(sCurrentTabTitle);
+                        LogWriter.LogWrite("ConvinceAI with intention - " + wndConvince.TxtIntention.Text);
+                        appSettings.sExtraJustificationForThisSite = wndConvince.TxtIntention.Text;
+
+                        //Reset the same url to force check again
+                        CurrentURLBeingProcessedWithChatGPTAPI = "";
+
+                        appSettings.sConvincingAIForURL = sActiveURL; //store to compare when AI results come.
+
+                        appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
+                        //now we need to call the chatGPT safe URL api again for this domain
+                        dispatcherTimer.Stop();
+                        appSettings.HideBlurWindow();
+                        Hide();
                     }
+                    else
+                    {
+                        //Cancel clicked or timer went off
+                        nTimer = wndConvince.nTimer;//Let's see how much time was spent after convince was taken off, start from there.
+                        dispatcherTimer.Start();
+                    }
+                    wndConvince = null;
+                    return;
                 }
+                else 
+                {
+                    //If the task name and intention are empty, we will ask the user the new goal and the task
+                    this.Show(); //We need to show the window too
+
+                    dispatcherTimer.Stop();
+                    
+                    wndAddGoal = new AddFocusGoalAndTask(true); //true for bNoGoalNoTask
+                    wndAddGoal.Owner = this;
+
+                    GridShade.Visibility = Visibility.Visible;
+                    bool? bResult = wndAddGoal.ShowDialog();
+                    GridShade.Visibility = Visibility.Collapsed;
+
+                    wndAddGoal = null;
+
+                    //Reset the same url to force check again
+                    CurrentURLBeingProcessedWithChatGPTAPI = "";
+
+                    //now we need to call the chatGPT safe URL api again for this domain
+                    appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
+
+
+                    dispatcherTimer.Stop();
+                    appSettings.HideBlurWindow();
+                    Hide();
+
+                }
+
+                /*** if(AllowThisDomain.IsChecked.Value)
+                 {
+                     string sHost = "";
+                     try
+                     {
+                         Uri myUri = new Uri(sActiveURL);
+                         sHost = myUri.Host; //fails if there is no http://
+                     }
+                     catch (Exception ex)
+                     {
+                         /*
+                         This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
+                         If uri does not specify a scheme, the scheme defaults to "http:".
+                         * /
+                         Uri myUri = new UriBuilder(sActiveURL).Uri;
+                         sHost = myUri.Host;
+                         Debug.WriteLine(ex.Message);
+                     }
+
+                     appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sHost.ToLower(), true, true));
+                 }
+                 else
+                 {
+                     appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
+                 }***/
+
             }
             dispatcherTimer.Stop();
             appSettings.HideBlurWindow();
@@ -554,6 +835,17 @@ namespace Focus_Bear.Focus
         public void StopTimer()
         {
             dispatcherTimer.Stop();
+
+            //reset and close all popups if any is open
+            wndConvinceAiFailed?.Close();
+            wndTemporaryAccess?.Close();
+            wndAddGoal?.Close();
+            wndConvince?.Close();
+
+            wndConvinceAiFailed = null;
+            wndTemporaryAccess = null;
+            wndAddGoal = null;
+            wndConvince = null;
         }
         private void TitleBarThemeChange()
         {
@@ -586,6 +878,92 @@ namespace Focus_Bear.Focus
 
             //Show the Report Bad AI Desicion Feedback Window
             appSettings.ShowReportBadAIDecision(addItemJsonString, sActiveURL);
+        }
+
+        private async void btnSetTask_Click(object sender, RoutedEventArgs e)
+        {
+            TaskItem selectedTask = ComboBoxTasks.SelectedItem as TaskItem;
+
+            string selectedName;
+            string selectedId;
+
+            if (selectedTask != null)
+            {
+                // Existing item selected
+                selectedName = selectedTask.Name;
+                selectedId = selectedTask.Id;
+
+                if (appSettings.sAllTasks.Length > 0)
+                {
+                    JObject obj = JObject.Parse(appSettings.sAllTasks);
+
+                    JArray tasks = (JArray)obj["data"];
+
+                    JObject matchedTask = tasks.FirstOrDefault(t => t["id"]?.ToString() == selectedId) as JObject;
+
+                    if (matchedTask != null)
+                    {
+                        // Found exact task
+                        //Let's put it in the sCurrentTaskCreated and use the same in AddAndPlayTaskInCurrentList
+                        appSettings.sCurrentTaskCreated = matchedTask.ToString();
+
+                        //Add in current tasks list and play it in todoplayer
+                        bool bMarkCurrentTaskAsComplete = MarkPreviousTaskComplete.IsChecked.Value;
+
+                        await Dispatcher.BeginInvoke((Action)(() =>
+                        {
+                            if (((App)(Application.Current)).wndFocusBearMainWindow.PageToDoPlayer != null)
+                            {
+                                ((App)(Application.Current)).wndFocusBearMainWindow.PageToDoPlayer.AddAndPlayTaskInCurrentList(bMarkCurrentTaskAsComplete);
+                            }
+                        }));
+                    }
+                }
+
+            }
+            else
+            {
+                // User typed new value
+                selectedName = ComboBoxTasks.Text;
+                selectedId = null;
+
+                if (selectedName.Length > 0)
+                {
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    var m = await client.AddTask(selectedName);
+                    if (m == 1)
+                    {
+                        bool bMarkCurrentTaskAsComplete = MarkPreviousTaskComplete.IsChecked.Value;
+                        //Add in current tasks list and play it in todoplayer
+                        if (appSettings.sCurrentTaskCreated.Length > 0)
+                        {
+                            await Dispatcher.BeginInvoke((Action)(() =>
+                            {
+                                if (((App)(Application.Current)).wndFocusBearMainWindow.PageToDoPlayer != null)
+                                {
+                                    ((App)(Application.Current)).wndFocusBearMainWindow.PageToDoPlayer.AddAndPlayTaskInCurrentList(bMarkCurrentTaskAsComplete);
+                                }
+                            }));
+                        }
+                    }
+                }
+            }
+            
+        }
+
+        private void BtnBlockThisPage_Click(object sender, RoutedEventArgs e)
+        {
+            BlockSiteWork();
+        }
+
+        private void ComboBoxTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void btnNoIamWorkingOnSomethingElse_Click(object sender, RoutedEventArgs e)
+        {
+            ShowAskNewGoalPopup();
         }
     }
 }

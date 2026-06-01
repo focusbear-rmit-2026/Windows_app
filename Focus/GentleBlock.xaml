@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
+        xmlns:Models="clr-namespace:Focus_Bear.Models"
         mc:Ignorable="d"
         Title="Focus Bear"   Height="auto" Width="360" ResizeMode="NoResize" >
     <Grid x:Name="MainGrid">
@@ -21,34 +22,64 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Image Name="TopIcon" Grid.Column="0"  Margin="0,10,0,10" Height="64" Width="64" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1" Name="Heading"  Margin="10,0,10,0" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="xDo you need to use URL when you're focusing on FOCUSTYPE ?:"  FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
-        <TextBlock  Grid.Row="2" Name="Intention" Margin="10,20,10,10" TextWrapping="Wrap" Text="xYour intention was:"  FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"/>
+        <Image Name="TopIcon" Grid.Column="0"  Margin="0,10,0,10" Height="64" Width="64" Models:ImageBehavior.AnimatedSource="../Images/gifs/random/3.gif"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Row="1" Name="Heading"  Margin="10,0,10,0" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="xHave you changed focus?"  FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+        <TextBlock Grid.Row="2" Name="WorkingOnTask" Margin="10,20,10,10" TextWrapping="Wrap" Text="xIt looks like you're now working on :"  FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Visible"/>
+        <TextBlock Grid.Row="3" x:Name="WantToChangeCurrentTask" Margin="20,20,20,10" TextWrapping="Wrap"  FontSize="13"> xWant to change your current task?</TextBlock>
+        <StackPanel Grid.Row="4" x:Name="ComboxBoxSection" Orientation="Horizontal" VerticalAlignment="Center">
+            <ComboBox Name="ComboBoxTasks" AutomationProperties.AutomationId="cmbComboBoxTasks" Width="190" Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,10,0" DisplayMemberPath="Name" IsEditable="True" SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxTasks_SelectionChanged"  >
+            </ComboBox>
+            <Button   x:Name="btnSetTask" AutomationProperties.AutomationId="btnSetTask" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" Width="110" Height="30" HorizontalContentAlignment="Center" Padding="0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSetTask_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnSetTaskText" Margin="1" Text="xSet Task"  Foreground="Black"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </StackPanel>
+        <CheckBox Grid.Row="5" x:Name="MarkPreviousTaskComplete" AutomationProperties.AutomationId="chkMarkPreviousTaskComplete" FontSize="15" Margin="20,10,20,5"   Cursor="Hand" HorizontalAlignment="Left" VerticalAlignment="Bottom" Padding="5,-3,0,0">
+            <TextBlock TextWrapping="Wrap" x:Name="MarkPreviousTaskCompleteText" FontSize="13"> xMark the previous task as complete</TextBlock>
+        </CheckBox>
+        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
+            <TextBlock  Name="AIRelevanceScore" Margin="20,2,10,10" TextWrapping="Wrap" Text="xAI relevance score for this site: %"  FontSize="13" FontWeight="Bold" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center" Visibility="Visible"/>
+            <Image x:Name="InfoIcon" Source="../images/info-dark.png" Width="20"  Margin="5,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Center"></Image>
+        </StackPanel>
+        <TextBlock Grid.Row="7" x:Name="ReportBadAIDecision" AutomationProperties.AutomationId="txtReportBadAIDecision" Margin="15,10,0,20" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="13" MinHeight="22" Cursor="Hand">
+         👎 <Hyperlink x:Name="BtnReportBadAIDecision" Click="BtnReportBadAIDecision_Click"   TextDecorations="Underline" ><Run x:Name="TextReportBadAIDecision" Text="xReport Bad AI Decision"/></Hyperlink>
+        </TextBlock>
+        <Border Grid.Row="8" x:Name="BorderTimer" Background="Transparent" CornerRadius="5" Width="100" Height="25" Margin="0,2,0,10">
+            <TextBlock x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="00:30" Padding="0" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Center" />
+        </Border>
+        
+        <StackPanel Grid.Row="9" Orientation="Vertical" Margin="0,0,0,50">
 
-        <TextBlock Grid.Row="3" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="00:15" Padding="0" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center"  VerticalAlignment="Center" />
-        <StackPanel Grid.Row="4" Orientation="Vertical" Margin="0,0,0,50">
-            <CheckBox  x:Name="AllowThisDomain" AutomationProperties.AutomationId="chkAllowThisDomain" FontSize="15" Margin="20,5,20,5"   Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0">
-                <TextBlock TextWrapping="Wrap" x:Name="AllowThisDomainText" FontSize="13"> xAllow all URLs from website.com for this Focus Session</TextBlock>
-            </CheckBox>
-            <Button  x:Name="btnJustThisTime" AutomationProperties.AutomationId="btnJustThisTime"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnJustThisTime_Click">
+            <Button Visibility="Collapsed" x:Name="btnNoIamWorkingOnSomethingElse" AutomationProperties.AutomationId="btnJustThisTime"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnNoIamWorkingOnSomethingElse_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnNoIamWorkingOnSomethingElseText" Margin="1" Text="xNo I'm working on something else now" Foreground="Black"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            
+            <Button  x:Name="btnJustThisTime" AutomationProperties.AutomationId="btnJustThisTime"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnJustThisTime_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnJustThisTimeText" Margin="1" Text="xYes, Just this time" Foreground="Black"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button   x:Name="btnGettingDistracted" AutomationProperties.AutomationId="btnGettingDistracted" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnGettingDistracted_Click">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnGettingDistractedText" Margin="1" Text="xNo - I was getting distracted"  Foreground="Black"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-            <TextBlock x:Name="ReportBadAIDecision" AutomationProperties.AutomationId="txtReportBadAIDecision" Grid.Row="4" Margin="15,10,0,20" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="13" MinHeight="22" Cursor="Hand">
-                    👎 <Hyperlink x:Name="BtnReportBadAIDecision" Click="BtnReportBadAIDecision_Click"   TextDecorations="Underline" ><Run x:Name="TextReportBadAIDecision" Text="xReport Bad AI Decision"/></Hyperlink>
+            <TextBlock Grid.Row="7" x:Name="BlockThisPage" AutomationProperties.AutomationId="BlockThisPage" Margin="15,10,0,20" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" FontWeight="Bold" MinHeight="22" Cursor="Hand">
+                <Hyperlink x:Name="BtnBlockThisPage" Click="BtnBlockThisPage_Click"   TextDecorations="Underline" ><Run x:Name="TextBlockThisPage" Text="xBlock this page"/></Hyperlink>
             </TextBlock>
+          
         </StackPanel>
+        <Border x:Name="GridShade" CornerRadius="0" Grid.RowSpan="10" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
     </Grid>
 </Window>

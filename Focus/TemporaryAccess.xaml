@@ -1,0 +1,87 @@
+﻿<Window x:Class="Focus_Bear.Focus.TemporaryAccess"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Focus"
+        mc:Ignorable="d"
+        Title="TemporaryAccess" Height="450" Width="340" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" WindowStyle="None">
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="/Theme/PreferencesStyle.xaml" />
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+
+       
+        <StackPanel Grid.Row="0"  Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,20,10,0">
+            <TextBlock Name="Heading"  Margin="10,0,0,0" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="xTemporarly unlock"  FontSize="13" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+            <Image x:Name="InfoIcon" Source="../images/info-dark.png" Width="20"  Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"></Image>
+        </StackPanel>
+
+        <TextBlock Grid.Row="1" x:Name="AskNeed" Margin="20,20,20,10" HorizontalAlignment="Center" TextWrapping="Wrap"  FontSize="13">xWhat do you want to do while you're here?</TextBlock>
+
+        <TextBox  Grid.Row="2"  Name="TxtIntention" AutomationProperties.AutomationId="txtBoxIntention" Visibility="Visible"  TextWrapping="Wrap" AcceptsReturn="True"    Height="60" Margin="20,0,20,0" VerticalAlignment="Top"  FontSize="15" TextChanged="TxtIntention_TextChanged">
+            <TextBox.Effect>
+                <DropShadowEffect ShadowDepth="3"
+                                    Direction="330"
+                                    Color="Gray"
+                                    Opacity="0.5"
+                                    BlurRadius="6"
+                                    />
+            </TextBox.Effect>
+            <TextBox.FocusVisualStyle>
+                <Style>
+                    <Setter Property="Control.Template">
+                        <Setter.Value>
+                            <ControlTemplate/>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TextBox.FocusVisualStyle>
+        </TextBox>
+        
+        <TextBlock Grid.Row="3" x:Name="HowLong" Margin="20,10,20,10" HorizontalAlignment="Center" TextWrapping="Wrap"  FontSize="13"> xHow long do you need...</TextBlock>
+
+        <ComboBox Grid.Row="4" Name="ComboBoxMinutes" AutomationProperties.AutomationId="cmbMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,10,0,10"  SelectedIndex="0">
+            <ComboBoxItem Content="30s" AutomationProperties.AutomationId="item30s"></ComboBoxItem>
+            <ComboBoxItem Content="1m" AutomationProperties.AutomationId="item1m"></ComboBoxItem>
+            <ComboBoxItem Content="2m" AutomationProperties.AutomationId="item2m"></ComboBoxItem>
+            <ComboBoxItem Content="5m" AutomationProperties.AutomationId="item5m"></ComboBoxItem>
+            <ComboBoxItem Content="10m" AutomationProperties.AutomationId="item10m"></ComboBoxItem>
+            <ComboBoxItem Content="15m" AutomationProperties.AutomationId="item15m"></ComboBoxItem>
+            <ComboBoxItem Content="30m" AutomationProperties.AutomationId="item30m"></ComboBoxItem>
+        </ComboBox>
+        
+        
+        <TextBlock Grid.Row="5" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="00:30" Padding="0" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Center" />
+
+        <StackPanel Grid.Row="6" Name="ButtonsSection" Orientation="Vertical" Margin="20,20,20,20">
+            <Button  x:Name="btnTemporaryAccess" AutomationProperties.AutomationId="btnTemporaryAccess"  Style="{StaticResource BtnStyleLightOrangeBordered }" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnTemporaryAccess_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnTemporaryAccessText" Margin="1" Text="xTemporary Access" Foreground="Black"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button   x:Name="btnBlockThisPage" AutomationProperties.AutomationId="btnBlockThisPage"  Style="{StaticResource BtnStyleClearOrangeBordered    }" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnBlockThisPage_Click">
+                <Button.Content>
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Name="btnBlockThisPageText" Margin="1" Text="x Block this page" Foreground="Black"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

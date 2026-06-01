@@ -89,6 +89,7 @@ namespace Focus_Bear.Login
             {
 
                 string emailAddress = TxtEmailAddress.Text;
+                emailAddress = emailAddress.Trim();
                 if (emailAddress.Length > 0)
                 {
                     if (Global.IsValidEmailAddress(emailAddress))

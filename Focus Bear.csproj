@@ -340,6 +340,9 @@
       <DependentUpon>FocusMusicView.xaml</DependentUpon>
     </Compile>
     <Compile Include="FocusMusic\FocusMusicManager.cs" />
+    <Compile Include="Focus\AddFocusGoalAndTask.xaml.cs">
+      <DependentUpon>AddFocusGoalAndTask.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\AlertMaxTabLimitWindow.xaml.cs">
       <DependentUpon>AlertMaxTabLimitWindow.xaml</DependentUpon>
     </Compile>
@@ -351,6 +354,12 @@
     </Compile>
     <Compile Include="Focus\BreakWindow.xaml.cs">
       <DependentUpon>BreakWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Focus\ConvinceAI.xaml.cs">
+      <DependentUpon>ConvinceAI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Focus\ConvinceAIFailed.xaml.cs">
+      <DependentUpon>ConvinceAIFailed.xaml</DependentUpon>
     </Compile>
     <Compile Include="Focus\DiscourageDefault.xaml.cs">
       <DependentUpon>DiscourageDefault.xaml</DependentUpon>
@@ -381,6 +390,9 @@
       <DependentUpon>StopFocusMode.xaml</DependentUpon>
     </Compile>
     <Compile Include="Focus\TabMatrics.cs" />
+    <Compile Include="Focus\TemporaryAccess.xaml.cs">
+      <DependentUpon>TemporaryAccess.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\ToDoList.xaml.cs">
       <DependentUpon>ToDoList.xaml</DependentUpon>
     </Compile>
@@ -726,6 +738,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Focus\AddFocusGoalAndTask.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Focus\AlertMaxTabLimitWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -739,6 +755,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\BreakWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\ConvinceAI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\ConvinceAIFailed.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -775,6 +799,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\StopFocusMode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\TemporaryAccess.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

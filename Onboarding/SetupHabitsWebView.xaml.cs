@@ -94,7 +94,7 @@ namespace Focus_Bear.Onboarding
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
                     webView.WebMessageReceived += webView_WebMessageReceived;
 
-                    string sURL = "https://dashboard.focusbear.io/webview/routine-suggestion-revamp?bust_cache=" + DateTime.UtcNow.ToString() + appSettings.sHabitsParam;
+                    string sURL = "https://dashboard.focusbear.io/webview/routine-suggestion?bust_cache=" + DateTime.UtcNow.ToString() + appSettings.sHabitsParam;
                     webView.Source = new Uri(sURL, System.UriKind.Absolute);
  
                 }
