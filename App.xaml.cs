@@ -3681,6 +3681,23 @@ namespace Focus_Bear
 
             try
             {
+                //It might be possible that habits are already postponed and user is trying to postpone again from the 2 min popup that appears before 2 mins of resumin habits
+                //fix for: Postponing evening routine ends active focus session and still prompts routine #984
+                if (appSettings.bHabitsPostponedState)
+                {
+                    LogWriter.LogWrite("PostponeHabitWork Timer extended for minutes from now - " + nMinutesToPostpone.ToString());
+                    //If any old timer for postpone is running, we need to stop that add minutes from now and start it back.
+                    dispatcherTimerPostponeHabits.Stop();
+                    dispatcherTimerPostponeHabits.Interval = TimeSpan.FromMinutes(nMinutesToPostpone);
+                    dispatcherTimerPostponeHabits.Start();
+
+                    if (nMinutesToPostpone > 2) //If the postpone time is more than 2 minutes, we need to show a popup again before the postpone time is over and the habits are resumed.
+                    {
+                        SetShowingYourHabitsResumeInPopup(nMinutesToPostpone - 2);
+                    }
+                    return;
+                }
+
                 appSettings.RemoveSecondaryWindows();
 
                 //If any old timer for postpone is running, we need to stop that

@@ -273,6 +273,55 @@ namespace Focus_Bear.Focus
             }
             else
             {
+                string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
+                if (sAppName.Length > 0)
+                {
+                    sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sAppName);
+                    TextBlockThisPage.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockAppText"].ToString();
+                }
+                else
+                {
+                    sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
+                    TextBlockThisPage.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockUrlText"].ToString();
+                }
+
+                if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                {
+                    sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
+                }
+                else
+                {
+                    sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
+                }
+
+                Heading.Text = sHeading;
+
+                string sDescription = "";
+                if(appSettings.sRunningFocusModeIntention.Length > 0)
+                {
+                    string sIntent = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["intentionText"].ToString();
+                    sIntent = sIntent.Replace("<INTENTION>", appSettings.sRunningFocusModeIntention);
+                    sDescription = sIntent;
+                }
+                
+                if (appSettings.sCurrentTaskPlayingInToDoPlayer.Length > 0)
+                {
+                    string sTask = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["currentTaskText"].ToString();
+                    sTask = sTask.Replace("<TASK>", appSettings.sCurrentTaskPlayingInToDoPlayer);
+                    sDescription = sDescription + "\n\n" + sTask;
+                }
+                WorkingOnTask.Text = sDescription;
+
+                WantToChangeCurrentTask.Visibility = Visibility.Collapsed;
+                MarkPreviousTaskComplete.Visibility = Visibility.Collapsed;
+                ReportBadAIDecision.Visibility = Visibility.Collapsed;
+                ComboxBoxSection.Visibility = Visibility.Collapsed;
+                ScoreSection.Visibility = Visibility.Collapsed;
+                btnNoIamWorkingOnSomethingElse.Visibility = Visibility.Collapsed;
+
+                CommandManager.InvalidateRequerySuggested();
+
+
                 appSettings.ShowBlurWindow(HWND);
                 this.Show(); //Will show this window 
                 dispatcherTimer.Start();
@@ -551,6 +600,8 @@ namespace Focus_Bear.Focus
                                     }
                                     else
                                     {
+                                        WorkingOnTask.Text = "";
+
                                         WantToChangeCurrentTask.Visibility = Visibility.Collapsed;
                                         MarkPreviousTaskComplete.Visibility = Visibility.Collapsed;
                                         ComboxBoxSection.Visibility = Visibility.Collapsed;
@@ -570,6 +621,7 @@ namespace Focus_Bear.Focus
                                         btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["buttonSiteRelevantText"].ToString();
                                     }
 
+                                    ScoreSection.Visibility = Visibility.Visible;
                                     string sScore = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["aiRelevanceScoreText"].ToString();
                                     AIRelevanceScore.Text = sScore.Replace("<SCORE>", ((int)(xProbability * 100)).ToString());
 
@@ -686,6 +738,10 @@ namespace Focus_Bear.Focus
                 {
                     BorderTimer.Background = new SolidColorBrush(Colors.Orange);
                 }
+                else if (nTimer > 15)
+                {
+                    BorderTimer.Background = new SolidColorBrush(Colors.Transparent);
+                }
             }
             catch (Exception ex)
             {
@@ -696,9 +752,41 @@ namespace Focus_Bear.Focus
 
         private void btnJustThisTime_Click(object sender, RoutedEventArgs e)
         {
+            ///////////////////////////////////////////////////////////////////
+            ///
+            bool bAICheckRequired = false;
+            if (appSettings.bAiCheckUrlEnabled)
+            {
+                ReportBadAIDecision.Visibility = Visibility.Visible;
+                bAICheckRequired = true;
+            }
+            else
+            {
+                ReportBadAIDecision.Visibility = Visibility.Collapsed;
+                bAICheckRequired = false;
+            }
+
+            if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+            {
+                if (appSettings.ActiveSchedule.bAIBlockingEnabled)
+                {
+                    ReportBadAIDecision.Visibility = Visibility.Visible;
+                    bAICheckRequired = true;
+                }
+                else
+                {
+                    ReportBadAIDecision.Visibility = Visibility.Collapsed;
+                    bAICheckRequired = false;
+                }
+            }
+            ///////////////////////////////////////////
             if (sActiveAppName.Length > 0)
             {
                 appSettings.TemporaryAllowedAppsGentleBlock.Add( new DistractingURL(sActiveAppName.ToLower(), true));
+            }
+            else if(!bAICheckRequired) //No AI check
+            {
+                appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), false));
             }
             else
             {

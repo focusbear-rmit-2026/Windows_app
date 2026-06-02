@@ -53,7 +53,7 @@ namespace Focus_Bear.Habits
 
         DispatcherTimer dispatcherTimerAskSleepAndMood = new DispatcherTimer(DispatcherPriority.Normal);
         
-        DispatcherTimer dispatcherTimerShowReducedHabitsMessage = new DispatcherTimer(DispatcherPriority.Normal);
+        DispatcherTimer dispatcherTimerShowReducedHabitsMessage = null;
 
         FocusBearMainWindow ParentWindow = null;
         public HabitWindow()
@@ -182,15 +182,17 @@ namespace Focus_Bear.Habits
                     
                     AskToAnalyzeSleepAndMood();
 
-                    if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-                        AskConfirmationForLateHabits();
-
                     if (appSettings.isExpired)
                     {
-                        if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) && appSettings.arrAllMorningHabits.Count > 3) ||
-                            ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) && appSettings.arrAllEveningHabits.Count > 3)
+                        if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS) && appSettings.arrGLOBALAllMorningHabits.Count > 3) ||
+                            ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) && appSettings.arrGLOBALAllEveningHabits.Count > 3)
                           )
                             ShowReducedHabitsMessageOnExpired();
+                    }
+                    else //Let's ask Only in registered version
+                    {
+                        if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                            AskConfirmationForLateHabits();
                     }
                 }
             }
@@ -240,8 +242,12 @@ namespace Focus_Bear.Habits
         }
         public void ShowReducedHabitsMessageOnExpired()
         {
-            dispatcherTimerShowReducedHabitsMessage.Tick += new EventHandler(dispatcherTimerShowReducedHabitsMessage_Tick);
-            dispatcherTimerShowReducedHabitsMessage.Interval = new TimeSpan(0, 0, 1);
+            if (dispatcherTimerShowReducedHabitsMessage == null)
+            {
+                dispatcherTimerShowReducedHabitsMessage = new DispatcherTimer(DispatcherPriority.Normal);
+                dispatcherTimerShowReducedHabitsMessage.Tick += new EventHandler(dispatcherTimerShowReducedHabitsMessage_Tick);
+                dispatcherTimerShowReducedHabitsMessage.Interval = new TimeSpan(0, 0, 1);
+            }
             dispatcherTimerShowReducedHabitsMessage.Start();
         }
 
