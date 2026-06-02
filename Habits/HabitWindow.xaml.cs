@@ -122,12 +122,9 @@ namespace Focus_Bear.Habits
                 AppFrameHabitScreens.Navigate(new BreakActivityBrainDump(ParentWindow));
 
 
-                if (appSettings.isExpired)
-                {
-                    if (((appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) && ((appSettings.arrActivitiesIncludeInEveryBreak.Count + appSettings.arrActivitiesExcludeInEveryBreak.Count) > 3))
-                       )
-                        ShowReducedHabitsMessageOnExpired();
-                }
+                // Note: subscription limit popup for break activities is handled in
+                // BreakActivityBrainDump.btnStartBreak_Click to avoid a double-popup.
+                // See: https://github.com/Focus-Bear/windows-app-v2/issues/1006
             }
             else
             {

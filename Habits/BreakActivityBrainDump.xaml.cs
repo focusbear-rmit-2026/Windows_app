@@ -67,7 +67,9 @@ namespace Focus_Bear.Habits
             appSettings.sBrainDump = TxtDumpDown.Text;
             RegistryManager.SaveBrainDump();
 
-            if (appSettings.isExpired)
+            int breakActivityCount = appSettings.arrActivitiesIncludeInEveryBreak.Count
+                                   + appSettings.arrActivitiesExcludeInEveryBreak.Count;
+            if (appSettings.isExpired && breakActivityCount > 3)
             {
                 _parentWindow.GridShade.Visibility = Visibility.Visible;
 
