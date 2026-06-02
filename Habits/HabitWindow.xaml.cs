@@ -648,14 +648,17 @@ namespace Focus_Bear.Habits
 
                 ((App)(Application.Current)).ShowSurvey();
 
-                //WE need to show the pomodoro window
-                if(appSettings.bEnterPomodoroModeAfterMorningRoutine)
+                if (appSettings.bEnterPomodoroModeAfterMorningRoutine && appSettings.bIsGeekModeEnabled)
                 {
                     ((App)(Application.Current)).EnterPomodoroModeAfterMorningRoutine();
                 }
-                else
+                else if (appSettings.AutoCloseAfterRoutineSkipPostpone)
                 {
                     ((App)(Application.Current)).wndFocusBearMainWindow.Hide();
+                }
+                else
+                {
+                    ((App)(Application.Current)).ShowPomodoroWindow();
                 }
             }
         }
@@ -1605,8 +1608,10 @@ namespace Focus_Bear.Habits
                             appSettings.RemoveSecondaryWindows();
                             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
 
-                            //be sure to refresh the window as background timer may take few seconds
-                            ((App)Application.Current).ShowHabitsSectionInMainWindow();
+                            if (appSettings.AutoCloseAfterRoutineSkipPostpone)
+                                ((App)Application.Current).wndFocusBearMainWindow.Hide();
+                            else
+                                ((App)Application.Current).ShowHabitsSectionInMainWindow();
                         }
                     };
 

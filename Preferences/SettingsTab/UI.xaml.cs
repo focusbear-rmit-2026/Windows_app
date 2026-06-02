@@ -40,6 +40,9 @@ namespace Focus_Bear.Preferences.SettingsTab
                 FullScreen.Text = appSettings.ConfigFileStrings["preferencesInfo"]["checkBoxFullScreenEnabledText"].ToString();
                 FullScreenDesc.Text = appSettings.ConfigFileStrings["tooltips"]["ui_ActivitiesFullScreen"].ToString();
 
+                AutoCloseAfterSkipPostpone.Text = appSettings.ConfigFileStrings["preferencesInfo"]["checkBoxAutoCloseAfterRoutineText"].ToString();
+                AutoCloseAfterSkipPostponeDesc.Text = appSettings.ConfigFileStrings["tooltips"]["ui_AutoCloseAfterRoutine"].ToString();
+
                 //Fonts related
                 SelectFont.Text = appSettings.ConfigFileStrings["preferencesInfo"]["titleFont"].ToString();
                 SelectFontDesc.Text = appSettings.ConfigFileStrings["tooltips"]["accessibility_Font"].ToString();
@@ -74,6 +77,7 @@ namespace Focus_Bear.Preferences.SettingsTab
         private void UpdateControls()
         {
             FullScreenCheckbox.IsChecked = appSettings.bPlayActivitiesInFullScreenMode;
+            AutoCloseAfterSkipPostponeCheckbox.IsChecked = appSettings.AutoCloseAfterRoutineSkipPostpone;
 
             Fonts.SelectionChanged -= Fonts_SelectionChanged;
             Fonts.SelectedItem = appSettings.sSelectedAppFont;
@@ -113,6 +117,17 @@ namespace Focus_Bear.Preferences.SettingsTab
         private void FullScreenCheckbox_Unchecked(object sender, RoutedEventArgs e)
         {
             appSettings.bPlayActivitiesInFullScreenMode = false;
+        }
+
+        // #1001 — auto-close after skip/postpone
+        private void AutoCloseAfterSkipPostponeCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.AutoCloseAfterRoutineSkipPostpone = true;
+        }
+
+        private void AutoCloseAfterSkipPostponeCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.AutoCloseAfterRoutineSkipPostpone = false;
         }
 
         private void Fonts_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -458,6 +458,9 @@ namespace Focus_Bear.Utils
         public bool bAdvancedAnalyticsInFocusModeEnabled = false;
 
         public bool bIsGeekModeEnabled = false;
+
+
+        public bool AutoCloseAfterRoutineSkipPostpone { get; set; } = false;
         //Simple mode Focus summary related
         public int nTotalDistractingSitesBlocked = 0;
         public int nTimeSpentBlockingDistractingSites = 0;
@@ -1703,6 +1706,9 @@ namespace Focus_Bear.Utils
 
 
                             bIsGeekModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsGeekModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsGeekModeEnabled") : false;
+
+
+                            AutoCloseAfterRoutineSkipPostpone = sMacOSSettingsOBJ.ContainsKey("kAutoCloseAfterRoutineSkipPostpone") ? (bool)sMacOSSettingsOBJ.GetValue("kAutoCloseAfterRoutineSkipPostpone") : false;
 
                             bAreBreaksEnabled = sMacOSSettingsOBJ.ContainsKey("kUserdefaultsBreaksEnabledFromOnboarding") ? (bool)sMacOSSettingsOBJ.GetValue("kUserdefaultsBreaksEnabledFromOnboarding") : true; //breaks ON by default
 

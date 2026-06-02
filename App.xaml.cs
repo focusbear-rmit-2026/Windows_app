@@ -3666,8 +3666,13 @@ namespace Focus_Bear
             wndFocusBearMainWindow.GridShade.Visibility = Visibility.Visible;
             wndEasyPostpone.ShowDialog();
             wndFocusBearMainWindow.GridShade.Visibility = Visibility.Collapsed;
-            //wndEasyPostpone.BringIntoView();
 
+            // WPF re-activates the owner window when a modal dialog closes.
+            // Hide after ShowDialog returns — same pattern used in FocusActivitySummary.
+            if (appSettings.bHabitsPostponedState && !appSettings.isFocusModeRunning && appSettings.AutoCloseAfterRoutineSkipPostpone)
+            {
+                wndFocusBearMainWindow.Hide();
+            }
         }
 
         public void PostponeHabitWork(int nMinutesToPostpone)
@@ -3732,8 +3737,23 @@ namespace Focus_Bear
                         RestoreFocusUIAfterRoutine();
                     }
 
-                    ShowPomodoroWindow();
-                   
+                    // If user opted in, auto-close the window. Otherwise show appropriate view for mode.
+                    if (!appSettings.isFocusModeRunning && appSettings.AutoCloseAfterRoutineSkipPostpone)
+                    {
+                        wndFocusBearMainWindow.Hide();
+                    }
+                    else if (!appSettings.isFocusModeRunning)
+                    {
+                        if (appSettings.bIsGeekModeEnabled)
+                        {
+                            ShowPomodoroWindow();
+                        }
+                        else
+                        {
+                            wndFocusBearMainWindow.PageHabits.ShowHabitsPostponedView();
+                        }
+                    }
+
 
                     LogWriter.LogWrite("appSettings.bHabitsPostponedState = true;");
 

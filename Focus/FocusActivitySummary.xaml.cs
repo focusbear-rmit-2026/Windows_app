@@ -311,6 +311,10 @@ namespace Focus_Bear.Focus
                 PostponeHabits wndPostpone = new PostponeHabits(ParentWindow);
                 wndPostpone.ShowDialog();
                 ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+                if (appSettings.bFocusSummaryPostponedState && !appSettings.isFocusModeRunning && appSettings.AutoCloseAfterRoutineSkipPostpone)
+                {
+                    ParentWindow.Hide();
+                }
             }
             else
             {

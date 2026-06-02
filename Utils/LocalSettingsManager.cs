@@ -419,6 +419,17 @@ namespace Focus_Bear.Utils
                             {
                                 sMacOSSettingsOBJ.Add("kUserdefaultsBreaksEnabledFromOnboarding", appSettings.bAreBreaksEnabled);
                             }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kAutoCloseAfterRoutineSkipPostpone"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kAutoCloseAfterRoutineSkipPostpone");
+                                sMacOSSettingsOBJ.Add("kAutoCloseAfterRoutineSkipPostpone", appSettings.AutoCloseAfterRoutineSkipPostpone);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kAutoCloseAfterRoutineSkipPostpone", appSettings.AutoCloseAfterRoutineSkipPostpone);
+                            }
+
                             //Blocks schedule related
                             if (sMacOSSettingsOBJ.ContainsKey("kBlockingSchedule"))
                             {
