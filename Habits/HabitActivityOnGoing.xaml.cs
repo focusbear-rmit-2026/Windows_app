@@ -507,7 +507,7 @@ namespace Focus_Bear.Habits
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            int val = nTimer -= 20;
+            int val = nTimer --;
 #else
             int val = nTimer--;
 #endif
@@ -626,6 +626,9 @@ namespace Focus_Bear.Habits
                     SkipThisHabitText.Visibility = Visibility.Visible;//Only show in paused mode
                 }
                 PauseVideo();
+
+                App.FocusButton.PauseHabit();
+
                 appSettings.CapturePostHog("pause-activity");
             }
             else
@@ -644,6 +647,8 @@ namespace Focus_Bear.Habits
                 Global.DisableSystemSleep();
                 
                 ResumeVideo();
+
+                App.FocusButton.ResumeHabit();
 
                 appSettings.CapturePostHog("resume-activity");
 

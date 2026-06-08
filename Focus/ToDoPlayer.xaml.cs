@@ -170,11 +170,7 @@ namespace Focus_Bear.Focus
             {
                 app.HideToDoPlayer();
 
-                var tray = ((App)Application.Current).wndTrayMenu;
-                if (tray != null)
-                {
-                    await tray.StopFocusSessionRealAsync();
-                }
+                ((App)Application.Current).StopFocusSessionFromEvents();
             }
             catch (Exception ex)
             {

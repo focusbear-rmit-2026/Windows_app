@@ -55,6 +55,7 @@ using System.Windows.Automation.Provider;
 using System.Collections.ObjectModel;
 using static Focus_Bear.Focus.TabMetrics;
 using Focus_Bear.Services.FocusButton;
+using Sentry.Protocol;
 
 namespace Focus_Bear
 {
@@ -3382,6 +3383,7 @@ namespace Focus_Bear
 
             }
 
+            FocusButton.SendHabits();
 
             LogWriter.LogWrite("ShowEveningRoutine() - show evening habits screen now");
 
@@ -4604,6 +4606,7 @@ namespace Focus_Bear
 
                         //Make the global variable true
                         appSettings.isFocusModeRunning = true;
+                        appSettings.isFocusModePaused = false;
 
                         ((App)Application.Current).ShowFocusProgressWindow();
 
@@ -4661,75 +4664,88 @@ namespace Focus_Bear
             }
         }
 
-        public void StartWorkFocusMode(string sIDToStart)
+        public void StartWorkFocusMode(string sIDToStart, int SessionTotalSeconds = 1500, bool bCommandFromDevice = false)
         {
             LogWriter.LogWrite("StartWorkFocusMode()");
 
-            for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
+            //We will first look for the id, its index, if that is not found we need to start the first one in the list.
+            int nIndexToStart = 0;
+            if (sIDToStart.Length != 0)
             {
-                if (appSettings.arrFocusModes[i].id == sIDToStart)
+                for (int i = 0; i < appSettings.arrFocusModes.Count(); i++)
                 {
-                    int TotalMinutes = 25;
-                    int nHours = TotalMinutes / 60;
-                    int nMinutes = TotalMinutes % 60;
-
-                    //used when user starts another focus block
-                    appSettings.sRunningFocusModeHours = nHours.ToString();
-                    appSettings.sRunningFocusModeMinutes = nMinutes.ToString();
-
-                    appSettings.sMinutesBreakPomodoro = "5";
-                    appSettings.sMinutesSuperPomodoro = "5";
-
-
-                    try
+                    if (appSettings.arrFocusModes[i].id == sIDToStart)
                     {
-                        Sounds.PlayFocusModeStartSound();
-                        //Start the Focus Mode
-                        //Change the play icon for this to STOP icon
-                        appSettings.arrFocusModes[i].isOn = true;
-                        appSettings.sMostRecentFocusmodeDoneID = appSettings.arrFocusModes[i].id;
-
-                        //Make the global variable true
-                        appSettings.isFocusModeRunning = true;
-
-                        ((App)Application.Current).ShowFocusProgressWindow();
-
-                        DateTime dTill = DateTime.Now;
-
-                        appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
-                        appSettings.focusSessionStartTime = DateTime.Now;
-                        appSettings.CurrentFocusSessionDuration = 0;
-
-                        dTill = dTill.AddHours(nHours);
-                        dTill = dTill.AddMinutes(nMinutes);
-                        string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
-                        sTill = sTill.Replace("<TIME>", dTill.ToString());
-                        ((App)(Application.Current)).wndTrayMenu.OnUntill.Content = sTill;
-
-                        appSettings.sRunningFocusModeID = appSettings.arrFocusModes[i].id;
-                        appSettings.sRunningFocusModeName = appSettings.arrFocusModes[i].name;
-                        appSettings.sRunningFocusModeEndTime = dTill.ToString();
-
-                        //Clear any old stuff for gentle blocking
-                        appSettings.TemporaryAllowedAppsGentleBlock.Clear();
-                        appSettings.TemporarryBlockedAppsGentleBlock.Clear();
-                        appSettings.TemporaryAllowedURLsGentleBlock.Clear();
-                        appSettings.TemporarryBlockedURLsGentleBlock.Clear();
-
-                        appSettings.TemporaryAllowedKeywords.Clear();
-                        appSettings.TemporaryAllowedURLsTabTitles.Clear();
-                        //Start the Focus Mode Timer to end after x hours / minutes
-                        ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes);
-
-                        FocusBearAPIClient client = new FocusBearAPIClient();
-                        var xResponse = client.StartFocusMode(appSettings.arrFocusModes[i].id);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogWriter.LogWrite("Start WORK focus mode from suggestion window Exception - " + ex.Message);
+                        //Found it
+                        nIndexToStart = i;
+                        break;
                     }
                 }
             }
+ 
+            try
+            {
+                int TotalMinutes = SessionTotalSeconds / 60;
+                int nHours = TotalMinutes / 60;
+                int nMinutes = TotalMinutes % 60;
+
+                //used when user starts another focus block
+                appSettings.sRunningFocusModeHours = nHours.ToString();
+                appSettings.sRunningFocusModeMinutes = nMinutes.ToString();
+
+                appSettings.sMinutesBreakPomodoro = "5";
+                appSettings.sMinutesSuperPomodoro = "5";
+
+
+                   
+                Sounds.PlayFocusModeStartSound();
+                //Start the Focus Mode
+                //Change the play icon for this to STOP icon
+                appSettings.arrFocusModes[nIndexToStart].isOn = true;
+                appSettings.sMostRecentFocusmodeDoneID = appSettings.arrFocusModes[nIndexToStart].id;
+
+                //Make the global variable true
+                appSettings.isFocusModeRunning = true;
+                appSettings.isFocusModePaused = false;
+
+
+                ((App)Application.Current).ShowFocusProgressWindow();
+
+                DateTime dTill = DateTime.Now;
+
+                appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
+                appSettings.focusSessionStartTime = DateTime.Now;
+                appSettings.CurrentFocusSessionDuration = 0;
+
+                dTill = dTill.AddHours(nHours);
+                dTill = dTill.AddMinutes(nMinutes);
+                string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
+                sTill = sTill.Replace("<TIME>", dTill.ToString());
+                ((App)(Application.Current)).wndTrayMenu.OnUntill.Content = sTill;
+
+                appSettings.sRunningFocusModeID = appSettings.arrFocusModes[nIndexToStart].id;
+                appSettings.sRunningFocusModeName = appSettings.arrFocusModes[nIndexToStart].name;
+                appSettings.sRunningFocusModeEndTime = dTill.ToString();
+
+                //Clear any old stuff for gentle blocking
+                appSettings.TemporaryAllowedAppsGentleBlock.Clear();
+                appSettings.TemporarryBlockedAppsGentleBlock.Clear();
+                appSettings.TemporaryAllowedURLsGentleBlock.Clear();
+                appSettings.TemporarryBlockedURLsGentleBlock.Clear();
+
+                appSettings.TemporaryAllowedKeywords.Clear();
+                appSettings.TemporaryAllowedURLsTabTitles.Clear();
+                //Start the Focus Mode Timer to end after x hours / minutes
+                ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes, false, bCommandFromDevice);
+
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var xResponse = client.StartFocusMode(appSettings.arrFocusModes[nIndexToStart].id);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("Start WORK focus mode from suggestion window / button Exception - " + ex.Message);
+            }
+                
         }
 
         // True while a tab-limit alert is visible — prevents repeated alerts per breach.
@@ -5374,5 +5390,20 @@ namespace Focus_Bear
             wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.FocusMusic);
         }
 
+        public async void StopFocusSessionFromEvents()
+        {
+            try
+            {
+                var tray = ((App)Application.Current).wndTrayMenu;
+                if (tray != null)
+                {
+                    await tray.StopFocusSessionRealAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite($"Error in btnEndFocus_Click: {ex.Message}");
+            }
+        }
     }
 }

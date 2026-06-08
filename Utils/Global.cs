@@ -387,6 +387,9 @@ namespace Focus_Bear.Utils
     {
         public string id;
         public string name;
+
+        public string idFakeForDevice;//used for device
+        public string nameWithoutIcon;//used for device
         public int durationSeconds { get; set; }
         public List<string> videoUrls;
         public bool logQuantity;
@@ -403,10 +406,12 @@ namespace Focus_Bear.Utils
         public bool bHighPriorityActivity;
         public List<string> DaysOfWeek;
         public string sCutOffTime;
-        public habit(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites, bool bHighPriorityActivity, List<string> DaysOfWeek, string sCutOffTime)
+        public habit(string id, string name, string idFakeForDevice, string nameWithoutIcon, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites, bool bHighPriorityActivity, List<string> DaysOfWeek, string sCutOffTime)
         {
             this.id = id;
             this.name = name;
+            this.idFakeForDevice = idFakeForDevice;
+            this.nameWithoutIcon = nameWithoutIcon;
             this.durationSeconds = durationSeconds;
             this.videoUrls = videoUrls;
             this.logQuantity = logQuantity;

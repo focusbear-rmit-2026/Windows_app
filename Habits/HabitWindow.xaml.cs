@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -46,13 +47,13 @@ namespace Focus_Bear.Habits
         NoHabitsRunningState PageNoHabitsRunningState = new NoHabitsRunningState();
 
         int nTimer = 5;
-       
+
         DispatcherTimer dispatcherTimerSkippingIn = new DispatcherTimer(DispatcherPriority.Normal);
 
         DispatcherTimer dispatcherTimerShowDateTime = new DispatcherTimer(DispatcherPriority.Normal);
 
         DispatcherTimer dispatcherTimerAskSleepAndMood = new DispatcherTimer(DispatcherPriority.Normal);
-        
+
         DispatcherTimer dispatcherTimerShowReducedHabitsMessage = null;
 
         FocusBearMainWindow ParentWindow = null;
@@ -112,7 +113,7 @@ namespace Focus_Bear.Habits
                 nScreenHabitActivityFinished.webView1.Dispose();
                 nScreenHabitActivityFinished = null;
             }
-            
+
             nScreenHabitActivityFinished = new HabitActivityFinished(ParentWindow);
 
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -179,7 +180,7 @@ namespace Focus_Bear.Habits
                     AppFrameHabitScreens.Navigate(PageWelcomeList); //Normal process
 
                     ParentWindow.GridShade.Visibility = Visibility.Collapsed; //safety
-                    
+
                     AskToAnalyzeSleepAndMood();
 
                     if (appSettings.isExpired)
@@ -197,7 +198,7 @@ namespace Focus_Bear.Habits
                 }
             }
         }
-       
+
         public void ShowHabitsPostponedView()
         {
             AppFrameHabitScreens.Visibility = Visibility.Visible;
@@ -313,7 +314,7 @@ namespace Focus_Bear.Habits
         public void ShowACtivityFinishedScreen(bool bIsActivitySkipped = false)
         {
             LogWriter.LogWrite("ShowACtivityFinishedScreen();");
-            
+
             try
             {
                 //////////////////////////////////////////////////////////
@@ -350,7 +351,7 @@ namespace Focus_Bear.Habits
 
                 nScreenHabitActivityFinished.LoadData(appSettings.bSkipCurrentActivity);
 
-                if(appSettings.bShowActivitiesFromMid)//Justload the graph data in this case
+                if (appSettings.bShowActivitiesFromMid)//Justload the graph data in this case
                 {
                     return;
                 }
@@ -403,7 +404,7 @@ namespace Focus_Bear.Habits
                     LogWriter.LogWrite("ACTIVITY Finished  - Log duration and return");
 
                     FocusBearAPIClient client = new FocusBearAPIClient();
-                    
+
                     //Log duration and return
                     string sLogType = "";
                     string sStartTime = appSettings.dLastActivityPerformedStartTime.ToString("yyyy-MM-dd HH:mm:ss");
@@ -490,7 +491,7 @@ namespace Focus_Bear.Habits
                                 _ = client.PostActivityCompleted(currentActivity.id, currentActivity.activity_sequence_id, ActivityStartTime, nDurationLogged, randomChoice.id, null);
                             }
                         }
-                        
+
                     }
 
                     if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -507,10 +508,10 @@ namespace Focus_Bear.Habits
                         else
                             nScreenHabitActivityFinished.bCallLoadGraphDataAfterWebViewInitialized = true;
                     }
-                    
+
                 }
 
-                   
+
             }
             catch (Exception ex)
             {
@@ -524,7 +525,7 @@ namespace Focus_Bear.Habits
             appSettings.bShowActivitiesFromMid = false;//Reseting it
 
             //Dispose the web views
-            if(nScreenHabitActivityFinished != null)
+            if (nScreenHabitActivityFinished != null)
             {
                 nScreenHabitActivityFinished.webView.Dispose();
                 nScreenHabitActivityFinished.webView1.Dispose();
@@ -541,10 +542,10 @@ namespace Focus_Bear.Habits
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
                 LogWriter.LogWrite("LAST BREAK_ACTIVITY Finished");
-                if(appSettings.bHabitsPostponedState)
+                if (appSettings.bHabitsPostponedState)
                 {
                     //possibly user postponed habits and started breaks, so we need to set the state back
-                    if(appSettings.IsShutOffTime())
+                    if (appSettings.IsShutOffTime())
                     {
                         //evening routine time
                         appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;
@@ -561,7 +562,7 @@ namespace Focus_Bear.Habits
                     //Set the current activity type to NONE
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                 }
-                
+
                 //Start the break Activities Timer
                 ((App)(Application.Current)).StartBreakActivityTimer();
 
@@ -569,7 +570,7 @@ namespace Focus_Bear.Habits
                 ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
 
                 ((App)(Application.Current)).ShowPomodoroWindow(); //Lets show pomodoro view same as mac app
-                
+
             }
             else if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
@@ -579,7 +580,7 @@ namespace Focus_Bear.Habits
 
                 //We need to hide the Please SPare Me Button
                 btnPleaseSpareMe.Visibility = Visibility.Collapsed;
-                
+
                 await Task.Delay(1000);
 
                 //WE will set the morning habits shown date for today
@@ -622,7 +623,7 @@ namespace Focus_Bear.Habits
                         appSettings.EveningHabitsShownTillDate = myStartTime;//Today's Morning time
                     }
                     LogWriter.LogWrite(string.Format("Set EveningHabitsShownTillDate - {0}", appSettings.EveningHabitsShownTillDate.ToString()));
-                  
+
                     RegistryManager.SetEveningHabitsShownTillDate();
 
                     //reset the complete evening habits button if it was clicked
@@ -633,7 +634,7 @@ namespace Focus_Bear.Habits
                     LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
                     //Show the Shutoff Screen
-                    if(appSettings.DidCutOffTimePassed())
+                    if (appSettings.DidCutOffTimePassed())
                         ((App)(Application.Current)).ShowShutOffScreen();
                     else
                     {
@@ -644,7 +645,7 @@ namespace Focus_Bear.Habits
                 }
                 catch (Exception ex)
                 {
-                    LogWriter.LogWrite("HideFrameAndClose()" + ex.Message); 
+                    LogWriter.LogWrite("HideFrameAndClose()" + ex.Message);
                 }
             }
 
@@ -714,7 +715,7 @@ namespace Focus_Bear.Habits
                     }
                 }
             }
- 
+
             nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
 
             GridShade.Visibility = Visibility.Visible;
@@ -723,7 +724,7 @@ namespace Focus_Bear.Habits
             string sLogQuantityQuestion = "";
             if (bLogQuantity)
             {
-               
+
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
                     sLogQuantityQuestion = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestion;
@@ -777,7 +778,7 @@ namespace Focus_Bear.Habits
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
-                   
+
                     breakActivity currentActivity;
                     if (appSettings.isMandatoryActivityGoing)
                     {
@@ -804,7 +805,7 @@ namespace Focus_Bear.Habits
 
                 }
             }
-            HeadingLogQuantity.Text = appSettings.ConfigFileStrings["logQuantityInfo"]["title"].ToString(); 
+            HeadingLogQuantity.Text = appSettings.ConfigFileStrings["logQuantityInfo"]["title"].ToString();
             btnCancelText.Text = appSettings.ConfigFileStrings["logQuantityInfo"]["buttonCancelText"].ToString();
             btnOKText.Text = appSettings.ConfigFileStrings["logQuantityInfo"]["buttonOkText"].ToString();
 
@@ -951,7 +952,7 @@ namespace Focus_Bear.Habits
 
                         sLogType = "morning routine";
                         appSettings.AddEntryInCSV(sLogType, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name, nDurationLogged.ToString(), appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestion, /*dQuantityLogged.ToString()*/"", sStartTime);
-                        _ = client.PostActivityCompleted(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, nDurationLogged, "", /*dQuantityLogged*/appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestions,  appSettings.bSkipCurrentActivity);
+                        _ = client.PostActivityCompleted(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id, appSettings.arrAllMorningHabits[appSettings.nHabitIndex].activity_sequence_id, ActivityStartTime, nDurationLogged, "", /*dQuantityLogged*/appSettings.arrAllMorningHabits[appSettings.nHabitIndex].logQuantityQuestions, appSettings.bSkipCurrentActivity);
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                     {
@@ -970,7 +971,7 @@ namespace Focus_Bear.Habits
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                     {
                         sLogType = "break";
-                      
+
                         breakActivity currentActivity;
                         if (appSettings.isMandatoryActivityGoing)
                         {
@@ -1008,7 +1009,7 @@ namespace Focus_Bear.Habits
 
                     }
                 }
-                 
+
                 HideLogWindow();
 
                 //Load the Graph Data
@@ -1046,9 +1047,9 @@ namespace Focus_Bear.Habits
 
         private void Quantity_PreviewKeyUp(object sender, KeyEventArgs e)
         {
-           if ((e.Key == Key.Delete) || (e.Key == Key.Back))
-           {
-           }
+            if ((e.Key == Key.Delete) || (e.Key == Key.Back))
+            {
+            }
         }
 
         public void SimulatePleaseSpareMeClick()
@@ -1121,11 +1122,11 @@ namespace Focus_Bear.Habits
                     if (appSettings.bPasswordRequireInSkipMorning)
                     {
                         //It might be possible that a webview is visible, we will need to hide that
-                        if(nScreenHabitActivityFinished != null)
+                        if (nScreenHabitActivityFinished != null)
                         {
-                            if(nScreenHabitActivityFinished.webView.IsVisible)
+                            if (nScreenHabitActivityFinished.webView.IsVisible)
                                 nScreenHabitActivityFinished.webView.Visibility = Visibility.Collapsed;
-                            if( nScreenHabitActivityFinished.webView1.IsVisible)
+                            if (nScreenHabitActivityFinished.webView1.IsVisible)
                                 nScreenHabitActivityFinished.webView1.Visibility = Visibility.Collapsed;
                         }
 
@@ -1140,13 +1141,13 @@ namespace Focus_Bear.Habits
                             }
                         }
 
-                        if(PageHabitExtraPersonal != null)
+                        if (PageHabitExtraPersonal != null)
                         {
                             if (appSettings.bMotivationalMessageEnabled)
                                 PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
                         }
 
-                        if(PageHabitActivityOnGoing != null)
+                        if (PageHabitActivityOnGoing != null)
                         {
                             if (PageHabitActivityOnGoing.webView.IsVisible)
                             {
@@ -1169,7 +1170,7 @@ namespace Focus_Bear.Habits
                         }
 
                         //If edits habits is open in welcome list, hide it
-                        if (PageWelcomeList != null)    
+                        if (PageWelcomeList != null)
                         {
                             if (bshowPageWelcomeListWebView)
                                 PageWelcomeList.webView.Visibility = Visibility.Visible;
@@ -1198,7 +1199,7 @@ namespace Focus_Bear.Habits
 
                     }
                 }
-                else if(appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
                     if (appSettings.bPasswordRequireInSkipEvening || (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff))
                     {
@@ -1288,10 +1289,10 @@ namespace Focus_Bear.Habits
                 PageHabitActivityOnGoing.HandleTimerForPostpone(true); //Stop the timer
             }
             LogWriter.LogWrite("Habit Window btnPleaseSpareMe_Click Clicked - Hide() now");
-            
+
             //Show the Easy Postpone 
             ((App)(Application.Current)).ShowEasyPostponeWindow();
-            
+
         }
 
         public void EasyPostponeCancelled()
@@ -1322,7 +1323,7 @@ namespace Focus_Bear.Habits
             LogWriter.LogWrite("appSettings.bSkipCurrentActivityCantDoItToday = false;");
 
             HeadingWhySkip.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["title"].ToString();
-            btnAlreadyDidItTXT.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["buttonAlreadyDidItText"].ToString(); 
+            btnAlreadyDidItTXT.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["buttonAlreadyDidItText"].ToString();
             btnCantDoItTodayTXT.Text = appSettings.ConfigFileStrings["whySkipHabitVcInfo"]["buttonCanNotDoItText"].ToString();
 
             // Reason input — clear on each show and set placeholder label from config
@@ -1472,7 +1473,7 @@ namespace Focus_Bear.Habits
             dispatcherTimerSkippingIn.Stop(); //Stop the timer as user had cancelled skipping
         }
 
-        
+
         private void dispatcherTimerShowDateTime_Tick(object sender, EventArgs e)
         {
             if (appSettings.bPlayActivitiesInFullScreenMode && !appSettings.bHabitsPostponedState && appSettings.nCurrentActivityType != CurrentActivityType.NONE)
@@ -1591,7 +1592,7 @@ namespace Focus_Bear.Habits
                         double hoursElapsed = timeDiff.TotalHours;
                         int roundedHours = (int)Math.Round(hoursElapsed);
                         subTitle = subTitle.Replace("<HOUR>", roundedHours.ToString());
-                        
+
                         FBMessageBox ff = new FBMessageBox(subTitle, title, MessageBoxButton.YesNo, buttonDo, buttonSkip)
                         {
                             Owner = ParentWindow
@@ -1640,7 +1641,7 @@ namespace Focus_Bear.Habits
                 bool? bResult = wndAnalyzeSleepMood.ShowDialog();
                 ParentWindow.GridShade.Visibility = Visibility.Collapsed;
 
-                if(bResult.Value == true)
+                if (bResult.Value == true)
                 {
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["preferencesInfo"]["alertChangeLanguageInfoText"].ToString(), "Focus Bear");
                     ff.Owner = ParentWindow;
@@ -1660,6 +1661,8 @@ namespace Focus_Bear.Habits
 
         public void ShowChooseHabitsWindow()
         {
+            LogWriter.LogWrite("ShowChooseHabitsWindow ()");
+
             ParentWindow.GridShade.Visibility = Visibility.Visible;
             ChooseHabits WndChooseHabits = new ChooseHabits(ParentWindow);
 
@@ -1673,13 +1676,15 @@ namespace Focus_Bear.Habits
                 appSettings.RemoveSecondaryWindows();
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Set it to none as morning routine is done
             }
-  
+
         }
 
         public bool ShowChooseAnotherHabitsWindow()
         {
+            LogWriter.LogWrite("ShowChooseAnotherHabitsWindow ()");
+
             ParentWindow.GridShade.Visibility = Visibility.Visible;
-            
+
             ChooseAnotherHabit WndChooseAnotherHabit = new ChooseAnotherHabit(ParentWindow);
 
             bool? DialogResult = WndChooseAnotherHabit.ShowDialog();
@@ -1690,6 +1695,82 @@ namespace Focus_Bear.Habits
                 return true;
             }
             return false;
+        }
+
+        public async void ResumeHabitsBeforeStartActivityTrigger(string sHabitName)
+        {
+            if (((App) Application.Current).wndTrayMenu != null)
+            {
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)Application.Current).wndTrayMenu.btnResumeHabits);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
+            //Now recall this function after 6 seconds.
+            await Task.Delay(6000);
+
+            StartActivityTriggeredFromDevice(sHabitName);
+        }
+        public void StartActivityTriggeredFromDevice(string sHabitName)
+        {
+            LogWriter.LogWrite("StartActivityTriggeredFromDevice() - " + sHabitName);
+
+            try
+            {
+                //if the Activity finish screen is visible, we will fire the start button there.
+                bool bScreenHabitActivityFinishedVisible = (((App)Application.Current).wndFocusBearMainWindow.PageHabits.nScreenHabitActivityFinished != null &&
+                ((App)Application.Current).wndFocusBearMainWindow.PageHabits.nScreenHabitActivityFinished.IsVisible);
+
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                {
+                    habit itemToMove = appSettings.arrAllMorningHabits.FirstOrDefault(h => h.nameWithoutIcon == sHabitName);
+                    if (!string.IsNullOrEmpty(itemToMove.id))
+                    {
+                        // Valid habit found and id is not empty
+                        // Remove the item from arrAllMorningHabits
+                        appSettings.arrAllMorningHabits.Remove(itemToMove);
+                        // Insert it at the front (index 0) of arrAllMorningHabits
+                        appSettings.arrAllMorningHabits.Insert(bScreenHabitActivityFinishedVisible ? (appSettings.nHabitIndex + 1) : appSettings.nHabitIndex, itemToMove);
+                    }
+                    else
+                    {
+                        LogWriter.LogWrite("StartActivityTriggeredFromDevice No habit with name found: " + sHabitName);
+                        return;
+                    }
+                   
+                }
+                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                {
+                    habit itemToMove = appSettings.arrAllEveningHabits.FirstOrDefault(h => h.nameWithoutIcon == sHabitName);
+                    if (!string.IsNullOrEmpty(itemToMove.id))
+                    {
+                        // Remove the item from arrAllEveningHabits
+                        appSettings.arrAllEveningHabits.Remove(itemToMove);
+                        // Insert it at the front (index 0) of arrAllEveningHabits
+                        appSettings.arrAllEveningHabits.Insert(bScreenHabitActivityFinishedVisible ? (appSettings.nHabitIndex + 1) : appSettings.nHabitIndex, itemToMove);
+                    }
+                    else
+                    {
+                        LogWriter.LogWrite("StartActivityTriggeredFromDevice No habit with name found: " + sHabitName);
+                        return;
+                    }
+                }
+             
+                if (bScreenHabitActivityFinishedVisible) 
+                {
+                    //If we fire the start next activity button, it takes care of habitindex
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)Application.Current).wndFocusBearMainWindow.PageHabits.nScreenHabitActivityFinished.btnStartNextActivity);
+                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                    invokeProv.Invoke();
+                }
+                else //Possibly Welcome screen is visible
+                {
+                    ShowActivityStartScreen();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StartActivityTriggeredFromDevice ex =" + ex.Message);
+            }
         }
 
     }

@@ -193,19 +193,14 @@ namespace Focus_Bear.Focus
             ((App)(Application.Current)).CloseFocusProgressWindow();
         }
 
-        private async void btnEndFocus_Click(object sender, RoutedEventArgs e)
+        private void btnEndFocus_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Focus Progress window - btnEndFocus_Click - Stopping Focus Session");
 
             try
             {
                 Hide();
-
-                var tray = ((App)Application.Current).wndTrayMenu;
-                if (tray != null)
-                {
-                    await tray.StopFocusSessionRealAsync();
-                }
+                ((App)Application.Current).StopFocusSessionFromEvents();
             }
             catch (Exception ex)
             {

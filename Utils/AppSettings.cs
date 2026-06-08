@@ -30,6 +30,7 @@ using Path = System.IO.Path;
 using Focus_Bear.Services;
 using System.Security.Policy;
 using System.Web;
+using System.Windows.Documents.DocumentStructures;
 
 namespace Focus_Bear.Utils          
 {
@@ -963,11 +964,14 @@ namespace Focus_Bear.Utils
 
                     if (arrayMorningActivities.Count() > 0)
                     {
+                        int nIdFakeForDevice = 1;
+
                         foreach (JObject item in arrayMorningActivities)
                         {
                             string id = item.ContainsKey("id") ? item.GetValue("id").ToString() : "";
 
                             string name = item.ContainsKey("name") ? item.GetValue("name").ToString() : "";
+                            string nameWithoutIcon = name; //used for device
 
                             string habit_icon = item.ContainsKey("habit_icon") ? item.GetValue("habit_icon").ToString() : "";
                             
@@ -1053,7 +1057,8 @@ namespace Focus_Bear.Utils
                                 arrDaysOfWeek = arrTempDays.ToObject<List<string>>();
                             }
 
-                            arrAllMorningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, ""));
+                            arrAllMorningHabits.Add(new habit(id, name, nIdFakeForDevice.ToString(), nameWithoutIcon, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, ""));
+                            nIdFakeForDevice++;
                         }
                         //copy to Global Array but do not reference
                         arrGLOBALAllMorningHabits = new List<habit>(arrAllMorningHabits);
@@ -1061,12 +1066,13 @@ namespace Focus_Bear.Utils
                     }
                     if (arrayEveningActivities.Count() > 0)
                     {
+                        int nIdFakeForDevice = 1;
                         foreach (JObject item in arrayEveningActivities)
                         {
                             string id = item.ContainsKey("id") ? item.GetValue("id").ToString() : "";
 
                             string name = item.ContainsKey("name") ? item.GetValue("name").ToString() : "";
-
+                            string nameWithoutIcon = name;
                             string habit_icon = item.ContainsKey("habit_icon") ? item.GetValue("habit_icon").ToString() : "";
 
                             if (habit_icon.Length > 0)
@@ -1164,7 +1170,8 @@ namespace Focus_Bear.Utils
                                 }
                             }
 
-                            arrAllEveningHabits.Add(new habit(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, sCutOffTime));
+                            arrAllEveningHabits.Add(new habit(id, name, nIdFakeForDevice.ToString(), nameWithoutIcon, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, sCutOffTime));
+                            nIdFakeForDevice++;
                         }
 
                         //copy to Global Array but do not reference

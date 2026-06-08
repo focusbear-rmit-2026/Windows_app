@@ -120,15 +120,11 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("PauseResumeMenuItem_Click ex = " + ex.Message);
             }
         }
-        private async void StopSessionMenuItem_Click(object sender, RoutedEventArgs e)
+        private void StopSessionMenuItem_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                var trayMenu = ((App)(Application.Current)).wndTrayMenu;
-                if (trayMenu != null)
-                {
-                    await trayMenu.StopFocusSessionRealAsync();
-                }
+                ((App)Application.Current).StopFocusSessionFromEvents();
             }
             catch (Exception ex)
             {

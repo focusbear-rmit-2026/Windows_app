@@ -1002,7 +1002,7 @@ namespace Focus_Bear
             return;
         }
 
-        public void StartFocusModeTimer(int nHours, int nMinutes, bool bExtending = false)
+        public void StartFocusModeTimer(int nHours, int nMinutes, bool bExtending = false, bool bCommandFromDevice = false)
         {
             LogWriter.LogWrite("StartFocusModeTimer() invoked");
 
@@ -1049,8 +1049,10 @@ namespace Focus_Bear
 #else
                  dispatcherTimerFocus.Interval = new TimeSpan(nHours, nMinutes, 0);
 #endif
-
-                App.FocusButton.StartFocusSession(nMinutes * 60);
+                if (!bCommandFromDevice) //Strt only when the command was not from device to avoid loop
+                {
+                    App.FocusButton.StartFocusSession(nMinutes * 60);
+                }
 
                 dispatcherTimerFocus.Start();
                 CommandManager.InvalidateRequerySuggested();

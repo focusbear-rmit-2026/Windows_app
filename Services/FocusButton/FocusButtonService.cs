@@ -1,4 +1,6 @@
-﻿using Focus_Bear.Utils;
+﻿using Duende.IdentityModel;
+using Focus_Bear.Utils;
+using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +13,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -90,13 +94,13 @@ namespace Focus_Bear.Services.FocusButton
             {
 
                 Disconnect();
-                _port = new SerialPort(portName, 2000000)
+                _port = new SerialPort(portName, 2_000_000)
                 {
                     NewLine = "\n",
                     ReadTimeout = 500,
                     WriteTimeout = 2000,
                 };
-               
+
                 _port.Open();
 
                 _rxRunning = true;
@@ -106,14 +110,21 @@ namespace Focus_Bear.Services.FocusButton
                 LogWriter.LogWrite($"FocusButton: -- Connected to {portName}");
 
                 // Send current UTC time immediately on connect
-                long epoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                long epoch1 = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds(); ;
+
+                DateTime localDate = DateTime.Now;
+
+                long timezoneOffset = (long)TimeZoneInfo.Local.GetUtcOffset(localDate).TotalSeconds;
+
+                long epoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + timezoneOffset;
+
                 SendCmd($"SET|TIME|{epoch}");
 
                 // Request current device state
                 SendCmd("STATUS");
 
                 // Fetch the habit list from the device
-                SendCmd("GET|HABITCOUNT");
+                //SendCmd("GET|HABITCOUNT");
 
                 ApplyState(DeviceState.Idle);
                 //BtnConnect.Content = "Disconnect";
@@ -336,40 +347,114 @@ namespace Focus_Bear.Services.FocusButton
                                     ///SetRemaining(tot);
                                 }
                                 if (parts[1].ToUpperInvariant() == "STARTHB" && parts.Length >= 4)
+                                {
                                     _currentHabitName = parts[3].Trim();
+
+                                    if(_currentHabitName.Length > 0)
+                                    {   
+                                        if (((App)Application.Current).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing?.bTimerRunning == true)
+                                        {
+                                            //Habit is already ongoing, ignore it
+                                            return;
+                                        }
+                                        if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+                                            appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && appSettings.bHabitsPostponedState)
+                                        {
+                                            //Means habits are postponed. We will have to resume habits
+                                            ((App)Application.Current).wndFocusBearMainWindow.PageHabits.ResumeHabitsBeforeStartActivityTrigger(_currentHabitName);
+                                            return;
+                                        }
+                                        
+                                        ((App)Application.Current).wndFocusBearMainWindow.PageHabits.StartActivityTriggeredFromDevice(_currentHabitName);
+                                    }
+                                }
                                 else if (parts[1].ToUpperInvariant() == "START")
                                 {
                                     _currentHabitName = "";
 
+                                    if (appSettings.isFocusModeRunning)
+                                    {
+                                        return;
+                                    }
                                     //todo Start the most recent focus session here
                                     //use appSettings.sMostRecentFocusmodeDoneID;
-                                    
+                                    ((App)Application.Current).StartWorkFocusMode(appSettings.sMostRecentFocusmodeDoneID, (int)_sessionTotalSeconds, true);
 
                                 }
-
                                 ApplyState(DeviceState.Running);
                                 break;
                             case "PAUSE":
-                                ((App)Application.Current).wndTrayMenu.ToggleFocusPauseFromUI(true);
+
+                                if(appSettings.isFocusModeRunning)
+                                {
+                                    if (appSettings.isFocusModePaused)
+                                    {
+                                        return; //Already paused, may be coming from device
+                                    }
+                                    ((App)Application.Current).wndTrayMenu.ToggleFocusPauseFromUI(true);
+                                }
+                                else if (((App)Application.Current).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing?.bTimerRunning == true)
+                                {
+                                    //Habit is ongoing, Pause it
+                                    ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing.btnPausePlay);
+                                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                                    invokeProv.Invoke();
+                                }
 
                                 ApplyState(DeviceState.Paused);
+                                
                                 if (parts.Length >= 3 && long.TryParse(parts[2], out long remP))
                                     ;
                                     ///SetRemaining(remP);
                                 break;
                             case "RESUME":
-                                ((App)Application.Current).wndTrayMenu.ToggleFocusPauseFromUI(true);
+                                if (appSettings.isFocusModeRunning)
+                                {
+                                    if (!appSettings.isFocusModePaused)
+                                    {
+                                        return; //Already not paused and running 
+                                    }
+                                    ((App)Application.Current).wndTrayMenu.ToggleFocusPauseFromUI(true);
+                                }
+                                else if ( !((App)Application.Current).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing?.bTimerRunning == true)
+                                {
+                                    //Habit is ongoing, Pause it
+                                    ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing.btnPausePlay);
+                                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                                    invokeProv.Invoke();
+                                }
 
                                 ApplyState(DeviceState.Running);
+
                                 if (parts.Length >= 3 && long.TryParse(parts[2], out long remR))
                                     ;//// SetRemaining(remR);
                                 break;
                             case "CANCEL":
                                 _currentHabitName = "";
+
+                                if (appSettings.isFocusModeRunning)
+                                {
+                                    ((App)Application.Current).StopFocusSessionFromEvents();
+                                }
+                                else if(appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+                                        appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && !appSettings.bHabitsPostponedState)
+                                {
+                                    //Habit is ongoing, user is trying to cancel from device, so fire the Postpone button
+                                    ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndFocusBearMainWindow.PageHabits.btnPleaseSpareMe);
+                                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                                    invokeProv.Invoke();
+                                }
+
                                 ApplyState(DeviceState.Idle);
                                 break;
                             case "DONE":
                                 _currentHabitName = "";
+
+                                //if(appSettings.isFocusModeRunning)
+                                //{
+                                //    ((App)Application.Current).StopFocusSessionFromEvents();
+                                //}
+
                                 ApplyState(DeviceState.Idle);
                                 break;
                             case "LISTEN":
@@ -634,25 +719,46 @@ namespace Focus_Bear.Services.FocusButton
 
             LogWriter.LogWrite("FocusButton: FinishFocusSession()");
 
-            SendCmd("SET|DONE");
+            SendCmd("SET|CANCEL");
             ApplyState(DeviceState.Idle);           // optimistic
         }
 
-        public void SendHabits()
+        public void ExtendFocusSession(int nSeconds)
         {
             if (_port == null || !_port.IsOpen)
                 return;
 
+            LogWriter.LogWrite("FocusButton: ExtendFocusSession()");
+
+            SendCmd($"SET|UPDATE|{nSeconds}");
+
+            ApplyState(DeviceState.Running);
+        }
+
+        public void SendHabits(bool bAfterFinishingHabit = false)
+        {
+            if (_port == null || !_port.IsOpen)
+                return;
+
+            LogWriter.LogWrite("FocusButton: SendHabits()");
+
             RemoveHabits(); //Remove if there is an old list of habits
 
             Task.Delay(2000);
-
+            int nIndex = appSettings.nHabitIndex;
+            if(bAfterFinishingHabit)
+            {
+                nIndex++;
+            }
+            
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
                 if(appSettings.arrAllMorningHabits.Count > 0)
                 {
                     //todo: need a check for non timer habits
-                    var entries = appSettings.arrAllMorningHabits.Select(h => $"{h.id},{h.name},{h.durationSeconds * 60}");
+                    //var entries = appSettings.arrAllMorningHabits.Select(h => $"{h.idFakeForDevice},{h.name},{h.durationSeconds}");
+                    var entries = appSettings.arrAllMorningHabits.Skip(nIndex)
+                                                                 .Select(h => $"{h.idFakeForDevice},{h.nameWithoutIcon},{h.durationSeconds}");
                     SendCmd("SET|HABITS|" + string.Join("|", entries));
                 }
                 else
@@ -666,7 +772,9 @@ namespace Focus_Bear.Services.FocusButton
                 if (appSettings.arrAllEveningHabits.Count > 0)
                 {
                     //todo: need a check for non timer habits
-                    var entries = appSettings.arrAllEveningHabits.Select(h => $"{h.id},{h.name},{h.durationSeconds * 60}");
+                    var entries = appSettings.arrAllEveningHabits.Skip(nIndex)
+                                                                 .Select(h => $"{h.idFakeForDevice},{h.nameWithoutIcon},{h.durationSeconds}");
+
                     SendCmd("SET|HABITS|" + string.Join("|", entries));
                 }
                 else
@@ -694,6 +802,30 @@ namespace Focus_Bear.Services.FocusButton
             ApplyState(DeviceState.Running);
 
         }
+
+        public void PauseHabit()
+        {
+            if (_port == null || !_port.IsOpen)
+                return;
+
+            LogWriter.LogWrite("FocusButton: PauseHabit()");
+
+            SendCmd("SET|PAUSE");
+            
+            ApplyState(DeviceState.Paused);   // optimistic
+            
+        }
+        public void ResumeHabit()
+        {
+            if (_port == null || !_port.IsOpen)
+                return;
+
+            LogWriter.LogWrite("FocusButton: ResumeHabit()");
+
+            SendCmd("SET|RESUME");
+            ApplyState(DeviceState.Running);   // optimistic
+        }
+
         public void RemoveHabits() //case is like habits paused, remove them from device
         {
             if (_port == null || !_port.IsOpen)

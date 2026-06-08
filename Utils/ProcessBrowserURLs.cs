@@ -298,18 +298,35 @@ namespace Focus_Bear.Utils
                      {
                         //check if url is listed as blocked url then do not allow to open and show message: 
                         //"common""unblockNotAvailableForFocusBlockedUrlText": "You can't unblock this site because it's currently listed under the blocked URLs for your focus session",
+                        if(CheckIfURLIsInBlockedURLs(oldURLToOpen))
+                        {
 
-                    }
-                    //Open the url and also add it to temporary allowed URL list
-                    var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == oldURLToOpen.ToLower());
+                            string sTemp = appSettings.ConfigFileStrings["common"]["unblockNotAvailableForFocusBlockedUrlText"].ToString();
+                            appSettings.ShowBaloonTip(sTemp);
+                            return;
+                        }
+                     }
+                     //Open the url and also add it to temporary allowed URL list
+                     var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == oldURLToOpen.ToLower());
 
                      if (blockedURLs.Count() != 0)
                      {
-                         appSettings.TemporarryBlockedURLsGentleBlock.RemoveAll(i => i.ToLower() == oldURLToOpen.ToLower()); //We need to remove all instanes
+                        LogWriter.LogWrite("PBU.cs - ProcessURLForFocusModes - URL found in TemporarryBlockedURLsGentleBlock, removing it = " + sURL);
+
+                        appSettings.TemporarryBlockedURLsGentleBlock.RemoveAll(i => i.ToLower() == oldURLToOpen.ToLower()); //We need to remove all instanes
+
+                        //If found in this, just unblock it and return from here / normal flow as a new url will follow
+                        //Now fire the OLD url so that it will ask for intention again
+                        appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = oldURLToOpen;
+                        SetForegroundWindow(hWnd);
+                        Task.Delay(1);
+                        appSettings.FirefoxLastAccWindow.accSelect(0x1, appSettings.objChild);//take selection
+
+                        SendKeys.SendWait("{ENTER}");
+                        return;
                      }
 
-                     appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(oldURLToOpen.ToLower(), true));
-
+ 
                      /////////////////////////////////////////////////////////////////////////
                      //Might be possible that it was an always blocked URL
                      string sActiveURL = "";
@@ -746,6 +763,74 @@ namespace Focus_Bear.Utils
 
         }
 
+        private static bool CheckIfURLIsInBlockedURLs(string sURL)
+        {
+            LogWriter.LogWrite("CheckIfURLIsInBlockedURLs() - ");
+            AppSettings appSettings = AppSettings.GetInstance;
+
+            List<FocusMode> listItems = new List<FocusMode>();
+
+            if (appSettings.bHabitwithUseFocusModeRunning)
+            {
+                listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.sUseFocusModeIDInActivity).ToList();
+            }
+            else if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+            {
+                listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.ActiveSchedule.SelectedFocusModeId).ToList();
+            }
+            else //Normal focus mode running
+            {
+                listItems = appSettings.arrFocusModes.Where(i => i.isOn == true).ToList();
+            }
+
+            if (listItems.Count() != 0)
+            {
+                FocusMode focusType = listItems.First();
+
+                if (focusType != null)
+                {
+                    LogWriter.LogWrite("isAllowedListApproach - Selected URLs are allowed");
+                    //We will check if the url is in the blocked urls list of the focusmode 
+                    bool bBlockedURLFound = false; 
+
+                    foreach (string url in focusType.arrBlockedUrls)
+                    {
+                        var sUrlToCheck = sURL.Replace("http://", "");
+                        sUrlToCheck = sUrlToCheck.Replace("https://", "");
+                        sUrlToCheck = sUrlToCheck.Replace("www.", "");
+
+                        var blockedURL = url.Replace("http://", "");
+                        blockedURL = blockedURL.Replace("https://", "");
+                        blockedURL = blockedURL.Replace("www.", "");
+                        //Remove last slash from allowed url
+                        blockedURL = blockedURL.TrimEnd(new[] { '/' });
+
+                        if (sUrlToCheck.StartsWith(blockedURL))
+                        {
+                            LogWriter.LogWrite(sUrlToCheck + " found in blocked URLS of focus mode - do not UNBLOCK");
+                            bBlockedURLFound = true;
+                            break;
+                        }
+                        else
+                        {
+                            blockedURL = "*" + blockedURL + "*";
+                            if (MatchWildcardString(sUrlToCheck, blockedURL))
+                            {
+                                LogWriter.LogWrite(sUrlToCheck + " found in blocked URLS WILDCARD match of focus mode - do not UNBLOCK");
+                                bBlockedURLFound = true;
+                                break;
+                            }
+                        }
+                    }
+                            
+                    if (bBlockedURLFound)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
         private static void ProcessAlloweURLsInActivity(IntPtr hWnd )
         {
             try

@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.Models;
 using Focus_Bear.Onboarding;
 using Focus_Bear.Preferences;
+using Focus_Bear.Services.FocusButton;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json;
@@ -314,6 +315,8 @@ namespace Focus_Bear.Habits
                         sTextCompletedDuration.Text = sProgressLast;
 
                         Sounds.PlayMorningRoutineFinishedSound();
+
+                        App.FocusButton.RemoveHabits(); //Remove habits List to device after finishing this last habit  
                     }
                     else
                     {
@@ -349,6 +352,8 @@ namespace Focus_Bear.Habits
                         sTextCompletedDuration.Text = sProgress;
 
                         Sounds.PlayHabitFinishedSound();
+
+                        App.FocusButton.SendHabits(true); //Update habits List to device after finishing this habit  
                     }
                     sHeading = sHeading.Replace("<ACTIVITY>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name);
                 }
@@ -470,6 +475,8 @@ namespace Focus_Bear.Habits
                         }
 
                         Sounds.PlayEveningRoutineFinishedSound();
+
+                        App.FocusButton.RemoveHabits(); //Remove habits List to device after finishing this last habit  
                     }
                     else
                     {
@@ -510,6 +517,8 @@ namespace Focus_Bear.Habits
                         LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
 
                         Sounds.PlayHabitFinishedSound();
+
+                        App.FocusButton.SendHabits(true); //Update habits List to device after finishing this habit  
                     }
 
                 }
