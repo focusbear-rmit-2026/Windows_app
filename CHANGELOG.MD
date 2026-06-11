@@ -19,3 +19,5 @@
 - Added user setting to auto-close window after routine interactions#1116
 - Focus Button Device integration - Works for focus modes - start / pause / resume / end, for habits works for triggers from device for start / pause  / resume but start does not work from PC (firmware changes awaited) out of order activities flow managed.
 
+v3.0.217
+- Updated Focus Button device integration for habits and voice commands / Added NAudio dlls

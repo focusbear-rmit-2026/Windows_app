@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Focus Bear"
-#define MyAppVersion "2.0.198"
+#define MyAppVersion "3.0.217"
 #define MyAppPublisher "Focus Bear Pty Ltd"
 #define MyAppURL "https://www.focusbear.io"
 #define MyAppExeName "Focus Bear.exe"
@@ -132,6 +132,20 @@ Source: "Files\Microsoft.IdentityModel.Abstractions.dll"; DestDir: "{app}"; Flag
 Source: "Files\Microsoft.IdentityModel.Abstractions.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\System.Diagnostics.DiagnosticSource.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\System.Diagnostics.DiagnosticSource.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+
+Source: "Files\NAudio.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.Asio.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.Asio.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.Midi.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.Midi.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.Wasapi.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.Wasapi.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.WinForms.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.WinForms.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.WinMM.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.WinMM.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.Core.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 
 
 Source: "Files\Graph\*"; DestDir: "{app}\graph"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs

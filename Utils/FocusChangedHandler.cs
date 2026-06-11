@@ -686,7 +686,7 @@ namespace FocusBear.Utils
                                 }
 
                                 //
-                                LogWriter.LogWrite("RUNNING Focus Mode is:" + focusType.name);
+                                LogWriter.LogWrite("FCH - RUNNING Focus Mode is:" + focusType.name);
 
                                 if (process.ProcessName.ToLower() == "firefox" || process.ProcessName.ToLower() == "chrome" || process.ProcessName.ToLower() == "msedge")
                                 {

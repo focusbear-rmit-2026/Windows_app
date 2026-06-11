@@ -493,6 +493,8 @@ namespace Focus_Bear.Utils
 
         public CUIAutomation automation;
         public IUIAutomationFocusChangedEventHandler handler;
+        public string RecordingPath { get; set; }
+        public bool bActivityStartedFromDevice = false;
 
         public JObject ConfigFileStrings;
         public UserAccount userAccount { get; set; } = new UserAccount() { userID = "", username = "", email = "", accessToken = "", refreshToken = "" };
@@ -2546,7 +2548,9 @@ namespace Focus_Bear.Utils
                 msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 msg.ShowDialog();
                 if (msg.btnClicked == MessageBoxResult.No)
-                {   
+                {
+                    LogWriter.LogWrite("ShowSuggestStartWorkFocusModeWindow - NO");
+
                     focusType.bUserClickedNoDoNotSuggestAnymore = true;
                     return;
                 }

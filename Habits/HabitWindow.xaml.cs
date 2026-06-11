@@ -1697,7 +1697,7 @@ namespace Focus_Bear.Habits
             return false;
         }
 
-        public async void ResumeHabitsBeforeStartActivityTrigger(string sHabitName)
+        public void ResumeHabitsBeforeStartActivityTrigger(string sHabitName)
         {
             if (((App) Application.Current).wndTrayMenu != null)
             {
@@ -1706,13 +1706,13 @@ namespace Focus_Bear.Habits
                 invokeProv.Invoke();
             }
             //Now recall this function after 6 seconds.
-            await Task.Delay(6000);
+            //await Task.Delay(6000);
 
-            StartActivityTriggeredFromDevice(sHabitName);
+            //StartActivityTriggeredFromDevice(sHabitName, true);
         }
-        public void StartActivityTriggeredFromDevice(string sHabitName)
+        public void StartActivityTriggeredFromDevice(string sHabitId)
         {
-            LogWriter.LogWrite("StartActivityTriggeredFromDevice() - " + sHabitName);
+            LogWriter.LogWrite("StartActivityTriggeredFromDevice() - " + sHabitId);
 
             try
             {
@@ -1722,7 +1722,74 @@ namespace Focus_Bear.Habits
 
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
-                    habit itemToMove = appSettings.arrAllMorningHabits.FirstOrDefault(h => h.nameWithoutIcon == sHabitName);
+                    habit itemToMove = appSettings.arrAllMorningHabits.FirstOrDefault(h => h.idFakeForDevice == sHabitId);
+                    if (!string.IsNullOrEmpty(itemToMove.id))
+                    {
+                        // Valid habit found and id is not empty
+                        // Remove the item from arrAllMorningHabits
+                        appSettings.arrAllMorningHabits.Remove(itemToMove);
+                        // Insert it at the front (index 0) of arrAllMorningHabits
+                        appSettings.arrAllMorningHabits.Insert(bScreenHabitActivityFinishedVisible ? (appSettings.nHabitIndex + 1) : appSettings.nHabitIndex, itemToMove);
+                    }
+                    else
+                    {
+                        LogWriter.LogWrite("StartActivityTriggeredFromDevice No habit with name found: " + sHabitId);
+                        return;
+                    }
+                   
+                }
+                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                {
+                    habit itemToMove = appSettings.arrAllEveningHabits.FirstOrDefault(h => h.idFakeForDevice == sHabitId);
+                    if (!string.IsNullOrEmpty(itemToMove.id))
+                    {
+                        // Remove the item from arrAllEveningHabits
+                        appSettings.arrAllEveningHabits.Remove(itemToMove);
+                        // Insert it at the front (index 0) of arrAllEveningHabits
+                        appSettings.arrAllEveningHabits.Insert(bScreenHabitActivityFinishedVisible ? (appSettings.nHabitIndex + 1) : appSettings.nHabitIndex, itemToMove);
+                    }
+                    else
+                    {
+                        LogWriter.LogWrite("StartActivityTriggeredFromDevice No habit with name found: " + sHabitId);
+                        return;
+                    }
+                }
+ 
+                if (bScreenHabitActivityFinishedVisible) 
+                {
+                    //If we fire the start next activity button, it takes care of habitindex
+                    ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)Application.Current).wndFocusBearMainWindow.PageHabits.nScreenHabitActivityFinished.btnStartNextActivity);
+                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                    invokeProv.Invoke();
+                }
+                else //Possibly Welcome screen is visible
+                {
+                    //Show habits view it it was elsewhere
+                    if (!((App)Application.Current).wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.Habits))
+                        ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+
+                    ShowActivityStartScreen();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StartActivityTriggeredFromDevice ex =" + ex.Message);
+            }
+        }
+
+        public void StartActivityTriggeredFromAudioCommand(string sHabitName)
+        {
+            LogWriter.LogWrite("StartActivityTriggeredFromAudioCommand() - " + sHabitName);
+
+            try
+            {
+                //if the Activity finish screen is visible, we will fire the start button there.
+                bool bScreenHabitActivityFinishedVisible = (((App)Application.Current).wndFocusBearMainWindow.PageHabits.nScreenHabitActivityFinished != null &&
+                ((App)Application.Current).wndFocusBearMainWindow.PageHabits.nScreenHabitActivityFinished.IsVisible);
+
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                {
+                    habit itemToMove = appSettings.arrAllMorningHabits.FirstOrDefault(h => h.nameWithoutIcon.ToLower() == sHabitName.ToLower());
                     if (!string.IsNullOrEmpty(itemToMove.id))
                     {
                         // Valid habit found and id is not empty
@@ -1736,11 +1803,11 @@ namespace Focus_Bear.Habits
                         LogWriter.LogWrite("StartActivityTriggeredFromDevice No habit with name found: " + sHabitName);
                         return;
                     }
-                   
+
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
-                    habit itemToMove = appSettings.arrAllEveningHabits.FirstOrDefault(h => h.nameWithoutIcon == sHabitName);
+                    habit itemToMove = appSettings.arrAllEveningHabits.FirstOrDefault(h => h.nameWithoutIcon == sHabitName.ToLower());
                     if (!string.IsNullOrEmpty(itemToMove.id))
                     {
                         // Remove the item from arrAllEveningHabits
@@ -1754,8 +1821,8 @@ namespace Focus_Bear.Habits
                         return;
                     }
                 }
-             
-                if (bScreenHabitActivityFinishedVisible) 
+
+                if (bScreenHabitActivityFinishedVisible)
                 {
                     //If we fire the start next activity button, it takes care of habitindex
                     ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)Application.Current).wndFocusBearMainWindow.PageHabits.nScreenHabitActivityFinished.btnStartNextActivity);
@@ -1764,6 +1831,10 @@ namespace Focus_Bear.Habits
                 }
                 else //Possibly Welcome screen is visible
                 {
+                    //Show habits view it it was elsewhere
+                    if (!((App)Application.Current).wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.Habits))
+                        ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+
                     ShowActivityStartScreen();
                 }
             }
@@ -1772,6 +1843,5 @@ namespace Focus_Bear.Habits
                 LogWriter.LogWrite("StartActivityTriggeredFromDevice ex =" + ex.Message);
             }
         }
-
     }
 }

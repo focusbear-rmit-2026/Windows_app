@@ -2212,7 +2212,6 @@ namespace Focus_Bear
         }
         public async void ShowMorningRoutine()
         {
-
             LogWriter.LogWrite("ShowMorningRoutine()");
 
             if (appSettings.bIsUserOnCall)

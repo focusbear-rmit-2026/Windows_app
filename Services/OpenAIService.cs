@@ -1,0 +1,286 @@
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Focus_Bear.Utils;
+using System.Reflection;
+
+namespace Focus_Bear.Services
+{
+
+    public class IntentResponse
+    {
+        public string transcription { get; set; }
+        public string action { get; set; }
+        public IntentParameters parameters { get; set; }
+        public string confidence { get; set; }
+        public string clarification_needed { get; set; }
+        public List<string> additional_actions { get; set; }
+    }
+
+    public class IntentParameters
+    {
+        public string task { get; set; }
+        public string time { get; set; }
+        public string repeat { get; set; }
+        public int duration_minutes { get; set; }
+        public string goal { get; set; }
+        public string habit_name { get; set; }
+    }
+    public static class OpenAIService
+    {
+        private static readonly HttpClient client =
+            new HttpClient();
+
+        public static async Task<IntentResponse> ProcessVoiceCommand(string apiKey, string wavFile)
+        {
+            string transcription = await TranscribeAudio(apiKey, wavFile);
+            IntentResponse result = await GetIntent(apiKey, transcription);
+            result.transcription = transcription;
+            return result;
+        }
+
+        public static async Task<string> TranscribeAudio(
+            string apiKey,
+            string wavFile)
+        {
+            LogWriter.LogWrite("FocusButton ProcessVoiceCommand() TranscribeAudio");
+            if (!File.Exists(wavFile))
+            {
+                throw new FileNotFoundException("Audio file not found.", wavFile);
+            }
+
+            client.DefaultRequestHeaders.Clear();
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue( "Bearer", apiKey);
+
+            using (var form = new MultipartFormDataContent())
+            {
+                // New OpenAI transcription model
+
+                form.Add( new StringContent("gpt-4o-transcribe"),"model");
+
+                // Optional
+                //form.Add(new StringContent("en"),"language");
+
+                byte[] audio = File.ReadAllBytes(wavFile);
+
+                var audioContent = new ByteArrayContent(audio);
+
+                audioContent.Headers.ContentType = MediaTypeHeaderValue.Parse("audio/wav");
+
+                form.Add(audioContent, "file", Path.GetFileName(wavFile));
+
+                HttpResponseMessage response = await client.PostAsync( "https://api.openai.com/v1/audio/transcriptions", form);
+
+                string responseText = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception(responseText);
+                }
+
+                JObject obj = JObject.Parse(responseText);
+
+                if (obj["text"] == null)
+                {
+                    throw new Exception("No transcription returned.");
+                }
+
+                return obj["text"].ToString();
+            }
+        }
+        public static async Task<IntentResponse> GetIntent(string apiKey, string userMessage)
+        {
+            LogWriter.LogWrite("FocusButton ProcessVoiceCommand() GetIntent");
+
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+
+            var request = new
+            {
+                model = "gpt-4o-mini",
+                messages = new object[]
+                {
+            new { role = "system", content = BuildIntentPrompt(userMessage) },
+            new { role = "user", content = userMessage }
+                },
+                temperature = 0.1,
+                response_format = new { type = "json_object" }
+            };
+
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(request);
+
+            using (var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json"))
+            {
+                HttpResponseMessage response = await client.PostAsync(
+                    "https://api.openai.com/v1/chat/completions",
+                    content);
+
+                string responseText = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception(responseText);
+
+                JObject obj = JObject.Parse(responseText);
+
+                string result = obj["choices"]?[0]?["message"]?["content"]?.ToString();
+
+                if (string.IsNullOrEmpty(result))
+                    throw new Exception("OpenAI returned an invalid response.");
+
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<IntentResponse>(result);
+            }
+        }
+
+        private static string BuildIntentPrompt(string userMessage)
+        {
+            LogWriter.LogWrite("FocusButton: BuildIntentPrompt()");
+            //Build the habit list to add in prompt
+            AppSettings appSettings = AppSettings.GetInstance;
+
+            var sHabits = "";
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+            {
+                if (appSettings.arrAllMorningHabits.Count > 0)
+                {
+                    sHabits = string.Join("\n", appSettings.arrAllMorningHabits.Select(h => $"- {h.nameWithoutIcon}"));
+                }
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            {
+                if (appSettings.arrAllEveningHabits.Count > 0)
+                {
+                    sHabits = string.Join("\n", appSettings.arrAllEveningHabits.Select(h => $"- {h.nameWithoutIcon}"));
+                }
+            }
+
+            return
+            @"You are a voice command classifier for a productivity app called Focus Bear.  
+            Your job is to parse the user's spoken command and output a structured JSON object that my app can execute.
+
+            Possible actions:
+            - create_task
+            - start_focus
+            - pause_focus
+            - resume_focus
+            - stop_focus
+            - start_habit
+            - pause_habit
+            - resume_habit
+
+
+            **Create task**  
+            Fields: task (string), datetime (local system datetime or relative like ""tomorrow 9am"", ""tomorrow"", ""in 2 hours"", ""next thursday""), optional repeat.
+
+            **Start focus session**  
+            Fields: duration_minutes (int), goal (string, optional).
+
+            **Pause focus session**  
+            Fields: none.
+
+            **Resume focus session**  
+            Fields: none.
+
+            **Stop focus session**  
+            Fields: none.
+
+            **Start a habit**  
+            Fields: habit_name (string), optional duration or repeat.
+
+            **Pause habit**  
+            Fields: none.
+
+            **Resume habit**  
+            Fields: none.
+
+            Rules:
+            - Infer missing details sensibly. If no duration for focus, default to 25 min.
+            - Assume current datetime is: "
+
+            + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") +
+
+            @"
+
+            and format is ""yyyy-MM-dd HH:mm:ss"".
+            - If input contains datetime which may be relative (e.g., ""tomorrow"", ""in 2 hours"", ""next thursday""), calculate the resulting datetime as local datetime using current datetime as reference.
+            - If the command is unclear, set ""confidence"" to ""low"" and explain in ""clarification_needed"".
+            - If multiple actions, pick the primary one but note secondary in ""additional_actions"".
+
+            Respond with ONLY valid JSON. No markdown formatting, no explanation text before or after the JSON.
+            Output format (JSON only, no extra text):
+
+            {
+              ""action"": ""create_task | start_focus | pause_focus | stop_focus | start_habit"",
+              ""parameters"": {
+              },
+              ""confidence"": ""high | medium | low"",
+              ""clarification_needed"": ""string or null"",
+              ""additional_actions"": [] 
+            }
+
+            Examples of input and output:
+
+            1. ""Remind me to call mom tomorrow at 9am""
+            {
+              ""action"": ""create_task"",
+              ""parameters"": {
+                ""task"": ""call mom"",
+                ""time"": ""yyyy-MM-dd HH:mm:ss"",
+                ""repeat"": null
+              },
+              ""confidence"": ""high"",
+              ""clarification_needed"": null
+            }
+
+            2. ""Start a focus session for 45 mins with goal test windows app""
+            {
+              ""action"": ""start_focus"",
+              ""parameters"": {
+                ""duration_minutes"": 45,
+                ""goal"": ""test windows app""
+              },
+              ""confidence"": ""high"",
+              ""clarification_needed"": null
+            }
+
+            3. ""Pause focus session""
+            {
+              ""action"": ""pause_focus"",
+              ""parameters"": {},
+              ""confidence"": ""high"",
+              ""clarification_needed"": null
+            }
+
+            4. ""Stop focus session""
+            {
+              ""action"": ""stop_focus"",
+              ""parameters"": {},
+              ""confidence"": ""high"",
+              ""clarification_needed"": null
+            }
+
+            5. ""Start a habit named drink water""
+            {
+              ""action"": ""start_habit"",
+              ""parameters"": {
+                ""habit_name"": ""drink water""
+              },
+              ""confidence"": ""high"",
+              ""clarification_needed"": null
+            }
+
+            For habits, please note that I have a defined list of habits and you should closely match the input and return one name from this habit list: " 
+           
+            + sHabits +
+            
+            "Now classify this user command:" + userMessage;
+
+        }
+    }
+}

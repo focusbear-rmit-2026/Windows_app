@@ -5,10 +5,12 @@ using Focus_Bear.Utils;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -21,6 +23,7 @@ using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -28,6 +31,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using static Focus_Bear.Focus.TabMetrics;
+using Application = System.Windows.Application;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace Focus_Bear.Focus
 {
@@ -45,6 +50,8 @@ namespace Focus_Bear.Focus
         bool bUserClickedTake5MinBreak = false;
         bool bUserClickedContinue = false;
         bool bUserClickedExtendSession = false;
+
+        private readonly DispatcherTimer _timerNavigatingToOtherAreasWithoutAction = new DispatcherTimer();
 
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
@@ -74,6 +81,13 @@ namespace Focus_Bear.Focus
             }
 
             appSettings.bStartingAnotherFocusMode = false;
+
+            _timerNavigatingToOtherAreasWithoutAction.Interval = TimeSpan.FromSeconds(1);
+            _timerNavigatingToOtherAreasWithoutAction.Tick += (s, e) =>
+            {
+                _timerNavigatingToOtherAreasWithoutAction.Stop();
+                Take5MinsBreak(); 
+            };
         }
 
 
@@ -226,44 +240,15 @@ namespace Focus_Bear.Focus
 
                 if (appSettings.bIsGeekModeEnabled) //only in Geek mode
                 {
-                    AddTempAllowedToFocusModeWindow aa = new AddTempAllowedToFocusModeWindow();
-                    aa.Topmost = true;
-                    bool? bResult = aa.ShowDialog();
-                    if (bResult.Value)
+                    try
                     {
-
-                        var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
-                        if (listItems.Count() != 0)
-                        {
-                            FocusMode ff = listItems.First();
-
-                            try
-                            {
-                                foreach (DistractingURL dd in appSettings.TemporaryAllowedAppsGentleBlock)
-                                {
-                                    if (dd.IsItemChecked)
-                                        ff.arrAllowedAppsWin.Add(new AppDetails(dd.sURL, dd.sURL));
-                                }
-                                foreach (DistractingURL dd in appSettings.TemporaryAllowedURLsGentleBlock)
-                                {
-                                    if (dd.IsItemChecked)
-                                        ff.arrAllowedUrls.Add(dd.sURL);
-                                }
-                                foreach (DistractingURL dd in appSettings.TemporaryAllowedKeywords)
-                                {
-                                    if (dd.IsItemChecked && dd.sURL.Length > 0)
-                                        ff.arrAllowedUrls.Add(dd.sURL);
-                                }
-                                //we will call the API to update all the focus modes.
-                                LogWriter.LogWrite("attempt to UpdateAllFocusModes() API");
-                                var response = client.UpdateAllFocusModes();
-
-                            }
-                            catch (Exception ex)
-                            {
-                                LogWriter.LogWrite("btnAddDeleteAllowedURLs_Click EX = " + ex.Message);
-                            }
-                        }
+                        AddTempAllowedToFocusModeWindow aa = new AddTempAllowedToFocusModeWindow();
+                        aa.Topmost = true;
+                        aa.Show();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("shwing AddTempAllowedToFocusModeWindow EX = " + ex.Message);
                     }
                 }
             }
@@ -473,16 +458,20 @@ namespace Focus_Bear.Focus
             }
             else
             {
+                LogWriter.LogWrite("FocusModeEnd Window User moving away without actions");
                 //when user is moving away without any actions
-                if(!bUserClickedTake5MinBreak && !appSettings.bStartingAnotherFocusMode && !bUserClickedContinue && !bUserClickedExtendSession)
+                if (!bUserClickedTake5MinBreak && !appSettings.bStartingAnotherFocusMode && !bUserClickedContinue && !bUserClickedExtendSession)
                 {
                     bDoNotShowBreak = true;
                     appSettings.bUseSuperPomodoroMode = false; //Force stop the super focus session
-                    Take5MinsBreak();
+
+                    // Fix for “You did it” screen freezes after focus session and blocks navigation #1191
+                    //Now after 1 seconds the API and other stuff fires so the navigated view renders and shows up correctly.
+                    _timerNavigatingToOtherAreasWithoutAction.Stop();  // cancel previous pending fire
+                    _timerNavigatingToOtherAreasWithoutAction.Start(); // schedule 1 second from now
                 }
             }
         }
-
         private void btnStartAnotherFocusMode_Click(object sender, RoutedEventArgs e)
         {
             appSettings.bStartingAnotherFocusMode = true;

@@ -83,7 +83,9 @@
         "actionBarItemPlay": "Reproducir",
         "actionBarItemDone": "Hecho",
         "actionBarItemSkip": "Saltar",
-        "habitsRemovedWarningText": "Algunos hábitos que pasaron la hora de corte que estableciste han sido eliminados de la lista."
+        "habitsRemovedWarningText": "Algunos hábitos que pasaron la hora de corte que estableciste han sido eliminados de la lista.",
+        "titleMorningRoutinePostponed": "Rutina de la mañana pospuesta. Inicia un hábito para reanudar la rutina de la mañana.",
+        "titleEveningRoutinePostponed": "Rutina de la tarde pospuesta. Inicia un hábito para reanudar la rutina de la tarde."
     },
     "focusProgressInfo": {
         "pauseText": "Pausar",
@@ -221,7 +223,8 @@
         "focusSessionPausedText": "La sesión de enfoque está en pausa.",
         "trayIconTooltipText": "Focus Bear",
         "trayIconBalloonText": "Focus Bear",
-        "unblockNotAvailableNewText": "Estás en modo Oso Grizzly — cambia tu configuración para desbloquear"
+        "unblockNotAvailableNewText": "Estás en modo Oso Grizzly — cambia tu configuración para desbloquear",
+        "taskCreated": "La tarea “<TASK>” se creó correctamente."
     },
     "callNotifier": {
         "micUsageText": "está usando tu micrófono",
@@ -404,7 +407,9 @@
         "focusModeFocusedTitles": ["¡Lo lograste!", "¡Estuviste en tu zona!", "¡Trabajo profundo logrado!"],
         "focusModeDecentTitles": ["Nada mal", "Sesión decente"],
         "focusModeDistractedTitles": ["Se colaron algunas distracciones", "Concéntrate al máximo en la próxima sesión"],
-        "buttonContinueMicroBreak": "Continuar descanso"
+        "buttonContinueMicroBreak": "Continuar descanso",
+        "subtitleNew": "Bloque de enfoque completado: ¡registra tu logro para hacer seguimiento de tu progreso!",
+        "buttonAccordionAchievement": "✨ Registra tu logro"
     },
     "settings": {
         "title": "Ingresa la configuración JSON a continuación:",
@@ -539,13 +544,13 @@
         "breaksDisabledRoutinePostponed": "La rutina está pospuesta. Descansos deshabilitados.",
         "breaksDisabledHabitInProgress": "Un hábito está en curso. Descansos deshabilitados.",
         "focusedTodayLabel": "ENFOCAD@ HOY",
-		"remainingText": "restante",
 		"titleBlockingDisabled": "Saca el máximo provecho de Focus Bear",
 		"descriptionBlockingDisabled": "Configura un horario de bloqueo para bloquear automáticamente sitios web y apps durante tu tiempo de enfoque.",
 		"buttonSetBlockingSchedule": "Configurar bloqueo",
 		"buttonSetLaterBlockingSchedule": "Lo haré más tarde",
 		"blockingOff": "🚫 Sin bloqueo",
-		"buttonEnableBlockingSchedule": "ACTIVAR"
+		"buttonEnableBlockingSchedule": "ACTIVAR",
+        "habitPostponedState": "✋Pospuesto"
     },
     "preferencesInfo": {
         "titlePomodoro": "Modo Pomodoro:",
@@ -637,7 +642,8 @@
         "descriptionAdvanceAanalytics": "Registra el tiempo exacto que pasas en cada app y pestaña de navegador durante el modo de enfoque. Obtén información más detallada sobre tu productividad sabiendo cómo se distribuye tu atención.",
         "switchButtonFocusVisualIndicatoText": "Mostrar indicador visual de enfoque",
         "descriptionFocusVisualIndicatorText": "Mostrar un indicador visual cuando baje la puntuación de alineación de enfoque.",
-        "privacyAdvanceAanalytics": "Los datos sólo se almacenan en tu computador y no se envían a nuestros servidores."
+        "privacyAdvanceAanalytics": "Los datos sólo se almacenan en tu computador y no se envían a nuestros servidores.",
+        "subTitleTabLimiter": "Funciona solo durante sesiones de enfoque activas o bloqueos programados activos."
     },
     "focusPreferencesInfo": {
         "titleFocusType": "Utiliza las Listas de Bloqueos para concentrarte en un determinado tipo de trabajo. Inicia un modo de enfoque desde el menú de Focus Bear o utiliza un Horario de Bloqueo.",
@@ -1696,7 +1702,8 @@
 		"descriptionNew": "Haz clic en ‘Solicitar permiso’ para ver el aviso en el navegador. Luego selecciona ‘Permitir’:",
 		"buttonProceed": "Continuar",
 		"buttonSkip": "Omitir",
-		"bubbleText": "Necesitamos esto para redirigir el navegador a la página de bloqueo cuando visites un sitio que distrae"
+		"bubbleText": "Necesitamos esto para redirigir el navegador a la página de bloqueo cuando visites un sitio que distrae",
+        "buttonOpenPreferences": "Abrir preferencias de automatización"
     },
     "onboardingPrivacyTipVcInfo": {
         "title": "Privacidad y Seguridad",
@@ -1971,7 +1978,10 @@
         "tabLimitDescText": "Establece el número máximo de pestañas del navegador que quieres tener abiertas a la vez. Focus Bear te avisará cuando lo superes. Pon 0 para desactivarlo.",
         "disableNotificationSoundsText": "Desactivar sonidos de notificaciones",
         "disableNotificationSoundsDescText": "Cuando está activado, Focus Bear no reproducirá ningún sonido de notificación (hábito completado, inicio/fin de rutina, modo de enfoque). La música de enfoque no se ve afectada.",
-        "alwaysAllowedAppsTitle": "Aplicaciones siempre permitidas"
+        "alwaysAllowedAppsTitle": "Aplicaciones siempre permitidas",
+        "titleFocusButton": "Botón de enfoque",
+        "descriptionFocusButton": "El dispositivo FocusButton se conecta a tu computadora mediante un cable USB y funciona junto con la app para ayudarte a gestionar sesiones de enfoque y acciones. Una vez conectado, la app detecta automáticamente el dispositivo y establece comunicación con él.",
+        "buttonConnectFocusButton": "Conectar"
     },
     "impactMeasurementVcInfo": {
         "title": "Analiza tu sueño y estado de ánimo",
@@ -2040,7 +2050,7 @@
     },
     "helpVcInfo": {
         "shareLogsValidationText": "Por favor, describa el problema que está experimentando para que nuestros desarrolladores puedan investigarlo adecuadamente. Los registros sin contexto no pueden ser procesados.",
-        "shareLogsText": "Focus Bear sigue siendo una aplicación nueva y es posible que encuentres problemas (o tengas grandes ideas para mejorarla). Agradeceríamos mucho tu opinión. Puedes escribirnos a team@focusbear.io. Las capturas de pantalla son muy útiles para que podamos entender el problema. Además, si tuviste un problema, por favor comparte tus registros con el equipo de soporte de Focus Bear (utiliza el siguiente enlace)",
+        "shareLogsText": "Focus Bear sigue siendo una aplicación nueva y es posible que encuentres problemas (o tengas grandes ideas para mejorarla). Agradeceríamos mucho tu opinión. Puedes escribirnos a support@focusbear.io. Las capturas de pantalla son muy útiles para que podamos entender el problema. Además, si tuviste un problema, por favor comparte tus registros con el equipo de soporte de Focus Bear (utiliza el siguiente enlace)",
         "buttonShareLogsText": "Compartir registros con el Equipo de Soporte de Focus Bear",
         "placeHolderLogsFeedback": "¿Qué ha sucedido?",
         "logsUploadDoneText": "Registros compartidos con éxito.",
@@ -2059,7 +2069,8 @@
         "titleAddScreenshots": "Arrastra y suelta aquí las capturas de pantalla que quieras compartir",
         "buttonSelectScreenshots": "Seleccionar capturas de pantalla",
         "titleSelectScreenshots": "Elige una o más capturas de pantalla que quieras compartir.",
-        "buttonSelect": "Seleccionar"
+        "buttonSelect": "Seleccionar",
+        "tabDebugLogs": "Registros de depuración"
     },
     "confirmMorningRoutineTimeVcInfo": {
         "title": "Confirmar tu rutina matutina",
@@ -2642,7 +2653,10 @@
         "setSleepTime": "No tienes configurado un horario de sueño.",
         "buttonSetTiming": "Configurar horario",
         "shutoffAbortedTextNew": "Tu rutina matutina comienza a las <TIME> — es hora de desconectarte y descansar.",
-        "freeTimeTextNew": "¡Bien hecho al terminar tu rutina nocturna 👏Tu hora de dormir es a las <CUTOFFTIME>.\nTu próxima rutina matutina comienza a las <STARTTIME>.\nDescansa bien y recarga energías para empezar fuerte mañana 💪"
+        "freeTimeTextNew": "¡Bien hecho al terminar tu rutina nocturna 👏Tu hora de dormir es a las <CUTOFFTIME>.\nTu próxima rutina matutina comienza a las <STARTTIME>.\nDescansa bien y recarga energías para empezar fuerte mañana 💪",
+        "freeTimeCancelledEveningRoutine": "Has cancelado tu rutina de la tarde de hoy. \nTu hora de dormir es a las <CUTOFFTIME>.\nTu próxima rutina de la mañana comienza a las <STARTTIME>.\nDescansa bien y recarga energías para empezar mañana con fuerza. 💪",
+        "setSleepTimeCancelledEveningRoutine": "Has cancelado los hábitos de tu rutina de la tarde para hoy.\nNo tienes configurada una hora de sueño.",
+        "nextRoutineTimeCancelledMorninigRoutine": "Has cancelado tu rutina de la mañana de hoy.\nTu próxima rutina programada (<ROUTINE>) comenzará a las <TIME>. Prepárate para retomarla y seguir fortaleciendo esos hábitos saludables. ¡Tú puedes!"
     },
     "breakStateVcInfo":{
         "buttonEnableBreaks": "Activar descansos",
@@ -2677,12 +2691,12 @@
         "menuHelpAndSupport": "Ayuda y soporte",
         "menuUpgradeNow": "Actualizar ahora",
         "menuTabAudit": "Auditoría de pestañas",
-        "disableReasonMorningRoutine": "Desactivado porque tu rutina matutina está en progreso.",
-        "disableReasonEveningRoutine": "Desactivado porque tu rutina nocturna está en progreso.",
-        "disableReasonFocusSummary": "Desactivado porque tu resumen de todo el día está visible.",
-        "disableReasonShutoffTime": "Desactivado porque es tu hora de apagado.",
-        "disableReasonMircoBreaks": "Desactivado porque tu micro descanso está en progreso.",
-        "disableReasonCustomRoutine": "Desactivado porque tu rutina personalizada está en progreso.",
+        "disableReasonMorningRoutine": "Desactivado porque tu rutina de la mañana está en curso. Ve a la pestaña Hábitos para continuar.",
+        "disableReasonEveningRoutine": "Desactivado porque tu rutina de la tarde está en curso. Ve a la pestaña Hábitos para continuar.",
+        "disableReasonFocusSummary": "Desactivado porque tu resumen del día está visible. Ve a la pestaña Hábitos para continuar.",
+        "disableReasonShutoffTime": "Desactivado porque es tu hora de desconexión. Ve a la pestaña Hábitos para continuar.",
+        "disableReasonMircoBreaks": "Desactivado porque tu microdescanso está en curso. Ve a la pestaña Microdescanso para continuar.",
+        "disableReasonCustomRoutine": "Desactivado porque tu rutina personalizada está en curso. Ve a la pestaña Rutina personalizada para continuar.",
         "superStrictNeedPasswordText": "Estás en modo Super Estricto y no tienes contraseña configurada. Necesitarás establecer una contraseña para pausar este horario personalizado."
     },
     "browsersTabAuditVcInfo":{
@@ -2804,7 +2818,10 @@
     "holdOnVcInfo": {
         "titleText": "¡Espera un momento!",
         "buttonContinueText": "Está bien...",
-        "bubbleText": "Arr… si quieres concentrarte mejor, primero debes poner tus hábitos en orden."
+        "bubbleText": "Arr… si quieres concentrarte mejor, primero debes poner tus hábitos en orden.",
+        "alertTitleLogout": "¿Quieres cerrar sesión y empezar de nuevo?",
+        "buttonLogout": "Sí, cerrar sesión",
+        "buttonNo": "Ups, no"
     },
     "setUpHabitsVcInfo": {
         "titleText": "Configura hábitos para concentrarte mejor",
@@ -2878,6 +2895,37 @@
     },
     "installHabitPacksVcInfo": {
         "bubbleText": "Prueba a buscar un objetivo o una palabra clave"
+    },
+    "startSetUpHabitsVcInfo": {
+        "title": "¿Necesitas ideas nuevas para hábitos?",
+        "subTitle": "Si tienes tu propia lista de hábitos, también puedes importarla.",
+        "buttonNo": "No — ya tengo algunos hábitos",
+        "buttonGiveMeHabits": "¡Sí — dame algunas ideas, capitán!",
+        "bubbleText": "¿Quieres que añada algunos hábitos nuevos?"
+    },
+    "debugLogsVcInfo": {
+        "title": "Registros de bloqueo de IA",
+        "columnType": "Tipo",
+        "columnUrlApp": "URL / App",
+        "columnInput": "Parámetros de entrada",
+        "columnScore": "Puntuación",
+        "columnReason": "Motivo",
+        "noLogsYet": "Todavía no hay registros de bloqueo de IA. Los registros aparecerán aquí cuando la IA evalúe URLs o aplicaciones durante una sesión de concentración.",
+        "entryApp": "App",
+        "entryUrl": "URL",
+        "inputFocus": "Enfoque:",
+        "inputIntention": "Intención:",
+        "inputTask": "Tarea:",
+        "buttonBadAiToolTip": "Reportar una mala decisión de la IA"
+    },
+    "keyboardShortcutsSettingsVcInfo": {
+        "keyboardShortcutsSettingTitle": "Atajos de teclado",
+        "recordingPlaceholder": "Asignar atajo",
+        "descriptionText": "Configura atajos de teclado globales para abrir al instante Brain Dump, Focus Music o la lista de tareas desde cualquier lugar de tu Mac.",
+        "brainDumpTitle": "Abrir Brain Dump:",
+        "focusMusicTitle": "Abrir Focus Music:",
+        "taskListTitle": "Abrir lista de tareas:",
+        "focusSessionTitle": "Iniciar sesión de enfoque:"
     },
     "discordUrl": "https://discord.gg/VZdv3ZjhSq",
     "whatsAppUrl": "https://chat.whatsapp.com/FV0oTbCUWpILBYif7CP6UD",

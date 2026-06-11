@@ -1,4 +1,6 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.API;
+using Focus_Bear.Models;
+using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -93,13 +95,48 @@ namespace Focus_Bear.Focus
         private void btnAdd_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("AddTempAllowedToFocusModeWindow() btnAdd_Click ");
-            DialogResult = true;
+
+            var listItems = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
+            if (listItems.Count() != 0)
+            {
+                FocusMode ff = listItems.First();
+
+                try
+                {
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+
+                    foreach (DistractingURL dd in appSettings.TemporaryAllowedAppsGentleBlock)
+                    {
+                        if (dd.IsItemChecked)
+                            ff.arrAllowedAppsWin.Add(new AppDetails(dd.sURL, dd.sURL));
+                    }
+                    foreach (DistractingURL dd in appSettings.TemporaryAllowedURLsGentleBlock)
+                    {
+                        if (dd.IsItemChecked)
+                            ff.arrAllowedUrls.Add(dd.sURL);
+                    }
+                    foreach (DistractingURL dd in appSettings.TemporaryAllowedKeywords)
+                    {
+                        if (dd.IsItemChecked && dd.sURL.Length > 0)
+                            ff.arrAllowedUrls.Add(dd.sURL);
+                    }
+                    //we will call the API to update all the focus modes.
+                    LogWriter.LogWrite("attempt to UpdateAllFocusModes() API");
+                    var response = client.UpdateAllFocusModes();
+
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("btnAddDeleteAllowedURLs_Click EX = " + ex.Message);
+                }
+            }
+            Close();
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("AddTempAllowedToFocusModeWindow() btnCancel_Click ");
-            DialogResult = false;
+            Close();
         }
 
         private void btnAddKeyword_Click(object sender, RoutedEventArgs e)
