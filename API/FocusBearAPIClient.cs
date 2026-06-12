@@ -3334,6 +3334,45 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        internal async Task<int> RequestPasswordReset(string email)
+        {
+            LogWriter.LogWrite("RequestPasswordReset()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+                if (nInternetOn)
+                {
+                    HttpClient client = new HttpClient();
+                    string json = $"{{\"email\":\"{email}\"}}";
+                    StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+                    var response = await client.PostAsync("https://api.focusbear.io/auth/reset-password", content);
+                    if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                    {
+                        LogWriter.LogWrite("RequestPasswordReset() success");
+                        return 1;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            LogWriter.LogWrite("RequestPasswordReset() failed - " + responseCode);
+                        }
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("RequestPasswordReset WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RequestPasswordReset Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
         internal async Task<int> ResendConfirmationEmail() // OK
         {
             LogWriter.LogWrite("ResendConfirmationEmail()");

@@ -194,32 +194,37 @@ namespace Focus_Bear.Login
                     {
                         try
                         {
-                            var authenticator = new Authentication();
-                            if (await authenticator.ChangePassword(emailAddress))
+                            FocusBearAPIClient apiClient = new FocusBearAPIClient();
+                            int result = await apiClient.RequestPasswordReset(emailAddress);
+                            await Dispatcher.BeginInvoke((Action)(() =>
                             {
-                                await Dispatcher.BeginInvoke((Action)(() =>
+                                try
                                 {
-                                    Mouse.OverrideCursor = null;
-                                    EnablControls(true); 
-                                    appSettings.CapturePostHog("change-password");
-                                    FBMessageBox ff = new FBMessageBox("", authenticator.sChangePasswordMessage);
+                                    string title, description;
+                                    if (result == 1)
+                                    {
+                                        appSettings.CapturePostHog("change-password");
+                                        title = appSettings.ConfigFileStrings["accountVcInfo"]["linkSentTitle"].ToString();
+                                        description = appSettings.ConfigFileStrings["accountVcInfo"]["linkSentDescription"].ToString();
+                                    }
+                                    else
+                                    {
+                                        title = appSettings.ConfigFileStrings["accountVcInfo"]["linkSendFailedTitle"].ToString();
+                                        description = appSettings.ConfigFileStrings["accountVcInfo"]["linkSendFailedDescription"].ToString();
+                                    }
+                                    FBMessageBox ff = new FBMessageBox(description, title);
                                     ff.Owner = _parentWindow;
                                     ff.ShowDialog();
-                                }));
-                            }
-                            else
-                            {
-                                await Dispatcher.BeginInvoke((Action)(() =>
+                                }
+                                catch (Exception ex)
                                 {
-                                    FBMessageBox ff = new FBMessageBox(authenticator.sErrorMessage, authenticator.sErrorMessage);
-                                    ff.Owner = _parentWindow;
-                                    ff.ShowDialog();
-                                }));
-                            }
+                                    LogWriter.LogWrite("btnForgetPassword_Click BeginInvoke - " + ex.Message);
+                                }
+                            }));
                         }
                         catch (Exception ex)
                         {
-                            LogWriter.LogWrite("btnSignIn_Click EX - " + ex.Message);
+                            LogWriter.LogWrite("btnForgetPassword_Click EX - " + ex.Message);
                         }
                     });
                 }
@@ -233,7 +238,7 @@ namespace Focus_Bear.Login
             catch (Exception ex)
             {
                 LogWriter.LogWrite(ex.Message);
- 
+
             }
             finally
             {
