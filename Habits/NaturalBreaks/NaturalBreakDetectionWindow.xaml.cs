@@ -31,6 +31,7 @@ namespace Focus_Bear.Habits.NaturalBreaks
                 MessageText.Text = appSettings.ConfigFileStrings["naturalBreaksDetectionVcInfo"]["title"].ToString();
                 btnOKTxt.Text = appSettings.ConfigFileStrings["naturalBreaksDetectionVcInfo"]["buttonThanksText"].ToString();
                 btnCancelTxt.Text = appSettings.ConfigFileStrings["naturalBreaksDetectionVcInfo"]["buttonWrongDetectionText"].ToString();
+                chkDontShowAgainTxt.Text = appSettings.ConfigFileStrings["naturalBreaksDetectionVcInfo"]["checkboxDontShowNaturalBreaksText"].ToString();
             }
             catch (Exception ex)
             {
@@ -44,6 +45,12 @@ namespace Focus_Bear.Habits.NaturalBreaks
 
             ((App)Application.Current).StartBreakActivityTimer();
             Hide();
+        }
+
+        private void chkDontShowAgain_Checked(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("NaturalBreakDetectionWindow - chkDontShowAgain_Checked");
+            appSettings.bDontShowNaturalBreakDetection = true;
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e) // "You're wrong! I wasn't on a break",

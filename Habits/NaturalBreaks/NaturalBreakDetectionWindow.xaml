@@ -36,6 +36,9 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
+            <CheckBox x:Name="chkDontShowAgain" AutomationProperties.AutomationId="chkDontShowAgain" HorizontalAlignment="Center" Margin="20,0,20,15" Checked="chkDontShowAgain_Checked">
+                <TextBlock x:Name="chkDontShowAgainTxt" Text="xDon't show this again" TextWrapping="Wrap" />
+            </CheckBox>
         </StackPanel>
     </Grid>
 </Window>

@@ -2162,7 +2162,9 @@ namespace Focus_Bear
                             //MessageBox.Show("You've been idle for 10 minutes.");
                             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY ||
                                 appSettings.bIsUserOnCall ||
-                                appSettings.arrAllbreakActivities.Count == 0)
+                                appSettings.arrAllbreakActivities.Count == 0 ||
+                                !appSettings.bAreBreaksEnabled ||
+                                appSettings.bDontShowNaturalBreakDetection)
                             {
                                 return;
                             }

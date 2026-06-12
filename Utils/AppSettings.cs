@@ -124,6 +124,7 @@ namespace Focus_Bear.Utils
         public string sCareFactorString = "";
 
         public bool bAreBreaksEnabled = true; //default ON
+        public bool bDontShowNaturalBreakDetection = false; //resets on every app launch
 
         public string sGeneratedOccupationRelevantSites = "";
         public ObservableCollection<DistractingURL> AllowedURLsWhileOnboarding = new ObservableCollection<DistractingURL>();
