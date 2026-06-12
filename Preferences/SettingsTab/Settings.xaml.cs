@@ -341,9 +341,13 @@ namespace Focus_Bear.Preferences
                 return;
             }
 
-            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString());
-            ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            ff.ShowDialog();
+            if (!appSettings.bDontShowModeChangeFB)
+            {
+                MessageBoxButton mb = new MessageBoxButton();
+                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString(), "", mb, "", "", "", true, appSettings.ConfigFileStrings["geekModeInfo"]["buttonDontShowAgainText"].ToString(), false);
+                ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                ff.ShowDialog();
+            }
             appSettings.bIsGeekModeEnabled = true;
             SetGeekModeStatus();
             appSettings.CapturePostHog("switch-to-geek-mode");
@@ -361,9 +365,13 @@ namespace Focus_Bear.Preferences
 
         private void SimpleMode_Checked(object sender, RoutedEventArgs e)
         {
-            FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString());
-            ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            ff.ShowDialog();
+            if (!appSettings.bDontShowModeChangeFB)
+            {
+                MessageBoxButton mb = new MessageBoxButton();
+                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString(), "", mb, "", "", "", true, appSettings.ConfigFileStrings["geekModeInfo"]["buttonDontShowAgainText"].ToString(), false);
+                ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                ff.ShowDialog();
+            }
             appSettings.bIsGeekModeEnabled = false;
             SetGeekModeStatus();
             appSettings.CapturePostHog("switch-to-simple-mode");

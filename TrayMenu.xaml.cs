@@ -1258,7 +1258,7 @@ namespace Focus_Bear
             if (!appSettings.bDontShowModeChangeFB)
             {
                 MessageBoxButton mb = new MessageBoxButton();
-                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString(), "", mb, "", "", "", true, "Don't show this again thanks.",false);
+                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString(), "", mb, "", "", "", true, appSettings.ConfigFileStrings["geekModeInfo"]["buttonDontShowAgainText"].ToString(), false);
                 ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 ff.ShowDialog();
             }
@@ -1278,7 +1278,7 @@ namespace Focus_Bear
             MessageBoxButton mb = new MessageBoxButton();
             if (!appSettings.bDontShowModeChangeFB)
             {
-                FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString(), "", mb, "", "", "", true, "Don't show this again thanks.", false);
+                FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString(), "", mb, "", "", "", true, appSettings.ConfigFileStrings["geekModeInfo"]["buttonDontShowAgainText"].ToString(), false);
                 ff1.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 ff1.ShowDialog();
             }
