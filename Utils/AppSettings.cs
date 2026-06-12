@@ -1905,6 +1905,20 @@ namespace Focus_Bear.Utils
                         AddFocusModeToArrayAndUploadtoAPI(new FocusMode(System.Guid.NewGuid().ToString(), sName, arrAllowedUrls, new ObservableCollection<string>(), arrAllowedAppsWin, "#A3FFA1", false, false, true, false, true, false, false, false,false));
 
                     }
+                    else if (listItemsM.Count() > 1) //addressing problems where we are seeing duplicate meetings focus modes
+                    {
+                        // Remove items in reverse order to avoid index issues
+                        for (int i = arrFocusModes.Count - 1; i >= 0; i--)
+                        {
+                            if (arrFocusModes[i].isMeetings && arrFocusModes[i].name != ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusText"].ToString())
+                            {
+                                LogWriter.LogWrite("ReadAndCreateDefaultFocusModes - removing duplicate meetings focus mode: " + arrFocusModes[i].name);
+                                FocusBearAPIClient client = new FocusBearAPIClient();
+                                var response = client.DeleteFocusMode(arrFocusModes[i].id);
+                                arrFocusModes.RemoveAt(i);
+                            }
+                        }
+                    }
                     //Check Locked Focus Mode
                     var listItemsL = arrFocusModes.Where(l => l.isLockedFocus == true);
                     if (listItemsL.Count() == 0)
