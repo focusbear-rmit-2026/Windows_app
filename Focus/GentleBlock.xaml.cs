@@ -970,6 +970,13 @@ namespace Focus_Bear.Focus
 
         private async void btnSetTask_Click(object sender, RoutedEventArgs e)
         {
+            // Guard against repeated clicks while the async work is in flight.
+            // Previously this handler never dismissed the popup or gave feedback,
+            // so users clicked "Set Task" multiple times and created duplicate
+            // tasks (each click hits the AddTask API).
+            btnSetTask.IsEnabled = false;
+            LogWriter.LogWrite("btnSetTask_Click()");
+
             TaskItem selectedTask = ComboBoxTasks.SelectedItem as TaskItem;
 
             string selectedName;
@@ -1036,7 +1043,14 @@ namespace Focus_Bear.Focus
                     }
                 }
             }
-            
+
+            // Dismiss the popup once the task is set, mirroring AddFocusGoalAndTask
+            // which closes after Set Task. Re-enable the button first so the popup
+            // works again if it is re-shown (it is hidden, not closed).
+            btnSetTask.IsEnabled = true;
+            dispatcherTimer.Stop();
+            appSettings.HideBlurWindow();
+            Hide();
         }
 
         private void BtnBlockThisPage_Click(object sender, RoutedEventArgs e)
