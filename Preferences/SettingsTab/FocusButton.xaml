@@ -1,0 +1,102 @@
+﻿<UserControl x:Class="Focus_Bear.Preferences.SettingsTab.FocusButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Focus_Bear.Preferences.SettingsTab"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" IsVisibleChanged="UserControl_IsVisibleChanged">
+    <Grid>
+        <Border BorderThickness="1" Margin="20"   VerticalAlignment="Top" CornerRadius="10" BorderBrush="LightGray"  Background="{DynamicResource SoftCreamColor}">
+            <Grid Margin="20"  Background="{DynamicResource SoftCreamColor}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="1"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Margin="0,0,0,20">
+                    <Grid Background="{DynamicResource SoftCreamColor}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0"  Orientation="Vertical" >
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="FocusButtonHead" FontSize="15" FontWeight="Bold"  Foreground="#e88800" HorizontalAlignment="Left" TextAlignment="Left">xFocus Button </TextBlock>
+                                <Border x:Name="ConnectionBorder" Margin="15,0,0,0" Padding="10,4" Background="#DFF5E5" BorderBrush="#34C759" BorderThickness="1" CornerRadius="5,5,5,5">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse x:Name="ConnectionDot" Width="8" Height="8" Fill="#34C759" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock x:Name="ConnectionText" Text="xCONNECTED" Foreground="#228B22" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                            <TextBlock x:Name="FocusButtonDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xThe FocusButton device connects to your computer using a USB cable and works together with the app to help manage focus sessions and actions. Once connected, the app automatically detects the device and establishes communication with it.</TextBlock>
+                            <StackPanel x:Name="NoDeviceSection">
+                                <TextBlock x:Name="DoNotHaveDevice" Margin="0,20,0,0"  TextWrapping="Wrap" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xDo not have a Focus Button Device?</TextBlock>
+                                <TextBlock x:Name="GetFocusButtonDevice" AutomationProperties.AutomationId="GetFocusButtonDevice" Grid.Row="4" Margin="0,10,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                                    <Hyperlink x:Name="btnGetFocusButtonDevice" Click="btnGetFocusButtonDevice_Click"   TextDecorations="Underline" ><Run x:Name="btnGetFocusButtonDeviceTXT" Text="xGet Focus Button Device"/></Hyperlink>
+                                </TextBlock>
+
+                            </StackPanel>
+                        </StackPanel>
+                        <Button   Grid.Column="1"  x:Name="btnConnect" AutomationProperties.AutomationId="btnConnect"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnConnect_Click" >
+                            <Button.Content>
+                                <StackPanel  Orientation="Horizontal">
+                                    <TextBlock x:Name="btnConnectTXT" Text="xConnect" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </Grid>
+                    
+                </StackPanel>
+
+                <Grid Grid.Row="1"  Margin="0,0,0,0" Background="LightGray" ></Grid>
+
+                <StackPanel Grid.Row="2" x:Name="InstalledFirmwareSection"  Orientation="Vertical" Margin="0,20,0,0" >
+                    <TextBlock x:Name="Installed" Text="xINSTALLED FIRMWARE" Foreground="#e88800" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                    <Grid Background="{DynamicResource SoftCreamColor}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock x:Name="Version" Grid.Column="0" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xFirmware Version: </TextBlock>
+                        <TextBlock x:Name="VersionVal" Grid.Column="1" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xFirmware Version:</TextBlock>
+                        <Button   Grid.Column="2"  x:Name="btnCheckForUpdates" AutomationProperties.AutomationId="btnConnect"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnCheckForUpdates_Click" >
+                            <Button.Content>
+                                <StackPanel  Orientation="Horizontal">
+                                    <TextBlock x:Name="btnCheckForUpdatesTXT" Text="xCheck for Updates" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </Grid>
+
+                    <StackPanel x:Name="FlashRequiredSection" Visibility="Collapsed" Margin="0,20,0,0">
+                        <Grid Background="{DynamicResource SoftCreamColor}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock x:Name="UpdateInfo" Grid.Column="0" Margin="0,0,0,0"  TextWrapping="Wrap" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xA new Version is available:</TextBlock>
+
+                            <Button   Grid.Column="1"  x:Name="btnFlashFirmware" AutomationProperties.AutomationId="btnFlashFirmware"  Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,5,0,15" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnFlashFirmware_Click" >
+                                <Button.Content>
+                                    <StackPanel  Orientation="Horizontal">
+                                        <TextBlock x:Name="btnFlashFirmwareTXT" Text="xFlash Firmware" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+
+                        </Grid>
+                        <!-- Progress -->
+                        <ProgressBar x:Name="PbFlash" Height="10" Minimum="0" Maximum="100" Value="0" Background="#2A2A2A" Foreground="#e88800" BorderBrush="#444" BorderThickness="1" Margin="0,20,0,8"/>
+                        <TextBlock x:Name="TxtFlashStatus" Text="" FontSize="14" TextWrapping="Wrap" Margin="2,5,0,8"/>                      
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+    </Grid>
+</UserControl>

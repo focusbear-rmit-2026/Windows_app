@@ -15,6 +15,7 @@ using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace Focus_Bear.Focus
 {
@@ -105,7 +106,7 @@ namespace Focus_Bear.Focus
                 {
                     access_token = appSettings.userAccount.accessToken,
                     platform = "win",
-                    tasks = appSettings?.sRawTasks ?? null,
+                    tasks = JsonDocument.Parse(string.IsNullOrWhiteSpace(appSettings.sRawTasks) ? "[]" : appSettings.sRawTasks).RootElement.Clone(),
                     total_duration = durationInMinutes,
                     lang = appSettings.sLangCode,
                     font = appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont),

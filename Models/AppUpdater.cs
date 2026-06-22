@@ -25,25 +25,27 @@ namespace Focus_Bear.Models
         private string _DownloadUpdateURL;
         private string _DownloadUpdateFileName;
         public bool ForceUpdate;
-
+        public bool bCheckingForFocusButton = false;
         public AppUpdater()
         {
             this._UpdateFolderPath = AppSettings.AppDataDirPath;
         }
 
-        public async Task<bool> CheckForUpdate()
+        public async Task<bool> CheckForUpdate(bool bCheckingForFocusButton = false)
         {
             LogWriter.LogWrite("Task<bool> CheckForUpdate()");
             try
             {
-                string iniFileURL = AppSettings.AppIniFileURL;
-                string updateINIPath = AppSettings.AppUpdateINIPath;
+                this.bCheckingForFocusButton = bCheckingForFocusButton;
+                string iniFileURL = bCheckingForFocusButton ? AppSettings.FocusButtonUpdateIniFileURL : AppSettings.AppIniFileURL;
+                string updateINIPath = bCheckingForFocusButton ? AppSettings.FocusButtonUpdateINIPath : AppSettings.AppUpdateINIPath;
+                _DownloadUpdateFileName = bCheckingForFocusButton ? "FirmwareUpdate.zip" : "FocusBearSetup.exe";
 
                 HttpCommunication http = new HttpCommunication();
                 if (await http.Download(iniFileURL, updateINIPath, false))
                 {
                     //If update is available the True will be returned;
-                    return ReadUpdateDetails(updateINIPath);
+                    return ReadUpdateDetails(updateINIPath, bCheckingForFocusButton);
                 }
                 return false;
             }
@@ -55,7 +57,7 @@ namespace Focus_Bear.Models
             }
         }
 
-        private bool ReadUpdateDetails(string updateINIPath)
+        private bool ReadUpdateDetails(string updateINIPath, bool bCheckingForFocusButton = false)
         {
             LogWriter.LogWrite("ReadUpdateDetails()");
 
@@ -65,16 +67,26 @@ namespace Focus_Bear.Models
                 string section = "application";
                 string versionInsideINIFile = objIniParser.ReadValue(section, "program_version");
 
-                _DownloadUpdateFileName = "FocusBearSetup.exe";
-
                 _DownloadUpdateURL = objIniParser.ReadValue(section, "program_url");
 
                 Version updateVersion = null;
                 Version.TryParse(versionInsideINIFile, out updateVersion);
-                if (updateVersion != null && appSettings.AppVersion != null && updateVersion > appSettings.AppVersion)
+
+                if (bCheckingForFocusButton)
                 {
-                    LogWriter.LogWrite("Update available");
-                    return true;
+                    if (updateVersion != null && appSettings.FirmwareVersion != null && updateVersion > appSettings.FirmwareVersion)
+                    {
+                        LogWriter.LogWrite("Firmware Update available");
+                        return true;
+                    }
+                }
+                else
+                {
+                    if (updateVersion != null && appSettings.AppVersion != null && updateVersion > appSettings.AppVersion)
+                    {
+                        LogWriter.LogWrite("Application Update available");
+                        return true;
+                    }
                 }
             }
             catch (Exception ex)

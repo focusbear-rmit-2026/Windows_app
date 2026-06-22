@@ -19,6 +19,7 @@ using System.Net;
 using System.Reflection;
 using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Focus_Bear.Preferences.SettingsTab;
 
 namespace Focus_Bear
 {
@@ -81,7 +82,11 @@ namespace Focus_Bear
                 {
                     _appUpdater.DownloadProgressHandler += _appUpdater_DownloadProgressHandler;
                 }
-                _appUpdater.AsyncCompletedEventArgsHandler += _appUpdater_AsyncCompletedEventArgsHandler;
+
+                if(_appUpdater.bCheckingForFocusButton)
+                    _appUpdater.AsyncCompletedEventArgsHandler += _appUpdater_AsyncCompletedEventArgsHandlerForFocusButton;
+                else
+                    _appUpdater.AsyncCompletedEventArgsHandler += _appUpdater_AsyncCompletedEventArgsHandler;
             }
             catch (Exception ex)
             {
@@ -153,6 +158,18 @@ namespace Focus_Bear
             }
         }
 
+        private void _appUpdater_AsyncCompletedEventArgsHandlerForFocusButton(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            try
+            {
+                FocusButton.RaiseFirmwareDownloadFinished();
+                CloseWin();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
             try

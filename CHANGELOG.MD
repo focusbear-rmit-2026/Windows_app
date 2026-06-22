@@ -19,5 +19,14 @@
 - Added user setting to auto-close window after routine interactions#1116
 - Focus Button Device integration - Works for focus modes - start / pause / resume / end, for habits works for triggers from device for start / pause  / resume but start does not work from PC (firmware changes awaited) out of order activities flow managed.
 
-v3.0.217
+#v3.0.217
 - Updated Focus Button device integration for habits and voice commands / Added NAudio dlls
+
+#v3.0.218
+- Fixed Duplicate focus modes appear. #945 
+- “Looks like you’re on a break” popup appears even when breaks are disabled #935 
+- [Windows] Password reset emails not sent from desktop app #1211 
+- Recommendation: Don't show pop up when switching to Geek/Simple Mode #623
+
+#v3.0.219
+- A new tab for Focus Button is added in settings and it facilitates connecting the device, checking for firmware updates and flashing the firmware on the device. 

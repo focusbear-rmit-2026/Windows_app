@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Focus Bear"
-#define MyAppVersion "3.0.217"
+#define MyAppVersion "3.0.219"
 #define MyAppPublisher "Focus Bear Pty Ltd"
 #define MyAppURL "https://www.focusbear.io"
 #define MyAppExeName "Focus Bear.exe"
@@ -147,6 +147,7 @@ Source: "Files\NAudio.WinMM.xml"; DestDir: "{app}"; Flags: ignoreversion restart
 Source: "Files\NAudio.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\NAudio.Core.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 
+Source: "Files\ESPnet472\*"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
 
 Source: "Files\Graph\*"; DestDir: "{app}\graph"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
 Source: "Files\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs

@@ -35,6 +35,8 @@ namespace Focus_Bear.Services.FocusButton
         // ── Serial plumbing ───────────────────────────────────────────────────
         private static SerialPort _port;
 
+        public string sPortName = "";
+
         private static volatile bool _rxRunning;
 
         private static readonly Regex _tsPfx =
@@ -46,7 +48,7 @@ namespace Focus_Bear.Services.FocusButton
 
         public enum DeviceState { Disconnected, Idle, Running, Paused }
 
-        private DeviceState _state = DeviceState.Disconnected;
+        public DeviceState _state = DeviceState.Disconnected;
 
         private long _remainingSeconds;
         private long _sessionTotalSeconds;
@@ -82,6 +84,8 @@ namespace Focus_Bear.Services.FocusButton
                 LogWriter.LogWrite("FocusButton: Use --port <COMx> to specify one.");
                 return false;
             }
+            
+            sPortName = portName;
 
             Connect(portName);
 
@@ -89,7 +93,7 @@ namespace Focus_Bear.Services.FocusButton
         }
 
         // ── Serial connect ────────────────────────────────────────────────────
-        private void Connect(string portName)
+        public void Connect(string portName)
         {
             LogWriter.LogWrite("FocusButton Connect()");
 
@@ -127,7 +131,7 @@ namespace Focus_Bear.Services.FocusButton
                 SendCmd("STATUS");
 
                 // Fetch the habit list from the device
-                //SendCmd("GET|HABITCOUNT");
+                SendCmd("GET|FIRMWAREVER"); 
 
                 ApplyState(DeviceState.Idle);
                 //BtnConnect.Content = "Disconnect";
@@ -144,13 +148,11 @@ namespace Focus_Bear.Services.FocusButton
             }
         }
 
-        private void Disconnect()
+        public void Disconnect()
         {
             LogWriter.LogWrite("FocusButton: Disconnect()");
 
             _rxRunning = false;
-
-           // SetListening(false);
 
             // Grab and null out _port *before* closing so RxLoop's IsOpen check
             // causes the loop to exit immediately without waiting on ReadLine().
@@ -172,7 +174,7 @@ namespace Focus_Bear.Services.FocusButton
 
             LogWriter.LogWrite("FocusButton: -- Disconnected");
             ApplyState(DeviceState.Disconnected);
-            //BtnConnect.Content = "Connect";
+
         }
         // ── Serial TX ─────────────────────────────────────────────────────────
 
@@ -443,24 +445,13 @@ namespace Focus_Bear.Services.FocusButton
                                 {
                                     ((App)Application.Current).StopFocusSessionFromEvents();
                                 }
-                                /**else if(appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
-                                        appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && !appSettings.bHabitsPostponedState)
-                                {
-                                    //Habit is ongoing, user is trying to cancel from device, so fire the Postpone button
-                                    ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndFocusBearMainWindow.PageHabits.btnPleaseSpareMe);
-                                    IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                                    invokeProv.Invoke();
-                                }**/
 
                                 ApplyState(DeviceState.Idle);
                                 break;
                             case "DONE":
                                 _currentHabitName = "";
                                 _currentHabitID = "";
-                                //if(appSettings.isFocusModeRunning)
-                                //{
-                                //    ((App)Application.Current).StopFocusSessionFromEvents();
-                                //}
+                                //nothing to do actually as the app handles the done events
 
                                 ApplyState(DeviceState.Idle);
                                 break;
@@ -502,21 +493,41 @@ namespace Focus_Bear.Services.FocusButton
                         string hId = parts[1].Trim();
                         string hName = parts[2].Trim();
                         int hMin = (int)Math.Round(durS / 60.0);
-                        // Update existing entry or add new
-                       /** var existing = _habits.FirstOrDefault(h => h.Id == hId);
-                        if (existing != null)
+                    }
+                    break;
+                    case "FIRMWAREVER":
+                    // FIRMWAREVER|<hw>-<version>  e.g. M50-1.4.2 (M50 = M5Dial, C30 = VIEWE C3)
+                    if (parts.Length >= 2 && !string.IsNullOrWhiteSpace(parts[1]))
+                    {
+                        string ver = parts[1].Trim();
+                        string hwCode = ver.Split('-')[0];
+          
+                        try
                         {
-                            existing.Name = hName;
-                            existing.DurationMinutes = hMin;
-                            // Refresh DataGrid view
-                            int idx = _habits.IndexOf(existing);
-                            _habits.RemoveAt(idx);
-                            _habits.Insert(idx, existing);
+                            appSettings.FirmwareVersion = new Version(ver.Split('-')[1]);
                         }
-                        else
+                        catch (Exception)
                         {
-                            _habits.Add(new HabitEntry { Id = hId, Name = hName, DurationMinutes = hMin });
-                        }**/
+                            // Invalid version
+                        }
+              
+                        string hwName;
+
+                        switch (hwCode)
+                        {
+                            case "M50":
+                                hwName = "M5Dial";
+                                break;
+
+                            case "C30":
+                                hwName = "VIEWE C3";
+                                break;
+
+                            default:
+                                hwName = "unknown hardware";
+                                break;
+                        }
+                        appSettings.sFirmwareVersion = $"{ver}  ({hwName})";
                     }
                     break;
             }
@@ -526,8 +537,6 @@ namespace Focus_Bear.Services.FocusButton
 
         private async void SetListening(bool on)
         {
-            ///ListeningBadge.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
-            ///
             if(on)
             {
                 LogWriter.LogWrite("FocusButton StartRecording()");
@@ -699,56 +708,6 @@ namespace Focus_Bear.Services.FocusButton
             bool running = state == DeviceState.Running;
             bool paused = state == DeviceState.Paused;
 
-            // Timer buttons (UniformGrid panel)
-           /** foreach (Button btn in TimerButtonsPanel.Children.OfType<Button>())
-                btn.IsEnabled = idle;
-
-            BtnPause.IsEnabled = running || paused;
-            BtnPause.Content = paused ? "▶  Resume" : "⏸  Pause";
-            BtnPause.Style = paused
-                ? (Style)FindResource("GreenBtn")
-                : (Style)FindResource("OrangeBtn");
-            BtnCancel.IsEnabled = running || paused;
-            BtnStatus.IsEnabled = connected;
-            BtnSendHabits.IsEnabled = connected;
-            BtnStartHabit.IsEnabled = idle;
-
-            // Status dot + label
-            static SolidColorBrush Hex(byte r, byte g, byte b) =>
-                new(Color.FromRgb(r, g, b));
-
-            (Brush dot, Brush text, string label) = state switch
-            {
-                DeviceState.Idle => (Hex(0x4E, 0xC0, 0x7A), Hex(0x4E, 0xC0, 0x7A), "Idle"),
-                DeviceState.Running => (Hex(0xFF, 0x94, 0x47), Hex(0xFF, 0x94, 0x47), "Running"),
-                DeviceState.Paused => (Hex(0xFF, 0xD0, 0x47), Hex(0xFF, 0xD0, 0x47), "Paused"),
-                _ => ((Brush)Hex(0x55, 0x55, 0x55), Hex(0x88, 0x88, 0x88), "Disconnected"),
-            };
-            TxtStatus.Text = label;
-            TxtStatus.Foreground = text;
-            StatusDot.Fill = dot;***/
-
-            // Countdown
-            //if (running)
-            //    _countdownTimer.Start();
-            //else
-            //{
-            //    _countdownTimer.Stop();
-            //    if (idle || !connected)
-            //    {
-            //        _sessionTotalSeconds = 0;
-            //        ///SetRemaining(0);
-            //        ///ArcProgress.Data = Geometry.Empty;
-            //        ///TxtFinishAt.Text = "";
-            //    }
-            //}
-
-            ////if (!connected) TxtRemaining.Text = "--:--";
-
-            // Habit name label — show only when a habit session is active
-            bool showHabit = (running || paused) && !string.IsNullOrWhiteSpace(_currentHabitName);
-            /////TxtHabitName.Text = showHabit ? _currentHabitName : "";
-            ////TxtHabitName.Visibility = showHabit ? Visibility.Visible : Visibility.Collapsed;
         }
 
         // ── Port auto-detection (mirrors WPF app logic) ───────────────────────
@@ -871,12 +830,12 @@ namespace Focus_Bear.Services.FocusButton
             if (appSettings.isFocusModePaused)
             {
                 SendCmd("SET|PAUSE");
-                ApplyState(DeviceState.Paused);    // optimistic
+                ApplyState(DeviceState.Paused);    
             }
             else
             {
                 SendCmd("SET|RESUME");
-                ApplyState(DeviceState.Running);   // optimistic
+                ApplyState(DeviceState.Running);   
             }
         }
         public void FinishFocusSession()
@@ -887,7 +846,7 @@ namespace Focus_Bear.Services.FocusButton
             LogWriter.LogWrite("FocusButton: FinishFocusSession()");
 
             SendCmd("SET|CANCEL");
-            ApplyState(DeviceState.Idle);           // optimistic
+            ApplyState(DeviceState.Idle);          
         }
 
         public void ExtendFocusSession(int nSeconds)
@@ -923,8 +882,6 @@ namespace Focus_Bear.Services.FocusButton
             {
                 if(appSettings.arrAllMorningHabits.Count > 0)
                 {
-                    //todo: need a check for non timer habits
-                    //var entries = appSettings.arrAllMorningHabits.Select(h => $"{h.idFakeForDevice},{h.name},{h.durationSeconds}");
                     var entries = appSettings.arrAllMorningHabits.Skip(nIndex)
                                                                  .Select(h => $"{h.idFakeForDevice},{h.nameWithoutIcon},{h.durationSeconds}");
                     SendCmd("SET|HABITS|" + string.Join("|", entries));
@@ -986,7 +943,7 @@ namespace Focus_Bear.Services.FocusButton
 
             SendCmd("SET|PAUSE");
             
-            ApplyState(DeviceState.Paused);   // optimistic
+            ApplyState(DeviceState.Paused);   
             
         }
         public void ResumeHabit()
@@ -997,7 +954,7 @@ namespace Focus_Bear.Services.FocusButton
             LogWriter.LogWrite("FocusButton: ResumeHabit()");
 
             SendCmd("SET|RESUME");
-            ApplyState(DeviceState.Running);   // optimistic
+            ApplyState(DeviceState.Running);    
         }
 
         public void RemoveHabits() //case is like habits paused, remove them from device
@@ -1009,36 +966,6 @@ namespace Focus_Bear.Services.FocusButton
 
             //now we have a function to remove all in one go
             SendCmd("SET|CLEARHABITS");
-            /*
-            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-            {
-                if (appSettings.arrAllMorningHabitsFiltered.Count > 0)
-                {
-                    //todo: need a check for non timer habits
-                    var entries = appSettings.arrAllMorningHabitsFiltered.Select(h => $"{h.id},{h.name},{h.durationSeconds * 0}");
-                    SendCmd("SET|HABITS|" + string.Join("|", entries));
-                }
-                else
-                {
-                    LogWriter.LogWrite("FocusButton: !! No morning habits to Remove.");
-                    return;
-                }
-            }
-            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-            {
-                if (appSettings.arrAllEveningHabitsFiltered.Count > 0)
-                {
-                    //todo: need a check for non timer habits
-                    var entries = appSettings.arrAllEveningHabitsFiltered.Select(h => $"{h.id},{h.name},{h.durationSeconds * 0}");
-                    SendCmd("SET|HABITS|" + string.Join("|", entries));
-                }
-                else
-                {
-                    LogWriter.LogWrite("FocusButton: !! No evening habits to Remove.");
-                    return;
-                }
-            }
-            */
         }
         public void Stop()
         {

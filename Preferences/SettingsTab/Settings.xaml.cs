@@ -92,6 +92,7 @@ namespace Focus_Bear.Preferences
             ToDoList,
             FocusSessions,
             Advanced,
+            FocusButton,
             Account,
             Uninstall
         }
@@ -178,6 +179,7 @@ namespace Focus_Bear.Preferences
                 //{ LeftButtonType.ToDoList,new PomodoroTab(_ParentWindow) },
                 { LeftButtonType.FocusSessions,new PomodoroTab(_ParentWindow) }, //ok half
                 { LeftButtonType.Advanced, new AdvancedTab(_ParentWindow) }, //OK
+                { LeftButtonType.FocusButton,new FocusButton(_ParentWindow) },
                 { LeftButtonType.Account,new AccountTab() }, //OK
                 { LeftButtonType.Uninstall, new Uninstall(_ParentWindow) }, //OK
             };
@@ -251,6 +253,14 @@ namespace Focus_Bear.Preferences
                 }
                 LeftButtons.Add(new LeftButtonItem
                 {
+                    Name = "Focus Button", //appSettings.ConfigFileStrings["settingsNew"]["titleFocusButton"].ToString(), //"Focus Button", //todo win texts
+                    IconPath = "FocusButton",
+                    ButtonType = LeftButtonType.FocusButton,
+                    IsEnabled = true,
+                    IsVisible = true
+                });
+                LeftButtons.Add(new LeftButtonItem
+                {
                     Name = appSettings.ConfigFileStrings["settingsNew"]["accountSettingTitle"].ToString(), //"Account",
                     IconPath = "Account",
                     ButtonType = LeftButtonType.Account,
@@ -321,7 +331,7 @@ namespace Focus_Bear.Preferences
 
         private void PasswordTab_Selected(object sender, RoutedEventArgs e)
         {
-            
+
         }
         
 

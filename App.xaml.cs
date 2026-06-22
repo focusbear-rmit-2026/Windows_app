@@ -648,6 +648,7 @@ namespace Focus_Bear
             var status = appSettings.DownloadBlockHTMLFile();
 
             //App first install configuration
+            
             if (!RegistryManager.GetFirstInstallDate())
             {
                 LogWriter.LogWrite("IsFirstInstall = true;");
@@ -4603,7 +4604,6 @@ namespace Focus_Bear
                         //Start the Focus Mode
                         //Change the play icon for this to STOP icon
                         appSettings.arrFocusModes[i].isOn = true;
-                        appSettings.sMostRecentFocusmodeDoneID = appSettings.arrFocusModes[i].id;
 
                         //Make the global variable true
                         appSettings.isFocusModeRunning = true;

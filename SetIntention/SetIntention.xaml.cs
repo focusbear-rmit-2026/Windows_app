@@ -397,13 +397,13 @@ namespace Focus_Bear.SetIntention
                     }
                     catch (Exception ex)
                     {
-                        LogWriter.LogWrite("BreakWarning = " + ex.Message);
+                        LogWriter.LogWrite("ShowSetIntentionWindow dispatcherTimer_Unlock = " + ex.Message);
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("ShutOff window dispatcherTimer_Unlock" + ex.Message);
+                LogWriter.LogWrite("ShowSetIntentionWindow dispatcherTimer_Unlock ex -" + ex.Message);
             }
 
         }

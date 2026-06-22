@@ -642,6 +642,9 @@
     <Compile Include="Preferences\HelpTab.xaml.cs">
       <DependentUpon>HelpTab.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\SettingsTab\FocusButton.xaml.cs">
+      <DependentUpon>FocusButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Preferences\SettingsTab\PomodoroTab.xaml.cs">
       <DependentUpon>PomodoroTab.xaml</DependentUpon>
     </Compile>
@@ -687,6 +690,7 @@
     <Compile Include="Services\AudioRecorder.cs" />
     <Compile Include="Services\BlockingScheduleManager.cs" />
     <Compile Include="Services\CsvLogger.cs" />
+    <Compile Include="Services\FocusButton\BootloaderResetSequences.cs" />
     <Compile Include="Services\FocusButton\FocusButtonService.cs" />
     <Compile Include="Services\OpenAIService.cs" />
     <Compile Include="SetIntention\SetIntention.xaml.cs">
@@ -1121,6 +1125,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Preferences\SettingsTab\FocusButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Preferences\SettingsTab\PomodoroTab.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1318,6 +1326,8 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\Settings\button_black.png" />
+    <Resource Include="Images\Settings\button_white.png" />
     <Resource Include="Images\always_blocked_apps.png" />
     <Resource Include="Images\New\eye_gray.png" />
     <Resource Include="Images\New\eye_orange.png" />
@@ -1497,7 +1507,12 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="ESPTool\EspDotNet.csproj">
+      <Project>{d5732a11-fe96-43d5-844d-f6f598458946}</Project>
+      <Name>EspDotNet</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

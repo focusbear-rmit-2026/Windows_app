@@ -79,6 +79,9 @@ namespace Focus_Bear.Utils
         public static string AppIniFileURL { get { return "https://downloads.focusbear.io/update/windows/update.ini"; } }
         public static readonly string AppUpdateINIPath = Path.Combine(AppDataDirPath, "update.ini");
 
+        public static string FocusButtonUpdateIniFileURL { get { return "https://downloads.focusbear.io/update/focusbutton/focusbuttonupdate.ini"; } }
+        public static readonly string FocusButtonUpdateINIPath = Path.Combine(AppDataDirPath, "focusbuttonupdate.ini");
+
         public static readonly string FocusBlockPagePath = Path.Combine(AppDataDirPath, "focus-block.html");
 
         public bool bRestartAppNeeded = false;
@@ -496,6 +499,8 @@ namespace Focus_Bear.Utils
         public IUIAutomationFocusChangedEventHandler handler;
         public string RecordingPath { get; set; }
         public bool bActivityStartedFromDevice = false;
+        public string sFirmwareVersion = "";
+        public Version FirmwareVersion { get; set; }
 
         public JObject ConfigFileStrings;
         public UserAccount userAccount { get; set; } = new UserAccount() { userID = "", username = "", email = "", accessToken = "", refreshToken = "" };

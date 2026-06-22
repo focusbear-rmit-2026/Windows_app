@@ -200,6 +200,7 @@ namespace Focus_Bear.Login
                             {
                                 try
                                 {
+                                    Mouse.OverrideCursor = null;
                                     string title, description;
                                     if (result == 1)
                                     {
@@ -230,6 +231,7 @@ namespace Focus_Bear.Login
                 }
                 else
                 {
+                    Mouse.OverrideCursor = null;
                     FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["customLoginVcInfo"]["titleEmailIsBlank"].ToString(), "Focus Bear");
                     ff.Owner = _parentWindow;
                     ff.ShowDialog();
