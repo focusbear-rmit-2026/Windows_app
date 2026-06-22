@@ -24,7 +24,7 @@ namespace Focus_Bear.Focus
     {
         AppSettings appSettings = AppSettings.GetInstance;
 
-        DispatcherTimer dispatcherTimerBlock = new DispatcherTimer(DispatcherPriority.Normal);
+        public DispatcherTimer dispatcherTimerBlock = new DispatcherTimer(DispatcherPriority.Normal);
         public int nTimer = 30;
 
         private const int TypingDelay = 500; // Delay in milliseconds after user stops typing

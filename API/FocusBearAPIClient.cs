@@ -2445,8 +2445,8 @@ namespace Focus_Bear.API
                     }
 
                     HttpClient client = GetClientWithHeaders();
-
-                    var response = await client.GetAsync(AllTasks);
+                    string sPath = AllTasks + "/recent?take=50"; //To get all the recent tasks
+                    var response = await client.GetAsync(sPath);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
                     {
                         if (response.Content != null)

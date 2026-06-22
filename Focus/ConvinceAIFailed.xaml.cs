@@ -25,7 +25,7 @@ namespace Focus_Bear.Focus
     public partial class ConvinceAIFailed : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        DispatcherTimer dispatcherTimerBlock = new DispatcherTimer(DispatcherPriority.Normal);
+        public DispatcherTimer dispatcherTimerBlock = new DispatcherTimer(DispatcherPriority.Normal);
         public int nTimer = 30;
         public bool bShowConvincePopupAgain = false;
         public bool bShowAskNewGoalPopup = false;

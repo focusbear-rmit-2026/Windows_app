@@ -67,9 +67,7 @@ namespace Focus_Bear.Focus
                 if (appSettings.sAllTasks.Length > 0)
                 {
                     //File the tasks combo box
-                    JObject obj = JObject.Parse(appSettings.sAllTasks);
-
-                    JArray tasks = (JArray)obj["data"];
+                    JArray tasks = JArray.Parse(appSettings.sAllTasks);
 
                     var taskList = tasks
                         .Select(t => new TaskItem
@@ -109,9 +107,7 @@ namespace Focus_Bear.Focus
 
                 if (appSettings.sAllTasks.Length > 0)
                 {
-                    JObject obj = JObject.Parse(appSettings.sAllTasks);
-
-                    JArray tasks = (JArray)obj["data"];
+                   JArray tasks = JArray.Parse(appSettings.sAllTasks);
 
                     JObject matchedTask = tasks.FirstOrDefault(t => t["id"]?.ToString() == selectedId) as JObject;
 

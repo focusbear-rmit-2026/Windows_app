@@ -298,6 +298,9 @@ namespace Focus_Bear.Focus
                         ["isPlaying"] = true
                     };
 
+                    //Just updating the local copy meanwhile we get notification from the webview
+                    appSettings.sCurrentTaskPlayingInToDoPlayer = currentTask["title"].ToString();
+
                     if (bMarkCurrentTaskAsComplete)
                     {
                         selectedTaskDic["markCurrentTaskAsComplete"] = true;

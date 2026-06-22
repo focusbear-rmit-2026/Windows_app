@@ -30,3 +30,8 @@
 
 #v3.0.219
 - A new tab for Focus Button is added in settings and it facilitates connecting the device, checking for firmware updates and flashing the firmware on the device. 
+
+#v3.0.220
+- Updated build for AI blocking realted enahncements - AI blocking "Set Task" button creates duplicate tasks due to missing success feedback #1291 
+- AI blocking related issues #1299
+- Dismiss "changed focus?" popup after Set Task #1294 

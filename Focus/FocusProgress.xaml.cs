@@ -139,10 +139,17 @@ namespace Focus_Bear.Focus
                     if (appSettings.bAiCheckUrlEnabled)
                     {
                         //Focus Alignment score
-                        double CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
+                        double CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore(); 
                         string sScore = appSettings.ConfigFileStrings["menuInfo"]["focusAlignmentScoreText"].ToString();
                         sScore = sScore.Replace("<SCORE>", CurrentFocusAlignmentScore.ToString());
                         AlignmentScore.Text = sScore + "%";
+
+                        //Suppose the current url is not allowed but is not blocked because alignment score was higher than 80, then when it 
+                        //falls below 80, that url should be checked again
+                        if(CurrentFocusAlignmentScore < appSettings.sRunningFocusModeAlignmentScoreThreshold)
+                        {
+                            //now we need to call the chatGPT safe URL api again for this domain
+                         }
                     }
                 }
                 catch (Exception ex)

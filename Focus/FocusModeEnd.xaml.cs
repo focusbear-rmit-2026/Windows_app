@@ -297,13 +297,15 @@ namespace Focus_Bear.Focus
                     
                     Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["title"].ToString();
 
-                    Description.Text = "Focus block complete – log your achievement to track progress!"; //todo win texts
+                    Description.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["subtitleNew"].ToString();//"Focus block complete – log your achievement to track progress!"; 
                     StatsText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleStats"].ToString();
                    
                     DeepWork.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleDeepWorkTime"].ToString();
                     InfoDeepWork.ToolTip = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["tooltipDeepWotkTimeThisSession"].ToString();
+
+                    appSettings.CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
                     var duration = (appSettings.CurrentFocusSessionDuration * appSettings.CurrentFocusAlignmentScore) / 100;
-                    DeepWorkValue.Text = appSettings.SecondsToTextHMS((int)duration);
+                    DeepWorkValue.Text = appSettings.SecondsToTextHMS((int) Math.Round(duration));
 
                     TotalDeepWork.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleDeepWorkTimeToday"].ToString();
                     TotalDeepWorkValue.Text = appSettings.SecondsToTextHMS((int)appSettings.TotalDeepFocusedTime + (int)appSettings.CurrentFocusSessionDuration);
@@ -512,7 +514,8 @@ namespace Focus_Bear.Focus
         {
             bUserClickedContinue = true;
             bDoNotShowBreak = true;
-
+             var duration = (appSettings.CurrentFocusSessionDuration * appSettings.CurrentFocusAlignmentScore) / 100;
+                    DeepWorkValue.Text = appSettings.SecondsToTextHMS((int) Math.Round(duration));
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
                 //go to micro breaks screen

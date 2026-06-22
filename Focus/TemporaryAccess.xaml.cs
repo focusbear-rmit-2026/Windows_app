@@ -27,7 +27,7 @@ namespace Focus_Bear.Focus
     {
         AppSettings appSettings = AppSettings.GetInstance;
         int nAutoBlockTimer = 30; //30 Seconds
-        DispatcherTimer dispatcherTimerAutoBlock = new DispatcherTimer(DispatcherPriority.Normal);
+        public DispatcherTimer dispatcherTimerAutoBlock = new DispatcherTimer(DispatcherPriority.Normal);
         private DateTime _lastKeyPressTime;
         private const int TypingDelay = 500; // Delay in milliseconds after user stops typing
         string sActiveURL = "";
@@ -43,6 +43,8 @@ namespace Focus_Bear.Focus
                 InfoIcon.ToolTip = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["infoTemporaryAllow"].ToString();
                 AskNeed.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["titleAskIntentionText"].ToString();
                 HowLong.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["titleSelectMinutesToUse"].ToString();
+                btnTemporaryAccessText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonSetIntentionText"].ToString();
+                btnBlockThisPageText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockUrlText"].ToString();
 
                 TxtTimer.Text = "00:30";
                 nAutoBlockTimer = 30;

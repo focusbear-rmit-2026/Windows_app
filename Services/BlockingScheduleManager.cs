@@ -1,4 +1,5 @@
-﻿using Focus_Bear.API;
+﻿using EspDotNet.Tools;
+using Focus_Bear.API;
 using Focus_Bear.Models;
 using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
@@ -316,7 +317,10 @@ namespace Focus_Bear.Services
                 appSettings.ActiveSchedule.isOn = true;
                 appSettings.isBlockingScheduleRunning = true;
 
-                if(!appSettings.ActiveSchedule.isPaused) //check if it was running and paused
+                appSettings.sRunningFocusModeIntention = ""; //Reset
+                appSettings.sCurrentTaskPlayingInToDoPlayer = ""; //Reset
+
+                if (!appSettings.ActiveSchedule.isPaused) //check if it was running and paused
                     ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = true; //Active
                 else
                     ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = false; //Paused

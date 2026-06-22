@@ -207,9 +207,7 @@ namespace Focus_Bear.Focus
             if (appSettings.sAllTasks.Length > 0)
             {
                 //File the tasks combo box
-                JObject obj = JObject.Parse(appSettings.sAllTasks);
-
-                JArray tasks = (JArray)obj["data"];
+                JArray tasks = JArray.Parse(appSettings.sAllTasks);
 
                 var taskList = tasks
                     .Select(t => new TaskItem
@@ -447,7 +445,7 @@ namespace Focus_Bear.Focus
                             ReportBadAIDecision.Visibility = Visibility.Visible;
                             Console.WriteLine("*****CheckWithChatGPT****current URL:" + sFullURLForBlockedPage);
                             //Safe URL, need to allow.
-                            if (!FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.ContainsKey(sFullURLForBlockedPage))
+                            //if (!FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.ContainsKey(sFullURLForBlockedPage))
                             {
                                 FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sFullURLForBlockedPage] = new Dictionary<string, object>
                                 {
@@ -925,9 +923,15 @@ namespace Focus_Bear.Focus
             dispatcherTimer.Stop();
 
             //reset and close all popups if any is open
+            wndConvinceAiFailed?.dispatcherTimerBlock?.Stop();
             wndConvinceAiFailed?.Close();
+
+            wndTemporaryAccess?.dispatcherTimerAutoBlock?.Stop();
             wndTemporaryAccess?.Close();
+
             wndAddGoal?.Close();
+
+            wndConvince?.dispatcherTimerBlock?.Stop();
             wndConvince?.Close();
 
             wndConvinceAiFailed = null;
@@ -990,9 +994,7 @@ namespace Focus_Bear.Focus
 
                 if (appSettings.sAllTasks.Length > 0)
                 {
-                    JObject obj = JObject.Parse(appSettings.sAllTasks);
-
-                    JArray tasks = (JArray)obj["data"];
+                    JArray tasks = JArray.Parse(appSettings.sAllTasks);
 
                     JObject matchedTask = tasks.FirstOrDefault(t => t["id"]?.ToString() == selectedId) as JObject;
 
@@ -1012,6 +1014,12 @@ namespace Focus_Bear.Focus
                                 ((App)(Application.Current)).wndFocusBearMainWindow.PageToDoPlayer.AddAndPlayTaskInCurrentList(bMarkCurrentTaskAsComplete);
                             }
                         }));
+
+                        //Reset the same url to force check again
+                        CurrentURLBeingProcessedWithChatGPTAPI = "";
+
+                        //now we need to call the chatGPT safe URL api again for this domain
+                        appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
                     }
                 }
 
@@ -1039,6 +1047,12 @@ namespace Focus_Bear.Focus
                                     ((App)(Application.Current)).wndFocusBearMainWindow.PageToDoPlayer.AddAndPlayTaskInCurrentList(bMarkCurrentTaskAsComplete);
                                 }
                             }));
+
+                            //Reset the same url to force check again
+                            CurrentURLBeingProcessedWithChatGPTAPI = "";
+
+                            //now we need to call the chatGPT safe URL api again for this domain
+                            appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
                         }
                     }
                 }
