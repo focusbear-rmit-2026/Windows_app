@@ -419,6 +419,11 @@ namespace Focus_Bear.Utils
         public bool bPasswordRequireInQuitApp { get; set; }
         public bool bPasswordRequireToUseRelaxFocusMode { get; set; }
         public bool bPasswordRequireToSkipEveningAfterCutOff { get; set; }
+        // Separate password rules for POSTPONE (vs Skip). Local device settings; default OFF (set per
+        // user via the Password settings checkboxes), so Postpone can be protected while Skip is open.
+        public bool bPasswordRequireInPostponeMorning { get; set; }
+        public bool bPasswordRequireInPostponeEvening { get; set; }
+        public bool bPasswordRequireInPostponeEveningAfterCutOff { get; set; }
 
         //AI Tab
         public bool bMotivationalMessageEnabled { get; set; }
@@ -553,6 +558,9 @@ namespace Focus_Bear.Utils
             bPasswordRequireInQuitApp = false;
             bPasswordRequireToUseRelaxFocusMode = false;
             bPasswordRequireToSkipEveningAfterCutOff = false;
+            bPasswordRequireInPostponeMorning = false;
+            bPasswordRequireInPostponeEvening = false;
+            bPasswordRequireInPostponeEveningAfterCutOff = false;
             bImmediatelyBlockDistractingSites = false;
 
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "is_fb_test_user.txt") ;
@@ -1693,6 +1701,10 @@ namespace Focus_Bear.Utils
                             bPasswordRequireInQuitApp = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInQuitApp") : false;
                             bPasswordRequireToUseRelaxFocusMode = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireToUseRelaxFocusMode") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireToUseRelaxFocusMode") : false;
                             bPasswordRequireToSkipEveningAfterCutOff = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipEveningAfterCutOff") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipEveningAfterCutOff") : false;
+                            // Postpone password rules (separate from Skip) - synced as local device settings.
+                            bPasswordRequireInPostponeMorning = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInPostponeMorning") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInPostponeMorning") : false;
+                            bPasswordRequireInPostponeEvening = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInPostponeEvening") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInPostponeEvening") : false;
+                            bPasswordRequireInPostponeEveningAfterCutOff = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInPostponeEveningAfterCutOff") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInPostponeEveningAfterCutOff") : false;
 
                             bMotivationalMessageEnabled = sMacOSSettingsOBJ.ContainsKey("kMotivationalMessageEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kMotivationalMessageEnabled") : true; //Default true on 23 June 2023 #188
                             bAiCheckUrlEnabled = sMacOSSettingsOBJ.ContainsKey("kAiCheckUrlEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kAiCheckUrlEnabled") : true;

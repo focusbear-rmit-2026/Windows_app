@@ -140,6 +140,34 @@ namespace Focus_Bear.Utils
                             {
                                 sMacOSSettingsOBJ.Add("kIsPasswordRequireInSkipEvening", (appSettings.bPasswordRequireInSkipEvening));
                             }
+                            // Postpone password rules (separate from Skip) - sync as local device settings.
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInPostponeMorning"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsPasswordRequireInPostponeMorning");
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInPostponeMorning", (appSettings.bPasswordRequireInPostponeMorning));
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInPostponeMorning", (appSettings.bPasswordRequireInPostponeMorning));
+                            }
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInPostponeEvening"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsPasswordRequireInPostponeEvening");
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInPostponeEvening", (appSettings.bPasswordRequireInPostponeEvening));
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInPostponeEvening", (appSettings.bPasswordRequireInPostponeEvening));
+                            }
+                            if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInPostponeEveningAfterCutOff"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kIsPasswordRequireInPostponeEveningAfterCutOff");
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInPostponeEveningAfterCutOff", (appSettings.bPasswordRequireInPostponeEveningAfterCutOff));
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kIsPasswordRequireInPostponeEveningAfterCutOff", (appSettings.bPasswordRequireInPostponeEveningAfterCutOff));
+                            }
                             if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInAbortShutoff"))
                             {
                                 sMacOSSettingsOBJ.Remove("kIsPasswordRequireInAbortShutoff"); //Remove  

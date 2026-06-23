@@ -48,12 +48,15 @@ namespace Focus_Bear.Preferences.SettingsTab
                 WhenRequire.Text = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["questionPassword"].ToString();
 
                 CheckChangingSettings.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonChangeSettingsText"].ToString();
-                CheckPostponingMorningRoutine.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonSkipMorningHabitText"].ToString();
-                CheckPostponingEveningRoutine.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonSkipEveningHabitText"].ToString();
+                CheckSkipingMorningRoutine.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]?["buttonSkipMorningHabitText"]?.ToString() ?? "Skipping morning routine";
+                CheckSkipingEveningRoutine.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]?["buttonSkipEveningHabitText"]?.ToString() ?? "Skipping evening routine";
                 CheckUsingComputerLateNight.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonAbortingShutoffText"].ToString();
                 CheckQuittingApp.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonQuitAppText"].ToString();
                 CheckUseRelaxMode.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonUseRelaxFocusModeText"].ToString();
-                CheckSkipEveningAfterCutOff.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonSkipEveningHabitAfterCutOffText"].ToString();
+                CheckSkipingEveningAfterCutOff.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]?["buttonSkipEveningHabitAfterCutOffText"]?.ToString() ?? "Skipping evening routine after cutoff time";
+                CheckPostponeMorningRoutine.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]?["buttonPostponeMorningHabitText"]?.ToString() ?? "Postponing morning routine";
+                CheckPostponeEveningRoutine.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]?["buttonPostponeEveningHabitText"]?.ToString() ?? "Postponing evening routine";
+                CheckPostponeEveningAfterCutOff.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]?["buttonPostponeEveningAfterCutOffText"]?.ToString() ?? "Postponing evening routine after cutoff time";
                 CheckStopSuperPomodoro.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
                 CheckStopSuperPomodoro.ToolTip = appSettings.ConfigFileStrings["tooltips"]["strictness_Password_StopSuperPomodoro"].ToString();
             }
@@ -91,22 +94,28 @@ namespace Focus_Bear.Preferences.SettingsTab
                 DisablePassword.Visibility = Visibility.Visible;
 
                 CheckChangingSettings.IsEnabled = true;
-                CheckPostponingMorningRoutine.IsEnabled = true;
-                CheckPostponingEveningRoutine.IsEnabled = true;
+                CheckSkipingMorningRoutine.IsEnabled = true;
+                CheckSkipingEveningRoutine.IsEnabled = true;
                 CheckUsingComputerLateNight.IsEnabled = true;
                 CheckQuittingApp.IsEnabled = true;
                 CheckUseRelaxMode.IsEnabled = true;
-                CheckSkipEveningAfterCutOff.IsEnabled = true;
+                CheckSkipingEveningAfterCutOff.IsEnabled = true;
                 CheckStopSuperPomodoro.IsEnabled = true;
+                CheckPostponeMorningRoutine.IsEnabled = true;
+                CheckPostponeEveningRoutine.IsEnabled = true;
+                CheckPostponeEveningAfterCutOff.IsEnabled = true;
 
                 CheckChangingSettings.IsChecked = appSettings.bPasswordRequireInChangeSettings;
-                CheckPostponingMorningRoutine.IsChecked = appSettings.bPasswordRequireInSkipMorning;
-                CheckPostponingEveningRoutine.IsChecked = appSettings.bPasswordRequireInSkipEvening;
+                CheckSkipingMorningRoutine.IsChecked = appSettings.bPasswordRequireInSkipMorning;
+                CheckSkipingEveningRoutine.IsChecked = appSettings.bPasswordRequireInSkipEvening;
                 CheckUsingComputerLateNight.IsChecked = appSettings.bPasswordRequireInAbortShutoff;
                 CheckQuittingApp.IsChecked = appSettings.bPasswordRequireInQuitApp;
                 CheckUseRelaxMode.IsChecked = appSettings.bPasswordRequireToUseRelaxFocusMode;
-                CheckSkipEveningAfterCutOff.IsChecked = appSettings.bPasswordRequireToSkipEveningAfterCutOff;
+                CheckSkipingEveningAfterCutOff.IsChecked = appSettings.bPasswordRequireToSkipEveningAfterCutOff;
                 CheckStopSuperPomodoro.IsChecked = appSettings.bPasswordRequireInStopPomodoro;
+                CheckPostponeMorningRoutine.IsChecked = appSettings.bPasswordRequireInPostponeMorning;
+                CheckPostponeEveningRoutine.IsChecked = appSettings.bPasswordRequireInPostponeEvening;
+                CheckPostponeEveningAfterCutOff.IsChecked = appSettings.bPasswordRequireInPostponeEveningAfterCutOff;
             }
             else
             {
@@ -120,13 +129,16 @@ namespace Focus_Bear.Preferences.SettingsTab
                 DisablePassword.Visibility = Visibility.Collapsed;
 
                 CheckChangingSettings.IsEnabled = false;
-                CheckPostponingMorningRoutine.IsEnabled = false;
-                CheckPostponingEveningRoutine.IsEnabled = false;
+                CheckSkipingMorningRoutine.IsEnabled = false;
+                CheckSkipingEveningRoutine.IsEnabled = false;
                 CheckUsingComputerLateNight.IsEnabled = false;
                 CheckQuittingApp.IsEnabled = false;
                 CheckUseRelaxMode.IsEnabled = false;
-                CheckSkipEveningAfterCutOff.IsEnabled = false;
+                CheckSkipingEveningAfterCutOff.IsEnabled = false;
                 CheckStopSuperPomodoro.IsEnabled = false;
+                CheckPostponeMorningRoutine.IsEnabled = false;
+                CheckPostponeEveningRoutine.IsEnabled = false;
+                CheckPostponeEveningAfterCutOff.IsEnabled = false;
             }
 
         }
@@ -296,12 +308,12 @@ namespace Focus_Bear.Preferences.SettingsTab
             appSettings.bPasswordRequireInChangeSettings = true;
         }
 
-        private void CheckPostponingMorningRoutine_Checked(object sender, RoutedEventArgs e)
+        private void CheckSkipingMorningRoutine_Checked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireInSkipMorning = true;
         }
 
-        private void CheckPostponingEveningRoutine_Checked(object sender, RoutedEventArgs e)
+        private void CheckSkipingEveningRoutine_Checked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireInSkipEvening = true;
         }
@@ -321,12 +333,12 @@ namespace Focus_Bear.Preferences.SettingsTab
             appSettings.bPasswordRequireInChangeSettings = false;
         }
 
-        private void CheckPostponingMorningRoutine_Unchecked(object sender, RoutedEventArgs e)
+        private void CheckSkipingMorningRoutine_Unchecked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireInSkipMorning = false;
         }
 
-        private void CheckPostponingEveningRoutine_Unchecked(object sender, RoutedEventArgs e)
+        private void CheckSkipingEveningRoutine_Unchecked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireInSkipEvening = false;
         }
@@ -350,12 +362,12 @@ namespace Focus_Bear.Preferences.SettingsTab
             appSettings.bPasswordRequireToUseRelaxFocusMode = false;
         }
 
-        private void CheckSkipEveningAfterCutOff_Checked(object sender, RoutedEventArgs e)
+        private void CheckSkipingEveningAfterCutOff_Checked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireToSkipEveningAfterCutOff = true;
         }
 
-        private void CheckSkipEveningAfterCutOff_Unchecked(object sender, RoutedEventArgs e)
+        private void CheckSkipingEveningAfterCutOff_Unchecked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireToSkipEveningAfterCutOff = false;
         }
@@ -368,6 +380,36 @@ namespace Focus_Bear.Preferences.SettingsTab
         private void CheckStopSuperPomodoro_Unchecked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireInStopPomodoro = false;
+        }
+
+        private void CheckPostponeMorningRoutine_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireInPostponeMorning = true;
+        }
+
+        private void CheckPostponeMorningRoutine_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireInPostponeMorning = false;
+        }
+
+        private void CheckPostponeEveningRoutine_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireInPostponeEvening = true;
+        }
+
+        private void CheckPostponeEveningRoutine_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireInPostponeEvening = false;
+        }
+
+        private void CheckPostponeEveningAfterCutOff_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireInPostponeEveningAfterCutOff = true;
+        }
+
+        private void CheckPostponeEveningAfterCutOff_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireInPostponeEveningAfterCutOff = false;
         }
 
         private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
