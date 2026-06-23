@@ -116,6 +116,7 @@
         "buttonUninstallText": "Desinstalar Focus Bear",
         "shutdownNotificationTitle": "Es hora de terminar por hoy. Tu tiempo de apagado es en 5 minutos.",
         "appBlockNotificationTitle": "<APP_NAME> no está permitido en el <FOCUS_NAME> modo de enfoque.",
+        "superDistractingAppBlockedText": "<APP_NAME> es una aplicación muy distractora.",
         "focusBreakNotificationTitle": "Tu descanso termina en",
         "tabGeneralText": "General",
         "tabFocusText": "Enfoque",
@@ -224,7 +225,7 @@
         "trayIconTooltipText": "Focus Bear",
         "trayIconBalloonText": "Focus Bear",
         "unblockNotAvailableNewText": "Estás en modo Oso Grizzly — cambia tu configuración para desbloquear",
-        "taskCreated": "La tarea “<TASK>” se creó correctamente."
+        "taskCreated": "Tarea \"<TASK>\" creada exitosamente."
     },
     "callNotifier": {
         "micUsageText": "está usando tu micrófono",
@@ -409,7 +410,10 @@
         "focusModeDistractedTitles": ["Se colaron algunas distracciones", "Concéntrate al máximo en la próxima sesión"],
         "buttonContinueMicroBreak": "Continuar descanso",
         "subtitleNew": "Bloque de enfoque completado: ¡registra tu logro para hacer seguimiento de tu progreso!",
-        "buttonAccordionAchievement": "✨ Registra tu logro"
+        "buttonAccordionAchievement": "✨ Registra tu logro",
+        "cancelledEveningRoutineReminderText": "(Por cierto, cancelaste tu rutina de la tarde. Si cambiaste de opinión y quieres realizar tus hábitos de la tarde, haz clic en **Reanudar rutina de la tarde**)",
+        "buttonResumeEveningRoutine": "Reanudar rutina de la tarde",
+        "buttonUnlockComputer": "Desbloquear computadora"
     },
     "settings": {
         "title": "Ingresa la configuración JSON a continuación:",
@@ -584,6 +588,8 @@
         "titleAppMode": "Modo de Focus Bear:",
         "checkBoxCuddlyBearText": "Modo Osito de Peluche",
         "descriptionCuddlyBearText": "Modo Osito de Peluche: amable y gentil: te da el beneficio de la duda cuando abres una URL no permitida. Te deja permitir temporalmente las URL bloqueadas durante un modo de enfoque.",
+        "titleCuddlyDailyCap": "Límite diario para sitios distractores (minutos):",
+        "descriptionCuddlyDailyCap": "El tiempo total máximo por día que puedes desbloquear temporalmente sitios distractores en el modo Osito de Peluche. Una vez que lo alcanzas, esos sitios permanecen bloqueados hasta el día siguiente.",
         "checkBoxGrizzlyBearText": "Modo Oso Pardo",
         "descriptionGrizzlyBearText": "Modo Oso Pardo: súper estricto: bloquea inmediatamente las URL que no están permitidas y no se permite habilitarlas hasta que finalices el modo de enfoque.",
         "pomodoroDescriptionText": "Las Sesiones de Enfoque (modo pomodoro) alternan entre bloques de trabajo profundo en los que se activa el modo de enfoque (y se desactivan las distracciones) y periodos de descanso.",
@@ -618,8 +624,9 @@
         "alertTabCountText": "El número de pestañas no puede ser 0",
         "titleFullScreen": "Vista de Pantalla Completa:",
         "checkBoxFullScreenEnabledText": "Reproducir hábitos en modo pantalla completa",
+        "checkBoxAutoCloseAfterRoutineText": "Cerrar ventana automáticamente al completar, omitir o posponer una rutina",
         "titleDarkMode": "Modo Oscuro:",
-        "appAppearanceOptions": ["Copiar Preferencias del Sistema", "Siempre en Modo Oscuro", "Nunca en Modo Oscuro"],
+        "appAppearanceOptions": ["Copiar Preferencias del Sistema", "Siempre en Modo Oscuro", "Nunca en Modo Oscuro, Automáticamente"],
         "titleAnnouncement": "Anuncio:",
         "checkBoxAnnouncementText": "Anuncio después de cada actividad",
         "checkBoxShowBreaksInCallText": "Mostrar descansos durante llamadas",
@@ -713,6 +720,10 @@
         "titleWorkToBreakRatio": "Ratio trabajo/descanso:",
         "descriptionWorkToBreakRatio": "Por cada <WORKRATIO> minutos que te concentres, tendrás un descanso de <BREAKRATIO> minutos.",
         "toText": "para",
+        "workRatioEmptyErrorText": "El ratio trabajo/descanso no puede estar vacío.",
+        "breakRatioEmptyErrorText": "El ratio de descanso no puede estar vacío.",
+        "workRatioInvalidErrorText": "El ratio de trabajo debe ser un número mayor que 0.",
+        "breakRatioInvalidErrorText": "El ratio de descanso debe ser un número mayor que 0.",
         "buttonBackToCustomBlocking": "Volver al horario de bloqueo",
         "buttonAddBlockListText": "Agregar lista de bloqueos",
         "titleBlockList": "Usa listas de bloqueos para mantenerte enfocado en un tipo de trabajo.",
@@ -722,7 +733,7 @@
         "titleUseBlockList": "Usa las listas de bloqueo para mantenerte concentrad@ en un tipo de trabajo. Inicia una sesión de enfoque desde el menú de Focus Bear o configura un horario de bloqueo.",
         "deepWorkText": "Trabajo profundo",
         "workFocusModeText": "Trabajo",
-        "checkBoxSuggestWorkFocusMode": "Sugerir automáticamente iniciar este modo de enfoque cuando abras una URL permitida"
+        "checkBoxSuggestWorkFocusMode": "Sugerir automáticamente iniciar este modo de enfoque al abrir cualquier URL o aplicación permitida"
     },
     "focusPreferencesAdvancedInfo": {
         "runScriptBeforeText": "Ejecuta el script de Apple antes de iniciar el modo de enfoque.",
@@ -1095,7 +1106,18 @@
         "subscriptionDetails": "Detalles de la suscripción",
         "status": "Estado:",
         "emailNotVerified": "Correo no verificado",
-        "buttonResendConfirmation": "Reenviar correo de confirmación"
+        "buttonResendConfirmation": "Reenviar correo de confirmación",
+        "buttonDeleteAccountText": "Eliminar cuenta",
+        "deleteAccountAlertTitle": "Eliminar cuenta",
+        "deleteAccountAlertText": "¿Estás seguro de que deseas eliminar permanentemente tu cuenta? Esta acción no se puede deshacer y todos tus datos serán eliminados.",
+        "deleteAccountConfirmTitle": "Confirmar eliminación de cuenta",
+        "deleteAccountConfirmText": "Escribe ELIMINAR para confirmar",
+        "deleteAccountConfirmPlaceholder": "ELIMINAR",
+        "deleteAccountConfirmMismatch": "Por favor escribe ELIMINAR (en mayúsculas) para confirmar.",
+        "deleteAccountSuccessTitle": "Cuenta eliminada",
+        "deleteAccountSuccessText": "Tu cuenta ha sido eliminada exitosamente.",
+        "deleteAccountFailedTitle": "No se pudo eliminar la cuenta",
+        "deleteAccountFailedText": "Algo salió mal al eliminar tu cuenta. Revisa tu conexión a internet e intenta de nuevo."
     },
     "activityPostponeInfo": {
         "postponeHabitsText": "Si tienes alguna urgencia, puedes pausar tus hábitos por algunos minutos.",
@@ -1385,7 +1407,9 @@
             }
         ],
         "buttonPostponeNewText": "Posponer",
-        "buttonSkipText": "Omitir"
+        "buttonSkipText": "Omitir",
+        "buttonExtendBreakText": "Ampliar descanso (+5 min)",
+        "buttonEndBreakText": "Terminar descanso antes"
     },
     "askAppWorkVcInfo": {
         "title": "Bienvenido a Focus Bear",
@@ -1504,7 +1528,14 @@
         "buttonAlreadyDidItText": "Ya lo hice",
         "buttonCanNotDoItText": "No puedo hacerlo ahora",
         "buttonSkipBreaksCompletely": "Saltar micro descanso Completamente",
-        "reasonPlaceholderText": "Opcional: agrega un motivo (ej. me siento mal)"
+        "reasonPlaceholderText": "Opcional: agrega un motivo (ej. me siento mal)",
+        "presetReasons": {
+            "tired": "😴 Cansado",
+            "time_ran_out": "⏰ Se acabó el tiempo",
+            "unexpected_event": "🔥 Evento inesperado",
+            "forgot": "🤔 Olvidé",
+            "low_energy": "🔋 Poca energía"
+        }
     },
     "habitSkipEasinessVcInfo": {
         "title": "Bienvenido a Focus Bear",
@@ -1780,7 +1811,8 @@
         "buttonWrongDetectionText": "¡Te equivocas! No estaba en un descanso",
         "titleTakeBreak": "Ok ¿quieres tomar un descanso ahora 😅?",
         "buttonStartBreakText": "Sí, necesito un descanso ahora",
-        "buttonTakeBreakLaterText": "No - Lo tomaré luego"
+        "buttonTakeBreakLaterText": "No - Lo tomaré luego",
+        "checkboxDontShowNaturalBreaksText": "No volver a mostrar"
     },
     "inspirations": ["Me siento con energía - es hora de empezar mis hábitos",
         "Arranquemos - estoy motivado/a para empezar mis hábitos.",
@@ -1829,7 +1861,17 @@
     },
     "alertMaxTabLimitVcInfo":{
         "title": "Número máximo de pestañas (<COUNT>) excedido",
-        "titleTabsCount": "Número de pestañas abiertas:"
+        "titleTabsCount": "Número de pestañas abiertas:",
+        "countdownText": "Cerrando en <SECONDS> segundos (o cierra una pestaña existente)",
+        "buttonCloseText": "Cerrar",
+        "browserNames": {
+            "chrome": "Chrome",
+            "msedge": "Edge",
+            "firefox": "Firefox",
+            "brave": "Brave",
+            "vivaldi": "Vivaldi",
+            "opera": "Opera"
+        }
     },
     "chooseFrictionLevelVcInfo":{
         "title": "¿Qué tan estricto quieres que sea Focus Bear?",
@@ -1878,6 +1920,7 @@
         ],
         "tourMenu": "Focus Bear",
         "descriptionMenu": "¡Vamos a familiarizarte con el menú de Focus Bear y lo tendrás funcionando en un instante!",
+        "descriptionFocusBearTour": "Focus Bear permanece ejecutándose en la bandeja del sistema. Haga clic en el icono para abrir el menú de Focus Bear.",
         "tourFirstRoutine": "Iniciar primera rutina",
         "descriptionFirstRoutine": "Tu primera rutina matutina no empieza automáticamente el primer día. Haz clic en Iniciar Primera Rutina para iniciarla.",
         "tourPreferences": "Preferencias",
@@ -1896,7 +1939,8 @@
         "descriptionMorningRoutine": "Tu rutina matutina no inicia automáticamente el primer día. Haz clic en Iniciar rutina matutina para activar tu primera rutina.",
         "descriptionEveningRoutine": "Tu rutina nocturna no inicia automáticamente el primer día. Haz clic en Iniciar rutina nocturna para activar tu primera rutina.",
         "tourTools": "Herramientas",
-        "descriptionTools": "Una colección de herramientas útiles, incluyendo Brain Dump, Lista de tareas/Reproductor de tareas, música para enfocarte y más."
+        "descriptionTools": "Una colección de herramientas útiles, incluyendo Brain Dump, Lista de tareas/Reproductor de tareas, música para enfocarte y más.",
+        "descriptionSystemTray": "Focus Bear sigue ejecutándose en la bandeja del sistema. Haz clic en el ícono para abrir el Menú de Focus Bear."
     },
     "relaxModeVcInfo":{
         "title": "Sitios que guardaste para el modo Relajado:",
@@ -1922,7 +1966,8 @@
         "subTitleBlockIt": "Si no lo necesitas, haz clic aquí para bloquear el sitio",
         "titleDistracting": "Dijiste que <SITE> es super distractor para ti.",
         "titleSetIntention": "¿Qué quieres conseguir durante tu tiempo aquí?",
-        "buttonAllowText": "Permitir Temporalmente"
+        "buttonAllowText": "Permitir Temporalmente",
+        "dailyCapReachedText": "Límite diario de extensiones alcanzado."
     },
     "intentionBlockedUrlsVcInfo":{
         "title": "Tu intención para <SITE>",
@@ -2112,6 +2157,7 @@
         "ui_ActivitiesFullScreen": "Minimiza las distracciones haciendo tus hábitos en modo pantalla completa para no ver notificaciones ni otras apps mientras haces tus rutinas. Si activas esta opción, no podrás cambiar a otras apps con cmd-tab. Puedes desactivar Focus Bear en caso de emergencia.",
         "ui_ShowDockIcon": "Activa esta opción para mostrar el icono de Focus Bear en tu Dock. Si haces clic en el icono del Dock, se abrirá el menú de Focus Bear.",
         "ui_SelectLanguage": "Hemos traducido la app a algunos idiomas. Elige aquí el idioma que prefieras. Si necesitas otro idioma, escríbenos a support@focusbear.io.",
+        "ui_AutoCloseAfterRoutine": "Cuando está activado, la ventana se cerrará automáticamente al completar, omitir o posponer una rutina. Cuando está desactivado, la app permanecerá abierta para que puedas iniciar una sesión de enfoque de inmediato.",
         "ui_DarkMode": "¡Opción amigable para los ojos! Opta por el modo oscuro para reducir el brillo de la pantalla y la fatiga visual.",
         "ui_HideDockInAllowedAppActivities": "¡Modo sin distracciones! A veces los iconos de las apps en el dock distraen. Activa esta opción para ocultar el dock mientras realizas hábitos con apps permitidas. Por ejemplo, podrías tener un hábito de journaling que sólo te permita acceder a tu app de journaling. Si activas esta opción, no verás el dock con todas sus tentaciones.",
         "accessibility_ReduceMotion": "Mostramos GIFs animados de osos después de completar tus hábitos. Si no te gustan estas animaciones o experimentas molestias físicas, puedes desactivarlas.",
@@ -2659,7 +2705,14 @@
         "freeTimeTextNew": "¡Bien hecho al terminar tu rutina nocturna 👏Tu hora de dormir es a las <CUTOFFTIME>.\nTu próxima rutina matutina comienza a las <STARTTIME>.\nDescansa bien y recarga energías para empezar fuerte mañana 💪",
         "freeTimeCancelledEveningRoutine": "Has cancelado tu rutina de la tarde de hoy. \nTu hora de dormir es a las <CUTOFFTIME>.\nTu próxima rutina de la mañana comienza a las <STARTTIME>.\nDescansa bien y recarga energías para empezar mañana con fuerza. 💪",
         "setSleepTimeCancelledEveningRoutine": "Has cancelado los hábitos de tu rutina de la tarde para hoy.\nNo tienes configurada una hora de sueño.",
-        "nextRoutineTimeCancelledMorninigRoutine": "Has cancelado tu rutina de la mañana de hoy.\nTu próxima rutina programada (<ROUTINE>) comenzará a las <TIME>. Prepárate para retomarla y seguir fortaleciendo esos hábitos saludables. ¡Tú puedes!"
+        "nextRoutineTimeCancelledMorninigRoutine": "Has cancelado tu rutina de la mañana de hoy.\nTu próxima rutina programada (<ROUTINE>) comenzará a las <TIME>. Prepárate para retomarla y seguir fortaleciendo esos hábitos saludables. ¡Tú puedes!",
+        "buttonUncancelEveningRoutine": "Restaurar mi rutina de la tarde",
+        "buttonUncancelMorningRoutine": "Restaurar mi rutina de la mañana",
+        "restoreRoutineFailedText": "No pudimos restaurar tu rutina en este momento. Inténtalo de nuevo.",
+        "setSleepTimeCancelledEveningRoutineWithUndo": "No tienes configurada una hora de sueño.\n\n(Por cierto, cancelaste tu rutina de la tarde. Si cambiaste de opinión y quieres realizar tus hábitos de la tarde, haz clic en Restaurar mi rutina de la tarde).",
+        "sleepTimeCancelledEveningRoutineWithUndo": "Tu hora de dormir es a las <CUTOFFTIME>.\n\n(Por cierto, cancelaste tu rutina de la tarde. Si cambiaste de opinión y quieres realizar tus hábitos de la tarde, haz clic en Restaurar mi rutina de la tarde).",
+        "nextMorningRoutineStartText": "Tu próxima rutina de la mañana comienza a las <STARTTIME>.\n\nDescansa bien y recarga energías para empezar mañana con fuerza. 💪",
+        "nextRoutineTimeCancelledMorningRoutineWithUndo": "Tu próxima rutina programada (<ROUTINE>) comenzará a las <TIME>. Prepárate para retomarla y seguir fortaleciendo esos hábitos saludables. ¡Tú puedes!\n\n(Por cierto, cancelaste tu rutina de la mañana. Si cambiaste de opinión y quieres realizar tus hábitos de la mañana, haz clic en Restaurar mi rutina de la mañana)."
     },
     "breakStateVcInfo":{
         "buttonEnableBreaks": "Activar descansos",
@@ -2671,11 +2724,66 @@
         "noBreakAddedText": "Aún no se han agregado actividades de descanso.",
         "buttonChangeTiming": "Cambiar horario"
     },
+    "scheduleViewInfo":{
+        "morningRoutineHabits": "Hábitos de la rutina matutina",
+        "eveningRoutineHabits": "Hábitos de la rutina nocturna",
+        "habitsSuffix": "hábitos",
+        "play": "Iniciar",
+        "done": "Hecho",
+        "skip": "Saltar",
+        "habitsDone": "Hábitos completados",
+        "meeting": "reunión",
+        "meetingDefaultTitle": "Reunión",
+        "deepWork": "Trabajo profundo",
+        "breakSprint": "Descanso",
+        "deepWorkNoRoom": "Trabajo profundo (sin espacio para el siguiente hábito)",
+        "sleep": "Dormir",
+        "eveningRoutine": "Rutina nocturna",
+        "morningRoutine": "Rutina matutina",
+        "noHabitsLeft": "No quedan hábitos por ahora: ¡disfruta tu tiempo libre! 🎉",
+        "nothingScheduled": "Nada programado para este día.",
+        "calendarBanner": "Conecta tu calendario para ver reuniones y tiempo libre para trabajo profundo.",
+        "grantAccess": "Conceder acceso",
+        "removingFullScreen": "Quitando pantalla completa durante 30 segundos para conceder permisos de calendario",
+        "today": "Hoy",
+        "backToToday": "Volver a hoy",
+        "addEvent": "Añadir evento",
+        "eventTitlePlaceholder": "Título del evento",
+        "eventCalendarLabel": "Calendario",
+        "eventStartsLabel": "Empieza",
+        "eventEndsLabel": "Termina",
+        "eventSave": "Guardar",
+        "eventCancel": "Cancelar",
+        "eventSaveError": "No se pudo guardar el evento. Comprueba el acceso al calendario e inténtalo de nuevo.",
+        "showEarlierEvents": "Mostrar eventos anteriores de hoy",
+        "hideEarlierEvents": "Ocultar eventos anteriores de hoy",
+        "viewTomorrow": "Ver el horario de mañana",
+        "editEventTitle": "Editar evento",
+        "eventRepeatLabel": "Repetir",
+        "eventColorLabel": "Color",
+        "repeatNone": "No se repite",
+        "repeatDaily": "Cada día",
+        "repeatWeekly": "Cada semana",
+        "repeatMonthly": "Cada mes",
+        "tasksForToday": "Tareas de hoy",
+        "tasksAddNew": "Añadir tarea",
+        "tasksAddFromList": "De la lista de tareas",
+        "tasksEmpty": "Aún no hay tareas. Añade una desde cero o desde tu lista de tareas.",
+        "tasksSearchPlaceholder": "Buscar tareas…",
+        "tasksAllProjects": "Todos los proyectos",
+        "tasksAddSelected": "Añadir",
+        "tasksNamePlaceholder": "Nombre de la tarea",
+        "tasksDragHint": "Arrastra a un bloque para programarla",
+        "tasksReturnToPanel": "Devolver a tareas",
+        "tasksTimeBoxed": "Con tiempo asignado",
+        "tasksNotTimeBoxed": "Sin tiempo asignado"
+    },
     "leftMenuVcInfo":{
         "titleMain": "PRINCIPAL",
         "titleTools": "HERRAMIENTAS",
         "titlePreferences": "PREFERENCIAS",
         "menuHabits": "Hábitos",
+        "menuDayPlan": "Plan del día",
         "menuCustomRoutine": "Rutina personalizada",
         "menuStartFocusSession": "Iniciar sesión de enfoque",
         "menuStopFocusSession": "Detener sesión de enfoquen",
@@ -2742,6 +2850,7 @@
         "buttonAddNewBlock": "Agregar nuevo bloqueo",
         "errorBlockListMissing": "Actualizar lista de bloqueo ⚠️",
         "alertSelectBlockList": "Por favor, selecciona una lista de bloqueo.",
+        "alertInvalidTime": "Por favor, ingresa una hora completa, incluyendo AM o PM, en los campos De y Hasta antes de guardar.",
         "titleScheduleOverlapAlert": "Se detectó un solapamiento de horarios.",
         "subTitleScheduleOverlapAlert": "El horario de bloqueo se superpone con uno existente. ¿Quieres guardarlo de todos modos?",
         "buttonSaveBlockAnyway": "Guardar de todos modos",
@@ -2881,8 +2990,8 @@
     },
     "accessibilityPermissionVcInfoNew": {
         "title": "Concede permisos de Accesibilidad",
-        "subTitleMacOS13": "Para interactuar con otros navegadores, necesitas autorizar Focus Bear desde Preferencias del Sistema:\nPreferencias del Sistema > Privacidad y seguridad > Accesibilidad",
-        "subTitleLegacy": "Para interactuar con otros navegadores, necesitas autorizar Focus Bear desde Preferencias del Sistema:\nPreferencias del Sistema > Seguridad y privacidad > Privacidad > Accesibilidad",
+        "subTitleMacOS13": "Para bloquear distracciones, necesitas autorizar Focus Bear desde Preferencias del Sistema:\nPreferencias del Sistema > Privacidad y seguridad > Accesibilidad",
+        "subTitleLegacy": "Para bloquear distracciones, necesitas autorizar Focus Bear desde Preferencias del Sistema:\nPreferencias del Sistema > Seguridad y privacidad > Privacidad > Accesibilidad",
         "description": "Activa Focus Bear.",
         "buttonContinue": "Continuar",
         "buttonSkip": "Omitir",
@@ -2894,7 +3003,11 @@
 		"title": "Estás usando actualmente un sitio web permitido para el modo de enfoque <WORK>.",
 		"subTitle": "¿Quieres iniciar el modo de enfoque ahora?",
 		"buttonYes": "Sí, empezar",
-		"buttonNotNow": "Ahora no"
+		"buttonNotNow": "Ahora no",
+        "titleApp": "Actualmente estás usando una aplicación permitida para el modo de enfoque <WORK>.",
+        "focusDurationLabel": "Duración del enfoque:",
+        "focusDurationUnit": "minutos",
+        "sessionGoal": "¿Qué quieres lograr en esta sesión de enfoque?"
     },
     "installHabitPacksVcInfo": {
         "bubbleText": "Prueba a buscar un objetivo o una palabra clave"

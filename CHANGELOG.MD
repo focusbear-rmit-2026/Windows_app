@@ -35,3 +35,12 @@
 - Updated build for AI blocking realted enahncements - AI blocking "Set Task" button creates duplicate tasks due to missing success feedback #1291 
 - AI blocking related issues #1299
 - Dismiss "changed focus?" popup after Set Task #1294 
+
+#v3.0.221
+- Render habit emoji in color (Emoji.Wpf)#1293
+- Make the full-screen activity window non-resizable#1301
+- Fix Focus Button not triggering on startup + focus session window sizing#1296 (FIXES: 1. Focus Button not triggering on startup (the main fix) / 3. Focus session window too big on small / heavily-scaled displays) 
+- Separate Postpone password rules from Skip (settings + UI + sync)#1297
+- Move postpone password check from EasySkipPostpone to btnPleaseSpareM…#1303 / also added for skipping from late habits confirmation popup
+- Updated setup with required signed dlls
+

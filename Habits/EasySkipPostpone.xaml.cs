@@ -1,6 +1,5 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
-using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using Microsoft.Win32;
 using System;

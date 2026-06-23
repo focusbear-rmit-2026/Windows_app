@@ -1605,6 +1605,32 @@ namespace Focus_Bear.Habits
                         }
                         else
                         {
+                            if (appSettings.isPasswordSet)
+                            {
+                                bool requirePassword = false;
+                                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                                {
+                                    requirePassword = appSettings.bPasswordRequireInSkipMorning;
+                                }
+                                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                                {
+                                    requirePassword = appSettings.bPasswordRequireInSkipEvening ||
+                                        (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff);
+                                }
+
+                                if (requirePassword)
+                                {
+                                    AskPassword pwdWnd = new AskPassword();
+                                    ParentWindow.GridShade.Visibility = Visibility.Visible;
+                                    pwdWnd.Owner = ParentWindow;
+
+                                    bool? bResult = pwdWnd.ShowDialog();
+                                    ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+                                    if (!bResult.HasValue || !bResult.Value)
+                                        return;
+                                }
+                            }
+
                             //skip habits
                             //WE will set the morning habits shown date for today
                             RegistryManager.SetMorningHabitsShownTillDate();

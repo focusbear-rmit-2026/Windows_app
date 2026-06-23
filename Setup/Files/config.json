@@ -116,6 +116,7 @@
         "buttonUninstallText": "Uninstall Focus Bear",
         "shutdownNotificationTitle": "It's time to wrap up for the day. Your shutdown time is in 5 minutes.",
         "appBlockNotificationTitle": "<APP_NAME> isn't allowed in the <FOCUS_NAME> focus mode.",
+        "superDistractingAppBlockedText": "<APP_NAME> is a Super distracting app.",
         "focusBreakNotificationTitle": "Your break ends in",
         "tabGeneralText": "General",
         "tabFocusText": "Focus",
@@ -397,7 +398,10 @@
         "buttonSleepText": "Put Mac to sleep",
         "selectUnlockMinutesText": "Select duration for unlock:",
         "alreadyUnlockedText": "You already unlocked for <DURATION> minutes",
-        "unlockingFirstTimeText": "Unlocking for 30 minutes."
+        "unlockingFirstTimeText": "Unlocking for 30 minutes.",
+        "cancelledEveningRoutineReminderText": "(By the way, you cancelled your evening routine. if you changed your mind and want to do your evening habits click resume evening routine)",
+        "buttonResumeEveningRoutine": "Resume evening routine",
+        "buttonUnlockComputer": "Unlock computer"
     },
     "settings": {
         "title": "Enter settings JSON below:",
@@ -572,6 +576,8 @@
         "titleAppMode": "Focus bear mode:",
         "checkBoxCuddlyBearText": "Cuddly Bear mode",
         "descriptionCuddlyBearText": "Cuddly Bear mode: kind and gentle - gives you the benefit of the doubt when you open a non-allowed URL. Lets you temporarily allow blocked URLs during a focus mode.",
+        "titleCuddlyDailyCap": "Daily limit for distracting sites (minutes):",
+        "descriptionCuddlyDailyCap": "The maximum total time per day you can temporarily unblock distracting sites in Cuddly Bear mode. Once you reach it, those sites stay blocked until the next day.",
         "checkBoxGrizzlyBearText": "Grizzly Bear mode",
         "descriptionGrizzlyBearText": "Grizzly Bear mode: super strict - immediately block URLs that aren't allowed and don't let yourself allow them until the focus mode is over.",
         "pomodoroDescriptionText": "Focus Sessions (pomodoro mode) cycles between deep work blocks where a focus mode is turned on (and distractions turned off) and break periods.",
@@ -606,8 +612,9 @@
         "alertTabCountText": "Tab count can not be 0.",
         "titleFullScreen": "Full Screen View:",
     	"checkBoxFullScreenEnabledText": "Play habits in full screen mode",
+        "checkBoxAutoCloseAfterRoutineText": "Automatically close window after completing, skipping or postponing a routine",
         "titleDarkMode": "Dark Mode:",
-        "appAppearanceOptions": ["Copy system preferences", "Always Dark Mode", "Never Dark Mode"],
+        "appAppearanceOptions": ["Copy system preferences", "Always Dark Mode", "Never Dark Mode, Automatically"],
         "titleAnnouncement": "Announcement:",
         "checkBoxAnnouncementText": "Announcement after each activity",
         "checkBoxShowBreaksInCallText": "Show breaks while in call or in presentation mode",
@@ -701,6 +708,10 @@
         "titleWorkToBreakRatio": "Work to break ratio:",
         "descriptionWorkToBreakRatio": "For every <WORKRATIO> minutes you focus, you will have a <BREAKRATIO> minutes break.",
         "toText": "to",
+        "workRatioEmptyErrorText": "Work to break ratio can not be empty.",
+        "breakRatioEmptyErrorText": "Break ratio can not be empty.",
+        "workRatioInvalidErrorText": "Work ratio must be a number greater than 0.",
+        "breakRatioInvalidErrorText": "Break ratio must be a number greater than 0.",
         "buttonBackToCustomBlocking": "Back to blocking schedule",
         "buttonAddBlockListText": "Add Block List",
         "titleBlockList": "Use Block Lists to stay focused on a certain type of work.",
@@ -710,7 +721,7 @@
         "titleUseBlockList": "Use Block Lists to stay focused on a certain type of work. Start a focus session from the focus bear menu or use a blocking schedule.",
         "deepWorkText": "Deep Work",
         "workFocusModeText": "Work",
-        "checkBoxSuggestWorkFocusMode": "Automatically suggest starting this focus mode when any allowed URL is opened"
+        "checkBoxSuggestWorkFocusMode": "Automatically suggest starting this focus mode when any allowed URL/App is opened"
     },
     "focusPreferencesAdvancedInfo": {
         "runScriptBeforeText": "Run apple script before starting focus mode.",
@@ -1095,7 +1106,18 @@
         "subscriptionDetails": "Subscription Details",
         "status": "Status:",
         "emailNotVerified": "Email not Verified",
-        "buttonResendConfirmation": "Resend Confirmation Email"
+        "buttonResendConfirmation": "Resend Confirmation Email",
+        "buttonDeleteAccountText": "Delete Account",
+        "deleteAccountAlertTitle": "Delete Account",
+        "deleteAccountAlertText": "Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be removed.",
+        "deleteAccountConfirmTitle": "Confirm Account Deletion",
+        "deleteAccountConfirmText": "Type DELETE to confirm",
+        "deleteAccountConfirmPlaceholder": "DELETE",
+        "deleteAccountConfirmMismatch": "Please type DELETE (in capitals) to confirm.",
+        "deleteAccountSuccessTitle": "Account Deleted",
+        "deleteAccountSuccessText": "Your account has been successfully deleted.",
+        "deleteAccountFailedTitle": "Unable to Delete Account",
+        "deleteAccountFailedText": "Something went wrong while deleting your account. Please check your internet connection and try again."
     },
     "activityPostponeInfo": {
         "postponeHabitsText": "If you have something urgent, you can postpone Habits for a few minutes.",
@@ -1385,7 +1407,9 @@
             }
         ],
         "buttonPostponeNewText": "Postpone",
-        "buttonSkipText": "Skip"
+        "buttonSkipText": "Skip",
+        "buttonExtendBreakText": "Extend break (+5 min)",
+        "buttonEndBreakText": "End break early"
     },
     "askAppWorkVcInfo": {
         "title": "Welcome to Focus Bear",
@@ -1504,7 +1528,14 @@
         "buttonAlreadyDidItText": "I already did it",
         "buttonCanNotDoItText": "Can't do it today",
         "buttonSkipBreaksCompletely": "Skip micro break Completely",
-        "reasonPlaceholderText": "Optional: add a reason (e.g. feeling unwell)"
+        "reasonPlaceholderText": "Optional: add a reason (e.g. feeling unwell)",
+        "presetReasons": {
+            "tired": "😴 Tired",
+            "time_ran_out": "⏰ Time ran out",
+            "unexpected_event": "🔥 Unexpected event",
+            "forgot": "🤔 Forgot",
+            "low_energy": "🔋 Low energy"
+        }
     },
     "habitSkipEasinessVcInfo": {
         "title": "Welcome to Focus Bear",
@@ -1782,7 +1813,8 @@
         "buttonWrongDetectionText": "You're wrong! I wasn't on a break",
         "titleTakeBreak": "Ok do you want to take a break now 😅?",
         "buttonStartBreakText": "Yup I need a break now",
-        "buttonTakeBreakLaterText": "No - I'll take later"
+        "buttonTakeBreakLaterText": "No - I'll take later",
+        "checkboxDontShowNaturalBreaksText": "Don't show this again"
     },
     "inspirations": ["I'm feeling energized - time to begin my habits",
         "Let's kick things off - I'm motivated to start my habits",
@@ -1831,7 +1863,17 @@
     },
     "alertMaxTabLimitVcInfo":{
         "title": "Max tab count (<COUNT>) exceeded.",
-        "titleTabsCount": "Number of open tabs:"
+        "titleTabsCount": "Number of open tabs:",
+        "countdownText": "Closing in <SECONDS> seconds (or close an existing tab)",
+        "buttonCloseText": "Close",
+        "browserNames": {
+            "chrome": "Chrome",
+            "msedge": "Edge",
+            "firefox": "Firefox",
+            "brave": "Brave",
+            "vivaldi": "Vivaldi",
+            "opera": "Opera"
+        }
     },
     "chooseFrictionLevelVcInfo":{
         "title": "How strict do you want Focus Bear to be?",
@@ -1880,6 +1922,7 @@
         ],
         "tourMenu": "Focus Bear",
         "descriptionMenu": "Let's get you familiar with the Focus Bear Menu and we will have you up and running in no time!",
+        "descriptionFocusBearTour": "Focus Bear keeps running in System Tray. Click on the icon to bring up the Focus Bear Menu.",
         "tourFirstRoutine": "Start first routine",
         "descriptionFirstRoutine": "Your morning/evening routine does not start automatically on the first day. Click Start first routine to kick off your first routine.",
         "tourPreferences": "Preferences",
@@ -1898,7 +1941,8 @@
         "descriptionMorningRoutine": "Your morning routine does not start automatically on the first day. Click Start morning routine to kick off your first routine.",
         "descriptionEveningRoutine": "Your evening routine does not start automatically on the first day. Click Start evening routine to kick off your first routine.",
         "tourTools": "Tools",
-        "descriptionTools": "A collection of helpful tools including Brain Dump, To-Do List/To-Do Player, focus music, and more."
+        "descriptionTools": "A collection of helpful tools including Brain Dump, To-Do List/To-Do Player, focus music, and more.",
+        "descriptionSystemTray": "Focus Bear keeps running in System Tray. Click on the icon to bring up the Focus Bear Menu."
     },
     "relaxModeVcInfo":{
         "title": "Sites you saved for Free Time mode:",
@@ -1924,7 +1968,8 @@
         "subTitleBlockIt": "If you don't need it, click here to block the site",
         "titleDistracting": "You said <SITE> is super distracting for you.",
         "titleSetIntention": "What do you want to achieve during your time here?",
-        "buttonAllowText": "Allow Temporarily"
+        "buttonAllowText": "Allow Temporarily",
+        "dailyCapReachedText": "Daily extension limit reached."
     },
     "intentionBlockedUrlsVcInfo":{
         "title": "Your intention for <SITE>",
@@ -2114,6 +2159,7 @@
         "ui_ActivitiesFullScreen": "Minimize distractions by doing your habits in full screen mode so you can’t see notifications or other apps while you’re doing your routines. If you enable this setting, you won’t be able to switch to other apps via cmd-tab. You can still deactivate Focus Bear if you have an emergency.",
         "ui_ShowDockIcon": "Enable this setting to show the Focus Bear app icon in your Dock. If you click on the dock icon, it will open the Focus Bear menu.",
         "ui_SelectLanguage": "We’ve translated the app into a few languages. Choose your preferred language here. Let us know if you need a different language by emailing support@focusbear.io",
+        "ui_AutoCloseAfterRoutine": "When enabled, the app window will automatically close after you complete, skip or postpone a morning or evening routine. When disabled, the app will stay open so you can start a focus session straight away.",
         "ui_DarkMode": "Eye-friendly option! Opt for Dark Mode to reduce screen brightness and eye strain.",
         "ui_HideDockInAllowedAppActivities": "Distraction-free mode! Sometimes app icons in the dock are distracting. Toggle this setting on to hide the dock while you’re doing habits with allowed apps. For example, you could have a journaling habit that only gives you access to your journaling app. If you enable this setting, you won’t see the dock with all its temptations.",
         "accessibility_ReduceMotion": "We show animated Bear GIFs after you complete habits. If you don’t like these animations or experience physical discomfort, you can turn off the animations.",
@@ -2661,7 +2707,14 @@
         "freeTimeTextNew": "Well done finishing your evening routine 👏\nYour sleep time is <CUTOFFTIME>.\nYour next morning routine starts at <STARTTIME>.\nRest well and recharge for a strong start tomorrow 💪",
         "freeTimeCancelledEveningRoutine": "You cancelled your evening routine for today. \nYour sleep time is <CUTOFFTIME>.\nYour next morning routine starts at <STARTTIME>.\nRest well and recharge for a strong start tomorrow 💪",
         "setSleepTimeCancelledEveningRoutine": "You cancelled your evening routine habits for today.\nYou do not have sleep time set.",
-        "nextRoutineTimeCancelledMorninigRoutine": "You cancelled your morning routine for today.\nYour next scheduled routine (<ROUTINE>) is set for <TIME>. Be ready to jump back in and continue building those healthy habits. You've got this!"
+        "nextRoutineTimeCancelledMorninigRoutine": "You cancelled your morning routine for today.\nYour next scheduled routine (<ROUTINE>) is set for <TIME>. Be ready to jump back in and continue building those healthy habits. You've got this!",
+        "buttonUncancelEveningRoutine": "Uncancel my evening routine",
+        "buttonUncancelMorningRoutine": "Uncancel my morning routine",
+        "restoreRoutineFailedText": "We couldn't restore your routine right now. Please try again.",
+        "setSleepTimeCancelledEveningRoutineWithUndo": "You do not have sleep time set.\n\n(By the way, you cancelled your evening routine. if you changed your mind and want to do your evening habits click Uncancel my evening routine)",
+        "sleepTimeCancelledEveningRoutineWithUndo": "Your sleep time is <CUTOFFTIME>.\n\n(By the way, you cancelled your evening routine. if you changed your mind and want to do your evening habits click Uncancel my evening routine)",
+        "nextMorningRoutineStartText": "Your next morning routine starts at <STARTTIME>.\nRest well and recharge for a strong start tomorrow 💪",
+        "nextRoutineTimeCancelledMorningRoutineWithUndo": "Your next scheduled routine (<ROUTINE>) is set for <TIME>. Be ready to jump back in and continue building those healthy habits. You've got this!\n\n(By the way, you cancelled your morning routine. if you changed your mind and want to do your morning habits click Uncancel my morning routine)"
     },
     "breakStateVcInfo":{
         "buttonEnableBreaks": "Enable Breaks",
@@ -2673,11 +2726,66 @@
         "noBreakAddedText": "No break activities added yet.",
         "buttonChangeTiming": "Change Timing"
     },
+    "scheduleViewInfo":{
+        "morningRoutineHabits": "Morning routine habits",
+        "eveningRoutineHabits": "Evening routine habits",
+        "habitsSuffix": "habits",
+        "play": "Play",
+        "done": "Done",
+        "skip": "Skip",
+        "habitsDone": "Habits done",
+        "meeting": "meeting",
+        "meetingDefaultTitle": "Meeting",
+        "deepWork": "Deep work",
+        "breakSprint": "Break",
+        "deepWorkNoRoom": "Deep work (no room for next habit)",
+        "sleep": "Sleep",
+        "eveningRoutine": "Evening routine",
+        "morningRoutine": "Morning routine",
+        "noHabitsLeft": "No habits left for now — enjoy your free time! 🎉",
+        "nothingScheduled": "Nothing scheduled for this day.",
+        "calendarBanner": "Connect your calendar to see meetings and free time for deep work.",
+        "grantAccess": "Grant access",
+        "removingFullScreen": "Removing full screen for 30 seconds to grant calendar permissions",
+        "today": "Today",
+        "backToToday": "Back to today",
+        "addEvent": "Add event",
+        "eventTitlePlaceholder": "Event title",
+        "eventCalendarLabel": "Calendar",
+        "eventStartsLabel": "Starts",
+        "eventEndsLabel": "Ends",
+        "eventSave": "Save",
+        "eventCancel": "Cancel",
+        "eventSaveError": "Couldn't save the event. Check calendar access and try again.",
+        "showEarlierEvents": "Show events from earlier today",
+        "hideEarlierEvents": "Hide events from earlier today",
+        "viewTomorrow": "View tomorrow's schedule",
+        "editEventTitle": "Edit event",
+        "eventRepeatLabel": "Repeat",
+        "eventColorLabel": "Colour",
+        "repeatNone": "Does not repeat",
+        "repeatDaily": "Daily",
+        "repeatWeekly": "Weekly",
+        "repeatMonthly": "Monthly",
+        "tasksForToday": "Tasks for today",
+        "tasksAddNew": "Add task",
+        "tasksAddFromList": "From to-do list",
+        "tasksEmpty": "No tasks yet. Add one from scratch or from your to-do list.",
+        "tasksSearchPlaceholder": "Search tasks…",
+        "tasksAllProjects": "All projects",
+        "tasksAddSelected": "Add",
+        "tasksNamePlaceholder": "Task name",
+        "tasksDragHint": "Drag onto a block to schedule it",
+        "tasksReturnToPanel": "Move back to tasks",
+        "tasksTimeBoxed": "Time boxed",
+        "tasksNotTimeBoxed": "Not yet time boxed"
+    },
     "leftMenuVcInfo":{
         "titleMain": "MAIN",
         "titleTools": "TOOLS",
         "titlePreferences": "PREFERENCES",
         "menuHabits": "Habits",
+        "menuDayPlan": "Day Plan",
         "menuCustomRoutine": "Custom Routine",
         "menuStartFocusSession": "Start Focus Session",
         "menuStopFocusSession": "Stop Focus Session",
@@ -2744,6 +2852,7 @@
         "buttonAddNewBlock": "Add new block",
         "errorBlockListMissing": "Update block list ⚠️",
         "alertSelectBlockList": "Please select block list.",
+        "alertInvalidTime": "Please enter a complete time, including AM or PM, in the From and Till fields before saving.",
         "titleScheduleOverlapAlert": "Time Overlap Detected",
         "subTitleScheduleOverlapAlert": "This blocking schedule's time overlaps with an existing one. Do you want to save it anyway?",
         "buttonSaveBlockAnyway": "Save Anyway",
@@ -2883,8 +2992,8 @@
     },
     "accessibilityPermissionVcInfoNew": {
         "title": "Grant Accessibility Permissions",
-        "subTitleMacOS13": "In order to interact with other browsers, you need to authorise Focus Bear through System Preferences:\nSystem Preferences > Privacy & Security > Accessibility",
-        "subTitleLegacy": "In order to interact with other browsers, you need to authorise Focus Bear through System Preferences:\nSystem Preferences > Security & Privacy > Privacy > Accessibility",
+        "subTitleMacOS13": "In order to block distractions, you need to authorise Focus Bear through System Preferences:\nSystem Preferences > Privacy & Security > Accessibility",
+        "subTitleLegacy": "In order to block distractions, you need to authorise Focus Bear through System Preferences:\nSystem Preferences > Security & Privacy > Privacy > Accessibility",
         "description": "Toggle Focus Bear on.",
         "buttonContinue": "Proceed",
         "buttonSkip": "Skip",
@@ -2896,7 +3005,11 @@
         "title": "You’re currently using a website allowed for <WORK> Focus Mode.",
         "subTitle": "Would you like to start Focus Mode now?",
         "buttonYes": "Yes, Start",
-        "buttonNotNow": "Not Now"
+        "buttonNotNow": "Not Now",
+        "titleApp": "You’re currently using a app allowed for <WORK> Focus Mode.",
+        "focusDurationLabel": "Focus duration:",
+        "focusDurationUnit": "minutes",
+        "sessionGoal": "What do you want to achieve in this focus session?"
     },
     "installHabitPacksVcInfo": {
         "bubbleText": "Try searching for a goal or a keyword"

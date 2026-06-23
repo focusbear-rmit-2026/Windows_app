@@ -313,30 +313,30 @@ namespace Focus_Bear.Habits
         {
             LogWriter.LogWrite("ChooseHabits btnCompletelySkip_Click");
 
-            if (appSettings.isPasswordSet)
-            {
-                bool requirePassword = false;
-                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                if (appSettings.isPasswordSet)
                 {
-                    requirePassword = appSettings.bPasswordRequireInSkipMorning;
-                }
-                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                {
-                    requirePassword = appSettings.bPasswordRequireInSkipEvening ||
-                        (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff);
-                }
+                    bool requirePassword = false;
+                    if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                    {
+                        requirePassword = appSettings.bPasswordRequireInSkipMorning;
+                    }
+                    else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    {
+                        requirePassword = appSettings.bPasswordRequireInSkipEvening ||
+                            (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff);
+                    }
 
-                if (requirePassword)
-                {
-                    AskPassword pwdWnd = new AskPassword();
-                    pwdWnd.Owner = this;
+                    if (requirePassword)
+                    {
+                        AskPassword pwdWnd = new AskPassword();
+                        pwdWnd.Owner = this;
 
-                    bool? bResult = pwdWnd.ShowDialog();
+                        bool? bResult = pwdWnd.ShowDialog();
 
-                    if (!bResult.HasValue || !bResult.Value)
-                        return;
+                        if (!bResult.HasValue || !bResult.Value)
+                            return;
+                    }
                 }
-            }
 
             //WE will set the morning habits shown date for today
             RegistryManager.SetMorningHabitsShownTillDate();
