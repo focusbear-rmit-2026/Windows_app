@@ -1588,6 +1588,13 @@ namespace Focus_Bear
                 LogWriter.LogWrite("PusherHandler() Initialization EX =" + ex.Message);
             }
 
+            //Connect to the Focus Button up-front, before any of the conditional workflow branches
+            //below (postponed habits, shut-off, etc.) which can return early. Connecting here ensures
+            //the serial port is always opened on startup, so focus sessions started remotely (from the
+            //phone via Pusher) or manually always reach the device. Previously this lived at the very
+            //end of the method and was skipped on every early-return path, leaving the button silent.
+            FocusButton.Start();
+
 
 #if DEBUG
             //Write any routines or functionality to test in DEBUG mode here
@@ -1741,7 +1748,8 @@ namespace Focus_Bear
             //Get total time for distracting sites for today
             appSettings.GetTotalTimeForDistractingSitesToday();
 
-            FocusButton.Start();
+            //Note: FocusButton.Start() is intentionally called near the top of this method now,
+            //so it runs on every startup regardless of which workflow branch returns early.
         }
         private void dispatcherTimer_ProductivityStats(object sender, EventArgs e)
         {

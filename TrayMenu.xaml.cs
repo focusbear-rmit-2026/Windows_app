@@ -1051,7 +1051,9 @@ namespace Focus_Bear
 #endif
                 if (!bCommandFromDevice) //Strt only when the command was not from device to avoid loop
                 {
-                    App.FocusButton.StartFocusSession(nMinutes * 60);
+                    //Include the hours component too - sessions >= 60 min have nHours > 0, and sending
+                    //only nMinutes would tell the device the wrong (too-short) duration.
+                    App.FocusButton.StartFocusSession((nHours * 60 + nMinutes) * 60);
                 }
 
                 dispatcherTimerFocus.Start();

@@ -1126,6 +1126,38 @@ namespace Focus_Bear
                 {
                     PageHabits.btnPleaseSpareMeTXT.Text = appSettings.ConfigFileStrings["common"]["buttonAbortText"].ToString();
                     //PageHabits.TodaysTime.Visibility = Visibility.Visible;
+
+                    // In full-screen-activities mode the sizing logic above is skipped. Habit / shut-off /
+                    // break screens are presented as a maximized borderless window (set in
+                    // BringMainWindowToFront) and must be left untouched - resizing or un-maximizing them
+                    // would break the full-screen lock. But other screens shown in this mode (e.g. the
+                    // focus session view) get no sizing at all and can end up taller than the screen,
+                    // pushing controls off the bottom. Fit only those non-maximized windows to the work
+                    // area; never touch a maximized window (and never set MaxWidth/MaxHeight, which would
+                    // stop a later maximize from covering the full screen).
+                    if (WindowState != WindowState.Maximized)
+                    {
+                        try
+                        {
+                            Rect wa = SystemParameters.WorkArea;
+
+                            double targetW = Math.Min(1300, wa.Width);
+                            double targetH = Math.Min(750, wa.Height);
+
+                            MinWidth = Math.Min(MinWidth, targetW);
+                            MinHeight = Math.Min(MinHeight, targetH);
+
+                            Width = targetW;
+                            Height = targetH;
+
+                            Left = wa.Left + Math.Max(0, (wa.Width - targetW) / 2);
+                            Top = wa.Top + Math.Max(0, (wa.Height - targetH) / 2);
+                        }
+                        catch (Exception ex)
+                        {
+                            LogWriter.LogWrite("Window_IsVisibleChanged full-screen fit EX - " + ex.Message);
+                        }
+                    }
                 }
             }
             else

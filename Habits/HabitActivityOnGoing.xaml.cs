@@ -186,7 +186,7 @@ namespace Focus_Bear.Habits
                     nVideoUrlsCount = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].videoUrls.Count;
                     appSettings.sUseFocusModeIDInActivity = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedFocusMode;
 
-                    App.FocusButton.StartHabit(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].idFakeForDevice);
+                    App.FocusButton.StartHabit(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].idFakeForDevice);
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
