@@ -4,7 +4,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Focus_Bear.Preferences"
-      xmlns:utils="clr-namespace:Focus_Bear.Utils" 
+      xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+      xmlns:utils="clr-namespace:Focus_Bear.Utils"
       mc:Ignorable="d" 
       d:DesignHeight="670" d:DesignWidth="670" IsVisibleChanged="UserControl_IsVisibleChanged">
     
@@ -96,7 +97,7 @@
                                                 <ColumnDefinition Width="25"/>
                                             </Grid.ColumnDefinitions>
                                             <Rectangle Fill="{Binding color, StringFormat=\{0\}}" Width="25" Height="25"  RadiusX="4" RadiusY="4"></Rectangle>
-                                            <TextBlock Grid.Column="1" x:Name="ListViewTextBlock" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand" TextWrapping="Wrap" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource PreferenceFocusListItemForegroundColor}"/>
+                                            <emoji:TextBlock Grid.Column="1" x:Name="ListViewTextBlock" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand" TextWrapping="Wrap" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource PreferenceFocusListItemForegroundColor}"/>
                                             <Image x:Name="InfoImageMeetings" Grid.Column="2" Source="{DynamicResource InfoImage}" Width="18"  Margin="0,0,8,0" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding Path=isMeetings, Converter={StaticResource BoolToVis}}" ToolTip="{Binding sToolTip, StringFormat=\{0\}}"></Image>
                                         </Grid>
                                     </DataTemplate>

@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Focus_Bear.Habits"
+      xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
       d:DesignHeight="1080" d:DesignWidth="1920"
@@ -26,7 +27,7 @@
 
         </Grid.RowDefinitions>
         <Image Grid.Row="0" Name="TopIcon" Height="160"  Width="160" Source="../Images/FBicon-256.png" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Collapsed"/>
-         <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,30,0,0" TextWrapping="Wrap" Text="xactivity finished" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+         <emoji:TextBlock  Grid.Row="1"  Name="Heading" Margin="0,30,0,0" TextWrapping="Wrap" Text="xactivity finished" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Viewbox Grid.Row="2"  Stretch="Uniform">
             <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
                 <Button x:Name="ButtonLeft" AutomationProperties.AutomationId="btnLeft" Height="30" Width="30" Cursor="Hand" Background="Transparent" BorderThickness="0" Visibility="Collapsed" Click="ButtonLeft_Click">
@@ -53,7 +54,7 @@
             <Button   IsDefault="True" x:Name="btnStartNextActivity" AutomationProperties.AutomationId="btnStartNextActivity"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStartNextActivity_Click" >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
-                        <TextBlock x:Name="btnStartNextActivityTXT" Text="xstart next activity" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                        <emoji:TextBlock x:Name="btnStartNextActivityTXT" Text="xstart next activity" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

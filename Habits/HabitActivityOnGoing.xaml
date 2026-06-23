@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Focus_Bear.Habits"
+      xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       xmlns:Models="clr-namespace:Focus_Bear.Models"
       mc:Ignorable="d" 
@@ -28,7 +29,7 @@
         </Grid.RowDefinitions>
 
         <Image Name="TopIcon" Grid.Row="0"  Margin="0,50,0,0" Height="180" Width="180" Models:ImageBehavior.AnimatedSource="../Images/gifs/random/4.gif"   VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-        <TextBlock  Grid.Row="1"  Name="Heading" Margin="0,30,0,0" TextWrapping="Wrap" Text="xActivity Title" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <emoji:TextBlock  Grid.Row="1"  Name="Heading" Margin="0,30,0,0" TextWrapping="Wrap" Text="xActivity Title" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
         <Viewbox Grid.Row="2"  Stretch="Uniform">
             <DockPanel  Margin="50,25,50,25" Width="853" Height="505">
                 <wv2:WebView2 Name="webView" />

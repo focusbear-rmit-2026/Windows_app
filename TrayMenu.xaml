@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear"
+        xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         mc:Ignorable="d"
         Title="Focus Bear" AutomationProperties.AutomationId="TrayMenu" Height="auto"  MinWidth="330"  Width="330" MaxWidth="330" WindowStyle="None" Deactivated="Window_Deactivated" >
     <Window.Resources>
@@ -157,9 +158,9 @@
                                 </Image.Style>
                             </Image>
 
-                            <TextBlock Grid.Column="1" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" FontWeight="Semibold" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left">
-                                <TextBlock.Style>
-                                    <Style TargetType="{x:Type TextBlock}">
+                            <emoji:TextBlock Grid.Column="1" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" FontWeight="Semibold" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left">
+                                <emoji:TextBlock.Style>
+                                    <Style TargetType="{x:Type emoji:TextBlock}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding isOn}" Value="True">
                                                 <Setter Property="Foreground" Value="#e88800"/>
@@ -169,8 +170,8 @@
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
+                                </emoji:TextBlock.Style>
+                            </emoji:TextBlock>
                         </Grid>
                     </DataTemplate>
                    

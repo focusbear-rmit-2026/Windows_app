@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Focus_Bear.Habits"
+      xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
      d:DesignHeight="1080" d:DesignWidth="1920"
@@ -43,9 +44,9 @@
                         </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0" Text="{Binding SNumber, StringFormat=\{0\}}"   FontSize="23" FontWeight="Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}"/>
-                            <TextBlock Grid.Column="1" Text="{Binding ActivityName, StringFormat=\{0\}}" FontSize="23" VerticalAlignment="Center" Margin="0,0,15,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}">
-                             
-                        </TextBlock>
+                            <emoji:TextBlock Grid.Column="1" Text="{Binding ActivityName, StringFormat=\{0\}}" FontSize="23" VerticalAlignment="Center" Margin="0,0,15,0" HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundColor}">
+
+                        </emoji:TextBlock>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
+        xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         mc:Ignorable="d"
         Title="Focus Bear" Height="670" Width="720"  ResizeMode="NoResize" Loaded="Window_Loaded">
     <Grid>
@@ -27,7 +28,7 @@
         </Grid.RowDefinitions>
 
 
-        <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xStarting Focus type - FOCUSTYPE" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <emoji:TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xStarting Focus type - FOCUSTYPE" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
         <TextBlock Grid.Row="1" Visibility="Collapsed" Name="sLockedText" Margin="10,0,10,0" TextWrapping="NoWrap" Text="xxYou will only be able to use.." FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
         <StackPanel Grid.Row="2"  Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">

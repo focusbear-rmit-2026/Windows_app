@@ -90,6 +90,18 @@
     <Reference Include="Duende.IdentityModel.OidcClient, Version=6.0.0.0, Culture=neutral, PublicKeyToken=e7877f4675df049f, processorArchitecture=MSIL">
       <HintPath>packages\Duende.IdentityModel.OidcClient.6.0.1\lib\netstandard2.0\Duende.IdentityModel.OidcClient.dll</HintPath>
     </Reference>
+    <Reference Include="Emoji.Wpf">
+      <HintPath>packages\Emoji.Wpf.0.3.4\lib\net40\Emoji.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Typography.GlyphLayout">
+      <HintPath>packages\Emoji.Wpf.0.3.4\lib\net40\Typography.GlyphLayout.dll</HintPath>
+    </Reference>
+    <Reference Include="Typography.OpenFont">
+      <HintPath>packages\Emoji.Wpf.0.3.4\lib\net40\Typography.OpenFont.dll</HintPath>
+    </Reference>
+    <Reference Include="Stfu">
+      <HintPath>packages\Stfu.0.1.10\lib\net40\Stfu.dll</HintPath>
+    </Reference>
     <Reference Include="Interop.TaskScheduler">
       <HintPath>TaskSchedulerPackage\Interop.TaskScheduler.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>

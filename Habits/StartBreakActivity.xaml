@@ -4,7 +4,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Focus_Bear.Habits"
-      mc:Ignorable="d" 
+      xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+      mc:Ignorable="d"
        d:DesignHeight="1080" d:DesignWidth="1920"
       Title="StartBreakActivity"  Background="{DynamicResource BackgroundColor}">
 
@@ -16,7 +17,7 @@
             <RowDefinition Height="100"  />
             <RowDefinition Height="130"  />
         </Grid.RowDefinitions>
-        <TextBlock  Grid.Row="1"  Name="Heading" Margin="20,30,20,0" TextWrapping="Wrap" Text="xstart break activity" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <emoji:TextBlock  Grid.Row="1"  Name="Heading" Margin="20,30,20,0" TextWrapping="Wrap" Text="xstart break activity" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
 
         <Button Grid.Row="3" IsDefault="True" x:Name="btnStartNextActivity" AutomationProperties.AutomationId="btnStartNextActivity"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnStartNextActivity_Click" >
