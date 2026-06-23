@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
+using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
@@ -311,6 +312,32 @@ namespace Focus_Bear.Habits
         private void btnCompletelySkip_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("ChooseHabits btnCompletelySkip_Click");
+
+            if (appSettings.isPasswordSet)
+            {
+                bool requirePassword = false;
+                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                {
+                    requirePassword = appSettings.bPasswordRequireInSkipMorning;
+                }
+                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                {
+                    requirePassword = appSettings.bPasswordRequireInSkipEvening ||
+                        (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff);
+                }
+
+                if (requirePassword)
+                {
+                    AskPassword pwdWnd = new AskPassword();
+                    pwdWnd.Owner = this;
+
+                    bool? bResult = pwdWnd.ShowDialog();
+
+                    if (!bResult.HasValue || !bResult.Value)
+                        return;
+                }
+            }
+
             //WE will set the morning habits shown date for today
             RegistryManager.SetMorningHabitsShownTillDate();
 

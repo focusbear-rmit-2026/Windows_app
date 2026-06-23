@@ -196,31 +196,6 @@ namespace Focus_Bear.Habits
                 }
                 else
                 {
-                    // Require the password to postpone using the dedicated Postpone password rules
-                    // (separate from Skip, matching the Mac app). Morning uses the postpone-morning rule;
-                    // evening uses the after-cutoff rule while the cutoff is in effect, otherwise the
-                    // postpone-evening rule. These default OFF and are set per user in Password settings.
-                    bool bNeedsPassword =
-                        (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS
-                            && appSettings.bPasswordRequireInPostponeMorning)
-                        || (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS
-                            && (appSettings.DidCutOffTimePassed()
-                                ? appSettings.bPasswordRequireInPostponeEveningAfterCutOff
-                                : appSettings.bPasswordRequireInPostponeEvening));
-
-                    if (appSettings.isPasswordSet && bNeedsPassword)
-                    {
-                        AskPassword pwdWnd = new AskPassword();
-                        pwdWnd.Owner = this;
-                        bool? bResult = pwdWnd.ShowDialog();
-                        if (bResult != true)
-                        {
-                            //Not authenticated - do not postpone.
-                            Close();
-                            return;
-                        }
-                    }
-
                     ((App)(Application.Current)).PostponeHabitWork(nMinutesToPostpone);
 
                     //Now we also need to reset the break timer if habits are postponed with actual break after minutes

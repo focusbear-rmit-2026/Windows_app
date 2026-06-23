@@ -1119,7 +1119,7 @@ namespace Focus_Bear.Habits
             {
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
-                    if (appSettings.bPasswordRequireInSkipMorning)
+                    if (appSettings.bPasswordRequireInPostponeMorning)
                     {
                         //It might be possible that a webview is visible, we will need to hide that
                         if (nScreenHabitActivityFinished != null)
@@ -1201,7 +1201,7 @@ namespace Focus_Bear.Habits
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
-                    if (appSettings.bPasswordRequireInSkipEvening || (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff))
+                    if (appSettings.DidCutOffTimePassed() ? appSettings.bPasswordRequireInPostponeEveningAfterCutOff : appSettings.bPasswordRequireInPostponeEvening)
                     {
                         //It might be possible that a webview is visible, we will need to hide that
                         if (nScreenHabitActivityFinished != null)
