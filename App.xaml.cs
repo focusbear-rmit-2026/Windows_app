@@ -3519,6 +3519,9 @@ namespace Focus_Bear
                     {
                         wndFocusBearMainWindow.WindowStyle = WindowStyle.None;
                         wndFocusBearMainWindow.WindowState = WindowState.Maximized;
+                        // WindowStyle.None alone keeps the (invisible) resize frame, so the locked
+                        // full-screen activity window could still be dragged/resized. NoResize removes it.
+                        wndFocusBearMainWindow.ResizeMode = ResizeMode.NoResize;
                     }
                     wndFocusBearMainWindow.Topmost = true; //when user is in habits we will keep topmost
                     wndFocusBearMainWindow.SetMinimizeButtonEnabled(false);
@@ -3528,6 +3531,7 @@ namespace Focus_Bear
                 {
                     wndFocusBearMainWindow.Topmost = false; //when user is not in habits we will remove topmost
                     wndFocusBearMainWindow.WindowStyle = WindowStyle.SingleBorderWindow;
+                    wndFocusBearMainWindow.ResizeMode = ResizeMode.CanResize; //restore normal resizing outside locked activities
                     // Restore window if minimized
                     ShowWindow(hWnd, SW_RESTORE);
 
