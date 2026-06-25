@@ -1836,7 +1836,15 @@ namespace Focus_Bear
                         {
                             bScreenSaverStarted = false;
                             //Screen saver had stopped
-                            ResumeAfterPostponeFinished();
+                            // Don't end an active postpone just because the screensaver woke - the postpone
+                            // has its own timer (which keeps running during a screensaver) that resumes at
+                            // the chosen time. Calling ResumeAfterPostponeFinished() unconditionally here
+                            // cleared the postpone early, whenever the screensaver kicked in and was
+                            // dismissed, instead of at the requested time. Only resume when not postponed.
+                            if (!appSettings.bHabitsPostponedState)
+                            {
+                                ResumeAfterPostponeFinished();
+                            }
                         }
                     }
                 }
@@ -4267,11 +4275,16 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("ResumeHabitsAfterSystemWakeup()");
             //We will call the same function as we do when it resumes from postpone.
-            //The reason is that it might be possible that the system went to sleep when it was the postpone event 
+            //The reason is that it might be possible that the system went to sleep when it was the postpone event
             //or also when the resume in 2 minutes was being shown
             //this function will handle all.
 
-            ResumeAfterPostponeFinished();
+            // Don't end an active postpone just because the system woke up — the postpone
+            // has its own timer that resumes at the chosen time. Only resume when not postponed.
+            if (!appSettings.bHabitsPostponedState)
+            {
+                ResumeAfterPostponeFinished();
+            }
 
         }
         void PauseHabitsOnSystemSleep()
