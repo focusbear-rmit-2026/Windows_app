@@ -130,9 +130,13 @@ namespace Focus_Bear.Focus
 
 
             DateTime now = DateTime.Now;
-            TimeSpan difference = now.Subtract(DateTime.Parse(appSettings.sRunningFocusModeStartTime)); // could also write `now - otherTime`
-            var durationSeconds = difference.TotalSeconds;
-            int nSeconds = Convert.ToInt32(durationSeconds);
+            // Guard against an empty/invalid stored start time - parsing it directly threw here and
+            // aborted the whole Continue flow (the screen just sat there). Fall back to 0 duration.
+            int nSeconds = 0;
+            if (DateTime.TryParse(appSettings.sRunningFocusModeStartTime, out DateTime focusStartTime))
+            {
+                nSeconds = Convert.ToInt32(now.Subtract(focusStartTime).TotalSeconds);
+            }
 
             string sAchieve = TxtAchieve.Text.Replace(Environment.NewLine, " ");
             string sDistractions = ""; //removed
@@ -150,9 +154,13 @@ namespace Focus_Bear.Focus
             appSettings.CapturePostHog("completed-focus-session", string.Format("\"focus-type\":\"manual_focus\",\"focusDurationMinutes\":{0}", (nSeconds / 60)));
 
             //We need to add it back to the focus mode
-            var FocusModeRunning = appSettings.arrFocusModes.Where(i => i.id == appSettings.sRunningFocusModeID);
-            FocusMode CurrentRunningFocusMode = FocusModeRunning.First<FocusMode>();
-            CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
+            // Use FirstOrDefault - when the running focus mode id no longer matches any known mode,
+            // .First() threw "Sequence contains no elements" here, outside the try/catch below, aborting
+            // the Continue flow silently (so clicking Continue appeared to do nothing). Skip the update
+            // in that case instead of crashing.
+            FocusMode CurrentRunningFocusMode = appSettings.arrFocusModes.FirstOrDefault(i => i.id == appSettings.sRunningFocusModeID);
+            if (CurrentRunningFocusMode != null)
+                CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
            
             //Call api top finish focus mode
             FocusBearAPIClient client = new FocusBearAPIClient();
