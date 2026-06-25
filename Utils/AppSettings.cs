@@ -2641,6 +2641,19 @@ namespace Focus_Bear.Utils
                     DateTime myCutoffTime = new DateTime(now.Year, now.Month, now.Day, tsCutoffTime.Hours, tsCutoffTime.Minutes, 00);
                     Console.WriteLine("{0}", myCutoffTime.ToString());
 
+                    //In the overnight window (after cutoff, before next morning start) the relevant
+                    //cutoff is the previous day's — mirror IsShutOffTime() logic to handle this.
+                    if (sDayStartTime != null && sDayStartTime.Length > 0)
+                    {
+                        TimeSpan tsStartTime = TimeSpan.Parse(sDayStartTime);
+                        DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
+
+                        if (myStartTime > myCutoffTime)
+                            return now < myStartTime && now > myCutoffTime;
+                        else
+                            return now < myStartTime || now > myCutoffTime;
+                    }
+
                     if (now > myCutoffTime)
                         return true;
                     else
