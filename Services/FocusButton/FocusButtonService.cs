@@ -130,8 +130,15 @@ namespace Focus_Bear.Services.FocusButton
                 // Request current device state
                 SendCmd("STATUS");
 
-                // Fetch the habit list from the device
-                SendCmd("GET|FIRMWAREVER"); 
+                // Clear any cached firmware version from a previously-connected device, so a new or
+                // blank (un-flashed) device doesn't keep showing the old device's version. It is
+                // repopulated below only if THIS device actually replies to GET|FIRMWAREVER; a blank
+                // device won't reply, leaving it unset so the updater offers to install firmware.
+                appSettings.FirmwareVersion = null;
+                appSettings.sFirmwareVersion = "";
+
+                // Fetch the firmware version from the device
+                SendCmd("GET|FIRMWAREVER");
 
                 ApplyState(DeviceState.Idle);
                 //BtnConnect.Content = "Disconnect";

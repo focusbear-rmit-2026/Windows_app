@@ -74,7 +74,11 @@ namespace Focus_Bear.Models
 
                 if (bCheckingForFocusButton)
                 {
-                    if (updateVersion != null && appSettings.FirmwareVersion != null && updateVersion > appSettings.FirmwareVersion)
+                    // Offer the firmware when the server has a build AND either the device's firmware
+                    // version is unknown (a blank/un-flashed device, or one that didn't report a version)
+                    // or the server build is newer. The unknown case is what lets a brand-new device with
+                    // no firmware be flashed instead of being treated as already up to date.
+                    if (updateVersion != null && (appSettings.FirmwareVersion == null || updateVersion > appSettings.FirmwareVersion))
                     {
                         LogWriter.LogWrite("Firmware Update available");
                         return true;

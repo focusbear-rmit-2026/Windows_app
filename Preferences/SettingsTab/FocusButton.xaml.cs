@@ -67,7 +67,9 @@ namespace Focus_Bear.Preferences.SettingsTab
 
                 Installed.Text = "INSTALLED FIRMWARE";
                 Version.Text = "Version: ";
-                VersionVal.Text = appSettings.sFirmwareVersion;
+
+                RefreshFirmwareVersionLabel();
+				
                 btnCheckForUpdatesTXT.Text = "Check for Updates";
                 UpdateInfo.Text = "A new version is available. Click Flash Firmware to download and install the latest Firmware on the device";
                 btnFlashFirmwareTXT.Text = "Flash Firmware";
@@ -116,11 +118,21 @@ namespace Focus_Bear.Preferences.SettingsTab
         {
             if(IsVisible)
             {
-                VersionVal.Text = appSettings.sFirmwareVersion;
+                RefreshFirmwareVersionLabel();
 
                 SetConnectedState();
             }
 
+        }
+
+        // Show the device firmware version, or a clear "not detected" hint when it's unknown - e.g. a
+        // brand-new / un-flashed Focus Button that didn't report a version - so it never shows a stale
+        // value cached from a previously-connected device.
+        private void RefreshFirmwareVersionLabel()
+        {
+            VersionVal.Text = string.IsNullOrWhiteSpace(appSettings.sFirmwareVersion)
+                ? "Not detected — click \"Check for Updates\" to install firmware"
+                : appSettings.sFirmwareVersion;
         }
 
         private void SetConnectedState()
@@ -132,7 +144,8 @@ namespace Focus_Bear.Preferences.SettingsTab
                 ConnectionDot.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#34C759"));
                 ConnectionText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#228B22"));
                 ConnectionText.Text = "CONNECTED";
-                VersionVal.Text = appSettings.sFirmwareVersion;
+
+                RefreshFirmwareVersionLabel();
 
                 btnConnect.IsEnabled = false;
                 InstalledFirmwareSection.Visibility = Visibility.Visible;
