@@ -1522,9 +1522,12 @@ namespace Focus_Bear
                 var current = appSettings.arrFocusMusicTracks.FirstOrDefault(t => t.IsPlaying || t.IsPaused);
                 if (current != null)
                 {
+                    //User took manual control of music - don't auto-resume it when the routine ends
+                    appSettings.bFocusMusicPausedAutomatically = false;
+
                     if (current.IsPlaying)
                     {
-                        ((App)Application.Current).wndFocusMusic.PauseTrack(current);
+                        ((App)Application.Current).wndFocusBearMainWindow?.PageFocusMusic?.PauseTrack(current);
 
                         string imagePath = ("pack://application:,,,/Focus Bear;component/images/play_icon.png");
                         var image = new BitmapImage();
@@ -1536,7 +1539,7 @@ namespace Focus_Bear
                     }
                     else if (current.IsPaused)
                     {
-                        ((App)Application.Current).wndFocusMusic.ResumeTrack(current);
+                        ((App)Application.Current).wndFocusBearMainWindow?.PageFocusMusic?.ResumeTrack(current);
 
                         string imagePath = ("pack://application:,,,/Focus Bear;component/images/pause_icon.png");
                         var image = new BitmapImage();

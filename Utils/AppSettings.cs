@@ -494,6 +494,9 @@ namespace Focus_Bear.Utils
         public string sRawFocusMusicTracks = "";
         public ObservableCollection<FocusMusicTrack> arrFocusMusicTracks = new ObservableCollection<FocusMusicTrack>();
 
+        //Set when focus music is auto-paused for a routine/break, so we only auto-resume music that WE paused (not music the user paused manually).
+        public bool bFocusMusicPausedAutomatically = false;
+
         public string sRawBuddiesList = "";
         public ObservableCollection<BuddyDetails> arrBuddiesList = new ObservableCollection<BuddyDetails>();
         public string sUnlockRequestsInfo = "";

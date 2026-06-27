@@ -416,7 +416,7 @@ namespace Focus_Bear
 
         public static event Action ThemeChanged;
 
-        public FocusMusicView wndFocusMusic = null;
+
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             SentrySdk.ConfigureScope(scope =>
@@ -1033,6 +1033,7 @@ namespace Focus_Bear
 
             appSettings.nCurrentActivityType = CurrentActivityType.BREAK_ACTIVITY;
             LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.BREAK_ACTIVITY;");
+            PauseFocusMusicForRoutine();
             bool bCanShowBreaks = appSettings.PrepareBreakActivities();
             if (!appSettings.isMandatoryActivityGoing) //There is no Includeinevery break activity
             {
@@ -2396,6 +2397,7 @@ namespace Focus_Bear
 
                 appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;
                 LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;");
+                PauseFocusMusicForRoutine();
 
                 appSettings.nHabitIndex = 0;
                 LogWriter.LogWrite("nHabitIndex = 0");
@@ -2841,6 +2843,7 @@ namespace Focus_Bear
 
             appSettings.nCurrentActivityType = CurrentActivityType.EVENING_HABITS; //We use this for Focus Summary as well, when FOcus summary ends we change this to none
             LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.EVENING_HABITS;");
+            PauseFocusMusicForRoutine();
 
             //Let's also reset the Postponed and Fous Summary Postponed states
             appSettings.bFocusSummaryPostponedState = false;
@@ -4132,9 +4135,47 @@ namespace Focus_Bear
             }
         }
 
+        private void PauseFocusMusicForRoutine()
+        {
+            try
+            {
+                var track = appSettings.arrFocusMusicTracks?.FirstOrDefault(t => t.IsPlaying);
+                if (track == null) return;
+                wndFocusBearMainWindow?.PageFocusMusic?.PauseTrack(track);
+                appSettings.bFocusMusicPausedAutomatically = true;
+                wndTrayMenu?.UpdateTrayMenu();
+                LogWriter.LogWrite("PauseFocusMusicForRoutine() - paused: " + track.Name);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("PauseFocusMusicForRoutine() - " + ex.Message);
+            }
+        }
+
+        public void ResumeFocusMusicAfterRoutine()
+        {
+            try
+            {
+                //Only resume music that WE auto-paused, not music the user paused manually
+                if (!appSettings.bFocusMusicPausedAutomatically) return;
+                appSettings.bFocusMusicPausedAutomatically = false;
+
+                var track = appSettings.arrFocusMusicTracks?.FirstOrDefault(t => t.IsPaused);
+                if (track == null) return;
+                wndFocusBearMainWindow?.PageFocusMusic?.ResumeTrack(track);
+                wndTrayMenu?.UpdateTrayMenu();
+                LogWriter.LogWrite("ResumeFocusMusicAfterRoutine() - resumed: " + track.Name);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ResumeFocusMusicAfterRoutine() - " + ex.Message);
+            }
+        }
+
         public void HideFocusUIForRoutine()
         {
             // Hide contronls during routine
+            PauseFocusMusicForRoutine();
             wndTrayMenu?.UpdateTrayMenu();
             HideToDoPlayer();
             wndFocusProgress?.Hide();
@@ -4143,6 +4184,7 @@ namespace Focus_Bear
         public void RestoreFocusUIAfterRoutine()
         {
             // Restore controls after routine
+            ResumeFocusMusicAfterRoutine();
             wndTrayMenu?.UpdateTrayMenu();
             wndFocusProgress?.UpdatePauseControls();
             wndFocusProgress?.Show();

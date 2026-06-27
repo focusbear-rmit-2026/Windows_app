@@ -561,6 +561,9 @@ namespace Focus_Bear.Habits
                 {
                     //Set the current activity type to NONE
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+
+                    //Routine over - resume focus music if we auto-paused it
+                    ((App)(Application.Current)).ResumeFocusMusicAfterRoutine();
                 }
 
                 //Start the break Activities Timer
@@ -589,6 +592,9 @@ namespace Focus_Bear.Habits
                 //Set the current activity type to NONE
                 appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                 LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+
+                //Routine over - resume focus music if we auto-paused it
+                ((App)(Application.Current)).ResumeFocusMusicAfterRoutine();
 
                 //Start the break Activities Timer
                 ((App)(Application.Current)).StartBreakActivityTimer();
@@ -632,6 +638,9 @@ namespace Focus_Bear.Habits
                     //Set the current activity type to NONE
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                     LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+
+                    //Routine over - resume focus music if we auto-paused it
+                    ((App)(Application.Current)).ResumeFocusMusicAfterRoutine();
 
                     //Show the Shutoff Screen
                     if (appSettings.DidCutOffTimePassed())
