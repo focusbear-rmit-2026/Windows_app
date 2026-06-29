@@ -2574,12 +2574,11 @@ namespace Focus_Bear.Utils
 
             ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
             {
-                //todo win texts
-                string sTemp = "You’re currently using a website allowed for <WORK> Focus Mode.";
+                string sTemp = ConfigFileStrings["alertStartWorkFocusMode"]["title"].ToString();
                 sTemp = sTemp.Replace("<WORK>", focusType.name);
-                FBMessageBox msg = new FBMessageBox("Would you like to start Focus Mode now?",
-                    sTemp, 
-                    MessageBoxButton.YesNo, "Yes, Start", "Not Now", "", false, "", true, MessageBoxResult.No);
+                FBMessageBox msg = new FBMessageBox(ConfigFileStrings["alertStartWorkFocusMode"]["subTitle"].ToString(),
+                    sTemp,
+                    MessageBoxButton.YesNo, ConfigFileStrings["alertStartWorkFocusMode"]["buttonYes"].ToString(), ConfigFileStrings["alertStartWorkFocusMode"]["buttonNotNow"].ToString(), "", false, "", true, MessageBoxResult.No);
                 msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 msg.ShowDialog();
                 if (msg.btnClicked == MessageBoxResult.No)

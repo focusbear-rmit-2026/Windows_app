@@ -1465,8 +1465,7 @@ namespace Focus_Bear
                     }
                     else
                     {
-                        //todo win texts
-                        FBMessageBox ff = new FBMessageBox("You're running in Super Strict mode and no password is set. You will need to set a password to pause this custom schedule.", "Focus Bear");
+                        FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["leftMenuVcInfo"]["superStrictNeedPasswordText"].ToString(), appSettings.ConfigFileStrings["common"]["appName"].ToString());
                         ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                         ff.ShowDialog();
 

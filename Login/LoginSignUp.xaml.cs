@@ -386,7 +386,7 @@ namespace Focus_Bear.Login
                 }
                 catch (Exception ex)
                 {
-                    EyePassword.ToolTip = "Hide Password"; //Fore Time Being //todo win texts
+                    EyePassword.ToolTip = "Hide Password"; //Fore Time Being
                     LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
                 }
             }
@@ -408,7 +408,7 @@ namespace Focus_Bear.Login
                 }
                 catch (Exception ex)
                 {
-                    EyePassword.ToolTip = "Show Password"; //for time being //todo win texts
+                    EyePassword.ToolTip = "Show Password"; //for time being
                     LogWriter.LogWrite("EyePassword_MouseUp text ex = " + ex.Message);
                 }
             }

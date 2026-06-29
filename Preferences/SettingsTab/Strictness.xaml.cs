@@ -36,7 +36,6 @@ namespace Focus_Bear.Preferences.SettingsTab
 
             try
             {
-                //todo win texts
                 Heading.Text = appSettings.ConfigFileStrings["settingsNew"]["strictnessSettingTitle"].ToString();
                 btnPasswordText.Text = appSettings.ConfigFileStrings["settingsNew"]["passwordSettingTitle"].ToString();
                 btnFocusModeText.Text = appSettings.ConfigFileStrings["settingsNew"]["focusModeSettingTitle"].ToString();
@@ -114,7 +113,7 @@ namespace Focus_Bear.Preferences.SettingsTab
             MainMenuPanel.Visibility = Visibility.Collapsed;
             SubViewContainer.Visibility = Visibility.Visible;
 
-            SubViewHeading.Text = "Always Allowed Apps"; //todo win texts
+            SubViewHeading.Text = appSettings.ConfigFileStrings["alwaysAllowedAppsViewInfo"]["title"].ToString();
             // Load the AlwaysAllowedApps class here
             ContentArea.Content = new AlwaysAllowedApps(_ParentWindow);
         }

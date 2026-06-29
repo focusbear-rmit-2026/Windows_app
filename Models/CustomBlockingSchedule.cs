@@ -89,7 +89,7 @@ namespace Focus_Bear.Models
                 AppSettings appSettings = AppSettings.GetInstance;
                 var mode = appSettings.arrFocusModes
                     .FirstOrDefault(f => f.id == SelectedFocusModeId);
-                return mode?.name ?? "Update block list ⚠️"; //todo win texts
+                return mode?.name ?? appSettings.ConfigFileStrings["focusModesInfo"]["updateBlockListText"].ToString();
             }
         }
         
@@ -201,7 +201,7 @@ namespace Focus_Bear.Models
             string[] dayNames = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
             if (daysOfWeek.All(d => d))
-                return "Everyday"; //todo win texts
+                return AppSettings.GetInstance.ConfigFileStrings["focusModesInfo"]["everydayText"].ToString();
 
             List<string> parts = new List<string>();
             int start = -1;

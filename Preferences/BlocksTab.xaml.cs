@@ -51,8 +51,7 @@ namespace Focus_Bear.Preferences
 
             try
             {
-                //todo win texts
-                Heading.Text = "Blocking";
+                Heading.Text = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuBlocksPreferences"].ToString();
                 btnBlockListsText.Text = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["titleFocusMode"].ToString();
                 btnBlockingScheduleText.Text = appSettings.ConfigFileStrings["settingsNew"]["blockingScheduleSettingTitle"].ToString();
                 btnDistractingSitesText.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();

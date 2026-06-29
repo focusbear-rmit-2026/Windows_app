@@ -581,7 +581,7 @@ namespace Focus_Bear.Services.FocusButton
                                         var m = await client.AddTask(task);
                                         if (m == 1)
                                         {
-                                            string sTask = "\"<TASK>\" task created successfully.";//todo win texts //appSettings.ConfigFileStrings["common"]["taskCreated"].ToString();
+                                            string sTask = appSettings.ConfigFileStrings["common"]["taskCreated"].ToString();
                                             sTask = sTask.Replace("<TASK>", task);
                                             FBMessageBox msg = new FBMessageBox("", sTask, MessageBoxButton.OK, "", "", "", false, "", true);
                                             msg.ShowDialog();

@@ -130,7 +130,7 @@ namespace Focus_Bear.Habits
                 btnAction.Visibility = Visibility.Visible;
                 
                 nButtonActionState = ActionState.ChangeTiming;
-                btnActionText.Text = "Change Timing"; //todo win texts //appSettings.ConfigFileStrings["breakStateVcInfo"]["buttonChangeTiming"].ToString();
+                btnActionText.Text = appSettings.ConfigFileStrings["breakStateVcInfo"]["buttonChangeTiming"].ToString();
 
                 Description.Visibility = Visibility.Collapsed;
             }

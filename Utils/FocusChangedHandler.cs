@@ -523,7 +523,7 @@ namespace FocusBear.Utils
                                         LogWriter.LogWrite("App " + process.ProcessName + " is in Always BLOCKED Apps list - ALLOW");
                                         MinimizeBlockedAppWindow(process.MainWindowHandle);
 
-                                        string sTemp = "<APP_NAME> is a Super distracting app."; //todo win texts
+                                        string sTemp = appSettings.ConfigFileStrings["common"]["superDistractingAppBlockedText"].ToString();
                                         sTemp = sTemp.Replace("<APP_NAME>", process.ProcessName);
                                         appSettings.ShowBaloonTip(sTemp);
 

@@ -93,7 +93,7 @@ namespace Focus_Bear.Onboarding
 
             try
             {
-                Heading.Text = appSettings.ConfigFileStrings["createFirstBlockingScheduleVcInfo"]["title"].ToString(); //"Set Block Details"; //todo win texts
+                Heading.Text = appSettings.ConfigFileStrings["createFirstBlockingScheduleVcInfo"]["title"].ToString();
                 Bubble1.Text = appSettings.ConfigFileStrings["createFirstBlockingScheduleVcInfo"]["bubbleText"].ToString(); //"For example, block distracting websites during work hours";
                 btnAddBlockText.Text = appSettings.ConfigFileStrings["createFirstBlockingScheduleVcInfo"]["buttonAddBlock"].ToString(); //"Add Block";
 

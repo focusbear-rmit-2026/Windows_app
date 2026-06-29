@@ -68,9 +68,8 @@ namespace Focus_Bear.Pomodoro
                 Heading.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["title"].ToString();
                 UseSuperPomodoroMode.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonHardcorePomodoroText"].ToString();
 
-                WhichFocusMode.Text = "Which block list do you want to use?";// appSettings.ConfigFileStrings["pomodoroInfo"]["questionSecondText"].ToString();
-                //todo win texts
-                EditFocusModesTXT.Text = "Edit block lists";// appSettings.ConfigFileStrings["pomodoroInfo"]["buttonEditFocusModeText"].ToString();
+                WhichFocusMode.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["titleSelectBlockList"].ToString();
+                EditFocusModesTXT.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonEditBlockListsText"].ToString();
                 PomodoroCountText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["howManyPomodoroText"].ToString();
                 
                 HowMuchTime.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["pomodoroModeDurationText"].ToString();

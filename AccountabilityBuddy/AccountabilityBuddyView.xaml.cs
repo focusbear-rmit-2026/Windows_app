@@ -40,7 +40,7 @@ namespace Focus_Bear.AccountabilityBuddy
 
             try
             {
-                NoAcceptedBuddies.Text = "No accepted accountability buddies available."; //todo win texts
+                NoAcceptedBuddies.Text = appSettings.ConfigFileStrings["accountabilityBuddyInfo"]["noAcceptedBuddiesText"].ToString();
                 PleaseWait.Text = "Please wait for your buddy to accept the invitation before creating an unlock request.";
                 btnAddNewBuddyTXT.Text = "Add a new Buddy";
                 btnRefreshTXT.Text = "Refresh";

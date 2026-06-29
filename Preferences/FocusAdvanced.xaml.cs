@@ -54,7 +54,7 @@ namespace Focus_Bear.Preferences
             btnDeleteURL.ToolTip = appSettings.ConfigFileStrings["focusPreferencesAdvancedInfo"]["toolTipRemove"].ToString();
             
             btnOKTXT.Text = appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString();
-            CheckAutoSuggestFocusModeOnAllowedURLText.Text = "Automatically suggest starting this focus mode when any allowed URL is opened"; //todo win texts
+            CheckAutoSuggestFocusModeOnAllowedURLText.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["checkBoxSuggestWorkFocusMode"].ToString();
 
             ListBLockedURLs.ItemsSource = selectedFocusMode.arrBlockedUrls;
         }
