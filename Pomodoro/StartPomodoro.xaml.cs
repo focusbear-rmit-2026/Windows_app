@@ -173,6 +173,7 @@ namespace Focus_Bear.Pomodoro
             }
             if (ComboBoxFocusModes.Items.Count > 0)
             {
+                appSettings.LoadMostRecentFocusMode();
                 string lastUsedId = appSettings.sMostRecentFocusmodeDoneID;
                 int indexToSelect = 0;
                 if (!string.IsNullOrEmpty(lastUsedId))

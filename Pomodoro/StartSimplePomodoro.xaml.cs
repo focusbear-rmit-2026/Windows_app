@@ -436,7 +436,9 @@ namespace Focus_Bear.Pomodoro
                 RadioSuperDistracting.IsChecked = true;
                 return;
             }
-
+            
+            appSettings.LoadMostRecentFocusMode();
+            
             string lastId = appSettings.sMostRecentFocusmodeDoneID;
             var lastMode = !string.IsNullOrEmpty(lastId)
                 ? appSettings.arrFocusModes.FirstOrDefault(m => m.id == lastId)
