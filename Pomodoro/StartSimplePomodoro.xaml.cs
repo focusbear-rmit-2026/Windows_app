@@ -84,14 +84,7 @@ namespace Focus_Bear.Pomodoro
                 TimeUnfocusedText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["timerText"].ToString();
                 btnStartSessionText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonLetsDoItText"].ToString();
 
-                if(appSettings.isExpired)
-                {
-                    RadioSuperDistracting.IsChecked = true;
-                }
-                else
-                {
-                    RadioAI.IsChecked = true; //default checked in trial and full version
-                }
+                SetBlockingStyleFromLastUsed();
 
                 btnNextPopupTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonNextText"].ToString();
             }
@@ -219,14 +212,7 @@ namespace Focus_Bear.Pomodoro
                 // Ensure blocking schedule state is current before checking banner visibility
                 BlockingScheduleManager.CheckCustomBlockingScheduleTime();
 
-                if (appSettings.isExpired)
-                {
-                    RadioSuperDistracting.IsChecked = true;
-                }
-                else
-                {
-                    RadioAI.IsChecked = true; //default checked in trial and full version
-                }
+                SetBlockingStyleFromLastUsed();
 
                 Minutes.Text = appSettings.PomodoroMinutes;
                 MinutesBreak.Text = appSettings.PomodoroBreakMinutes;
@@ -438,6 +424,30 @@ namespace Focus_Bear.Pomodoro
         private void RadioSuperDistracting_Checked(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        // Pre-selects the blocking style based on the last-used focus mode so the simple
+        // pomodoro screen remembers the user's previous choice across sessions.
+        private void SetBlockingStyleFromLastUsed()
+        {
+            // Expired users can only use the "super distracting" option (AI blocking is Pro-only).
+            if (appSettings.isExpired)
+            {
+                RadioSuperDistracting.IsChecked = true;
+                return;
+            }
+
+            string lastId = appSettings.sMostRecentFocusmodeDoneID;
+            var lastMode = !string.IsNullOrEmpty(lastId)
+                ? appSettings.arrFocusModes.FirstOrDefault(m => m.id == lastId)
+                : null;
+
+            // The two simple-mode options map to the default mode (super distracting) and the
+            // deep-work / AI mode. Anything else falls back to AI, the previous default.
+            if (lastMode != null && lastMode.isDefault)
+                RadioSuperDistracting.IsChecked = true;
+            else
+                RadioAI.IsChecked = true;
         }
 
         private void TxtIntention_TextChanged(object sender, TextChangedEventArgs e)

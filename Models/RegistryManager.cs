@@ -2925,6 +2925,31 @@ namespace Focus_Bear.Models
             }
             return false;
         }
+
+        internal static string GetMostRecentFocusModeId()
+        {
+            try
+            {
+                return ReadStr("MOST_RECENT_FOCUS_MODE_ID") ?? "";
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RegistryManager.GetMostRecentFocusModeId - " + ex.Message);
+                return "";
+            }
+        }
+
+        internal static void SetMostRecentFocusModeId(string id)
+        {
+            try
+            {
+                Write("MOST_RECENT_FOCUS_MODE_ID", id);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RegistryManager.SetMostRecentFocusModeId - " + ex.Message);
+            }
+        }
     }
 
 

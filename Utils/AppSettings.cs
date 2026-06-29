@@ -295,7 +295,19 @@ namespace Focus_Bear.Utils
         public string sRunningFocusModeEndTime = "";
         public string sRunningFocusModeIntention = "";
         public double sRunningFocusModeAlignmentScoreThreshold;
-        public string sMostRecentFocusmodeDoneID = "";
+        private string _sMostRecentFocusmodeDoneID = "";
+        // Persisted to the registry on every set so the last-used focus mode survives restarts.
+        // Every focus-mode start path writes this (geek/simple/meetings/StartWorkFocusMode/pusher),
+        // so persisting in the setter covers all of them without touching each call site.
+        public string sMostRecentFocusmodeDoneID
+        {
+            get { return _sMostRecentFocusmodeDoneID; }
+            set
+            {
+                _sMostRecentFocusmodeDoneID = value;
+                RegistryManager.SetMostRecentFocusModeId(value);
+            }
+        }
 
         public readonly Queue<string> _last5Justifications = new Queue<string>();
         public const int MaxJustifications = 5;
@@ -583,6 +595,12 @@ namespace Focus_Bear.Utils
         public void LoadNotificationSoundsSetting()
         {
             bDisableNotificationSounds = RegistryManager.GetDisableNotificationSounds();
+        }
+
+        public void LoadMostRecentFocusMode()
+        {
+            // Set the backing field directly so loading does not write back to the registry.
+            _sMostRecentFocusmodeDoneID = RegistryManager.GetMostRecentFocusModeId();
         }
 
         public void CheckAndGetGlobalUUID()

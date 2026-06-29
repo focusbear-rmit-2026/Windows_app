@@ -173,9 +173,28 @@ namespace Focus_Bear.Pomodoro
             }
             if (ComboBoxFocusModes.Items.Count > 0)
             {
-                ComboBoxFocusModes.SelectedIndex = 0;
-                
-                FocusAlignmentThresholdCombo.SelectedItem = appSettings.arrFocusModes[0].AlignmentScoreThreshold;
+                string lastUsedId = appSettings.sMostRecentFocusmodeDoneID;
+                int indexToSelect = 0;
+                if (!string.IsNullOrEmpty(lastUsedId))
+                {
+                    for (int j = 0; j < appSettings.arrFocusModes.Count(); j++)
+                    {
+                        if (appSettings.arrFocusModes[j].id == lastUsedId && !appSettings.arrFocusModes[j].isMeetings)
+                        {
+                            int found = ComboBoxFocusModes.Items.IndexOf(appSettings.arrFocusModes[j].name);
+                            if (found >= 0)
+                            {
+                                indexToSelect = found;
+                                break;
+                            }
+                        }
+                    }
+                }
+                ComboBoxFocusModes.SelectedIndex = indexToSelect;
+
+                var selectedMode = appSettings.arrFocusModes.FirstOrDefault(m => m.name == ComboBoxFocusModes.SelectedItem?.ToString());
+                if (selectedMode != null)
+                    FocusAlignmentThresholdCombo.SelectedItem = selectedMode.AlignmentScoreThreshold;
             }
         }
 

@@ -555,6 +555,7 @@ namespace Focus_Bear
 
             appSettings.LoadMaxTabLimitSetting();
             appSettings.LoadNotificationSoundsSetting();
+            appSettings.LoadMostRecentFocusMode();
 
             appSettings.DownloadAndLoadConfigFile(); // TODO: Only allow download in production mode by checking the current environment
 
