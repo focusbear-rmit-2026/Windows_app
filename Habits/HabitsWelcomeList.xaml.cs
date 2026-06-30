@@ -342,7 +342,7 @@ namespace Focus_Bear.Habits
         }
         private void LoadUrl()
         {
-            string sSettingsURL = "https://dashboard.focusbear.io/webview/settings";//appSettings.ConfigFileStrings["settings"]["settingUrl"].ToString();
+            string sSettingsURL = "https://dashboard.focusbear.io/webview/settings?device_id=" + appSettings.sDeviceID; 
 
             string routine = null;
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
@@ -354,7 +354,7 @@ namespace Focus_Bear.Habits
                 routine = "evening";
             }
 
-            sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString("o") + "&edit_specific_routine=" + routine;
+            sSettingsURL = sSettingsURL + "&bust_cache=" + DateTime.UtcNow.ToString("o") + "&edit_specific_routine=" + routine;
 
             webView.Source = new System.Uri(sSettingsURL);
         }

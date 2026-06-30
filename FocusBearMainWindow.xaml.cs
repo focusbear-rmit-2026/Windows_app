@@ -575,6 +575,9 @@ namespace Focus_Bear
                     PageHabits.ShowHabitsPostponedView();
                     return;
                 }
+                //It might have been shown by Resume Habit button 
+                GridShade.Visibility = Visibility.Collapsed;
+
                 CheckFocusSummaryToBeShown();
 
                 CollapseSideBar();

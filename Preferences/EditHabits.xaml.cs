@@ -106,8 +106,8 @@ namespace Focus_Bear.Preferences
 
         public void LoadURL()
         {
-            string sSettingsURL = "https://dashboard.focusbear.io/webview/settings"; // appSettings.ConfigFileStrings["settings"] ["settingUrl"].ToString();
-            sSettingsURL = sSettingsURL + "?bust_cache=" + DateTime.UtcNow.ToString("o");
+            string sSettingsURL = "https://dashboard.focusbear.io/webview/settings?device_id=" + appSettings.sDeviceID; // appSettings.ConfigFileStrings["settings"] ["settingUrl"].ToString();
+            sSettingsURL = sSettingsURL + "&bust_cache=" + DateTime.UtcNow.ToString("o");
             webView.Source = new System.Uri(sSettingsURL);
         }
 

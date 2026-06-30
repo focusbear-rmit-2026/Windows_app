@@ -854,7 +854,14 @@ namespace Focus_Bear.Utils
 
                     string sConfigPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
                     sConfigPath = sConfigPath.TrimEnd('\\');
-                    sConfigPath = Path.Combine(sConfigPath, "config.json");
+                    if (sLangCode == "en")
+                    {
+                        sConfigPath = Path.Combine(sConfigPath, "config.json");
+                    }
+                    else if (sLangCode == "es")
+                    {
+                        sConfigPath = Path.Combine(sConfigPath, "config-es.json");
+                    }
 
                     File.Copy(sConfigPath, sConfigFilePath);
                     ConfigFileStrings = JObject.Parse(File.ReadAllText(sConfigFilePath));

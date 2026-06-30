@@ -44,3 +44,18 @@
 - Move postpone password check from EasySkipPostpone to btnPleaseSpareM…#1303 / also added for skipping from late habits confirmation popup
 - Updated setup with required signed dlls
 
+#v3.0.222
+- Evening routine popup repeatedly retriggers and ignores postpone duration #1232
+- Don't cancel an active postpone when the screensaver wakes#1305
+- Fixed emoji text color in focus mode end screen
+- Replace hardcoded text with config file string for translation #688
+- Focus session suggestion defaults to first list item instead of previously used session #1154
+- Minor fix for Intention not visible on focus mode end screen and Last focus mode not loading as was loaded too early (related to #1154)
+
+#v3.0.223
+- Quick fix for string not loading for Beverly and focus summary screen not showing
+- Added missing keys for local configs, fixed Spanish local config not being used as fallback#1284 (Relevant part merged manually -  fixed the local Spanish config file not being used as a fallback despite the language being set to Spanish)
+- Blocking schedule cannot be saved when AM/PM is missing and app provides no validation feedback #1249) Enhancement - Moved date check before checking overlapping schedules.
+- Fixes Habits can be completely erased #1247 
+- Infinite load when resuming habits #1248
+- App does not automatically reopen after saving habit changes requiring restart #1212

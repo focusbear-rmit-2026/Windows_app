@@ -291,6 +291,21 @@ namespace Focus_Bear.Preferences
                     return;
                 }
 
+                // Validate the time inputs BEFORE mutating _instance. Both From and
+                // Till must parse, otherwise show a clear message and bail out without
+                // leaving the schedule half-saved (e.g. id assigned).
+                if (!StartTimePicker.TryGetTime24(out string timeStart24)
+                    || !EndTimePicker.TryGetTime24(out string timeEnd24))
+                {
+                    FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["alertInvalidTime"].ToString());
+                    msg.Owner = _ParentWindow;
+                    msg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                    _ParentWindow.GridShade.Visibility = Visibility.Visible;
+                    msg.ShowDialog();
+                    _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+                    return;
+                }
+
                 //Check overlapping schedules
                 if (string.IsNullOrEmpty(_editableCopy.id)) //new schedule
                 {
@@ -337,21 +352,6 @@ namespace Focus_Bear.Preferences
                             return;
                         }
                     }
-                }
-
-                // Validate the time inputs BEFORE mutating _instance. Both From and
-                // Till must parse, otherwise show a clear message and bail out without
-                // leaving the schedule half-saved (e.g. id assigned).
-                if (!StartTimePicker.TryGetTime24(out string timeStart24)
-                    || !EndTimePicker.TryGetTime24(out string timeEnd24))
-                {
-                    FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["alertInvalidTime"].ToString());
-                    msg.Owner = _ParentWindow;
-                    msg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                    _ParentWindow.GridShade.Visibility = Visibility.Visible;
-                    msg.ShowDialog();
-                    _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
-                    return;
                 }
 
                 bool bAddingNew = false;

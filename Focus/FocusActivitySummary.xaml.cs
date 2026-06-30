@@ -249,7 +249,7 @@ namespace Focus_Bear.Focus
                 GridFocusSummary.Visibility = Visibility.Collapsed;
                 GridSummarySimpleMode.Visibility = Visibility.Visible;
             }
-            Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["titleDaySummary"].ToString();
+            Heading.Text = appSettings.ConfigFileStrings["focusInfo"]["focusSummaryInfo"]["titleDaySummary"].ToString();
 
             TotalDistractingSitesBlocked.Text = "Total distracting sites blocked: " + appSettings.nTotalDistractingSitesBlocked; //ok
             TimeSpentBlockingDistractingSites.Text = "Time spent on super distracting sites: " + appSettings.SecondsToTextHMS(appSettings.nTotalTimeForDistractingSitesToday);  //ok

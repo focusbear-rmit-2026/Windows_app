@@ -555,8 +555,7 @@ namespace Focus_Bear
 
             appSettings.LoadMaxTabLimitSetting();
             appSettings.LoadNotificationSoundsSetting();
-            appSettings.LoadMostRecentFocusMode();
-
+            
             appSettings.DownloadAndLoadConfigFile(); // TODO: Only allow download in production mode by checking the current environment
 
             //System sleep / wake up event
@@ -662,6 +661,24 @@ namespace Focus_Bear
             else
             {
                 CheckForUpdate(false);
+            }
+
+            // Clear WebView2 cache if user is logged out, prevent user data from being mixed between different accounts.
+            if (!RegistryManager.GetLoggedInStatus())
+            {
+                try
+                {
+                    string webViewCachePath = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FBCustomWebView2");
+                    if (System.IO.Directory.Exists(webViewCachePath))
+                    {
+                        System.IO.Directory.Delete(webViewCachePath, true);
+                        LogWriter.LogWrite("Cleared FBCustomWebView2 cache directory - EDIT HABITS and other webviews");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("Failed to clear FBCustomWebView2 cache: " + ex.Message);
+                }
             }
 
             //Enbale url blocking we need this
