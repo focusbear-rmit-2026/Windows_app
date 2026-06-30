@@ -339,6 +339,21 @@ namespace Focus_Bear.Preferences
                     }
                 }
 
+                // Validate the time inputs BEFORE mutating _instance. Both From and
+                // Till must parse, otherwise show a clear message and bail out without
+                // leaving the schedule half-saved (e.g. id assigned).
+                if (!StartTimePicker.TryGetTime24(out string timeStart24)
+                    || !EndTimePicker.TryGetTime24(out string timeEnd24))
+                {
+                    FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["alertInvalidTime"].ToString());
+                    msg.Owner = _ParentWindow;
+                    msg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                    _ParentWindow.GridShade.Visibility = Visibility.Visible;
+                    msg.ShowDialog();
+                    _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+                    return;
+                }
+
                 bool bAddingNew = false;
                 // 2. If new schedule (no ID), assign one
                 if (string.IsNullOrEmpty(_instance.id))
@@ -347,27 +362,9 @@ namespace Focus_Bear.Preferences
                     bAddingNew = true;
                 }
 
-                
-
                 // 3. Copy all editable fields back to the original instance
                 _instance.name = _editableCopy.name;
                 _instance.isOn = _editableCopy.isOn;
-
-                string sStartHours = StartTimePicker.NUDHTextBox.Text;
-                string sStartMinutes = StartTimePicker.NUDMTextBox.Text;
-                string sStartAMPM = StartTimePicker.NUDAMPTextBox.Text;
-
-                string combinedStartTime = $"{sStartHours}:{sStartMinutes}:00 {sStartAMPM}";
-                DateTime time = DateTime.ParseExact(combinedStartTime, "h:m:s tt", CultureInfo.InvariantCulture,DateTimeStyles.None);
-                string timeStart24 = time.ToString("HH:mm:ss"); // e.g. "00:15:00"
-
-                string sEndHours = EndTimePicker.NUDHTextBox.Text;
-                string sEndMinutes = EndTimePicker.NUDMTextBox.Text;
-                string sEndAMPM = EndTimePicker.NUDAMPTextBox.Text;
-
-                string combinedEndTime = $"{sEndHours}:{sEndMinutes}:00 {sEndAMPM}";
-                DateTime timeEnd = DateTime.ParseExact(combinedEndTime, "h:m:s tt", CultureInfo.InvariantCulture, DateTimeStyles.None);
-                string timeEnd24 = timeEnd.ToString("HH:mm:ss"); // e.g. "00:15:00"
 
                 _instance.StartTimeValue = timeStart24;
                 _instance.EndTimeValue = timeEnd24;

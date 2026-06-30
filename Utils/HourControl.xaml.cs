@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -62,6 +63,21 @@ namespace Focus_Bear.Utils
         public void SetAMorPM(string value)
         {
             NUDAMPTextBox.Text = value;
+        }
+
+        /// <summary>
+        /// Parses the current hour/minute/AM-PM entry into a 24h "HH:mm:ss" string.
+        /// Returns false (and null) when the entry is incomplete or invalid, so the
+        /// caller can show a validation message instead of failing silently.
+        /// </summary>
+        public bool TryGetTime24(out string time24)
+        {
+            time24 = null;
+            string combined = $"{NUDHTextBox.Text}:{NUDMTextBox.Text}:00 {NUDAMPTextBox.Text}";
+            if (!DateTime.TryParseExact(combined, "h:m:s tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsed))
+                return false;
+            time24 = parsed.ToString("HH:mm:ss");
+            return true;
         }
 
         public int MM
@@ -348,6 +364,46 @@ namespace Focus_Bear.Utils
         private void NUDAMPTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             CurrentTextBox = 4;
+            NUDAMPTextBox.SelectAll();
+        }
+
+        private void NUDAMPTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Same self-correcting pattern as the hour/minute boxes above: while
+            // typing, the field may only hold a prefix of "AM"/"PM" ("", "A", "P").
+            // Any other character snaps straight back to the last valid value.
+            string text = NUDAMPTextBox.Text.ToUpperInvariant();
+
+            if (text != "" && text != "A" && text != "P" && text != "AM" && text != "PM")
+            {
+                NUDAMPTextBox.Text = isAM ? "AM" : "PM";
+                NUDAMPTextBox.SelectAll();
+                return; // re-enters with the corrected text
+            }
+
+            if (text != NUDAMPTextBox.Text)
+            {
+                int caret = NUDAMPTextBox.SelectionStart;
+                NUDAMPTextBox.Text = text;
+                NUDAMPTextBox.SelectionStart = caret;
+                return; // re-enters with the normalised text
+            }
+
+            if (text == "AM") isAM = true;
+            else if (text == "PM") isAM = false;
+
+            ValueChanged?.Invoke(this, true);
+        }
+
+        private void NUDAMPTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // On blur, snap a partial/empty/invalid entry back to a valid value so
+            // the save path always has a parseable AM/PM token.
+            string text = NUDAMPTextBox.Text.ToUpperInvariant();
+
+            if (text.StartsWith("A")) NUDAMPTextBox.Text = "AM";
+            else if (text.StartsWith("P")) NUDAMPTextBox.Text = "PM";
+            else NUDAMPTextBox.Text = isAM ? "AM" : "PM";
         }
 
         private void NUDHTextBox_TextChanged(object sender, TextChangedEventArgs e)
