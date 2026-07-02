@@ -21,7 +21,7 @@
             <RowDefinition Height="70" />
             <RowDefinition Height="30" />
             <RowDefinition Height="45" />
-            <RowDefinition Height="40" />
+            <RowDefinition Height="90" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
@@ -36,17 +36,6 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Popup notification for active blocking schedule, auto-dismisses after 10 seconds -->
-        <Popup x:Name="BlockingSchedulePopup" AutomationProperties.AutomationId="popupBlockingScheduleWarning" Placement="Right" HorizontalOffset="8" PlacementTarget="{Binding ElementName=ComboBoxFocusModes}" StaysOpen="True" AllowsTransparency="True">
-            <Grid Width="320" Background="{x:Null}">
-                <Border x:Name="BlockingSchedulePopupBorder" Background="LightGoldenrodYellow" BorderBrush="Orange" BorderThickness="1" CornerRadius="7">
-                    <StackPanel Orientation="Horizontal" Margin="10,10">
-                        <TextBlock Text="&#x26A0;" FontSize="16" Foreground="#856404" VerticalAlignment="Top" Margin="0,0,8,0"/>
-                        <TextBlock x:Name="BlockingSchedulePopupTitle" TextWrapping="Wrap" FontWeight="Bold" FontSize="13" Foreground="#856404" MaxWidth="250"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </Popup>
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,15,15,0">
             <CheckBox x:Name="ChkShowAdvanced" Style="{StaticResource MacStyleToggleSwitch}" VerticalAlignment="Center" Margin="0,2,8,0"/>
             <TextBlock x:Name="ShowAdvancedLabel" VerticalAlignment="Center" FontSize="15"/>
@@ -54,11 +43,27 @@
         <TextBlock Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xIt's time to focus" Foreground="#e88800" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
         <CheckBox Grid.Row="2" x:Name="UseSuperPomodoroMode" AutomationProperties.AutomationId="chkUseSuperPomodoroMode" FontSize="15" Checked="UseSuperPomodoroMode_Checked" Unchecked="UseSuperPomodoroMode_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0">xUse super pomodoro mode (lock in the focus mode for multiple pomodoros)</CheckBox>
         <TextBlock Grid.Row="3" Name="WhichFocusMode" Margin="30,0,30,0" TextWrapping="Wrap" Text="xWhich focus mode do you want to use?"  FontSize="15" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <ComboBox Grid.Row="4" Name="ComboBoxFocusModes" AutomationProperties.AutomationId="cmbFocusModes"  Width="250" Height="30" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,10,0,0"  SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxFocusModes_SelectionChanged">
-        </ComboBox>
-        <TextBlock Grid.Row="5" x:Name="EditFocusModes" AutomationProperties.AutomationId="txtEditFocusModes" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-             <Hyperlink x:Name="btnEditFocusModes"   Click="btnEditFocusModes_Click"   TextDecorations="Underline" ><Run x:Name="EditFocusModesTXT" Text="xEdit focus modes"/></Hyperlink>
-        </TextBlock>
+        <!-- Outer columns are equal "*" so the combo (Auto column) always centers exactly where it did before - the banner lives in the right column and never shifts the combo when shown or hidden -->
+        <Grid Grid.Row="4" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Top">
+                <ComboBox Name="ComboBoxFocusModes" AutomationProperties.AutomationId="cmbFocusModes"  Width="250" Height="30" SelectedIndex="0" FontSize="15" SelectionChanged="ComboBoxFocusModes_SelectionChanged">
+                </ComboBox>
+                <TextBlock x:Name="EditFocusModes" AutomationProperties.AutomationId="txtEditFocusModes" Margin="0,10,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                    <Hyperlink x:Name="btnEditFocusModes"   Click="btnEditFocusModes_Click"   TextDecorations="Underline" ><Run x:Name="EditFocusModesTXT" Text="xEdit focus modes"/></Hyperlink>
+                </TextBlock>
+            </StackPanel>
+            <Border x:Name="BlockingScheduleBanner" Grid.Column="2" AutomationProperties.AutomationId="bannerBlockingScheduleWarning" Background="LightGoldenrodYellow" BorderBrush="Orange" BorderThickness="1" CornerRadius="7" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,0,0,0" Padding="12,8" Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#x26A0;" FontSize="16" Foreground="#856404" VerticalAlignment="Top" Margin="0,2,8,0"/>
+                    <TextBlock x:Name="BlockingScheduleBannerText" TextWrapping="Wrap" FontWeight="Bold" FontSize="13" Foreground="#856404" MaxWidth="200"/>
+                </StackPanel>
+            </Border>
+        </Grid>
         <StackPanel Name="PomodoroCountPanel" Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock Visibility="Collapsed" Margin="0,0,0,0" Name="PomodoroCountText" TextWrapping="Wrap" Text="xHow many pomodoros you want to focus for:"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 

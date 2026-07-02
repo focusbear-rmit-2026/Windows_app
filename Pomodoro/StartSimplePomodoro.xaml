@@ -25,18 +25,6 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <!-- Popup notification for active blocking schedule, auto-dismisses after 10 seconds -->
-                <Popup x:Name="BlockingSchedulePopup" AutomationProperties.AutomationId="popupBlockingScheduleWarning" Placement="Right" HorizontalOffset="8" PlacementTarget="{Binding ElementName=btnStartSession}" StaysOpen="True" AllowsTransparency="True">
-                    <Grid Width="320" Background="{x:Null}">
-                        <Border x:Name="BlockingSchedulePopupBorder" Background="LightGoldenrodYellow" BorderBrush="Orange" BorderThickness="1" CornerRadius="7">
-                            <StackPanel Orientation="Horizontal" Margin="10,10">
-                                <TextBlock Text="&#x26A0;" FontSize="16" Foreground="#856404" VerticalAlignment="Top" Margin="0,0,8,0"/>
-                                <TextBlock x:Name="BlockingSchedulePopupTitle" TextWrapping="Wrap" FontWeight="Bold" FontSize="13" Foreground="#856404" MaxWidth="250"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                </Popup>
-
                 <TextBlock Grid.Row="1"  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xPomodoro Time" Foreground="#e88800" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
 
                 <StackPanel Grid.Row="2"  Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
@@ -142,13 +130,27 @@
                 </Expander>
                 <TextBlock Visibility="Collapsed" Grid.Row="5" Name="TimeUnfocusedText" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center" VerticalAlignment="Center" Text="xxTime spent unfocused: [TIME]" />
 
-                <Button  Grid.Row="6" x:Name="btnStartSession" AutomationProperties.AutomationId="btnStartSession"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" Height="45" HorizontalContentAlignment="Center" Padding="0" Margin="0,10,0,50" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartSession_Click">
-                    <Button.Content>
-                        <StackPanel  Orientation="Horizontal">
-                            <TextBlock Name="btnStartSessionText" Margin="8" Text="xStart Session" Foreground="Black"/>
+                <!-- Outer columns are equal "*" so the button (Auto column) always centers exactly where it did before - the banner lives in the right column and never shifts the button when shown or hidden -->
+                <Grid Grid.Row="6" Margin="0,10,0,50">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button  Grid.Column="1" x:Name="btnStartSession" AutomationProperties.AutomationId="btnStartSession"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" Height="45" HorizontalContentAlignment="Center" Padding="0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartSession_Click">
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock Name="btnStartSessionText" Margin="8" Text="xStart Session" Foreground="Black"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Border x:Name="BlockingScheduleBanner" Grid.Column="2" AutomationProperties.AutomationId="bannerBlockingScheduleWarning" Background="LightGoldenrodYellow" BorderBrush="Orange" BorderThickness="1" CornerRadius="7" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0" Padding="12,8" Visibility="Collapsed">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x26A0;" FontSize="16" Foreground="#856404" VerticalAlignment="Top" Margin="0,2,8,0"/>
+                            <TextBlock x:Name="BlockingScheduleBannerText" TextWrapping="Wrap" FontWeight="Bold" FontSize="13" Foreground="#856404" MaxWidth="200"/>
                         </StackPanel>
-                    </Button.Content>
-                </Button>
+                    </Border>
+                </Grid>
         
                 <Border x:Name="GridShade" Grid.RowSpan="13"   CornerRadius="0"  Margin="0,0,0,0" Background="#060606" Opacity="0.65"   Visibility="Collapsed" />
 

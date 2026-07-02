@@ -436,6 +436,17 @@ namespace Focus_Bear
             return false;
         }
 
+        // Reload a leaf's view only when this window is actually shown to the user.
+        // IsLeafSelected just tells us which tab was last selected - the window persists
+        // hidden (via Hide()) after the user closes it, so a hidden leaf must not be reloaded.
+        public void ReloadLeafViewIfVisible(LeftButtonType buttonType)
+        {
+            if (IsVisible && IsLeafSelected(buttonType))
+            {
+                HandleLeafSelection(buttonType);
+            }
+        }
+
         private void HandleContentForButtonType(LeftButtonType buttonType)
         {
             switch (buttonType)

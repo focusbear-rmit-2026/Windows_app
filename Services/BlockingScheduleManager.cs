@@ -350,6 +350,17 @@ namespace Focus_Bear.Services
                 }
             }
         }
+
+        // True when an iron-focus blocking schedule is currently active (running and not paused).
+        // Focus session views use this to lock controls and show the active-schedule banner.
+        public static bool IsIronFocusScheduleActive()
+        {
+            return appSettings.ActiveSchedule != null
+                && appSettings.isBlockingScheduleRunning
+                && !appSettings.ActiveSchedule.isPaused
+                && appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS;
+        }
+
         private static CustomBlockingSchedule GetActiveSchedule()
         {
             var now = DateTime.Now;

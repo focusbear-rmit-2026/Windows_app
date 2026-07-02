@@ -25,7 +25,6 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace Focus_Bear.Pomodoro
 {
@@ -39,9 +38,6 @@ namespace Focus_Bear.Pomodoro
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         FocusBearMainWindow _ParentWindow = null;
-        private DispatcherTimer blockingSchedulePopupTimer;
-        private EventHandler _parentDeactivatedHandler;
-        private EventHandler _parentActivatedHandler;
         public StartPomodoro()
         {
         }
@@ -122,38 +118,6 @@ namespace Focus_Bear.Pomodoro
                 if (this.IsVisible)
                 {
                     UpdateValues();
-                }
-                else
-                {
-                    // Stop timer and close popup when navigating away
-                    if (blockingSchedulePopupTimer != null)
-                    {
-                        blockingSchedulePopupTimer.Stop();
-                        blockingSchedulePopupTimer.Tick -= BlockingSchedulePopupTimer_Tick;
-                        blockingSchedulePopupTimer = null;
-                    }
-                    BlockingSchedulePopup.IsOpen = false;
-                }
-            };
-
-            _parentDeactivatedHandler = (s, e) => { BlockingSchedulePopup.IsOpen = false; };
-            _parentActivatedHandler = (s, e) =>
-            {
-                if (this.IsVisible)
-                {
-                    BlockingScheduleManager.CheckCustomBlockingScheduleTime();
-                    UpdateBlockingScheduleUI();
-                }
-            };
-            _ParentWindow.Deactivated += _parentDeactivatedHandler;
-            _ParentWindow.Activated += _parentActivatedHandler;
-
-            this.Unloaded += (s, e) =>
-            {
-                if (_ParentWindow != null)
-                {
-                    _ParentWindow.Deactivated -= _parentDeactivatedHandler;
-                    _ParentWindow.Activated -= _parentActivatedHandler;
                 }
             };
 
@@ -565,49 +529,28 @@ namespace Focus_Bear.Pomodoro
         }
         private void UpdateBlockingScheduleUI()
         {
-            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused
-                && appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+            if (BlockingScheduleManager.IsIronFocusScheduleActive())
             {
                 ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
                 ComboBoxFocusModes.IsEnabled = false;
-                BlockingSchedulePopupTitle.Text = appSettings.ConfigFileStrings?["pomodoroInfo"]?["superStrictBlockingActiveMessage"]?.ToString()
+                BlockingScheduleBannerText.Text = appSettings.ConfigFileStrings?["pomodoroInfo"]?["superStrictBlockingActiveMessage"]?.ToString()
                     ?? "A super strict blocking schedule is active.";
 
-                // Show popup and auto-dismiss after 5 seconds
-                // Stop any previous timer before starting a new one
-                if (blockingSchedulePopupTimer != null)
-                {
-                    blockingSchedulePopupTimer.Stop();
-                    blockingSchedulePopupTimer.Tick -= BlockingSchedulePopupTimer_Tick;
-                }
-                BlockingSchedulePopupBorder.BeginAnimation(OpacityProperty, null);
-                BlockingSchedulePopupBorder.Opacity = 1;
-                BlockingSchedulePopup.IsOpen = true;
-                blockingSchedulePopupTimer = new DispatcherTimer();
-                blockingSchedulePopupTimer.Interval = TimeSpan.FromSeconds(5);
-                blockingSchedulePopupTimer.Tick += BlockingSchedulePopupTimer_Tick;
-                blockingSchedulePopupTimer.Start();
+                // Clear any held fade from a previous visit, otherwise the retained Opacity=0 wins over the line below and the banner never shows again
+                BlockingScheduleBanner.BeginAnimation(OpacityProperty, null);
+                BlockingScheduleBanner.Opacity = 1;
+                BlockingScheduleBanner.Visibility = Visibility.Visible;
+                // Auto-dismiss the message after 5 seconds, stays disabled regardless
+                DoubleAnimation fadeOut = new DoubleAnimation { From = 1.0, To = 0.0, BeginTime = TimeSpan.FromSeconds(5), Duration = TimeSpan.FromSeconds(2) };
+                fadeOut.Completed += (s, e) => BlockingScheduleBanner.Visibility = Visibility.Collapsed;
+                BlockingScheduleBanner.BeginAnimation(OpacityProperty, fadeOut);
             }
             else
             {
                 ComboBoxFocusModes.IsEnabled = true;
+                BlockingScheduleBanner.BeginAnimation(OpacityProperty, null);
+                BlockingScheduleBanner.Visibility = Visibility.Collapsed;
             }
-        }
-
-        private void BlockingSchedulePopupTimer_Tick(object sender, EventArgs e)
-        {
-            blockingSchedulePopupTimer.Stop();
-            blockingSchedulePopupTimer.Tick -= BlockingSchedulePopupTimer_Tick;
-
-            DoubleAnimation fadeOut = new DoubleAnimation
-            {
-                From = 1.0,
-                To = 0.0,
-                Duration = TimeSpan.FromSeconds(2)
-            };
-
-            fadeOut.Completed += (s, a) => { BlockingSchedulePopup.IsOpen = false; };
-            BlockingSchedulePopupBorder.BeginAnimation(OpacityProperty, fadeOut);
         }
     }
 }

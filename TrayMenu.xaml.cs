@@ -1386,13 +1386,7 @@ namespace Focus_Bear
                 BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
 
                 //In case the pomodoro page is visible, lets reload it
-                if (((App)Application.Current).wndFocusBearMainWindow != null)
-                {
-                    if (((App)Application.Current).wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.StartFocusSession))
-                    {
-                        ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.StartFocusSession);
-                    }
-                }
+                ((App)Application.Current).wndFocusBearMainWindow?.ReloadLeafViewIfVisible(LeftButtonType.StartFocusSession);
             }
         }
 
@@ -1482,10 +1476,7 @@ namespace Focus_Bear
                 }
 
                 //In case the pomodoro page is visible, lets reload it
-                if(((App)Application.Current).wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.StartFocusSession))
-                {
-                    ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.StartFocusSession);
-                }
+                ((App)Application.Current).wndFocusBearMainWindow?.ReloadLeafViewIfVisible(LeftButtonType.StartFocusSession);
             }
         }
 
