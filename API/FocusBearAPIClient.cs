@@ -3493,7 +3493,8 @@ namespace Focus_Bear.API
                 }
                 else
                 {
-                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                    LogWriter.LogWrite("GetUploadLogsURL() FAILED - nInternetOn returned false / connectivity check timed out!");
+                    return 2;
                 }
             }
             catch (WebException ex)
@@ -3567,6 +3568,11 @@ namespace Focus_Bear.API
                     {
                         return 0;
                     }
+                }
+                else
+                {
+                    LogWriter.LogWrite("NotifyUploadLogsSuccess() FAILED - nInternetOn returned false / connectivity check timed out!");
+                    return 2;
                 }
             }
             catch (WebException ex)

@@ -23,6 +23,8 @@ namespace Focus_Bear.Utils
 
                 appSettings.sUploadURL = ""; //Reinitialize
                 bool bUploadFailed = false;
+                //NotifySuccess/xResponse == 2 means the call failed because there was no Internet connection
+                int NotifySuccess = 1;
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 int xResponse = await client.GetUploadLogsURL();
                 if (xResponse == 1)
@@ -31,17 +33,12 @@ namespace Focus_Bear.Utils
 
                     if (UploadSuccess)
                     {
-                        int NotifySuccess = await client.NotifyUploadLogsSuccess(sFeedback, appSettings.sUploadURL);
+                        NotifySuccess = await client.NotifyUploadLogsSuccess(sFeedback, appSettings.sUploadURL);
                         //Notify API
-                        if (NotifySuccess == 1)
-                        {
-                            bUploadFailed = false;
-                        }
-                        else
+                        if (NotifySuccess != 1)
                         {
                             bUploadFailed = true;
                         }
-
                     }
                     else
                     {
@@ -58,7 +55,23 @@ namespace Focus_Bear.Utils
                 if (bUploadFailed)
                 {
                     //"There was some problem in uploading the logs. Please try again."
-                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["helpVcInfo"]["logsUploadErrorText"].ToString(), "Focus Bear");
+                    string sErrorMessage = appSettings.ConfigFileStrings["helpVcInfo"]["logsUploadErrorText"].ToString();
+
+                    if (xResponse == 2 || NotifySuccess == 2)
+                    {
+                        try
+                        {
+                            // "There was a problem with your Internet connection while uploading the logs. Please check your connection and try again."
+                            sErrorMessage = appSettings.ConfigFileStrings["helpVcInfo"]["logsUploadErrorConnectionText"].ToString();
+                        }
+                        catch (Exception ex)
+                        {
+                            //Older config versions may lack the key - keep the generic message
+                            LogWriter.LogWrite("UploadLogs.UploadLogsToServer - " + ex.Message);
+                        }
+                    }
+
+                    FBMessageBox ff = new FBMessageBox(sErrorMessage, "Focus Bear");
                     //ff.Owner = _ParentWindow;
                     ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     ff.ShowDialog();
