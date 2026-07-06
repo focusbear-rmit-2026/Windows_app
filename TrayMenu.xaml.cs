@@ -655,7 +655,7 @@ namespace Focus_Bear
            
         }
 
-        private async void btnQuit_Click(object sender, RoutedEventArgs e)
+        private void btnQuit_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnQuit_Click()");
             if(bQuitVisible)
@@ -664,16 +664,7 @@ namespace Focus_Bear
             }
             try
             {
-                //Chck if the Focus mode is running, then we should terminate it
-                //Call api top finish focus mode
-                if (appSettings.isFocusModeRunning)
-                {
-                    ((App)Application.Current).FinishFocusModeCommonTasks();
-                    
-                    FocusBearAPIClient client = new FocusBearAPIClient();
-                    var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, "", "");
-                }
-                
+                //A running focus mode is not finished here on purpose, it stays in progress on the backend and is resumed on next app start
                 QuitWindow aa = new QuitWindow();
                 bQuitVisible = true;
                 aa.ShowDialog();
@@ -959,6 +950,9 @@ namespace Focus_Bear
 
                 UpdateTrayMenu();
                 app.wndFocusProgress?.UpdatePauseControls();
+                // Refresh timer display immediately on resume so the arc and label don't wait for the next tick
+                if (!appSettings.isFocusModePaused)
+                    app.wndFocusProgress?.UpdateUI();
                 app.wndFocusBearMainWindow?.PageStopFocusMode?.UpdatePauseButtonText();
                 app.NotifyToDoPlayerPauseState(appSettings.isFocusModePaused);
 
@@ -1002,7 +996,7 @@ namespace Focus_Bear
             return;
         }
 
-        public void StartFocusModeTimer(int nHours, int nMinutes, bool bExtending = false, bool bCommandFromDevice = false)
+        public void StartFocusModeTimer(int nHours, int nMinutes, int nSeconds = 0, bool bExtending = false, bool bCommandFromDevice = false)
         {
             LogWriter.LogWrite("StartFocusModeTimer() invoked");
 
@@ -1044,12 +1038,9 @@ namespace Focus_Bear
 
                 dispatcherTimerFocus.Tick += new EventHandler(dispatcherTimer_Focus);
            
-#if DEBUG
-                dispatcherTimerFocus.Interval = new TimeSpan(nHours, nMinutes, 0);
-#else
-                 dispatcherTimerFocus.Interval = new TimeSpan(nHours, nMinutes, 0);
-#endif
-                if (!bCommandFromDevice) //Strt only when the command was not from device to avoid loop
+                dispatcherTimerFocus.Interval = new TimeSpan(nHours, nMinutes, nSeconds);
+
+                if (!bCommandFromDevice) //Start only when the command was not from device to avoid loop
                 {
                     //Include the hours component too - sessions >= 60 min have nHours > 0, and sending
                     //only nMinutes would tell the device the wrong (too-short) duration.
@@ -1101,7 +1092,7 @@ namespace Focus_Bear
                 {
                     try
                     {
-                        
+
                         //Stop the focus mode
                         OnUntill.Content = "";
                         listItems.First<FocusMode>().isOn = false;

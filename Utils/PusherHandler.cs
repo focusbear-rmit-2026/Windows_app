@@ -270,6 +270,7 @@ namespace Focus_Bear.Utils
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         ((App)Application.Current).FinishFocusModeCommonTasks();
+                        ((App)Application.Current).ShowFocusEndWindow();
                     });
 
                     DateTime now = DateTime.Now;
@@ -281,7 +282,7 @@ namespace Focus_Bear.Utils
                     string sAchieve = ObjData.ContainsKey("achievements") ? ObjData["achievements"].ToString() : "";
                     string sDistractions = ObjData.ContainsKey("distractions") ? ObjData["distractions"].ToString() : "";
                     appSettings.AddEntryInCSV("focus block", appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, sAchieve, sDistractions, "", "");
-               
+
                     //Ask if we need to show the Add URLS/Keywords window and update focus modes
                 }
                 catch (Exception ex)

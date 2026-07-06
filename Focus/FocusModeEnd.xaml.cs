@@ -161,14 +161,19 @@ namespace Focus_Bear.Focus
             FocusMode CurrentRunningFocusMode = appSettings.arrFocusModes.FirstOrDefault(i => i.id == appSettings.sRunningFocusModeID);
             if (CurrentRunningFocusMode != null)
                 CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
-           
-            //Call api top finish focus mode
+            else
+                LogWriter.LogWrite("FocusModeEnd - focus mode not found in local list: " + appSettings.sRunningFocusModeID);
+
+            //Call api to finish focus mode
             FocusBearAPIClient client = new FocusBearAPIClient();
             try
-            { 
-                var xResponse = client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
+            {
+                LogWriter.LogWrite($"Take5MinsBreak() - calling FinishFocusMode with id: {appSettings.sRunningFocusModeID}");
+                var xResponse = await client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
+                LogWriter.LogWrite($"Take5MinsBreak() - FinishFocusMode returned: {xResponse}");
 
-                var response = client.UpdateAllFocusModes();
+                var response = await client.UpdateAllFocusModes();
+                LogWriter.LogWrite($"Take5MinsBreak() - UpdateAllFocusModes returned: {response}");
             }
             catch (Exception ex)
             {
@@ -600,7 +605,7 @@ namespace Focus_Bear.Focus
 
                 int nHours = nMinutesToExtend / 60;
                 int nMinutes = nMinutesToExtend % 60;
-                ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes, true);
+                ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes, 0, true);
             }
             catch (Exception ex)
             {

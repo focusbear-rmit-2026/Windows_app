@@ -1594,7 +1594,7 @@ namespace Focus_Bear
             StartWorkFlow();
         }
 
-        public void StartWorkFlow()
+        public async void StartWorkFlow()
         {
             LogWriter.LogWrite("StartWorkFlow()");
 
@@ -1639,8 +1639,10 @@ namespace Focus_Bear
             //Do clear the Postponed variables
             RegistryManager.RemovePostponedHabitData();
 
-            //Check if a focus mode is pending from previsous session, end it
-            CheckRunningFocusModeAndFinishIt();
+            //Check if a focus mode is still in progress on the backend, resume it.
+            //Awaited so the resume sets isFocusModeRunning/isOn BEFORE the routine branching below,
+            //letting ShowMorningRoutine/ShowShutOffView's force-stop reliably show the focus-end window.
+            await CheckAndResumeRunningFocusMode();
 
             //Check if its shut off time, show evening routine
             //If morning time show morning routine
@@ -4522,44 +4524,49 @@ namespace Focus_Bear
 
         }
 
-        private async void CheckRunningFocusModeAndFinishIt()
+        private async Task CheckAndResumeRunningFocusMode()
         {
-            LogWriter.LogWrite("CheckRunningFocusModeAndFinishIt()");
-            FocusBearAPIClient client = new FocusBearAPIClient();
-            var sResponse = await client.GetLastActivityInfo();
-            int xResponse = int.Parse(sResponse.ToString());
-            if (xResponse == 1)
-            {
-                if (appSettings.sLastActivityDoneInfo != null || appSettings.sLastActivityDoneInfo.Length > 0)
-                {
-                    LogWriter.LogWrite("GetLastActivityInfo Value - " + appSettings.sLastActivityDoneInfo);
-                    //Parse the JSON string
-                    try
-                    {
-                        JObject sLastActivityDone = JObject.Parse(appSettings.sLastActivityDoneInfo);
+            LogWriter.LogWrite("CheckAndResumeRunningFocusMode()");
 
-                        //first Detect if the user has changed their habits and pull the new habits from the backend
-                        if (sLastActivityDone.ContainsKey("current_focus_mode"))
-                        {
-                            string sCurrentFocusMode = sLastActivityDone["current_focus_mode"].ToString();
-                            if (sCurrentFocusMode != null && sCurrentFocusMode.Length > 0)
-                            {
-                                JObject CurrentFocusModeObj = JObject.Parse(sCurrentFocusMode);
-                                string sCurrentFocusModeId = CurrentFocusModeObj["id"].ToString();
-                                if (sCurrentFocusModeId != null && sCurrentFocusModeId.Length > 0)
-                                {
-                                    _ = client.FinishFocusMode(sCurrentFocusModeId, "", "");
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogWriter.LogWrite("CheckRunningFocusModeAndFinishIt sLastActivityDoneInfo parsing ex-" + ex.Message);
-                    }
+            try
+            {
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var xResponse = await client.GetLastActivityInfo();
+                if (xResponse != 1) return;
+                if (string.IsNullOrWhiteSpace(appSettings.sLastActivityDoneInfo)) return;
+
+                JObject lastActivityDone = JObject.Parse(appSettings.sLastActivityDoneInfo);
+
+                JToken focusModeToken = lastActivityDone["current_focus_mode"];
+                if (focusModeToken == null || focusModeToken.Type != JTokenType.Object) return;
+
+                string sFocusModeId = focusModeToken["id"]?.ToString();
+                if (string.IsNullOrEmpty(sFocusModeId)) return;
+
+                string sFinishTime = lastActivityDone["current_focus_mode_finish_time"]?.ToString();
+                if (string.IsNullOrEmpty(sFinishTime)) return;
+
+                DateTime finishTimeLocal = DateTime.Parse(sFinishTime).ToLocalTime();
+                TimeSpan remaining = finishTimeLocal - DateTime.Now;
+                if (remaining.TotalSeconds <= 0)
+                {
+                    LogWriter.LogWrite("CheckAndResumeRunningFocusMode - session already expired at: " + finishTimeLocal);
+                    return;
                 }
+
+                LogWriter.LogWrite("CheckAndResumeRunningFocusMode - resuming session " + sFocusModeId + ", remaining seconds: " + (int)remaining.TotalSeconds);
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    StartWorkFocusMode(sFocusModeId, (int)remaining.TotalSeconds, false, true);
+                });
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("CheckAndResumeRunningFocusMode ex: " + ex.Message);
             }
         }
+
         public void RestartApp()
         {
             Dispatcher.Invoke(() =>
@@ -4750,7 +4757,7 @@ namespace Focus_Bear
             }
         }
 
-        public void StartWorkFocusMode(string sIDToStart, int SessionTotalSeconds = 1500, bool bCommandFromDevice = false)
+        public void StartWorkFocusMode(string sIDToStart, int SessionTotalSeconds = 1500, bool bCommandFromDevice = false, bool bResumingSession = false)
         {
             LogWriter.LogWrite("StartWorkFocusMode()");
 
@@ -4774,6 +4781,7 @@ namespace Focus_Bear
                 int TotalMinutes = SessionTotalSeconds / 60;
                 int nHours = TotalMinutes / 60;
                 int nMinutes = TotalMinutes % 60;
+                int nSeconds = SessionTotalSeconds % 60;
 
                 //used when user starts another focus block
                 appSettings.sRunningFocusModeHours = nHours.ToString();
@@ -4783,7 +4791,7 @@ namespace Focus_Bear
                 appSettings.sMinutesSuperPomodoro = "5";
 
 
-                   
+
                 Sounds.PlayFocusModeStartSound();
                 //Start the Focus Mode
                 //Change the play icon for this to STOP icon
@@ -4794,9 +4802,6 @@ namespace Focus_Bear
                 appSettings.isFocusModeRunning = true;
                 appSettings.isFocusModePaused = false;
 
-
-                ((App)Application.Current).ShowFocusProgressWindow();
-
                 DateTime dTill = DateTime.Now;
 
                 appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
@@ -4805,6 +4810,7 @@ namespace Focus_Bear
 
                 dTill = dTill.AddHours(nHours);
                 dTill = dTill.AddMinutes(nMinutes);
+                dTill = dTill.AddSeconds(nSeconds);
                 string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
                 sTill = sTill.Replace("<TIME>", dTill.ToString());
                 ((App)(Application.Current)).wndTrayMenu.OnUntill.Content = sTill;
@@ -4812,6 +4818,9 @@ namespace Focus_Bear
                 appSettings.sRunningFocusModeID = appSettings.arrFocusModes[nIndexToStart].id;
                 appSettings.sRunningFocusModeName = appSettings.arrFocusModes[nIndexToStart].name;
                 appSettings.sRunningFocusModeEndTime = dTill.ToString();
+
+                //Show the progress window after the end time is set so its timer anchors to the exact end time
+                ((App)Application.Current).ShowFocusProgressWindow();
 
                 //Clear any old stuff for gentle blocking
                 appSettings.TemporaryAllowedAppsGentleBlock.Clear();
@@ -4822,10 +4831,14 @@ namespace Focus_Bear
                 appSettings.TemporaryAllowedKeywords.Clear();
                 appSettings.TemporaryAllowedURLsTabTitles.Clear();
                 //Start the Focus Mode Timer to end after x hours / minutes
-                ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes, false, bCommandFromDevice);
+                ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(nHours, nMinutes, nSeconds, false, bCommandFromDevice);
 
-                FocusBearAPIClient client = new FocusBearAPIClient();
-                var xResponse = client.StartFocusMode(appSettings.arrFocusModes[nIndexToStart].id);
+                //When resuming a session that is already in progress on the backend, do not start it again
+                if (!bResumingSession)
+                {
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    var xResponse = client.StartFocusMode(appSettings.arrFocusModes[nIndexToStart].id);
+                }
             }
             catch (Exception ex)
             {
@@ -5197,7 +5210,11 @@ namespace Focus_Bear
         }
         public void HideToDoPlayer()
         {
-            wndFocusBearMainWindow.PageToDoPlayer?.webView?.Reload(); // Refresh webview to stop background execution  
+            // Guard CoreWebView2: a just-created/resumed player may not have finished initializing,
+            // and Reload() throws if CoreWebView2 isn't ready yet.
+            var webView = wndFocusBearMainWindow?.PageToDoPlayer?.webView;
+            if (webView?.CoreWebView2 != null)
+                webView.Reload(); // Refresh webview to stop background execution
             bLoadURLAgainInToDoPlayer = true;
         }
         public void NotifyToDoPlayerPauseState(bool isPaused)

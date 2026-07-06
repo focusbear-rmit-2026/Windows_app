@@ -63,8 +63,19 @@ namespace Focus_Bear.Focus
         public void StartTimer(int nDuration)
         {
             nTimer = nDuration;
-            total = TimeSpan.FromMinutes(nTimer/60); // Pomodoro length in minutes
-            endTime = DateTime.Now + total;
+
+            // Use the actual end time from settings when available (set from API before calling StartTimer)
+            // This avoids precision loss from integer arithmetic and drift from API response delay
+            if (DateTime.TryParse(appSettings.sRunningFocusModeEndTime, out DateTime savedEnd) && savedEnd > DateTime.Now)
+            {
+                endTime = savedEnd;
+                total = endTime - DateTime.Now;
+            }
+            else
+            {
+                total = TimeSpan.FromSeconds(nDuration);
+                endTime = DateTime.Now + total;
+            }
 
             UpdateUI();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -104,6 +115,10 @@ namespace Focus_Bear.Focus
         }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
+            // Always sync endTime first so end-check is never based on a stale value
+            if (DateTime.TryParse(appSettings.sRunningFocusModeEndTime, out DateTime parsedEnd))
+                endTime = parsedEnd;
+
             UpdatePauseControls();
             // If focus mode is paused, do nothing
             if (appSettings.isFocusModePaused)
@@ -120,13 +135,6 @@ namespace Focus_Bear.Focus
             {
                 try
                 {
-                    // Update remaining time
-                    DateTime parsedEnd;
-                    if (DateTime.TryParse(appSettings.sRunningFocusModeEndTime, out parsedEnd))
-                    {
-                        endTime = parsedEnd;
-                    }
-
                     DateTime now = DateTime.Now;
                     TimeSpan difference = endTime - now; // could also write `now - otherTime`
                     var durationSeconds = difference.TotalSeconds;
@@ -231,7 +239,7 @@ namespace Focus_Bear.Focus
 
         }
 
-        private void UpdateUI()
+        public void UpdateUI()
         {
             Intention.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleIntention"].ToString() + ": " + appSettings.sRunningFocusModeIntention;
 

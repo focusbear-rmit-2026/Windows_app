@@ -932,26 +932,26 @@ namespace Focus_Bear.API
                         LogWriter.LogWrite("FinishFocusMode() JSON: = " + addFocusJsonString);
 
                         var response = await client.PostAsync(apiPath, content);
+
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
                         {
-                            if (response.Content != null)
-                            {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-                                LogWriter.LogWrite("FinishFocusMode() GOT Success");
-                                return 1;
-                            }
+                            LogWriter.LogWrite("FinishFocusMode() GOT Success");
+                            return 1;
                         }
                         else
                         {
-                            //Get Device ID Failed
-                            if (response.Content != null)
+                            // Log status + raw body only on failure to help diagnose backend errors
+                            string responseBody = response.Content != null ? await response.Content.ReadAsStringAsync() : "(empty)";
+                            LogWriter.LogWrite($"FinishFocusMode() FAILED - HTTP {(int)response.StatusCode}");
+                            try
                             {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-                                string sErrorMessage = resJson["message"].ToString();
-                                LogWriter.LogWrite("FinishFocusMode() FAILED" + sErrorMessage);
-                                return 0;
+                                JObject resJson = JObject.Parse(responseBody);
+                                string sErrorMessage = resJson["message"]?.ToString() ?? "(no message field)";
+                                LogWriter.LogWrite($"FinishFocusMode() FAILED - {sErrorMessage}");
+                            }
+                            catch
+                            {
+                                LogWriter.LogWrite($"FinishFocusMode() FAILED - raw response: {responseBody}");
                             }
                             return 0;
                         }
