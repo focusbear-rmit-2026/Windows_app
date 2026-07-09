@@ -120,9 +120,12 @@ namespace Focus_Bear
         public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             //Always get the last active app name when the menu is clicked and ignore Focus Bear
-            string sAppName = GetLastActiveAppName();
+            string sAppName = GetLastActiveAppName(hwnd);
 
-            if (sAppName.Length > 0 && sAppName != "Focus Bear.exe" && sAppName != "explorer.exe")
+            if (string.IsNullOrEmpty(sAppName))
+                return;
+
+            if (sAppName != "Focus Bear.exe" && sAppName != "explorer.exe")
             {
                 //Click through is permitted from blur window and if the user was clicking on the same, it was changing app and blur was being removed. placing this check resolves it
                 if ((sAppName == "firefox.exe" && appSettings.sLastActiveAppName != "firefox.exe") ||
@@ -297,38 +300,12 @@ namespace Focus_Bear
             }
         }
 
-        public enum ProcessAccessFlags : uint
-        {
-            PROCESS_ALL_ACCESS = 0x001F0FFF,
-            PROCESS_CREATE_PROCESS = 0x00000080,
-            PROCESS_CREATE_THREAD = 0x00000002,
-            PROCESS_DUP_HANDLE = 0x00000040,
-            PROCESS_QUERY_INFORMATION = 0x00000400,
-            PROCESS_QUERY_LIMITED_INFORMATION = 0x00001000,
-            PROCESS_SET_INFORMATION = 0x00000200,
-            PROCESS_SET_QUOTA = 0x00000100,
-            PROCESS_SUSPEND_RESUME = 0x00000800,
-            PROCESS_TERMINATE = 0x00000001,
-            PROCESS_VM_OPERATION = 0x00000008,
-            PROCESS_VM_READ = 0x00000010,
-            PROCESS_VM_WRITE = 0x00000020
-        }
-
         [DllImport("user32.dll")]
         private static extern IntPtr GetAncestor(IntPtr hwnd, uint gaFlags);
         private const uint GA_ROOT = 2; // Get the root window in the hierarchy
 
         [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll")]
         private static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, out IntPtr lpdwProcessId);
-
-        [DllImport("kernel32.dll")]
-        private static extern bool QueryFullProcessImageName([In] IntPtr hProcess, [In] uint dwFlags, [Out] StringBuilder lpExeName, ref uint lpdwSize);
-
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -347,25 +324,57 @@ namespace Focus_Bear
         private const uint WM_CLOSE        = 0x0010;
 
 
-        private static string GetLastActiveAppName()
+        //Cache the last resolved foreground (PID -> exe name) so this high-frequency WinEvent hook
+        //(EVENT_OBJECT_* 0x8005-0x800E, incl. location/state/value changes) doesn't re-resolve the name
+        //on every event. Accessed only from the hook-owning UI thread (WINEVENT_OUTOFCONTEXT), so no lock.
+        private static int _lastActivePid = 0;
+        private static string _lastActiveAppName = string.Empty;
+
+        private static string GetLastActiveAppName(IntPtr hwnd)
         {
             try
             {
-                IntPtr foregroundWindowId = GetForegroundWindow();
-                GetWindowThreadProcessId(foregroundWindowId, out IntPtr activeAppProcessId);
-                IntPtr hprocess = OpenProcess(ProcessAccessFlags.PROCESS_QUERY_LIMITED_INFORMATION, false, (int)activeAppProcessId);
-                uint lpdwSize = 1024;
-                StringBuilder lpExeName = new StringBuilder((int)lpdwSize);
-                QueryFullProcessImageName(hprocess, 0, lpExeName, ref lpdwSize);
-                var exePath = lpExeName.ToString();
-                return Path.GetFileName(exePath);
+                if (hwnd == IntPtr.Zero)
+                {
+                    //Event not tied to a window (e.g. a system object) - nothing to report
+                    return string.Empty;
+                }
+
+                GetWindowThreadProcessId(hwnd, out IntPtr activeAppProcessId);
+                int pid = (int)activeAppProcessId;
+                if (pid == 0)
+                {
+                    return string.Empty;
+                }
+
+                //Common case: consecutive events come from the same foreground app - return the cached
+                //name and skip the (relatively expensive) lookup below.
+                if (pid == _lastActivePid)
+                {
+                    return _lastActiveAppName;
+                }
+
+                //No OpenProcess here on purpose. The old code called OpenProcess() and never closed the
+                //handle it returned, leaking a process handle on every event until the OS ran out of
+                //handles - the reported system-wide freeze / "not responding". Process.GetProcessById
+                //hands back no such raw handle; the using block just disposes the managed Process wrapper.
+                //(ProcessName enumerates processes internally, which is why the PID cache above matters.)
+                using (Process process = Process.GetProcessById(pid))
+                {
+                    //Callers compare against "<name>.exe" (e.g. "chrome.exe", "Focus Bear.exe").
+                    //ProcessName is the exe base name without its extension, so re-add ".exe".
+                    _lastActiveAppName = process.ProcessName + ".exe";
+                    _lastActivePid = pid;
+                    return _lastActiveAppName;
+                }
             }
             catch (Exception ex)
             {
-                
+                //Process may have exited between reading the PID and querying it - log, don't crash.
+                LogWriter.LogWrite("GetLastActiveAppName ex - " + ex.Message);
             }
 
-            return "";
+            return string.Empty;
         }
 
 

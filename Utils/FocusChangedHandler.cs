@@ -169,13 +169,6 @@ namespace FocusBear.Utils
                 processCurrentURL(element); //For always Blocked URLS
 //#endif
  
-            //    processCurrentPomodoroElement(element);
-            ///  else if (!string.IsNullOrEmpty(currentFocus))
-            //  processCurrentFocusElement(element);
-            ///  else if (Settings.preferenceSetting.synchronizeSetting.blockedURLs.Count > 0)
-
-
-
         }
 
         private void ProcessShutOffStateBlockAllApps(IUIAutomationElement element)
@@ -443,38 +436,7 @@ namespace FocusBear.Utils
             return; //handled by PBU
         }
         
-        private void processCurrentPomodoroElement(IUIAutomationElement element)
-        {
-            try
-            {
-                using (Process process = Process.GetProcessById(element.CurrentProcessId))
-                {
-                    if (element != null && process != null)
-                    {
-                        // block or Unblock apps
-                        if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName.ToLower()))
-                        {
-                            return;
-                        }
-                        
-                        foreach (string sApp in BLOCKED_APPS)
-                        {
-                            if (sApp == process.ProcessName)
-                            {
-                                MinimizeBlockedAppWindow(process.MainWindowHandle);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite(ex.Message);
-                Debug.WriteLine(ex.Message);
-            }
-        }
-
-        
+                
         private void processCurrentFocusElement(IUIAutomationElement element)
         {
             try
@@ -488,6 +450,7 @@ namespace FocusBear.Utils
                         if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName.ToLower()))
                         {
                             FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                            appSettings.HideGentleBlockWindow();
                             return;
                         }
                         
