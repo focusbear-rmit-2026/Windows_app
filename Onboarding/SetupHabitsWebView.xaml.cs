@@ -94,7 +94,7 @@ namespace Focus_Bear.Onboarding
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
                     webView.WebMessageReceived += webView_WebMessageReceived;
 
-                    string sURL = "https://dashboard.focusbear.io/webview/routine-suggestion?bust_cache=" + DateTime.UtcNow.ToString() + appSettings.sHabitsParam;
+                    string sURL = "https://dashboard.focusbear.io/webview/routine-suggestion-revamp?bust_cache=" + DateTime.UtcNow.ToString() + appSettings.sHabitsParam;
                     webView.Source = new Uri(sURL, System.UriKind.Absolute);
  
                 }
@@ -155,14 +155,17 @@ namespace Focus_Bear.Onboarding
 
                         CommandManager.InvalidateRequerySuggested();
 
-                        //One we have parsed the raw settings, we can get the duration for routines from the habits arrays
-                        for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
+                        //Once we have parsed the raw settings, sum each routine's total duration from its own habits array.
+                        appSettings.nMorningRoutineDuration = 0;
+                        foreach (var morningHabit in appSettings.arrGLOBALAllMorningHabits)
                         {
-                            appSettings.nMorningRoutineDuration = appSettings.arrGLOBALAllMorningHabits[i].durationSeconds;
+                            appSettings.nMorningRoutineDuration += morningHabit.durationSeconds;
                         }
-                        for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
+
+                        appSettings.nEveningRoutineDuration = 0;
+                        foreach (var eveningHabit in appSettings.arrGLOBALAllEveningHabits)
                         {
-                            appSettings.nEveningRoutineDuration = appSettings.arrGLOBALAllMorningHabits[i].durationSeconds;
+                            appSettings.nEveningRoutineDuration += eveningHabit.durationSeconds;
                         }
                     });
 

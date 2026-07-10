@@ -59,3 +59,17 @@
 - Fixes Habits can be completely erased #1247 
 - Infinite load when resuming habits #1248
 - App does not automatically reopen after saving habit changes requiring restart #1212
+
+#v3.0.224
+- Fix process-handle leak in GetLastActiveAppName causing app freeze (#1178)#1329 (Possible fix: App crashed #1178)
+- Fixed: Win32Exception: Not enough memory — ProcessOfflineData crashes — 27 users #1072
+
+#v3.0.225
+- Added "don't require password again for 2 minutes" feature on Windows
+- Don't show countdown timer for first 30 seconds #1246
+- Add more details to block-distracting-url posthog event #517
+- Overnight blocking schedule (spanning midnight) does not activate #1335
+- Onboarding: load the revamped routine-suggestion page
+- Onboarding: fix evening routine duration (was taken from morning habits); each routine now sums its own habits' durations
+
+
