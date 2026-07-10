@@ -366,14 +366,11 @@ namespace Focus_Bear.Services
             var now = DateTime.Now;
             int todayIndex = (int)now.DayOfWeek - 1;
             if (todayIndex < 0) todayIndex = 6; // Sunday fix → 6
+            int yesterdayIndex = (todayIndex + 6) % 7; // day before today (indices 0-6 = Mon-Sun)
 
             foreach (var schedule in appSettings.arrCustomBlockingSchedules)
             {
                 if (schedule.DaysOfWeek == null || schedule.DaysOfWeek.Length < 7)
-                    continue;
-
-                // Check if this schedule is active today
-                if (!schedule.DaysOfWeek[todayIndex])
                     continue;
 
                 // Parse start and end
@@ -385,8 +382,33 @@ namespace Focus_Bear.Services
                 var startTime = start.TimeOfDay;
                 var endTime = end.TimeOfDay;
 
-                // Check if current time is within range
-                if (nowTime >= startTime && nowTime <= endTime)
+                // Active check that handles schedules wrapping past midnight (e.g. 19:15 -> 07:00).
+                // The day-of-week flag applies to the day the schedule STARTS: the evening portion
+                // (now >= start) uses today's flag, and the after-midnight portion (now <= end) uses
+                // yesterday's flag, since that window belongs to the schedule that started the day before.
+                bool isActive;
+                if (startTime <= endTime)
+                {
+                    // Same-day range (e.g. 09:00 -> 17:00)
+                    isActive = schedule.DaysOfWeek[todayIndex] && nowTime >= startTime && nowTime <= endTime;
+                }
+                else if (nowTime >= startTime)
+                {
+                    // Overnight range, evening portion — started today
+                    isActive = schedule.DaysOfWeek[todayIndex];
+                }
+                else if (nowTime <= endTime)
+                {
+                    // Overnight range, after-midnight portion — started yesterday
+                    isActive = schedule.DaysOfWeek[yesterdayIndex];
+                }
+                else
+                {
+                    // Overnight range, but currently in the inactive gap (end < now < start)
+                    isActive = false;
+                }
+
+                if (isActive)
                 {
                     return schedule; // First match found — stop checking others
                 }
