@@ -450,7 +450,8 @@ namespace FocusBear.Utils
                         if (UNBLOCKED_APPLICATIONS.Contains(process.ProcessName.ToLower()))
                         {
                             FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
-                            appSettings.HideGentleBlockWindow();
+                            if("focus bear" != process.ProcessName.ToLower())
+                                appSettings.HideGentleBlockWindow();
                             return;
                         }
                         

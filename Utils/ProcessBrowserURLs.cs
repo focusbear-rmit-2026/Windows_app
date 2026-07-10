@@ -1632,7 +1632,48 @@ namespace Focus_Bear.Utils
                 
                 SendKeys.SendWait("{ENTER}");
 
-                appSettings.CapturePostHog("block-distracting-url");
+                // type values come from suppressURLForFirefox callers: "blocked", "focus", or one of
+                // the habit types ("morning-habit" / "evening-habit" / "break-activity").
+                string blockReason;
+                switch (type)
+                {
+                    case "blocked":
+                        blockReason = "super_distracting_url";
+                        break;
+                    case "focus":
+                        // Cuddly-bear focus mode (nFocusBearMode == 1) that isn't an immediate block is AI blocking
+                        blockReason = (!bBlockImmediately && appSettings.nFocusBearMode == 1)
+                            ? "ai_blocking" : "block_in_focus_mode";
+                        break;
+                    case "morning-habit":
+                    case "evening-habit":
+                    case "break-activity":
+                        blockReason = "block_in_habit";
+                        break;
+                    default:
+                        blockReason = "unknown";
+                        break;
+                }
+                string blockMeta = $"\"block-reason\":\"{blockReason}\"";
+                if (blockReason == "ai_blocking" || blockReason == "block_in_focus_mode")
+                {
+                    string blockMode;
+                    if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+                    {
+                        if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+                            blockMode = "super_strict";
+                        else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
+                            blockMode = "strict";
+                        else
+                            blockMode = "normal";
+                    }
+                    else
+                    {
+                        blockMode = appSettings.nFocusBearMode == 1 ? "normal" : "strict";
+                    }
+                    blockMeta += $",\"block-mode\":\"{blockMode}\"";
+                }
+                appSettings.CapturePostHog("block-distracting-url", blockMeta);
             }
             catch (Exception ex)
             {
