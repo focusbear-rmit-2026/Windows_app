@@ -513,6 +513,9 @@ namespace Focus_Bear.Utils
         public ObservableCollection<BuddyDetails> arrBuddiesList = new ObservableCollection<BuddyDetails>();
         public string sUnlockRequestsInfo = "";
         public DateTime UnlockTillTime = DateTime.Now;
+
+        //After a correct password is entered, subsequent password-protected actions are auto-approved until this time
+        public DateTime PasswordVerifiedTillTime = DateTime.MinValue;
         public BLOCKINGSCHEDULE nBlockingSchedule { get; set; }
 
         public CUIAutomation automation;

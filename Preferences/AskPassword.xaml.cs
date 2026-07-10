@@ -72,6 +72,7 @@ namespace Focus_Bear.Preferences
             {
                 if(Global.Base64Decode(appSettings.sUserPassword) == TxtPassword.Password)
                 {
+                    appSettings.PasswordVerifiedTillTime = DateTime.Now.AddMinutes(2);
                     DialogResult = true;
                 }
                 else
@@ -98,14 +99,31 @@ namespace Focus_Bear.Preferences
             }
         }
 
-        protected override void OnContentRendered(EventArgs e)
+        protected override void OnSourceInitialized(EventArgs e)
         {
-            base.OnContentRendered(e);
+            base.OnSourceInitialized(e);
+
+            // Run the auto-approve checks here rather than in OnContentRendered: OnSourceInitialized
+            // fires before the window is made visible, so closing the dialog (DialogResult = true) at
+            // this point avoids the brief flash of the password window when no prompt is actually needed.
 
             // Centralized check
             if (appSettings.UnlockTillTime > DateTime.Now)
             {
-                LogWriter.LogWrite("Unlocked till time - " + appSettings.UnlockTillTime.ToString());
+                LogWriter.LogWrite("AskPassword - Unlocked till time - " + appSettings.UnlockTillTime.ToString());
+                DialogResult = true;
+                return;
+            }
+
+            // While a habit activity is being played in fullscreen mode, always require the
+            // password (e.g. for postpone/skip) even if it was entered recently elsewhere.
+            bool bPlayingFullScreenHabit = appSettings.bPlayActivitiesInFullScreenMode &&
+                (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+                 appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS);
+
+            if (!bPlayingFullScreenHabit && appSettings.PasswordVerifiedTillTime > DateTime.Now)
+            {
+                LogWriter.LogWrite("AskPassword - Password verified till time - " + appSettings.PasswordVerifiedTillTime.ToString());
                 DialogResult = true;
                 return;
             }
