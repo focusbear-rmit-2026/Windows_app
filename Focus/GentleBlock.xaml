@@ -54,8 +54,8 @@
         <TextBlock Grid.Row="7" x:Name="ReportBadAIDecision" AutomationProperties.AutomationId="txtReportBadAIDecision" Margin="15,10,0,20" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="13" MinHeight="22" Cursor="Hand">
          👎 <Hyperlink x:Name="BtnReportBadAIDecision" Click="BtnReportBadAIDecision_Click"   TextDecorations="Underline" ><Run x:Name="TextReportBadAIDecision" Text="xReport Bad AI Decision"/></Hyperlink>
         </TextBlock>
-        <Border Grid.Row="8" x:Name="BorderTimer" Background="Transparent" CornerRadius="5" Width="100" Height="25" Margin="0,2,0,10">
-            <TextBlock x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="00:30" Padding="0" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Center" />
+        <Border Grid.Row="8" x:Name="BorderTimer" Background="Transparent" CornerRadius="5" Width="100" Height="25" Margin="0,2,0,10" Visibility="Collapsed">
+            <TextBlock x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="01:00" Padding="0" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Center" />
         </Border>
         
         <StackPanel Grid.Row="9" Orientation="Vertical" Margin="0,0,0,50">

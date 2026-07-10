@@ -42,7 +42,7 @@ namespace Focus_Bear.Focus
 
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
-        int nTimer = 30; //30 Seconds
+        int nTimer = 60; //60 Seconds
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
         [DllImport("user32.dll")]
@@ -261,7 +261,7 @@ namespace Focus_Bear.Focus
             {
                 LogWriter.LogWrite("ShowGentleBlockWindowAndStartTimer - " + ex.Message);
             }
-            nTimer = 30;
+            nTimer = 60;
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
 
@@ -732,13 +732,21 @@ namespace Focus_Bear.Focus
                     appSettings.HideBlurWindow();
                     Hide();
                 }
-                else if(nTimer == 15)
+                else if (nTimer > 30)
                 {
-                    BorderTimer.Background = new SolidColorBrush(Colors.Orange);
+                    BorderTimer.Visibility = Visibility.Collapsed;
                 }
-                else if (nTimer > 15)
+                else
                 {
-                    BorderTimer.Background = new SolidColorBrush(Colors.Transparent);
+                    BorderTimer.Visibility = Visibility.Visible;
+                    if (nTimer == 15)
+                    {
+                        BorderTimer.Background = new SolidColorBrush(Colors.Orange);
+                    }
+                    else if (nTimer > 15)
+                    {
+                        BorderTimer.Background = new SolidColorBrush(Colors.Transparent);
+                    }
                 }
             }
             catch (Exception ex)
