@@ -1,4 +1,4 @@
-﻿using Focus_Bear.API;
+using Focus_Bear.API;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -14,9 +13,12 @@ namespace Focus_Bear.Utils
 {
     public static class OfflineActivities
     {
-       
+
         private static bool bIsProcesssingOfflineData = false;
-        private static int nBatchCount = 50;
+        private static int nBatchCount = 10;
+        private const int MaxOfflineEntries = 500;
+        private const int MaxRetries = 5;
+
         public static void ProcessOfflineData()
         {
             if(!bIsProcesssingOfflineData)
@@ -27,109 +29,137 @@ namespace Focus_Bear.Utils
 
                     bIsProcesssingOfflineData = true;
 
-                    new Thread(new ThreadStart(new Action(async () =>
+                    // Use Task.Run instead of new Thread() to avoid Win32Exception when
+                    // the OS cannot allocate a new thread stack under memory pressure.
+                    _ = Task.Run(async () =>
                     {
-                        CommandManager.InvalidateRequerySuggested();
-
-                        //Read from the CSV file
-                        List<OfflineEntry> sOfflineData = new List<OfflineEntry>();
-                        //Seperate try catch block so that if csv reading fails somehow, it should work further 
                         try
                         {
-                            //Get data from CSV
-                            sOfflineData = ReadOfflineDataCSV().ToList<OfflineEntry>();
+                            CommandManager.InvalidateRequerySuggested();
 
-                            //Remove the first entry as it's just hearders
-                            sOfflineData.RemoveAt(0);
-
-                            if (sOfflineData.Count > 0)
+                            //Read from the CSV file
+                            List<OfflineEntry> sOfflineData = new List<OfflineEntry>();
+                            //Seperate try catch block so that if csv reading fails somehow, it should work further
+                            try
                             {
-                                LogWriter.LogWrite("ProcessOfflineData() - Offline Data Found to be processed");
-                                
-                                int nBaseDelayMs = 10000; // Initial delay in milliseconds
-                                Random random = new Random();
-                                int nRetry = 0;
+                                //Get data from CSV
+                                sOfflineData = ReadOfflineDataCSV().ToList<OfflineEntry>();
 
-                                while (sOfflineData.Count > 0)
+                                //Remove the first entry as it's just hearders
+                                sOfflineData.RemoveAt(0);
+
+                                // Cap queue size to prevent unbounded memory growth
+                                if (sOfflineData.Count > MaxOfflineEntries)
                                 {
-                                    var firstFiftyItems = sOfflineData.Take(nBatchCount).ToList();
+                                    LogWriter.LogWrite($"ProcessOfflineData() - Offline queue has {sOfflineData.Count} entries, capping at {MaxOfflineEntries}");
+                                    sOfflineData = sOfflineData.Take(MaxOfflineEntries).ToList();
+                                }
 
-                                    string addItemJsonString = "{\"completed_activities\":[";
+                                if (sOfflineData.Count > 0)
+                                {
+                                    LogWriter.LogWrite("ProcessOfflineData() - Offline Data Found to be processed");
 
-                                    //Now we need to create chunks of 50, Push to the API, wait for it, and then push next 50 and so on
-                                    foreach (OfflineEntry Entry in firstFiftyItems)
+                                    int nBaseDelayMs = 10000; // Initial delay in milliseconds
+                                    Random random = new Random();
+                                    int nRetry = 0;
+
+                                    while (sOfflineData.Count > 0)
                                     {
-                                        DateTime finish_time = DateTime.Parse(Entry.finish_time);
-                                        int duration_logged = int.Parse(Entry.duration_logged);
-
-                                        bool bTrue = true;
-                                        string metadata = $"{{}}"; ;
-
-                                        if (Entry.skipped_did_complete == "true") //if activity is skipped just add one second to finish time
+                                        if (nRetry >= MaxRetries)
                                         {
-                                            metadata = $"{{\"skipped_did_complete\":{JsonConvert.SerializeObject(bTrue)}}}";
-                                            finish_time = finish_time.AddSeconds(1);
+                                            LogWriter.LogWrite($"ProcessOfflineData() - Max retries ({MaxRetries}) reached, aborting batch sync");
+                                            break;
+                                        }
+
+                                        var firstBatchItems = sOfflineData.Take(nBatchCount).ToList();
+
+                                        var sb = new StringBuilder("{\"completed_activities\":[");
+                                        bool firstEntry = true;
+
+                                        //Now we need to create chunks, Push to the API, wait for it, and then push next chunk and so on
+                                        foreach (OfflineEntry Entry in firstBatchItems)
+                                        {
+                                            if (!firstEntry) sb.Append(',');
+                                            firstEntry = false;
+
+                                            DateTime finish_time = DateTime.Parse(Entry.finish_time);
+                                            int duration_logged = int.Parse(Entry.duration_logged);
+
+                                            bool bTrue = true;
+                                            string metadata = $"{{}}"; ;
+
+                                            if (Entry.skipped_did_complete == "true") //if activity is skipped just add one second to finish time
+                                            {
+                                                metadata = $"{{\"skipped_did_complete\":{JsonConvert.SerializeObject(bTrue)}}}";
+                                                finish_time = finish_time.AddSeconds(1);
+                                            }
+                                            else
+                                            {
+                                                finish_time = finish_time.AddSeconds(duration_logged);
+                                            }
+
+                                            sb.Append($"{{\"activity_id\":\"{Entry.activity_id}\"," +
+                                                $"\"duration_logged\":{duration_logged}," +
+                                                $"\"device_id\":\"{appSettings.sDeviceID}\"," +
+                                                $"\"activity_sequence_id\":\"{Entry.activity_sequence_id}\"," +
+                                                $"\"start_time\":\"{Entry.start_time}\"," +
+                                                $"\"finish_time\":\"{finish_time.ToString("o")}\"," +
+                                                $"\"metadata\":{metadata},");
+
+                                            if (Entry.choice_id.Length > 0)
+                                            {
+                                                sb.Append($"\"choice_id\":\"{Entry.choice_id}\",");
+                                            }
+
+                                            if (Entry.quantity_logged != null)
+                                            {
+                                                string LogQuantityAnswers = Entry.quantity_logged;
+                                                LogQuantityAnswers = LogQuantityAnswers.Replace(";", ",");
+                                                if(LogQuantityAnswers.Length < 1)
+                                                {
+                                                    LogQuantityAnswers = "[]";
+                                                }
+                                                sb.Append($"\"log_quantity_answers\":{LogQuantityAnswers}");
+                                            }
+                                            sb.Append('}');
+                                        }
+
+                                        sb.Append("]}");
+                                        string addItemJsonString = sb.ToString();
+
+                                        FocusBearAPIClient client = new FocusBearAPIClient();
+                                        var xResponse = await client.SyncOfflineData(addItemJsonString);
+
+                                        if (xResponse == 1)
+                                        {
+                                            //Delete the entries from the array
+                                            sOfflineData.RemoveRange(0, firstBatchItems.Count);
+                                            nRetry = 0;//reinitialize
                                         }
                                         else
                                         {
-                                            finish_time = finish_time.AddSeconds(duration_logged);
+                                            //we need to wait here for some time before trying again
+                                            // Calculate delay with jitter
+                                            int nDelayMs = CalculateBackoffWithJitter(nBaseDelayMs, nRetry, random);
+                                            Console.WriteLine($"Waiting for {nDelayMs} ms before retrying...");
+                                            await Task.Delay(nDelayMs);
+                                            nRetry++;
                                         }
-
-
-                                        addItemJsonString = addItemJsonString + $"{{\"activity_id\":\"{Entry.activity_id}\"," +
-                                            $"\"duration_logged\":{duration_logged}," +
-                                            $"\"device_id\":\"{appSettings.sDeviceID}\"," +
-                                            $"\"activity_sequence_id\":\"{Entry.activity_sequence_id}\"," +
-                                            $"\"start_time\":\"{Entry.start_time}\"," +
-                                            $"\"finish_time\":\"{finish_time.ToString("o")}\"," +
-                                            $"\"metadata\":{metadata},";
-
-                                        if (Entry.choice_id.Length > 0)
-                                        {
-                                            addItemJsonString = addItemJsonString + $"\"choice_id\":\"{Entry.choice_id}\",";
-                                        }
-
-                                        if (Entry.quantity_logged != null)
-                                        {
-                                            string LogQuantityAnswers = Entry.quantity_logged;
-                                            LogQuantityAnswers = LogQuantityAnswers.Replace(";", ",");
-                                            if(LogQuantityAnswers.Length < 1)
-                                            {
-                                                LogQuantityAnswers = "[]";
-                                            }
-                                            addItemJsonString = addItemJsonString + $"\"log_quantity_answers\":{LogQuantityAnswers}";
-                                        }
-                                        addItemJsonString = addItemJsonString + "},";
-
-                                        Console.WriteLine(addItemJsonString);
-
                                     }
-                                    //Remove last comma -  we have 100% added above
-                                    addItemJsonString = addItemJsonString.Remove(addItemJsonString.Length - 1, 1);
-
-                                    addItemJsonString = addItemJsonString + "]}";
-
-                                    FocusBearAPIClient client = new FocusBearAPIClient();
-                                    var xResponse = await client.SyncOfflineData(addItemJsonString);
-
-                                    if (xResponse == 1)
+                                    //We need to write this to the CSV file
+                                    //Simply delete the file and write default file again
+                                    if (File.Exists(appSettings.sOfflineDataCSVPath))
                                     {
-                                        //Delete the entries from the array
-                                        sOfflineData.RemoveRange(0, firstFiftyItems.Count);
-                                        nRetry = 0;//reinitialize
+                                        Global.DeleteFile(appSettings.sOfflineDataCSVPath, false);
                                     }
-                                    else
-                                    {
-                                        //we need to wait here for some time before trying again
-                                        // Calculate delay with jitter
-                                        int nDelayMs = CalculateBackoffWithJitter(nBaseDelayMs, nRetry, random);
-                                        Console.WriteLine($"Waiting for {nDelayMs} ms before retrying...");
-                                        await Task.Delay(nDelayMs);
-                                        nRetry++;
-                                    }
+                                    //Write back the default file
+                                    appSettings.WriteDefaultOffilineCSVFile();
                                 }
-                                //We need to write this to the CSV file
-                                //Simply delete the file and write default file again
+                            }
+                            catch (Exception ex)
+                            {
+                                LogWriter.LogWrite("appSettings.ReadCSV().ToList<OfflineEntry>() FAILED" + ex.Message);
+                                //In this case it is best to delete the file so it is written again
                                 if (File.Exists(appSettings.sOfflineDataCSVPath))
                                 {
                                     Global.DeleteFile(appSettings.sOfflineDataCSVPath, false);
@@ -138,23 +168,14 @@ namespace Focus_Bear.Utils
                                 appSettings.WriteDefaultOffilineCSVFile();
                             }
                         }
-                        catch (Exception ex)
+                        finally
                         {
-                            LogWriter.LogWrite("appSettings.ReadCSV().ToList<OfflineEntry>() FAILED" + ex.Message);
-                            //In this case it is best to delete the file so it is written again
-                            if (File.Exists(appSettings.sOfflineDataCSVPath))
-                            {
-                                Global.DeleteFile(appSettings.sOfflineDataCSVPath, false);
-                            }
-                            //Write back the default file
-                            appSettings.WriteDefaultOffilineCSVFile();
+                            bIsProcesssingOfflineData = false;
                         }
-                        bIsProcesssingOfflineData = false;
-                    }))).Start();
-
+                    });
                 }
             }
-         
+
         }
 
         static int CalculateBackoffWithJitter(int baseDelayMs, int retry, Random random)
@@ -176,7 +197,7 @@ namespace Focus_Bear.Utils
                 return 1000;
             }
         }
-        
+
         private static IEnumerable<OfflineEntry> ReadOfflineDataCSV()
         {
             //LogWriter.LogWrite("ReadOfflineDataCSV()");
@@ -185,7 +206,7 @@ namespace Focus_Bear.Utils
             {
                 string[] lines = File.ReadAllLines(appSettings.sOfflineDataCSVPath);
 
-                // lines.Select allows me to project each line as a OfflineEntry. 
+                // lines.Select allows me to project each line as a OfflineEntry.
                 // This will give me an IEnumerable<OfflineEntry> back.
                 return lines.Select(line =>
                 {
