@@ -128,15 +128,12 @@ namespace Focus_Bear
             if (sAppName != "Focus Bear.exe" && sAppName != "explorer.exe")
             {
                 //Click through is permitted from blur window and if the user was clicking on the same, it was changing app and blur was being removed. placing this check resolves it
-                if ((sAppName == "firefox.exe" && appSettings.sLastActiveAppName != "firefox.exe") ||
-                    (sAppName == "chrome.exe" && appSettings.sLastActiveAppName != "chrome.exe") ||
-                    (sAppName == "msedge.exe" && appSettings.sLastActiveAppName != "msedge.exe") ||
-                    (sAppName == "brave.exe" && appSettings.sLastActiveAppName != "brave.exe") ||
-                    (sAppName == "vivaldi.exe" && appSettings.sLastActiveAppName != "vivaldi.exe"))
+                bool bIsBrowser = Global.BROWSERS.Contains(Path.GetFileNameWithoutExtension(sAppName));
+                if (bIsBrowser && appSettings.sLastActiveAppName != sAppName)
                 {
                     appSettings.Hide_SetIntentionWindow();
                 }
-                else if(sAppName != "firefox.exe" && sAppName != "chrome.exe" && sAppName != "msedge.exe" && sAppName != "brave.exe" && sAppName != "vivaldi.exe")
+                else if(!bIsBrowser)
                 {
                     appSettings.Hide_SetIntentionWindow();
                 }
@@ -149,8 +146,7 @@ namespace Focus_Bear
             }
 
             // Tab limiter: fire a debounced check whenever the user interacts with a browser
-            if (sAppName == "chrome.exe" || sAppName == "msedge.exe" || sAppName == "firefox.exe" ||
-                sAppName == "brave.exe"  || sAppName == "vivaldi.exe" || sAppName == "opera.exe")
+            if (Global.BROWSERS.Contains(Path.GetFileNameWithoutExtension(sAppName)))
             {
                 TriggerTabLimitCheck();
             }
@@ -227,7 +223,7 @@ namespace Focus_Bear
                         }
                     }
                 }
-                else if (appSettings.sLastActiveAppName == "chrome.exe" || appSettings.sLastActiveAppName == "msedge.exe" || appSettings.sLastActiveAppName == "brave.exe" || appSettings.sLastActiveAppName == "vivaldi.exe")
+                else if (appSettings.sLastActiveAppName == "chrome.exe" || appSettings.sLastActiveAppName == "msedge.exe" || appSettings.sLastActiveAppName == "brave.exe" || appSettings.sLastActiveAppName == "vivaldi.exe" || appSettings.sLastActiveAppName == "comet.exe")
                 {
                     int nRet;
                     // Pre-allocate 256 characters, since this is the maximum class name length.
@@ -4893,9 +4889,6 @@ namespace Focus_Bear
             }
         }
 
-        // Browser process names monitored by the tab limiter.
-        private static readonly string[] _tabLimitBrowserNames = { "chrome", "msedge", "firefox", "brave", "vivaldi", "opera" };
-
         // Time for Chromium-based browsers to register a new tab in the UIA tree after opening.
         private const int CHROMIUM_UIA_REGISTRATION_MS = 200;
         // Cooldown after each check cycle — prevents hammering UIA on rapid focus events.
@@ -4921,7 +4914,7 @@ namespace Focus_Bear
             System.Windows.Automation.Condition btnCondition = new PropertyCondition(
                 AutomationElement.ControlTypeProperty, ControlType.Button);
 
-            foreach (string browser in _tabLimitBrowserNames)
+            foreach (string browser in Global.BROWSERS)
             {
                 try
                 {
@@ -4948,11 +4941,25 @@ namespace Focus_Bear
                             AutomationElementCollection tabs;
                             using (cacheReq.Activate())
                             {
-                                tabs = root.FindAll(System.Windows.Automation.TreeScope.Descendants, tabCondition);
+                                try
+                                {
+                                    tabs = root.FindAll(System.Windows.Automation.TreeScope.Descendants, tabCondition);
+                                }
+                                catch (System.Runtime.InteropServices.COMException ex)
+                                {
+                                    // Some browsers (Comet) throw on a full-window descendant scan — scan only the tab strip instead
+                                    LogWriter.LogWrite($"CollectBrowserTabs: {browser} FindAll COMException, using tab strip fallback — {ex.Message}");
+                                    AutomationElement firstTab = root.FindFirst(System.Windows.Automation.TreeScope.Descendants, tabCondition);
+                                    if (firstTab == null) continue;
+
+                                    AutomationElement tabStrip = TreeWalker.ControlViewWalker.GetParent(firstTab);
+                                    if (tabStrip == null) continue;
+
+                                    tabs = tabStrip.FindAll(System.Windows.Automation.TreeScope.Children, tabCondition);
+                                }
                             }
 
                             //LogWriter.LogWrite($"CollectBrowserTabs: {browser} — {tabs.Count} TabItem(s) found (before position filter)");
-
                             foreach (AutomationElement tab in tabs)
                             {
                                 try

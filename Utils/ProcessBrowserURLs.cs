@@ -46,7 +46,10 @@ namespace Focus_Bear.Utils
             "view-source:",
             "about:blank",
             "focus-bear.github.io",
-            "focus-block.html","brave://","localhost",};
+            "focus-block.html",
+            "brave://",
+            "comet://",
+            "localhost",};
 
        
         public static void ProcessCurrentURL(IntPtr hwnd)
@@ -1341,6 +1344,7 @@ namespace Focus_Bear.Utils
                                             sTitle = sTitle.Replace(" — Mozilla Firefox", "");
                                             sTitle = sTitle.Replace(" - Microsoft? Edge", "");
                                             sTitle = sTitle.Replace(" - Vivaldi", "");
+                                            sTitle = sTitle.Replace(" - Comet", "");
 
                                             if (sTitle.Length > 0)
                                             {
@@ -1401,6 +1405,7 @@ namespace Focus_Bear.Utils
                                             sTitle = sTitle.Replace(" — Mozilla Firefox", "");
                                             sTitle = sTitle.Replace(" - Microsoft? Edge", "");
                                             sTitle = sTitle.Replace(" - Vivaldi", "");
+                                            sTitle = sTitle.Replace(" - Comet", "");
 
                                             if (sTitle.Length > 0)
                                             {

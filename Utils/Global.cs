@@ -33,7 +33,7 @@ namespace Focus_Bear.Utils
             ES_DISPLAY_REQUIRED = 0x00000002,
             ES_SYSTEM_REQUIRED = 0x00000001
         }
-        public static List<string> BROWSERS = new List<string> { "chrome", "firefox", "msedge", "brave", "vivaldi" };
+        public static List<string> BROWSERS = new List<string> { "chrome", "firefox", "msedge", "brave", "vivaldi", "comet" };
 
         public static void EnableSystemSleep()
         {
