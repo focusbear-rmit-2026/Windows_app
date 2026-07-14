@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="xTeach Focus Bear how you focus" Height="auto" Width="360"  MaxWidth="360" MaxHeight="660" ResizeMode="NoResize">
+        Title="xTeach Focus Bear how you focus" Height="auto" Width="360"  MaxWidth="360" MaxHeight="660" ResizeMode="NoResize" AutomationProperties.AutomationId="AddTempAllowedToFocusModeWindow">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>

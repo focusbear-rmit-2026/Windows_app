@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Focus_Bear.Preferences"
              mc:Ignorable="d" 
-              d:DesignHeight="670" d:DesignWidth="670" Background="#fff" IsVisibleChanged="UserControl_IsVisibleChanged">
+              d:DesignHeight="670" d:DesignWidth="670" Background="#fff" IsVisibleChanged="UserControl_IsVisibleChanged" AutomationProperties.AutomationId="AdvancedTab">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>

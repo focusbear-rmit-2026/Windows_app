@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         Background="{DynamicResource BackgroundColor}"
         Foreground="{DynamicResource ForegroundColor}"
-        Title="Focus Bear"  Height="auto" Width="380" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged" >
+        Title="Focus Bear"  Height="auto" Width="380" ResizeMode="NoResize" IsVisibleChanged="Window_IsVisibleChanged"
+        AutomationProperties.AutomationId="SetIntentionWindow" >
     <Grid>
         <Grid >
         <Grid.RowDefinitions>

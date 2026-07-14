@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
-        >
+        AutomationProperties.AutomationId="ToDoPlayer">
     <Grid Background="{ DynamicResource BackgroundColor}">
 
         <Grid.Resources>
@@ -23,7 +23,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" x:Name="EndFocusLink" AutomationProperties.AutomationId="txtEndFocusLink" Margin="10,10,0,10" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-             <Hyperlink x:Name="btnEndFocusLink" Click="btnEndFocus_Click"   TextDecorations="Underline" ><Run x:Name="btnEndFocusLinkTXT" Text="xEnd Focus Session"/></Hyperlink>
+             <Hyperlink x:Name="btnEndFocusLink" AutomationProperties.AutomationId="btnEndFocusLink" Click="btnEndFocus_Click"   TextDecorations="Underline" ><Run x:Name="btnEndFocusLinkTXT" Text="xEnd Focus Session"/></Hyperlink>
         </TextBlock>
         <wv2:WebView2 Name="webView" Grid.Row="1"/>
     </Grid>

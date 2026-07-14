@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Tour"
         mc:Ignorable="d"
          d:DesignHeight="1080" d:DesignWidth="1920"
-        Title="FocusBearMenuTour" WindowStyle="None" ResizeMode="NoResize" WindowState="Maximized" AllowsTransparency="True">
+        Title="FocusBearMenuTour" WindowStyle="None" ResizeMode="NoResize" WindowState="Maximized" AllowsTransparency="True" AutomationProperties.AutomationId="FocusBearMenuTour">
     <Window.Background>
         <SolidColorBrush Opacity="0.5" Color="Black"/>
     </Window.Background>

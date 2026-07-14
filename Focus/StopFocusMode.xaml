@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Background="{DynamicResource BackgroundColor}"  IsVisibleChanged="UserControl_IsVisibleChanged">
+        Background="{DynamicResource BackgroundColor}" AutomationProperties.AutomationId="StopFocusMode" IsVisibleChanged="UserControl_IsVisibleChanged">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -28,13 +28,13 @@
         <Button Grid.Row="1" x:Name="btnStopFocus" AutomationProperties.AutomationId="btnStopFocus"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="45" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,40" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStopFocus_Click">
             <Button.ContextMenu>
                 <ContextMenu x:Name="FocusSessionContextMenu">
-                    <MenuItem x:Name="PauseResumeMenuItem" Click="PauseResumeMenuItem_Click">
+                    <MenuItem x:Name="PauseResumeMenuItem" AutomationProperties.AutomationId="mnuPauseResume" Click="PauseResumeMenuItem_Click">
                         <MenuItem.Icon>
                             <Image Width="16" Height="16" Source="pack://application:,,,/Focus Bear;component/images/pause_icon.png" />
                         </MenuItem.Icon>
                         <MenuItem.Header>xPause Focus Session</MenuItem.Header>
                     </MenuItem>
-                    <MenuItem x:Name="StopSessionMenuItem" Click="StopSessionMenuItem_Click">
+                    <MenuItem x:Name="StopSessionMenuItem" AutomationProperties.AutomationId="mnuStopSession" Click="StopSessionMenuItem_Click">
                         <MenuItem.Icon>
                             <Image Width="16" Height="16" Source="pack://application:,,,/Focus Bear;component/images/stop_icon.png" />
                         </MenuItem.Icon>

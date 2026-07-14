@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="135" Width="323" ResizeMode="NoResize" Closing="Window_Closing" Background="{DynamicResource BackgroundColor}">
+        Title="Focus Bear" Height="135" Width="323" ResizeMode="NoResize" Closing="Window_Closing" Background="{DynamicResource BackgroundColor}" AutomationProperties.AutomationId="HabitsResumeInPopup">
     <Grid  >
 
         <Grid.RowDefinitions>
@@ -26,7 +26,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xHabit resumes in:" Foreground="{DynamicResource ForegroundColor}" FontSize="17" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
                 <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="02:00" Padding="0" Foreground="{DynamicResource ForegroundColor}" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Top" />
-                <Button Grid.Row="2"   x:Name="btnPostpone"  AutomationProperties.AutomationId="txtPostpone"  Style="{StaticResource BtnStyleLightOrangeBordered}"  Height="30" Width="120" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="3" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnPostpone_Click" >
+                <Button Grid.Row="2"   x:Name="btnPostpone"  AutomationProperties.AutomationId="btnPostpone"  Style="{StaticResource BtnStyleLightOrangeBordered}"  Height="30" Width="120" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="3" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnPostpone_Click" >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnPostponeTXT" Text="xPostpone" Style="{DynamicResource ButtonTextBlockStyle}"/>

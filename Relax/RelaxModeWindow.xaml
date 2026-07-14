@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Relax"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="457" Width="315" ResizeMode="NoResize" Closing="Window_Closing" Background="{DynamicResource BackgroundColor}">
+        Title="Focus Bear" Height="457" Width="315" ResizeMode="NoResize" Closing="Window_Closing" Background="{DynamicResource BackgroundColor}" AutomationProperties.AutomationId="RelaxModeWindow">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>

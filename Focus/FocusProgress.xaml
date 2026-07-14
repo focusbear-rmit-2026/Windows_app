@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d" d:DesignHeight="128" d:DesignWidth="330"
-        Title="FocusProgress" Height="115" Width="330" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" WindowStyle="None" Opacity="0.5" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseDown="Window_MouseDown" Closing="Window_Closing">
+        Title="FocusProgress" Height="115" Width="330" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" WindowStyle="None" Opacity="0.5" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseDown="Window_MouseDown" Closing="Window_Closing" AutomationProperties.AutomationId="FocusProgress">
     <Border  x:Name="WindowBorder" CornerRadius="15" BorderBrush="Black" BorderThickness="2" Padding="6" Background="#e88800">
         <Grid>
             <Grid.RowDefinitions>
@@ -50,8 +50,8 @@
                      Cursor="Hand"
                      Margin="85,0,0,0" Grid.Row="1" Width="81" Height="30"/>
 
-                    <TextBlock Name="txtEndSession" HorizontalAlignment="Center" Margin="85,4,0,0" ToolTip="Click to end the focus session early">
-                        <Hyperlink Name="lnkEndSession" Click="btnEndFocus_Click">
+                    <TextBlock Name="txtEndSession" HorizontalAlignment="Center" Margin="85,4,0,0" ToolTip="Click to end the focus session early" AutomationProperties.AutomationId="txtEndSession">
+                        <Hyperlink Name="lnkEndSession" AutomationProperties.AutomationId="lnkEndSession" Click="btnEndFocus_Click">
                             xEnd session
                         </Hyperlink>
                     </TextBlock>

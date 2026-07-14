@@ -6,7 +6,7 @@
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:local="clr-namespace:Focus_Bear.Upgrade"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="720" Width="900" Topmost="True">
+        Title="Focus Bear" Height="720" Width="900" Topmost="True" AutomationProperties.AutomationId="ManageSubscription">
     <Grid>
         <wv2:WebView2 Name="webView" />
     </Grid>

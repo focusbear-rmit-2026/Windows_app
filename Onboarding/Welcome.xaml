@@ -7,7 +7,7 @@
       xmlns:controls="clr-namespace:Focus_Bear.Controls"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="Welcome" IsVisibleChanged="Page_IsVisibleChanged">
+      Title="Welcome" IsVisibleChanged="Page_IsVisibleChanged" AutomationProperties.AutomationId="Welcome">
 
     <Grid>
         <Grid.Resources>
@@ -56,7 +56,7 @@
         </Button>
 
         <TextBlock  Grid.Row="2" x:Name="HaveAccount" AutomationProperties.AutomationId="txtHaveAccount"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
-             <Hyperlink x:Name="btnHaveAccount"   Click="btnHaveAccount_Click"   TextDecorations="Underline" ><Run x:Name="btnHaveAccountText" Text="xI already have a Focus Bear account"/></Hyperlink>
+             <Hyperlink x:Name="btnHaveAccount" AutomationProperties.AutomationId="btnHaveAccount"  Click="btnHaveAccount_Click"   TextDecorations="Underline" ><Run x:Name="btnHaveAccountText" Text="xI already have a Focus Bear account"/></Hyperlink>
         </TextBlock>
         <Grid Grid.Row="3" Margin="0,0,0,0" Background="#454545"/>
 

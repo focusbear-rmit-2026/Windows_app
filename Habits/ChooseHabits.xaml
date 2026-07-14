@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         mc:Ignorable="d"
-        Title="Choose Habits" Height="550" Width="500" WindowStyle="ToolWindow" Topmost="True" ResizeMode="NoResize" >
+        Title="Choose Habits" Height="550" Width="500" WindowStyle="ToolWindow" Topmost="True" ResizeMode="NoResize" AutomationProperties.AutomationId="ChooseHabits">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -69,7 +69,7 @@
         </Button>
 
         <TextBlock x:Name="CompletelySkip" AutomationProperties.AutomationId="txtCompletelySkip" Grid.Row="6" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" MinHeight="22" Cursor="Hand">
-             <Hyperlink x:Name="btnCompletelySkip" Click="btnCompletelySkip_Click"   TextDecorations="Underline" ><Run x:Name="CompletelySkipTXT" Text="xCompletely Skip my morning habits for today"/></Hyperlink>
+             <Hyperlink x:Name="btnCompletelySkip" AutomationProperties.AutomationId="btnCompletelySkip" Click="btnCompletelySkip_Click"   TextDecorations="Underline" ><Run x:Name="CompletelySkipTXT" Text="xCompletely Skip my morning habits for today"/></Hyperlink>
         </TextBlock>
     </Grid>
 </Window>

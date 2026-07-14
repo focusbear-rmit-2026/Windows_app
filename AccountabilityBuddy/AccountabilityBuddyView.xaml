@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Focus_Bear.AccountabilityBuddy"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" IsVisibleChanged="UserControl_IsVisibleChanged">
+             d:DesignHeight="450" d:DesignWidth="800" IsVisibleChanged="UserControl_IsVisibleChanged" AutomationProperties.AutomationId="AccountabilityBuddyView">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -70,7 +70,7 @@
                 </TextBox>
                 <TextBlock Name="UnlockDuration" Margin="20,15,20,5" TextWrapping="Wrap"  Text="Unlock Duration (Optional)"   FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
 
-                <Slider x:Name="TimeSlider"  
+                <Slider x:Name="TimeSlider" AutomationProperties.AutomationId="sldTimeSlider"
                         Minimum="1"
                         Maximum="1440"
                         TickFrequency="1"
@@ -165,7 +165,7 @@
                     </Button>
                 </Grid>
                 <TextBlock x:Name="RefreshRequestUpdate" AutomationProperties.AutomationId="txtRefreshRequestUpdate" Grid.Row="4" Margin="20,15,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-                    <Hyperlink x:Name="btnRefreshRequestUpdate" Click="btnRefreshRequestUpdate_Click"   TextDecorations="Underline" ><Run x:Name="btnRefreshRequestUpdateTXT" Text="Refresh Unlock Request's Status"/></Hyperlink>
+                    <Hyperlink x:Name="btnRefreshRequestUpdate" AutomationProperties.AutomationId="btnRefreshRequestUpdate" Click="btnRefreshRequestUpdate_Click"   TextDecorations="Underline" ><Run x:Name="btnRefreshRequestUpdateTXT" Text="Refresh Unlock Request's Status"/></Hyperlink>
                 </TextBlock>
             </StackPanel>
         </Grid>
@@ -177,10 +177,10 @@
                 <TextBlock Name="NoAcceptedBuddies" Margin="20,0,20,5" TextWrapping="Wrap"  Text="xNo accepted accountability buddies available."   FontSize="13" FontWeight="Bold" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
                 <TextBlock Name="PleaseWait" Margin="20,20,20,5" TextWrapping="Wrap"  Text="xPlease wait for your buddy to accept the invitation before creating an unlock request."   FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
                 <TextBlock x:Name="AddNewBuddy" AutomationProperties.AutomationId="txtAddNewBuddy" Grid.Row="4" Margin="20,10,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-                    <Hyperlink x:Name="btnAddNewBuddy" Click="btnAddNewBuddy_Click"   TextDecorations="Underline" ><Run x:Name="btnAddNewBuddyTXT" Text="xAdd a new Buddy"/></Hyperlink>
+                    <Hyperlink x:Name="btnAddNewBuddy" AutomationProperties.AutomationId="btnAddNewBuddy" Click="btnAddNewBuddy_Click"   TextDecorations="Underline" ><Run x:Name="btnAddNewBuddyTXT" Text="xAdd a new Buddy"/></Hyperlink>
                 </TextBlock>
                 <TextBlock x:Name="Refresh" AutomationProperties.AutomationId="txtbtnRefresh" Grid.Row="4" Margin="20,10,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-                     <Hyperlink x:Name="btnRefresh" Click="btnRefresh_Click"   TextDecorations="Underline" ><Run x:Name="btnRefreshTXT" Text="xAdd a new Buddy"/></Hyperlink>
+                     <Hyperlink x:Name="btnRefresh" AutomationProperties.AutomationId="btnRefresh" Click="btnRefresh_Click"   TextDecorations="Underline" ><Run x:Name="btnRefreshTXT" Text="xAdd a new Buddy"/></Hyperlink>
                 </TextBlock>
             </StackPanel>
            

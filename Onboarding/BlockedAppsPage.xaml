@@ -8,7 +8,7 @@
       xmlns:utils="clr-namespace:Focus_Bear.Utils" 
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      IsVisibleChanged="Page_IsVisibleChanged" >
+      IsVisibleChanged="Page_IsVisibleChanged" AutomationProperties.AutomationId="BlockedAppsPage">
 
     <Grid>
         <Grid.Resources>
@@ -52,7 +52,7 @@
                                     <RowDefinition Height="1" />
                                     <RowDefinition Height="60"/>
                                 </Grid.RowDefinitions>
-                                <ListView Grid.Row="0" x:Name="ListBlockedApps" AutomationProperties.AutomationId="ListBlockedApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling" BorderBrush="Transparent"  ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}"   Margin="10,10" VerticalAlignment="Top">
+                                <ListView Grid.Row="0" x:Name="ListBlockedApps" AutomationProperties.AutomationId="lvBlockedApps" SelectionMode="Single"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling" BorderBrush="Transparent"  ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Background="{x:Null}"   Margin="10,10" VerticalAlignment="Top">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
                                             <Grid x:Name="ItemHeader"  Background="Transparent"  Margin="0,0,0,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -110,8 +110,8 @@
                             </StackPanel>
                         </Button.Content>
                     </Button>
-                    <TextBlock  x:Name="Skip" AutomationProperties.AutomationId="Skip"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
-                        <Hyperlink x:Name="btnSkip"   Click="btnSkip_Click"  TextDecorations="Underline" ><Run x:Name="btnSkipText" Text="xSkip"/></Hyperlink>
+                    <TextBlock  x:Name="Skip" AutomationProperties.AutomationId="txtSkip"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
+                        <Hyperlink x:Name="btnSkip" AutomationProperties.AutomationId="btnSkip"  Click="btnSkip_Click"  TextDecorations="Underline" ><Run x:Name="btnSkipText" Text="xSkip"/></Hyperlink>
                     </TextBlock>
 
                 </StackPanel>

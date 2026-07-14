@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
-        Title="AnalyzeSleepMoodWindow" Height="540" Width="810" WindowStyle="None"  WindowStartupLocation="CenterScreen" ShowInTaskbar="False" >
+        Title="AnalyzeSleepMoodWindow" Height="540" Width="810" WindowStyle="None"  WindowStartupLocation="CenterScreen" ShowInTaskbar="False" AutomationProperties.AutomationId="AnalyzeSleepMoodWindow">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>

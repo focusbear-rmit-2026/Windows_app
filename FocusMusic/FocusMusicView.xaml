@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.FocusMusic"
         xmlns:Models="clr-namespace:Focus_Bear.Models"
-        mc:Ignorable="d">
+        mc:Ignorable="d" AutomationProperties.AutomationId="FocusMusicView">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
@@ -52,7 +52,7 @@
             <!-- Volume Slider at Bottom -->
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="10">
                 <TextBlock x:Name="Volume" Text="xVolume" VerticalAlignment="Center" Margin="0 0 10 0" />
-                <Slider x:Name="VolumeSlider"
+                <Slider x:Name="VolumeSlider" AutomationProperties.AutomationId="sldVolume"
                     Minimum="0" Maximum="1" Value="0.6"
                     Width="200"
                     ValueChanged="VolumeSlider_ValueChanged" />
@@ -89,7 +89,7 @@
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
 
                                 <!-- DOWNLOAD BUTTON -->
-                                <Button x:Name="Download" Content="{Binding DownloadButtonText}" Style="{StaticResource BtnStyleLightOrangeBordered}"
+                                <Button x:Name="Download" AutomationProperties.AutomationId="btnDownload" Content="{Binding DownloadButtonText}" Style="{StaticResource BtnStyleLightOrangeBordered}"
                                         Margin="5" Width="100" Height="25" Cursor="Hand"
                                         Click="Download_Click">     
 
@@ -106,7 +106,7 @@
                                             Converter={StaticResource BoolToVisibility}}" />
 
                                 <!-- PLAY / PAUSE -->
-                                <Button Margin="5" x:Name="ButtonPlayPause" Style="{StaticResource BtnStylePlay}"  Click="ButtonPlayPause_Click" Width="35" Height="35" Cursor="Hand"  >
+                                <Button Margin="5" x:Name="ButtonPlayPause" AutomationProperties.AutomationId="btnPlayPause" Style="{StaticResource BtnStylePlay}"  Click="ButtonPlayPause_Click" Width="35" Height="35" Cursor="Hand"  >
                                     <Button.Visibility>
                                         <MultiBinding Converter="{StaticResource PlayButtonVisibilityConverter}">
                                             <Binding Path="IsAudioDownloaded"/>

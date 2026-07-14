@@ -8,7 +8,7 @@
 
       mc:Ignorable="d" 
      d:DesignHeight="680" d:DesignWidth="945"
-      Title="LoginSignIn">
+      Title="LoginSignIn" AutomationProperties.AutomationId="LoginSignIn">
 
     <Grid>
         <Grid>
@@ -113,7 +113,7 @@
                 </Button>
 
                 <TextBlock x:Name="ForgetPassword" AutomationProperties.AutomationId="txtForgetPassword" Margin="0,20,0,30" TextWrapping="NoWrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}" FontSize="15" Height="22" Cursor="Hand">
-                <Hyperlink x:Name="btnForgetPassword" Click="btnForgetPassword_Click"   TextDecorations="Underline" ><Run x:Name="ForgetPasswordTXT" Text="xForgot Password"/></Hyperlink>
+                <Hyperlink x:Name="btnForgetPassword" AutomationProperties.AutomationId="btnForgetPassword" Click="btnForgetPassword_Click"   TextDecorations="Underline" ><Run x:Name="ForgetPasswordTXT" Text="xForgot Password"/></Hyperlink>
                 </TextBlock>
 
                 <!--<Button Width="400" TabIndex="3"  x:Name="btnCreateAccount" AutomationProperties.AutomationId="btnCreateAccount"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Center" Padding="0" Margin="0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnCreateAccount_Click" >

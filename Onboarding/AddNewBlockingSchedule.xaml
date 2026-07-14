@@ -7,7 +7,7 @@
       xmlns:controls="clr-namespace:Focus_Bear.Controls"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      IsVisibleChanged="Page_IsVisibleChanged" >
+      IsVisibleChanged="Page_IsVisibleChanged" AutomationProperties.AutomationId="AddNewBlockingSchedule">
 
     <Grid>
         <Grid.Resources>
@@ -71,8 +71,8 @@
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <TextBlock  x:Name="Skip" AutomationProperties.AutomationId="Skip"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
-                     <Hyperlink x:Name="btnSkip"   Click="btnSkip_Click"  TextDecorations="Underline" ><Run x:Name="btnSkipText" Text="xSkip"/></Hyperlink>
+                <TextBlock  x:Name="Skip" AutomationProperties.AutomationId="txtSkip"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
+                     <Hyperlink x:Name="btnSkip" AutomationProperties.AutomationId="btnSkip"  Click="btnSkip_Click"  TextDecorations="Underline" ><Run x:Name="btnSkipText" Text="xSkip"/></Hyperlink>
                 </TextBlock>
             </StackPanel>
         </Grid>

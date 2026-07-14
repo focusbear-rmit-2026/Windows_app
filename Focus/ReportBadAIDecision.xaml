@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="303" Width="330" ResizeMode="NoResize" Closing="Window_Closing">
+        Title="Focus Bear" Height="303" Width="330" ResizeMode="NoResize" Closing="Window_Closing" AutomationProperties.AutomationId="ReportBadAIDecision">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>

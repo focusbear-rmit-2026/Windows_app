@@ -8,7 +8,7 @@
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
         Title="Focus Bear" Height="835" Width="1050" Loaded="Window_Loaded"
-        Background="{DynamicResource BackgroundColor}">
+        Background="{DynamicResource BackgroundColor}" AutomationProperties.AutomationId="OnboardingVideo">
     <!--<local1:DpiDecorator>-->
         <Grid>
         <Grid.Background>

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         mc:Ignorable="d"
-        Title="xChoose another habit" Height="550" Width="500" WindowStyle="ToolWindow" Topmost="True" ResizeMode="NoResize" >
+        Title="xChoose another habit" Height="550" Width="500" WindowStyle="ToolWindow" Topmost="True" ResizeMode="NoResize" AutomationProperties.AutomationId="ChooseAnotherHabit">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -57,7 +57,7 @@
         </Button>
 
         <TextBlock x:Name="Cancel" AutomationProperties.AutomationId="txtCancel" Grid.Row="3" Margin="20,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" MinHeight="22" Cursor="Hand">
-             <Hyperlink x:Name="btnCancel" Click="btnCancel_Click"   TextDecorations="Underline" ><Run x:Name="CancelTXT" Text="xCancel"/></Hyperlink>
+             <Hyperlink x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel" Click="btnCancel_Click"   TextDecorations="Underline" ><Run x:Name="CancelTXT" Text="xCancel"/></Hyperlink>
         </TextBlock>
     </Grid>
 </Window>

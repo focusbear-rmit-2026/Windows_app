@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Upgrade"
         xmlns:Models="clr-namespace:Focus_Bear.Models"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="600" Width="531" ResizeMode="NoResize">
+        Title="Focus Bear" Height="600" Width="531" ResizeMode="NoResize" AutomationProperties.AutomationId="UpgradeNow">
 
     <Grid x:Name="GridMain" >
         <Grid.Resources>
@@ -100,7 +100,7 @@
             <Image Grid.Row="2" x:Name="ImgUpdateAppProgress"   Models:ImageBehavior.AnimatedSource="../Images/progress.gif" HorizontalAlignment="Center" Margin="0,2,0,2" VerticalAlignment="Center" Visibility="Collapsed" Grid.Column="2"/>
 
             <TextBlock x:Name="UninstallText" AutomationProperties.AutomationId="txtUninstall" Grid.Row="3" Margin="20,2,20,2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="13" Height="22" Cursor="Hand" Grid.Column="2">
-             <Hyperlink x:Name="btnUninstall" Click="btnUninstall_Click"   TextDecorations="Underline" ><Run x:Name="btnUninstallTXT" Text="xUninstall"/></Hyperlink>
+             <Hyperlink x:Name="btnUninstall" AutomationProperties.AutomationId="btnUninstall" Click="btnUninstall_Click"   TextDecorations="Underline" ><Run x:Name="btnUninstallTXT" Text="xUninstall"/></Hyperlink>
             </TextBlock>
 
         </Grid>

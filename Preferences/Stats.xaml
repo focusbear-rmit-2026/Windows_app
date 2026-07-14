@@ -7,7 +7,7 @@
        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
       d:DesignHeight="670" d:DesignWidth="670"
-      Background="#fff" Loaded="Page_Loaded" >
+      Background="#fff" Loaded="Page_Loaded" AutomationProperties.AutomationId="Stats">
 
     <Grid>
         <wv2:WebView2 Name="webView" />

@@ -45,7 +45,7 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <TextBlock x:Name="ConvinceAI" AutomationProperties.AutomationId="BlockThisPage" Margin="15,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" FontWeight="Bold" MinHeight="22" Cursor="Hand">
+            <TextBlock x:Name="ConvinceAI" AutomationProperties.AutomationId="txtConvinceAI" Margin="15,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" FontWeight="Bold" MinHeight="22" Cursor="Hand">
                 <Hyperlink x:Name="btnConvinceAI" Click="btnConvinceAI_Click"   TextDecorations="Underline" ><Run x:Name="btnConvinceAIText" Text="xLet me convince the AI again"/></Hyperlink>
             </TextBlock>
             

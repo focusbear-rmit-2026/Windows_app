@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" WindowState="Maximized">
+        Title="Focus Bear" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" WindowState="Maximized" AutomationProperties.AutomationId="FadeInBreakWindow">
     <Grid>
         
     </Grid>

@@ -8,7 +8,7 @@
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
         Background="{DynamicResource BackgroundColor}"
-        IsVisibleChanged="Window_IsVisibleChanged" >
+        IsVisibleChanged="Window_IsVisibleChanged" AutomationProperties.AutomationId="FocusModeEnd">
     <UserControl.Resources>
         <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -121,9 +121,9 @@
                     <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="10,0,50,0">
                         <Grid>
                             <TextBlock  x:Name="EnableAdvancedAnalytics" AutomationProperties.AutomationId="EnableAdvancedAnalytics" Grid.Row="4" Margin="20,15,0,20" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-                                <Hyperlink x:Name="btnEnableAdvancedAnalytics" Click="btnEnableAdvancedAnalytics_Click"   TextDecorations="Underline" ><Run x:Name="btnEnableAdvancedAnalyticsTXT" Text="xEnable Advanced Analytics"/></Hyperlink>
+                                <Hyperlink x:Name="btnEnableAdvancedAnalytics" AutomationProperties.AutomationId="btnEnableAdvancedAnalytics" Click="btnEnableAdvancedAnalytics_Click"   TextDecorations="Underline" ><Run x:Name="btnEnableAdvancedAnalyticsTXT" Text="xEnable Advanced Analytics"/></Hyperlink>
                             </TextBlock>
-                            <ListView Name="ListUsageItems" BorderBrush="Transparent"  Visibility="Collapsed"  Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" Grid.ColumnSpan="2" >
+                            <ListView Name="ListUsageItems" AutomationProperties.AutomationId="lvListUsageItems" BorderBrush="Transparent"  Visibility="Collapsed"  Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" Grid.ColumnSpan="2" >
 
                                 <ListView.Resources>
                                     <Style TargetType="GridViewColumnHeader">

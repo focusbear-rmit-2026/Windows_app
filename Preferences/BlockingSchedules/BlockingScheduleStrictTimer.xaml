@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Preferences"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="316" Width="504" ResizeMode="NoResize" ShowInTaskbar="False">
+        Title="Focus Bear" Height="316" Width="504" ResizeMode="NoResize" ShowInTaskbar="False" AutomationProperties.AutomationId="BlockingScheduleStrictTimer">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>

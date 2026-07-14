@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
         Title="PostponeHabits" Height="300" Width="498" WindowStyle="None" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" ShowInTaskbar="False" PreviewKeyDown="Window_PreviewKeyDown"
-        Background="{DynamicResource BackgroundColor}" BorderThickness="1" BorderBrush="Gray">
+        Background="{DynamicResource BackgroundColor}" BorderThickness="1" BorderBrush="Gray" AutomationProperties.AutomationId="PostponeHabits">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>

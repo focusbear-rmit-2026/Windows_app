@@ -9,7 +9,7 @@
       xmlns:Models="clr-namespace:Focus_Bear.Models"
       mc:Ignorable="d" 
           d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="HabitActivityOnGoing" Background="{DynamicResource BackgroundColor}">
+      Title="HabitActivityOnGoing" Background="{DynamicResource BackgroundColor}" AutomationProperties.AutomationId="HabitActivityOnGoing">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -85,7 +85,7 @@
                 </Button.Content>
             </Button>
             <TextBlock x:Name="SkipThisHabitText" AutomationProperties.AutomationId="txtSkipThisHabit" Margin="0,2,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand" Visibility="Collapsed">
-                <Hyperlink x:Name="btnSkipThisHabit"  Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
+                <Hyperlink x:Name="btnSkipThisHabit" AutomationProperties.AutomationId="btnSkipThisHabit"  Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
             </TextBlock>
         </StackPanel>
     </Grid>

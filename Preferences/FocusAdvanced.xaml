@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Preferences"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="330" Width="600" ResizeMode="NoResize" WindowStyle="None" BorderBrush="Gray" BorderThickness="1">
+        Title="Focus Bear" Height="330" Width="600" ResizeMode="NoResize" WindowStyle="None" BorderBrush="Gray" BorderThickness="1" AutomationProperties.AutomationId="FocusAdvanced">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>

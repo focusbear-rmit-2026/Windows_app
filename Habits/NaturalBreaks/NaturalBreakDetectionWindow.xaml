@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Habits.NaturalBreaks"
         mc:Ignorable="d"
         Title="Focus Bear" Height="320" Width="350" WindowStyle="None" WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize" BorderBrush="Black" BorderThickness="1">
+        ResizeMode="NoResize" BorderBrush="Black" BorderThickness="1" AutomationProperties.AutomationId="NaturalBreakDetectionWindow">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -21,7 +21,7 @@
 
             <TextBlock x:Name="MessageText" TextWrapping="Wrap" FontSize="14" Text="xx"  VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,20,20,0"   TextAlignment="Center" />
 
-            <Button  x:Name="btnOK"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="30" MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="20,20,20,20" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click">
+            <Button  x:Name="btnOK" AutomationProperties.AutomationId="btnOK"   Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="30" MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="20,20,20,20" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click">
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnOKTxt" Text="xOK" Foreground="Black"/>
@@ -29,7 +29,7 @@
                 </Button.Content>
             </Button>
 
-            <Button    x:Name="btnCancel"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="30" MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="20,0,20,20" FontSize="15" Cursor="Hand" FontWeight="Semibold" Visibility="Visible" Click="btnCancel_Click"  >
+            <Button    x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel"   Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"  Height="30" MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"  Margin="20,0,20,20" FontSize="15" Cursor="Hand" FontWeight="Semibold" Visibility="Visible" Click="btnCancel_Click"  >
                 <Button.Content>
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Name="btnCancelTxt" Text="xCancel"  Padding="15,0,15,0" Foreground="Black"/>

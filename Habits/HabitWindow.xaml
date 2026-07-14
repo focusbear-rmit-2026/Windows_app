@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Habits"
         mc:Ignorable="d"
-        Background="{DynamicResource BackgroundColor}" >
+        Background="{DynamicResource BackgroundColor}" AutomationProperties.AutomationId="HabitWindow">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">

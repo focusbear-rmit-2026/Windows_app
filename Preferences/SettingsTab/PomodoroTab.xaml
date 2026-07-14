@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Focus_Bear.Preferences"
-             mc:Ignorable="d" 
-             d:DesignHeight="670" d:DesignWidth="670" IsVisibleChanged="UserControl_IsVisibleChanged">
+             mc:Ignorable="d"
+             d:DesignHeight="670" d:DesignWidth="670" AutomationProperties.AutomationId="PomodoroTab" IsVisibleChanged="UserControl_IsVisibleChanged">
     <UserControl.Resources>
         <Style x:Key="TransparentButtonStyle" TargetType="Button">
             <!-- Remove default chrome -->
@@ -70,7 +70,7 @@
                 <TextBlock Grid.Row="0" Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"/>
 
                 <TextBlock Grid.Row="1" x:Name="LearnMore" AutomationProperties.AutomationId="txtLearnMore" Margin="20,10,20,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}" FontSize="14" MinHeight="22" Cursor="Hand">
-                    <Hyperlink x:Name="btnLearnMore" Click="btnLearnMore_Click" TextDecorations="Underline">
+                    <Hyperlink x:Name="btnLearnMore" AutomationProperties.AutomationId="btnLearnMore" Click="btnLearnMore_Click" TextDecorations="Underline">
                         <Run x:Name="btnLearnMoreTXT" Text="Learn more about the pomodoro technique here."/>
                     </Hyperlink>    
                 </TextBlock>
@@ -102,7 +102,7 @@
 
                         <Grid Grid.Row="1"  Margin="15,0,15,0" Background="LightGray" ></Grid>
 
-                        <Button Grid.Row="2"  x:Name="btnAdvanced" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource TransparentButtonStyle}" Click="btnAdvanced_Click">
+                        <Button Grid.Row="2"  x:Name="btnAdvanced" AutomationProperties.AutomationId="btnAdvanced" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource TransparentButtonStyle}" Click="btnAdvanced_Click">
                             <Button.Content>
                                 <Grid Margin="15,15"  Background="{DynamicResource SoftCreamColor}" >
                                     <Grid.ColumnDefinitions>

@@ -8,7 +8,7 @@
         xmlns:src="clr-namespace:Focus_Bear.Habits"
         xmlns:local1="clr-namespace:Focus_Bear.Utils"
         mc:Ignorable="d"
-        d:DesignHeight="1080" d:DesignWidth="1920" >
+        d:DesignHeight="1080" d:DesignWidth="1920" AutomationProperties.AutomationId="ShutOffWindow">
         <Grid x:Name="MainGrid">
             <Grid.Resources>
                 <ResourceDictionary>
@@ -96,7 +96,7 @@
                     </Button>
                 </StackPanel>
                 <TextBlock   Grid.Row="2" x:Name="CompleteEveningRoutine" AutomationProperties.AutomationId="txtCompleteEveningRoutine" Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
-                    <Hyperlink x:Name="btnCompleteEveningRoutine"  Click="btnCompleteEveningRoutine_Click"   TextDecorations="Underline" >
+                    <Hyperlink x:Name="btnCompleteEveningRoutine" AutomationProperties.AutomationId="btnCompleteEveningRoutine"  Click="btnCompleteEveningRoutine_Click"   TextDecorations="Underline" >
                         <Run x:Name="btnCompleteEveningRoutineTXT" Text="xComplete your evening routine"/>
                     </Hyperlink>
                     </TextBlock>

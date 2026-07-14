@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
-        Background="{DynamicResource BackgroundColor}" >
+        Background="{DynamicResource BackgroundColor}" AutomationProperties.AutomationId="ToDoList">
     <Grid>
         <wv2:WebView2 Name="webView" />
     </Grid>

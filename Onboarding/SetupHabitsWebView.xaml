@@ -28,8 +28,8 @@
         <wv2:WebView2 Grid.Row="0" Name="webView" />
 
 
-        <TextBlock  Grid.Row="1" x:Name="Skip" AutomationProperties.AutomationId="Skip"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
-            <Hyperlink x:Name="btnSkip" Click="btnSkip_Click" TextDecorations="Underline" ><Run x:Name="btnSkipText" Text="xSkip"/></Hyperlink>
+        <TextBlock  Grid.Row="1" x:Name="Skip" AutomationProperties.AutomationId="txtSkip"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
+            <Hyperlink x:Name="btnSkip" AutomationProperties.AutomationId="btnSkip" Click="btnSkip_Click" TextDecorations="Underline" ><Run x:Name="btnSkipText" Text="xSkip"/></Hyperlink>
         </TextBlock>
         <Button Grid.Row="1" Visibility="Collapsed"  x:Name="btnContinue" AutomationProperties.AutomationId="btnContinue"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Height="40" Width="400" VerticalAlignment="Top" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnContinue_Click" >
             <Button.Content>

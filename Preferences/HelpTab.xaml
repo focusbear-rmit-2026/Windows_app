@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:Focus_Bear.Preferences"
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d" 
-      d:DesignHeight="550" d:DesignWidth="800" >
+      d:DesignHeight="550" d:DesignWidth="800" AutomationProperties.AutomationId="HelpTab">
 
     <Grid>
         <Grid.Resources>
@@ -48,7 +48,7 @@
                         </Button.Content>
                     </Button>
                     <TextBlock Grid.Row="2" x:Name="DontUseDiscord" AutomationProperties.AutomationId="txtDontUseDiscord" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15"  Cursor="Hand">
-                         <Hyperlink x:Name="BtnDontUseDiscord"  Click="BtnDontUseDiscord_Click"   TextDecorations="Underline"  ><Run x:Name="BtnDontUseDiscordTxt" Text="xI don't use Discord"/></Hyperlink>
+                         <Hyperlink x:Name="BtnDontUseDiscord" AutomationProperties.AutomationId="BtnDontUseDiscord"  Click="BtnDontUseDiscord_Click"   TextDecorations="Underline"  ><Run x:Name="BtnDontUseDiscordTxt" Text="xI don't use Discord"/></Hyperlink>
                     </TextBlock>
                 </Grid>
             </TabItem>

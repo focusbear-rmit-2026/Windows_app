@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Preferences"
         xmlns:Models="clr-namespace:Focus_Bear.Models"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="600" Width="500" ResizeMode="NoResize" WindowStyle="None">
+        Title="Focus Bear" Height="600" Width="500" ResizeMode="NoResize" WindowStyle="None" AutomationProperties.AutomationId="AddApp">
     <Window.Resources>
         <Models:IconExtractConverter x:Key="IconExtractConverter"/>
     </Window.Resources>
@@ -84,7 +84,7 @@
         </Button>
 
         <TextBlock  Grid.Row="3" x:Name="EnterManually" AutomationProperties.AutomationId="txtEnterManually" Margin="20,0,0,0" TextWrapping="NoWrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="14" Height="22" Cursor="Hand">
-             <Hyperlink x:Name="btnEnterManually" Click="btnEnterManually_Click"   TextDecorations="Underline" ><Run x:Name="btnEnterManuallyTXT" Text="xCan't find your app in the above list? Click here to enter manually."/></Hyperlink>
+             <Hyperlink x:Name="btnEnterManually" AutomationProperties.AutomationId="btnEnterManually" Click="btnEnterManually_Click"   TextDecorations="Underline" ><Run x:Name="btnEnterManuallyTXT" Text="xCan't find your app in the above list? Click here to enter manually."/></Hyperlink>
         </TextBlock>
 
         <Border x:Name="GridShadeAdvanced" CornerRadius="0" Grid.RowSpan="8" Margin="0,0,0,0" Background="#FF060606" Opacity="0.80"   Visibility="Collapsed" />

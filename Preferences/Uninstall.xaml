@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:Focus_Bear.Preferences"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="640"
-       >
+       AutomationProperties.AutomationId="Uninstall">
 
     <Grid>
         <Grid.Resources>

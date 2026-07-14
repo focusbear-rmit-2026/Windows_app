@@ -7,7 +7,7 @@
       xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
       mc:Ignorable="d"
        d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="StartBreakActivity"  Background="{DynamicResource BackgroundColor}">
+      Title="StartBreakActivity"  Background="{DynamicResource BackgroundColor}" AutomationProperties.AutomationId="StartBreakActivity">
 
     <Grid>
         <Grid.RowDefinitions>

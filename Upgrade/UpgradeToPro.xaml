@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Focus_Bear.Upgrade"
         xmlns:Models="clr-namespace:Focus_Bear.Models"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="770" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="ToolWindow"  >
+        Title="Focus Bear" Height="770" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="ToolWindow" AutomationProperties.AutomationId="UpgradeToPro">
     <Grid>
         <ScrollViewer>
             <Grid>

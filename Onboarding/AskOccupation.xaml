@@ -7,7 +7,7 @@
       xmlns:controls="clr-namespace:Focus_Bear.Controls"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      IsVisibleChanged="Page_IsVisibleChanged">
+      IsVisibleChanged="Page_IsVisibleChanged" AutomationProperties.AutomationId="AskOccupation">
 
     <Grid>
         <Grid.Resources>
@@ -70,7 +70,7 @@
                         </Grid.RowDefinitions>
                         <StackPanel Orientation="Horizontal" Grid.Row="0">
                             <RadioButton x:Name="RadioButton1" AutomationProperties.AutomationId="rbStudent" GroupName="Occupation1" Margin="10,10" Content="xStudent" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton1_Checked" Cursor="Hand"   />
-                            <RadioButton x:Name="RadioButton2" AutomationProperties.AutomationId="rbBusiness owner" GroupName="Occupation1" Margin="10,10"  Content="xBusiness owner" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton2_Checked" Cursor="Hand"  />
+                            <RadioButton x:Name="RadioButton2" AutomationProperties.AutomationId="rbBusinessOwner" GroupName="Occupation1" Margin="10,10"  Content="xBusiness owner" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton2_Checked" Cursor="Hand"  />
                             <RadioButton x:Name="RadioButton3" AutomationProperties.AutomationId="rbEmployee" GroupName="Occupation1"  Margin="10,10" Content="xEmployee" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"   Checked="RadioButton3_Checked" Cursor="Hand"  />
                             <RadioButton x:Name="RadioButton4" AutomationProperties.AutomationId="rbFreelancer" GroupName="Occupation1" Margin="10,10"  Content="xFreelancer" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton4_Checked" Cursor="Hand"  />
                             <RadioButton x:Name="RadioButton5" AutomationProperties.AutomationId="rbOther" GroupName="Occupation1" Margin="10,10"  Content="xOther" FontSize="16" Style="{StaticResource OccupationRadioButtonStyle}"  Checked="RadioButton5_Checked" Cursor="Hand"  />
@@ -110,8 +110,8 @@
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <TextBlock  Grid.Row="2" x:Name="Skip" AutomationProperties.AutomationId="Skip"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
-                    <Hyperlink x:Name="btnSkip"   Click="btnSkip_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipText" Text="xSkip"/></Hyperlink>
+                <TextBlock  Grid.Row="2" x:Name="Skip" AutomationProperties.AutomationId="txtSkip"  TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="15" Height="30" Cursor="Hand">
+                    <Hyperlink x:Name="btnSkip" AutomationProperties.AutomationId="btnSkip"  Click="btnSkip_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipText" Text="xSkip"/></Hyperlink>
                 </TextBlock>
             </StackPanel>
         </Grid>

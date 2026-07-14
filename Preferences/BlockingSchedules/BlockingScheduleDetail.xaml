@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Focus_Bear.Preferences" xmlns:localView="clr-namespace:Focus_Bear.Utils"
-             mc:Ignorable="d" 
-             d:DesignHeight="900" d:DesignWidth="900">
+             mc:Ignorable="d"
+             d:DesignHeight="900" d:DesignWidth="900" AutomationProperties.AutomationId="BlockingScheduleDetail">
     <UserControl.Resources>
         <local:DaysOfWeekIndexConverter x:Key="DaysOfWeekIndexConverter" />
         <local:EnumToIntConverter x:Key="EnumToIntConverter" />
@@ -37,13 +37,13 @@
                     <!-- Weekday selector -->
                     <TextBlock x:Name="Title" Text="xBlocking schedule"  Margin="0,10,0,6"/>
                     <UniformGrid Rows="1" Columns="7" HorizontalAlignment="Stretch">
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Mon" Content="xMon" IsChecked="{Binding Monday}" Margin="4"  FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Tue" Content="xTue" IsChecked="{Binding Tuesday}" Margin="4" FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Wed" Content="xWed" IsChecked="{Binding Wednesday}" Margin="4" FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Thu" Content="xThu" IsChecked="{Binding Thursday}" Margin="4" FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Fri" Content="xFri" IsChecked="{Binding Friday}" Margin="4" FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Sat" Content="xSat" IsChecked="{Binding Saturday}" Margin="4" FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Sun" Content="xSun" IsChecked="{Binding Sunday}" Margin="4" FontSize="12"/> 
+                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Mon" AutomationProperties.AutomationId="Mon" Content="xMon" IsChecked="{Binding Monday}" Margin="4"  FontSize="12"/>
+                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Tue" AutomationProperties.AutomationId="Tue" Content="xTue" IsChecked="{Binding Tuesday}" Margin="4" FontSize="12"/>
+                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Wed" AutomationProperties.AutomationId="Wed" Content="xWed" IsChecked="{Binding Wednesday}" Margin="4" FontSize="12"/>
+                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Thu" AutomationProperties.AutomationId="Thu" Content="xThu" IsChecked="{Binding Thursday}" Margin="4" FontSize="12"/>
+                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Fri" AutomationProperties.AutomationId="Fri" Content="xFri" IsChecked="{Binding Friday}" Margin="4" FontSize="12"/>
+                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Sat" AutomationProperties.AutomationId="Sat" Content="xSat" IsChecked="{Binding Saturday}" Margin="4" FontSize="12"/>
+                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Sun" AutomationProperties.AutomationId="Sun" Content="xSun" IsChecked="{Binding Sunday}" Margin="4" FontSize="12"/> 
                     </UniformGrid>
 
                     <!-- Time selectors -->
@@ -110,7 +110,7 @@
                             <ComboBox  Name="ComboBoxFocusModes" AutomationProperties.AutomationId="cmbFocusModes" DisplayMemberPath="name" SelectedValuePath="id" SelectedValue="{Binding SelectedFocusModeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Width="250" Height="30" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,10,0,0"  SelectedIndex="0" FontSize="15"  >
                             </ComboBox>
                             <TextBlock x:Name="EditBlockList"  AutomationProperties.AutomationId="txtEditBlockList"  Grid.Row="4" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"    MinHeight="22" Cursor="Hand">
-                                <Hyperlink x:Name="btnEditBlockList" Click="btnEditBlockList_Click" Foreground="Black"   TextDecorations="Underline" ><Run x:Name="EditBlockListText" Foreground="Black" Text="xEdit block list"/></Hyperlink>
+                                <Hyperlink x:Name="btnEditBlockList" AutomationProperties.AutomationId="btnEditBlockList" Click="btnEditBlockList_Click" Foreground="Black"   TextDecorations="Underline" ><Run x:Name="EditBlockListText" Foreground="Black" Text="xEdit block list"/></Hyperlink>
                             </TextBlock>
                         </StackPanel>
                     </Border>
@@ -122,7 +122,7 @@
                         <TextBlock x:Name="StrictnessLevel" Text="xStrictness level:" Margin="0,10,0,15"/>
                         <Image x:Name="StrictnessLevelInfo"  Source="../images/info-dark.png" Margin="5,0,0,0" Width="20" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand"/>
                     </StackPanel>
-                    <Slider x:Name="SliderStrictnessLevel" Minimum="0" Maximum="100"  Value="{Binding BlockLevel, Converter={StaticResource EnumToIntConverter}, Mode=TwoWay}" IsSnapToTickEnabled="True"  TickPlacement="BottomRight" Ticks="0,50,100" TickFrequency="50" ValueChanged="SliderStrictnessLevel_ValueChanged" />
+                    <Slider x:Name="SliderStrictnessLevel" AutomationProperties.AutomationId="SliderStrictnessLevel" Minimum="0" Maximum="100"  Value="{Binding BlockLevel, Converter={StaticResource EnumToIntConverter}, Mode=TwoWay}" IsSnapToTickEnabled="True"  TickPlacement="BottomRight" Ticks="0,50,100" TickFrequency="50" ValueChanged="SliderStrictnessLevel_ValueChanged" />
 
                     <!-- Legend -->
                     <Grid Margin="0,6,0,10" HorizontalAlignment="Stretch" Background="{DynamicResource SoftCreamColor}">
