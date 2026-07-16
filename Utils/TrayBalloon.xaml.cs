@@ -26,6 +26,7 @@ namespace Focus_Bear
     public partial class TrayBalloon : Window
     {
         private bool isClosed = true;
+        private int _pos = 0; //0 = bottom right, 1 = top right
 
         AppSettings appSettings = AppSettings.GetInstance;
         [DllImport("dwmapi.dll")]
@@ -46,12 +47,15 @@ namespace Focus_Bear
 
             TrayBaloonTipMsg.Text = message;
 
+            _pos = pos;
+            //Initial placement; the balloon sizes its height to the message (SizeToContent=Height),
+            //so the final position is recomputed in Window_Loaded once ActualHeight is known.
             var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
             this.Left = (desktopWorkingArea.Right - this.Width) - 15;
             if(pos == 1) //Top right
                 this.Top = desktopWorkingArea.Top + 25;
             else
-                this.Top = (desktopWorkingArea.Bottom - this.Height) - 15;
+                this.Top = (desktopWorkingArea.Bottom - this.MinHeight) - 15;
 
             this.Topmost = true;
             this.Loaded += MainWindow_Loaded;
@@ -64,6 +68,15 @@ namespace Focus_Bear
         {
             try
             {
+                //Re-anchor now that the balloon has grown to fit the message, so a taller (multi-line)
+                //balloon still sits flush with the bottom-right corner instead of running off screen.
+                var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+                this.Left = (desktopWorkingArea.Right - this.ActualWidth) - 15;
+                if (_pos != 1) //bottom right
+                {
+                    this.Top = (desktopWorkingArea.Bottom - this.ActualHeight) - 15;
+                }
+
                 TooltipTimer = new Timer();
                 if (appSettings.IsFirstInstall)
                 {

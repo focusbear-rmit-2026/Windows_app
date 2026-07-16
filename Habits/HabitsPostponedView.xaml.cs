@@ -41,6 +41,20 @@ namespace Focus_Bear.Habits
 
         private void btnResumeHabits_Click(object sender, RoutedEventArgs e)
         {
+            //Teacher Mode - the routine is only postponed because a locked class session took over the
+            //screen; the student must not resume it early. Do nothing (and do not show the gridshade)
+            //while a teacher session is active, but show a brief balloon tip so they know why - the
+            //routine resumes on its own once the session ends.
+            if (Focus_Bear.Focus.TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                LogWriter.LogWrite("HabitsPostponedView btnResumeHabits_Click blocked - teacher class session is active");
+                Focus_Bear.Focus.TeacherSessionManager manager = Focus_Bear.Focus.TeacherSessionManager.Instance;
+                appSettings.ShowBaloonTip(
+                    manager.GetLocalizedString("resumeHabitsBlockedBody", "You can't resume your habits during a class focus session. They'll resume automatically when your teacher ends the session."),
+                    manager.GetLocalizedString("resumeHabitsBlockedTitle", "Class focus session in progress"));
+                return;
+            }
+
             //Show the gridshade as it will take a while for the 5 second timer to get current state again
             ((App)Application.Current).wndFocusBearMainWindow.GridShade.Visibility = Visibility.Visible;
 

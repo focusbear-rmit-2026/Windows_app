@@ -273,6 +273,11 @@ namespace Focus_Bear.Utils
         public object objChild = null;
         public string sLastActiveURLInFirefox = "";
 
+        //Teacher Mode - the URL the student requested when they clicked "Oops I need this" on a class
+        //session block page (captured at that moment - reliable). Reloaded if the teacher approves it,
+        //but only while the foreground tab is still that block page (matched by its old_url).
+        public string sLastFocusBlockedUrl = "";
+
         public bool bShowOnBoardingVideo = false;
 
         public string sCustomGoalSelected = "";

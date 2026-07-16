@@ -85,7 +85,12 @@ namespace Focus_Bear.Focus
 
             UpdatePauseControls(); // Update pause controls when starting the timer
 
-            if (appSettings.bAiCheckUrlEnabled)
+            //Teacher Mode - during a class session the alignment score UI follows the session's
+            //ai_blocking_enabled setting, not the user's global AI setting.
+            bool bShowAlignmentScore = TeacherSessionManager.Instance.IsTeacherSessionActive()
+                ? TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled
+                : appSettings.bAiCheckUrlEnabled;
+            if (bShowAlignmentScore)
             {
                 this.Height = 130;
                 AlignmentScore.Visibility = Visibility.Visible;
@@ -144,10 +149,12 @@ namespace Focus_Bear.Focus
                     sTill = sTill.Replace("<TIME>", endTime.ToString("HH:mm tt"));
                     OnUntill.Text = ss + " (" + sTill + ")";
 
-                    if (appSettings.bAiCheckUrlEnabled)
+                    if (TeacherSessionManager.Instance.IsTeacherSessionActive()
+                        ? TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled
+                        : appSettings.bAiCheckUrlEnabled) //Teacher Mode - follow the session's AI setting
                     {
                         //Focus Alignment score
-                        double CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore(); 
+                        double CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
                         string sScore = appSettings.ConfigFileStrings["menuInfo"]["focusAlignmentScoreText"].ToString();
                         sScore = sScore.Replace("<SCORE>", CurrentFocusAlignmentScore.ToString());
                         AlignmentScore.Text = sScore + "%";

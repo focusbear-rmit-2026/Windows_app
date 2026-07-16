@@ -63,6 +63,12 @@ namespace Focus_Bear.Focus
                 IsAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabled;
             }
 
+            //Teacher Mode - the class session's ai_blocking_enabled overrides while it is active.
+            if (Focus_Bear.Focus.TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                IsAiCheckUrlEnabled = Focus_Bear.Focus.TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
+            }
+
 
             CustomToolTip = "";
             Console.WriteLine("customToolTip blank set");
@@ -173,6 +179,12 @@ namespace Focus_Bear.Focus
             else
             {
                 IsAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabled;
+            }
+
+            //Teacher Mode - the class session's ai_blocking_enabled overrides while it is active.
+            if (Focus_Bear.Focus.TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                IsAiCheckUrlEnabled = Focus_Bear.Focus.TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
             }
 
             if (IsCuddlyModeEnabled && IsAiCheckUrlEnabled)

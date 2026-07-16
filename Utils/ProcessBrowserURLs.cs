@@ -63,9 +63,12 @@ namespace Focus_Bear.Utils
             //If its evening routine and the relax activity is on, no need to check anhything or block anything
             if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState)
             {
-                if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].show_saved_distracting_websites)
+                if (appSettings.nHabitIndex >= 0)
                 {
-                    return;
+                    if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].show_saved_distracting_websites)
+                    {
+                        return;
+                    }
                 }
             }
 
@@ -118,7 +121,7 @@ namespace Focus_Bear.Utils
             
         }
 
-        static string ExtractOldUrl(string input)
+        public static string ExtractOldUrl(string input)
         {
             // Regular expression to find the string between old_url= and &block_type=
             string pattern = @"[?&]old_url=([^&]+)";
@@ -130,6 +133,33 @@ namespace Focus_Bear.Utils
             }
 
             return null; // Return null if no match is found
+        }
+
+        //Navigate the foreground browser tab to a URL using the same address-bar navigation the block and
+        //unblock flows use. Used to reload a now-allowed URL after the teacher approves it.
+        public static void ReloadForegroundBrowserToUrl(IntPtr hWnd, string url)
+        {
+            AppSettings appSettings = AppSettings.GetInstance;
+            try
+            {
+                if (appSettings.FirefoxLastAccWindow == null || string.IsNullOrEmpty(url))
+                {
+                    LogWriter.LogWrite("ReloadForegroundBrowserToUrl - no FirefoxLastAccWindow or empty url, cannot reload");
+                    return;
+                }
+                LogWriter.LogWrite("ReloadForegroundBrowserToUrl - navigating browser to " + url);
+                appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = url;
+                if (hWnd != IntPtr.Zero)
+                {
+                    SetForegroundWindow(hWnd);
+                }
+                appSettings.FirefoxLastAccWindow.accSelect(0x1, appSettings.objChild);//take selection
+                SendKeys.SendWait("{ENTER}");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ReloadForegroundBrowserToUrl ex - " + ex.Message);
+            }
         }
 
         public static bool ProcessCurrentAlwaysBlockedURL(IntPtr hwnd)
@@ -292,6 +322,49 @@ namespace Focus_Bear.Utils
              if (sURL.Contains("&unblock_it=true"))
              {
                  LogWriter.LogWrite("PBU.cs - ProcessURLForFocusModes - URL = " + sURL);
+
+                 //Teacher Mode - a class session's allow-list is controlled by the teacher, so the student
+                 //must not directly unblock a site. Open the unlock-request window instead, pre-filled with
+                 //the URL they were trying to reach so they don't have to retype it. This runs on the UI
+                 //Automation event thread, so marshal the WPF window onto the UI dispatcher (BeginInvoke -
+                 //do not block this thread), then stop the direct-unblock flow.
+                 if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+                 {
+                     string sUrlToRequest = ExtractOldUrl(sURL) ?? "";
+                     LogWriter.LogWrite("PBU.cs - unblock blocked - teacher class session active, opening pre-filled unlock request for " + sUrlToRequest);
+
+                     //Strip the "&unblock_it=true" trigger and reload the (clean) block-page URL BEFORE
+                     //showing the request box, so the tab no longer carries the trigger. Otherwise, if the
+                     //student cancels the request and re-focuses this tab, the box would keep re-appearing.
+                     //Same address-bar navigation the normal unblock flow uses below.
+                     try
+                     {
+                         string sCleanUrl = sURL.Replace("&unblock_it=true", "");
+                         appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = sCleanUrl;
+                         SetForegroundWindow(hWnd);
+                         Task.Delay(1);
+                         appSettings.FirefoxLastAccWindow.accSelect(0x1, appSettings.objChild);//take selection
+                         SendKeys.SendWait("{ENTER}");
+
+                         //Teacher Mode - this is the reliable capture point for the reload-on-approval: we
+                         //know the exact URL the student is requesting. Remember it, and set the current tab
+                         //to the clean block-page URL (the block page's address bar reads empty otherwise) so
+                         //the same-tab check on approval can confirm the student is still on this block page.
+                         appSettings.sLastFocusBlockedUrl = sUrlToRequest;
+                         appSettings.sLastActiveURLInFirefox = sCleanUrl;
+                         LogWriter.LogWrite("PBU.cs - teacher unblock - captured requested url '" + sUrlToRequest + "' on block page '" + sCleanUrl + "'");
+                     }
+                     catch (Exception exReload)
+                     {
+                         LogWriter.LogWrite("PBU.cs - teacher unblock reload ex - " + exReload.Message);
+                     }
+
+                     System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+                     {
+                         TeacherSessionManager.Instance.ShowTeacherUnlockRequestWindow(sUrlToRequest);
+                     }));
+                     return;
+                 }
 
                  string oldURLToOpen = ExtractOldUrl(sURL);
 
@@ -1296,6 +1369,7 @@ namespace Focus_Bear.Utils
 
                 if (type == "focus")
                 {
+
                     if (appSettings.nFocusBearMode == 1 && !bBlockImmediately)//Cuddly bearMode and not bFocusModeBlockedListApproach
                     {
                         string sURLForFocusMode = "";

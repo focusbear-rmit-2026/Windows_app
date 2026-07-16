@@ -257,7 +257,11 @@ namespace Focus_Bear
                 SimpleMode.ToolTip = appSettings.ConfigFileStrings["geekModeInfo"]["tooltipSimpleMode"].ToString();
 
 
-                if (appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
+                //Teacher Mode - the routine is postponed for the class session but the student must not
+                //be able to resume it early (that would end the locked session's takeover of the screen).
+                //Hide the tray Resume Habits button while a teacher session is active.
+                if ((appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState) &&
+                    !TeacherSessionManager.Instance.IsTeacherSessionActive())
                 {
                     btnResumeHabits.Visibility = Visibility.Visible;
                 }
@@ -416,8 +420,15 @@ namespace Focus_Bear
                     OfficeModeSection.Visibility = Visibility.Visible;
 
                     //Focus Alignment score
-                    if (appSettings.isFocusModeRunning ||
-                        (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled))
+                    bool bShowAlignmentScore = appSettings.isFocusModeRunning ||
+                        (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled);
+                    //Teacher Mode - during a class session the score follows the session's ai_blocking_enabled
+                    //setting (isFocusModeRunning is always true then, so it would otherwise always show).
+                    if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+                    {
+                        bShowAlignmentScore = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
+                    }
+                    if (bShowAlignmentScore)
                     {
                         AlignmentScoreText.Visibility = Visibility.Visible;
                         double CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
@@ -665,6 +676,7 @@ namespace Focus_Bear
             try
             {
                 //A running focus mode is not finished here on purpose, it stays in progress on the backend and is resumed on next app start
+                //(this also covers teacher-controlled class sessions: they must never be finished on quit)
                 QuitWindow aa = new QuitWindow();
                 bQuitVisible = true;
                 aa.ShowDialog();
@@ -778,7 +790,25 @@ namespace Focus_Bear
             //stop the current running focus session
 
             LogWriter.LogWrite("btnStopPomodoroMode_Click - button Stop FOcus Session Clicked");
-   
+
+            //Teacher Mode early-stop lock - a teacher controlled class session cannot be stopped early,
+            //route to the unlock-request UX instead of the password path. Only class-session-ended or
+            //the scheduled finish time can end it.
+            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                Hide();
+                if (TeacherSessionManager.Instance.CanTeacherSessionFinishNow())
+                {
+                    TeacherSessionManager.Instance.TeacherSessionFinished("stopped after the scheduled finish time");
+                }
+                else
+                {
+                    LogWriter.LogWrite("StopFocusSessionRealAsync blocked - teacher class session is active");
+                    TeacherSessionManager.Instance.ShowTeacherSessionLockedAlert();
+                }
+                return;
+            }
+
             try
             {
                 bool needsPassword = appSettings.bUseSuperPomodoroMode &&
@@ -868,6 +898,16 @@ namespace Focus_Bear
             try
             {
                 LogWriter.LogWrite("ToggleFocusPauseFromUI()");
+
+                //Teacher Mode early-stop lock - pausing a teacher controlled class session is not
+                //allowed either, route to the unlock-request UX instead.
+                if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+                {
+                    LogWriter.LogWrite("ToggleFocusPauseFromUI blocked - teacher class session is active");
+                    Hide();
+                    TeacherSessionManager.Instance.ShowTeacherSessionLockedAlert();
+                    return false;
+                }
 
                 if (!appSettings.isFocusModeRunning)
                 {
@@ -1085,6 +1125,23 @@ namespace Focus_Bear
 
                 CommandManager.InvalidateRequerySuggested();
 
+                //Teacher Mode - the scheduled finish time is a legit end for a teacher controlled
+                //class session; the manager does the cleanup (no personal focus-end survey window)
+                if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+                {
+                    if (TeacherSessionManager.Instance.CanTeacherSessionFinishNow())
+                    {
+                        TeacherSessionManager.Instance.TeacherSessionFinished("scheduled finish time reached");
+                    }
+                    else
+                    {
+                        //should not happen (the timer is armed with the session duration) - the session
+                        //will still end via class-session-ended or the next legit finish check
+                        LogWriter.LogWrite("dispatcherTimer_Focus - teacher session active but the scheduled finish time is not reached, ignoring");
+                    }
+                    return;
+                }
+
                 LogWriter.LogWrite("Stop the Focus Mode");
 
                 var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
@@ -1124,6 +1181,19 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("btnResumeHabits_Click" );
             Hide();
+
+            //Teacher Mode - resuming the routine early would tear down the locked class session's screen
+            //takeover. Block it while a teacher session is active (the tray button is hidden then, so this
+            //is a backstop) and show a brief balloon tip. The routine resumes on its own once the session ends.
+            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                LogWriter.LogWrite("btnResumeHabits_Click blocked - teacher class session is active");
+                appSettings.ShowBaloonTip(
+                    TeacherSessionManager.Instance.GetLocalizedString("resumeHabitsBlockedBody", "You can't resume your habits during a class focus session. They'll resume automatically when your teacher ends the session."),
+                    TeacherSessionManager.Instance.GetLocalizedString("resumeHabitsBlockedTitle", "Class focus session in progress"));
+                return;
+            }
+
             if (appSettings.bFocusSummaryPostponedState)
             {
                 ((App)(Application.Current)).wndFocusBearMainWindow.PageFocusSummary.ResumeFocusSummary();

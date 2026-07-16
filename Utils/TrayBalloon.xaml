@@ -7,7 +7,7 @@
         x:Name="window"
         mc:Ignorable="d"
         UseLayoutRounding="True"
-        Title="Focus Bear"  Width="340" Height="80" WindowStyle="None" AllowsTransparency="True" Loaded="Window_Loaded" MouseDown="Window_MouseDown" ShowInTaskbar="False" Deactivated="window_Deactivated" AutomationProperties.AutomationId="TrayBalloon">
+        Title="Focus Bear"  Width="340" MinHeight="80" SizeToContent="Height" WindowStyle="None" AllowsTransparency="True" Loaded="Window_Loaded" MouseDown="Window_MouseDown" ShowInTaskbar="False" Deactivated="window_Deactivated" AutomationProperties.AutomationId="TrayBalloon">
     <Window.Resources>
         <Storyboard x:Key="WinFade">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="window">
@@ -24,14 +24,14 @@
     <Grid Background="#2B2B2B">
         <Grid.RowDefinitions>
             <RowDefinition Height="38"/>
-            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="58"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <TextBlock x:Name="AppTitle" Margin="0" TextWrapping="Wrap" Text="" Foreground="White" FontSize="14" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Left" Grid.Column="2"/>
-        <TextBlock x:Name="TrayBaloonTipMsg" TextWrapping="Wrap" Text="" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Margin="0,4,0,0" Grid.Row="1"  />
+        <TextBlock x:Name="TrayBaloonTipMsg" TextWrapping="Wrap" Text="" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Margin="0,4,12,12" Grid.Row="1"  />
         <Image Width="42" Height="42"  Margin="0" Source="../Images/FBicon-64.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" VerticalAlignment="Center" Grid.RowSpan="2" HorizontalAlignment="Center"/>
 
     </Grid>

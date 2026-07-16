@@ -170,7 +170,15 @@ namespace Focus_Bear.Focus
                     }
                 }
 
-                
+                //Teacher Mode - a class session carries its own ai_blocking_enabled setting; while it is
+                //active the AI URL check depends on that, overriding the global / schedule settings.
+                if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+                {
+                    bAICheckRequired = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
+                    ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+
                 string sHost = "";
                 try
                 {
@@ -784,6 +792,14 @@ namespace Focus_Bear.Focus
                     ReportBadAIDecision.Visibility = Visibility.Collapsed;
                     bAICheckRequired = false;
                 }
+            }
+
+            //Teacher Mode - the class session's ai_blocking_enabled setting overrides the global / schedule
+            //settings while it is active.
+            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                bAICheckRequired = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
+                ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
             }
             ///////////////////////////////////////////
             if (sActiveAppName.Length > 0)

@@ -214,6 +214,25 @@ namespace Focus_Bear
                                         }
 
                                     }
+                                    else if (sName != null && sName.Contains("focus-block.html") &&
+                                             Focus.TeacherSessionManager.Instance.IsTeacherSessionActive())
+                                    {
+                                        //Teacher Mode - the student is (back) on a class-session block page whose address
+                                        //bar value reads empty (so the branches above don't catch it), but sName holds the
+                                        //full block-page URL. If the teacher has since approved this URL, remove the block
+                                        //page and load the original URL. This covers the case where the approval arrived
+                                        //while the student was on another tab and they later return to the block page.
+                                        string sBlockOldUrl = ProcessBrowserURLs.ExtractOldUrl(sName) ?? "";
+                                        if (sBlockOldUrl.Length > 0 && Focus.TeacherSessionManager.Instance.IsUrlAllowedInTeacherMode(sBlockOldUrl))
+                                        {
+                                            LogWriter.LogWrite("App.cs - teacher block page for now-allowed url, reloading - " + sBlockOldUrl);
+                                            appSettings.FirefoxLastAccWindow = accWindow;
+                                            appSettings.objChild = objChild;
+                                            appSettings.sLastActiveURLInFirefox = sName;
+                                            ProcessBrowserURLs.ReloadForegroundBrowserToUrl(hwnd, sBlockOldUrl);
+                                            appSettings.sLastFocusBlockedUrl = "";
+                                        }
+                                    }
                                     else
                                     {
                                         LogWriter.LogWrite("Mozilla's sName is null or other language then EN / ES- OR (sURL != null && sURL.Length > 0 FAILS. TITLE = " + sName + "URL = " + sURL);
@@ -1028,7 +1047,7 @@ namespace Focus_Bear
 
             if(wndNaturalBreakDetectionWindow != null)
             {
-                wndNaturalBreakDetectionWindow.Hide(); 
+                wndNaturalBreakDetectionWindow.Hide();
             }
 
             if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF  )
@@ -1611,6 +1630,11 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("PusherHandler() Initialization EX =" + ex.Message);
             }
+
+            //Teacher Mode - adopt a live class session on launch (GET /class-session/current):
+            //if the student already joined, rebuild the enforced allow-list session and resume
+            //heartbeats; if there is a pending invitation, show the join prompt.
+            TeacherSessionManager.Instance.AdoptCurrentSessionOnLaunch();
 
             //Connect to the Focus Button up-front, before any of the conditional workflow branches
             //below (postponed habits, shut-off, etc.) which can return early. Connecting here ensures
@@ -2259,6 +2283,15 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("ShowMorningRoutine()");
 
+            //Teacher Mode - a teacher controlled class session takes over the screen; the morning
+            //routine must not start (or resume) while it is active. It resumes normally on the next
+            //background tick once the session ends.
+            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                LogWriter.LogWrite("ShowMorningRoutine() - teacher class session active, not starting the morning routine");
+                return;
+            }
+
             if (appSettings.bIsUserOnCall)
             {
                 LogWriter.LogWrite("User is on Call - Do not start Morning Routine, return");
@@ -2803,6 +2836,15 @@ namespace Focus_Bear
         public async void ShowEveningRoutine()
         {
             LogWriter.LogWrite("ShowEveningRoutine() func");
+
+            //Teacher Mode - a teacher controlled class session takes over the screen; the evening
+            //routine must not start (or resume) while it is active. It resumes normally on the next
+            //background tick once the session ends.
+            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                LogWriter.LogWrite("ShowEveningRoutine() - teacher class session active, not starting the evening routine");
+                return;
+            }
 
             if (appSettings.bIsUserOnCall)
             {
@@ -3727,7 +3769,13 @@ namespace Focus_Bear
             }
         }
 
-        public void PostponeHabitWork(int nMinutesToPostpone)
+        //bForClassSession (Teacher Mode): postpone the routine for the whole class session (duration + 1
+        //min, from the backend). Two differences from a normal user postpone: the current activity type
+        //is kept as MORNING/EVENING_HABITS (the routine is only paused for the session, not cancelled),
+        //and the "your habits resume in 2 minutes" popup is suppressed so it never flashes over the
+        //locked class session. Enforcement stays correct because the habit-based enforcement is gated on
+        //bHabitwithAllowedAppsRunning (set false below), not on the activity type.
+        public void PostponeHabitWork(int nMinutesToPostpone, bool bForClassSession = false)
         {
             LogWriter.LogWrite("PostponeHabitWork()");
 
@@ -3743,7 +3791,7 @@ namespace Focus_Bear
                     dispatcherTimerPostponeHabits.Interval = TimeSpan.FromMinutes(nMinutesToPostpone);
                     dispatcherTimerPostponeHabits.Start();
 
-                    if (nMinutesToPostpone > 2) //If the postpone time is more than 2 minutes, we need to show a popup again before the postpone time is over and the habits are resumed.
+                    if (nMinutesToPostpone > 2 && !bForClassSession) //If the postpone time is more than 2 minutes, we need to show a popup again before the postpone time is over and the habits are resumed.
                     {
                         SetShowingYourHabitsResumeInPopup(nMinutesToPostpone - 2);
                     }
@@ -3802,7 +3850,12 @@ namespace Focus_Bear
                     // If a focus session exists (paused or running), restore UI after postponing
                     if (appSettings.isFocusModeRunning)
                     {
-                        appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                        //Teacher Mode keeps the routine's activity type (MORNING/EVENING_HABITS) so it is
+                        //merely paused for the session and resumes on its own when the postpone timer fires.
+                        if (!bForClassSession)
+                        {
+                            appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                        }
                         RestoreFocusUIAfterRoutine();
                     }
 
@@ -3839,9 +3892,94 @@ namespace Focus_Bear
                 LogWriter.LogWrite("PostponeHabitWork - " + ex.Message);
             }
 
-            if (nMinutesToPostpone > 2) //If the postpone time is more than 2 minutes, we need to show a popup bfore the postpone time is over and the habits are resumed.
+            if (nMinutesToPostpone > 2 && !bForClassSession) //If the postpone time is more than 2 minutes, we need to show a popup bfore the postpone time is over and the habits are resumed.
             {
                 SetShowingYourHabitsResumeInPopup(nMinutesToPostpone - 2);
+            }
+        }
+
+        //Teacher Mode - a class session can arrive while the student is in the middle of their morning
+        //(or evening) routine. When they join, push the routine aside so the locked class session can
+        //take over the screen, exactly as if they had postponed it themselves. The routine is postponed
+        //for the whole session (class duration + 1 min, from the backend's scheduled_finish_time) with
+        //its activity type kept as MORNING/EVENING_HABITS, so it resumes on its own ~1 min after the
+        //scheduled class end. ShowMorningRoutine is also guarded to stay away while the session is active.
+        //Returns true if it actually postponed a running routine (so the caller knows to resume it when
+        //the class session ends). Returns false when no routine was in progress, or on error.
+        public bool PostponeHabitsForClassSession(int nSessionMinutes)
+        {
+            try
+            {
+                if (appSettings.nCurrentActivityType != CurrentActivityType.MORNING_HABITS &&
+                    appSettings.nCurrentActivityType != CurrentActivityType.EVENING_HABITS)
+                {
+                    return false; //no routine in progress, nothing to postpone
+                }
+                LogWriter.LogWrite("PostponeHabitsForClassSession() - postponing the running routine for the class session");
+
+                //pause the running habit activity exactly like a manual postpone: HandleTimerForPostpone(true)
+                //stops the timer, SAVES the remaining time (RegistryManager.SetPostponedHabitData) so the
+                //routine resumes this activity from where it was left instead of from the start, and removes
+                //the allowed-app top-right popup (wndTakeABreak) + its timer. Same call the manual
+                //postpone / sleep-pause paths use.
+                try
+                {
+                    if (wndFocusBearMainWindow != null && wndFocusBearMainWindow.PageHabits != null &&
+                        wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing != null)
+                    {
+                        wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing.HandleTimerForPostpone(true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("PostponeHabitsForClassSession HandleTimerForPostpone ex - " + ex.Message);
+                }
+
+                //postpone for the class duration + 1 min so the routine resumes just after the class ends.
+                //isFocusModeRunning is already true here (the caller started the class focus session first),
+                //so PostponeHabitWork restores the focus UI; bForClassSession keeps the activity type and
+                //suppresses the "habits resume in 2 minutes" popup that would otherwise show mid-session.
+                int nMinutesToPostpone = nSessionMinutes + 1;
+                if (nMinutesToPostpone < 1)
+                {
+                    nMinutesToPostpone = 1;
+                }
+                PostponeHabitWork(nMinutesToPostpone, bForClassSession: true);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("PostponeHabitsForClassSession ex - " + ex.Message);
+            }
+            return false;
+        }
+
+        //Teacher Mode - called from TeacherSessionFinished when the routine was auto-postponed for the
+        //class session, so it resumes as soon as the session ends (rather than waiting out the class
+        //duration + 1 min postpone timer, which stays only as a fallback). Clears the postpone state and
+        //lets the background loop re-show the routine on its next tick (the teacher session is already
+        //cleared by the time this runs, so ShowMorningRoutine's guard no longer blocks it). Deliberately
+        //does NOT call RestoreFocusUIAfterRoutine: the class focus session has just been torn down, so
+        //there is no focus UI to restore.
+        public void ResumeHabitsAfterClassSession()
+        {
+            LogWriter.LogWrite("ResumeHabitsAfterClassSession()");
+            try
+            {
+                dispatcherTimerPostponeHabits.Stop();
+                dispatcherTimerResumeHabitsAfterPostpone.Stop();
+                if (wndHabitsResumeInPopup != null)
+                {
+                    wndHabitsResumeInPopup.HideHabitsResumeInPopupAndStopTimer();
+                }
+                appSettings.bHabitsPostponedState = false;
+                appSettings.bEveningHabitsPostponedAfterCutoffTime = false;
+                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                CommandManager.InvalidateRequerySuggested();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ResumeHabitsAfterClassSession ex - " + ex.Message);
             }
         }
 
@@ -4218,6 +4356,19 @@ namespace Focus_Bear
         private void Application_Exit(object sender, ExitEventArgs e)
         {
             LogWriter.LogWrite("Application_Exit()");
+
+            //Teacher Mode - best-effort final {in_focus:false} heartbeat so the teacher's roster
+            //shows the student as out of focus right away (the server also infers quit from the
+            //heartbeat gap). Synchronous with a 2 second cap because the process is terminating.
+            try
+            {
+                TeacherSessionManager.Instance.SendFinalHeartbeatBeforeExit();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("Application_Exit SendFinalHeartbeatBeforeExit ex - " + ex.Message);
+            }
+
             try
             {
                 LogWriter.LogWrite("Application_Exit() 1");
@@ -4541,6 +4692,18 @@ namespace Focus_Bear
                 if (string.IsNullOrWhiteSpace(appSettings.sLastActivityDoneInfo)) return;
 
                 JObject lastActivityDone = JObject.Parse(appSettings.sLastActivityDoneInfo);
+
+                //Teacher Mode - if the pending focus block belongs to a class session, do NOT
+                //resume it as a plain focus session here: TeacherSessionManager.AdoptCurrentSessionOnLaunch
+                //adopts it with teacher-lock semantics instead.
+                if (lastActivityDone.ContainsKey("completing_focus_block") &&
+                    lastActivityDone["completing_focus_block"].Type == JTokenType.Object &&
+                    lastActivityDone["completing_focus_block"]["class_session_id"] != null &&
+                    lastActivityDone["completing_focus_block"]["class_session_id"].Type != JTokenType.Null)
+                {
+                    LogWriter.LogWrite("CheckAndResumeRunningFocusMode skipped - pending focus block belongs to a class session");
+                    return;
+                }
 
                 JToken focusModeToken = lastActivityDone["current_focus_mode"];
                 if (focusModeToken == null || focusModeToken.Type != JTokenType.Object) return;
@@ -5293,6 +5456,14 @@ namespace Focus_Bear
         public void ForceStopFocusSessionOnHabitsTime()
         {
             LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime() - Stop the Focus Mode as Habits time had arrieved.");
+
+            //Teacher Mode - habits time must not tear down a teacher controlled class session;
+            //it only ends via class-session-ended or its scheduled finish time.
+            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime skipped - teacher class session is active");
+                return;
+            }
 
             if (appSettings.isFocusModePaused)
             {

@@ -63,7 +63,9 @@ namespace Focus_Bear.API
         public static string OccupationSpecificRelevantSites { get { return "https://api.focusbear.io/user/generate-occupation-specific-relevant-sites"; } }
 
         public static string AllTasks { get { return "https://api.focusbear.io/to-do"; } }
-        
+
+        public static string ClassSession { get { return "https://api.focusbear.io/class-session"; } }
+
         internal async Task<int> RenewToken()
         {
             //Renew the token and check again
@@ -2305,7 +2307,26 @@ namespace Focus_Bear.API
                     if (language == "es")
                         lang = "spanish";
 
-                    JArray rawTasks = JArray.Parse(appSettings.sRawTasks);
+                    //sRawTasks is empty until the task list has been loaded (and could be malformed),
+                    //so default to an empty array instead of letting JArray.Parse throw and abort the
+                    //whole URL safety check - the API just receives current_tasks: [].
+                    JArray rawTasks;
+                    if (string.IsNullOrWhiteSpace(appSettings.sRawTasks))
+                    {
+                        rawTasks = new JArray();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            rawTasks = JArray.Parse(appSettings.sRawTasks);
+                        }
+                        catch (Exception exParse)
+                        {
+                            LogWriter.LogWrite("ChatGPTIsURLSafe() - sRawTasks parse failed, using empty list - " + exParse.Message);
+                            rawTasks = new JArray();
+                        }
+                    }
 
                     JArray sRawTasksToPassInSafeAPI = new JArray(
                         rawTasks.Select(task => new JObject
@@ -4105,6 +4126,326 @@ namespace Focus_Bear.API
             {
                 LogWriter.LogWrite("GetAllUnlockRequests - Exception" + ex.Message);
 
+            }
+            return 0;
+        }
+
+        //*********** Teacher Mode class session APIs (see TeacherSessionManager) ***********//
+
+        //Student approves the join prompt - POST /class-session/{id}/join.
+        //Returns the joined session (with allowed_apps/allowed_urls/scheduled_finish_time/allowlist_version)
+        //because the caller needs it to build the enforced allow-list mode, or null on failure.
+        internal async Task<JObject> JoinClassSession(string sSessionId)
+        {
+            LogWriter.LogWrite("JoinClassSession()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return null;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    StringContent content = new StringContent("{}", Encoding.UTF8, "application/json");
+
+                    string sPath = ClassSession + "/" + sSessionId + "/join";
+
+                    var response = await client.PostAsync(sPath, content);
+                    if (response.StatusCode == System.Net.HttpStatusCode.Created || response.StatusCode == System.Net.HttpStatusCode.OK) //201 or 200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            JObject resJson = JObject.Parse(responseCode);
+                            LogWriter.LogWrite("JoinClassSession() GOT Success");
+                            return resJson;
+                        }
+                        return null;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            LogWriter.LogWrite("JoinClassSession() FAILED - " + responseCode);
+                        }
+                        return null;
+                    }
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("JoinClassSession WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("JoinClassSession Exception - " + ex.Message);
+            }
+            return null;
+        }
+
+        internal async Task<int> DeclineClassSession(string sSessionId) //POST /class-session/{id}/decline
+        {
+            LogWriter.LogWrite("DeclineClassSession()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    StringContent content = new StringContent("{}", Encoding.UTF8, "application/json");
+
+                    string sPath = ClassSession + "/" + sSessionId + "/decline";
+
+                    var response = await client.PostAsync(sPath, content);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK ||
+                        response.StatusCode == System.Net.HttpStatusCode.Created ||
+                        response.StatusCode == System.Net.HttpStatusCode.NoContent) //200 / 201 / 204
+                    {
+                        LogWriter.LogWrite("DeclineClassSession() GOT Success");
+                        return 1;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            LogWriter.LogWrite("DeclineClassSession() FAILED - " + responseCode);
+                        }
+                        return 0;
+                    }
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("DeclineClassSession WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("DeclineClassSession Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+        //GET /class-session/current - live session where the caller is invited/joined.
+        //Powers the next-launch adoption; returns null when there is no live session for the user.
+        internal async Task<JObject> GetCurrentClassSession()
+        {
+            LogWriter.LogWrite("GetCurrentClassSession()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return null;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string responsePath = ClassSession + "/" + "current";
+
+                    var response = await client.GetAsync(responsePath);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            //the endpoint returns null/empty when there is no live session for the caller
+                            if (string.IsNullOrWhiteSpace(responseCode) || responseCode.Trim() == "null")
+                            {
+                                return null;
+                            }
+                            try
+                            {
+                                JObject resJson = JObject.Parse(responseCode);
+                                LogWriter.LogWrite("GetCurrentClassSession() GOT Success");
+                                return resJson;
+                            }
+                            catch (Exception ex)
+                            {
+                                LogWriter.LogWrite("GetCurrentClassSession parse ex - " + ex.Message);
+                                return null;
+                            }
+                        }
+                        return null;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            LogWriter.LogWrite("GetCurrentClassSession() FAILED - " + responseCode);
+                        }
+                        return null;
+                    }
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetCurrentClassSession WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetCurrentClassSession Exception - " + ex.Message);
+            }
+            return null;
+        }
+
+        //POST /class-session/{id}/heartbeat with the canonical body {in_focus, device_id}.
+        //Best effort every 25s - no IsInternetOn probe (it would double the request volume) and no
+        //retry (the next beat is 25 seconds away; the server tolerates gaps of up to ~90s).
+        internal async Task<int> ClassSessionHeartbeat(string sSessionId, bool bInFocus)
+        {
+            try
+            {
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var xRenwTokenStatus = await RenewToken();
+                    if (xRenwTokenStatus == 0)
+                    {
+                        return 0;
+                    }
+                }
+
+                HttpClient client = GetClientWithHeaders();
+
+                string addJsonString = "{\"in_focus\":" + (bInFocus ? "true" : "false") + ",\"device_id\":\"" + appSettings.sDeviceID + "\"}";
+                StringContent content = new StringContent(addJsonString, Encoding.UTF8, "application/json");
+
+                string sPath = ClassSession + "/" + sSessionId + "/heartbeat";
+
+                var response = await client.PostAsync(sPath, content);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK ||
+                    response.StatusCode == System.Net.HttpStatusCode.Created ||
+                    response.StatusCode == System.Net.HttpStatusCode.NoContent) //200 / 201 / 204
+                {
+                    return 1;
+                }
+                else
+                {
+                    LogWriter.LogWrite("ClassSessionHeartbeat() FAILED - StatusCode " + (int)response.StatusCode);
+                    return 0;
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("ClassSessionHeartbeat WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ClassSessionHeartbeat Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+        //POST /class-session/{id}/unlock-requests {requested_app? / requested_domain? / reason?}
+        internal async Task<int> RequestClassUnlock(string sSessionId, string sRequestedApp, string sRequestedDomain, string sReason)
+        {
+            LogWriter.LogWrite("RequestClassUnlock()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    //JObject serialization escapes any quotes/special characters in the user supplied strings
+                    JObject payload = new JObject();
+                    if (!string.IsNullOrWhiteSpace(sRequestedApp))
+                    {
+                        payload["requested_app"] = sRequestedApp;
+                    }
+                    if (!string.IsNullOrWhiteSpace(sRequestedDomain))
+                    {
+                        payload["requested_domain"] = sRequestedDomain;
+                    }
+                    if (!string.IsNullOrWhiteSpace(sReason))
+                    {
+                        payload["reason"] = sReason;
+                    }
+                    string addJsonString = payload.ToString(Newtonsoft.Json.Formatting.None);
+
+                    StringContent content = new StringContent(addJsonString, Encoding.UTF8, "application/json");
+
+                    string sPath = ClassSession + "/" + sSessionId + "/unlock-requests";
+
+                    var response = await client.PostAsync(sPath, content);
+                    if (response.StatusCode == System.Net.HttpStatusCode.Created || response.StatusCode == System.Net.HttpStatusCode.OK) //201 or 200
+                    {
+                        LogWriter.LogWrite("RequestClassUnlock() GOT Success");
+                        return 1;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            LogWriter.LogWrite("RequestClassUnlock() FAILED - " + responseCode);
+                        }
+                        return 0;
+                    }
+                }
+                else
+                {
+                    LogWriter.LogWrite("Is nInternetOn FALSE");
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("RequestClassUnlock WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RequestClassUnlock Exception - " + ex.Message);
             }
             return 0;
         }

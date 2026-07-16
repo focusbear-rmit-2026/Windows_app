@@ -216,6 +216,20 @@ namespace Focus_Bear.Habits
             }
             else if (nButtonActionState == ActionState.BreaksNotScheduled)
             {
+                //Teacher Mode - a break would take the student out of the locked class apps, so the
+                //Start Break button must not start a break while a teacher session is active. Check
+                //here before showing the loader so the grid shade is not left stuck on screen, and
+                //show a brief balloon tip so the student knows why nothing happened.
+                if (Focus_Bear.Focus.TeacherSessionManager.Instance.IsTeacherSessionActive())
+                {
+                    LogWriter.LogWrite("NoHabitsRunningState Start Break blocked - teacher class session is active");
+                    Focus_Bear.Focus.TeacherSessionManager manager = Focus_Bear.Focus.TeacherSessionManager.Instance;
+                    appSettings.ShowBaloonTip(
+                        manager.GetLocalizedString("breakBlockedBody", "You can't start a break during a class focus session. It resumes automatically when your teacher ends the session."),
+                        manager.GetLocalizedString("breakBlockedTitle", "Class focus session in progress"));
+                    return;
+                }
+
                 //Show a loader till the break activities are prepared. it will be removed before starting breaks
                 ((App)Application.Current).wndFocusBearMainWindow.GridShade.Visibility = Visibility.Visible;
                 //Action to start the break

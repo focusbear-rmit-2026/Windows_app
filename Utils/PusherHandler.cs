@@ -6,9 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using Focus_Bear.Focus;
 using Newtonsoft.Json.Linq;
 using PusherClient;
- 
+
 
 namespace Focus_Bear.Utils
 {
@@ -102,9 +103,59 @@ namespace Focus_Bear.Utils
             else if (eventName == "focus-mode-started")
             {
                 /*
-                {"id":"fffc7659-b162-4d60-a437-c733ea348214","start_time":"2023-12-14T12:59:17.000Z","scheduled_finish_time":"2023-12-14T13:00:17.000Z","intention":"","user_id":"f255d04d-c45a-4114-b68c-1b4682e15bbe","focus_mode_id":"2ebb19d1-d597-4911-bc6e-2d81677cd69a","is_finished":false,"focus_duration_seconds":"0"}        
+                {"id":"fffc7659-b162-4d60-a437-c733ea348214","start_time":"2023-12-14T12:59:17.000Z","scheduled_finish_time":"2023-12-14T13:00:17.000Z","intention":"","user_id":"f255d04d-c45a-4114-b68c-1b4682e15bbe","focus_mode_id":"2ebb19d1-d597-4911-bc6e-2d81677cd69a","is_finished":false,"focus_duration_seconds":"0"}
                 */
                 HandleFocusModeStartedEvent(sData);
+            }
+            //Teacher Mode class session events (canonical kebab-case names, same vocabulary as the
+            //backend + FCM data.type). Unlike focus-mode-started (auto starts), class-session-invite
+            //shows a JOIN prompt first - the session never starts without the student's approval.
+            //Stale/duplicate deliveries are dropped in the manager via allowlist_version.
+            else if (eventName == "class-session-invite" ||
+                     eventName == "class-allowlist-changed" ||
+                     eventName == "class-session-ended" ||
+                     eventName == "class-unlock-resolved")
+            {
+                HandleClassSessionEvent(eventName, sData);
+            }
+        }
+
+        static void HandleClassSessionEvent(string eventName, string sData)
+        {
+            LogWriter.LogWrite("HandleClassSessionEvent() - " + eventName);
+            try
+            {
+                JObject ObjData = JObject.Parse(sData);
+                Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    try
+                    {
+                        if (eventName == "class-session-invite")
+                        {
+                            TeacherSessionManager.Instance.HandleSessionInvite(ObjData);
+                        }
+                        else if (eventName == "class-allowlist-changed")
+                        {
+                            TeacherSessionManager.Instance.HandleAllowlistChanged(ObjData);
+                        }
+                        else if (eventName == "class-session-ended")
+                        {
+                            TeacherSessionManager.Instance.HandleSessionEnded(ObjData);
+                        }
+                        else if (eventName == "class-unlock-resolved")
+                        {
+                            TeacherSessionManager.Instance.HandleUnlockResolved(ObjData);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("HandleClassSessionEvent dispatcher ex - " + ex.Message);
+                    }
+                }));
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("HandleClassSessionEvent ex - " + ex.Message);
             }
         }
 
@@ -253,6 +304,15 @@ namespace Focus_Bear.Utils
         static void HandleFocusModeFnishedEvent(string sData)
         {
             LogWriter.LogWrite("HandleFocusModeFnishedEvent()");
+
+            //When a student joins a class session the server force-finishes any personal focus block
+            //and fires focus-mode-finished - that event must not tear down the just-started teacher
+            //session. A teacher session only ends via class-session-ended or its scheduled finish time.
+            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                LogWriter.LogWrite("HandleFocusModeFnishedEvent ignored - teacher class session is active");
+                return;
+            }
 
             //First check if it is already added
             var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);

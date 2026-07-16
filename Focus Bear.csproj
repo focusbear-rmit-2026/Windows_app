@@ -435,6 +435,10 @@
       <DependentUpon>StopFocusMode.xaml</DependentUpon>
     </Compile>
     <Compile Include="Focus\TabMatrics.cs" />
+    <Compile Include="Focus\TeacherSessionManager.cs" />
+    <Compile Include="Focus\TeacherUnlockRequestWindow.xaml.cs">
+      <DependentUpon>TeacherUnlockRequestWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\TemporaryAccess.xaml.cs">
       <DependentUpon>TemporaryAccess.xaml</DependentUpon>
     </Compile>
@@ -850,6 +854,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\StopFocusMode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\TeacherUnlockRequestWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
