@@ -72,4 +72,10 @@
 - Onboarding: load the revamped routine-suggestion page
 - Onboarding: fix evening routine duration (was taken from morning habits); each routine now sums its own habits' durations
 
+#v3.0.226
+- Teacher Mode: teacher-controlled class focus sessions #1321. A teacher starts a super-strict allow-list class focus session from the web dashboard; the student gets a join prompt (never auto-starts), the teacher's allow-list is enforced and hot-syncs live, presence is reported via heartbeats, and the session cannot be stopped/paused/quit early — only unlock requests.
+- Blocked-URL unlock requests: "Oops I actually need this" opens a pre-filled unlock request instead of unblocking; on teacher approval the site reloads automatically (while on the block page or on returning to that tab).
+- Personal routine held back during a class session: a running morning/evening routine is postponed and resumes from where it was left once the session ends (in-progress habit keeps its remaining time); Resume Habits and Start Break are blocked with a notice while a session is active.
+- AI URL checks follow the class session's AI setting while it's active.
+- Fixed tray balloon-tip text being cut off for long messages (now sizes to the message).
 
