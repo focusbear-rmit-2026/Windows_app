@@ -101,6 +101,9 @@ namespace Focus_Bear
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
         private const int SW_RESTORE = 9;
 
 
@@ -125,7 +128,21 @@ namespace Focus_Bear
             if (string.IsNullOrEmpty(sAppName))
                 return;
 
-            if (sAppName != "Focus Bear.exe" && sAppName != "explorer.exe")
+            // The hook fires for object-level events (focus / value-change) from EVERY process, not just
+            // foreground changes. Background apps (e.g. Visual Studio, Teams) emit a constant stream of
+            // these, and acting on them spuriously hid the Set Intention popup the instant it appeared
+            // while the user was still on the foreground browser. Only treat an event as an app-switch when
+            // it actually comes from the foreground window's process; otherwise ignore this hide pass.
+            bool bFromForegroundApp = false;
+            try
+            {
+                GetWindowThreadProcessId(hwnd, out IntPtr evtPid);
+                GetWindowThreadProcessId(GetForegroundWindow(), out IntPtr fgPid);
+                bFromForegroundApp = evtPid != IntPtr.Zero && evtPid == fgPid;
+            }
+            catch (Exception ex) { LogWriter.LogWrite("foreground-check ex - " + ex.Message); }
+
+            if (bFromForegroundApp && sAppName != "Focus Bear.exe" && sAppName != "explorer.exe")
             {
                 //Click through is permitted from blur window and if the user was clicking on the same, it was changing app and blur was being removed. placing this check resolves it
                 bool bIsBrowser = Global.BROWSERS.Contains(Path.GetFileNameWithoutExtension(sAppName));
@@ -140,7 +157,7 @@ namespace Focus_Bear
 
                 appSettings.sLastActiveAppName = sAppName;
             }
-            else if(sAppName == "explorer.exe")
+            else if(bFromForegroundApp && sAppName == "explorer.exe")
             {
                 appSettings.Hide_SetIntentionWindow();
             }
