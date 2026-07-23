@@ -88,5 +88,15 @@
                 <Hyperlink x:Name="btnSkipThisHabit" AutomationProperties.AutomationId="btnSkipThisHabit"  Click="btnSkipThisHabit_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipThisHabitTXT" Text="xSkip this habit for today"/></Hyperlink>
             </TextBlock>
         </StackPanel>
+
+        <!-- Floating "Back to Day Plan" button (top-left) — shown only while the habit is paused
+             (and not on the last habit). Returns to the Day Plan, keeping this habit paused. -->
+        <Button x:Name="btnBackToDayPlan" AutomationProperties.AutomationId="btnBackToDayPlan"
+                Grid.Row="0" Grid.RowSpan="5" Style="{StaticResource BtnStyleLightOrangeBordered}"
+                Width="40" Height="40" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="17,17,0,0" Padding="0" Cursor="Hand" Visibility="Collapsed"
+                Click="btnBackToDayPlan_Click">
+            <TextBlock Text="&#x2039;" VerticalAlignment="Center" Margin="0,0,0,7" FontSize="35" Foreground="#EB912E"/>
+        </Button>
     </Grid>
 </Page>

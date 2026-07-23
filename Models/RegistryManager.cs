@@ -2502,6 +2502,59 @@ namespace Focus_Bear.Models
             }
         }
 
+        // ---- Day Plan tasks (M7) -----------------------------------------------------------------
+        // The tasks panel's local store persists here as a JSON blob keyed by day, plus a stamp of the
+        // last day incomplete tasks were rolled forward, mirroring the macOS UserDefaults keys
+        // "dayPlanTasksByDay" / "dayPlanLastRolloverDay".
+
+        public static void SaveDayPlanTasks(string json)
+        {
+            try { Write("DayPlanTasksByDay", json ?? ""); }
+            catch (Exception ex) { LogWriter.LogWrite("SaveDayPlanTasks - " + ex.Message); }
+        }
+
+        public static string LoadDayPlanTasks()
+        {
+            try { return ReadStr("DayPlanTasksByDay"); }
+            catch (Exception ex) { LogWriter.LogWrite("LoadDayPlanTasks - " + ex.Message); return null; }
+        }
+
+        public static void SaveDayPlanLastRolloverDay(string dayKey)
+        {
+            try { Write("DayPlanLastRolloverDay", dayKey ?? ""); }
+            catch (Exception ex) { LogWriter.LogWrite("SaveDayPlanLastRolloverDay - " + ex.Message); }
+        }
+
+        public static string LoadDayPlanLastRolloverDay()
+        {
+            try { return ReadStr("DayPlanLastRolloverDay"); }
+            catch (Exception ex) { LogWriter.LogWrite("LoadDayPlanLastRolloverDay - " + ex.Message); return null; }
+        }
+
+        public static void SaveDayPlanPanelWidth(string width)
+        {
+            try { Write("DayPlanPanelWidth", width ?? ""); }
+            catch (Exception ex) { LogWriter.LogWrite("SaveDayPlanPanelWidth - " + ex.Message); }
+        }
+
+        public static string LoadDayPlanPanelWidth()
+        {
+            try { return ReadStr("DayPlanPanelWidth"); }
+            catch (Exception ex) { LogWriter.LogWrite("LoadDayPlanPanelWidth - " + ex.Message); return null; }
+        }
+
+        public static void SaveDayPlanShowHiddenMeetings(bool on)
+        {
+            try { Write("DayPlanShowHiddenMeetings", on ? "1" : "0"); }
+            catch (Exception ex) { LogWriter.LogWrite("SaveDayPlanShowHiddenMeetings - " + ex.Message); }
+        }
+
+        public static bool LoadDayPlanShowHiddenMeetings()
+        {
+            try { return ReadStr("DayPlanShowHiddenMeetings") == "1"; }
+            catch (Exception ex) { LogWriter.LogWrite("LoadDayPlanShowHiddenMeetings - " + ex.Message); return false; }
+        }
+
         internal static void SetSelectedMorningHabitsDate()
         {
             LogWriter.LogWrite("SetSelectedMorningHabitsDate()");

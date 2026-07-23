@@ -1,0 +1,166 @@
+<Window x:Class="Focus_Bear.Habits.DayPlan.DayPlanTaskDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Habits.DayPlan"
+        mc:Ignorable="d"
+        Title="Focus Bear" AutomationProperties.AutomationId="DayPlanTaskDetailWindow"
+        SizeToContent="Height" Width="480" MaxHeight="720" ResizeMode="NoResize" WindowStyle="None"
+        ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}">
+    <!--
+        Task detail modal for the Day Plan tasks panel (M7 phase 3) — the Windows port of the macOS
+        openTaskModal. Edits title / project / duration / importance / notes / sub-tasks, moves the task
+        to another day, or removes it. Input fields use explicit white bg + black text (like the app's
+        other dialogs) so they're legible in both themes. Buttons wrap their text in a TextBlock with
+        margins because the orange button template ignores Button.Padding.
+
+        The form SCROLLS and the action buttons are PINNED below it (outside the scroll) with the window
+        capped at MaxHeight — so a long sub-task list can never push Save/Cancel off-screen (this is a
+        borderless, non-draggable dialog, so an off-screen button would be unreachable).
+    -->
+    <Border BorderBrush="#e88800" BorderThickness="1">
+        <Grid Margin="18,14,18,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>     <!-- scrollable form -->
+                <RowDefinition Height="Auto"/>  <!-- pinned buttons -->
+            </Grid.RowDefinitions>
+
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          Padding="0,0,8,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>  <!-- heading -->
+                        <RowDefinition Height="Auto"/>  <!-- title -->
+                        <RowDefinition Height="Auto"/>  <!-- project -->
+                        <RowDefinition Height="Auto"/>  <!-- duration -->
+                        <RowDefinition Height="Auto"/>  <!-- importance -->
+                        <RowDefinition Height="Auto"/>  <!-- notes label -->
+                        <RowDefinition Height="Auto"/>  <!-- notes -->
+                        <RowDefinition Height="Auto"/>  <!-- subtasks label -->
+                        <RowDefinition Height="Auto"/>  <!-- subtasks list -->
+                        <RowDefinition Height="Auto"/>  <!-- add subtask -->
+                        <RowDefinition Height="Auto"/>  <!-- move-to-day -->
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Task details" x:Name="Heading"
+                               FontSize="15" FontWeight="Bold" Margin="0,0,0,10"
+                               Foreground="{DynamicResource ForegroundColor}"/>
+
+                    <TextBox Grid.Row="1" x:Name="TitleField" Height="30" Margin="0,0,0,8"
+                             Background="#FFFFFF" Foreground="#000000" BorderBrush="#7F7F7F"
+                             VerticalContentAlignment="Center" Padding="6,0,6,0" FontSize="14"/>
+
+                    <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" x:Name="LblProject" Text="Project" VerticalAlignment="Center"
+                                       Width="90" FontSize="12" Foreground="{DynamicResource ForegroundGrey}"/>
+                            <TextBox Grid.Column="1" x:Name="ProjectField" Height="28" FontSize="13"
+                                     Background="#FFFFFF" Foreground="#000000" BorderBrush="#7F7F7F"
+                                     VerticalContentAlignment="Center" Padding="6,0,6,0"/>
+                        </Grid>
+                        <ScrollViewer Margin="90,4,0,0" MaxHeight="66"
+                                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <WrapPanel x:Name="ProjectSuggestions"/>
+                        </ScrollViewer>
+                    </StackPanel>
+
+                    <Grid Grid.Row="3" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" x:Name="LblDuration" Text="Duration (min)" VerticalAlignment="Center"
+                                   Width="90" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource ForegroundGrey}"/>
+                        <TextBox Grid.Column="1" x:Name="DurationField" Height="28" VerticalContentAlignment="Center"
+                                 Background="#FFFFFF" Foreground="#000000" BorderBrush="#7F7F7F"
+                                 Padding="6,0,6,0" FontSize="13"/>
+                    </Grid>
+
+                    <Grid Grid.Row="4" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" x:Name="LblImportance" Text="Importance" VerticalAlignment="Center"
+                                   Width="90" FontSize="12" Foreground="{DynamicResource ForegroundGrey}"/>
+                        <ComboBox Grid.Column="1" x:Name="ImportanceField" Height="28" FontSize="13"
+                                  SelectionChanged="ImportanceField_SelectionChanged"/>
+                        <Border Grid.Column="2" x:Name="ImportanceSwatch" Width="16" Height="16" CornerRadius="8"
+                                Margin="8,0,2,0" Background="Transparent"/>
+                    </Grid>
+
+                    <TextBlock Grid.Row="5" x:Name="LblNotes" Text="Details" FontSize="12" Margin="0,2,0,4"
+                               Foreground="{DynamicResource ForegroundGrey}"/>
+                    <TextBox Grid.Row="6" x:Name="NotesField" Height="64" Margin="0,0,0,10"
+                             Background="#FFFFFF" Foreground="#000000" BorderBrush="#7F7F7F"
+                             AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                             Padding="6,4,6,4" FontSize="13"/>
+
+                    <TextBlock Grid.Row="7" x:Name="LblSubtasks" Text="Sub-tasks" FontSize="12" Margin="0,2,0,4"
+                               Foreground="{DynamicResource ForegroundGrey}"/>
+                    <StackPanel Grid.Row="8" x:Name="SubtasksStack" Orientation="Vertical"/>
+                    <Button Grid.Row="9" x:Name="BtnAddSubtask" HorizontalAlignment="Left" Height="28" MinWidth="140"
+                            Margin="0,4,0,10" Style="{StaticResource BtnStyleClearOrangeBordered}" Cursor="Hand"
+                            Click="BtnAddSubtask_Click">
+                        <TextBlock x:Name="BtnAddSubtaskText" Text="＋ Add sub-task" Margin="12,3,12,3" Foreground="#000000"/>
+                    </Button>
+
+                    <!-- Move to another day -->
+                    <Border Grid.Row="10" BorderBrush="#33808080" BorderThickness="0,1,0,0" Padding="0,10,0,2" Margin="0,0,0,2">
+                        <StackPanel Orientation="Vertical">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" x:Name="LblMove" Text="Move to…" VerticalAlignment="Center"
+                                           Width="90" FontSize="12" Foreground="{DynamicResource ForegroundGrey}"/>
+                                <TextBox Grid.Column="1" x:Name="MoveField" Height="28" VerticalContentAlignment="Center"
+                                         Background="#FFFFFF" Foreground="#000000" BorderBrush="#7F7F7F"
+                                         Padding="6,0,6,0" FontSize="13" TextChanged="MoveField_TextChanged"/>
+                                <Button Grid.Column="2" x:Name="BtnMove" Height="28" MinWidth="72" Margin="8,0,0,0"
+                                        Style="{StaticResource BtnStyleClearOrangeBordered}" Cursor="Hand" Click="BtnMove_Click">
+                                    <TextBlock x:Name="BtnMoveText" Text="Move" Margin="14,3,14,3" Foreground="#000000"/>
+                                </Button>
+                            </Grid>
+                            <TextBlock x:Name="MoveHelp" Margin="90,4,0,0" FontSize="10.5" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource ForegroundGrey}"
+                                       Text="e.g. tomorrow · 2d · 2w · next tue · 25 Jul"/>
+                            <TextBlock x:Name="MovePreview" Margin="90,2,0,0" FontSize="11" Foreground="#e88800" Text=""/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </ScrollViewer>
+
+            <!-- Pinned action row: Remove far left; Cancel + primary Save on the right. Always visible. -->
+            <Grid Grid.Row="1" Margin="0,10,0,0">
+                <Button x:Name="btnRemove" HorizontalAlignment="Left" MinWidth="110" MinHeight="34"
+                        Style="{StaticResource BtnStyleClearOrangeBordered}" Cursor="Hand" Click="btnRemove_Click">
+                    <TextBlock x:Name="btnRemoveText" Text="Remove" Margin="14,4,14,4" FontSize="14">
+                        <TextBlock.Foreground><SolidColorBrush Color="#FF3B30"/></TextBlock.Foreground>
+                    </TextBlock>
+                </Button>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="btnCancel" MinWidth="120" MinHeight="34" Margin="0,0,8,0"
+                            Style="{StaticResource BtnStyleClearOrangeBordered}" Cursor="Hand"
+                            IsCancel="True" Click="btnCancel_Click">
+                        <TextBlock x:Name="btnCancelText" Text="Cancel" Margin="14,4,14,4" FontSize="14" Foreground="#000000"/>
+                    </Button>
+                    <Button x:Name="btnSave" MinWidth="120" MinHeight="34" IsDefault="True"
+                            Style="{StaticResource BtnStyleLightOrangeBordered}" Cursor="Hand" Click="btnSave_Click">
+                        <TextBlock x:Name="btnSaveText" Text="Save" Margin="14,4,14,4" FontSize="14" Foreground="#000000"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

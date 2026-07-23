@@ -1893,6 +1893,65 @@ namespace Focus_Bear.API
         }
 
 
+        /// <summary>
+        /// The habits actually completed on a given day (yyyy-MM-dd), from
+        /// GET /completed-activity-sequence/routine-progress — independent of the live routine state, so
+        /// the Day Plan can strike through done habits even after the routine is finished. Unions
+        /// completed_habit_ids minus skipped_habit_ids across every routine in the payload. Returns null
+        /// on any failure. Mirrors the macOS fetchDayRoutineProgress (#2150).
+        /// </summary>
+        internal async Task<(HashSet<string> completed, HashSet<string> skipped)> GetDayRoutineProgress(string dateKey)
+        {
+            LogWriter.LogWrite("GetDayRoutineProgress() date=" + dateKey);
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+                if (!nInternetOn) return (null, null);
+
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var xRenwTokenStatus = await RenewToken();
+                    if (xRenwTokenStatus == 0) return (null, null);
+                }
+
+                HttpClient client = GetClientWithHeaders();
+
+                var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
+                string sign = offset < TimeSpan.Zero ? "-" : "+";
+                sign = HttpUtility.UrlEncode(sign);
+                string time = "UTC" + sign + offset.ToString(@"hh\:mm");
+
+                string apiPath = string.Format("https://api.focusbear.io/completed-activity-sequence/routine-progress?date={0}&timezone={1}", dateKey, time);
+                LogWriter.LogWrite("GetDayRoutineProgress() URL - " + apiPath);
+
+                var response = await client.GetAsync(apiPath);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK && response.Content != null)
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    var completed = new HashSet<string>();
+                    var skipped = new HashSet<string>();
+                    JObject json = JObject.Parse(body);
+                    foreach (var prop in json.Properties())
+                    {
+                        JObject routine = prop.Value as JObject;
+                        if (routine == null) continue;
+                        if (routine["skipped_habit_ids"] is JArray skippedArr)
+                            foreach (var t in skippedArr) skipped.Add(t.ToString());
+                        if (routine["completed_habit_ids"] is JArray doneArr)
+                            foreach (var t in doneArr) { string id = t.ToString(); if (!skipped.Contains(id)) completed.Add(id); }
+                    }
+                    LogWriter.LogWrite("GetDayRoutineProgress() got " + completed.Count + " completed, " + skipped.Count + " skipped");
+                    return (completed, skipped);
+                }
+                LogWriter.LogWrite("GetDayRoutineProgress() non-200: " + response.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetDayRoutineProgress ex - " + ex.Message);
+            }
+            return (null, null);
+        }
+
         internal async Task<int> GetHabitPacks() //OK
         {
             LogWriter.LogWrite("GetHabitPacks()");
@@ -2510,6 +2569,365 @@ namespace Focus_Bear.API
                 LogWriter.LogWrite("GetAllTasks Exception - " + ex.Message);
             }
             return 0;
+        }
+
+        /// <summary>
+        /// Fetches the to-do list in the backend's SMART (TOP-score) priority order — the same source
+        /// and order the web to-do list and the macOS Day Plan picker use. Unlike <see cref="GetAllTasks"/>
+        /// (<c>/to-do/recent</c>, recency, and includes completed), this endpoint is prioritised and
+        /// already filtered to <c>status=NOT_STARTED</c>, so the Day Plan "From to-do list" picker shows
+        /// the user's actual open tasks. Returns the raw JSON body (a plain array or a <c>{ data: [...] }</c>
+        /// wrapper), or null on failure. Not debounced — it's only called when the picker opens.
+        /// </summary>
+        internal async Task<string> GetSmartTasks()
+        {
+            LogWriter.LogWrite("GetSmartTasks()");
+            try
+            {
+                if (!await IsInternetOn())
+                {
+                    LogWriter.LogWrite("GetSmartTasks: no internet");
+                    return null;
+                }
+
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var renew = await RenewToken();
+                    if (renew == 0) return null;
+                }
+
+                HttpClient client = GetClientWithHeaders();
+                string sPath = AllTasks + "?page=1&take=50&status=NOT_STARTED&order=DESC&sort_mode=SMART";
+                var response = await client.GetAsync(sPath);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK && response.Content != null)
+                {
+                    string body = await response.Content.ReadAsStringAsync();
+                    LogWriter.LogWrite("GetSmartTasks GOT Success (" + (body?.Length ?? 0) + " chars)");
+                    return body;
+                }
+
+                LogWriter.LogWrite("GetSmartTasks: status " + (int)response.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetSmartTasks Exception - " + ex.Message);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Reads the Day Plan for a day — the to-dos the backend has planned onto it (their
+        /// <c>planned_date</c> is this day), so a task planned on the web/mobile shows up here too.
+        /// <c>GET /day-plan/day/:day</c>, returning the raw JSON body (<c>{ tasks: ToDo[] }</c>) or null.
+        /// READ-ONLY: this is the cross-device *read* half of Day Plan sync. The *write* half
+        /// (planning a Windows-made association back to the backend) is intentionally not implemented
+        /// yet — its exact payload isn't confirmed and a wrong mutation would corrupt real to-dos.
+        /// </summary>
+        internal async Task<string> GetDayPlanForDay(string dayKey)
+        {
+            LogWriter.LogWrite("GetDayPlanForDay(" + dayKey + ")");
+            try
+            {
+                if (!await IsInternetOn()) return null;
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var renew = await RenewToken();
+                    if (renew == 0) return null;
+                }
+
+                HttpClient client = GetClientWithHeaders();
+                string sPath = "https://api.focusbear.io/day-plan/day/" + dayKey;
+                var response = await client.GetAsync(sPath);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK && response.Content != null)
+                {
+                    string body = await response.Content.ReadAsStringAsync();
+                    LogWriter.LogWrite("GetDayPlanForDay GOT Success (" + (body?.Length ?? 0) + " chars)");
+                    return body;
+                }
+                LogWriter.LogWrite("GetDayPlanForDay: status " + (int)response.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetDayPlanForDay Exception - " + ex.Message);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// The user's connected calendars for a platform (<c>GET /calendar/{platform}/calendar-datas</c>,
+        /// platform = "google" | "microsoft"). Each item carries the account, calendar id, name and an
+        /// is-selected flag. Returns the raw JSON body or null. The Windows Day Plan uses the backend
+        /// calendar sync (Google / Microsoft) instead of a native calendar, since Windows has no EventKit.
+        /// </summary>
+        internal async Task<string> GetCalendarDatas(string platform)
+        {
+            LogWriter.LogWrite("GetCalendarDatas(" + platform + ")");
+            try
+            {
+                if (!await IsInternetOn()) return null;
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var renew = await RenewToken();
+                    if (renew == 0) return null;
+                }
+                HttpClient client = GetClientWithHeaders();
+                string sPath = "https://api.focusbear.io/calendar/" + platform + "/calendar-datas";
+                var response = await client.GetAsync(sPath);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK && response.Content != null)
+                {
+                    string body = await response.Content.ReadAsStringAsync();
+                    LogWriter.LogWrite("GetCalendarDatas(" + platform + ") ok (" + (body?.Length ?? 0) + " chars)");
+                    return body;
+                }
+                LogWriter.LogWrite("GetCalendarDatas(" + platform + "): status " + (int)response.StatusCode);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("GetCalendarDatas Exception - " + ex.Message); }
+            return null;
+        }
+
+        /// <summary>
+        /// Calendar events for a connected account (<c>GET /calendar/{platform}/events?account=…</c>).
+        /// Returns the raw platform events (Google or Microsoft shape) as a JSON body, or null. Read-only —
+        /// the backend syncs from Google/Outlook; there is no create-event endpoint here.
+        /// </summary>
+        internal async Task<string> GetCalendarEvents(string platform, string account)
+        {
+            LogWriter.LogWrite("GetCalendarEvents(" + platform + ", " + account + ")");
+            try
+            {
+                if (!await IsInternetOn()) return null;
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var renew = await RenewToken();
+                    if (renew == 0) return null;
+                }
+                HttpClient client = GetClientWithHeaders();
+                string sPath = "https://api.focusbear.io/calendar/" + platform + "/events?account=" + Uri.EscapeDataString(account ?? "");
+                var response = await client.GetAsync(sPath);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK && response.Content != null)
+                {
+                    string body = await response.Content.ReadAsStringAsync();
+                    LogWriter.LogWrite("GetCalendarEvents(" + platform + ") ok (" + (body?.Length ?? 0) + " chars)");
+                    return body;
+                }
+                LogWriter.LogWrite("GetCalendarEvents(" + platform + "): status " + (int)response.StatusCode);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("GetCalendarEvents Exception - " + ex.Message); }
+            return null;
+        }
+
+        /// <summary>Hide a meeting for a day (<c>PUT /day-plan/day/{day}/dismissed-event/{eventId}</c>).</summary>
+        internal Task<bool> DismissEvent(string dayKey, string eventId) =>
+            DayPlanEventDismiss(dayKey, eventId, dismiss: true);
+
+        /// <summary>Un-hide a previously dismissed meeting (<c>DELETE</c> the same path).</summary>
+        internal Task<bool> UndismissEvent(string dayKey, string eventId) =>
+            DayPlanEventDismiss(dayKey, eventId, dismiss: false);
+
+        private async Task<bool> DayPlanEventDismiss(string dayKey, string eventId, bool dismiss)
+        {
+            string label = dismiss ? "DismissEvent" : "UndismissEvent";
+            try
+            {
+                if (string.IsNullOrEmpty(eventId)) return false;
+                if (!await IsInternetOn()) return false;
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var renew = await RenewToken();
+                    if (renew == 0) return false;
+                }
+                HttpClient client = GetClientWithHeaders();
+                string path = "https://api.focusbear.io/day-plan/day/" + dayKey + "/dismissed-event/" + Uri.EscapeDataString(eventId);
+                var response = dismiss
+                    ? await client.PutAsync(path, new StringContent("{}", Encoding.UTF8, "application/json"))   // backend rejects an empty json body
+                    : await client.DeleteAsync(path);
+                if (!response.IsSuccessStatusCode) LogWriter.LogWrite(label + " http " + (int)response.StatusCode);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex) { LogWriter.LogWrite(label + " - " + ex.Message); return false; }
+        }
+
+        /// <summary>
+        /// The user's per-meeting colour overrides (<c>GET /day-plan/event-colour</c>). Returns the raw JSON
+        /// body (an array of <c>{ event_id, colour }</c>) or null. Best-effort; a missing endpoint no-ops.
+        /// </summary>
+        internal async Task<string> GetEventColours()
+        {
+            try
+            {
+                if (!await IsInternetOn()) return null;
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var renew = await RenewToken();
+                    if (renew == 0) return null;
+                }
+                HttpClient client = GetClientWithHeaders();
+                var response = await client.GetAsync("https://api.focusbear.io/day-plan/event-colour");
+                if (response.StatusCode == System.Net.HttpStatusCode.OK && response.Content != null)
+                {
+                    string body = await response.Content.ReadAsStringAsync();
+                    LogWriter.LogWrite("GetEventColours ok (" + (body?.Length ?? 0) + " chars)");
+                    return body;
+                }
+                LogWriter.LogWrite("GetEventColours: status " + (int)response.StatusCode);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("GetEventColours Exception - " + ex.Message); }
+            return null;
+        }
+
+        /// <summary>Set a meeting's colour (<c>PUT /day-plan/event-colour</c>, body <c>{ event_id, colour }</c>).</summary>
+        internal Task<bool> SetEventColour(string eventId, string colour) =>
+            EventColourWrite(eventId, colour, clear: false);
+
+        /// <summary>Reset a meeting to the default colour (<c>DELETE /day-plan/event-colour</c>).</summary>
+        internal Task<bool> ClearEventColour(string eventId) =>
+            EventColourWrite(eventId, null, clear: true);
+
+        private async Task<bool> EventColourWrite(string eventId, string colour, bool clear)
+        {
+            string label = clear ? "ClearEventColour" : "SetEventColour";
+            try
+            {
+                if (string.IsNullOrEmpty(eventId)) return false;
+                if (!await IsInternetOn()) return false;
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var renew = await RenewToken();
+                    if (renew == 0) return false;
+                }
+                HttpClient client = GetClientWithHeaders();
+                const string path = "https://api.focusbear.io/day-plan/event-colour";
+                var payload = new JObject { ["event_id"] = eventId };
+                if (!clear) payload["colour"] = colour;
+                var content = new StringContent(payload.ToString(Newtonsoft.Json.Formatting.None), Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response;
+                if (clear)
+                {
+                    // DELETE with a body — HttpClient.DeleteAsync has no body overload, so build the request.
+                    var req = new HttpRequestMessage(HttpMethod.Delete, path) { Content = content };
+                    response = await client.SendAsync(req);
+                }
+                else
+                {
+                    response = await client.PutAsync(path, content);
+                }
+                if (!response.IsSuccessStatusCode) LogWriter.LogWrite(label + " http " + (int)response.StatusCode);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex) { LogWriter.LogWrite(label + " - " + ex.Message); return false; }
+        }
+
+        /// <summary>
+        /// Fetch the user's project names (<c>GET /projects</c>) so the Day Plan can suggest projects
+        /// created on the web/mobile, not just those already used by a local task. Response is a bare
+        /// array or <c>{ data:[…], projects:[…] }</c>; each item's name is <c>name</c> or <c>title</c>.
+        /// Returns the distinct names (first page only), or null on failure.
+        /// </summary>
+        internal async Task<List<string>> GetProjects()
+        {
+            try
+            {
+                if (!await IsInternetOn()) return null;
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var renew = await RenewToken();
+                    if (renew == 0) return null;
+                }
+                HttpClient client = GetClientWithHeaders();
+                var response = await client.GetAsync("https://api.focusbear.io/projects");
+                if (response.StatusCode != System.Net.HttpStatusCode.OK || response.Content == null)
+                {
+                    LogWriter.LogWrite("GetProjects: status " + (int)response.StatusCode);
+                    return null;
+                }
+                string body = await response.Content.ReadAsStringAsync();
+                JToken root = JToken.Parse(body);
+                JArray arr = root as JArray;
+                if (arr == null && root is JObject o)
+                {
+                    JArray dataArr = o["data"] as JArray ?? new JArray();
+                    JArray projArr = o["projects"] as JArray ?? new JArray();
+                    arr = projArr.Count > dataArr.Count ? projArr : dataArr;
+                }
+                var names = new List<string>();
+                if (arr != null)
+                {
+                    foreach (JToken t in arr)
+                    {
+                        if (!(t is JObject po)) continue;
+                        string n = po.Value<string>("name") ?? po.Value<string>("title");
+                        if (!string.IsNullOrWhiteSpace(n) && !names.Contains(n)) names.Add(n);
+                    }
+                }
+                LogWriter.LogWrite("GetProjects got " + names.Count);
+                return names;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetProjects Exception - " + ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// The write half of Day Plan sync — the Windows port of macOS <c>DayPlanSync</c>. Both calls
+        /// reuse the existing <c>PUT /to-do</c> UPSERT with the to-do's <c>id</c> (so they update the
+        /// existing to-do, never create a duplicate) and echo back <c>title</c> + <c>eisenhower_quadrant</c>
+        /// so the create-DTO upsert doesn't clobber them. Best-effort: failures are logged, not surfaced.
+        /// </summary>
+        private async Task<bool> PutTodoUpsert(JObject body, string label)
+        {
+            try
+            {
+                if (!await IsInternetOn()) return false;
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var renew = await RenewToken();
+                    if (renew == 0) return false;
+                }
+                HttpClient client = GetClientWithHeaders();
+                var content = new StringContent(body.ToString(Newtonsoft.Json.Formatting.None), Encoding.UTF8, "application/json");
+                var response = await client.PutAsync(AllTasks, content);
+                if (!response.IsSuccessStatusCode)
+                    LogWriter.LogWrite("PutTodoUpsert " + label + " http " + (int)response.StatusCode);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("PutTodoUpsert " + label + " - " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>Reflect a Day Plan task's completion onto its backend to-do (web/mobile update too).</summary>
+        internal Task<bool> SetTodoStatus(string todoId, string title, int quadrant, bool completed)
+        {
+            var body = new JObject
+            {
+                ["id"] = todoId,
+                ["title"] = title,
+                ["eisenhower_quadrant"] = quadrant,
+                ["status"] = completed ? "COMPLETED" : "NOT_STARTED",
+            };
+            return PutTodoUpsert(body, "setTodoStatus");
+        }
+
+        /// <summary>Set/clear the day-plan pointer fields on a to-do (<paramref name="plannedDate"/> null unplans it).</summary>
+        internal Task<bool> SetTodoPlanned(string todoId, string title, int quadrant, DateTime? plannedDate, string blockKey, int? order)
+        {
+            var body = new JObject
+            {
+                ["id"] = todoId,
+                ["title"] = title,
+                ["eisenhower_quadrant"] = quadrant,
+                ["planned_date"] = plannedDate.HasValue
+                    ? (JToken)plannedDate.Value.ToString("yyyy-MM-dd")
+                    : JValue.CreateNull(),
+            };
+            if (blockKey != null) body["planned_block_key"] = blockKey;
+            if (order.HasValue) body["planned_order"] = order.Value;
+            return PutTodoUpsert(body, "setTodoPlanned");
         }
 
         internal async Task<int> AddTask(string sTaskTitle) // OK

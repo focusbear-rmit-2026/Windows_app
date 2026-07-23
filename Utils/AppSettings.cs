@@ -203,6 +203,31 @@ namespace Focus_Bear.Utils
         public List<habit> arrAllMorningHabits = new List<habit>(); //these will now be filtered with the Days Of week
         public List<habit> arrAllEveningHabits = new List<habit>();
 
+        // Habit ids completed or skipped in the current routine — the Day Plan hides these so a
+        // mid-routine return (via the paused-habit back button) shows only the remaining habits.
+        // Cleared when a fresh routine's Day Plan is shown.
+        public HashSet<string> dayPlanDoneOrSkippedHabitIds = new HashSet<string>();
+
+        // Habit ids completed per day (key "yyyy-MM-dd") per the backend
+        // (GET /completed-activity-sequence/routine-progress), fetched when the Day Plan opens/navigates.
+        // Reliable across restarts / habit edits and after the routine is finished — used to strike
+        // through done habits on today's "earlier" accordion and when viewing past days.
+        public Dictionary<string, HashSet<string>> dayPlanCompletedHabitIdsByDay = new Dictionary<string, HashSet<string>>();
+
+        // Backend-sourced SKIPPED habit ids per day (yyyy-MM-dd) from routine-progress. Kept separate
+        // from completed so the Day Plan can mark skipped habits distinctly (struck through + a "skipped"
+        // tag) instead of showing them as still-doable after a restart.
+        public Dictionary<string, HashSet<string>> dayPlanSkippedHabitIdsByDay = new Dictionary<string, HashSet<string>>();
+
+        // Whether the "set your intention" (HabitExtraPersonal) screen has been shown this routine —
+        // it appears only for the first habit; later plays (incl. from the Day Plan) skip it.
+        public bool bRoutineIntentionShown = false;
+
+        // Remaining seconds for habits parked (paused → back) from the Day Plan, keyed by habit id, so
+        // each habit resumes from its OWN progress. The single registry postpone slot only holds one
+        // habit, which broke multi-habit pause/resume. Cleared at routine start.
+        public Dictionary<string, int> dayPlanHabitRemainingSeconds = new Dictionary<string, int>();
+
         public ObservableCollection<HabitListSelectable> _ObjHabitListSelectable = new ObservableCollection<HabitListSelectable>();
 
         public bool bShowReducedHabitsOnExpired = false;

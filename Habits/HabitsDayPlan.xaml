@@ -1,0 +1,128 @@
+<Page x:Class="Focus_Bear.Habits.HabitsDayPlan"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:Focus_Bear.Habits"
+      xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+      mc:Ignorable="d"
+      d:DesignHeight="1080" d:DesignWidth="1920"
+      Title="HabitsDayPlan" AutomationProperties.AutomationId="HabitsDayPlan"
+      Background="{DynamicResource BackgroundColor}">
+    <!--
+        HabitsDayPlan: the Windows port of the macOS "Day Plan" (Schedule) view (Mac-App PR #1935).
+        An agenda-card timetable of the day built from the current routine's remaining habits, with
+        deep-work / break blocks and the evening-routine transition. The selected habit reveals a
+        Play / Done / Skip action bar.
+
+        Layout (M7): two columns — the agenda on the left and a resizable "Tasks" panel on the right,
+        separated by a GridSplitter (panel min 260 / max 600, matching macOS). A task can be dragged
+        from the panel onto a habit row to nest it under that habit ("habit:<title>" block key).
+
+        This is a NEW class kept fully separate from HabitsWelcomeList (which is left untouched);
+        it replaces the Welcome list at routine start (see HabitWindow.ShowActivityStartScreen).
+    -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="320"/>
+            <ColumnDefinition Width="8"/>
+            <!-- Resizable tasks panel: default 340, clamped 260–600 like macOS (dayPlanPanelWidth). -->
+            <ColumnDefinition x:Name="TasksColumn" Width="340" MinWidth="260" MaxWidth="600"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ===== Agenda (left) ===== -->
+        <!-- Scrollbar always visible so its width is reserved — otherwise it appears/disappears as
+             accordions expand/collapse, changing the viewport width and shifting the centred column. -->
+        <ScrollViewer Grid.Column="0" x:Name="DayPlanScroll" VerticalScrollBarVisibility="Visible"
+                      HorizontalScrollBarVisibility="Disabled" Padding="0"
+                      Background="{x:Null}">
+            <!-- The timetable column, centred with a comfortable max width like the macOS agenda.
+                 Agenda cards are built in code-behind (RenderDayPlan) and added to DayPlanStack. -->
+            <!-- Fixed width (not MaxWidth) so the centred column doesn't shift when a card expands to a
+                 longer habit name; a little wider than before to give long names more room. -->
+            <Grid HorizontalAlignment="Center" Width="600" Margin="16,24,16,40">
+                <StackPanel x:Name="DayPlanStack" Orientation="Vertical"/>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- ===== Resize handle ===== -->
+        <!-- Fills its 8px column (Stretch) so the whole strip is grabbable, and resizes live so the
+             drag visibly tracks the pointer. -->
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                      ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"
+                      Background="#33808080" ShowsPreview="False"
+                      DragCompleted="TasksSplitter_DragCompleted"
+                      Cursor="SizeWE"/>
+
+        <!-- ===== Tasks panel (right) ===== -->
+        <Border Grid.Column="2" x:Name="TasksPanelHost"
+                BorderThickness="1,0,0,0" BorderBrush="#33808080"
+                Background="{DynamicResource BackgroundColor}">
+            <!-- Top margin clears the floating "please spare me" / postpone button pinned top-right of
+                 the HabitWindow (Height 40 + margin), which otherwise overlaps the panel header. -->
+            <Grid Margin="14,54,14,14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Title -->
+                <TextBlock Grid.Row="0" x:Name="TasksTitle" Text="Tasks for today"
+                           FontSize="15" FontWeight="Bold"
+                           Foreground="{DynamicResource ForegroundColor}"/>
+
+                <!-- Totals line + settings cog (show-completed toggle) -->
+                <Grid Grid.Row="1" Margin="0,4,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" x:Name="TasksTotal" Text=""
+                               FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center"
+                               Foreground="{DynamicResource ForegroundGrey}"/>
+                    <!-- Borderless: on hover only a soft rounded rectangle appears (like the back
+                         button), not the default square button chrome. -->
+                    <Button Grid.Column="1" x:Name="BtnTasksCog" Content="⚙" FontSize="15" Cursor="Hand"
+                            Foreground="{DynamicResource ForegroundGrey}"
+                            ToolTip="Task settings" Click="BtnTasksCog_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="cogBg" CornerRadius="6" Background="Transparent" Padding="6,3,6,3">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="cogBg" Property="Background" Value="#33808080"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+
+                <!-- Add buttons -->
+                <Grid Grid.Row="2" Margin="0,10,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" x:Name="BtnAddNew" Content="Add task" Height="30"
+                            Style="{StaticResource BtnStyleClearOrangeBordered}"
+                            Click="BtnAddNew_Click"/>
+                    <Button Grid.Column="2" x:Name="BtnAddFromList" Content="From to-do list" Height="30"
+                            Style="{StaticResource BtnStyleClearOrangeBordered}"
+                            Click="BtnAddFromList_Click"/>
+                </Grid>
+
+                <!-- Task list (rows built in code-behind → TasksListStack). Always-visible scrollbar. -->
+                <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled" Padding="0,4,0,0">
+                    <StackPanel x:Name="TasksListStack" Orientation="Vertical"/>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

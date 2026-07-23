@@ -204,6 +204,16 @@ namespace Focus_Bear.Habits
         {
             LogWriter.LogWrite("ActivityFinished LoadData()");
 
+            // Let the user return to the Day Plan from here (morning/evening routines only — not breaks),
+            // except on the last habit: its own "Unlock" button is shown and going back would leave an
+            // empty plan.
+            bool bMorning = appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS;
+            bool bEvening = appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS;
+            bool bIsLast = bMorning ? appSettings.nHabitIndex >= appSettings.arrAllMorningHabits.Count - 1
+                         : bEvening ? appSettings.nHabitIndex >= appSettings.arrAllEveningHabits.Count - 1
+                         : true;
+            btnBackToDayPlan.Visibility = ((bMorning || bEvening) && !bIsLast) ? Visibility.Visible : Visibility.Collapsed;
+
             //Placing an special check here
             //in any case if the habit index exceeds the array count, we will close the habit window and make state none. Rest will be handled.
             if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
@@ -1557,6 +1567,13 @@ namespace Focus_Bear.Habits
             }
 
         }
+        /// <summary>Back to the Day Plan from the finished screen — the current habit is recorded as done.</summary>
+        private void btnBackToDayPlan_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("Activity Finished Screen: btnBackToDayPlan_Click");
+            _parentWindow.PageHabits.ShowDayPlanFromFinishedHabit();
+        }
+
         private void btnStartNextActivity_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("Activity Finished Screen: btnStartNextActivity_Click");
@@ -1567,6 +1584,22 @@ namespace Focus_Bear.Habits
             if (appSettings.bShowActivitiesFromMid)
             {
                 appSettings.bShowActivitiesFromMid = false; //This is the last point we need it so we should reset it to be able to post completed API further.
+            }
+
+            // Record the just-finished habit as done/skipped so the Day Plan's "earlier today" accordion
+            // shows it struck-through (and hides it from the active list). A habit added AFTER the routine
+            // won't be in this set — the accordion keeps it un-struck and offers an "I am done" action.
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS
+                && appSettings.nHabitIndex >= 0 && appSettings.nHabitIndex < appSettings.arrAllMorningHabits.Count
+                && !string.IsNullOrEmpty(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id))
+            {
+                appSettings.dayPlanDoneOrSkippedHabitIds.Add(appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id);
+            }
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS
+                && appSettings.nHabitIndex >= 0 && appSettings.nHabitIndex < appSettings.arrAllEveningHabits.Count
+                && !string.IsNullOrEmpty(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id))
+            {
+                appSettings.dayPlanDoneOrSkippedHabitIds.Add(appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id);
             }
 
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -1728,17 +1761,11 @@ namespace Focus_Bear.Habits
 
         private void btnChooseAnotherHabit_Click(object sender, RoutedEventArgs e)
         {
-            webView.Visibility = Visibility.Collapsed;
-            webView1.Visibility = Visibility.Collapsed;
-            bool bStartHabitNow = _parentWindow.PageHabits.ShowChooseAnotherHabitsWindow();
-            webView.Visibility = Visibility.Visible;
-            webView1.Visibility = Visibility.Visible;
-            if (bStartHabitNow)
-            {
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnStartNextActivity);
-                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                invokeProv.Invoke();
-            }
+            // The Day Plan is now the habit picker, so "Choose another habit" goes there. The old
+            // ShowChooseAnotherHabitsWindow list advanced by index and could surface an already-done
+            // habit (reported mid-routine); the Day Plan always shows the correct remaining set.
+            LogWriter.LogWrite("Activity Finished Screen: btnChooseAnotherHabit_Click -> Day Plan");
+            _parentWindow.PageHabits.ShowDayPlanFromFinishedHabit();
         }
     }
 }

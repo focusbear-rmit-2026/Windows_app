@@ -238,7 +238,7 @@ namespace Focus_Bear
                     IsExpanded = true,
                     Items =
                     {
-                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuHabits"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/play_circle.png")), ButtonType = LeftButtonType.Habits },
+                        new NavLeaf { Title = (appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuDayPlan"]?.ToString()) ?? "Day Plan", IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/play_circle.png")), ButtonType = LeftButtonType.Habits },
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartFocusSession"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/start-pomodoro.png")), ButtonType = LeftButtonType.StartFocusSession },
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartMicroBreak"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/break.png")), ButtonType = LeftButtonType.MicroBreaks }
                     }

@@ -628,6 +628,8 @@ namespace Focus_Bear.Habits
                 if (appSettings.nCurrentActivityType != CurrentActivityType.BREAK_ACTIVITY)
                 {
                     SkipThisHabitText.Visibility = Visibility.Visible;//Only show in paused mode
+                    // Reveal "Back to Day Plan" while paused — except on the last habit (nothing to go back for).
+                    btnBackToDayPlan.Visibility = IsLastHabit() ? Visibility.Collapsed : Visibility.Visible;
                 }
                 PauseVideo();
 
@@ -643,6 +645,7 @@ namespace Focus_Bear.Habits
                 if (appSettings.nCurrentActivityType != CurrentActivityType.BREAK_ACTIVITY)
                 {
                     SkipThisHabitText.Visibility = Visibility.Collapsed;
+                    btnBackToDayPlan.Visibility = Visibility.Collapsed;   // hide when resuming
                 }
 
                 dispatcherTimer.Start();
@@ -793,6 +796,26 @@ namespace Focus_Bear.Habits
                     }
                 }
             }
+        }
+
+        /// <summary>Whether the running habit is the last one in its routine (no earlier habits to go back to).</summary>
+        private bool IsLastHabit()
+        {
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                return appSettings.nHabitIndex >= appSettings.arrAllMorningHabits.Count - 1;
+            if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                return appSettings.nHabitIndex >= appSettings.arrAllEveningHabits.Count - 1;
+            return true;   // breaks etc. — no back button
+        }
+
+        /// <summary>
+        /// Back to the Day Plan from a paused habit — parks this habit (saving its remaining time so it
+        /// can resume) and returns to the Day Plan. The linear routine flow is otherwise unchanged.
+        /// </summary>
+        private void btnBackToDayPlan_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("Activity OnGoing Screen btnBackToDayPlan_Click");
+            _parentWindow.PageHabits.ShowDayPlanFromPausedHabit();
         }
 
         private void btnSkipThisHabit_Click(object sender, RoutedEventArgs e)

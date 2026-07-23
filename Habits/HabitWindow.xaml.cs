@@ -41,6 +41,9 @@ namespace Focus_Bear.Habits
 
         public HabitActivityOnGoing PageHabitActivityOnGoing = null;
         public HabitsWelcomeList PageWelcomeList = null;
+        // The Day Plan replaces the Welcome list at routine start. HabitsWelcomeList is kept
+        // untouched as a separate class; HabitsDayPlan is the new agenda/timetable view.
+        public HabitsDayPlan PageDayPlan = null;
         public HabitExtraPersonal PageHabitExtraPersonal;
 
         HabitsPostponedView PageHabitsPostponedView = new HabitsPostponedView();
@@ -175,9 +178,11 @@ namespace Focus_Bear.Habits
                 }
                 else
                 {
-                    LogWriter.LogWrite("Show HabitsWelcomeList Page");
-                    PageWelcomeList = new HabitsWelcomeList(ParentWindow);
-                    AppFrameHabitScreens.Navigate(PageWelcomeList); //Normal process
+                    LogWriter.LogWrite("Show HabitsDayPlan Page");
+                    appSettings.dayPlanDoneOrSkippedHabitIds.Clear();   // fresh routine — nothing done yet
+                    appSettings.bRoutineIntentionShown = false;         // intention screen shows for the first habit
+                    appSettings.dayPlanHabitRemainingSeconds.Clear();   // no parked habits yet
+                    ShowDayPlanReused(); //Day Plan replaces the Welcome list
 
                     ParentWindow.GridShade.Visibility = Visibility.Collapsed; //safety
 
@@ -199,8 +204,45 @@ namespace Focus_Bear.Habits
             }
         }
 
+        /// <summary>
+        /// Remember the currently-parked/postponed habit's remaining time keyed by its id (from the
+        /// registry postpone slot), so it resumes from its OWN progress even after another habit has
+        /// been parked (the single registry slot only holds one habit).
+        /// </summary>
+        private void SaveParkedHabitRemaining()
+        {
+            string parkedId = RegistryManager.GetCurrentActivityPostponedID();
+            string parkedTime = RegistryManager.GetCurrentActivityPostponedTimerVal();
+            if (!string.IsNullOrEmpty(parkedId) && int.TryParse(parkedTime, out int seconds) && seconds > 0)
+            {
+                appSettings.dayPlanHabitRemainingSeconds[parkedId] = seconds;
+            }
+        }
+
         public void ShowHabitsPostponedView()
         {
+            // Postponed routine: show the Day Plan (with the remaining/postponed habits) instead of the
+            // old "Resume habits" helper, so the user can resume/act from the plan. Postponing itself
+            // still routes to the Focus screen — that's unchanged. Falls back to the helper when there's
+            // no active routine type to show a plan for.
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS
+                || appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+            {
+                // Habits before the postponed one have been done/skipped — hide them so the plan shows
+                // only the postponed habit and the ones still to come (the postponed one resumes via Play).
+                List<habit> arr = (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                    ? appSettings.arrAllEveningHabits : appSettings.arrAllMorningHabits;
+                for (int i = 0; i < appSettings.nHabitIndex && i < arr.Count; i++)
+                {
+                    if (!string.IsNullOrEmpty(arr[i].id)) appSettings.dayPlanDoneOrSkippedHabitIds.Add(arr[i].id);
+                }
+                SaveParkedHabitRemaining();   // the postponed habit resumes from its own remaining time
+
+                btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                ShowDayPlanReused();
+                return;
+            }
+
             AppFrameHabitScreens.Visibility = Visibility.Visible;
             AppFrameHabitScreens.Navigate(PageHabitsPostponedView);
             btnPleaseSpareMe.Visibility = Visibility.Collapsed;
@@ -208,10 +250,11 @@ namespace Focus_Bear.Habits
 
         public void ShowMorningRoutineFinishedState()
         {
-            PageNoHabitsRunningState.ShowMorningRoutineFinishedState();
-            AppFrameHabitScreens.Visibility = Visibility.Visible;
-            AppFrameHabitScreens.Navigate(PageNoHabitsRunningState);
+            // Show the Day Plan (deep-work + evening-routine preview) instead of the old
+            // "well done, your evening routine starts at …" screen. NoHabitsRunningState is kept for its
+            // other states (deactivated / shut-off, etc.) and revisited later.
             btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+            ShowDayPlanReused();
         }
         public void ShowAppDeactivatedStateView()
         {
@@ -310,6 +353,68 @@ namespace Focus_Bear.Habits
             PageHabitActivityOnGoing = new HabitActivityOnGoing(ParentWindow, bStartingAfterPostponed);
 
             AppFrameHabitScreens.Navigate(PageHabitActivityOnGoing);
+        }
+
+        /// <summary>
+        /// Show the Day Plan, reusing the single HabitsDayPlan instance (created once, then refreshed)
+        /// so the page — and its XAML init + render + routine-progress fetch — isn't rebuilt on every
+        /// view. Callers set up the relevant state (done-set, activity type, etc.) beforehand.
+        /// </summary>
+        private void ShowDayPlanReused()
+        {
+            if (PageDayPlan == null)
+            {
+                PageDayPlan = new HabitsDayPlan(ParentWindow);   // constructor renders + fetches progress
+            }
+            else
+            {
+                PageDayPlan.Refresh();                            // reuse: re-render + refetch progress
+            }
+            AppFrameHabitScreens.Visibility = Visibility.Visible;
+            AppFrameHabitScreens.Navigate(PageDayPlan);
+        }
+
+        /// <summary>Return to the Day Plan from a PAUSED habit — that habit stays paused (not done).</summary>
+        public void ShowDayPlanFromPausedHabit()
+        {
+            ShowDayPlanReturn(bCurrentHabitDone: false);
+        }
+
+        /// <summary>Return to the Day Plan from the FINISHED screen — the current habit is done.</summary>
+        public void ShowDayPlanFromFinishedHabit()
+        {
+            ShowDayPlanReturn(bCurrentHabitDone: true);
+        }
+
+        /// <summary>
+        /// Show a fresh Day Plan from within a routine. Parks any running habit (saving its remaining
+        /// time so it can resume) and records the habits already done/skipped so the Day Plan shows
+        /// only what's left. <paramref name="bCurrentHabitDone"/> marks the current habit as done too
+        /// (finished screen) vs. still to do (paused). The linear routine flow is otherwise untouched.
+        /// </summary>
+        private void ShowDayPlanReturn(bool bCurrentHabitDone)
+        {
+            LogWriter.LogWrite("ShowDayPlanReturn(bCurrentHabitDone=" + bCurrentHabitDone + ")");
+
+            if (PageHabitActivityOnGoing != null)
+            {
+                PageHabitActivityOnGoing.HandleTimerForPostpone(true); //stop timer + save remaining time for resume
+            }
+            SaveParkedHabitRemaining();   // remember this habit's own remaining time (per-habit resume)
+
+            // Record the habits already done/skipped so the Day Plan hides them. On the finished
+            // screen the current habit (nHabitIndex) is done too; when paused it isn't.
+            List<habit> arr = (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                ? appSettings.arrAllEveningHabits : appSettings.arrAllMorningHabits;
+            int doneUpTo = bCurrentHabitDone ? appSettings.nHabitIndex : appSettings.nHabitIndex - 1;
+            for (int i = 0; i <= doneUpTo && i < arr.Count; i++)
+            {
+                if (!string.IsNullOrEmpty(arr[i].id)) appSettings.dayPlanDoneOrSkippedHabitIds.Add(arr[i].id);
+            }
+
+            btnPleaseSpareMe.Visibility = Visibility.Collapsed;   // postpone/abort isn't relevant on the Day Plan
+
+            ShowDayPlanReused();
         }
         public void ShowACtivityFinishedScreen(bool bIsActivitySkipped = false)
         {

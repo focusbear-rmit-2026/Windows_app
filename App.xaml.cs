@@ -4121,6 +4121,37 @@ namespace Focus_Bear
             }
 
         }
+
+        /// <summary>
+        /// Resume a postponed routine because the user is starting a habit from the Day Plan: stop the
+        /// postpone timers and clear the postponed state, then re-enter routine mode (tabs disabled).
+        /// Unlike <see cref="ResumeAfterPostponeFinished"/> this does NOT end the routine (no NONE /
+        /// non-routine UI) — the caller starts the selected habit right after.
+        /// </summary>
+        public void ResumeHabitsForDayPlanPlay()
+        {
+            LogWriter.LogWrite("ResumeHabitsForDayPlanPlay()");
+            try
+            {
+                dispatcherTimerPostponeHabits.Stop();
+                dispatcherTimerResumeHabitsAfterPostpone.Stop();
+                if (wndHabitsResumeInPopup != null)
+                {
+                    wndHabitsResumeInPopup.HideHabitsResumeInPopupAndStopTimer();
+                }
+                appSettings.bHabitsPostponedState = false;
+                appSettings.bEveningHabitsPostponedAfterCutoffTime = false;
+                if (wndFocusBearMainWindow != null)
+                {
+                    wndFocusBearMainWindow.DisableAllButtons(LeftButtonType.Habits);
+                    wndFocusBearMainWindow.CollapseSideBar();   // routine mode collapses the side bar
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ResumeHabitsForDayPlanPlay ex - " + ex.Message);
+            }
+        }
         public void EasyPostponeCancelled()
         {
             LogWriter.LogWrite("EasyPostponeCancelled()");

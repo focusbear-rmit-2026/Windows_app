@@ -79,3 +79,21 @@
 - AI URL checks follow the class session's AI setting while it's active.
 - Fixed tray balloon-tip text being cut off for long messages (now sizes to the message).
 
+#v3.0.227
+- New Day Plan (Windows port of the macOS Day Plan): the "Habits" tab is now "Day Plan", showing an agenda timetable of the day — routine habits grouped by routine, deep-work / break blocks, and the evening-routine transition. Selecting a habit reveals a Play / Done / Skip bar (with new crisp icons).
+- Past-day navigation (‹ date › with "Back to today"); past or unlogged habits can be completed retroactively via "I am done". Completed morning habits appear in an "earlier today" accordion (struck-through) once the routine finishes.
+- The Day Plan now stays visible between routines and after a routine finishes, instead of a standalone "well done" screen. When a running habit is paused, a back button takes you to the Day Plan; you can resume that habit later from where you left off (its remaining time is preserved) or start a different one instead.
+- Tasks panel (right side, resizable): plan tasks for the day and drag them onto a habit or a deep-work sprint to time-box them. Add tasks from your to-do list or from scratch, group by project (with a per-project add button), show/hide completed tasks, and reorder by dragging.
+- Task detail popup: edit title, project, duration, importance, notes and sub-tasks; move a task to another day using natural language (today / tomorrow / 2d / next tue / 25 Jul); or remove it.
+- Two-way sync with your to-do list: completing a Day Plan task marks its to-do done (and vice-versa); tasks planned or completed on web/mobile reflect in the Day Plan. Projects created on web/mobile appear as suggestions.
+- All Day Plan text is config-driven (scheduleViewInfo, with English fallbacks); refreshed the bundled config from the assets repo.
+- Fixed: doing habits out of order in the Day Plan now completes the routine at the right time — skipping the second-to-last habit no longer marks the routine complete prematurely, and playing the last remaining habit correctly shows the Unlock / routine-complete screen (previously the app could stay stuck in the routine-active state).
+- Fixed: skipped habits now show struck-through and tagged "· skipped" (instead of appearing still-doable) after the routine finishes or the app restarts.
+- On the activity-finished screen, "Choose another habit" now opens the Day Plan (the picker) instead of a list that could surface an already-completed habit.
+
+#v3.0.228
+- Calendar meetings in the Day Plan: your Google and Microsoft/Outlook events now appear as meeting blocks on the agenda, synced through the backend (no separate sign-in needed — connect the calendar once in the dashboard). New and changed events show up on their own while the Day Plan is open, and refresh immediately when you change the day or reopen it.
+- Drag a task onto a meeting to time-box it, the same way you can with habits and deep-work sprints.
+- Hide a meeting you don't want on the plan with the ✕ on its card (restore it from "Show hidden meetings" in the tasks settings); hides are remembered per day and sync with the backend.
+- Give a meeting its own colour: click the colour dot on a meeting card and pick from the palette (or reset to default). Colours are saved per event and reload on refresh.
+- Fixed: the "Set Intention" popup for a blocked site no longer flickers away instantly when a background app (e.g. Visual Studio, Teams) is running — it now stays until you actually switch to another app.

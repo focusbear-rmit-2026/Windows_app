@@ -1,0 +1,109 @@
+<Window x:Class="Focus_Bear.Habits.DayPlan.DayPlanLogQuantityWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Focus_Bear.Habits.DayPlan"
+        mc:Ignorable="d"
+        Title="Focus Bear" AutomationProperties.AutomationId="DayPlanLogQuantityWindow"
+        SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStyle="None"
+        ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}">
+    <!--
+        Log-quantity popup for the Day Plan's "Done". Deliberately mirrors the app's existing
+        "Log Quantity of activity" dialog (HabitWindow's GridLogQuantityNag) — same heading, the
+        same minDesc | (min) | value+slider | (max) | maxDesc row, and the same Cancel/OK buttons —
+        so it looks identical. Answers two-way-bind into each QuantityQuestion's `quantity`, which
+        the caller passes to PostActivityCompleted.
+    -->
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Border Background="{x:Null}"><ContentPresenter /></Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Border BorderBrush="#e88800" BorderThickness="1">
+        <Grid Width="603" Margin="0,12,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" x:Name="HeadingLogQuantity" Text="Log Quantity of activity"
+                       FontSize="16" FontWeight="Normal" TextWrapping="Wrap" TextAlignment="Center"
+                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                       Foreground="{DynamicResource ForegroundColor}"/>
+
+            <Border Grid.Row="1" BorderBrush="#7F7F7F" BorderThickness="1" CornerRadius="6" Margin="20,5,20,15">
+                <ListView x:Name="ListLogQuestions" AutomationProperties.AutomationId="lvLogQuestions"
+                          MaxHeight="320" Width="540" Margin="0,12,0,12"
+                          VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                          Background="{x:Null}" BorderThickness="0" Foreground="{x:Null}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Height="72" Background="Transparent" Margin="10,0,10,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                    <RowDefinition Height="45"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="{Binding question, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" FontWeight="Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="35"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="45"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding minValueDescription, StringFormat=\{0\}}" FontSize="12" Foreground="{DynamicResource ForegroundColor}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                    <TextBox Grid.Column="0" Text="{Binding quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinHeight="25" Height="30" Margin="5,0,0,0" Background="#FFF" Foreground="#000" BorderBrush="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Visibility="{Binding Path=bShowTextBox, Converter={StaticResource BoolToVis}}">
+                                        <TextBox.Effect>
+                                            <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6" />
+                                        </TextBox.Effect>
+                                    </TextBox>
+                                    <TextBlock Grid.Column="1" Text="{Binding minValue, StringFormat=(\{0\})}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                    <Grid Grid.Column="2">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="15"/>
+                                            <RowDefinition Height="30"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Text="{Binding Value, ElementName=qSlider, StringFormat={}{0:0.#}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                        <Slider Grid.Row="1" x:Name="qSlider" Margin="0,0,0,10" VerticalAlignment="Bottom" LargeChange="0.5" TickFrequency="0.1" Minimum="{Binding minValue}" Maximum="{Binding maxValue}" Value="{Binding quantity, Mode=TwoWay}" Cursor="Hand" IsSnapToTickEnabled="True" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                    </Grid>
+                                    <TextBlock Grid.Column="3" Text="{Binding maxValue, StringFormat=(\{0\})}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                    <TextBlock Grid.Column="4" Text="{Binding maxValueDescription, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Border>
+
+            <!-- Cancel on the left, primary OK on the right — matches the existing dialog. -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                <Button x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel"
+                        Style="{StaticResource BtnStyleClearOrangeBordered}" Width="160" MinHeight="35"
+                        HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16"
+                        Cursor="Hand" FontWeight="Semibold" IsCancel="True" Click="btnCancel_Click">
+                    <TextBlock x:Name="btnCancelText" Margin="8" Text="Cancel" Foreground="Black"/>
+                </Button>
+                <Button x:Name="btnOK" AutomationProperties.AutomationId="btnOK" IsDefault="True"
+                        Style="{StaticResource BtnStyleLightOrangeBordered}" Width="160" MinHeight="35"
+                        HorizontalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="16"
+                        Cursor="Hand" FontWeight="Semibold" Click="btnOK_Click">
+                    <TextBlock x:Name="btnOKText" Margin="8" Text="OK" Foreground="Black"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

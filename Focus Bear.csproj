@@ -487,6 +487,30 @@
     <Compile Include="Habits\HabitExtraPersonal.xaml.cs">
       <DependentUpon>HabitExtraPersonal.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Habits\DayPlan\DayPlanDataSource.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanLogQuantityWindow.xaml.cs">
+      <DependentUpon>DayPlanLogQuantityWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\DayPlan\DayPlanAddTasksWindow.xaml.cs">
+      <DependentUpon>DayPlanAddTasksWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\DayPlan\DayPlanTaskDetailWindow.xaml.cs">
+      <DependentUpon>DayPlanTaskDetailWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\DayPlan\DayPlanText.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanModels.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanTaskModels.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanTaskVisuals.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanSync.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanCalendar.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanScheduleBuilder.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanScheduleBuilderSelfTest.cs" />
+    <Compile Include="Habits\HabitsDayPlan.xaml.cs">
+      <DependentUpon>HabitsDayPlan.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\HabitsDayPlan.Tasks.cs">
+      <DependentUpon>HabitsDayPlan.xaml.cs</DependentUpon>
+    </Compile>
     <Compile Include="Habits\HabitsWelcomeList.xaml.cs">
       <DependentUpon>HabitsWelcomeList.xaml</DependentUpon>
     </Compile>
@@ -922,6 +946,22 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Habits\HabitExtraPersonal.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\DayPlan\DayPlanLogQuantityWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\DayPlan\DayPlanAddTasksWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\DayPlan\DayPlanTaskDetailWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Habits\HabitsDayPlan.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

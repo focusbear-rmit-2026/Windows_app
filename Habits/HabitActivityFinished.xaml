@@ -69,5 +69,15 @@
             </StackPanel>
         </StackPanel>
         <TextBlock  Grid.Row="4" Name="sTextCompletedDuration" Margin="40,20,40,60" TextWrapping="Wrap" Text="xxLooking forward!" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+
+        <!-- Floating "Back to Day Plan" button (top-left) — lets the user return to the Day Plan after
+             a habit is finished or skipped from this screen. Shown for morning/evening habits only. -->
+        <Button x:Name="btnBackToDayPlan" AutomationProperties.AutomationId="btnBackToDayPlan"
+                Grid.Row="0" Grid.RowSpan="5" Style="{StaticResource BtnStyleLightOrangeBordered}"
+                Width="40" Height="40" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="17,17,0,0" Padding="0" Cursor="Hand" Visibility="Collapsed"
+                Click="btnBackToDayPlan_Click">
+            <TextBlock Text="&#x2039;" VerticalAlignment="Center" Margin="0,0,0,7" FontSize="35" Foreground="#EB912E"/>
+        </Button>
     </Grid>
 </Page>
