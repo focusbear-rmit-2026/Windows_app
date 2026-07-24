@@ -50,6 +50,10 @@ namespace Focus_Bear.Onboarding
 
         private void btnOkay_Click(object sender, RoutedEventArgs e)
         {
+            //Disambiguates the holdon-screen-shown abandonment signal: without this event,
+            //users who clicked Okay but stalled on the next (habits webview) screen are
+            //indistinguishable from users who quit on this screen (windows-app-v2#1316)
+            appSettings.CapturePostHog("holdon-okay-clicked");
             _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._SET_UP_HABITS_);
         }
         private void Page_Theme()
