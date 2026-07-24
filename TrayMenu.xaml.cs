@@ -824,6 +824,13 @@ namespace Focus_Bear
                     }
                 }
 
+                // Teacher Mode (issue #1343): if this device started a class focus session, end it early
+                // on the backend now that the teacher is stopping focus before the scheduled finish.
+                if (!string.IsNullOrWhiteSpace(appSettings.sRunningClassSessionId))
+                {
+                    _ = new FocusBearAPIClient().EndClassSession(appSettings.sRunningClassSessionId);
+                }
+
                 Hide();
                 //Check is any other FOcus modes is running, if yes, give an alert to stop that mode
                 //If not we will start the focus mode

@@ -51,6 +51,10 @@ namespace Focus_Bear.API
 
         public static string SubscriptionInfo { get { return "https://api.focusbear.io/user/subscription"; } }
 
+        // Teacher Mode (issue #1343): the teacher's classes, and the endpoint to start a class focus session.
+        public static string ClassManagementClasses { get { return "https://api.focusbear.io/class-management/classes"; } }
+        public static string ClassManagementSessions { get { return "https://api.focusbear.io/class-management/sessions"; } }
+
         public static string UploadLogsURL { get { return "https://api.focusbear.io/app-logs/upload-logs-url?filename=Debug_Logs.txt.zip&mimetype=application/zip"; } }
         public static string NotifyUploadLogsSuccessURL { get { return "https://api.focusbear.io/app-logs/notify-upload-success"; } }
         
@@ -884,6 +888,261 @@ namespace Focus_Bear.API
             catch (Exception ex)
             {
                 LogWriter.LogWrite("StartFocusMode() Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+        // Teacher Mode (issue #1343): fetch the teacher's classes. This endpoint is guarded by the
+        // team_admin entitlement, so a teacher gets their class list and a non-teacher gets an empty
+        // list or a non-2xx response. Sets appSettings.bIsTeacher and remembers a class to start
+        // sessions for. Returns 1 on a successful call (regardless of teacher/not), 0 on failure.
+        internal async Task<int> GetClassManagementClasses()
+        {
+            LogWriter.LogWrite("GetClassManagementClasses()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+                if (!nInternetOn)
+                    return 0;
+
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var xRenwTokenStatus = await RenewToken();
+                    if (xRenwTokenStatus == 0)
+                        return 0;
+                }
+
+                HttpClient client = GetClientWithHeaders();
+                var response = await client.GetAsync(ClassManagementClasses);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.OK && response.Content != null)
+                {
+                    string body = await response.Content.ReadAsStringAsync();
+
+                    JArray classes = null;
+                    try
+                    {
+                        JToken token = JToken.Parse(body);
+                        if (token is JArray arr)
+                            classes = arr;
+                        else if (token is JObject obj)
+                            classes = (obj["classes"] as JArray) ?? (obj["data"] as JArray);
+                    }
+                    catch (Exception exParse)
+                    {
+                        LogWriter.LogWrite("GetClassManagementClasses() parse ex - " + exParse.Message);
+                    }
+
+                    if (classes != null && classes.Count > 0)
+                    {
+                        appSettings.bIsTeacher = true;
+
+                        // Keep the full list so the Focus screen can offer a class picker.
+                        List<TeacherClass> parsed = new List<TeacherClass>();
+                        foreach (JToken c in classes)
+                        {
+                            string tid = (c["team_id"] ?? c["teamId"] ?? c["id"] ?? "").ToString();
+                            string nm = (c["name"] ?? c["class_name"] ?? "").ToString();
+                            if (!string.IsNullOrWhiteSpace(tid))
+                                parsed.Add(new TeacherClass { TeamId = tid, Name = string.IsNullOrWhiteSpace(nm) ? tid : nm });
+                        }
+                        appSettings.arrTeacherClasses = parsed;
+
+                        // Prefer a previously-remembered class if it's still in the list, otherwise the first.
+                        TeacherClass chosen = parsed.FirstOrDefault(tc => tc.TeamId == appSettings.sTeacherClassTeamId)
+                                              ?? parsed.FirstOrDefault();
+                        if (chosen != null)
+                        {
+                            appSettings.sTeacherClassTeamId = chosen.TeamId;
+                            appSettings.sTeacherClassName = chosen.Name;
+                        }
+                        LogWriter.LogWrite($"GetClassManagementClasses() - teacher with {parsed.Count} class(es); using team_id {appSettings.sTeacherClassTeamId} ({appSettings.sTeacherClassName})");
+                    }
+                    else
+                    {
+                        appSettings.bIsTeacher = false;
+                        appSettings.arrTeacherClasses = new List<TeacherClass>();
+                        LogWriter.LogWrite("GetClassManagementClasses() - no classes; not a teacher");
+                    }
+                    return 1;
+                }
+                else
+                {
+                    // Non-OK (e.g. 403 when the user lacks the team_admin entitlement) => not a teacher.
+                    appSettings.bIsTeacher = false;
+                    LogWriter.LogWrite("GetClassManagementClasses() - non-OK response " + (int)response.StatusCode + "; treating as not a teacher");
+                    return 0;
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetClassManagementClasses() WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetClassManagementClasses() Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+        // Teacher Mode (issue #1343): start a class (teacher) focus session for the remembered class,
+        // reusing the last focus mode's allow-list and the Focus button's duration (scheduled finish).
+        internal async Task<int> StartClassSession(List<string> allowedApps, List<string> allowedUrls, string sessionName)
+        {
+            LogWriter.LogWrite("StartClassSession() API");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+                if (!nInternetOn)
+                    return 0;
+
+                if (string.IsNullOrWhiteSpace(appSettings.sTeacherClassTeamId))
+                {
+                    LogWriter.LogWrite("StartClassSession() - no class team_id known; cannot start");
+                    return 0;
+                }
+
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var xRenwTokenStatus = await RenewToken();
+                    if (xRenwTokenStatus == 0)
+                        return 0;
+                }
+
+                HttpClient client = GetClientWithHeaders();
+
+                DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
+
+                JArray appsArray = new JArray();
+                if (allowedApps != null)
+                    foreach (string a in allowedApps)
+                        if (!string.IsNullOrWhiteSpace(a)) appsArray.Add(a);
+
+                JArray urlsArray = new JArray();
+                if (allowedUrls != null)
+                    foreach (string u in allowedUrls)
+                        if (!string.IsNullOrWhiteSpace(u)) urlsArray.Add(u);
+
+                JObject payload = new JObject
+                {
+                    ["team_id"] = appSettings.sTeacherClassTeamId,
+                    ["name"] = string.IsNullOrWhiteSpace(sessionName) ? "Class focus session" : sessionName,
+                    ["allowed_apps"] = appsArray,
+                    ["allowed_urls"] = urlsArray,
+                    ["block_level"] = "super-strict",   // backend BlockLevel enum value is 'super-strict' (hyphen)
+                    ["scheduled_finish_time"] = end.ToString("o")
+                };
+
+                StringContent content = new StringContent(payload.ToString(), Encoding.UTF8, "application/json");
+                LogWriter.LogWrite("StartClassSession() JSON: = " + payload.ToString());
+
+                var response = await client.PostAsync(ClassManagementSessions, content);
+                if (response.StatusCode == System.Net.HttpStatusCode.Created || response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    appSettings.sLastClassSessionError = "";
+                    // Remember the new session's id so it can be ended early when the teacher stops focus.
+                    appSettings.sRunningClassSessionId = "";
+                    if (response.Content != null)
+                    {
+                        try
+                        {
+                            string ok = await response.Content.ReadAsStringAsync();
+                            JObject resJson = JObject.Parse(ok);
+                            appSettings.sRunningClassSessionId = (resJson["id"] ?? resJson["session_id"] ?? resJson["sessionId"] ?? "").ToString();
+                        }
+                        catch (Exception exId)
+                        {
+                            LogWriter.LogWrite("StartClassSession() - could not read session id: " + exId.Message);
+                        }
+                    }
+                    LogWriter.LogWrite("StartClassSession() GOT Success; session id " + appSettings.sRunningClassSessionId);
+                    return 1;
+                }
+                else
+                {
+                    string body = response.Content != null ? await response.Content.ReadAsStringAsync() : "";
+                    appSettings.sLastClassSessionError = FriendlyClassSessionError((int)response.StatusCode, body);
+                    LogWriter.LogWrite("StartClassSession() FAILED (" + (int)response.StatusCode + " " + response.ReasonPhrase + ") body=" + body);
+                    return 0;
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("StartClassSession() WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StartClassSession() Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
+        /// <summary>Turn a class-session start failure into a short message to show the teacher.</summary>
+        private static string FriendlyClassSessionError(int status, string body)
+        {
+            switch (status)
+            {
+                case 403:
+                    // The backend returns a readable reason (e.g. the allowed-hours window) as plain text.
+                    return string.IsNullOrWhiteSpace(body) ? "You can't start a class session right now." : body;
+                case 409:
+                    return "This class already has a live session running. End it before starting a new one.";
+                default:
+                    return "Couldn't start the class session. Please try again.";
+            }
+        }
+
+        // Teacher Mode (issue #1343): end the current class focus session early (when the teacher stops
+        // their focus session before the scheduled finish). NOTE: the end endpoint isn't given in the
+        // issue's contract; POST /class-management/sessions/{id}/end is the assumed shape and may need a
+        // small backend confirmation. Best-effort - failures are logged, not surfaced.
+        internal async Task<int> EndClassSession(string sessionId)
+        {
+            LogWriter.LogWrite("EndClassSession() - " + sessionId);
+            try
+            {
+                if (string.IsNullOrWhiteSpace(sessionId))
+                    return 0;
+
+                bool nInternetOn = await IsInternetOn();
+                if (!nInternetOn)
+                    return 0;
+
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    var xRenwTokenStatus = await RenewToken();
+                    if (xRenwTokenStatus == 0)
+                        return 0;
+                }
+
+                HttpClient client = GetClientWithHeaders();
+                string apiPath = string.Format("{0}/{1}/end", ClassManagementSessions, sessionId);
+                StringContent content = new StringContent("{}", Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync(apiPath, content);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.NoContent || response.StatusCode == System.Net.HttpStatusCode.Created)
+                {
+                    LogWriter.LogWrite("EndClassSession() GOT Success");
+                    appSettings.sRunningClassSessionId = "";
+                    return 1;
+                }
+                else
+                {
+                    if (response.Content != null)
+                    {
+                        string responseCode = await response.Content.ReadAsStringAsync();
+                        LogWriter.LogWrite("EndClassSession() FAILED (" + (int)response.StatusCode + ") " + responseCode);
+                    }
+                    return 0;
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("EndClassSession() WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("EndClassSession() Exception - " + ex.Message);
             }
             return 0;
         }

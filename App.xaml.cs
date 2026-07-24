@@ -1433,6 +1433,21 @@ namespace Focus_Bear
                 CommandManager.InvalidateRequerySuggested();
             });
             
+            // Teacher Mode (issue #1343): detect whether this user is a teacher (administers a class)
+            // so the Focus button starts a class focus session instead of a personal one. Non-teachers
+            // are unaffected (the call sets bIsTeacher = false).
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    await client.GetClassManagementClasses();
+                }
+                catch (Exception exTeacher)
+                {
+                    LogWriter.LogWrite("GetClassManagementClasses startup ex - " + exTeacher.Message);
+                }
+            });
+
             await Task.Run(async () =>
             {
                 CommandManager.InvalidateRequerySuggested();
@@ -1633,6 +1648,68 @@ namespace Focus_Bear
             InitializeTrayIcon();
 
             StartWorkFlow();
+        }
+
+        // Teacher Mode (issue #1343): true when pressing Focus should start a class (teacher) session
+        // rather than a personal one — i.e. the user is a teacher, hasn't ticked "personal session
+        // instead", and we know which class to start for.
+        public bool IsTeacherClassSessionStart()
+        {
+            return appSettings.bIsTeacher
+                && !appSettings.bTeacherStartPersonalSession
+                && !string.IsNullOrWhiteSpace(appSettings.sTeacherClassTeamId);
+        }
+
+        // Start (and AWAIT) the class focus session for the given mode's allow-list. Returns 1 on success,
+        // 0 on failure (appSettings.sLastClassSessionError holds the reason). The Focus button awaits this
+        // BEFORE starting the local session so it can abort + tell the teacher when the backend refuses
+        // (outside allowed hours, class already live, etc.) instead of silently starting focus anyway.
+        public async Task<int> StartClassSessionForMode(FocusMode mode)
+        {
+            LogWriter.LogWrite("StartClassSessionForMode() - class session for " + appSettings.sTeacherClassName);
+
+            // Send both the display name and the executable name(s) - lowercased and without ".exe" -
+            // so cross-platform enforcement (which matches on process/exe name) recognises apps like
+            // "chrome" whether the teacher typed "chrome" or picked "Google Chrome" (chrome.exe).
+            HashSet<string> appSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (mode?.arrAllowedAppsWin != null)
+            {
+                foreach (var a in mode.arrAllowedAppsWin)
+                {
+                    if (a == null) continue;
+                    if (!string.IsNullOrWhiteSpace(a.AppName))
+                    {
+                        appSet.Add(a.AppName.Trim());
+                        // Map common typed/display names (e.g. "google chrome", "word", "teams")
+                        // to their real Windows process name (chrome / winword / ms-teams).
+                        foreach (string mapped in CommonAppMap.Resolve(a.AppName)) appSet.Add(mapped);
+                    }
+                    if (a.ExeNames != null)
+                        foreach (var exe in a.ExeNames)
+                            if (!string.IsNullOrWhiteSpace(exe))
+                            {
+                                appSet.Add(exe.Trim().ToLower().Replace(".exe", ""));
+                                foreach (string mapped in CommonAppMap.Resolve(exe)) appSet.Add(mapped);
+                            }
+                }
+            }
+            List<string> allowedApps = new List<string>(appSet);
+
+            List<string> allowedUrls = new List<string>();
+            if (mode?.arrAllowedUrls != null)
+                foreach (var u in mode.arrAllowedUrls)
+                    if (!string.IsNullOrWhiteSpace(u)) allowedUrls.Add(u);
+
+            return await new FocusBearAPIClient().StartClassSession(allowedApps, allowedUrls, mode?.name);
+        }
+
+        // Register the personal backend focus mode. A teacher's class session is started up-front by
+        // StartClassSessionForMode, so this no-ops for that path and only runs for non-teachers / teachers
+        // who chose a personal session.
+        public void StartFocusSessionBackend(FocusMode mode)
+        {
+            if (IsTeacherClassSessionStart()) return;
+            _ = new FocusBearAPIClient().StartFocusMode(mode.id);
         }
 
         public async void StartWorkFlow()

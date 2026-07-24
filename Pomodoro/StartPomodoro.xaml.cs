@@ -168,6 +168,10 @@ namespace Focus_Bear.Pomodoro
             LogWriter.LogWrite("Start Pomodoro - Pomodoro window UpdateValues()" );
             try
             {
+                // Teacher Mode (issue #1343): teachers get a class picker (when >1 class) + a
+                // "start a personal session instead" option; everyone else sees nothing here.
+                SetupTeacherOptions();
+
                 AddFocusModesToComboBox();
 
                 // Ensure blocking schedule state is current before checking banner visibility
@@ -374,7 +378,7 @@ namespace Focus_Bear.Pomodoro
         }
 
 
-        private void btnStartSession_Click(object sender, RoutedEventArgs e)
+        private async void btnStartSession_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnStartSession_Click - Start Pomodoro Window");
             appSettings.sRunningFocusModeIntention = TxtIntention.Text;
@@ -408,10 +412,82 @@ namespace Focus_Bear.Pomodoro
             appSettings.sRunningFocusModeAlignmentScoreThreshold = (double) value / 100;
 
             appSettings.sMinutesBreakPomodoro = "";
-            //Start Normal Focus mode            
+
+            // Teacher Mode (#1343): if a teacher (who hasn't ticked "personal session") presses Focus, the
+            // class session must be created FIRST. If the backend refuses (outside allowed hours, class
+            // already live, ...), tell the teacher and start nothing — instead of silently starting focus.
+            appSettings.bTeacherStartPersonalSession = ChkTeacherPersonalSession.IsChecked == true;
+            if (((App)Application.Current).IsTeacherClassSessionStart())
+            {
+                string modeName = ComboBoxFocusModes.SelectedItem?.ToString();
+                FocusMode mode = appSettings.arrFocusModes.FirstOrDefault(m => m.name == modeName);
+                if (mode != null && int.TryParse(Minutes.Text, out int mins))
+                {
+                    appSettings.sRunningFocusModeEndTime = DateTime.Now.AddMinutes(mins).ToString();
+                    int classResult = await ((App)Application.Current).StartClassSessionForMode(mode);
+                    if (classResult != 1)
+                    {
+                        ShowClassSessionCannotStart(appSettings.sLastClassSessionError);
+                        return;   // abort — no focus session started; the start screen stays open to retry
+                    }
+                }
+            }
+
+            //Start Normal Focus mode
             StartFocusMode();
 
             appSettings.isStartPomodoroWindowOpen = false;
+        }
+
+        // Teacher Mode (#1343): tell the teacher a class session couldn't be started (so they know focus
+        // did NOT start), and hint they can tick "personal session" to start a personal one instead.
+        // Themed in-window notice (grid shade + card) rather than a jarring system MessageBox.
+        private void ShowClassSessionCannotStart(string reason)
+        {
+            string msg = string.IsNullOrWhiteSpace(reason) ? "The class focus session couldn't be started." : reason;
+            LogWriter.LogWrite("ShowClassSessionCannotStart - " + msg);
+            ClassSessionNoticeText.Text = msg + "\n\nTo start a personal session instead, tick “Start a personal session instead” and press Focus again.";
+            GridShade.Visibility = Visibility.Visible;
+            ClassSessionNoticeOverlay.Visibility = Visibility.Visible;
+        }
+
+        private void BtnClassSessionNoticeOk_Click(object sender, RoutedEventArgs e)
+        {
+            ClassSessionNoticeOverlay.Visibility = Visibility.Collapsed;
+            GridShade.Visibility = Visibility.Collapsed;
+        }
+
+        // Teacher Mode (issue #1343): show/populate the teacher-only class picker + personal-session
+        // option on the Focus screen. Hidden entirely for non-teachers; the picker row only appears
+        // when the teacher administers more than one class.
+        private void SetupTeacherOptions()
+        {
+            try
+            {
+                TeacherOptionsPanel.Visibility = appSettings.bIsTeacher ? Visibility.Visible : Visibility.Collapsed;
+                ChkTeacherPersonalSession.IsChecked = false;
+
+                if (appSettings.bIsTeacher)
+                {
+                    TeacherClassPickerRow.Visibility = appSettings.arrTeacherClasses.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+                    CmbTeacherClass.ItemsSource = appSettings.arrTeacherClasses;
+                    CmbTeacherClass.SelectedItem = appSettings.arrTeacherClasses.FirstOrDefault(c => c.TeamId == appSettings.sTeacherClassTeamId)
+                                                   ?? appSettings.arrTeacherClasses.FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetupTeacherOptions() ex - " + ex.Message);
+            }
+        }
+
+        private void CmbTeacherClass_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (CmbTeacherClass.SelectedItem is TeacherClass tc)
+            {
+                appSettings.sTeacherClassTeamId = tc.TeamId;
+                appSettings.sTeacherClassName = tc.Name;
+            }
         }
 
         private void StartFocusMode()
@@ -483,8 +559,10 @@ namespace Focus_Bear.Pomodoro
                         //Start the Focus Mode Timer to end after x hours / minutes
                         ((App)(Application.Current)).wndTrayMenu.StartFocusModeTimer(0, TotalMinutes);
 
-                        FocusBearAPIClient client = new FocusBearAPIClient();
-                        var xResponse = client.StartFocusMode(appSettings.arrFocusModes[i].id);
+                        // Teacher Mode (issue #1343): a teacher starts a class focus session here (unless
+                        // they ticked "personal session"); everyone else starts a personal session, unchanged.
+                        appSettings.bTeacherStartPersonalSession = ChkTeacherPersonalSession.IsChecked == true;
+                        ((App)Application.Current).StartFocusSessionBackend(appSettings.arrFocusModes[i]);
                     }
                     catch (Exception ex)
                     {

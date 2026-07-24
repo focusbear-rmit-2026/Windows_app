@@ -31,7 +31,7 @@
             <RowDefinition Height="80" />
             <RowDefinition Height="0" />
             <RowDefinition Height="0" />
-            <RowDefinition Height="10" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="90" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -219,6 +219,14 @@
         </StackPanel>
         <CheckBox  Grid.Row="13" Visibility="Collapsed" x:Name="ShowFocusModeEnd" AutomationProperties.AutomationId="chkShowFocusModeEnd" FontSize="15" Checked="ShowFocusModeEnd_Checked" Unchecked="ShowFocusModeEnd_Unchecked" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0" >xxShow Focus Status after?</CheckBox>
         <TextBlock Visibility="Collapsed" Grid.Row="14" Name="TimeUnfocusedText" FontSize="15" Padding="0,10,0,0" FontWeight="Normal" HorizontalAlignment="Center" VerticalAlignment="Center" Text="xxTime spent unfocused: [TIME]" />
+        <!-- Teacher Mode (issue #1343): shown only for teachers; lets them run a personal session instead of a class one. -->
+        <StackPanel Grid.Row="14" x:Name="TeacherOptionsPanel" Visibility="Collapsed" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,8">
+            <StackPanel x:Name="TeacherClassPickerRow" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,6">
+                <TextBlock Text="Class:" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="CmbTeacherClass" AutomationProperties.AutomationId="cmbTeacherClass" MinWidth="180" FontSize="14" DisplayMemberPath="Name" Foreground="#000000" Background="#FFFFFF" SelectionChanged="CmbTeacherClass_SelectionChanged"/>
+            </StackPanel>
+            <CheckBox x:Name="ChkTeacherPersonalSession" AutomationProperties.AutomationId="chkTeacherPersonalSession" FontSize="14" Cursor="Hand" HorizontalAlignment="Center" Padding="6,-2,0,0">Start a personal session instead (not a class session)</CheckBox>
+        </StackPanel>
         <Button  Grid.Row="15" x:Name="btnStartSession" AutomationProperties.AutomationId="btnStartSession"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True"  Width="300" Height="45" HorizontalContentAlignment="Center" Padding="0" Margin="0,20,0,0" FontSize="20" Cursor="Hand" FontWeight="Semibold" Click="btnStartSession_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal">
@@ -231,5 +239,20 @@
             </Grid>
         </ScrollViewer>
         <Border x:Name="GridShade"  CornerRadius="0"  Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" />
+
+        <!-- Teacher Mode (#1343): themed notice shown when a class focus session can't be started. -->
+        <Border x:Name="ClassSessionNoticeOverlay" Grid.Row="0" Grid.RowSpan="17" Visibility="Collapsed">
+            <Border Background="{DynamicResource BackgroundColor}" BorderBrush="{DynamicResource ForegroundGrey}" BorderThickness="1"
+                    CornerRadius="10" Padding="24" MaxWidth="360" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="Class focus session" Foreground="{DynamicResource ForegroundColor}" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                    <TextBlock x:Name="ClassSessionNoticeText" Foreground="{DynamicResource ForegroundColor}" TextWrapping="Wrap" FontSize="14" Margin="0,0,0,20"/>
+                    <Button x:Name="BtnClassSessionNoticeOk" AutomationProperties.AutomationId="btnClassSessionNoticeOk" Style="{StaticResource BtnStyleLightOrangeBordered}"
+                            HorizontalAlignment="Right" Cursor="Hand" Click="BtnClassSessionNoticeOk_Click">
+                        <TextBlock Text="OK" Margin="22,6,22,6" FontSize="15" FontWeight="SemiBold" Foreground="Black"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Border>
     </Grid>
 </UserControl>

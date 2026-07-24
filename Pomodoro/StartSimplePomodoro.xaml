@@ -130,6 +130,15 @@
                 </Expander>
                 <TextBlock Visibility="Collapsed" Grid.Row="5" Name="TimeUnfocusedText" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center" VerticalAlignment="Center" Text="xxTime spent unfocused: [TIME]" />
 
+                <!-- Teacher Mode (issue #1343): shown only for teachers; lets them run a personal session instead of a class one. -->
+                <StackPanel Grid.Row="5" x:Name="TeacherOptionsPanel" Visibility="Collapsed" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,8">
+                    <StackPanel x:Name="TeacherClassPickerRow" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,6">
+                        <TextBlock Text="Class:" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <ComboBox x:Name="CmbTeacherClass" AutomationProperties.AutomationId="cmbTeacherClass" MinWidth="180" FontSize="14" DisplayMemberPath="Name" Foreground="#000000" Background="#FFFFFF" SelectionChanged="CmbTeacherClass_SelectionChanged"/>
+                    </StackPanel>
+                    <CheckBox x:Name="ChkTeacherPersonalSession" AutomationProperties.AutomationId="chkTeacherPersonalSession" FontSize="14" Cursor="Hand" HorizontalAlignment="Center" Padding="6,-2,0,0">Start a personal session instead (not a class session)</CheckBox>
+                </StackPanel>
+
                 <!-- Outer columns are equal "*" so the button (Auto column) always centers exactly where it did before - the banner lives in the right column and never shifts the button when shown or hidden -->
                 <Grid Grid.Row="6" Margin="0,10,0,50">
                     <Grid.ColumnDefinitions>

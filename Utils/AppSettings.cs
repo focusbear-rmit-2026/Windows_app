@@ -32,8 +32,96 @@ using System.Security.Policy;
 using System.Web;
 using System.Windows.Documents.DocumentStructures;
 
-namespace Focus_Bear.Utils          
+namespace Focus_Bear.Utils
 {
+    // Teacher Mode (issue #1343): a class the logged-in teacher administers.
+    public class TeacherClass
+    {
+        public string TeamId { get; set; } = "";
+        public string Name { get; set; } = "";
+        public override string ToString() => Name;   // so it displays nicely in a ComboBox
+    }
+
+    // Teacher Mode (issue #1343): maps common app display names / aliases to their Windows process
+    // (exe base) name(s). On Windows the display name and the process name often diverge (Word ->
+    // winword, PowerPoint -> powerpnt, Edge -> msedge, Teams -> ms-teams), so when a teacher types
+    // "chrome" / "google chrome" / "word" as an allowed app we resolve it to the real process name(s)
+    // and cross-platform enforcement (which matches on process name) recognises it.
+    public static class CommonAppMap
+    {
+        private static readonly Dictionary<string, string[]> _map = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            // Browsers
+            { "chrome", new[]{ "chrome" } },
+            { "google chrome", new[]{ "chrome" } },
+            { "edge", new[]{ "msedge" } },
+            { "microsoft edge", new[]{ "msedge" } },
+            { "firefox", new[]{ "firefox" } },
+            { "mozilla firefox", new[]{ "firefox" } },
+            { "brave", new[]{ "brave" } },
+            { "opera", new[]{ "opera" } },
+            { "arc", new[]{ "arc" } },
+            // Microsoft Office
+            { "word", new[]{ "winword" } },
+            { "microsoft word", new[]{ "winword" } },
+            { "ms word", new[]{ "winword" } },
+            { "excel", new[]{ "excel" } },
+            { "microsoft excel", new[]{ "excel" } },
+            { "powerpoint", new[]{ "powerpnt" } },
+            { "microsoft powerpoint", new[]{ "powerpnt" } },
+            { "ppt", new[]{ "powerpnt" } },
+            { "outlook", new[]{ "outlook" } },
+            { "microsoft outlook", new[]{ "outlook" } },
+            { "onenote", new[]{ "onenote" } },
+            { "access", new[]{ "msaccess" } },
+            { "publisher", new[]{ "mspub" } },
+            { "teams", new[]{ "ms-teams", "teams" } },            // new Teams (ms-teams.exe) + classic (Teams.exe)
+            { "microsoft teams", new[]{ "ms-teams", "teams" } },
+            { "ms teams", new[]{ "ms-teams", "teams" } },
+            // Communication
+            { "slack", new[]{ "slack" } },
+            { "zoom", new[]{ "zoom" } },
+            { "discord", new[]{ "discord" } },
+            { "skype", new[]{ "skype" } },
+            { "webex", new[]{ "webex" } },
+            { "cisco webex", new[]{ "webex" } },
+            { "whatsapp", new[]{ "whatsapp" } },
+            { "telegram", new[]{ "telegram" } },
+            // Dev
+            { "vscode", new[]{ "code" } },
+            { "vs code", new[]{ "code" } },
+            { "visual studio code", new[]{ "code" } },
+            { "visual studio", new[]{ "devenv" } },
+            { "notepad++", new[]{ "notepad++" } },
+            { "notepad", new[]{ "notepad" } },
+            { "windows terminal", new[]{ "windowsterminal", "wt" } },
+            // Productivity / media
+            { "notion", new[]{ "notion" } },
+            { "obsidian", new[]{ "obsidian" } },
+            { "evernote", new[]{ "evernote" } },
+            { "spotify", new[]{ "spotify" } },
+            { "figma", new[]{ "figma" } },
+            { "photoshop", new[]{ "photoshop" } },
+            { "acrobat", new[]{ "acrobat", "acrord32" } },
+            { "adobe acrobat", new[]{ "acrobat", "acrord32" } },
+            { "adobe reader", new[]{ "acrord32" } },
+            { "acrobat reader", new[]{ "acrord32" } },
+        };
+
+        // Returns the mapped process name(s) for a typed/display app name, or nothing if unknown.
+        public static IEnumerable<string> Resolve(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                yield break;
+            string key = input.Trim();
+            if (key.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                key = key.Substring(0, key.Length - 4);
+            if (_map.TryGetValue(key, out string[] procs))
+                foreach (string p in procs)
+                    yield return p;
+        }
+    }
+
     public class AppSettings
     {
         private static readonly AppSettings instance = new AppSettings();
@@ -560,6 +648,23 @@ namespace Focus_Bear.Utils
         // startup and registered via GlobalHotkeyManager; edited in the Keyboard Shortcuts settings tab.
         public Dictionary<string, Focus_Bear.Models.KeyboardShortcut> KeyboardShortcuts = new Dictionary<string, Focus_Bear.Models.KeyboardShortcut>();
         public UserAccount userAccount { get; set; } = new UserAccount() { userID = "", username = "", email = "", accessToken = "", refreshToken = "" };
+
+        // Teacher Mode (issue #1343): when the logged-in user is a teacher (administers >= 1 class),
+        // pressing Focus starts a class focus session for their class instead of a personal one.
+        // Populated once on startup from GET /class-management/classes.
+        public bool bIsTeacher = false;
+        // All classes the teacher administers, so the Focus screen can offer a picker.
+        public List<TeacherClass> arrTeacherClasses = new List<TeacherClass>();
+        // team_id of the class the next session will start for (the picked / remembered class).
+        public string sTeacherClassTeamId = "";
+        // Friendly name of that class (for logging / any UI hint).
+        public string sTeacherClassName = "";
+        // Per-attempt override: a teacher ticked "start a personal session instead" on the Focus screen.
+        public bool bTeacherStartPersonalSession = false;
+        // Id of the class focus session currently started from this device, so it can be ended early.
+        public string sRunningClassSessionId = "";
+        // Reason the last class-session start failed (shown to the teacher instead of starting focus).
+        public string sLastClassSessionError = "";
         static AppSettings() { }
         private AppSettings()
         {
