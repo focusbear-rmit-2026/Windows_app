@@ -1101,6 +1101,33 @@ namespace Focus_Bear
             }
         }
 
+        // Global keyboard shortcuts (issue #383/#1150): once the window has a native handle, hook WM_HOTKEY
+        // and register the user's shortcuts so they work app-wide even when Focus Bear isn't focused.
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            try
+            {
+                IntPtr handle = new WindowInteropHelper(this).Handle;
+                HwndSource.FromHwnd(handle)?.AddHook(HotkeyWndHook);
+                GlobalHotkeyManager.Shared.Initialize(handle);
+                RegistryManager.LoadKeyboardShortcuts();
+                GlobalHotkeyManager.Shared.RegisterAll();
+                LogWriter.LogWrite("Global keyboard shortcuts initialized");
+            }
+            catch (Exception ex) { LogWriter.LogWrite("OnSourceInitialized hotkeys - " + ex.Message); }
+        }
+
+        private IntPtr HotkeyWndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == GlobalHotkeyManager.WM_HOTKEY)
+            {
+                GlobalHotkeyManager.Shared.HandleHotkey(wParam.ToInt32());
+                handled = true;
+            }
+            return IntPtr.Zero;
+        }
+
         private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (IsVisible)

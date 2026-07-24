@@ -87,6 +87,7 @@ namespace Focus_Bear.Preferences
         {
             Strictness,
             UI,
+            KeyboardShortcuts,
             AI,
             Breaks,
             ToDoList,
@@ -174,6 +175,7 @@ namespace Focus_Bear.Preferences
             {
                 { LeftButtonType.Strictness,new Strictness(_ParentWindow) },
                 { LeftButtonType.UI,new UI(_ParentWindow) },
+                { LeftButtonType.KeyboardShortcuts,new KeyboardShortcuts(_ParentWindow) },
                 { LeftButtonType.AI,new AITab() },
                 { LeftButtonType.Breaks,new Breaks(_ParentWindow) },
                 //{ LeftButtonType.ToDoList,new PomodoroTab(_ParentWindow) },
@@ -239,6 +241,14 @@ namespace Focus_Bear.Preferences
                         Name = appSettings.ConfigFileStrings["settingsNew"]["pomodoroSettingTitle"].ToString(), //"Focus Sessions",
                         IconPath = "FocusSessions",
                         ButtonType = LeftButtonType.FocusSessions,
+                        IsEnabled = true,
+                        IsVisible = true
+                    });
+                    LeftButtons.Add(new LeftButtonItem
+                    {
+                        Name = appSettings.ConfigFileStrings["keyboardShortcutsSettingsVcInfo"]["keyboardShortcutsSettingTitle"].ToString(), //"Keyboard Shortcuts",
+                        IconPath = "KeyboardShortcuts",
+                        ButtonType = LeftButtonType.KeyboardShortcuts,
                         IsEnabled = true,
                         IsVisible = true
                     });

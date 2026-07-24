@@ -43,6 +43,26 @@
     <BitmapImage x:Key="Uninstall" UriSource="../Images/Settings/uninstall_black.png" />
     <BitmapImage x:Key="AI" UriSource="../Images/Settings/ai_black.png" />
     <BitmapImage x:Key="Strictness" UriSource="../Images/Settings/strictness_black.png" />
+    <!-- Keyboard Shortcuts tab icon (vector so no PNG asset needed); black for the light theme. -->
+    <DrawingImage x:Key="KeyboardShortcuts">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen><Pen Brush="Black" Thickness="1.6"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry><RectangleGeometry Rect="2,5,20,14" RadiusX="2.5" RadiusY="2.5"/></GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="Black">
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <RectangleGeometry Rect="5,8,1.8,1.8"/><RectangleGeometry Rect="8,8,1.8,1.8"/><RectangleGeometry Rect="11,8,1.8,1.8"/><RectangleGeometry Rect="14,8,1.8,1.8"/><RectangleGeometry Rect="17.2,8,1.8,1.8"/>
+                            <RectangleGeometry Rect="5,11,1.8,1.8"/><RectangleGeometry Rect="8,11,1.8,1.8"/><RectangleGeometry Rect="11,11,1.8,1.8"/><RectangleGeometry Rect="14,11,1.8,1.8"/><RectangleGeometry Rect="17.2,11,1.8,1.8"/>
+                            <RectangleGeometry Rect="7,14.4,10,1.8" RadiusX="0.6" RadiusY="0.6"/>
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
     <BitmapImage x:Key="Password" UriSource="../Images/Settings/password_black.png" />
     <BitmapImage x:Key="FocusModeDark" UriSource="../Images/eye.png" />
     <BitmapImage x:Key="AlwaysAllowedAppsImage" UriSource="../Images/checkmark_rectangle.png" />

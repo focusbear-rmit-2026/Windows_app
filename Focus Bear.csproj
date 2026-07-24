@@ -552,6 +552,7 @@
     <Compile Include="Models\ImageBehavior.cs" />
     <Compile Include="Models\INIParser.cs" />
     <Compile Include="Models\NativeFileDelete.cs" />
+    <Compile Include="Models\KeyboardShortcut.cs" />
     <Compile Include="Models\RegistryManager.cs" />
     <Compile Include="Models\UserAccount.cs" />
     <Compile Include="Models\WebMessageEvent.cs" />
@@ -709,6 +710,9 @@
     <Compile Include="Preferences\SettingsTab\Strictness.xaml.cs">
       <DependentUpon>Strictness.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\SettingsTab\KeyboardShortcuts.xaml.cs">
+      <DependentUpon>KeyboardShortcuts.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Preferences\SettingsTab\UI.xaml.cs">
       <DependentUpon>UI.xaml</DependentUpon>
     </Compile>
@@ -783,6 +787,7 @@
     <Compile Include="Utils\IdleWaiter.cs" />
     <Compile Include="Utils\ImageExtractor.cs" />
     <Compile Include="Utils\LocalSettingsManager.cs" />
+    <Compile Include="Utils\GlobalHotkeyManager.cs" />
     <Compile Include="Utils\LogWriter.cs" />
     <Compile Include="Utils\OfflineActivities.cs" />
     <Compile Include="Utils\ProcessBrowserURLs.cs" />
@@ -1218,6 +1223,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Preferences\SettingsTab\Strictness.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\SettingsTab\KeyboardShortcuts.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

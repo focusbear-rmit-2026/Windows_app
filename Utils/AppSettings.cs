@@ -556,6 +556,9 @@ namespace Focus_Bear.Utils
         public Version FirmwareVersion { get; set; }
 
         public JObject ConfigFileStrings;
+        // Global keyboard shortcuts (issue #383/#1150): action id -> shortcut. Loaded from the registry on
+        // startup and registered via GlobalHotkeyManager; edited in the Keyboard Shortcuts settings tab.
+        public Dictionary<string, Focus_Bear.Models.KeyboardShortcut> KeyboardShortcuts = new Dictionary<string, Focus_Bear.Models.KeyboardShortcut>();
         public UserAccount userAccount { get; set; } = new UserAccount() { userID = "", username = "", email = "", accessToken = "", refreshToken = "" };
         static AppSettings() { }
         private AppSettings()

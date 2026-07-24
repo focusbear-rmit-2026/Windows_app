@@ -136,8 +136,8 @@ namespace Focus_Bear
             bool bFromForegroundApp = false;
             try
             {
-                GetWindowThreadProcessId(hwnd, out IntPtr evtPid);
-                GetWindowThreadProcessId(GetForegroundWindow(), out IntPtr fgPid);
+                _ = GetWindowThreadProcessId(hwnd, out IntPtr evtPid);
+                _ = GetWindowThreadProcessId(GetForegroundWindow(), out IntPtr fgPid);
                 bFromForegroundApp = evtPid != IntPtr.Zero && evtPid == fgPid;
             }
             catch (Exception ex) { LogWriter.LogWrite("foreground-check ex - " + ex.Message); }

@@ -2555,6 +2555,30 @@ namespace Focus_Bear.Models
             catch (Exception ex) { LogWriter.LogWrite("LoadDayPlanShowHiddenMeetings - " + ex.Message); return false; }
         }
 
+        // Global keyboard shortcuts (issue #383/#1150): persisted as a JSON action-id -> shortcut map.
+        public static void SaveKeyboardShortcuts()
+        {
+            try
+            {
+                string json = Newtonsoft.Json.JsonConvert.SerializeObject(
+                    appSettings.KeyboardShortcuts ?? new Dictionary<string, Focus_Bear.Models.KeyboardShortcut>());
+                Write("KeyboardShortcuts", json);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("SaveKeyboardShortcuts - " + ex.Message); }
+        }
+
+        public static void LoadKeyboardShortcuts()
+        {
+            try
+            {
+                string json = ReadStr("KeyboardShortcuts");
+                if (string.IsNullOrWhiteSpace(json)) return;
+                var map = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, Focus_Bear.Models.KeyboardShortcut>>(json);
+                if (map != null) appSettings.KeyboardShortcuts = map;
+            }
+            catch (Exception ex) { LogWriter.LogWrite("LoadKeyboardShortcuts - " + ex.Message); }
+        }
+
         internal static void SetSelectedMorningHabitsDate()
         {
             LogWriter.LogWrite("SetSelectedMorningHabitsDate()");

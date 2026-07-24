@@ -3318,7 +3318,7 @@
     "keyboardShortcutsSettingsVcInfo": {
         "keyboardShortcutsSettingTitle": "Keyboard Shortcuts",
         "recordingPlaceholder": "Record Shortcut",
-        "descriptionText": "Set global keyboard shortcuts to instantly open Brain Dump, Focus Music, or Task List from anywhere on your Mac.",
+        "descriptionText": "Set global keyboard shortcuts to instantly open Brain Dump, Focus Music, or Task List from anywhere on your PC.",
         "brainDumpTitle": "Open Brain Dump:",
         "focusMusicTitle": "Open Focus Music:",
         "taskListTitle": "Open Task List:",
