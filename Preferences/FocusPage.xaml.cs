@@ -68,8 +68,7 @@ namespace Focus_Bear.Preferences
                 btnDeleteFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonDeleteFocusTypeText"].ToString();
                 btnDuplicateFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["duplicateText"].ToString();
                 btnAdvancedTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAdvancedText"].ToString();
-                btnAddFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddFocusTypeText"].ToString();
-                btnAddFocusModeTXT.Text = "Add Block List";
+                btnAddFocusModeTXT.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["buttonAddBlockListText"].ToString();
                 
             }
             catch (Exception ex)
