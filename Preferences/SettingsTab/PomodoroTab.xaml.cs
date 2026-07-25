@@ -33,29 +33,44 @@ namespace Focus_Bear.Preferences
 
             PomodoroMinutes.GotFocus += RemovePlaceholder;
             PomodoroMinutes.LostFocus += SetPlaceholder;
-            BreakMinutes.GotFocus += RemovePlaceholder;
-            BreakMinutes.LostFocus += SetPlaceholder;
+            WorkRatioInput.GotFocus += RemovePlaceholder;
+            WorkRatioInput.LostFocus += SetPlaceholder;
+            BreakRatioInput.GotFocus += RemovePlaceholder;
+            BreakRatioInput.LostFocus += SetPlaceholder;
 
             try
             {
                 Heading.Text = appSettings.ConfigFileStrings["preferencesInfo"]["pomodoroDescriptionText"].ToString();
                 btnLearnMoreTXT.Text = appSettings.ConfigFileStrings["preferencesInfo"]["buttonLearnPomodoroTechniqueText"].ToString();
-                
                 PomodoroMode.Text = appSettings.ConfigFileStrings["preferencesInfo"]["checkBoxPomodoroText"].ToString();
                 PomodoroModeDesc.Text = appSettings.ConfigFileStrings["tooltips"]["pomodoro_AfterMorning"].ToString();
-                
                 btnAdvancedTXT.Text = appSettings.ConfigFileStrings["preferencesInfo"]["buttonAdvancedText"].ToString();
 
                 UpdateTextsAndButtons();
 
                 PomodoroModeDuration.Text = appSettings.ConfigFileStrings["preferencesInfo"]["pomodoroModeDurationText"].ToString();
                 MinutesTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
-                BreakDuration.Text = appSettings.ConfigFileStrings["preferencesInfo"]["breakDurationText"].ToString();
-                BreakMinutesTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
+                WorkToBreakRatioLabel.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["titleWorkToBreakRatio"].ToString();
+                RatioToText.Text = appSettings.ConfigFileStrings["focusPreferencesInfo"]["toText"].ToString();
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("PomodoroTab texts ex = " + ex.Message);
+            }
+        }
+
+        private void UpdateRatioDescription()
+        {
+            try
+            {
+                string desc = appSettings.ConfigFileStrings["focusPreferencesInfo"]["descriptionWorkToBreakRatio"].ToString();
+                desc = desc.Replace("<WORKRATIO>", appSettings.PomodoroWorkToBreakRatio.ToString());
+                desc = desc.Replace("<BREAKRATIO>", appSettings.PomodoroBreakRatio.ToString());
+                WorkToBreakRatioDesc.Text = desc;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("PomodoroTab UpdateRatioDescription ex = " + ex.Message);
             }
         }
 
@@ -80,12 +95,19 @@ namespace Focus_Bear.Preferences
                     textBox.Tag = "placeholder";
                     appSettings.PomodoroMinutes = "25";
                 }
-                else
+                else if (textBox == WorkRatioInput)
                 {
                     textBox.Text = "5";
                     textBox.Foreground = Brushes.Gray;
                     textBox.Tag = "placeholder";
-                    appSettings.PomodoroBreakMinutes = "5";
+                    appSettings.PomodoroWorkToBreakRatio = 5;
+                }
+                else if (textBox == BreakRatioInput)
+                {
+                    textBox.Text = "1";
+                    textBox.Foreground = Brushes.Gray;
+                    textBox.Tag = "placeholder";
+                    appSettings.PomodoroBreakRatio = 1;
                 }
             }
         }
@@ -117,7 +139,8 @@ namespace Focus_Bear.Preferences
         private void UpdateTextsAndButtons()
         {
             PomodoroMinutes.Text = appSettings.PomodoroMinutes;
-            BreakMinutes.Text = appSettings.PomodoroBreakMinutes;
+            WorkRatioInput.Text = appSettings.PomodoroWorkToBreakRatio.ToString();
+            BreakRatioInput.Text = appSettings.PomodoroBreakRatio.ToString();
             EnterPomodoroCheck.IsChecked = appSettings.bEnterPomodoroModeAfterMorningRoutine;
 
             if (appSettings.bEnterPomodoroModeAfterMorningRoutine)
@@ -203,38 +226,34 @@ namespace Focus_Bear.Preferences
             return false;
         }
 
-        private bool ValidateBreakMinutes(bool showErrors = true)
+        private bool ValidateWorkToBreakRatio(bool showErrors = true)
         {
-            string minutesText = BreakMinutes.Text;
-
-            if (string.IsNullOrWhiteSpace(minutesText))
+            if (string.IsNullOrWhiteSpace(WorkRatioInput.Text))
             {
-                if (showErrors)
-                {
-                    ShowErrorMessage(appSettings.ConfigFileStrings["preferencesInfo"]["breakDurationEmptyErrorText"].ToString());
-                }
+                if (showErrors) ShowErrorMessage(appSettings.ConfigFileStrings["focusPreferencesInfo"]["workRatioEmptyErrorText"].ToString());
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(BreakRatioInput.Text))
+            {
+                if (showErrors) ShowErrorMessage(appSettings.ConfigFileStrings["focusPreferencesInfo"]["breakRatioEmptyErrorText"].ToString());
                 return false;
             }
 
-            if (int.TryParse(minutesText, out int minutes))
+            if (!int.TryParse(WorkRatioInput.Text, out int workRatio) || workRatio <= 0)
             {
-                if (minutes <= 0)
-                {
-                    if (showErrors)
-                    {
-                        ShowErrorMessage(appSettings.ConfigFileStrings["preferencesInfo"]["breakDurationZeroErrorText"].ToString());
-                    }
-                    return false;
-                }
-                appSettings.PomodoroBreakMinutes = minutesText;
-                return true;
+                if (showErrors) ShowErrorMessage(appSettings.ConfigFileStrings["focusPreferencesInfo"]["workRatioInvalidErrorText"].ToString());
+                return false;
+            }
+            if (!int.TryParse(BreakRatioInput.Text, out int breakRatio) || breakRatio <= 0)
+            {
+                if (showErrors) ShowErrorMessage(appSettings.ConfigFileStrings["focusPreferencesInfo"]["breakRatioInvalidErrorText"].ToString());
+                return false;
             }
 
-            if (showErrors)
-            {
-                ShowErrorMessage("Please enter a valid number.");
-            }
-            return false;
+            appSettings.PomodoroWorkToBreakRatio = workRatio;
+            appSettings.PomodoroBreakRatio = breakRatio;
+            UpdateRatioDescription();
+            return true;
         }
 
         private void ShowErrorMessage(string message)
@@ -254,18 +273,52 @@ namespace Focus_Bear.Preferences
                 appSettings.PomodoroMinutes = "25";
             }
 
-            if (string.IsNullOrWhiteSpace(BreakMinutes.Text))
+            if (ValidatePomodoroMinutes(true))
             {
-                BreakMinutes.Text = "5";
-                appSettings.PomodoroBreakMinutes = "5";
+                LocalSettingsManager.PutLocalSettings();
+                ShowSuccessMessage("Settings saved successfully!");
+            }
+        }
+
+        private void SaveRatio_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(WorkRatioInput.Text))
+            {
+                WorkRatioInput.Text = "5";
+                appSettings.PomodoroWorkToBreakRatio = 5;
+            }
+            if (string.IsNullOrWhiteSpace(BreakRatioInput.Text))
+            {
+                BreakRatioInput.Text = "1";
+                appSettings.PomodoroBreakRatio = 1;
             }
 
-            bool pomodoroValid = ValidatePomodoroMinutes(true);
-            bool breakValid = ValidateBreakMinutes(true);
-
-            if (pomodoroValid && breakValid)
+            if (ValidateWorkToBreakRatio(true))
             {
+                LocalSettingsManager.PutLocalSettings();
                 ShowSuccessMessage("Settings saved successfully!");
+            }
+        }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (IsVisible)
+            {
+                PomodoroMinutes.Text = appSettings.PomodoroMinutes;
+                PomodoroMinutes.Tag = null;
+                PomodoroMinutes.Foreground = Brushes.Black;
+
+                WorkRatioInput.Text = appSettings.PomodoroWorkToBreakRatio.ToString();
+                WorkRatioInput.Tag = null;
+                WorkRatioInput.Foreground = Brushes.Black;
+
+                BreakRatioInput.Text = appSettings.PomodoroBreakRatio.ToString();
+                BreakRatioInput.Tag = null;
+                BreakRatioInput.Foreground = Brushes.Black;
+
+                EnterPomodoroCheck.IsChecked = appSettings.bEnterPomodoroModeAfterMorningRoutine;
+                UpdateTextsAndButtons();
+                UpdateRatioDescription();
             }
         }
 
@@ -285,22 +338,18 @@ namespace Focus_Bear.Preferences
             SetPlaceholder(sender, e);
         }
 
-        private void BreakMinutes_LostFocus(object sender, RoutedEventArgs e)
+        private void WorkRatioInput_LostFocus(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(BreakMinutes.Text))
-            {
-                ValidateBreakMinutes(true);
-            }
+            if (!string.IsNullOrWhiteSpace(WorkRatioInput.Text))
+                ValidateWorkToBreakRatio(false);
             SetPlaceholder(sender, e);
         }
 
-        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void BreakRatioInput_LostFocus(object sender, RoutedEventArgs e)
         {
-            if(IsVisible)
-            {
-                UpdateTextsAndButtons();
-            }
-
+            if (!string.IsNullOrWhiteSpace(BreakRatioInput.Text))
+                ValidateWorkToBreakRatio(false);
+            SetPlaceholder(sender, e);
         }
     }
 }

@@ -477,6 +477,8 @@ namespace Focus_Bear.Utils
 
         public string PomodoroMinutes = "25";
         public string PomodoroBreakMinutes = "5";
+        public int PomodoroWorkToBreakRatio = 5;
+        public int PomodoroBreakRatio = 1;
 
         //Pomodoro Advanced
         public string AutomaticSuperPomodoroFocusedName = "";
@@ -1884,6 +1886,10 @@ namespace Focus_Bear.Utils
                             bAutomaticUseSuperPomodoroModeSetting = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroEnabled") : false; //default false
                             PomodoroMinutes = sMacOSSettingsOBJ.ContainsKey("kPomodoroDurationMinutes") ? (string)sMacOSSettingsOBJ.GetValue("kPomodoroDurationMinutes") : "25";
                             PomodoroBreakMinutes = sMacOSSettingsOBJ.ContainsKey("kBreakDurationMinutes") ? (string)sMacOSSettingsOBJ.GetValue("kBreakDurationMinutes") : "5";
+                            PomodoroWorkToBreakRatio = sMacOSSettingsOBJ.ContainsKey("kWorkToBreakRatio") ? (int)sMacOSSettingsOBJ.GetValue("kWorkToBreakRatio") : 5;
+                            if (PomodoroWorkToBreakRatio < 1) PomodoroWorkToBreakRatio = 5;
+                            PomodoroBreakRatio = sMacOSSettingsOBJ.ContainsKey("kBreakRatio") ? (int)sMacOSSettingsOBJ.GetValue("kBreakRatio") : 1;
+                            if (PomodoroBreakRatio < 1) PomodoroBreakRatio = 1;
 
                             AutomaticSuperPomodoroFocusedName = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedName") ? (string)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroFocusedName") : "";
                             AutomaticNumberOfSuperPomodorosToRun = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedCount") ? (int)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroFocusedCount") : 2;

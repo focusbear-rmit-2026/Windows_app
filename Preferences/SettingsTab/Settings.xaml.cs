@@ -407,6 +407,22 @@ namespace Focus_Bear.Preferences
             ListLeftButtons.SelectedIndex = 0;
         }
 
+        public void NavigateToPomodoroTab()
+        {
+            if (_views.ContainsKey(LeftButtonType.FocusSessions))
+            {
+                RightContent.Content = _views[LeftButtonType.FocusSessions];
+                for (int i = 0; i < LeftButtons.Count; i++)
+                {
+                    if (LeftButtons[i].ButtonType == LeftButtonType.FocusSessions)
+                    {
+                        ListLeftButtons.SelectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
         public void SetGeekModeStatus()
         {
             GeekMode.Checked -= GeekMode_Checked;

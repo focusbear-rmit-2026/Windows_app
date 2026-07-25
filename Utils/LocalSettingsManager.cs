@@ -302,13 +302,33 @@ namespace Focus_Bear.Utils
 
                             if (sMacOSSettingsOBJ.ContainsKey("kBreakDurationMinutes"))
                             {
-                                sMacOSSettingsOBJ.Remove("kBreakDurationMinutes"); //Remove  
-                                                                                      //Add new  
+                                sMacOSSettingsOBJ.Remove("kBreakDurationMinutes"); //Remove
+                                                                                      //Add new
                                 sMacOSSettingsOBJ.Add("kBreakDurationMinutes", appSettings.PomodoroBreakMinutes);
                             }
                             else
                             {
                                 sMacOSSettingsOBJ.Add("kBreakDurationMinutes", appSettings.PomodoroBreakMinutes);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kWorkToBreakRatio"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kWorkToBreakRatio");
+                                sMacOSSettingsOBJ.Add("kWorkToBreakRatio", appSettings.PomodoroWorkToBreakRatio);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kWorkToBreakRatio", appSettings.PomodoroWorkToBreakRatio);
+                            }
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kBreakRatio"))
+                            {
+                                sMacOSSettingsOBJ.Remove("kBreakRatio");
+                                sMacOSSettingsOBJ.Add("kBreakRatio", appSettings.PomodoroBreakRatio);
+                            }
+                            else
+                            {
+                                sMacOSSettingsOBJ.Add("kBreakRatio", appSettings.PomodoroBreakRatio);
                             }
 
                             if (sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedName"))

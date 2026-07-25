@@ -74,6 +74,7 @@ namespace Focus_Bear.Pomodoro
 
                 MinutesTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
                 BreakDuration.Text = appSettings.ConfigFileStrings["preferencesInfo"]["breakDurationText"].ToString();
+                EditRatioTXT.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonEditRatioText"].ToString();
                 MinutesBreakTitle.Text = appSettings.ConfigFileStrings["preferencesInfo"]["minutesText"].ToString();
 
                 WhatPlan.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["questionFirstText"].ToString();  //"What do you want to achieve in this pomodoro session?";
@@ -183,7 +184,10 @@ namespace Focus_Bear.Pomodoro
                 SetBlockingStyleFromLastUsed();
 
                 Minutes.Text = appSettings.PomodoroMinutes;
-                MinutesBreak.Text = appSettings.PomodoroBreakMinutes;
+                // Break duration is derived from the saved work:break ratio (still user-overridable),
+                // matching the normal Pomodoro start screen.
+                MinutesBreak.Text = CalculateBreakFromRatio(appSettings.PomodoroMinutes);
+                UpdateWorkToBreakRatioInfo();
 
                 //Should empty the value for tasks here
                 appSettings.sRawTasks = "";
@@ -223,7 +227,49 @@ namespace Focus_Bear.Pomodoro
 
         private void Minutes_TextChanged(object sender, TextChangedEventArgs e)
         {
+            // When the work-minutes box changes, re-derive the break from the ratio. Guard on the
+            // sender so editing the break box directly (a user override) doesn't recalculate it away
+            // (both boxes share this handler).
+            if (sender == Minutes && int.TryParse(Minutes.Text, out _))
+            {
+                MinutesBreak.Text = CalculateBreakFromRatio(Minutes.Text);
+                UpdateWorkToBreakRatioInfo();
+            }
             HandleStartFocusEnableDisable();
+        }
+
+        private string CalculateBreakFromRatio(string workMinutesText)
+        {
+            if (int.TryParse(workMinutesText, out int workMinutes)
+                && appSettings.PomodoroWorkToBreakRatio > 0
+                && appSettings.PomodoroBreakRatio > 0)
+            {
+                int breakMinutes = Math.Max(1, (int)Math.Round((double)workMinutes * appSettings.PomodoroBreakRatio / appSettings.PomodoroWorkToBreakRatio));
+                return breakMinutes.ToString();
+            }
+            return appSettings.PomodoroBreakMinutes;
+        }
+
+        private void UpdateWorkToBreakRatioInfo()
+        {
+            try
+            {
+                string ratioText = appSettings.ConfigFileStrings["pomodoroInfo"]["workRatioText"].ToString();
+                ratioText = ratioText.Replace("<WORKRATIO>", appSettings.PomodoroWorkToBreakRatio.ToString());
+                ratioText = ratioText.Replace("<BREAKRATIO>", appSettings.PomodoroBreakRatio.ToString());
+                WorkToBreakRatioInfoText.Text = ratioText;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StartSimplePomodoro UpdateWorkToBreakRatioInfo ex = " + ex.Message);
+            }
+        }
+
+        private void btnEditRatio_Click(object sender, RoutedEventArgs e)
+        {
+            var mainWindow = ((App)(Application.Current)).wndFocusBearMainWindow;
+            mainWindow.HandleLeafSelection(LeftButtonType.Settings);
+            mainWindow.PageSettings.NavigateToPomodoroTab();
         }
 
         private void HandleStartFocusEnableDisable()

@@ -25,7 +25,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
-            <RowDefinition Height="40" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
             <RowDefinition Height="80" />
@@ -116,30 +116,40 @@
 
         </StackPanel>
 
-        <StackPanel Grid.Row="8" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
-            <TextBlock  Name="BreakDuration" Margin="10,0,10,0" TextWrapping="Wrap"  Text="xBreak duration:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Center"/>
+        <StackPanel Grid.Row="8" Orientation="Vertical" HorizontalAlignment="Center" Margin="0,5,0,5">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+                <TextBlock  Name="BreakDuration" Margin="10,0,10,0" TextWrapping="Wrap"  Text="xBreak duration:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Right" HorizontalAlignment="Center"/>
 
-            <TextBox    x:Name="MinutesBreak" AutomationProperties.AutomationId="txtBoxMinutesBreak" MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="Minutes_TextChanged">
-                <TextBox.Effect>
-                    <DropShadowEffect ShadowDepth="3"
-                          Direction="330"
-                          Color="Gray"
-                          Opacity="0.5"
-                          BlurRadius="6"
-                           />
-                </TextBox.Effect>
-                <TextBox.FocusVisualStyle>
-                    <Style>
-                        <Setter Property="Control.Template">
-                            <Setter.Value>
-                                <ControlTemplate/>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </TextBox.FocusVisualStyle>
-            </TextBox>
-            <TextBlock  Name="MinutesBreakTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-            
+                <TextBox    x:Name="MinutesBreak" AutomationProperties.AutomationId="txtBoxMinutesBreak" MinHeight="25"  Width="35" Margin="0"  TextWrapping="NoWrap"  Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"  BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" PreviewTextInput="Minutes_PreviewTextInput" PreviewKeyDown="Minutes_PreviewKeyDown" PreviewKeyUp="Minutes_PreviewKeyUp" TextChanged="MinutesBreak_TextChanged">
+                    <TextBox.Effect>
+                        <DropShadowEffect ShadowDepth="3"
+                              Direction="330"
+                              Color="Gray"
+                              Opacity="0.5"
+                              BlurRadius="6"
+                               />
+                    </TextBox.Effect>
+                    <TextBox.FocusVisualStyle>
+                        <Style>
+                            <Setter Property="Control.Template">
+                                <Setter.Value>
+                                    <ControlTemplate/>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TextBox.FocusVisualStyle>
+                </TextBox>
+                <TextBlock  Name="MinutesBreakTitle" Margin="10,0,10,0" TextWrapping="Wrap" Text="xxminutes"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
+                <TextBlock x:Name="WorkToBreakRatioInfoText" AutomationProperties.AutomationId="txtWorkToBreakRatioInfo" FontSize="12" Foreground="Gray" VerticalAlignment="Center"/>
+                <TextBlock FontSize="12" Foreground="Gray" VerticalAlignment="Center" Margin="4,0,0,0" Text=" "/>
+                <TextBlock x:Name="BtnEditRatioLink" AutomationProperties.AutomationId="txtBtnEditRatioLink" FontSize="12" VerticalAlignment="Center" Cursor="Hand">
+                    <Hyperlink x:Name="btnEditRatio" Click="btnEditRatio_Click" TextDecorations="Underline">
+                        <Run x:Name="EditRatioTXT" Text="Edit"/>
+                    </Hyperlink>
+                </TextBlock>
+            </StackPanel>
         </StackPanel>
         <StackPanel Margin="0,0,0,0" Grid.Row="9" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock Name="TxtSkipMicroBreaks" AutomationProperties.AutomationId="chkSkipMicroBreaks" Padding="0,15,0,0" HorizontalAlignment="Center">

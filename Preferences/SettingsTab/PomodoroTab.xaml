@@ -162,43 +162,69 @@
                         <Grid Grid.Row="5"  Margin="15,0,15,0" Background="LightGray" ></Grid>
 
                         <Grid Grid.Row="6" Margin="15,15"  Background="{DynamicResource SoftCreamColor}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="260"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Name="BreakDuration" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                            <TextBox x:Name="BreakMinutes"
-                                     AutomationProperties.AutomationId="txtBoxBreakMinutes"
-                                     Margin="20,0,0,0"
-                                     MinHeight="25"
-                                     Width="35"
-                                     Style="{StaticResource PlaceholderTextBoxStyle}"
-                                     Tag="placeholder"
-                                     Foreground="Gray"
-                                     MaxLength="3"
-                                     FontSize="16"
-                                     TextAlignment="Center"
-                                     ToolTip="Enter break duration in minutes (1-60)"
-                                     PreviewTextInput="Minutes_PreviewTextInput" 
-                                     PreviewKeyDown="Minutes_PreviewKeyDown"
-                                     LostFocus="BreakMinutes_LostFocus">
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" x:Name="WorkToBreakRatioLabel" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
+
+                            <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <TextBox x:Name="WorkRatioInput"
+                                         AutomationProperties.AutomationId="txtBoxWorkRatioInput"
+                                         Margin="20,0,0,0"
+                                         MinHeight="25"
+                                         Width="35"
+                                         Style="{StaticResource PlaceholderTextBoxStyle}"
+                                         Tag="placeholder"
+                                         Foreground="Gray"
+                                         MaxLength="3"
+                                         FontSize="16"
+                                         TextAlignment="Center"
+                                         ToolTip="Enter work-to-break ratio (e.g. 5 means 5 min work per 1 min break)"
+                                         PreviewTextInput="Minutes_PreviewTextInput"
+                                         PreviewKeyDown="Minutes_PreviewKeyDown"
+                                         LostFocus="WorkRatioInput_LostFocus">
                                     <TextBox.Effect>
                                         <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6"/>
                                     </TextBox.Effect>
                                 </TextBox>
-
-                                <TextBlock Name="BreakMinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-
-                                <Button Content="Save"
-                                        AutomationProperties.AutomationId="btnSaveBreakMinutes"
+                                <TextBlock x:Name="RatioToText" Margin="8,0,8,0" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" Text="to"/>
+                                <TextBox x:Name="BreakRatioInput"
+                                         AutomationProperties.AutomationId="txtBoxBreakRatioInput"
+                                         Margin="0,0,0,0"
+                                         MinHeight="25"
+                                         Width="35"
+                                         Style="{StaticResource PlaceholderTextBoxStyle}"
+                                         Tag="placeholder"
+                                         Foreground="Gray"
+                                         MaxLength="3"
+                                         FontSize="16"
+                                         TextAlignment="Center"
+                                         ToolTip="Enter break ratio (e.g. 1 means 1 min break per work cycle)"
+                                         PreviewTextInput="Minutes_PreviewTextInput"
+                                         PreviewKeyDown="Minutes_PreviewKeyDown"
+                                         LostFocus="BreakRatioInput_LostFocus">
+                                    <TextBox.Effect>
+                                        <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6"/>
+                                    </TextBox.Effect>
+                                </TextBox>
+                                <Button x:Name="btnSaveRatio"
+                                        AutomationProperties.AutomationId="btnSaveRatio"
+                                        Content="Save"
                                         Width="80"
                                         Height="30"
                                         Margin="10,0,0,0"
                                         Cursor="Hand"
-                                        Style="{StaticResource BtnStyleLightOrange}" 
-                                        Click="SaveSettings_Click"/>        
+                                        Style="{StaticResource BtnStyleLightOrange}"
+                                        Click="SaveRatio_Click"/>
                             </StackPanel>
+
+                            <TextBlock Grid.Row="1" Grid.ColumnSpan="2" x:Name="WorkToBreakRatioDesc" Margin="0,8,0,0" TextWrapping="Wrap" FontSize="12" Foreground="Gray"/>
 
                         </Grid>
 

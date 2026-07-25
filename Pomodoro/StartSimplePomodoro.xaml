@@ -85,6 +85,16 @@
                             <Image x:Name="BreakDurationInfo" Source="../images/info-dark.png" Width="20"  Margin="0,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Cursor="Hand"/>
                         </StackPanel>
 
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
+                            <TextBlock x:Name="WorkToBreakRatioInfoText" AutomationProperties.AutomationId="txtWorkToBreakRatioInfo" FontSize="12" Foreground="Gray" VerticalAlignment="Center"/>
+                            <TextBlock FontSize="12" Foreground="Gray" VerticalAlignment="Center" Margin="4,0,0,0" Text=" "/>
+                            <TextBlock x:Name="BtnEditRatioLink" AutomationProperties.AutomationId="txtBtnEditRatioLink" FontSize="12" VerticalAlignment="Center" Cursor="Hand">
+                                <Hyperlink x:Name="btnEditRatio" Click="btnEditRatio_Click" TextDecorations="Underline">
+                                    <Run x:Name="EditRatioTXT" Text="Edit"/>
+                                </Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+
                         <StackPanel Orientation="Horizontal" Width="420" Margin="0,20,0,0" HorizontalAlignment="Center">
                             <TextBlock  x:Name="BlockingStyle" Visibility="Visible" Width="105"  Margin="0,0,0,0" TextWrapping="Wrap" Text="xBlocking Style:"  FontSize="15" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"/>
                             <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" VerticalAlignment="Top"  >
