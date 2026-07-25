@@ -148,6 +148,7 @@ namespace Focus_Bear
         BrainDump,
         FocusMusic,
         Motivation,
+        TabAudit,
         Blocking,
         Settings,
         EditHabits,
@@ -201,6 +202,7 @@ namespace Focus_Bear
         public ToDoList PageToDoList;
         public BrainDumpWindow PageBrainDump;
         public Stats PageStats;
+        public Focus.TabAuditView PageTabAudit;
         public StartSimplePomodoro PageSimplePomodoro;
         public StartPomodoro PagePomodoro;
         public HabitWindow PageHabits;
@@ -252,7 +254,8 @@ namespace Focus_Bear
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuTodoList"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/validIcon.png")), ButtonType = LeftButtonType.ToDoList },
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuBrainDump"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/brainDump.png")), ButtonType = LeftButtonType.BrainDump },
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuFocusMusic"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/music_albums_fill.png")), ButtonType = LeftButtonType.FocusMusic },
-                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuMotivation"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/motivation.png")), ButtonType = LeftButtonType.Motivation }
+                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuMotivation"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/motivation.png")), ButtonType = LeftButtonType.Motivation },
+                        new NavLeaf { Title = (appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuTabAudit"]?.ToString()) ?? "Tab Audit", IconSource = (ImageSource)Application.Current.FindResource("TabAuditIcon"), ButtonType = LeftButtonType.TabAudit }
                     }
                 },
                 new NavCategory
@@ -337,6 +340,7 @@ namespace Focus_Bear
             PageToDoList = new ToDoList();
             PageBrainDump = new BrainDumpWindow();
             PageStats = new Stats();
+            PageTabAudit = new Focus.TabAuditView(this);
             PageSimplePomodoro = new StartSimplePomodoro(this);
             PagePomodoro = new StartPomodoro(this);
             PageHabits = new HabitWindow(this);
@@ -358,6 +362,7 @@ namespace Focus_Bear
                 { LeftButtonType.ToDoList, PageToDoList },
                 { LeftButtonType.BrainDump, PageBrainDump },
                 { LeftButtonType.Motivation, PageStats},
+                { LeftButtonType.TabAudit, PageTabAudit },
                 { LeftButtonType.StartFocusSession, PageSimplePomodoro },
                 { LeftButtonType.EditHabits, PageEditHabits },
                 { LeftButtonType.Help, PageHelp }
@@ -497,6 +502,9 @@ namespace Focus_Bear
                 case LeftButtonType.Help:
                     ShowHelpView();
                     break;
+                case LeftButtonType.TabAudit:
+                    ShowTabAuditView();
+                    break;
                 default:
                     ShowDefaultView(buttonType);
                     break;
@@ -507,6 +515,10 @@ namespace Focus_Bear
         private void ShowHelpView()
         {
             RightContent.Content = _views[LeftButtonType.Help];
+        }
+        private void ShowTabAuditView()
+        {
+            RightContent.Content = _views[LeftButtonType.TabAudit];
         }
         private void ShowHabitsView()
         {

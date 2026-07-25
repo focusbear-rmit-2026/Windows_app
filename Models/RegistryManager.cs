@@ -2950,6 +2950,27 @@ namespace Focus_Bear.Models
             return 0;
         }
 
+        // Tab Audit: when the last CSV export was run (so the tab can show "last audit was...").
+        public static void SaveTabAuditDate(DateTime dt)
+        {
+            try { Write("TabAuditDate", dt.ToString("o", System.Globalization.CultureInfo.InvariantCulture)); }
+            catch (Exception ex) { LogWriter.LogWrite("SaveTabAuditDate - " + ex.Message); }
+        }
+
+        public static DateTime? GetTabAuditDate()
+        {
+            try
+            {
+                string s = ReadStr("TabAuditDate");
+                if (!string.IsNullOrWhiteSpace(s) &&
+                    DateTime.TryParse(s, System.Globalization.CultureInfo.InvariantCulture,
+                                      System.Globalization.DateTimeStyles.RoundtripKind, out DateTime dt))
+                    return dt;
+            }
+            catch (Exception ex) { LogWriter.LogWrite("GetTabAuditDate - " + ex.Message); }
+            return null;
+        }
+
         internal static bool GetSavedBuddyList()
         {
             LogWriter.LogWrite("RM GetSavedBuddyList()");

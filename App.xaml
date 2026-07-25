@@ -5,7 +5,26 @@
              Startup="Application_Startup" Exit="Application_Exit">
     <Application.Resources>
 
-    
+        <!-- Tab Audit main-tab icon (orange, theme-independent): a browser window with two tabs. -->
+        <DrawingImage x:Key="TabAuditIcon">
+            <DrawingImage.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing>
+                        <GeometryDrawing.Pen><Pen Brush="#E88800" Thickness="1.8"/></GeometryDrawing.Pen>
+                        <GeometryDrawing.Geometry><RectangleGeometry Rect="2.5,7.5,19,13" RadiusX="2" RadiusY="2"/></GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#E88800">
+                        <GeometryDrawing.Geometry>
+                            <GeometryGroup>
+                                <RectangleGeometry Rect="3.5,3.5,6.5,5.5" RadiusX="1.5" RadiusY="1.5"/>
+                                <RectangleGeometry Rect="11,3.5,6.5,5.5" RadiusX="1.5" RadiusY="1.5"/>
+                            </GeometryGroup>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+
         <!--Preferences top tab Button-->
         <Style x:Key="BtnStylePreferences" TargetType="{x:Type Button}">
             <Setter Property="Template">

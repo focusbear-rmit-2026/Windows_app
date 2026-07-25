@@ -5225,6 +5225,7 @@ namespace Focus_Bear
                             // instead of one cross-process call per tab — significantly faster.
                             var cacheReq = new CacheRequest();
                             cacheReq.Add(AutomationElement.BoundingRectangleProperty);
+                            cacheReq.Add(AutomationElement.NameProperty);   // batch tab titles for Tab Audit (avoids a slow per-tab call)
 
                             AutomationElementCollection tabs;
                             using (cacheReq.Activate())
@@ -5275,6 +5276,58 @@ namespace Focus_Bear
         }
 
         private int GetBrowserTabCount() => CollectBrowserTabs().Count;
+
+        // Tab Audit: open-tab counts per browser (process name -> count). Cheap — no per-tab title reads.
+        // Call off the UI thread (UIA tree walk).
+        public System.Collections.Generic.Dictionary<string, int> GetOpenTabCountsByBrowser()
+        {
+            var counts = new System.Collections.Generic.Dictionary<string, int>();
+            foreach (var t in CollectBrowserTabs())
+            {
+                counts.TryGetValue(t.Browser, out int c);
+                counts[t.Browser] = c + 1;
+            }
+            return counts;
+        }
+
+        // Tab Audit: every open browser tab as (title, browser process name, url). URL is best-effort —
+        // Windows only exposes the URL of the FOREGROUND window's ACTIVE tab (background tabs have no
+        // readable URL), so it's filled for that one tab and left blank otherwise. Call off the UI thread.
+        public System.Collections.Generic.List<(string Title, string Browser, string Url)> GetOpenBrowserTabsForAudit()
+        {
+            var list = new System.Collections.Generic.List<(string, string, string)>();
+            var tabs = CollectBrowserTabs();
+
+            // Windows can't read background windows' address bars, and Focus Bear is foreground when Extract
+            // is clicked — so the only known URL is the tab the user was last on, which the app already
+            // captured while they were browsing: sLastActiveURLInFirefox (URL) + sLastActiveAppName (browser).
+            // Assign it to that browser's active/selected tab. Other tabs have no readable URL.
+            string activeBrowser = (appSettings.sLastActiveAppName ?? "").ToLower().Replace(".exe", "");
+            string activeUrl = appSettings.sLastActiveURLInFirefox ?? "";
+            bool urlAssigned = false;
+
+            foreach (var t in tabs)
+            {
+                string title = "";
+                try { title = t.Tab.Cached.Name ?? ""; }
+                catch { try { title = t.Tab.Current.Name ?? ""; } catch { } }
+                string url = "";
+                try
+                {
+                    if (!urlAssigned && !string.IsNullOrEmpty(activeUrl)
+                        && string.Equals(t.Browser, activeBrowser, StringComparison.OrdinalIgnoreCase)
+                        && t.Tab.TryGetCurrentPattern(SelectionItemPattern.Pattern, out object pat)
+                        && ((SelectionItemPattern)pat).Current.IsSelected)
+                    {
+                        url = activeUrl;
+                        urlAssigned = true;
+                    }
+                }
+                catch { }
+                list.Add((title, t.Browser, url));
+            }
+            return list;
+        }
 
         // Closes browser tabs that exceed nLimit across ALL browsers combined.
         // Called on a background thread — must not touch UI.

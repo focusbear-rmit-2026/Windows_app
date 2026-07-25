@@ -3064,7 +3064,7 @@
     "browsersTabAuditVcInfo":{
         "title": "Tab Audit",
         "subTitle": "Focus Bear can extract all the open browser tabs you have and put them in a CSV so you can decide if you need them.",
-        "buttonExtractURLs": "Extract tab URLs to CSV",
+        "buttonExtractURLs": "Extract open tabs to CSV",
         "buttonOpenSavedReport": "Open saved Tab Audit report",
         "lastReportDateText": "Your last audit was done on: <DATE>",
         "titleTabsCount": "Number of open tabs:"

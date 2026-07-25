@@ -442,6 +442,9 @@
     <Compile Include="Focus\TemporaryAccess.xaml.cs">
       <DependentUpon>TemporaryAccess.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\TabAuditView.xaml.cs">
+      <DependentUpon>TabAuditView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\ToDoList.xaml.cs">
       <DependentUpon>ToDoList.xaml</DependentUpon>
     </Compile>
@@ -891,6 +894,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\TemporaryAccess.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\TabAuditView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

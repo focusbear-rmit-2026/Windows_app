@@ -3062,7 +3062,7 @@
     "browsersTabAuditVcInfo":{
         "title": "Auditoría de pestañas",
         "subTitle": "Focus Bear puede extraer todas las pestañas abiertas de tu navegador y guardarlas en un CSV para que decidas si las necesitas.",
-        "buttonExtractURLs": "Extraer URLs de pestañas a CSV",
+        "buttonExtractURLs": "Extraer pestañas abiertas a CSV",
         "buttonOpenSavedReport": "Abrir informe guardado de auditoría de pestañas",
         "lastReportDateText": "Tu última auditoría se realizó el: <DATE>",
         "titleTabsCount": "Número de pestañas abiertas:"
