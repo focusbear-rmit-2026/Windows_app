@@ -98,9 +98,18 @@ namespace Focus_Bear.Preferences.SettingsTab
 
         private async void btnConnect_Click(object sender, RoutedEventArgs e)
         {
+            // Give immediate feedback and prevent double-clicks while we connect.
+            btnConnect.IsEnabled = false;
+            ConnectionText.Text = "CONNECTING…";
+
             App.FocusButton.Start();
 
-            await Task.Delay(1);
+            // Start() no longer blocks: COM-port auto-detection runs on a background thread (the WMI
+            // query can take several seconds when a ghost/Bluetooth port is present) and Connect() is
+            // then marshalled back to the UI thread. So the device state isn't ready when Start()
+            // returns. Poll briefly (up to ~15s) until the device reports Idle/Running, then refresh.
+            for (int i = 0; i < 60 && App.FocusButton._state == DeviceState.Disconnected; i++)
+                await Task.Delay(250);
 
             SetConnectedState();
         }

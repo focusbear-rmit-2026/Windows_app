@@ -75,19 +75,29 @@ namespace Focus_Bear.Services.FocusButton
             _responseCheckTimer.Interval = TimeSpan.FromMilliseconds(100);
             _responseCheckTimer.Tick += ResponseCheckTick;
 
-            string portName = AutoDetectPort();
-            if (portName is null)
+            Task.Run(() =>
             {
-                LogWriter.LogWrite("FocusButton: No COM port found. Available ports:");
-                foreach (string p in SerialPort.GetPortNames().OrderBy(x => x))
-                    Console.Error.WriteLine($"  {p}");
-                LogWriter.LogWrite("FocusButton: Use --port <COMx> to specify one.");
-                return false;
-            }
-            
-            sPortName = portName;
+                string portName = AutoDetectPort();
 
-            Connect(portName);
+                // Validate that the detected COM port actually exists in the system
+                bool portExists = portName != null && SerialPort.GetPortNames().Contains(portName, StringComparer.OrdinalIgnoreCase);
+
+                if (!portExists)
+                {
+                    Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        LogWriter.LogWrite("FocusButton: No valid COM port found. Available ports:");
+                        foreach (string p in SerialPort.GetPortNames().OrderBy(x => x))
+                            LogWriter.LogWrite($"  {p}");
+                        LogWriter.LogWrite("FocusButton: Use --port <COMx> to specify one.");
+                    });
+                    return;
+                }
+
+                sPortName = portName;
+
+                Application.Current.Dispatcher.InvokeAsync(() => Connect(portName));
+            });
 
             return false;
         }
