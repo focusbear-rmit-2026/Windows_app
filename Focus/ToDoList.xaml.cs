@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Services;
+using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Win32;
 using System;
@@ -63,14 +64,24 @@ namespace Focus_Bear.Focus
         {
             if (e.IsSuccess)
             {
-                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-                string webFont = appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont);
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"lang\":\"{1}\",\"font\":\"{2}\",\"theme\":{3}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, webFont, sTheme);
-
-                string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForToDo) {{ loadAccessTokenForToDo({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
-
-                var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
+                LoadAccessToken();
             }
+        }
+
+        // Path A initial load + Path B reactive reply. Pass the echoed requestId on a reply
+        // (omit on initial load); it rides along with the other flags in the same payload.
+        public void LoadAccessToken(string requestId = null)
+        {
+            string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+            string webFont = appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont);
+
+            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
+
+            string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"lang\":\"{1}\",\"font\":\"{2}\",\"theme\":{3}{4}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, webFont, sTheme, sRequestId);
+
+            string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForToDo) {{ loadAccessTokenForToDo({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
+
+            var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
         }
         private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
@@ -85,6 +96,8 @@ namespace Focus_Bear.Focus
 
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+
+                    webView.WebMessageReceived += webView_WebMessageReceived;
 
                     LoadURL();
 
@@ -102,6 +115,25 @@ namespace Focus_Bear.Focus
             string sTodoPlayerURL = "https://dashboard.focusbear.io/webview/tools-todo-list?bust_cache=" + DateTime.UtcNow.ToString();
 
             webView.Source = new System.Uri(sTodoPlayerURL);
+        }
+
+        private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        {
+            // Path B - reactive token refresh. This screen has no other native messages.
+            try
+            {
+                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
+                if (req.IsTokenRequest)
+                {
+                    if (req.RefreshSucceeded)
+                        LoadAccessToken(req.RequestId);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ToDoList webView_WebMessageReceived() ex - " + ex.Message);
+            }
         }
     }
 }

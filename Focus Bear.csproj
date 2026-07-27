@@ -743,6 +743,7 @@
     <Compile Include="Services\FocusButton\BootloaderResetSequences.cs" />
     <Compile Include="Services\FocusButton\FocusButtonService.cs" />
     <Compile Include="Services\OpenAIService.cs" />
+    <Compile Include="Services\WebViewTokenSyncService.cs" />
     <Compile Include="SetIntention\SetIntention.xaml.cs">
       <DependentUpon>SetIntention.xaml</DependentUpon>
     </Compile>

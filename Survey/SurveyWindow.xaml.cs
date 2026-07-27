@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.Services;
+using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
@@ -57,10 +58,19 @@ namespace Focus_Bear.Survey
         {
             if (e.IsSuccess)
             {
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\"}}", appSettings.userAccount.accessToken, appSettings.sLangCode);
-                string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForSurvey) {{ loadAccessTokenForSurvey({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
-                var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
+                LoadAccessToken();
             }
+        }
+
+        // Path A initial load + Path B reactive reply. Pass the echoed requestId on a reply
+        // (omit on initial load); it rides along with the other flags in the same payload.
+        public void LoadAccessToken(string requestId = null)
+        {
+            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
+
+            string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\"{2}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, sRequestId);
+            string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForSurvey) {{ loadAccessTokenForSurvey({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
+            var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
         }
         private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
@@ -95,6 +105,16 @@ namespace Focus_Bear.Survey
             try
             {
                 LogWriter.LogWrite("webView_WebMessageReceived() - survey ");
+
+                // Path B - reactive token refresh must not close the survey window.
+                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
+                if (req.IsTokenRequest)
+                {
+                    if (req.RefreshSucceeded)
+                        LoadAccessToken(req.RequestId);
+                    return;
+                }
+
                 Close();
             }
             catch (Exception ex)

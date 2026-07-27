@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
+using Focus_Bear.Services;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json;
@@ -126,6 +127,14 @@ namespace Focus_Bear.Onboarding
             {
                 LogWriter.LogWrite("select habit packs webView_WebMessageReceived() - tasks got from webview");
 
+                // Path B - reactive token refresh. Handle + stop before the routine-install message.
+                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
+                if (req.IsTokenRequest)
+                {
+                    if (req.RefreshSucceeded)
+                        InitJsExec(req.RequestId);
+                    return;
+                }
 
                 string sContent = e.WebMessageAsJson;
                 if (sContent == "routine-suggestions-installed-successfully" || sContent == "\"routine-suggestions-installed-successfully\"")
@@ -205,12 +214,16 @@ namespace Focus_Bear.Onboarding
             app.ApplyThemeToPage(this);
         }
 
-        private void InitJsExec()
+        private void InitJsExec(string requestId = null)
         {
             string sTheme = appSettings.sTheme == "Light" ? "LIGHT" : "DARK";
             string sStayFocus = appSettings.bGoalStayFocused == true ? "Stay focused at work" : "";
             LogWriter.LogWrite("appSettings.sCustomGoalSelected: " + appSettings.sCustomGoalSelected);
-            string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":\"{4}\",\"long_term_goals\":[\"{3}\"]}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected, sTheme);
+
+            // Path B - echo the requestId back on a REQUEST_ACCESS_TOKEN reply (omitted on initial load).
+            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
+
+            string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":\"{4}\",\"long_term_goals\":[\"{3}\"]{5}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected, sTheme, sRequestId);
 
             LogWriter.LogWrite("LoadToken: " + LoadToken);
 

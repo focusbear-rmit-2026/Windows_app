@@ -666,10 +666,14 @@ namespace Focus_Bear
                 case PowerModes.Resume:
                     LogWriter.LogWrite("PowerModes.Resume");
                     ResumeHabitsAfterSystemWakeup();
+                    // Proactively refresh + push the access token when waking from sleep
+                    // (handles >10h downtime and tokens that expired while suspended).
+                    _ = WebViewTokenSyncService.Instance.OnSystemResumeAsync();
                     break;
                 case PowerModes.Suspend:
                     LogWriter.LogWrite("PowerModes.Suspend");
                     PauseHabitsOnSystemSleep();
+                    WebViewTokenSyncService.Instance.OnSystemSuspend();
                     break;
             }
         }
@@ -1316,8 +1320,60 @@ namespace Focus_Bear
             //Here we will connect the Mac ID and the Global GUID with the Distinct User ID
             ConnectGlobalAndMacIDWithDistinctUserID();
 
+            // Start webview token sync (periodic check + startup proactive refresh, downtime tracking).
+            // Proactive (Path C) enumerates the live dashboard webviews through this provider.
+            WebViewTokenSyncService.Instance.AliveWebViewProvider = GetAliveTokenWebViews;
+            WebViewTokenSyncService.Instance.Start();
+
             //Proceed Normal to show routines
             ProceedAfterLogin();
+        }
+
+        /// <summary>
+        /// Enumerates the currently-open dashboard webviews for proactive (Path C) token pushes.
+        /// Reached directly from the FocusBearMainWindow page fields; only webviews whose
+        /// CoreWebView2 is initialised are returned. Must run on the UI thread (touches CoreWebView2).
+        /// </summary>
+        private System.Collections.Generic.List<Microsoft.Web.WebView2.Wpf.WebView2> GetAliveTokenWebViews()
+        {
+            var list = new System.Collections.Generic.List<Microsoft.Web.WebView2.Wpf.WebView2>();
+            try
+            {
+                var w = wndFocusBearMainWindow;
+                if (w == null) return list;
+
+                AddIfAlive(list, w.PageEditHabits != null ? w.PageEditHabits.webView : null);
+                AddIfAlive(list, w.PageStats != null ? w.PageStats.webView : null);
+                AddIfAlive(list, w.PageToDoList != null ? w.PageToDoList.webView : null);
+                AddIfAlive(list, w.PageToDoPlayer != null ? w.PageToDoPlayer.webView : null);
+                if (w.PageHelp != null)
+                {
+                    AddIfAlive(list, w.PageHelp.webViewGetSupport);
+                    AddIfAlive(list, w.PageHelp.webViewTutorials);
+                }
+                if (w.PageHabits != null)
+                {
+                    AddIfAlive(list, w.PageHabits.PageHabitExtraPersonal != null ? w.PageHabits.PageHabitExtraPersonal.webView : null);
+                    AddIfAlive(list, w.PageHabits.PageWelcomeList != null ? w.PageHabits.PageWelcomeList.webView : null);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetAliveTokenWebViews ex - " + ex.Message);
+            }
+            return list;
+        }
+
+        private static void AddIfAlive(System.Collections.Generic.List<Microsoft.Web.WebView2.Wpf.WebView2> list, Microsoft.Web.WebView2.Wpf.WebView2 wv)
+        {
+            try
+            {
+                if (wv != null && wv.CoreWebView2 != null)
+                {
+                    list.Add(wv);
+                }
+            }
+            catch { }
         }
         public void ProceedAfterOnboardingDonePostLogin()
         {
@@ -4589,9 +4645,13 @@ namespace Focus_Bear
                 try
                 {
                     if (wndFocusBearMainWindow.PageToDoPlayer != null)
+                    {
                         wndFocusBearMainWindow.PageToDoPlayer.webView.Dispose();
+                    }
                     if (wndFocusBearMainWindow.PageToDoList != null)
+                    {
                         wndFocusBearMainWindow.PageToDoList.webView.Dispose();
+                    }
                 }
                 catch (Exception ex)
                 {

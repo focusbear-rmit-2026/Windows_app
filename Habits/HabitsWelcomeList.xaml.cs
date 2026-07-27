@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
+using Focus_Bear.Services;
 using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
@@ -291,6 +292,8 @@ namespace Focus_Bear.Habits
                 {
                     await webView.EnsureCoreWebView2Async(task);
                 }
+
+                webView.CoreWebView2.OpenDevToolsWindow();
             }
             catch (Exception ex)
             {
@@ -367,7 +370,7 @@ namespace Focus_Bear.Habits
             }
         }
 
-        public async void LoadSettings()
+        public async void LoadSettings(string requestId = null)
         {
             try
             {
@@ -384,7 +387,11 @@ namespace Focus_Bear.Habits
                         string sFlags = string.Format("[\"{0}\", \"save-settings-migrate-to-web\"]", appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode");
 
                         string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\",\"theme\":{2}, \"flags\":{3}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont),sTheme, sFlags);
+
+                        // Path B - echo the requestId back on a REQUEST_ACCESS_TOKEN reply (omitted on initial load).
+                        string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
+
+                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\",\"theme\":{2}, \"flags\":{3}{4}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont),sTheme, sFlags, sRequestId);
 
                         string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                         var ss1 = await webView.ExecuteScriptAsync(settingsFunc);
@@ -449,7 +456,16 @@ namespace Focus_Bear.Habits
             try
             {
                 LogWriter.LogWrite("HabitsWelcomeList - webView_WebMessageReceived() - settings got from SG");
-                
+
+                // Path B - reactive token refresh. Handle + stop before the settings messages below.
+                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
+                if (req.IsTokenRequest)
+                {
+                    if (req.RefreshSucceeded)
+                        LoadSettings(req.RequestId);
+                    return;
+                }
+
                 if (e.WebMessageAsJson == "invoke-js-function" || e.WebMessageAsJson == "\"invoke-js-function\"")
                 {
                     return;

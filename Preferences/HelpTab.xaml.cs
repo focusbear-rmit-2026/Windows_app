@@ -1,4 +1,5 @@
 ﻿using Focus_Bear.API;
+using Focus_Bear.Services;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Win32;
@@ -128,16 +129,24 @@ namespace Focus_Bear.Preferences
                 LogWriter.LogWrite("HelpTab habits SetWebView get support () Ex - " + ex.Message);
             }
         }
+        // Path A initial load + Path B reactive reply. Pass the echoed requestId on a reply
+        // (omit on initial load); it rides along with the other flags in the same payload.
+        public void LoadAccessTokenGetSupport(string requestId = null)
+        {
+            string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
+            string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3}{4}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme, sRequestId);
+            string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataFoGetSupport) {{ loadMetaDataFoGetSupport({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+            var ss = webViewGetSupport.ExecuteScriptAsync(settingsFunc);
+        }
+
         private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
             if (e.IsSuccess)
             {
                 Mouse.OverrideCursor = null;
                 LogWriter.LogWrite("get support CoreWebView2NavigationCompleted() Success, Load Access token");
-                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme);
-                string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataFoGetSupport) {{ loadMetaDataFoGetSupport({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
-                var ss = webViewGetSupport.ExecuteScriptAsync(settingsFunc);
+                LoadAccessTokenGetSupport();
 
                 
             }
@@ -158,6 +167,8 @@ namespace Focus_Bear.Preferences
 
                     webViewGetSupport.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webViewGetSupport.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+
+                    webViewGetSupport.WebMessageReceived += webViewGetSupport_WebMessageReceived;
 
                     webViewGetSupport.Source = new System.Uri("https://dashboard.focusbear.io/webview/get-support?bust_cache=" + DateTime.UtcNow.ToString());
 
@@ -190,16 +201,24 @@ namespace Focus_Bear.Preferences
                 LogWriter.LogWrite("HelpTab webViewTutorials SetWebView get support () Ex - " + ex.Message);
             }
         }
+        // Path A initial load + Path B reactive reply. Pass the echoed requestId on a reply
+        // (omit on initial load); it rides along with the other flags in the same payload.
+        public void LoadAccessTokenTutorials(string requestId = null)
+        {
+            string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
+            string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3}{4}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme, sRequestId);
+            string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForEnrolledCourses) {{ loadMetaDataForEnrolledCourses({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+            var ss = webViewTutorials.ExecuteScriptAsync(settingsFunc);
+        }
+
         private void CoreWebView2NavigationCompletedTutorials(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
             if (e.IsSuccess)
             {
                 Mouse.OverrideCursor = null;
                 LogWriter.LogWrite("tutorials CoreWebView2NavigationCompleted() Success, Load Access token");
-                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme);
-                string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForEnrolledCourses) {{ loadMetaDataForEnrolledCourses({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
-                var ss = webViewTutorials.ExecuteScriptAsync(settingsFunc);
+                LoadAccessTokenTutorials();
 
 
             }
@@ -221,6 +240,8 @@ namespace Focus_Bear.Preferences
                     webViewTutorials.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webViewTutorials.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
+                    webViewTutorials.WebMessageReceived += webViewTutorials_WebMessageReceived;
+
                     webViewTutorials.Source = new System.Uri("https://dashboard.focusbear.io/webview/enrolled-courses?bust_cache=" + DateTime.UtcNow.ToString());
 
                 }
@@ -228,6 +249,44 @@ namespace Focus_Bear.Preferences
                 {
                     LogWriter.LogWrite("HelpTab CoreWebView2InitializationCompletedTutorials() ex - " + ex.Message);
                 }
+            }
+        }
+
+        private async void webViewGetSupport_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        {
+            // Path B - reactive token refresh. This webview has no other native messages.
+            try
+            {
+                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
+                if (req.IsTokenRequest)
+                {
+                    if (req.RefreshSucceeded)
+                        LoadAccessTokenGetSupport(req.RequestId);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("HelpTab webViewGetSupport_WebMessageReceived() ex - " + ex.Message);
+            }
+        }
+
+        private async void webViewTutorials_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        {
+            // Path B - reactive token refresh. This webview has no other native messages.
+            try
+            {
+                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
+                if (req.IsTokenRequest)
+                {
+                    if (req.RefreshSucceeded)
+                        LoadAccessTokenTutorials(req.RequestId);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("HelpTab webViewTutorials_WebMessageReceived() ex - " + ex.Message);
             }
         }
 

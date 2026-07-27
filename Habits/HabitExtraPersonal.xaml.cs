@@ -1,4 +1,5 @@
 ﻿using Focus_Bear.Preferences;
+using Focus_Bear.Services;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json.Linq;
@@ -313,6 +314,8 @@ namespace Focus_Bear.Habits
                     webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
                     webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
+                    webView.WebMessageReceived += webView_WebMessageReceived;
+
                     string sSettingsURL = "https://dashboard.focusbear.io/webview/motivational-summary";
                     ////string sSettingsURL = "https://dashboard.focusbear.io/webview/todo-list";
                     
@@ -332,12 +335,41 @@ namespace Focus_Bear.Habits
         {
             if (e.IsSuccess)
             {
-                string sFlags = string.Format("[\"{0}\"]", "migrate-stats-to-motivational-summary");
-                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-                string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3},\"flags\":{4},\"motivation_type\":\"desktop\"}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode,sTheme,sFlags);
-                string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForInspirationPage) {{ loadAccessTokenForInspirationPage({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+                LoadAccessToken();
+            }
+        }
 
-                var sReturn = webView.ExecuteScriptAsync(settingsFunc);
+        // Path A initial load + Path B reactive reply. Pass the echoed requestId on a reply
+        // (omit on initial load); it rides along with the other flags in the same payload.
+        public void LoadAccessToken(string requestId = null)
+        {
+            string sFlags = string.Format("[\"{0}\"]", "migrate-stats-to-motivational-summary");
+            string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+
+            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
+
+            string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3},\"flags\":{4},\"motivation_type\":\"desktop\"{5}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme, sFlags, sRequestId);
+            string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForInspirationPage) {{ loadAccessTokenForInspirationPage({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+
+            var sReturn = webView.ExecuteScriptAsync(settingsFunc);
+        }
+
+        private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        {
+            // Path B - reactive token refresh. This screen has no other native messages.
+            try
+            {
+                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
+                if (req.IsTokenRequest)
+                {
+                    if (req.RefreshSucceeded)
+                        LoadAccessToken(req.RequestId);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("HabitExtraPersonal webView_WebMessageReceived() ex - " + ex.Message);
             }
         }
     }

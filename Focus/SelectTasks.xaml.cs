@@ -1,4 +1,5 @@
 ﻿using Focus_Bear.Pomodoro;
+using Focus_Bear.Services;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Win32;
@@ -91,22 +92,32 @@ namespace Focus_Bear.Focus
         {
             if (e.IsSuccess)
             {
-                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"theme\":{1}}}", appSettings.userAccount.accessToken, sTheme);
-                string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForToDo) {{ loadAccessTokenForToDo({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
-
-                if (bFocusModeEndWindow)
-                {
-                    DateTime start = DateTime.Parse(appSettings.sRunningFocusModeStartTime).ToUniversalTime();
-                    DateTime end = DateTime.UtcNow;
-                    TimeSpan difference = end.Subtract(start); // could also write `now - otherTime`
-                    double durationMinutes = difference.TotalMinutes;
-                    LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{3}\",\"theme\":{4}}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode,sTheme);
-                    LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadTasks) {{ loadTasks({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
-                }
-
-                var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
+                LoadAccessToken();
             }
+        }
+
+        // Path A initial load + Path B reactive reply. Pass the echoed requestId on a reply
+        // (omit on initial load); it rides along with the other flags in the same payload. The
+        // focus-end variant replies through loadTasks, matching its own initial load.
+        public void LoadAccessToken(string requestId = null)
+        {
+            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
+
+            string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
+            string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"theme\":{1}{2}}}", appSettings.userAccount.accessToken, sTheme, sRequestId);
+            string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForToDo) {{ loadAccessTokenForToDo({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
+
+            if (bFocusModeEndWindow)
+            {
+                DateTime start = DateTime.Parse(appSettings.sRunningFocusModeStartTime).ToUniversalTime();
+                DateTime end = DateTime.UtcNow;
+                TimeSpan difference = end.Subtract(start); // could also write `now - otherTime`
+                double durationMinutes = difference.TotalMinutes;
+                LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{3}\",\"theme\":{4}{5}}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode, sTheme, sRequestId);
+                LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadTasks) {{ loadTasks({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
+            }
+
+            var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
         }
         private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
@@ -147,6 +158,15 @@ namespace Focus_Bear.Focus
             try
             {
                 LogWriter.LogWrite("webView_WebMessageReceived() - tasks got from webview");
+
+                // Path B - reactive token refresh takes priority over task handling/closing.
+                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
+                if (req.IsTokenRequest)
+                {
+                    if (req.RefreshSucceeded)
+                        LoadAccessToken(req.RequestId);
+                    return;
+                }
 
                 if (bFocusModeEndWindow)
                 {

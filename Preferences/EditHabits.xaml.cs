@@ -2,6 +2,7 @@
 using Focus_Bear.Constants;
 using Focus_Bear.Models;
 using Focus_Bear.Properties;
+using Focus_Bear.Services;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json;
@@ -55,6 +56,16 @@ namespace Focus_Bear.Preferences
         {
             try
             {
+                // Path B - reactive token refresh. Reply by reloading through this screen's own
+                // load function with the echoed requestId; stop before the settings messages below.
+                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
+                if (req.IsTokenRequest)
+                {
+                    if (req.RefreshSucceeded)
+                        LoadSettings(req.RequestId);
+                    return;
+                }
+
                 string eventDataJsonString = e.WebMessageAsJson;
                 if(eventDataJsonString == "user-settings-update-failed" || eventDataJsonString == "\"user-settings-update-failed\"")
                 {
@@ -111,7 +122,7 @@ namespace Focus_Bear.Preferences
             webView.Source = new System.Uri(sSettingsURL);
         }
 
-        public async void LoadSettings()
+        public async void LoadSettings(string requestId = null)
         {
             try
             {
@@ -128,7 +139,10 @@ namespace Focus_Bear.Preferences
 
                         string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
 
-                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\",\"lang\":\"{2}\",\"flags\":{3},\"theme\":{4} }}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sFlags, sTheme);
+                        // Path B - echo the requestId back on a REQUEST_ACCESS_TOKEN reply (omitted on initial load).
+                        string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
+
+                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\",\"lang\":\"{2}\",\"flags\":{3},\"theme\":{4}{5} }}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sFlags, sTheme, sRequestId);
 
                         string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
                         var ss1 = webView.ExecuteScriptAsync(settingsFunc);

@@ -1426,6 +1426,36 @@ namespace Focus_Bear.Models
             }
         }
 
+        internal static void SetLastActiveUtc(DateTime utc)
+        {
+            try
+            {
+                Write("LASTACTIVEUTC", Global.ConvertToUnixTime(utc).ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetLastActiveUtc - " + ex.Message);
+            }
+        }
+
+        internal static DateTime? GetLastActiveUtc()
+        {
+            try
+            {
+                var regData = ReadStr("LASTACTIVEUTC");
+
+                if (regData == null)
+                    return null;
+
+                return Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetLastActiveUtc - " + ex.Message);
+                return null;
+            }
+        }
+
         internal static bool GetFirstInstallDate()
         {
             try

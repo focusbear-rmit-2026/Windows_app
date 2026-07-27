@@ -1,5 +1,6 @@
 using Focus_Bear.API;
 using Focus_Bear.Models;
+using Focus_Bear.Services;
 using Focus_Bear.Utils;
 using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json.Linq;
@@ -77,6 +78,15 @@ namespace Focus_Bear.Focus
         {
             if (e.IsSuccess)
             {
+                LoadMetaData();
+            }
+        }
+
+        // Path A initial load + Path B reactive reply. Pass the echoed requestId on a reply
+        // (omit on initial load); it rides along inside the same metadata payload.
+        public void LoadMetaData(string requestId = null)
+        {
+            {
                 DateTime end = DateTime.UtcNow;
                 if (appSettings.sRunningFocusModeEndTime.Length > 0)
                 {
@@ -116,6 +126,14 @@ namespace Focus_Bear.Focus
                 };
 
                 string serializedMetaData = JsonSerializer.Serialize(metaData);
+
+                // Path B - echo the requestId back on a REQUEST_ACCESS_TOKEN reply (omitted on initial load).
+                if (!string.IsNullOrEmpty(requestId))
+                {
+                    var jo = Newtonsoft.Json.Linq.JObject.Parse(serializedMetaData);
+                    jo["requestId"] = requestId;
+                    serializedMetaData = jo.ToString(Newtonsoft.Json.Formatting.None);
+                }
 
                 string LoadTokenFunc = $@"
                     const waitForAppLoaded = setInterval(() => {{
@@ -187,6 +205,17 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("todo player - webView_WebMessageReceived() - tasks got from webview");
 
                 string sContent = e.WebMessageAsJson;
+
+                // Path B - reactive token refresh. If the webview is asking for a token, handle
+                // it and stop; it is not a normal task/brain-dump message.
+                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(sContent);
+                if (req.IsTokenRequest)
+                {
+                    if (req.RefreshSucceeded)
+                        LoadMetaData(req.RequestId);
+                    return;
+                }
+
                 JObject sContentJson = JObject.Parse(sContent);
                 if (sContentJson.ContainsKey("brain_dump_content"))
                 {
