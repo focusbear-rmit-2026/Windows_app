@@ -1091,7 +1091,7 @@ namespace Focus_Bear
                 {
                     //Include the hours component too - sessions >= 60 min have nHours > 0, and sending
                     //only nMinutes would tell the device the wrong (too-short) duration.
-                    App.FocusButton.StartFocusSession((nHours * 60 + nMinutes) * 60);
+                    App.FocusButton.StartFocusSession((nHours * 60 + nMinutes) * 60, appSettings.sRunningFocusModeIntention);
                 }
 
                 dispatcherTimerFocus.Start();

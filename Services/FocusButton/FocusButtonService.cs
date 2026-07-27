@@ -5,6 +5,7 @@ using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO.Ports;
 using System.Linq;
 using System.Management;
@@ -65,6 +66,22 @@ namespace Focus_Bear.Services.FocusButton
         private readonly List<TzEntry> _tzList = new List<TzEntry>();
 
         private AudioRecorder _audioRecorder = new AudioRecorder();
+
+        // ── SET|HABITS CRC verification (fw >= 1.7.0) ─────────────────────────────────
+        private string _pendingHabitsLine;
+        private uint _pendingHabitsCrc;
+        private int _pendingHabitsCount;
+        private int _habitsSendAttemptsLeft;
+        private readonly DispatcherTimer _habitsCrcTimer = new DispatcherTimer(DispatcherPriority.Normal);
+
+        private string _lastSentFocusGoal = "";
+
+        private static readonly string[] FAULT_RESET_CODES = { "PANIC", "TASK_WDT", "INT_WDT", "WDT", "BROWNOUT" };
+
+        private bool FirmwareSupports(Version minimumVersion)
+        {
+            return appSettings.FirmwareVersion != null && appSettings.FirmwareVersion >= minimumVersion;
+        }
         public bool Start()
         {
             LogWriter.LogWrite("FocusButton: Start()");
@@ -74,6 +91,9 @@ namespace Focus_Bear.Services.FocusButton
 
             _responseCheckTimer.Interval = TimeSpan.FromMilliseconds(100);
             _responseCheckTimer.Tick += ResponseCheckTick;
+
+            _habitsCrcTimer.Interval = TimeSpan.FromMilliseconds(FocusButtonProtocol.HABITS_CRC_SETTLE_MS);
+            _habitsCrcTimer.Tick += HabitsCrcSettleTick;
 
             Task.Run(() =>
             {
@@ -168,6 +188,9 @@ namespace Focus_Bear.Services.FocusButton
         public void Disconnect()
         {
             LogWriter.LogWrite("FocusButton: Disconnect()");
+
+            _habitsCrcTimer.Stop();
+            _pendingHabitsLine = null;
 
             _rxRunning = false;
 
@@ -345,7 +368,10 @@ namespace Focus_Bear.Services.FocusButton
                         else if (parts.Length >= 4 && parts[3].ToUpperInvariant() == "FOCUS")
                         {
                             _currentHabitName = "";
+                            // fw >= 1.8.0 may append the focus goal as an extra field here;
+                            // the app is the source of truth for the goal so it is ignored.
                         }
+                        ResyncRunningFocusSessionIfDeviceIdle(ns);
                         ApplyState(ns);
                     }
                     break;
@@ -487,19 +513,38 @@ namespace Focus_Bear.Services.FocusButton
                 // ACK and ERROR are shown in the log — no extra action needed
 
                 case "HABITCOUNT":
-                    // HABITCOUNT|<n>  — response to GET|HABITCOUNT
-                    if (parts.Length >= 2 && int.TryParse(parts[1], out int hCount) && hCount > 0)
+                    // HABITCOUNT|<n> — response to GET|HABITCOUNT. Habit IDs are not
+                    // guaranteed contiguous (removals and SET|ADDHABIT leave gaps), so
+                    // enumerating them as GET|HABIT|h1..h<n> silently misses entries;
+                    // GET|HABITLIST (fw >= 1.6.0) walks the device's actual list instead.
+                    if (parts.Length >= 2 && int.TryParse(parts[1], out int hCount) && hCount > 0
+                        && FirmwareSupports(FocusButtonProtocol.FW_HABITLIST))
                     {
-                        // Clear the displayed list then request each habit by ID.
-                        // We don't know the IDs yet, so ask for them by 1-based index alias
-                        // — firmware stores them with IDs like "h1"…"h16".
-                        // Instead, ask STATUS first; the IDs come from the loaded list.
-                        // Simplest approach: GET|HABIT|h1 .. GET|HABIT|h<n>
-
-                        /////_habits.Clear();
-                        for (int i = 1; i <= hCount; i++)
-                            SendCmd($"GET|HABIT|h{i}");
+                        SendCmd("GET|HABITLIST");
                     }
+                    break;
+
+                case "HABITLIST":
+                    // HABITLIST|<n> — header for GET|HABITLIST; the n HABIT|<id>|<name>|<secs>
+                    // lines that follow arrive in device array order and hit the HABIT case.
+                    break;
+
+                case "HABITSCRC":
+                    HandleHabitsCrcResponse(parts);
+                    break;
+
+                case "RESETREASON":
+                    // RESETREASON|<code> — response to GET|RESETREASON
+                    if (parts.Length >= 2)
+                        LogDeviceResetReason(parts[1].Trim(), false);
+                    break;
+
+                case "CRASH":
+                    // CRASH|<code> — emitted once at boot when the previous boot ended in a
+                    // fault; best-effort (often precedes the connection), so the reliable
+                    // path is the GET|RESETREASON query sent once the firmware version is known.
+                    if (parts.Length >= 2)
+                        LogDeviceResetReason(parts[1].Trim(), true);
                     break;
 
                 case "HABIT":
@@ -545,6 +590,11 @@ namespace Focus_Bear.Services.FocusButton
                                 break;
                         }
                         appSettings.sFirmwareVersion = $"{ver}  ({hwName})";
+
+                        // Now that the version is known, ask why the device last rebooted so
+                        // faults land in the app logs (the boot CRASH line is best-effort).
+                        if (FirmwareSupports(FocusButtonProtocol.FW_HABITLIST))
+                            SendCmd("GET|RESETREASON");
                     }
                     break;
             }
@@ -826,16 +876,106 @@ namespace Focus_Bear.Services.FocusButton
             }
         }
 
-        public void StartFocusSession(int nSeconds)
+        public void StartFocusSession(int nSeconds, string sGoal = "")
         {
             if (_port == null || !_port.IsOpen)
                 return;
 
             LogWriter.LogWrite("FocusButton: StartFocusSession()");
 
-            SendCmd($"SET|START|{nSeconds}");
+            string sSanitizedGoal = FocusButtonProtocol.SanitizeDeviceText(sGoal);
+            if (sSanitizedGoal.Length > 0 && FirmwareSupports(FocusButtonProtocol.FW_FOCUS_GOAL))
+            {
+                _lastSentFocusGoal = sSanitizedGoal;
+                SendCmd($"SET|START|{nSeconds}|{sSanitizedGoal}");
+            }
+            else
+            {
+                _lastSentFocusGoal = "";
+                SendCmd($"SET|START|{nSeconds}");
+            }
 
             ApplyState(DeviceState.Running);
+        }
+
+        /// <summary>
+        /// Shows the user's intention/current task under the device's progress ring
+        /// (fw >= 1.8.0). Empty text clears it. Only meaningful while a focus session is
+        /// running — the device ignores SET|GOAL in habit mode.
+        /// </summary>
+        public void SendFocusGoal(string sGoal)
+        {
+            if (_port == null || !_port.IsOpen)
+                return;
+            if (!appSettings.isFocusModeRunning || !FirmwareSupports(FocusButtonProtocol.FW_FOCUS_GOAL))
+                return;
+
+            string sSanitizedGoal = FocusButtonProtocol.SanitizeDeviceText(sGoal);
+            if (sSanitizedGoal == _lastSentFocusGoal)
+                return;
+
+            _lastSentFocusGoal = sSanitizedGoal;
+            LogWriter.LogWrite("FocusButton: SendFocusGoal()");
+            SendCmd("SET|GOAL|" + sSanitizedGoal);
+        }
+
+        /// <summary>
+        /// If the device reports IDLE (e.g. it rebooted or was reconnected mid-session)
+        /// while the app still has a focus session running, re-push the session — and
+        /// its goal — so the device display catches back up.
+        /// </summary>
+        private void ResyncRunningFocusSessionIfDeviceIdle(DeviceState reportedState)
+        {
+            if (reportedState != DeviceState.Idle)
+                return;
+            if (!appSettings.isFocusModeRunning || appSettings.isFocusModePaused)
+                return;
+
+            if (!DateTime.TryParse(appSettings.sRunningFocusModeEndTime, out DateTime endTime))
+                return;
+
+            int nRemainingSeconds = (int)(endTime - DateTime.Now).TotalSeconds;
+            if (nRemainingSeconds <= 0)
+                return;
+
+            LogWriter.LogWrite("FocusButton: device idle but a focus session is running — resyncing " + nRemainingSeconds + "s");
+            StartFocusSession(nRemainingSeconds, appSettings.sRunningFocusModeIntention);
+        }
+
+        /// <summary>
+        /// Shows a "Late No More" countdown on the device: the title plus MM:SS ramping
+        /// green→red, beeping every 3s past zero until DismissNotifyOnDevice() (fw >= 1.5.0).
+        /// </summary>
+        public void NotifyOnDevice(string sText, int nSeconds = 0)
+        {
+            if (_port == null || !_port.IsOpen || !FirmwareSupports(FocusButtonProtocol.FW_NOTIFY))
+                return;
+
+            string sSanitizedText = FocusButtonProtocol.SanitizeDeviceText(sText);
+            if (sSanitizedText.Length == 0)
+                return; // an empty title is rejected by the device (ERROR|invalid_value)
+
+            LogWriter.LogWrite("FocusButton: NotifyOnDevice()");
+            SendCmd(nSeconds > 0 ? $"SET|NOTIFY|{sSanitizedText}|{nSeconds}" : $"SET|NOTIFY|{sSanitizedText}");
+        }
+
+        public void DismissNotifyOnDevice()
+        {
+            if (_port == null || !_port.IsOpen || !FirmwareSupports(FocusButtonProtocol.FW_HABITLIST))
+                return;
+
+            LogWriter.LogWrite("FocusButton: DismissNotifyOnDevice()");
+            SendCmd("SET|NOTIFYDISMISS");
+        }
+
+        /// <summary>Plays the attention melody (audible on M5Dial only; silent on VIEWE C3).</summary>
+        public void BeepOnDevice()
+        {
+            if (_port == null || !_port.IsOpen || !FirmwareSupports(FocusButtonProtocol.FW_HABITLIST))
+                return;
+
+            LogWriter.LogWrite("FocusButton: BeepOnDevice()");
+            SendCmd("SET|BEEP");
         }
         public void PauseFocusSession()
         {
@@ -887,49 +1027,148 @@ namespace Focus_Bear.Services.FocusButton
 
             RemoveHabits(); //Remove if there is an old list of habits
 
-            Task.Delay(2000);
             int nIndex = appSettings.nHabitIndex;
             if(bAfterFinishingHabit)
             {
                 SendCmd("SET|IDLE");
                 nIndex++;
             }
-            
-            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-            {
-                if(appSettings.arrAllMorningHabits.Count > 0)
-                {
-                    var entries = appSettings.arrAllMorningHabits.Skip(nIndex)
-                                                                 .Select(h => $"{h.idFakeForDevice},{h.nameWithoutIcon},{h.durationSeconds}");
-                    SendCmd("SET|HABITS|" + string.Join("|", entries));
-                }
-                else
-                {
-                    LogWriter.LogWrite("FocusButton: !! No morning habits to send."); 
-                    return;
-                }
-            }
-            else if(appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-            {
-                if (appSettings.arrAllEveningHabits.Count > 0)
-                {
-                    //todo: need a check for non timer habits
-                    var entries = appSettings.arrAllEveningHabits.Skip(nIndex)
-                                                                 .Select(h => $"{h.idFakeForDevice},{h.nameWithoutIcon},{h.durationSeconds}");
 
-                    SendCmd("SET|HABITS|" + string.Join("|", entries));
-                }
-                else
+            List<habit> arrHabits;
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                arrHabits = appSettings.arrAllMorningHabits;
+            else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                arrHabits = appSettings.arrAllEveningHabits;
+            else
+                return;
+
+            if (arrHabits.Count == 0)
+            {
+                LogWriter.LogWrite("FocusButton: !! No habits to send.");
+                return;
+            }
+
+            bool bAllIdsNumeric;
+            List<FocusButtonProtocol.HabitWireEntry> arrEntries =
+                BuildHabitWireEntries(arrHabits.Skip(nIndex), out bAllIdsNumeric);
+            if (arrEntries.Count == 0)
+            {
+                LogWriter.LogWrite("FocusButton: !! No habits left to send.");
+                return;
+            }
+
+            string sHabitsLine = "SET|HABITS|" + string.Join("|",
+                arrEntries.Select(entry => $"{entry.WireId},{entry.Name},{entry.Secs}"));
+
+            SendCmd(sHabitsLine);
+            ArmHabitsCrcVerify(sHabitsLine, arrEntries, bAllIdsNumeric);
+        }
+
+        /// <summary>
+        /// Converts habits to the exact triples sent on the wire: sanitised names (pipes
+        /// or newlines would corrupt the line framing) and the no-timer sentinel for
+        /// completion-based habits, so the device counts up instead of running a bogus timer.
+        /// </summary>
+        private List<FocusButtonProtocol.HabitWireEntry> BuildHabitWireEntries(IEnumerable<habit> arrHabits, out bool bAllIdsNumeric)
+        {
+            var arrEntries = new List<FocusButtonProtocol.HabitWireEntry>();
+            bool bNoTimerSupported = FirmwareSupports(FocusButtonProtocol.FW_HABITLIST);
+            bAllIdsNumeric = true;
+
+            foreach (habit h in arrHabits)
+            {
+                // The device stores decimal ids (GET|HABITSCRC hashes them as decimal),
+                // so the "h" prefix is stripped for the CRC while the wire id stays as-is.
+                string sWireId = h.idFakeForDevice ?? "";
+                string sIdDigits = sWireId.StartsWith("h") || sWireId.StartsWith("H")
+                    ? sWireId.Substring(1)
+                    : sWireId;
+                long nNumericId;
+                if (!long.TryParse(sIdDigits, out nNumericId))
                 {
-                    LogWriter.LogWrite("FocusButton: !! No evening habits to send.");
-                    return;
+                    bAllIdsNumeric = false;
+                    nNumericId = 0;
                 }
+
+                string sName = FocusButtonProtocol.SanitizeDeviceText(h.nameWithoutIcon);
+                long nSecs = !h.useTimer && bNoTimerSupported
+                    ? FocusButtonProtocol.HABIT_DURATION_NO_TIMER
+                    : h.durationSeconds;
+
+                arrEntries.Add(new FocusButtonProtocol.HabitWireEntry(sWireId, nNumericId, sName, nSecs));
+            }
+            return arrEntries;
+        }
+
+        private void ArmHabitsCrcVerify(string sHabitsLine, List<FocusButtonProtocol.HabitWireEntry> arrEntries, bool bAllIdsNumeric)
+        {
+            if (!FirmwareSupports(FocusButtonProtocol.FW_HABITSCRC))
+                return;
+            if (!bAllIdsNumeric)
+            {
+                LogWriter.LogWrite("FocusButton: !! CRC verify skipped — a habit device id is not numeric");
+                return;
+            }
+
+            _pendingHabitsLine = sHabitsLine;
+            _pendingHabitsCount = arrEntries.Count;
+            _pendingHabitsCrc = FocusButtonProtocol.HabitsCrc(arrEntries);
+            _habitsSendAttemptsLeft = FocusButtonProtocol.HABITS_SEND_MAX_ATTEMPTS;
+
+            _habitsCrcTimer.Stop();
+            _habitsCrcTimer.Start();
+        }
+
+        /// <summary>Fires once the firmware's deferred NVS flush is safely done.</summary>
+        private void HabitsCrcSettleTick(object sender, EventArgs e)
+        {
+            _habitsCrcTimer.Stop();
+            if (_pendingHabitsLine != null)
+                SendCmd("GET|HABITSCRC");
+        }
+
+        private void HandleHabitsCrcResponse(string[] parts)
+        {
+            // HABITSCRC|<n>|<crc32-hex> — response to GET|HABITSCRC. A damaged multi-packet
+            // SET|HABITS line can still parse and ACK with fewer/corrupt entries, so count
+            // and CRC are verified against what was sent and the list resent on mismatch.
+            if (_pendingHabitsLine == null || parts.Length < 3)
+                return;
+
+            bool bMatches = int.TryParse(parts[1], out int nDeviceCount)
+                && uint.TryParse(parts[2], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint nDeviceCrc)
+                && nDeviceCount == _pendingHabitsCount
+                && nDeviceCrc == _pendingHabitsCrc;
+
+            if (bMatches)
+            {
+                LogWriter.LogWrite($"FocusButton: habits verified — {parts[1]} entries, CRC {parts[2]} matches");
+                _pendingHabitsLine = null;
+            }
+            else if (--_habitsSendAttemptsLeft > 0)
+            {
+                LogWriter.LogWrite($"FocusButton: !! habits CRC mismatch (device {parts[1]}/{parts[2]}, expected {_pendingHabitsCount}/{_pendingHabitsCrc:x8}) — resending");
+                // A dropped line tail may have eaten the '\n' — re-sync framing first.
+                try { _port?.WriteLine(""); } catch { /* ignore */ }
+                SendCmd(_pendingHabitsLine);
+                _habitsCrcTimer.Stop();
+                _habitsCrcTimer.Start();
             }
             else
             {
-                return;
+                LogWriter.LogWrite($"FocusButton: !! habits CRC still mismatched after retries — device list may be damaged (device {parts[1]}/{parts[2]}, expected {_pendingHabitsCount}/{_pendingHabitsCrc:x8})");
+                _pendingHabitsLine = null;
             }
-            
+        }
+
+        private void LogDeviceResetReason(string sCode, bool bFromCrashLine)
+        {
+            bool bFault = FAULT_RESET_CODES.Contains(sCode.ToUpperInvariant());
+            string sSource = bFromCrashLine ? "boot CRASH line" : "GET|RESETREASON";
+            if (bFault)
+                LogWriter.LogWrite("FocusButton: !! device fault detected (" + sSource + "): " + sCode);
+            else
+                LogWriter.LogWrite("FocusButton: device reset reason (" + sSource + "): " + sCode);
         }
         public void StartHabit(string sFakeHabitId)
         {

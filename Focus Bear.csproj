@@ -741,6 +741,7 @@
     <Compile Include="Services\BlockingScheduleManager.cs" />
     <Compile Include="Services\CsvLogger.cs" />
     <Compile Include="Services\FocusButton\BootloaderResetSequences.cs" />
+    <Compile Include="Services\FocusButton\FocusButtonProtocol.cs" />
     <Compile Include="Services\FocusButton\FocusButtonService.cs" />
     <Compile Include="Services\OpenAIService.cs" />
     <Compile Include="Services\WebViewTokenSyncService.cs" />

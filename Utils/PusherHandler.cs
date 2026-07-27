@@ -218,6 +218,7 @@ namespace Focus_Bear.Utils
             string sFocusModeId = ObjData.ContainsKey("focus_mode_id") ? ObjData["focus_mode_id"].ToString() : "";
             string sIntention = ObjData.ContainsKey("intention") ? ObjData["intention"].ToString() : "";
             appSettings.sRunningFocusModeIntention = sIntention;
+            App.FocusButton.SendFocusGoal(sIntention);
 
             DateTime StartTimeLocal = DateTime.Parse(sStartTime).ToLocalTime(); //Convert the UTC time to Local time
             DateTime FinishTimeLocal = DateTime.Parse(sFinishTime).ToLocalTime(); //Convert the UTC time to Local time

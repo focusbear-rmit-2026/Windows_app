@@ -264,6 +264,7 @@ namespace Focus_Bear.Focus
                 if (sContentJson.ContainsKey("intention"))
                 {
                     appSettings.sRunningFocusModeIntention = sContentJson["intention"].ToString();
+                    App.FocusButton.SendFocusGoal(appSettings.sRunningFocusModeIntention);
                 }
             }
             catch (Exception ex)

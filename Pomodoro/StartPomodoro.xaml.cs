@@ -427,6 +427,7 @@ namespace Focus_Bear.Pomodoro
         {
             LogWriter.LogWrite("btnStartSession_Click - Start Pomodoro Window");
             appSettings.sRunningFocusModeIntention = TxtIntention.Text;
+            App.FocusButton.SendFocusGoal(appSettings.sRunningFocusModeIntention);
 
             if (appSettings.bUseSuperPomodoroMode)
             {

@@ -94,6 +94,7 @@ namespace Focus_Bear.Focus
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
 
             appSettings.sRunningFocusModeIntention = TxtIntention.Text;
+            App.FocusButton.SendFocusGoal(appSettings.sRunningFocusModeIntention);
 
             TaskItem selectedTask = ComboBoxTasks.SelectedItem as TaskItem;
 
