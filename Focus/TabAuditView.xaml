@@ -43,8 +43,34 @@
 
                 <TextBlock x:Name="TabCountTitle" Margin="0,26,0,6" FontSize="15" FontWeight="SemiBold"
                            Foreground="{DynamicResource ForegroundColor}" Text="Number of open tabs:"/>
+
+                <!-- Loading indicator shown while the (slow) tab-count scan runs -->
+                <StackPanel x:Name="CountLoadingPanel" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
+                    <Canvas Width="16" Height="16" VerticalAlignment="Center">
+                        <Ellipse Width="16" Height="16" Stroke="#33808080" StrokeThickness="2"/>
+                        <Path Stroke="#E88800" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                              Data="M 8,1 A 7,7 0 0 1 15,8">
+                            <Path.RenderTransform>
+                                <RotateTransform x:Name="SpinRotate" CenterX="8" CenterY="8"/>
+                            </Path.RenderTransform>
+                            <Path.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="SpinRotate" Storyboard.TargetProperty="Angle"
+                                                             From="0" To="360" Duration="0:0:0.9" RepeatBehavior="Forever"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Path.Triggers>
+                        </Path>
+                    </Canvas>
+                    <TextBlock x:Name="CountLoadingText" Margin="8,0,0,0" VerticalAlignment="Center" FontSize="14"
+                               Foreground="{DynamicResource ForegroundGrey}" Text="Getting tab count…"/>
+                </StackPanel>
+
                 <TextBlock x:Name="TabCountPerBrowser" TextWrapping="Wrap" FontSize="14" LineHeight="22"
-                           Foreground="{DynamicResource ForegroundColor}" Text="…"/>
+                           Foreground="{DynamicResource ForegroundColor}" Text=""/>
 
                 <Button x:Name="BtnExtract" Style="{StaticResource BtnStyleLightOrangeBordered}" HorizontalAlignment="Left"
                         Margin="0,26,0,0" Cursor="Hand" Click="BtnExtract_Click">

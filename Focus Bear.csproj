@@ -445,6 +445,9 @@
     <Compile Include="Focus\TabAuditView.xaml.cs">
       <DependentUpon>TabAuditView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\DeepScanOverlay.xaml.cs">
+      <DependentUpon>DeepScanOverlay.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\ToDoList.xaml.cs">
       <DependentUpon>ToDoList.xaml</DependentUpon>
     </Compile>
@@ -898,6 +901,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\TabAuditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\DeepScanOverlay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

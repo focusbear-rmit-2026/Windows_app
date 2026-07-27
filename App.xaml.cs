@@ -339,6 +339,52 @@ namespace Focus_Bear
         [DllImport("user32.dll")]
         private static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, out IntPtr lpdwProcessId);
 
+        // Window enumeration — used to find ALL top-level browser windows (a browser can have several
+        // windows under a single process, so proc.MainWindowHandle alone misses the others).
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsIconic(IntPtr hWnd);   // true if the window is minimized
+
+        private const int SW_MINIMIZE = 6;
+
+        [DllImport("user32.dll")]
+        private static extern int GetWindowTextLength(IntPtr hWnd);
+
+        // Forcing foreground across windows: after we foreground one browser window, our process is no
+        // longer the foreground process, so a plain SetForegroundWindow for the next window is ignored.
+        // Briefly attaching our thread's input to the current foreground thread lifts that restriction.
+        [DllImport("user32.dll")]
+        private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+        [DllImport("kernel32.dll")]
+        private static extern uint GetCurrentThreadId();
+
+        // Waking Chromium accessibility: Chrome (and other Chromium browsers) keep their accessibility
+        // tree OFF until an assistive-technology client asks for it, so a UIA scan can find no tabs.
+        // Sending WM_GETOBJECT with OBJID_CLIENT signals the browser to build/enable its a11y tree.
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam,
+            uint fuFlags, uint uTimeout, out IntPtr lpdwResult);
+        private const uint WM_GETOBJECT = 0x003D;
+        private const int OBJID_CLIENT = unchecked((int)0xFFFFFFFC);
+        private const uint SMTO_ABORTIFHUNG = 0x0002;
+
+        private static void WakeAccessibility(IntPtr hwnd)
+        {
+            try { SendMessageTimeout(hwnd, WM_GETOBJECT, IntPtr.Zero, (IntPtr)OBJID_CLIENT, SMTO_ABORTIFHUNG, 200, out _); }
+            catch { }
+        }
+
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
@@ -5202,77 +5248,187 @@ namespace Focus_Bear
             System.Windows.Automation.Condition btnCondition = new PropertyCondition(
                 AutomationElement.ControlTypeProperty, ControlType.Button);
 
-            foreach (string browser in Global.BROWSERS)
+            // Enumerate EVERY top-level browser window (a browser can have several windows under one
+            // process, so proc.MainWindowHandle alone would miss all but one).
+            foreach (var win in GetAllBrowserWindows())
             {
+                IntPtr hwnd = win.Hwnd;
+                string browser = win.Browser;
                 try
                 {
-                    Process[] procs = Process.GetProcessesByName(browser)
-                                              .Where(p => !string.IsNullOrEmpty(p.MainWindowTitle))
-                                              .ToArray();
+                    // Wake Chromium's accessibility tree (Chrome keeps it off until asked) so its tabs are
+                    // visible to UIA. Harmless for Firefox/Edge.
+                    WakeAccessibility(hwnd);
 
-                    //LogWriter.LogWrite($"CollectBrowserTabs: {browser} — {procs.Length} window(s) found");
+                    AutomationElement root = AutomationElement.FromHandle(hwnd);
+                    if (root == null) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} root is null, skipping"); continue; }
 
-                    foreach (Process proc in procs)
+                    Rect winBounds = root.Current.BoundingRectangle;
+
+                    // A minimized window has no on-screen rectangle (UIA returns an empty/infinite rect and
+                    // its tabs report the off-screen -32000 coordinate), so the tab-strip position filter
+                    // below can't work — accept all its TabItems instead.
+                    bool minimized = IsIconic(hwnd) || double.IsInfinity(winBounds.Top) || winBounds.IsEmpty;
+
+                    // CacheRequest fetches BoundingRectangle for all tabs in one batch call
+                    // instead of one cross-process call per tab — significantly faster.
+                    var cacheReq = new CacheRequest();
+                    cacheReq.Add(AutomationElement.BoundingRectangleProperty);
+                    cacheReq.Add(AutomationElement.NameProperty);   // batch tab titles for Tab Audit (avoids a slow per-tab call)
+
+                    AutomationElementCollection FindTabs()
+                    {
+                        using (cacheReq.Activate())
+                        {
+                            try
+                            {
+                                return root.FindAll(System.Windows.Automation.TreeScope.Descendants, tabCondition);
+                            }
+                            catch (System.Runtime.InteropServices.COMException ex)
+                            {
+                                // Some browsers (Comet) throw on a full-window descendant scan — scan only the tab strip instead
+                                LogWriter.LogWrite($"CollectBrowserTabs: {browser} FindAll COMException, using tab strip fallback — {ex.Message}");
+                                AutomationElement firstTab = root.FindFirst(System.Windows.Automation.TreeScope.Descendants, tabCondition);
+                                if (firstTab == null) return null;
+
+                                AutomationElement tabStrip = TreeWalker.ControlViewWalker.GetParent(firstTab);
+                                if (tabStrip == null) return null;
+
+                                return tabStrip.FindAll(System.Windows.Automation.TreeScope.Children, tabCondition);
+                            }
+                        }
+                    }
+
+                    AutomationElementCollection tabs = FindTabs();
+
+                    // If nothing came back, the browser's a11y tree probably wasn't ready yet (typical for
+                    // Chrome the first time). Wake it, wait briefly, and try once more.
+                    if (tabs == null || tabs.Count == 0)
+                    {
+                        WakeAccessibility(hwnd);
+                        System.Threading.Thread.Sleep(400);
+                        tabs = FindTabs();
+                    }
+                    if (tabs == null) continue;
+
+                    //LogWriter.LogWrite($"CollectBrowserTabs: {browser} — {tabs.Count} TabItem(s) found (before position filter)");
+                    foreach (AutomationElement tab in tabs)
                     {
                         try
                         {
-                            AutomationElement root = AutomationElement.FromHandle(proc.MainWindowHandle);
-                            if (root == null) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} root is null, skipping"); continue; }
-
-                            Rect winBounds = root.Current.BoundingRectangle;
-
-                            // CacheRequest fetches BoundingRectangle for all tabs in one batch call
-                            // instead of one cross-process call per tab — significantly faster.
-                            var cacheReq = new CacheRequest();
-                            cacheReq.Add(AutomationElement.BoundingRectangleProperty);
-                            cacheReq.Add(AutomationElement.NameProperty);   // batch tab titles for Tab Audit (avoids a slow per-tab call)
-
-                            AutomationElementCollection tabs;
-                            using (cacheReq.Activate())
+                            // Skip the tab-strip position filter for minimized windows (their coordinates
+                            // are off-screen and meaningless); otherwise exclude in-page ARIA tabs that sit
+                            // below the browser's own tab strip.
+                            if (!minimized)
                             {
-                                try
-                                {
-                                    tabs = root.FindAll(System.Windows.Automation.TreeScope.Descendants, tabCondition);
-                                }
-                                catch (System.Runtime.InteropServices.COMException ex)
-                                {
-                                    // Some browsers (Comet) throw on a full-window descendant scan — scan only the tab strip instead
-                                    LogWriter.LogWrite($"CollectBrowserTabs: {browser} FindAll COMException, using tab strip fallback — {ex.Message}");
-                                    AutomationElement firstTab = root.FindFirst(System.Windows.Automation.TreeScope.Descendants, tabCondition);
-                                    if (firstTab == null) continue;
-
-                                    AutomationElement tabStrip = TreeWalker.ControlViewWalker.GetParent(firstTab);
-                                    if (tabStrip == null) continue;
-
-                                    tabs = tabStrip.FindAll(System.Windows.Automation.TreeScope.Children, tabCondition);
-                                }
+                                Rect tb = tab.Cached.BoundingRectangle; // no extra cross-process call
+                                if (tb.Top < winBounds.Top || tb.Top >= winBounds.Top + TAB_STRIP_HEIGHT_PX) continue;
                             }
 
-                            //LogWriter.LogWrite($"CollectBrowserTabs: {browser} — {tabs.Count} TabItem(s) found (before position filter)");
-                            foreach (AutomationElement tab in tabs)
-                            {
-                                try
-                                {
-                                    Rect tb = tab.Cached.BoundingRectangle; // no extra cross-process call
-                                    if (tb.Top < winBounds.Top || tb.Top >= winBounds.Top + TAB_STRIP_HEIGHT_PX) continue;
+                            AutomationElement closeBtn = tab.FindFirst(
+                                System.Windows.Automation.TreeScope.Subtree, btnCondition);
 
-                                    AutomationElement closeBtn = tab.FindFirst(
-                                        System.Windows.Automation.TreeScope.Subtree, btnCondition);
-
-                                    result.Add((tab, closeBtn, proc.MainWindowHandle, browser));
-                                }
-                                catch (Exception ex) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} tab ex — {ex.Message}"); }
-                            }
+                            result.Add((tab, closeBtn, hwnd, browser));
                         }
-                        catch (Exception ex) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} window ex — {ex.Message}"); }
+                        catch (Exception ex) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} tab ex — {ex.Message}"); }
                     }
                 }
-                catch { /* browser not running — skip */ }
+                catch (Exception ex) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} window ex — {ex.Message}"); }
             }
 
             //LogWriter.LogWrite($"CollectBrowserTabs: total tabs collected = {result.Count}");
 
             return result;
+        }
+
+        // Returns every visible, titled top-level window that belongs to a supported browser process,
+        // so callers see ALL browser windows (not just each process's single MainWindowHandle).
+        private System.Collections.Generic.List<(IntPtr Hwnd, string Browser)> GetAllBrowserWindows()
+        {
+            var windows = new System.Collections.Generic.List<(IntPtr, string)>();
+
+            // Map every browser process id -> its browser name (child/renderer processes share the name
+            // but have no top-level titled windows, so they're harmlessly filtered out below).
+            var pidToBrowser = new System.Collections.Generic.Dictionary<int, string>();
+            foreach (string browser in Global.BROWSERS)
+            {
+                try
+                {
+                    foreach (Process p in Process.GetProcessesByName(browser))
+                    {
+                        try { pidToBrowser[p.Id] = browser; } catch { }
+                    }
+                }
+                catch { /* browser not running */ }
+            }
+            if (pidToBrowser.Count == 0) return windows;
+
+            var seen = new System.Collections.Generic.HashSet<IntPtr>();
+
+            // 1) Every top-level visible, titled window owned by a browser process. This catches multiple
+            //    windows of the same process (e.g. two Firefox windows share one process).
+            EnumWindows((hWnd, lParam) =>
+            {
+                try
+                {
+                    if (!IsWindowVisible(hWnd)) return true;
+                    if (GetWindowTextLength(hWnd) == 0) return true;
+                    GetWindowThreadProcessId(hWnd, out IntPtr pidPtr);
+                    if (pidToBrowser.TryGetValue(pidPtr.ToInt32(), out string browser) && seen.Add(hWnd))
+                        windows.Add((hWnd, browser));
+                }
+                catch { }
+                return true;
+            }, IntPtr.Zero);
+
+            // 2) Fallback: each browser process's MainWindowHandle (the previous approach). Some browsers'
+            //    main window isn't surfaced by the EnumWindows pass on every setup (e.g. Edge), so include
+            //    it explicitly. Deduped against the pass above.
+            foreach (string browser in Global.BROWSERS)
+            {
+                try
+                {
+                    foreach (Process p in Process.GetProcessesByName(browser))
+                    {
+                        try
+                        {
+                            IntPtr h = p.MainWindowHandle;
+                            if (h != IntPtr.Zero && seen.Add(h)) windows.Add((h, browser));
+                        }
+                        catch { }
+                    }
+                }
+                catch { }
+            }
+
+            return windows;
+        }
+
+        // Forces a window to the foreground even when our process isn't the current foreground process
+        // (Windows normally ignores SetForegroundWindow in that case). Used by the Tab Audit deep scan
+        // to move between multiple browser windows.
+        private static void ForceForegroundWindow(IntPtr hWnd)
+        {
+            try
+            {
+                IntPtr fg = GetForegroundWindow();
+                if (fg == hWnd) return;
+
+                uint fgThread = (uint)GetWindowThreadProcessId(fg, out IntPtr _).ToInt32();
+                uint thisThread = GetCurrentThreadId();
+
+                if (fgThread != 0 && fgThread != thisThread)
+                {
+                    AttachThreadInput(thisThread, fgThread, true);
+                    try { SetForegroundWindow(hWnd); }
+                    finally { AttachThreadInput(thisThread, fgThread, false); }
+                }
+                else
+                {
+                    SetForegroundWindow(hWnd);
+                }
+            }
+            catch { try { SetForegroundWindow(hWnd); } catch { } }
         }
 
         private int GetBrowserTabCount() => CollectBrowserTabs().Count;
@@ -5327,6 +5483,177 @@ namespace Focus_Bear
                 list.Add((title, t.Browser, url));
             }
             return list;
+        }
+
+        // Browsers the deep scan can read URLs for. The app's address-bar capture hook supports Firefox and
+        // the Chromium family; Vivaldi's custom HTML UI doesn't expose the address bar reliably, so it's
+        // left title-only for now.
+        private static readonly System.Collections.Generic.HashSet<string> DEEP_SCAN_BROWSERS =
+            new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            { "firefox", "chrome", "msedge", "brave", "comet" };
+
+        // Tab Audit "deep scan": to capture the URL of EVERY tab (not just the active one), we foreground
+        // each browser window and step through its tabs, selecting each one so the app's existing
+        // address-bar capture (the accessibility value-change hook that populates sLastActiveURLInFirefox)
+        // reads its URL. This is DISRUPTIVE — it must run on an STA thread behind the full-screen overlay.
+        // progress(done,total) is reported so the overlay can show a progress bar. Browsers not in
+        // DEEP_SCAN_BROWSERS (e.g. Vivaldi) are returned title-only (URL blank).
+        public System.Collections.Generic.List<(string Title, string Browser, string Url)>
+            GetBrowserTabsDeepScan(Action<int, int> progress)
+        {
+            var result = new System.Collections.Generic.List<(string, string, string)>();
+            var all = CollectBrowserTabs();
+
+            var scanTabs = all.Where(t => DEEP_SCAN_BROWSERS.Contains(t.Browser)).ToList();
+            var otherTabs = all.Where(t => !DEEP_SCAN_BROWSERS.Contains(t.Browser)).ToList();
+
+            int total = scanTabs.Count;
+            int done = 0;
+            progress?.Invoke(done, total);
+
+            IntPtr originalForeground = GetForegroundWindow();
+
+            // Group by window so we foreground each browser window once, then walk its tabs. All tabs in a
+            // window belong to the same browser.
+            foreach (var grp in scanTabs.GroupBy(t => t.Hwnd))
+            {
+                IntPtr hwnd = grp.Key;
+                var tabList = grp.ToList();
+                string browser = tabList[0].Browser;
+
+                // A minimized window can't be foregrounded or read — restore it first (and re-minimize it
+                // afterwards so we leave the user's layout as we found it).
+                bool wasMinimized = IsIconic(hwnd);
+                if (wasMinimized)
+                {
+                    try { ShowWindow(hwnd, SW_RESTORE); } catch { }
+                    System.Threading.Thread.Sleep(200);
+                }
+
+                try { ForceForegroundWindow(hwnd); } catch { }
+                System.Threading.Thread.Sleep(300);    // let the foreground change + URL hook settle
+
+                // Remember which tab the user had active so we can restore it afterwards (find it BEFORE
+                // we start changing the selection below).
+                AutomationElement restoreTab = null;
+                foreach (var t in tabList)
+                {
+                    try
+                    {
+                        if (t.Tab.TryGetCurrentPattern(SelectionItemPattern.Pattern, out object p0)
+                            && ((SelectionItemPattern)p0).Current.IsSelected)
+                        { restoreTab = t.Tab; break; }
+                    }
+                    catch { }
+                }
+
+                // Nudge the selection off the active tab first. Selecting a tab that's ALREADY active
+                // fires no address-bar change event, so without this the first/active tab couldn't be
+                // read. Moving to another tab first guarantees every tab below produces a fresh event.
+                if (tabList.Count > 1)
+                {
+                    var nudge = tabList.FirstOrDefault(t => t.Tab != restoreTab);
+                    try
+                    {
+                        if (nudge.Tab != null && nudge.Tab.TryGetCurrentPattern(SelectionItemPattern.Pattern, out object np))
+                        { ((SelectionItemPattern)np).Select(); System.Threading.Thread.Sleep(150); }
+                    }
+                    catch { }
+                }
+
+                foreach (var t in tabList)
+                {
+                    string title = "";
+                    try { title = t.Tab.Cached.Name ?? ""; }
+                    catch { try { title = t.Tab.Current.Name ?? ""; } catch { } }
+
+                    // A genuinely blank "New Tab" has no address and will never fire a change event, so give
+                    // it only a short wait and skip the retry below (otherwise it wastes the full timeout).
+                    bool looksBlank = string.IsNullOrWhiteSpace(title)
+                        || title.Equals("New Tab", StringComparison.OrdinalIgnoreCase)
+                        || title.Equals("Nueva pestaña", StringComparison.OrdinalIgnoreCase);
+
+                    string url = "";
+                    try
+                    {
+                        if (t.Tab.TryGetCurrentPattern(SelectionItemPattern.Pattern, out object pat))
+                        {
+                            var sip = (SelectionItemPattern)pat;
+                            string prev = appSettings.sLastActiveURLInFirefox ?? "";
+                            sip.Select();
+                            // "" when the address bar didn't change. Generous wait because a discarded/
+                            // unloaded background tab reloads when selected, so its address bar populates a
+                            // moment later.
+                            url = WaitForFirefoxUrlChange(prev, looksBlank ? 400 : 1800);
+
+                            // Retry once for a real tab that came back blank: it was probably a discarded
+                            // tab still loading. Move to another tab, then back — by now the page has
+                            // loaded, so re-selecting fires the address-bar change event.
+                            if (string.IsNullOrEmpty(url) && !looksBlank)
+                            {
+                                var other = tabList.FirstOrDefault(x => x.Tab != t.Tab);
+                                if (other.Tab != null
+                                    && other.Tab.TryGetCurrentPattern(SelectionItemPattern.Pattern, out object op))
+                                {
+                                    try { ((SelectionItemPattern)op).Select(); System.Threading.Thread.Sleep(250); } catch { }
+                                    string prev2 = appSettings.sLastActiveURLInFirefox ?? "";
+                                    try { sip.Select(); } catch { }
+                                    url = WaitForFirefoxUrlChange(prev2, 2500);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex) { LogWriter.LogWrite("GetBrowserTabsDeepScan tab ex - " + ex.Message); }
+
+                    LogWriter.LogWrite($"DeepScan {browser}: title='{title}' url='{url}'");
+                    result.Add((title, browser, url));
+                    done++;
+                    progress?.Invoke(done, total);
+                }
+
+                // Put the window back on the tab the user had active.
+                try
+                {
+                    if (restoreTab != null && restoreTab.TryGetCurrentPattern(SelectionItemPattern.Pattern, out object rpat))
+                        ((SelectionItemPattern)rpat).Select();
+                }
+                catch { }
+
+                // Leave the window minimized if that's how we found it.
+                if (wasMinimized) { try { ShowWindow(hwnd, SW_MINIMIZE); } catch { } }
+            }
+
+            // Hand the foreground back to whoever had it (Focus Bear).
+            try { if (originalForeground != IntPtr.Zero) SetForegroundWindow(originalForeground); } catch { }
+
+            // Non-Firefox browsers: titles only for now (deep scan not yet implemented for Chromium).
+            foreach (var t in otherTabs)
+            {
+                string title = "";
+                try { title = t.Tab.Cached.Name ?? ""; }
+                catch { try { title = t.Tab.Current.Name ?? ""; } catch { } }
+                result.Add((title, t.Browser, ""));
+            }
+
+            return result;
+        }
+
+        // Polls the app's captured Firefox URL until it changes from `prev` (the value-change hook fires
+        // shortly after we Select a tab), then returns the new URL. Returns "" if nothing changed within
+        // the timeout — meaning the selected tab has no address (a blank "New Tab") or the same URL as
+        // the previous tab. Returning "" (rather than the stale captured value) prevents a blank tab from
+        // inheriting the previous tab's URL.
+        private string WaitForFirefoxUrlChange(string prev, int timeoutMs)
+        {
+            int waited = 0;
+            while (waited < timeoutMs)
+            {
+                string cur = appSettings.sLastActiveURLInFirefox ?? "";
+                if (!string.IsNullOrEmpty(cur) && cur != prev) return cur;
+                System.Threading.Thread.Sleep(50);
+                waited += 50;
+            }
+            return "";
         }
 
         // Closes browser tabs that exceed nLimit across ALL browsers combined.

@@ -1,0 +1,32 @@
+<Window x:Class="Focus_Bear.Focus.DeepScanOverlay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        Title="Focus Bear — Tab Audit"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        AllowsTransparency="True"
+        Background="#CC000000"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        Topmost="True">
+    <Grid>
+        <Border Background="{DynamicResource SoftCreamColor}" BorderBrush="{DynamicResource ForegroundGrey}" BorderThickness="1"
+                CornerRadius="12" Padding="40,34,40,34" MaxWidth="520" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Background="Transparent">
+                <TextBlock x:Name="TitleText" Text="Collecting your open tabs" FontSize="20" FontWeight="SemiBold"
+                           TextAlignment="Center" HorizontalAlignment="Center"
+                           Foreground="{DynamicResource ForegroundColor}"/>
+                <TextBlock x:Name="MessageText" Margin="0,12,0,0" TextWrapping="Wrap" FontSize="14" TextAlignment="Center"
+                           Foreground="{DynamicResource ForegroundGrey}"
+                           Text="Please be patient and don't touch your keyboard or mouse — Focus Bear is stepping through your browser tabs to capture their addresses. This only takes a moment."/>
+                <ProgressBar x:Name="Progress" Height="10" Margin="0,22,0,0" Minimum="0" Maximum="100" Value="0"
+                             Foreground="#E88800" Background="#33808080" BorderThickness="0"/>
+                <TextBlock x:Name="CountText" Margin="0,10,0,0" FontSize="13" TextAlignment="Center"
+                           Foreground="{DynamicResource ForegroundGrey}" Text=""/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

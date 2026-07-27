@@ -3065,13 +3065,24 @@
         "buttonExtractURLs": "Extraer pestañas abiertas a CSV",
         "buttonOpenSavedReport": "Abrir informe guardado de auditoría de pestañas",
         "lastReportDateText": "Tu última auditoría se realizó el: <DATE>",
-        "titleTabsCount": "Número de pestañas abiertas:"
+        "titleTabsCount": "Número de pestañas abiertas:",
+        "gettingTabCount": "Obteniendo el número de pestañas…",
+        "noOpenTabs": "No hay pestañas de navegador abiertas.",
+        "totalText": "Total",
+        "statusCollecting": "Recopilando tus pestañas abiertas…",
+        "statusSaved": "Se guardaron <COUNT> pestañas abiertas en el CSV y se abrió. Ya puedes cerrarlas con tranquilidad — tienes una referencia guardada.",
+        "statusCsvLocked": "No se pudo actualizar el CSV: está abierto en otra aplicación. Ciérralo y vuelve a hacer clic en Extraer.",
+        "statusExtractFailed": "No se pudieron extraer las pestañas. Inténtalo de nuevo.",
+        "deepScanTitle": "Recopilando tus pestañas abiertas",
+        "deepScanMessage": "Ten paciencia y no toques el teclado ni el ratón — Focus Bear está recorriendo las pestañas de tu navegador para capturar sus direcciones. Solo tomará un momento.",
+        "deepScanProgress": "Pestaña <DONE> de <TOTAL>"
     },
     "postBrowsersTabAuditVcInfo":{
         "title": "Tus pestañas se han guardado en el archivo CSV. Ahora puedes cerrarlas con tranquilidad, ya que tienes una referencia guardada.",
         "titleSetTabLimit": "Configura un límite de pestañas para no volver a sentirte abrumad@.",
         "titleTabLimitCount": "Límite máximo de pestañas:",
-        "buttonSave": "Guardar"
+        "buttonSave": "Guardar",
+        "buttonCancel": "Cancelar"
     },
     "blockingScheduleEditorVcInfo":{
         "title": "Horario de bloqueo",

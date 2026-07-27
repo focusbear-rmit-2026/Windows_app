@@ -25,7 +25,23 @@ namespace Focus_Bear.Focus
         FocusBearMainWindow _ParentWindow = null;
         AppSettings appSettings = AppSettings.GetInstance;
 
+        // Config-driven strings (English fallbacks used if a key is missing from the config).
+        private string _sNoOpenTabs = "No open browser tabs.";
+        private string _sTotal = "Total";
+        private string _sGettingTabCount = "Getting tab count…";
+        private string _sStatusSaved = "Saved <COUNT> open tabs to the CSV and opened it. You can safely close them now — you have a reference stored.";
+        private string _sStatusCsvLocked = "Couldn't update the CSV — it's open in another app. Close it, then click Extract again.";
+        private string _sStatusExtractFailed = "Couldn't extract tabs. Please try again.";
+        private string _sCollecting = "Collecting your open tabs…";
+
         private static string CsvPath => Path.Combine(AppSettings.AppDataDirPath, "FocusBear_TabAudit.csv");
+
+        // Reads a config string, falling back to the supplied English default if the key is absent.
+        private string Cfg(string section, string key, string fallback)
+        {
+            try { return appSettings.ConfigFileStrings[section][key].ToString(); }
+            catch { return fallback; }
+        }
 
         public TabAuditView() { InitializeComponent(); }
 
@@ -53,16 +69,22 @@ namespace Focus_Bear.Focus
 
         private void LoadStrings()
         {
-            try
-            {
-                var info = appSettings.ConfigFileStrings["browsersTabAuditVcInfo"];
-                Title.Text = info["title"].ToString();
-                Subtitle.Text = info["subTitle"].ToString();
-                TabCountTitle.Text = info["titleTabsCount"].ToString();
-                BtnExtractText.Text = info["buttonExtractURLs"].ToString();
-                BtnOpenSavedText.Text = info["buttonOpenSavedReport"].ToString();
-            }
-            catch (Exception ex) { LogWriter.LogWrite("TabAuditView LoadStrings - " + ex.Message); }
+            const string S = "browsersTabAuditVcInfo";
+            Title.Text = Cfg(S, "title", "Tab Audit");
+            Subtitle.Text = Cfg(S, "subTitle", "Focus Bear can extract all the open browser tabs you have and put them in a CSV so you can decide if you need them.");
+            TabCountTitle.Text = Cfg(S, "titleTabsCount", "Number of open tabs:");
+            BtnExtractText.Text = Cfg(S, "buttonExtractURLs", "Extract open tabs to CSV");
+            BtnOpenSavedText.Text = Cfg(S, "buttonOpenSavedReport", "Open saved Tab Audit report");
+
+            _sGettingTabCount = Cfg(S, "gettingTabCount", _sGettingTabCount);
+            _sNoOpenTabs = Cfg(S, "noOpenTabs", _sNoOpenTabs);
+            _sTotal = Cfg(S, "totalText", _sTotal);
+            _sStatusSaved = Cfg(S, "statusSaved", _sStatusSaved);
+            _sStatusCsvLocked = Cfg(S, "statusCsvLocked", _sStatusCsvLocked);
+            _sStatusExtractFailed = Cfg(S, "statusExtractFailed", _sStatusExtractFailed);
+            _sCollecting = Cfg(S, "statusCollecting", _sCollecting);
+
+            CountLoadingText.Text = _sGettingTabCount;
         }
 
         private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -74,13 +96,15 @@ namespace Focus_Bear.Focus
 
         private async void RefreshCounts()
         {
-            TabCountPerBrowser.Text = "…";
+            CountLoadingPanel.Visibility = Visibility.Visible;
+            TabCountPerBrowser.Visibility = Visibility.Collapsed;
+            BtnExtract.IsEnabled = false;   // avoid starting an extract before we even know the tab count
             try
             {
                 Dictionary<string, int> counts = await RunStaAsync(() => ((App)Application.Current).GetOpenTabCountsByBrowser());
                 if (counts == null || counts.Count == 0)
                 {
-                    TabCountPerBrowser.Text = "No open browser tabs.";
+                    TabCountPerBrowser.Text = _sNoOpenTabs;
                     return;
                 }
                 var sb = new StringBuilder();
@@ -90,13 +114,19 @@ namespace Focus_Bear.Focus
                     sb.AppendLine($"{FriendlyBrowser(kv.Key)} — {kv.Value}");
                     total += kv.Value;
                 }
-                sb.Append($"Total — {total}");
+                sb.Append($"{_sTotal} — {total}");
                 TabCountPerBrowser.Text = sb.ToString();
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("TabAuditView RefreshCounts - " + ex.Message);
                 TabCountPerBrowser.Text = "";
+            }
+            finally
+            {
+                CountLoadingPanel.Visibility = Visibility.Collapsed;
+                TabCountPerBrowser.Visibility = Visibility.Visible;
+                BtnExtract.IsEnabled = true;
             }
         }
 
@@ -106,11 +136,24 @@ namespace Focus_Bear.Focus
         {
             BtnExtract.IsEnabled = false;
             StatusText.Visibility = Visibility.Visible;
-            StatusText.Text = "Collecting your open tabs…";
+            StatusText.Text = _sCollecting;
+
+            // Full-screen, top-most, no-activate overlay: shows a "please wait" message + progress while
+            // the deep scan foregrounds the browser and steps through its tabs to read each URL. It floats
+            // above the browser so the user sees the message, not the tabs flickering.
+            DeepScanOverlay overlay = new DeepScanOverlay();
+            overlay.SetProgress(0, 0);   // indeterminate until we know the tab count
+            overlay.Show();
+
             try
             {
+                Action<int, int> progressCb = (done, total) =>
+                    overlay.Dispatcher.BeginInvoke(new Action(() => overlay.SetProgress(done, total)));
+
                 List<(string Title, string Browser, string Url)> tabs =
-                    await RunStaAsync(() => ((App)Application.Current).GetOpenBrowserTabsForAudit());
+                    await RunStaAsync(() => ((App)Application.Current).GetBrowserTabsDeepScan(progressCb));
+
+                try { overlay.Close(); } catch { }
 
                 WriteCsv(tabs);
                 RegistryManager.SaveTabAuditDate(DateTime.Now);
@@ -118,23 +161,25 @@ namespace Focus_Bear.Focus
                 LoadLastAudit();
                 RefreshCounts();
 
-                StatusText.Text = string.Format(
-                    "Saved {0} open tab{1} to the CSV and opened it. You can safely close them now — you have a reference stored.",
-                    tabs.Count, tabs.Count == 1 ? "" : "s");
+                StatusText.Text = _sStatusSaved.Replace("<COUNT>", tabs.Count.ToString());
 
                 ShowPostAuditPopup();
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
                 LogWriter.LogWrite("TabAuditView BtnExtract file-locked - " + ex.Message);
-                StatusText.Text = "Couldn't update the CSV — it's open in another app. Close it, then click Extract again.";
+                StatusText.Text = _sStatusCsvLocked;
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("TabAuditView BtnExtract_Click - " + ex.Message);
-                StatusText.Text = "Couldn't extract tabs. Please try again.";
+                StatusText.Text = _sStatusExtractFailed;
             }
-            finally { BtnExtract.IsEnabled = true; }
+            finally
+            {
+                try { if (overlay.IsVisible) overlay.Close(); } catch { }
+                BtnExtract.IsEnabled = true;
+            }
         }
 
         private void WriteCsv(List<(string Title, string Browser, string Url)> tabs)
@@ -190,15 +235,12 @@ namespace Focus_Bear.Focus
 
         private void ShowPostAuditPopup()
         {
-            try
-            {
-                var info = appSettings.ConfigFileStrings["postBrowsersTabAuditVcInfo"];
-                PostTitle.Text = info["title"].ToString();
-                PostSetLimit.Text = info["titleSetTabLimit"].ToString();
-                PostMaxLabel.Text = info["titleTabLimitCount"].ToString();
-                BtnPostSaveText.Text = info["buttonSave"].ToString();
-            }
-            catch (Exception ex) { LogWriter.LogWrite("TabAuditView ShowPostAuditPopup strings - " + ex.Message); }
+            const string S = "postBrowsersTabAuditVcInfo";
+            PostTitle.Text = Cfg(S, "title", "Your tabs have been saved to the CSV file. You can safely close them now, since you have a reference stored.");
+            PostSetLimit.Text = Cfg(S, "titleSetTabLimit", "Set a tab limit so you don't get overwhelmed with tabs again");
+            PostMaxLabel.Text = Cfg(S, "titleTabLimitCount", "Max tab limit:");
+            BtnPostSaveText.Text = Cfg(S, "buttonSave", "Save");
+            BtnPostCancelText.Text = Cfg(S, "buttonCancel", "Cancel");
 
             int cur = appSettings.nMaxTabLimit;
             if (cur < 1) cur = 10;   // suggest a sensible default when no limit is set yet

@@ -3067,13 +3067,24 @@
         "buttonExtractURLs": "Extract open tabs to CSV",
         "buttonOpenSavedReport": "Open saved Tab Audit report",
         "lastReportDateText": "Your last audit was done on: <DATE>",
-        "titleTabsCount": "Number of open tabs:"
+        "titleTabsCount": "Number of open tabs:",
+        "gettingTabCount": "Getting tab count…",
+        "noOpenTabs": "No open browser tabs.",
+        "totalText": "Total",
+        "statusCollecting": "Collecting your open tabs…",
+        "statusSaved": "Saved <COUNT> open tabs to the CSV and opened it. You can safely close them now — you have a reference stored.",
+        "statusCsvLocked": "Couldn't update the CSV — it's open in another app. Close it, then click Extract again.",
+        "statusExtractFailed": "Couldn't extract tabs. Please try again.",
+        "deepScanTitle": "Collecting your open tabs",
+        "deepScanMessage": "Please be patient and don't touch your keyboard or mouse — Focus Bear is stepping through your browser tabs to capture their addresses. This only takes a moment.",
+        "deepScanProgress": "Tab <DONE> of <TOTAL>"
     },
     "postBrowsersTabAuditVcInfo":{
         "title": "Your tabs have been saved to the CSV file. You can safely close them now, since you have a reference stored.",
         "titleSetTabLimit": "Set a tab limit so you don't get overwhelmed with tabs again",
         "titleTabLimitCount": "Max tab limit:",
-        "buttonSave": "Save"
+        "buttonSave": "Save",
+        "buttonCancel": "Cancel"
     },
     "blockingScheduleEditorVcInfo":{
         "title": "Blocking Schedule",
