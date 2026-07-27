@@ -3,6 +3,8 @@
 
     <SolidColorBrush x:Key="BackgroundColor" Color="White"/>
     <SolidColorBrush x:Key="SoftCreamColor" Color="#FFF7EB"/>
+    <!-- Text-input background: plain white in light mode (the default Windows text-box look). -->
+    <SolidColorBrush x:Key="TextBoxBackgroundColor" Color="White"/>
     <SolidColorBrush x:Key="FocusActivitySummaryBackgroundColor" Color="#eeeeee"/>
     <SolidColorBrush x:Key="ForegroundColor" Color="Black"/>
     <SolidColorBrush x:Key="ForegroundGrey" Color="#272727"/>

@@ -172,11 +172,12 @@ namespace Focus_Bear.Habits.DayPlan
                     Height = 26,
                     VerticalContentAlignment = VerticalAlignment.Center,
                     FontSize = 13,
-                    Background = Brushes.White,          // explicit so the text is legible in both themes
-                    Foreground = Brushes.Black,
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(0x7F, 0x7F, 0x7F)),
                     Padding = new Thickness(4, 0, 4, 0)
                 };
+                // Theme-aware so the sub-task inputs match the rest of the dialog in both light and dark.
+                field.SetResourceReference(Control.BackgroundProperty, "TextBoxBackgroundColor");
+                field.SetResourceReference(Control.ForegroundProperty, "ForegroundColor");
+                field.SetResourceReference(Control.BorderBrushProperty, "ForegroundGrey");
                 field.TextChanged += (s, e) => sub.Title = field.Text;
                 Grid.SetColumn(field, 1);
                 grid.Children.Add(field);

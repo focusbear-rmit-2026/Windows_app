@@ -12,9 +12,10 @@
     <!--
         Task detail modal for the Day Plan tasks panel (M7 phase 3) — the Windows port of the macOS
         openTaskModal. Edits title / project / duration / importance / notes / sub-tasks, moves the task
-        to another day, or removes it. Input fields use explicit white bg + black text (like the app's
-        other dialogs) so they're legible in both themes. Buttons wrap their text in a TextBlock with
-        margins because the orange button template ignores Button.Padding.
+        to another day, or removes it. Input fields use the theme's TextBoxBackgroundColor (white in
+        light mode — the native text-box look — and dark grey in dark mode) with themed foreground, so
+        they're legible in both. Buttons wrap their text in a TextBlock with margins because the orange
+        button template ignores Button.Padding.
 
         The form SCROLLS and the action buttons are PINNED below it (outside the scroll) with the window
         capped at MaxHeight — so a long sub-task list can never push Save/Cancel off-screen (this is a
@@ -49,7 +50,7 @@
                                Foreground="{DynamicResource ForegroundColor}"/>
 
                     <TextBox Grid.Row="1" x:Name="TitleField" Height="30" Margin="0,0,0,8"
-                             Background="#FFFFFF" Foreground="#000000" BorderBrush="#7F7F7F"
+                             Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource ForegroundGrey}"
                              VerticalContentAlignment="Center" Padding="6,0,6,0" FontSize="14"/>
 
                     <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,0,0,8">
@@ -61,7 +62,7 @@
                             <TextBlock Grid.Column="0" x:Name="LblProject" Text="Project" VerticalAlignment="Center"
                                        Width="90" FontSize="12" Foreground="{DynamicResource ForegroundGrey}"/>
                             <TextBox Grid.Column="1" x:Name="ProjectField" Height="28" FontSize="13"
-                                     Background="#FFFFFF" Foreground="#000000" BorderBrush="#7F7F7F"
+                                     Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource ForegroundGrey}"
                                      VerticalContentAlignment="Center" Padding="6,0,6,0"/>
                         </Grid>
                         <ScrollViewer Margin="90,4,0,0" MaxHeight="66"
@@ -79,7 +80,7 @@
                         <TextBlock Grid.Column="0" x:Name="LblDuration" Text="Duration (min)" VerticalAlignment="Center"
                                    Width="90" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource ForegroundGrey}"/>
                         <TextBox Grid.Column="1" x:Name="DurationField" Height="28" VerticalContentAlignment="Center"
-                                 Background="#FFFFFF" Foreground="#000000" BorderBrush="#7F7F7F"
+                                 Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource ForegroundGrey}"
                                  Padding="6,0,6,0" FontSize="13"/>
                     </Grid>
 
@@ -100,7 +101,7 @@
                     <TextBlock Grid.Row="5" x:Name="LblNotes" Text="Details" FontSize="12" Margin="0,2,0,4"
                                Foreground="{DynamicResource ForegroundGrey}"/>
                     <TextBox Grid.Row="6" x:Name="NotesField" Height="64" Margin="0,0,0,10"
-                             Background="#FFFFFF" Foreground="#000000" BorderBrush="#7F7F7F"
+                             Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource ForegroundGrey}"
                              AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
                              Padding="6,4,6,4" FontSize="13"/>
 
@@ -125,7 +126,7 @@
                                 <TextBlock Grid.Column="0" x:Name="LblMove" Text="Move to…" VerticalAlignment="Center"
                                            Width="90" FontSize="12" Foreground="{DynamicResource ForegroundGrey}"/>
                                 <TextBox Grid.Column="1" x:Name="MoveField" Height="28" VerticalContentAlignment="Center"
-                                         Background="#FFFFFF" Foreground="#000000" BorderBrush="#7F7F7F"
+                                         Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource ForegroundGrey}"
                                          Padding="6,0,6,0" FontSize="13" TextChanged="MoveField_TextChanged"/>
                                 <Button Grid.Column="2" x:Name="BtnMove" Height="28" MinWidth="72" Margin="8,0,0,0"
                                         Style="{StaticResource BtnStyleClearOrangeBordered}" Cursor="Hand" Click="BtnMove_Click">

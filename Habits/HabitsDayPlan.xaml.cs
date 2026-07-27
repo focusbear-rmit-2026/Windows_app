@@ -1218,5 +1218,21 @@ namespace Focus_Bear.Habits
         {
             return new SolidColorBrush(CGray);
         }
+
+        /// <summary>True when the dark theme is active (its foreground brush is light).</summary>
+        private static bool IsDarkTheme()
+        {
+            var fg = Application.Current.TryFindResource("ForegroundColor") as SolidColorBrush;
+            return fg != null && (fg.Color.R + fg.Color.G + fg.Color.B) / 3 > 128;
+        }
+
+        /// <summary>"All sub-tasks done" green — a muted shade that stays readable in both themes
+        /// (the raw systemGreen washes out on light backgrounds).</summary>
+        private static Brush DoneGreenBrush()
+        {
+            return new SolidColorBrush(IsDarkTheme()
+                ? Color.FromRgb(0x5F, 0xD3, 0x7B)   // lighter green for dark backgrounds
+                : Color.FromRgb(0x2E, 0x9E, 0x4F));  // deeper green for light backgrounds
+        }
     }
 }

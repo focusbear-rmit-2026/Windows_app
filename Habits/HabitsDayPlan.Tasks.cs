@@ -509,7 +509,9 @@ namespace Focus_Bear.Habits
             }
 
             // Name column = the name plus, when the task has sub-tasks, a "☑ done/total" line beneath
-            // it (green when all done). Clicking the count opens the detail modal.
+            // it. When all are done it goes green — but only on a default (uncoloured) row; on a coloured
+            // row the green would be invisible against the fill, so it follows the row's contrast colour
+            // (like the title/time do). Clicking the count opens the detail modal.
             var nameColumn = new StackPanel { Orientation = Orientation.Vertical, VerticalAlignment = VerticalAlignment.Center };
             nameColumn.Children.Add(nameField);
             List<DayPlanSubtask> subs = task.SubtaskList;
@@ -522,7 +524,7 @@ namespace Focus_Bear.Habits
                     FontSize = 10,
                     Margin = new Thickness(4, 0, 0, 0),
                     Cursor = Cursors.Hand,
-                    Foreground = allDone ? new SolidColorBrush(Color.FromRgb(0x34, 0xC7, 0x59)) : subBrush
+                    Foreground = (allDone && !fgColor.HasValue) ? DoneGreenBrush() : subBrush
                 };
                 count.MouseLeftButtonUp += (s, e) => OpenTaskModal(task.Id);
                 nameColumn.Children.Add(count);

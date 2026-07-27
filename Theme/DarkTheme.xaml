@@ -3,6 +3,8 @@
 
     <SolidColorBrush x:Key="BackgroundColor" Color="#282828"/>
     <SolidColorBrush x:Key="SoftCreamColor" Color="#3d3d3d"/>
+    <!-- Text-input background: dark grey in dark mode (readable, matches native dark text boxes). -->
+    <SolidColorBrush x:Key="TextBoxBackgroundColor" Color="#333333"/>
     <SolidColorBrush x:Key="FocusActivitySummaryBackgroundColor" Color="#282828"/>
     <SolidColorBrush x:Key="ForegroundColor" Color="LightGray"/>
     <SolidColorBrush x:Key="ForegroundGrey" Color="#808080"/>
