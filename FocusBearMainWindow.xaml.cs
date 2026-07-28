@@ -202,7 +202,7 @@ namespace Focus_Bear
         public ToDoList PageToDoList;
         public BrainDumpWindow PageBrainDump;
         public Stats PageStats;
-        public Focus.TabAuditView PageTabAudit;
+        public TabAudit.TabAuditView PageTabAudit;
         public StartSimplePomodoro PageSimplePomodoro;
         public StartPomodoro PagePomodoro;
         public HabitWindow PageHabits;
@@ -340,7 +340,7 @@ namespace Focus_Bear
             PageToDoList = new ToDoList();
             PageBrainDump = new BrainDumpWindow();
             PageStats = new Stats();
-            PageTabAudit = new Focus.TabAuditView(this);
+            PageTabAudit = new TabAudit.TabAuditView(this);
             PageSimplePomodoro = new StartSimplePomodoro(this);
             PagePomodoro = new StartPomodoro(this);
             PageHabits = new HabitWindow(this);

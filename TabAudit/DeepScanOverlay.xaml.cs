@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 
-namespace Focus_Bear.Focus
+namespace Focus_Bear.TabAudit
 {
     /// <summary>
     /// Full-screen, top-most, no-activate overlay shown during a Tab Audit "deep scan".

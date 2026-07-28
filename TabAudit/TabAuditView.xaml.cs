@@ -12,7 +12,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace Focus_Bear.Focus
+namespace Focus_Bear.TabAudit
 {
     /// <summary>
     /// Interaction logic for TabAuditView.xaml — the "Tab Audit" main tab (port of the macOS Tab Audit).
@@ -101,7 +101,7 @@ namespace Focus_Bear.Focus
             BtnExtract.IsEnabled = false;   // avoid starting an extract before we even know the tab count
             try
             {
-                Dictionary<string, int> counts = await RunStaAsync(() => ((App)Application.Current).GetOpenTabCountsByBrowser());
+                Dictionary<string, int> counts = await RunStaAsync(() => Focus_Bear.TabAudit.TabAuditService.GetOpenTabCountsByBrowser());
                 if (counts == null || counts.Count == 0)
                 {
                     TabCountPerBrowser.Text = _sNoOpenTabs;
@@ -151,7 +151,7 @@ namespace Focus_Bear.Focus
                     overlay.Dispatcher.BeginInvoke(new Action(() => overlay.SetProgress(done, total)));
 
                 List<(string Title, string Browser, string Url)> tabs =
-                    await RunStaAsync(() => ((App)Application.Current).GetBrowserTabsDeepScan(progressCb));
+                    await RunStaAsync(() => Focus_Bear.TabAudit.TabAuditService.GetBrowserTabsDeepScan(progressCb));
 
                 try { overlay.Close(); } catch { }
 
