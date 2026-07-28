@@ -806,8 +806,10 @@ namespace Focus_Bear.Habits
 
                 // Issue 1: if the routine is postponed, resume it first (stop the postpone timer, clear the
                 // state, re-enter routine mode) before starting — otherwise the tabs stay enabled and the
-                // postpone timer keeps running.
-                if (appSettings.bHabitsPostponedState)
+                // postpone timer keeps running. This covers BOTH the habits-postponed state AND the evening
+                // focus-summary-postponed state (#1365): the latter has its own timer + tray item that must
+                // be cleared, otherwise the habit runs while the app is still "postponed".
+                if (appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
                 {
                     ((App)Application.Current).ResumeHabitsForDayPlanPlay();
                 }

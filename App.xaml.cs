@@ -4320,10 +4320,38 @@ namespace Focus_Bear
                 }
                 appSettings.bHabitsPostponedState = false;
                 appSettings.bEveningHabitsPostponedAfterCutoffTime = false;
+
+                // Evening focus-summary postpone: playing a habit from the Day Plan must also clear this
+                // state and stop the focus-summary's OWN postpone timer — otherwise it later fires and
+                // forces the routine to NONE mid-habit, and the tray keeps showing "Resume Habits" (#1365).
+                if (appSettings.bFocusSummaryPostponedState)
+                {
+                    appSettings.bFocusSummaryPostponedState = false;
+                    try { wndFocusBearMainWindow?.PageFocusSummary?.StopPostponeTimerForDayPlanPlay(); } catch { }
+                }
+                // Refresh the tray so "Resume Habits" is hidden now that a habit is actively playing.
+                try { wndTrayMenu?.UpdateTrayMenu(); } catch { }
+
                 if (wndFocusBearMainWindow != null)
                 {
                     wndFocusBearMainWindow.DisableAllButtons(LeftButtonType.Habits);
                     wndFocusBearMainWindow.CollapseSideBar();   // routine mode collapses the side bar
+
+                    // Enter the running-habit window chrome: hide the minimize/maximize buttons (leaving
+                    // only Close) and keep it topmost, matching the normal routine state. Clearing the
+                    // postponed flags above isn't enough — the chrome is otherwise only (re)applied by
+                    // BringMainWindowToFront (which gates it on "not postponed"), and that isn't called on
+                    // this path, so the window kept showing all three (min/max/close) buttons after playing
+                    // a habit from a postponed Day Plan (#1365).
+                    wndFocusBearMainWindow.SetMinimizeButtonEnabled(false);
+                    wndFocusBearMainWindow.SetMaximizeButtonEnabled(false);
+                    wndFocusBearMainWindow.Topmost = true;
+                    if (appSettings.bPlayActivitiesInFullScreenMode)
+                    {
+                        wndFocusBearMainWindow.WindowStyle = WindowStyle.None;
+                        wndFocusBearMainWindow.WindowState = WindowState.Maximized;
+                        wndFocusBearMainWindow.ResizeMode = ResizeMode.NoResize;
+                    }
                 }
             }
             catch (Exception ex)

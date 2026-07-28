@@ -409,7 +409,19 @@ namespace Focus_Bear.Habits
             int doneUpTo = bCurrentHabitDone ? appSettings.nHabitIndex : appSettings.nHabitIndex - 1;
             for (int i = 0; i <= doneUpTo && i < arr.Count; i++)
             {
-                if (!string.IsNullOrEmpty(arr[i].id)) appSettings.dayPlanDoneOrSkippedHabitIds.Add(arr[i].id);
+                string hid = arr[i].id;
+                if (string.IsNullOrEmpty(hid)) continue;
+                // Never mark a parked/resumable habit (one with saved remaining time) as done. After an
+                // out-of-order Day Plan play, nHabitIndex no longer reflects strict completion order, so
+                // this index-based marking could otherwise flag a still-paused/resumable habit as finished
+                // (#1364). Genuinely completed/skipped habits are tracked separately (completed-activities /
+                // backend / the finished screen), so skipping the parked ones here is safe.
+                if (appSettings.dayPlanHabitRemainingSeconds.ContainsKey(hid))
+                {
+                    LogWriter.LogWrite("ShowDayPlanReturn: skip marking resumable habit done - " + hid);
+                    continue;
+                }
+                appSettings.dayPlanDoneOrSkippedHabitIds.Add(hid);
             }
 
             btnPleaseSpareMe.Visibility = Visibility.Collapsed;   // postpone/abort isn't relevant on the Day Plan

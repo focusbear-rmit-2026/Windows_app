@@ -435,6 +435,19 @@ namespace Focus_Bear.Focus
             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Background thread will take care of evening routine
             LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
         }
+
+        /// <summary>
+        /// Stop the focus-summary postpone timer WITHOUT ending the routine. Used when the user resumes
+        /// the evening routine by playing a habit from the Day Plan: the routine must continue (so, unlike
+        /// <see cref="ResumeFocusSummary"/>, we must NOT set nCurrentActivityType = NONE), but the stray
+        /// postpone timer has to be stopped or it later fires and forces the routine to NONE mid-habit (#1365).
+        /// </summary>
+        public void StopPostponeTimerForDayPlanPlay()
+        {
+            try { dispatcherTimer.Stop(); }
+            catch (Exception ex) { LogWriter.LogWrite("StopPostponeTimerForDayPlanPlay ex - " + ex.Message); }
+        }
+
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
             //The window end only on pressing Continue, need to proceed to evening routine after setting focus summary shown date
