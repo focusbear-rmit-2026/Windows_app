@@ -1824,6 +1824,71 @@ namespace Focus_Bear
             //letting ShowMorningRoutine/ShowShutOffView's force-stop reliably show the focus-end window.
             await CheckAndResumeRunningFocusMode();
 
+            //Restore a habit postpone persisted in a previous session (survives an app restart). Honour it
+            //only while (a) its own end time hasn't passed, (b) we're still inside the routine window (the
+            //guard: morning → today's shut-off, evening → next morning start), and (c) the routine isn't
+            //already finished — e.g. completed on another device (RoutineHasRemainingHabits). Otherwise clear.
+            if (RegistryManager.GetHabitsPostponeEndTime())
+            {
+                DateTime guard = HabitsPostponeGuardTime(appSettings.HabitsPostponeActivityType);
+                bool bWithinWindow = DateTime.Now < appSettings.HabitsPostponeEndTime && DateTime.Now < guard;
+
+                //Fetch the routine's completed/skipped activities (ShowMorningRoutine/ShowEveningRoutine, which
+                //normally does this, is bypassed here) so the remaining-habits guard and the Day Plan reflect
+                //what's actually done — including habits finished on another device while this app was closed.
+                bool bRoutinePending = false;
+                if (bWithinWindow)
+                {
+                    await PrepareRoutineDataForPostponeRestore(appSettings.HabitsPostponeActivityType);
+                    bRoutinePending = !RoutineAlreadyCompletedToday(appSettings.HabitsPostponeActivityType)
+                                      && RoutineHasRemainingHabits(appSettings.HabitsPostponeActivityType);
+                }
+
+                if (bWithinWindow && bRoutinePending)
+                {
+                    LogWriter.LogWrite("StartWorkFlow() - restoring persisted postpone until " + appSettings.HabitsPostponeEndTime + " (guard " + guard + ", focusSummary " + appSettings.bHabitsPostponeWasFocusSummary + ")");
+                    appSettings.nCurrentActivityType = appSettings.HabitsPostponeActivityType;
+                    TimeSpan postponeRemaining = appSettings.HabitsPostponeEndTime - DateTime.Now;
+
+                    //A focus-summary postpone (shown at the start of the evening routine) resumes the summary,
+                    //not the habits — restore its own flag + timer so expiry re-shows the summary, not habits.
+                    if (appSettings.bHabitsPostponeWasFocusSummary)
+                    {
+                        appSettings.bFocusSummaryPostponedState = true;
+                        wndFocusBearMainWindow.PageFocusSummary.RestorePostponeTimer(postponeRemaining);
+                    }
+                    else
+                    {
+                        appSettings.bHabitsPostponedState = true;
+                        RestoreHabitsPostponeTimer(postponeRemaining);
+                    }
+
+                    wndFocusBearMainWindow.EnableAllButtons();
+                    if (appSettings.bIsGeekModeEnabled)
+                        ShowPomodoroWindow();
+                    else
+                        wndFocusBearMainWindow.PageHabits.ShowHabitsPostponedView();
+
+                    try
+                    {
+                        dispatcherTimerBackground.Tick += new EventHandler(dispatcherTimer_Background);
+                        dispatcherTimerBackground.Interval = new TimeSpan(0, 0, 5);
+                        dispatcherTimerBackground.Start();
+                        CommandManager.InvalidateRequerySuggested();
+                    }
+                    catch (Exception ex) { LogWriter.LogWrite("StartWorkFlow() - restore postpone bg timer EX - " + ex.Message); }
+
+                    return;
+                }
+                else
+                {
+                    LogWriter.LogWrite("StartWorkFlow() - persisted postpone stale (withinWindow=" + bWithinWindow + " pending=" + bRoutinePending + "), clearing");
+                    RegistryManager.RemoveHabitsPostponeEndTime();
+                    appSettings.bHabitsPostponedState = false;
+                    appSettings.bFocusSummaryPostponedState = false;
+                }
+            }
+
             //Check if its shut off time, show evening routine
             //If morning time show morning routine
             //if not both show break activties
@@ -3926,6 +3991,163 @@ namespace Focus_Bear
         //and the "your habits resume in 2 minutes" popup is suppressed so it never flashes over the
         //locked class session. Enforcement stays correct because the habit-based enforcement is gated on
         //bHabitwithAllowedAppsRunning (set false below), not on the activity type.
+        // ── Postpone persistence across restarts (#1278 cherry-pick, postpone-only) ───────────────────
+
+        // The routine-window guard: a persisted postpone is honoured on restart only within the routine's
+        // own window — a MORNING postpone until today's shut-off (when the evening routine / focus summary
+        // appears), an EVENING postpone until the next day's morning start. Past that the window is over.
+        private DateTime HabitsPostponeGuardTime(CurrentActivityType type)
+        {
+            DateTime now = DateTime.Now;
+            try
+            {
+                if (type == CurrentActivityType.MORNING_HABITS)
+                {
+                    TimeSpan ts = TimeSpan.Parse(appSettings.sDayShutOffTime);
+                    return new DateTime(now.Year, now.Month, now.Day, ts.Hours, ts.Minutes, 0);
+                }
+                // Evening habits (or evening focus summary) → next day's morning start.
+                TimeSpan tsm = TimeSpan.Parse(appSettings.sDayStartTime);
+                DateTime tm = now.AddDays(1);
+                return new DateTime(tm.Year, tm.Month, tm.Day, tsm.Hours, tsm.Minutes, 0);
+            }
+            catch { return DateTime.MaxValue; }   // unparseable times → don't let the guard reject
+        }
+
+        // Persist the current postpone (absolute end time + routine type + after-cutoff flag) so a restart
+        // can restore it. Cleared at every resume/finish chokepoint.
+        internal void PersistHabitsPostpone(DateTime endTime, bool bIsFocusSummary)
+        {
+            appSettings.HabitsPostponeEndTime = endTime;
+            appSettings.HabitsPostponeActivityType = appSettings.nCurrentActivityType;
+            appSettings.bHabitsPostponeWasFocusSummary = bIsFocusSummary;
+            RegistryManager.SetHabitsPostponeEndTime();
+            LogWriter.LogWrite("PersistHabitsPostpone - end " + endTime + " type " + appSettings.nCurrentActivityType);
+        }
+
+        // Cross-device finish guard: on restart the routine may have been completed on another device, in
+        // which case the postpone should not be restored. Returns false when none of today's habits for the
+        // routine remain (all done/skipped per the fetched activity props / backend). Uncertain → true (keep).
+        private bool RoutineHasRemainingHabits(CurrentActivityType type)
+        {
+            try
+            {
+                var globalArr = (type == CurrentActivityType.EVENING_HABITS)
+                    ? appSettings.arrGLOBALAllEveningHabits : appSettings.arrGLOBALAllMorningHabits;
+                if (globalArr == null) return true;
+                string todayKey = DateTime.Now.ToString("yyyy-MM-dd");
+                string dow3 = DateTime.Now.DayOfWeek.ToString().Substring(0, 3).ToLower();
+                int scheduled = 0, remaining = 0;
+                foreach (var h in globalArr)
+                {
+                    bool forToday = h.DaysOfWeek != null && h.DaysOfWeek.Any(d => { string dl = (d ?? "").ToLower(); return dl == "all" || dl == dow3; });
+                    if (!forToday) continue;
+                    scheduled++;
+                    if (string.IsNullOrEmpty(h.id) || !Focus_Bear.Habits.DayPlan.DayPlanDataSource.IsHabitDoneOrSkipped(h.id, todayKey))
+                        remaining++;
+                }
+                LogWriter.LogWrite("RoutineHasRemainingHabits(" + type + ") scheduled=" + scheduled + " remaining=" + remaining);
+                if (scheduled == 0) return false;   // nothing scheduled today for this routine
+                return remaining > 0;
+            }
+            catch (Exception ex) { LogWriter.LogWrite("RoutineHasRemainingHabits ex - " + ex.Message); return true; }
+        }
+
+        // Reliable "this routine is already finished for today" check — mirrors the last_completed_sequence
+        // logic in ShowMorningRoutine/ShowEveningRoutine. Needed because once a routine is completed (e.g. on
+        // another device) the backend starts a fresh sequence, so current_sequence_completed_activities resets
+        // to empty and the per-habit remaining check alone would wrongly think the routine is still pending.
+        // Assumes PrepareRoutineDataForPostponeRestore already fetched sLastActivityDoneInfo + today's habit list.
+        private bool RoutineAlreadyCompletedToday(CurrentActivityType type)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(appSettings.sLastActivityDoneInfo)) return false;
+                var arr = (type == CurrentActivityType.EVENING_HABITS) ? appSettings.arrAllEveningHabits : appSettings.arrAllMorningHabits;
+                if (arr == null || arr.Count == 0) return false;
+                string sequenceID = arr[0].activity_sequence_id;
+                if (string.IsNullOrEmpty(sequenceID)) return false;
+
+                JObject info = JObject.Parse(appSettings.sLastActivityDoneInfo);
+                var lcs = info["last_completed_sequence"];
+                if (lcs == null || lcs.Type == JTokenType.Null || lcs["id"] == null) return false;
+                if (lcs["id"].ToString() != sequenceID) return false;
+
+                string startedAt = info["last_completed_sequence_started_at"] != null ? info["last_completed_sequence_started_at"].ToString() : "";
+                if (startedAt.Length == 0) return false;
+                DateTime startedAtDate = DateTime.Parse(startedAt);
+
+                DateTime now = DateTime.Now;
+                TimeSpan ts = TimeSpan.Parse(type == CurrentActivityType.EVENING_HABITS ? appSettings.sDayShutOffTime : appSettings.sDayStartTime);
+                DateTime routineStart = new DateTime(now.Year, now.Month, now.Day, ts.Hours, ts.Minutes, 0).ToUniversalTime();
+                if (now.ToUniversalTime() < routineStart) routineStart = routineStart.AddDays(-1);
+
+                bool done = startedAtDate > routineStart;
+                LogWriter.LogWrite("RoutineAlreadyCompletedToday(" + type + ") = " + done + " (startedAt " + startedAtDate + " vs " + routineStart + ")");
+                return done;
+            }
+            catch (Exception ex) { LogWriter.LogWrite("RoutineAlreadyCompletedToday ex - " + ex.Message); return false; }
+        }
+
+        // Re-arm the habits postpone timer for the remaining time when restoring a persisted postpone.
+        private void RestoreHabitsPostponeTimer(TimeSpan remaining)
+        {
+            try
+            {
+                dispatcherTimerPostponeHabits.Stop();
+                var eventField = dispatcherTimerPostponeHabits.GetType().GetField("Tick", BindingFlags.NonPublic | BindingFlags.Instance);
+                var eventDelegate = (Delegate)eventField.GetValue(dispatcherTimerPostponeHabits);
+                if (eventDelegate != null)
+                    foreach (var handler in eventDelegate.GetInvocationList())
+                        dispatcherTimerPostponeHabits.Tick -= ((EventHandler)handler);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("RestoreHabitsPostponeTimer clear ex - " + ex.Message); }
+
+            if (remaining < TimeSpan.Zero) remaining = TimeSpan.Zero;
+            dispatcherTimerPostponeHabits.Tick += new EventHandler(dispatcherTimer_Postpone);
+            dispatcherTimerPostponeHabits.Interval = remaining;
+            dispatcherTimerPostponeHabits.Start();
+
+            if (remaining.TotalMinutes > 2)
+                SetShowingYourHabitsResumeInPopup((int)remaining.TotalMinutes - 2);
+        }
+
+        // Before restoring a persisted postpone we bypass ShowMorningRoutine/ShowEveningRoutine, so their
+        // fetch of the routine's completed activities never runs. Do the minimum here: build today's filtered
+        // habit list (so the Day Plan has something to show) and fetch the current sequence's completed /
+        // skipped activities (done on this or another device) into arrayCompletedActivities / arraySkipped,
+        // so IsHabitDoneOrSkipped — and therefore the Day Plan display AND the cross-device remaining check —
+        // reflect them.
+        private async Task PrepareRoutineDataForPostponeRestore(CurrentActivityType type)
+        {
+            try
+            {
+                string dow3 = DateTime.Now.DayOfWeek.ToString().Substring(0, 3).ToLower();
+                var globalArr = (type == CurrentActivityType.EVENING_HABITS) ? appSettings.arrGLOBALAllEveningHabits : appSettings.arrGLOBALAllMorningHabits;
+                var todayArr = (type == CurrentActivityType.EVENING_HABITS) ? appSettings.arrAllEveningHabits : appSettings.arrAllMorningHabits;
+                todayArr.Clear();
+                if (globalArr != null)
+                    foreach (var h in globalArr)
+                        if (h.DaysOfWeek != null && h.DaysOfWeek.Any(d => { string dl = (d ?? "").ToLower(); return dl == "all" || dl == dow3; }))
+                            todayArr.Add(h);
+
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                await client.GetLastActivityInfo();
+                appSettings.arrayCompletedActivities.Clear();
+                appSettings.arraySkipped.Clear();
+                if (!string.IsNullOrEmpty(appSettings.sLastActivityDoneInfo))
+                {
+                    JObject info = JObject.Parse(appSettings.sLastActivityDoneInfo);
+                    if (info["current_sequence_completed_activities"] != null && info["current_sequence_completed_activities"].ToString().Length > 0)
+                        appSettings.arrayCompletedActivities = (JArray)info["current_sequence_completed_activities"];
+                    if (info["current_sequence_skipped_activities"] != null && info["current_sequence_skipped_activities"].ToString().Length > 0)
+                        appSettings.arraySkipped = (JArray)info["current_sequence_skipped_activities"];
+                }
+                LogWriter.LogWrite("PrepareRoutineDataForPostponeRestore - today=" + todayArr.Count + " completed=" + appSettings.arrayCompletedActivities.Count + " skipped=" + appSettings.arraySkipped.Count);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("PrepareRoutineDataForPostponeRestore ex - " + ex.Message); }
+        }
+
         public void PostponeHabitWork(int nMinutesToPostpone, bool bForClassSession = false)
         {
             LogWriter.LogWrite("PostponeHabitWork()");
@@ -3941,6 +4163,11 @@ namespace Focus_Bear
                     dispatcherTimerPostponeHabits.Stop();
                     dispatcherTimerPostponeHabits.Interval = TimeSpan.FromMinutes(nMinutesToPostpone);
                     dispatcherTimerPostponeHabits.Start();
+
+                    // Re-persist the new end time so a restart restores the extended postpone (keeps the
+                    // existing routine type + flags already stored on the first postpone).
+                    appSettings.HabitsPostponeEndTime = DateTime.Now.AddMinutes(nMinutesToPostpone);
+                    RegistryManager.SetHabitsPostponeEndTime();
 
                     if (nMinutesToPostpone > 2 && !bForClassSession) //If the postpone time is more than 2 minutes, we need to show a popup again before the postpone time is over and the habits are resumed.
                     {
@@ -3997,6 +4224,11 @@ namespace Focus_Bear
                             appSettings.bEveningHabitsPostponedAfterCutoffTime = true;
                         }
                     }
+
+                    // Persist the postpone so it survives an app restart (restored in StartWorkFlow, capped by
+                    // the routine-window guard). Done here while nCurrentActivityType is still the routine type
+                    // (it may be set to NONE just below when a focus session is running).
+                    PersistHabitsPostpone(DateTime.Now.AddMinutes(nMinutesToPostpone), false);
 
                     // If a focus session exists (paused or running), restore UI after postponing
                     if (appSettings.isFocusModeRunning)
@@ -4241,6 +4473,7 @@ namespace Focus_Bear
 
                 appSettings.bHabitsPostponedState = false;
                 appSettings.bEveningHabitsPostponedAfterCutoffTime = false; //reset
+                RegistryManager.RemoveHabitsPostponeEndTime(); //postpone consumed - don't restore it on restart
                 LogWriter.LogWrite(" appSettings.bHabitsPostponedState = false;");
 
                 //Simply set the activity type to NONE and the background thread will take care.
@@ -4275,6 +4508,7 @@ namespace Focus_Bear
                 }
                 appSettings.bHabitsPostponedState = false;
                 appSettings.bEveningHabitsPostponedAfterCutoffTime = false;
+                RegistryManager.RemoveHabitsPostponeEndTime(); //postpone resumed via Day Plan play - don't restore on restart
 
                 // Evening focus-summary postpone: playing a habit from the Day Plan must also clear this
                 // state and stop the focus-summary's OWN postpone timer — otherwise it later fires and

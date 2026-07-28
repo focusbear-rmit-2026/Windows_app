@@ -347,6 +347,7 @@ namespace Focus_Bear.Focus
             {
                 CommandManager.InvalidateRequerySuggested();
                 dispatcherTimer.Stop(); //Tick Once Only
+                RegistryManager.RemoveHabitsPostponeEndTime(); //postpone resolved - clear any persisted restore
                 btnNeedOneMinuteTXT.Text = appSettings.ConfigFileStrings["focusInfo"]["focusSummaryInfo"]["buttonStillNeedMoreTimeText"].ToString();
                 bNeedMoreTime = true;
                 ((App)(Application.Current)).ShowBlankWindowOnOtherScreens();
@@ -392,6 +393,10 @@ namespace Focus_Bear.Focus
                 appSettings.bEveningHabitsPostponedAfterCutoffTime = true;
             }
 
+            //Persist so the focus-summary postpone survives an app restart (restored in StartWorkFlow, which
+            //re-arms this timer via RestorePostponeTimer). nCurrentActivityType is still EVENING_HABITS here.
+            ((App)Application.Current).PersistHabitsPostpone(DateTime.Now.AddMinutes(nMinutesToPostpone), true);
+
             dispatcherTimer.Start();
 
             ParentWindow.Hide();
@@ -431,9 +436,30 @@ namespace Focus_Bear.Focus
             ParentWindow.Show();
             appSettings.bFocusSummaryPostponedState = false;
             appSettings.bEveningHabitsPostponedAfterCutoffTime = false;
+            RegistryManager.RemoveHabitsPostponeEndTime(); //postpone resolved - clear any persisted restore
 
             appSettings.nCurrentActivityType = CurrentActivityType.NONE; //Background thread will take care of evening routine
             LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
+        }
+
+        // Re-arm the focus-summary postpone timer for the remaining time when restoring a persisted postpone
+        // on app restart (StartWorkFlow). Mirrors PostponeFocusSummary's timer setup: on expiry dispatcherTimer_Tick
+        // runs (drops nCurrentActivityType to NONE) so the background loop re-shows the summary, exactly as a
+        // live postpone would. The postponed view itself is shown by StartWorkFlow.
+        public void RestorePostponeTimer(TimeSpan remaining)
+        {
+            try
+            {
+                if (remaining < TimeSpan.Zero) remaining = TimeSpan.Zero;
+                appSettings.bFocusSummaryPostponedState = true;
+                dispatcherTimer.Stop();
+                dispatcherTimer.Tick -= new EventHandler(dispatcherTimer_Tick); //avoid a double subscription
+                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                dispatcherTimer.Interval = remaining;
+                dispatcherTimer.Start();
+                LogWriter.LogWrite("FocusActivitySummary.RestorePostponeTimer - remaining " + remaining);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("RestorePostponeTimer ex - " + ex.Message); }
         }
 
         /// <summary>

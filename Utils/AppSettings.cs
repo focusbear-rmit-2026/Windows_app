@@ -333,6 +333,11 @@ namespace Focus_Bear.Utils
         public bool bFocusSummaryPostponedState = false; //variable to handle the Resume Habits menu item in case of focus summary postponed
         public bool bEveningHabitsPostponedAfterCutoffTime = false;
 
+        // Postpone persistence across app restarts (see RegistryManager.*HabitsPostponeEndTime).
+        public DateTime HabitsPostponeEndTime;                                             // absolute time the postpone expires
+        public CurrentActivityType HabitsPostponeActivityType = CurrentActivityType.NONE;  // routine the postpone belongs to
+        public bool bHabitsPostponeWasFocusSummary = false;                                // true if it was an evening focus-summary postpone
+
         public string sRawTasks = "";
         public string sRawTasksDone = ""; //used to get a list of tasks done from focus mode end window.
         public string sCurrentTaskPlayingInToDoPlayer = "";

@@ -1663,6 +1663,66 @@ namespace Focus_Bear.Models
             }
         }
 
+        // ── Habit postpone persistence (survives an app restart) ────────────────────────────────────────
+        // Stores the postpone's absolute end time, the routine it belongs to, whether it was already a
+        // post-cutoff postpone, and whether it was an evening focus-summary postpone (which restores
+        // differently). Mirrors the ShutOffAbortedTillDate pattern.
+        internal static bool GetHabitsPostponeEndTime()
+        {
+            try
+            {
+                var regData = ReadStr("HABITSPOSTPONEENDTIME");
+                if (regData == null)
+                    return false;
+
+                appSettings.HabitsPostponeEndTime = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                int.TryParse(ReadStr("HABITSPOSTPONEACTIVITYTYPE"), out int actType);
+                appSettings.HabitsPostponeActivityType = (CurrentActivityType)actType;
+                appSettings.bEveningHabitsPostponedAfterCutoffTime = ReadStr("HABITSPOSTPONEAFTERCUTOFF") == "1";
+                appSettings.bHabitsPostponeWasFocusSummary = ReadStr("HABITSPOSTPONEISFOCUSSUMMARY") == "1";
+                LogWriter.LogWrite("GetHabitsPostponeEndTime() - end " + appSettings.HabitsPostponeEndTime
+                    + " type " + appSettings.HabitsPostponeActivityType
+                    + " afterCutoff " + appSettings.bEveningHabitsPostponedAfterCutoffTime
+                    + " focusSummary " + appSettings.bHabitsPostponeWasFocusSummary);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetHabitsPostponeEndTime() - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetHabitsPostponeEndTime()
+        {
+            try
+            {
+                Write("HABITSPOSTPONEENDTIME", Global.ConvertToUnixTime(appSettings.HabitsPostponeEndTime).ToString());
+                Write("HABITSPOSTPONEACTIVITYTYPE", ((int)appSettings.HabitsPostponeActivityType).ToString());
+                Write("HABITSPOSTPONEAFTERCUTOFF", appSettings.bEveningHabitsPostponedAfterCutoffTime ? "1" : "0");
+                Write("HABITSPOSTPONEISFOCUSSUMMARY", appSettings.bHabitsPostponeWasFocusSummary ? "1" : "0");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetHabitsPostponeEndTime - " + ex.Message);
+            }
+        }
+
+        internal static void RemoveHabitsPostponeEndTime()
+        {
+            try
+            {
+                DeleteValue("HABITSPOSTPONEENDTIME");
+                DeleteValue("HABITSPOSTPONEACTIVITYTYPE");
+                DeleteValue("HABITSPOSTPONEAFTERCUTOFF");
+                DeleteValue("HABITSPOSTPONEISFOCUSSUMMARY");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RemoveHabitsPostponeEndTime - " + ex.Message);
+            }
+        }
+
         internal static void SetShutOffAbortedFor30MinsTillDate()
         {
             try
