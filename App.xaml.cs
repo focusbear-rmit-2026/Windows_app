@@ -1704,6 +1704,13 @@ namespace Focus_Bear
             //Initialize the Tray Icon
             InitializeTrayIcon();
 
+            // Reload per-user settings now that we're logged in. These are read once in the App ctor too,
+            // but that runs before userAccount.userID is set, so the per-user registry path is wrong there
+            // and the values come back as defaults (tab limit 0, etc.). Re-read them here — before
+            // StartWorkFlow starts the tab-limit timer and before any browser-focus trigger fires.
+            appSettings.LoadMaxTabLimitSetting();
+            appSettings.LoadNotificationSoundsSetting();
+
             StartWorkFlow();
         }
 
@@ -1998,7 +2005,7 @@ namespace Focus_Bear
                 CommandManager.InvalidateRequerySuggested();
 
                 dispatcherTimerProductivityStats.Tick += new EventHandler(dispatcherTimer_ProductivityStats);
-                dispatcherTimerProductivityStats.Interval = new TimeSpan(0, 0, 3); //every three seconds 
+                dispatcherTimerProductivityStats.Interval = new TimeSpan(0, 0, 3); //every three seconds
 
                 dispatcherTimerProductivityStats.Start();
                 CommandManager.InvalidateRequerySuggested();
@@ -5590,7 +5597,14 @@ namespace Focus_Bear
         {
            // LogWriter.LogWrite($"CheckTabLimitAndAlert: limit={appSettings.nMaxTabLimit}, purchased={appSettings.isPurchased}");
 
-            
+            // Nothing needs a browser scan unless the count is being consumed: the tab limiter (a valid
+            // subscription or active trial + a configured limit) or the productivity stats (only recorded
+            // during a focus session). Skipping otherwise avoids a full cross-process UIA scan every 3s on
+            // every machine for no reason (#1167).
+            bool bLimiterActive = !appSettings.isExpired && appSettings.nMaxTabLimit > 0;
+            if (!appSettings.isFocusModeRunning && !bLimiterActive)
+                return;
+
             System.Collections.Generic.List<(AutomationElement Tab, AutomationElement CloseBtn, IntPtr Hwnd, string Browser)> currentTabs = null;
             try
             {
@@ -5606,12 +5620,11 @@ namespace Focus_Bear
 
             //LogWriter.LogWrite($"CheckTabLimitAndAlert: tabs={nTabCount}, limit={appSettings.nMaxTabLimit}");
 
-            // Pro-only feature: Basic/free users don't get tab limiting
-            if (!appSettings.isPurchased)
+            // Enforce only when the limiter is actually active (valid subscription/trial + a configured
+            // limit). The scan above may instead have run only to feed the productivity stats during a
+            // focus session, so bail out of enforcement here.
+            if (!bLimiterActive)
                 return;
-
-            if (appSettings.nMaxTabLimit <= 0)
-                return; // Disabled
 
             if (_bTabLimitAlertShowing)
                 return; // Already showing — don't spam

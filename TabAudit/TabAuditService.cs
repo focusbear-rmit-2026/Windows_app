@@ -118,6 +118,7 @@ namespace Focus_Bear.TabAudit
                     var cacheReq = new CacheRequest();
                     cacheReq.Add(AutomationElement.BoundingRectangleProperty);
                     cacheReq.Add(AutomationElement.NameProperty);   // batch tab titles for Tab Audit (avoids a slow per-tab call)
+                    cacheReq.Add(AutomationElement.IsSelectionItemPatternAvailableProperty); // used to drop Firefox's New Tab (+) — see below
 
                     AutomationElementCollection FindTabs()
                     {
@@ -166,6 +167,21 @@ namespace Focus_Bear.TabAudit
                             // count path a still-minimized window's off-screen tabs simply fall out here.)
                             Rect tb = tab.Cached.BoundingRectangle; // no extra cross-process call
                             if (tb.Top < winBounds.Top || tb.Top >= winBounds.Top + TAB_STRIP_HEIGHT_PX) continue;
+
+                            // Firefox exposes its New Tab (+) button as a TabItem inside the strip, so the
+                            // position filter above doesn't catch it. Real Firefox tabs (pinned included)
+                            // support SelectionItemPattern; the + button does not — use that to exclude it
+                            // (#1168). Scoped to Firefox: Chromium browsers expose + as a Button, not a
+                            // TabItem, so they never hit this and their counts are left untouched.
+                            if (browser == "firefox")
+                            {
+                                try
+                                {
+                                    object selAvail = tab.GetCachedPropertyValue(AutomationElement.IsSelectionItemPatternAvailableProperty);
+                                    if (selAvail is bool b && !b) continue;
+                                }
+                                catch { /* property missing → keep the tab rather than risk under-counting */ }
+                            }
 
                             AutomationElement closeBtn = tab.FindFirst(
                                 System.Windows.Automation.TreeScope.Subtree, btnCondition);
