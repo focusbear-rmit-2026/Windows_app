@@ -47,11 +47,6 @@ namespace Focus_Bear.Preferences
                 EnableFBTT.Text = appSettings.ConfigFileStrings["settingsNew"]["focusBearTrackerSettingTitle"].ToString();
                 EnableFBTTDesc.Text = appSettings.ConfigFileStrings["settingsNew"]["focusBearTrackerDescriptionTitle"].ToString();
 
-                TabLimitLabel.Text = appSettings.ConfigFileStrings["postBrowsersTabAuditVcInfo"]["titleTabLimitCount"].ToString();
-                TabLimitDesc.Text = appSettings.ConfigFileStrings["settingsNew"]["tabLimitDescText"].ToString();
-                btnSaveTabLimitText.Text = appSettings.ConfigFileStrings["postBrowsersTabAuditVcInfo"]["buttonSave"].ToString();
-                txtMaxTabLimit.Text = appSettings.nMaxTabLimit.ToString();
-
                 EnableAdvancedAnalytics.Text = appSettings.ConfigFileStrings["preferencesInfo"]["switchButtonAdvanceAanalyticsText"].ToString();
                 EnableAdvancedAnalyticsDesc.Text = appSettings.ConfigFileStrings["preferencesInfo"]["descriptionAdvanceAanalytics"].ToString();
                 EnableAdvancedAnalyticsDesc2.Text = appSettings.ConfigFileStrings["preferencesInfo"]["privacyAdvanceAanalytics"].ToString();
@@ -137,67 +132,6 @@ namespace Focus_Bear.Preferences
                 btnEnableFBTT.IsChecked = appSettings.bFocusBearTimeTrackerEnabled;
                 btnEnableFBTT.Checked += btnEnableFBTT_Checked;
                 btnEnableFBTT.Unchecked += btnEnableFBTT_Unchecked;
-                appSettings.nMaxTabLimit = RegistryManager.GetMaxTabLimit();
-                txtMaxTabLimit.Text = appSettings.nMaxTabLimit.ToString();
-            }
-        }
-
-        private void txtMaxTabLimit_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
-        {
-            // Allow only digits
-            e.Handled = !e.Text.All(char.IsDigit);
-        }
-
-        private void txtMaxTabLimit_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            // Any change (typing or spinner) means there are unsaved changes — reset to "Save"
-            btnSaveTabLimitText.Text = appSettings.ConfigFileStrings["postBrowsersTabAuditVcInfo"]["buttonSave"].ToString();
-            btnSaveTabLimit.IsEnabled = true;
-        }
-
-        private void txtMaxTabLimit_LostFocus(object sender, RoutedEventArgs e)
-        {
-            SaveTabLimitFromTextBox();
-            ShowSaved();
-        }
-
-        private void btnSaveTabLimit_Click(object sender, RoutedEventArgs e)
-        {
-            SaveTabLimitFromTextBox();
-            ShowSaved();
-        }
-
-        private void btnTabLimitUp_Click(object sender, RoutedEventArgs e)
-        {
-            if (int.TryParse(txtMaxTabLimit.Text, out int val))
-                txtMaxTabLimit.Text = (val + 1).ToString();
-        }
-
-        private void btnTabLimitDown_Click(object sender, RoutedEventArgs e)
-        {
-            if (int.TryParse(txtMaxTabLimit.Text, out int val) && val > 0)
-                txtMaxTabLimit.Text = (val - 1).ToString();
-        }
-
-        private void ShowSaved()
-        {
-            btnSaveTabLimitText.Text = "Saved!";
-            btnSaveTabLimit.IsEnabled = false;
-        }
-
-        private void SaveTabLimitFromTextBox()
-        {
-            if (int.TryParse(txtMaxTabLimit.Text, out int nLimit))
-            {
-                nLimit = Math.Max(0, nLimit); // Clamp to >= 0
-                appSettings.nMaxTabLimit = nLimit;
-                RegistryManager.SaveMaxTabLimit(nLimit);
-                LogWriter.LogWrite($"Tab limit saved: {nLimit}");
-                appSettings.CapturePostHog("settings-changed-tab-limit");
-            }
-            else
-            {
-                txtMaxTabLimit.Text = appSettings.nMaxTabLimit.ToString();
             }
         }
 

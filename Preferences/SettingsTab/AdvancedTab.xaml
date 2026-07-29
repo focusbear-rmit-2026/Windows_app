@@ -88,58 +88,7 @@
                     <ToggleButton Grid.Column="1" x:Name="btnEnableFBTT" AutomationProperties.AutomationId="tglEnableFBTT" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableFBTT_Checked" Unchecked="btnEnableFBTT_Unchecked"/>
                 </Grid>
 
-                <Grid Grid.Row="7" Margin="15,0,15,0" Background="LightGray" ></Grid>
-
-                <Grid Margin="15,15" Grid.Row="8" Background="{DynamicResource SoftCreamColor}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="160"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Orientation="Vertical">
-                        <TextBlock x:Name="TabLimitLabel" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xMax tab limit:</TextBlock>
-                        <TextBlock x:Name="TabLimitDesc" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xSet the maximum number of browser tabs you want open at once. Focus Bear will alert you when you exceed this limit. Set to 0 to disable.</TextBlock>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                        <!-- Spinner: TextBox + ▲▼ RepeatButtons, same pattern as HourControl -->
-                        <Border BorderBrush="#FF545454" BorderThickness="1" CornerRadius="3" Margin="0,0,8,0">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50"/>
-                                    <ColumnDefinition Width="20"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="14"/>
-                                    <RowDefinition Height="14"/>
-                                </Grid.RowDefinitions>
-                                <TextBox x:Name="txtMaxTabLimit" AutomationProperties.AutomationId="txtMaxTabLimit"
-                                         Grid.Column="0" Grid.Row="0" Grid.RowSpan="2"
-                                         FontSize="14" VerticalContentAlignment="Center"
-                                         HorizontalContentAlignment="Center" BorderThickness="0"
-                                         MaxLength="3" PreviewTextInput="txtMaxTabLimit_PreviewTextInput"
-                                         TextChanged="txtMaxTabLimit_TextChanged"
-                                         LostFocus="txtMaxTabLimit_LostFocus"/>
-                                <RepeatButton x:Name="btnTabLimitUp" AutomationProperties.AutomationId="btnTabLimitUp"
-                                              Grid.Column="1" Grid.Row="0"
-                                              FontSize="8" FontFamily="Marlett"
-                                              VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                                              BorderBrush="#FF545454" Background="#FF989898"
-                                              Click="btnTabLimitUp_Click">5</RepeatButton>
-                                <RepeatButton x:Name="btnTabLimitDown" AutomationProperties.AutomationId="btnTabLimitDown"
-                                              Grid.Column="1" Grid.Row="1"
-                                              FontSize="8" FontFamily="Marlett"
-                                              VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                                              BorderBrush="#FF545454" Background="#FF989898"
-                                              Click="btnTabLimitDown_Click">6</RepeatButton>
-                            </Grid>
-                        </Border>
-                        <Button x:Name="btnSaveTabLimit" AutomationProperties.AutomationId="btnSaveTabLimit"
-                                Style="{StaticResource BtnStyleLightOrange}"
-                                Width="80" Height="30" FontSize="12" Cursor="Hand" FontWeight="Semibold"
-                                Click="btnSaveTabLimit_Click">
-                            <TextBlock x:Name="btnSaveTabLimitText" Text="xSave" Foreground="Black"/>
-                        </Button>
-                    </StackPanel>
-                </Grid>
+                <!-- Browser tab limiter moved to Strictness > Browser tab limiter (matches macOS) -->
 
                     <Grid Grid.Row="9"  Margin="15,0,15,0" Background="LightGray" ></Grid>
 

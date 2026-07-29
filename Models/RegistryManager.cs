@@ -3040,6 +3040,36 @@ namespace Focus_Bear.Models
             return 0;
         }
 
+        internal static void SaveTabLimiterEnabled(bool bEnabled)
+        {
+            LogWriter.LogWrite("RM SaveTabLimiterEnabled() = " + bEnabled);
+            try
+            {
+                Write("TabLimiterEnabled", bEnabled ? "1" : "0");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveTabLimiterEnabled - " + ex.Message);
+            }
+        }
+
+        // Returns null when the value was never written (so callers can run first-time migration),
+        // otherwise true/false.
+        internal static bool? GetTabLimiterEnabled()
+        {
+            try
+            {
+                var val = Read("TabLimiterEnabled");
+                if (val == null) return null;
+                return val.ToString() == "1";
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetTabLimiterEnabled - " + ex.Message);
+            }
+            return null;
+        }
+
         // Tab Audit: when the last CSV export was run (so the tab can show "last audit was...").
         public static void SaveTabAuditDate(DateTime dt)
         {

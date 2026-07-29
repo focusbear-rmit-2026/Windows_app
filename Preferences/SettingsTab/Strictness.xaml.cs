@@ -42,6 +42,7 @@ namespace Focus_Bear.Preferences.SettingsTab
                 btnDistractingSitesText.Text = appSettings.ConfigFileStrings["blockedUrlsViewInfo"]["title"].ToString();
                 btnAlwaysAllowedAppsText.Text = appSettings.ConfigFileStrings["alwaysAllowedAppsViewInfo"]["title"].ToString(); 
                 btnAlwaysBlockedAppsText.Text = appSettings.ConfigFileStrings["blockedAppsViewInfo"]["title"].ToString();
+                btnTabLimiterText.Text = appSettings.ConfigFileStrings["settingsNew"]["tabLimiterSettingTitle"].ToString();
             }
             catch (Exception ex)
             {
@@ -116,6 +117,16 @@ namespace Focus_Bear.Preferences.SettingsTab
             SubViewHeading.Text = appSettings.ConfigFileStrings["alwaysAllowedAppsViewInfo"]["title"].ToString();
             // Load the AlwaysAllowedApps class here
             ContentArea.Content = new AlwaysAllowedApps(_ParentWindow);
+        }
+
+        private void btnTabLimiter_Click(object sender, RoutedEventArgs e)
+        {
+            // Hide main menu
+            MainMenuPanel.Visibility = Visibility.Collapsed;
+            SubViewContainer.Visibility = Visibility.Visible;
+
+            SubViewHeading.Text = appSettings.ConfigFileStrings["settingsNew"]["tabLimiterSettingTitle"].ToString();
+            ContentArea.Content = new TabLimiterSetting(_ParentWindow);
         }
 
         private void btnBack_Click(object sender, RoutedEventArgs e)

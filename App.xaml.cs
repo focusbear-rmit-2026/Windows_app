@@ -595,9 +595,11 @@ namespace Focus_Bear
 
             appSettings.CheckAndGetGlobalUUID();
 
-            appSettings.LoadMaxTabLimitSetting();
+            // NOTE: tab-limiter settings are loaded/migrated post-login (after the per-user registry path and
+            // the synced settings are available) — see ReadAndParseUserLocalDeviceSettingsJson + the post-login
+            // LoadMaxTabLimitSetting call. Loading here (pre-login) would read the wrong per-user path.
             appSettings.LoadNotificationSoundsSetting();
-            
+
             appSettings.DownloadAndLoadConfigFile(); // TODO: Only allow download in production mode by checking the current environment
 
             //System sleep / wake up event
@@ -1360,6 +1362,14 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("GetUserLocalDeviceSettings Failed");
                 appSettings.ReadAndParseUserLocalDeviceSettingsJson();
+            }
+
+            // If an existing user's tab-limiter setting was just migrated from their local count, push it so
+            // the migrated on/off + count become the synced truth (and aren't re-clobbered next launch).
+            if (appSettings.bTabLimiterMigrationNeedsPush)
+            {
+                appSettings.bTabLimiterMigrationNeedsPush = false;
+                LocalSettingsManager.PutLocalSettings();
             }
 
             if (!RegistryManager.GetOnboardingAfterLoginDoneStatus())
@@ -5597,11 +5607,14 @@ namespace Focus_Bear
         {
            // LogWriter.LogWrite($"CheckTabLimitAndAlert: limit={appSettings.nMaxTabLimit}, purchased={appSettings.isPurchased}");
 
-            // Nothing needs a browser scan unless the count is being consumed: the tab limiter (a valid
-            // subscription or active trial + a configured limit) or the productivity stats (only recorded
-            // during a focus session). Skipping otherwise avoids a full cross-process UIA scan every 3s on
-            // every machine for no reason (#1167).
-            bool bLimiterActive = !appSettings.isExpired && appSettings.nMaxTabLimit > 0;
+            // Nothing needs a browser scan unless the count is being consumed: the tab limiter or the
+            // productivity stats (only recorded during a focus session). Skipping otherwise avoids a full
+            // cross-process UIA scan every 3s on every machine for no reason (#1167).
+            // The limiter enforces only when it's enabled, the subscription/trial hasn't expired, AND we're
+            // in an active Focus Session or an active Blocking Schedule (matches macOS — see the
+            // "Works only during active Focus Sessions or active Blocking Schedules" setting subtitle).
+            bool bLimiterActive = appSettings.bTabLimiterEnabled && !appSettings.isExpired
+                                  && (appSettings.isFocusModeRunning || appSettings.isBlockingScheduleRunning);
             if (!appSettings.isFocusModeRunning && !bLimiterActive)
                 return;
 

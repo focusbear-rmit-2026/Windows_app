@@ -466,6 +466,12 @@ namespace Focus_Bear.Utils
         /// Maximum number of browser tabs before an alert is shown. 0 = disabled.
         /// </summary>
         public int nMaxTabLimit = 0;
+        // Tab limiter on/off (macOS: kisTabLimiterEnabled, default false). When enabled, nMaxTabLimit is
+        // always >= 1 (0 means "off", which is expressed by this flag being false instead).
+        public bool bTabLimiterEnabled = false;
+        // Set during the one-time migration of an existing user so the migrated on/off + count get pushed to
+        // the server (making the migrated state the synced truth instead of being overwritten by it).
+        public bool bTabLimiterMigrationNeedsPush = false;
         public int nCountOpenTabs = 0;
 
         /// <summary>
@@ -738,6 +744,24 @@ namespace Focus_Bear.Utils
         public void LoadMaxTabLimitSetting()
         {
             nMaxTabLimit = RegistryManager.GetMaxTabLimit();
+
+            bool? bEnabled = RegistryManager.GetTabLimiterEnabled();
+            if (bEnabled == null)
+            {
+                // First run of the enable/disable model — migrate existing users to match macOS:
+                // an existing count >= 1 means the limiter was in use → keep it on with that count;
+                // a count of 0 (or unset) means it was off → disable and normalise the count to 1
+                // (the count can no longer be 0; "off" is the disabled flag).
+                bTabLimiterEnabled = nMaxTabLimit >= 1;
+                if (nMaxTabLimit < 1) nMaxTabLimit = 1;
+                RegistryManager.SaveMaxTabLimit(nMaxTabLimit);
+                RegistryManager.SaveTabLimiterEnabled(bTabLimiterEnabled);
+            }
+            else
+            {
+                bTabLimiterEnabled = bEnabled.Value;
+                if (bTabLimiterEnabled && nMaxTabLimit < 1) nMaxTabLimit = 1;
+            }
         }
 
         public void LoadNotificationSoundsSetting()
@@ -1924,7 +1948,35 @@ namespace Focus_Bear.Utils
                                 //Let's keep from the local variable that we saved with user's selection otherwise read from settings
                                 nBlockingSchedule = sMacOSSettingsOBJ.ContainsKey("kBlockingSchedule") ? ((int)(sMacOSSettingsOBJ.GetValue("kBlockingSchedule")) == 0 ? BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK : BLOCKINGSCHEDULE.WHEN_STARTING_FOCUS_SESSION) : BLOCKINGSCHEDULE.UNTIL_I_FINISH_WORK;
                             }
-                            
+
+                            // Tab limiter (synced with macOS). One-time migration for existing users takes
+                            // precedence over the synced value: if this device has never recorded the on/off
+                            // flag, derive it from the existing local tab count (>=1 -> on & keep the count;
+                            // otherwise off & count 1 — the count can no longer be 0), persist it, and flag it
+                            // to be pushed so the migrated state becomes the synced truth instead of being
+                            // overwritten by an older/absent synced value. Once migrated, honour the synced value.
+                            if (RegistryManager.GetTabLimiterEnabled() == null)
+                            {
+                                int localCount = RegistryManager.GetMaxTabLimit();
+                                bTabLimiterEnabled = localCount >= 1;
+                                nMaxTabLimit = localCount >= 1 ? localCount : 1;
+                                RegistryManager.SaveMaxTabLimit(nMaxTabLimit);
+                                RegistryManager.SaveTabLimiterEnabled(bTabLimiterEnabled);
+                                bTabLimiterMigrationNeedsPush = true;
+                                LogWriter.LogWrite("Tab limiter migrated from local count " + localCount + " -> enabled=" + bTabLimiterEnabled + " count=" + nMaxTabLimit);
+                            }
+                            else if (sMacOSSettingsOBJ.ContainsKey("kisTabLimiterEnabled"))
+                            {
+                                bTabLimiterEnabled = (bool)sMacOSSettingsOBJ.GetValue("kisTabLimiterEnabled");
+                                // Prefer the synced count; fall back to the stored count if the backend didn't
+                                // send it, so an enabled limiter never silently resets to 1.
+                                nMaxTabLimit = sMacOSSettingsOBJ.ContainsKey("kTabLimitCount")
+                                    ? (int)sMacOSSettingsOBJ.GetValue("kTabLimitCount")
+                                    : RegistryManager.GetMaxTabLimit();
+                                if (bTabLimiterEnabled && nMaxTabLimit < 1) nMaxTabLimit = 1;
+                                RegistryManager.SaveMaxTabLimit(nMaxTabLimit);
+                                RegistryManager.SaveTabLimiterEnabled(bTabLimiterEnabled);
+                            }
                         }
                     }
                     catch (Exception ex)

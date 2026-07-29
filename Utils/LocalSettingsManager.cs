@@ -490,6 +490,15 @@ namespace Focus_Bear.Utils
                                 sMacOSSettingsOBJ.Add("kBlockingSchedule", (int) appSettings.nBlockingSchedule);
                             }
 
+                            //Tab limiter (synced with macOS): on/off flag + the allowed tab count.
+                            if (sMacOSSettingsOBJ.ContainsKey("kisTabLimiterEnabled"))
+                                sMacOSSettingsOBJ.Remove("kisTabLimiterEnabled");
+                            sMacOSSettingsOBJ.Add("kisTabLimiterEnabled", appSettings.bTabLimiterEnabled);
+
+                            if (sMacOSSettingsOBJ.ContainsKey("kTabLimitCount"))
+                                sMacOSSettingsOBJ.Remove("kTabLimitCount");
+                            sMacOSSettingsOBJ.Add("kTabLimitCount", appSettings.nMaxTabLimit);
+
                             //Now remove macOS from local and add updated one
                             LocalSettings.Remove("MacOS");
 

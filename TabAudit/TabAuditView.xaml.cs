@@ -254,8 +254,11 @@ namespace Focus_Bear.TabAudit
             {
                 nLimit = Math.Min(999, nLimit);
                 appSettings.nMaxTabLimit = nLimit;
+                appSettings.bTabLimiterEnabled = true; // setting a limit here turns the limiter on
                 RegistryManager.SaveMaxTabLimit(nLimit);
-                LogWriter.LogWrite("Tab limit saved from Tab Audit: " + nLimit);
+                RegistryManager.SaveTabLimiterEnabled(true);
+                Focus_Bear.Utils.LocalSettingsManager.PutLocalSettings(); // sync with macOS / other devices
+                LogWriter.LogWrite("Tab limit saved from Tab Audit (limiter enabled): " + nLimit);
                 appSettings.CapturePostHog("settings-changed-tab-limit");
             }
             PostAuditOverlay.Visibility = Visibility.Collapsed;

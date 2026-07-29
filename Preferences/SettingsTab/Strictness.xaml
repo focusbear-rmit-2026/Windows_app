@@ -107,7 +107,41 @@
                             </Grid>
                         </Button.Content>
                     </Button>
-                    
+
+                    <Grid Background="LightGray" Height="1" Margin="10,1,10,0"></Grid>
+                    <Button x:Name="btnTabLimiter"  AutomationProperties.AutomationId="btnTabLimiter" Margin="2,2,2,0" Style="{StaticResource  BtnMacStyleSettingsGray}" IsEnabled="True" Height="45"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0"  FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnTabLimiter_Click">
+                        <Button.Content>
+                            <Grid  Background="{x:Null}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Compass icon (matches macOS). Drawn inline so it needs no asset; uses fixed
+                                     colours because the Strictness menu is always light (#F4F5F5 + black text). -->
+                                <Viewbox Grid.Column="0" Width="24" Height="24" Margin="10,4,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Grid Width="24" Height="24" Background="Transparent">
+                                        <Ellipse Width="22" Height="22" Stroke="#333333" StrokeThickness="1.6"/>
+                                        <Path Fill="#E88800" Data="M 12,4 L 14.5,12 L 9.5,12 Z">
+                                            <Path.RenderTransform>
+                                                <RotateTransform Angle="45" CenterX="12" CenterY="12"/>
+                                            </Path.RenderTransform>
+                                        </Path>
+                                        <Path Fill="#C9C9C9" Data="M 12,20 L 14.5,12 L 9.5,12 Z">
+                                            <Path.RenderTransform>
+                                                <RotateTransform Angle="45" CenterX="12" CenterY="12"/>
+                                            </Path.RenderTransform>
+                                        </Path>
+                                        <Ellipse Width="3" Height="3" Fill="#333333" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Viewbox>
+                                <TextBlock Name="btnTabLimiterText" Margin="8,0,0,0" Text="xBrowser tab limiter" Foreground="Black" VerticalAlignment="Center" Grid.Column="1"/>
+                                <TextBlock Text="❯" FontSize="18" FontWeight="Normal" VerticalAlignment="Center" Foreground="#333" Grid.Column="2" Margin="0,0,10,0"/>
+                            </Grid>
+                        </Button.Content>
+                    </Button>
+
 
                 </StackPanel>
             </Border>

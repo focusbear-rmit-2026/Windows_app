@@ -716,6 +716,9 @@
     <Compile Include="Preferences\SettingsTab\Strictness.xaml.cs">
       <DependentUpon>Strictness.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\SettingsTab\TabLimiterSetting.xaml.cs">
+      <DependentUpon>TabLimiterSetting.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Preferences\SettingsTab\KeyboardShortcuts.xaml.cs">
       <DependentUpon>KeyboardShortcuts.xaml</DependentUpon>
     </Compile>
@@ -1240,6 +1243,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Preferences\SettingsTab\Strictness.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\SettingsTab\TabLimiterSetting.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
