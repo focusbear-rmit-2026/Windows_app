@@ -199,10 +199,12 @@ namespace Focus_Bear.Focus
                             ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartFocusSession"].ToString());
              
                         //Removing the super pomodoro check, we need to show start focus mode window after the break ends.
+                        //(The tray Start button now opens an inline picker, so open the focus window directly.)
                         {
-                            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
-                            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                            invokeProv.Invoke();
+                            if (appSettings.bIsGeekModeEnabled)
+                                ((App)(Application.Current)).ShowPomodoroWindow();
+                            else
+                                ((App)(Application.Current)).ShowSimplePomodoroWindow();
                         }
                     }
                 }

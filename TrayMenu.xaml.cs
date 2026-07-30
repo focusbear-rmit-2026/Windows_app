@@ -77,6 +77,29 @@ namespace Focus_Bear
             {
                 await StopFocusSessionRealAsync();
             };
+
+            // The accordion header colours are set in code (FindResource snapshots), so a light/dark switch
+            // leaves them frozen at the old theme until the header is toggled. Re-apply them on theme change.
+            App.ThemeChanged += OnThemeChanged;
+        }
+
+        // Re-evaluates the code-set colours after a theme switch. DynamicResource elements refresh themselves;
+        // only the accordion headers styled in StyleAccordionHeader need re-applying for their current state.
+        private void OnThemeChanged()
+        {
+            try
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    StyleAccordionHeader(ToolsSection, Tools, ToolsSubtitle, ToolsChevronPath, ToolsChevron,
+                        ToolsBody.Visibility == Visibility.Visible);
+                    StyleAccordionHeader(BreaksSection, BreaksTitle, BreaksSubtitle, BreaksChevronPath, BreaksChevron,
+                        BreaksBody.Visibility == Visibility.Visible);
+                    StyleAccordionHeader(DayPlanSection, DayPlanTitle, DayPlanSubtitle, DayPlanChevronPath, DayPlanChevron,
+                        DayPlanBody.Visibility == Visibility.Visible);
+                }));
+            }
+            catch (Exception ex) { LogWriter.LogWrite("TrayMenu OnThemeChanged ex - " + ex.Message); }
         }
 
         public void SetTrayMenuPosition()
@@ -105,21 +128,21 @@ namespace Focus_Bear
             ListFocusModes.ItemsSource = appSettings.arrFocusModes;
             try
             {
-                Reactivate.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemReactivateTitle"].ToString();
-                Preferences.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemPreferencesTitle"].ToString();
+                // Preferences and Quit now live as circular icon buttons in the header.
+                btnSettingsIcon.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemPreferencesTitle"].ToString();
                 PomodoroMode.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStartPomodoroTitle"].ToString();
                 btnStopPomodoroModetxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemStopHardcorePomodoroTitle"].ToString();
-                //set title to Quit
-                Quit.Text = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["buttonQuitText"].ToString();
+                btnQuitIcon.ToolTip = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["buttonQuitText"].ToString();
 
                 UpgradeNow.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemUpgradeNowTitle"].ToString();
                 Focus.Content = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusTitle"].ToString();
-                btnResumeHabitsTxt.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();
 
-                Tools.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToolsTitle"].ToString();
-                btnBrainDump.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
-                btnToDoPlayer.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
-                btnFocusMusic.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusMusicTitle"].ToString();
+                // Focus Tools accordion — row labels (header stays "Focus Tools")
+                FocusMusicLabel.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusMusicTitle"].ToString();
+                BrainDumpLabel.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
+                ToDoPlayerLabel.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
+                // Breaks accordion — "start a break" link text
+                StartBreakNowText.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonStartBreakNowText"].ToString();
 
                 LimitedBlocking.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBlockingDisabledTitle"].ToString();
                 LimitedBlockingInfo.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["addBlockingScheduleInfo"].ToString();
@@ -127,27 +150,8 @@ namespace Focus_Bear
 
                 BlockingScheduleText.Text = appSettings.ConfigFileStrings["menuInfo"]["titleBlockingSchedule"].ToString();
 
-                WFHMode.Checked -= WFHMode_Checked;
-                OfficeMode.Checked -= OfficeMode_Checked;
-                if (appSettings.isOfficeModeEnabled)
-                {
-                    OfficeMode.IsChecked = true;
-                }
-                else
-                {
-                    WFHMode.IsChecked = true;
-                }
-                OfficeMode.Checked += OfficeMode_Checked;
-                WFHMode.Checked += WFHMode_Checked;
-
-                if (appSettings.bIsGeekModeEnabled)
-                {
-                    GeekMode.IsChecked = true;
-                }
-                else
-                {
-                    SimpleMode.IsChecked = true;
-                }
+                // macOS-aligned tray labels (Start Focus card, Day Plan, Focus Tools, Breaks) from menuView.
+                ApplyMenuViewStrings();
 
                 if (appSettings.sTheme == "Light" && appSettings.bAutoTheme == false)
                 {
@@ -158,11 +162,6 @@ namespace Focus_Bear
                     ((App)Application.Current).ChangeTheme("Dark");
                 }
 
-                GeekMode.Checked += GeekMode_Checked;
-                SimpleMode.Checked += SimpleMode_Checked;
-
-                GeekMode.Content = appSettings.ConfigFileStrings["geekModeInfo"]["titleGeekMode"].ToString();
-                SimpleMode.Content = appSettings.ConfigFileStrings["geekModeInfo"]["titleSimpleMode"].ToString();
             }
             catch (Exception ex)
             {
@@ -195,6 +194,7 @@ namespace Focus_Bear
                             image.EndInit();
 
                             PlayPauseButtonImage.Source = image;
+                            PlayPauseMusicText.Text = MenuViewString("menuPauseMusic", "Pause music");
                         }
                         else if (current.IsPaused)
                         {
@@ -205,6 +205,7 @@ namespace Focus_Bear
                             image.EndInit();
 
                             PlayPauseButtonImage.Source = image;
+                            PlayPauseMusicText.Text = MenuViewString("menuPlayMusic", "Play music");
                         }
                     }
                     else
@@ -241,58 +242,18 @@ namespace Focus_Bear
                     TrialInfo.Text = sTrial.Replace("<DAYS>", appSettings.nTrialDays.ToString()); ;
                 }
 
-                if (appSettings.IsAppDeactivated())
-                {
-                    btnReactivate.Visibility = Visibility.Visible;
-                }
-                
-                OfficeMode.Content = appSettings.ConfigFileStrings["menuInfo"]["segmentOfficeModeText"].ToString();
-                WFHMode.Content = appSettings.ConfigFileStrings["menuInfo"]["segmentWfhModeText"].ToString();
-                OfficeMode.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipOfficeMode"].ToString();
-                WFHMode.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipWfhMode"].ToString();
+                // Voice command mic — available to paid or in-trial users (mirrors the Mac menu header mic).
+                btnVoiceCommand.Visibility = (appSettings.isPurchased || appSettings.nTrialDays > 0)
+                    ? Visibility.Visible : Visibility.Collapsed;
 
-                GeekMode.Content = appSettings.ConfigFileStrings["geekModeInfo"]["titleGeekMode"].ToString();
-                GeekMode.ToolTip = appSettings.ConfigFileStrings["geekModeInfo"]["tooltipGeekMode"].ToString();
-                SimpleMode.Content = appSettings.ConfigFileStrings["geekModeInfo"]["titleSimpleMode"].ToString();
-                SimpleMode.ToolTip = appSettings.ConfigFileStrings["geekModeInfo"]["tooltipSimpleMode"].ToString();
+                UpdateBreaksCard();
 
-
-                //Teacher Mode - the routine is postponed for the class session but the student must not
-                //be able to resume it early (that would end the locked session's takeover of the screen).
-                //Hide the tray Resume Habits button while a teacher session is active.
-                if ((appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState) &&
-                    !TeacherSessionManager.Instance.IsTeacherSessionActive())
-                {
-                    btnResumeHabits.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    btnResumeHabits.Visibility = Visibility.Collapsed;
-                }
-
-                GeekMode.Checked -= GeekMode_Checked;
-                SimpleMode.Checked -= SimpleMode_Checked;
-                if (appSettings.bIsGeekModeEnabled)
-                {
-                    GeekMode.IsChecked = true;
-                }
-                else
-                {
-                    SimpleMode.IsChecked = true;
-                }
-                GeekMode.Checked += GeekMode_Checked;
-                SimpleMode.Checked += SimpleMode_Checked;
+                // Reset the inline focus control to collapsed each time the menu opens, and refresh the Day Plan card.
+                FocusStartExpanded.Visibility = Visibility.Collapsed;
+                UpdateDayPlanCard();
 
                 if (appSettings.bIsGeekModeEnabled) //GEEK MODE ENABLED
                 {
-                    if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                    {
-                        if (!appSettings.isFocusModeRunning)
-                            OrangeHeader.Height = 30;
-                        else
-                            OrangeHeader.Height = 70;
-                    }
-
                     // Focus mode running
                     if (appSettings.isFocusModeRunning)
                     {
@@ -417,7 +378,6 @@ namespace Focus_Bear
                     }**/
 
                     btnBrainDump.Visibility = Visibility.Visible;
-                    OfficeModeSection.Visibility = Visibility.Visible;
 
                     //Focus Alignment score
                     bool bShowAlignmentScore = appSettings.isFocusModeRunning ||
@@ -441,7 +401,8 @@ namespace Focus_Bear
                 }
                 else //Simple mode
                 {
-                    btnBrainDump.Visibility = Visibility.Collapsed;
+                    // Brain Dump is shown in the Focus Tools accordion for all modes.
+                    btnBrainDump.Visibility = Visibility.Visible;
 
                     if (appSettings.isFocusModeRunning)
                     {
@@ -690,28 +651,53 @@ namespace Focus_Bear
             }
         }
 
-        private void btnReactivate_Click(object sender, RoutedEventArgs e)
+        // Resumes postponed habits / focus summary. This used to be the tray "Resume Habits"
+        // button; the button was removed from the redesigned menu, but the action is still
+        // triggered from the habits-postponed views and the voice-command flow, so it lives here.
+        public void ResumeHabitsFromTray()
         {
-            LogWriter.LogWrite("btnReactivate_Click() Tray Menu");
-
-            RegistryManager.RemoveAppDeactivatedTillDate();
-
+            LogWriter.LogWrite("ResumeHabitsFromTray()");
             Hide();
 
-            //Restart the app.
+            //Teacher Mode - resuming the routine early would tear down the locked class session's screen
+            //takeover. Block it while a teacher session is active; the routine resumes on its own once the
+            //session ends. (Ported from the old btnResumeHabits_Click guard.)
+            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                LogWriter.LogWrite("ResumeHabitsFromTray blocked - teacher class session is active");
+                appSettings.ShowBaloonTip(
+                    TeacherSessionManager.Instance.GetLocalizedString("resumeHabitsBlockedBody", "You can't resume your habits during a class focus session. They'll resume automatically when your teacher ends the session."),
+                    TeacherSessionManager.Instance.GetLocalizedString("resumeHabitsBlockedTitle", "Class focus session in progress"));
+                return;
+            }
+
+            if (appSettings.bFocusSummaryPostponedState)
+            {
+                ((App)(Application.Current)).wndFocusBearMainWindow.PageFocusSummary.ResumeFocusSummary();
+            }
+            else
+            {
+                ((App)(Application.Current)).ResumeAfterPostponeFinished();
+            }
+        }
+
+        // Reactivates the app after deactivation and restarts it. This used to be the tray
+        // "Reactivate" button; the button was removed but the action is still triggered from the
+        // no-habits-running screen.
+        public void ReactivateFromTray()
+        {
+            LogWriter.LogWrite("ReactivateFromTray() Tray Menu");
+            RegistryManager.RemoveAppDeactivatedTillDate();
+            Hide();
             try
             {
                 LogWriter.LogWrite("Restart app now for Reactivation to take Effect!");
-
-                string currentAppPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-
                 appSettings.bRestartAppNeeded = true;
-
                 Application.Current.Shutdown(0);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("btnReactivate_Click app restart= " + ex.Message);
+                Debug.WriteLine("ReactivateFromTray app restart= " + ex.Message);
             }
         }
 
@@ -759,29 +745,227 @@ namespace Focus_Bear
             //    return;
             //}
 
-            Hide();
-            /**
-            if ((appSettings.isFocusModeRunning ||
-               appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
-               appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
-               appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF ||
-               appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY ) &&
-               (!appSettings.bHabitsPostponedState) && (!appSettings.bFocusSummaryPostponedState))
+            // Reveal the inline [−] ▶ Start · NN min [+] control (or toggle it back off). The centre
+            // button starts the session; − / + adjust the duration.
+            if (FocusStartExpanded.Visibility == Visibility.Visible)
             {
-                //do not start if some habits or breaks are running. Case is when 5 mins break ends, we start the focus session back but if habits have resumed by then, then do not show it
-                return;
-            }**/ //mj //todo handling
-
-            if (appSettings.bIsGeekModeEnabled)
-            {
-                ((App)(Application.Current)).ShowPomodoroWindow();
+                FocusStartExpanded.Visibility = Visibility.Collapsed;
+                btnStartPomodoroMode.Visibility = Visibility.Visible;
             }
             else
             {
-                ((App)(Application.Current)).ShowSimplePomodoroWindow();
+                SetAccordionState(false, false, false); // only one card open at a time — close any open accordion
+                int mins;
+                if (!int.TryParse(appSettings.PomodoroMinutes, out mins) || mins < 1) mins = 25;
+                _focusDurationMin = mins;
+                UpdateFocusStartCenterText();
+                PopulateFocusModes();
+                btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                FocusStartExpanded.Visibility = Visibility.Visible;
             }
-            return;
+            SetTrayMenuPosition();
+        }
 
+        private int _focusDurationMin = 25;
+
+        private void UpdateFocusStartCenterText()
+        {
+            // menuFocusMinutes is a "%d MIN" template (macOS-aligned); substitute the chosen duration.
+            FocusStartCenterText.Text = MenuViewString("menuFocusMinutes", "%d MIN").Replace("%d", _focusDurationMin.ToString());
+        }
+
+        // Fill the "Select Focus Mode" dropdown, preselecting the last-used / default mode.
+        private void PopulateFocusModes()
+        {
+            try
+            {
+                cmbFocusModes.ItemsSource = appSettings.arrFocusModes;
+                FocusMode preferred = null;
+                if (!string.IsNullOrEmpty(appSettings.sMostRecentFocusmodeDoneID))
+                    preferred = appSettings.arrFocusModes.FirstOrDefault(m => m.id == appSettings.sMostRecentFocusmodeDoneID);
+                if (preferred == null) preferred = appSettings.arrFocusModes.FirstOrDefault(m => m.isDefault);
+                if (preferred == null) preferred = appSettings.arrFocusModes.FirstOrDefault();
+                if (preferred != null) cmbFocusModes.SelectedItem = preferred;
+            }
+            catch (Exception ex) { LogWriter.LogWrite("PopulateFocusModes ex - " + ex.Message); }
+        }
+
+        // Centre of the ± control → start the selected focus mode for the chosen duration.
+        private void btnDoStartFocus_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var mode = (cmbFocusModes.SelectedItem as FocusMode)
+                           ?? appSettings.arrFocusModes.FirstOrDefault(m => m.isDefault)
+                           ?? appSettings.arrFocusModes.FirstOrDefault();
+                if (mode == null) { LogWriter.LogWrite("btnDoStartFocus_Click - no focus modes"); return; }
+
+                // Carry the typed goal into the session (same field the voice/other start paths use).
+                string goal = txtFocusGoal.Text?.Trim();
+                if (!string.IsNullOrEmpty(goal)) appSettings.sRunningFocusModeIntention = goal;
+
+                FocusStartExpanded.Visibility = Visibility.Collapsed;
+                Hide();
+                appSettings.CapturePostHog("tray-start-focus-inline");
+                ((App)(Application.Current)).StartWorkFocusMode(mode.id, _focusDurationMin * 60);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("btnDoStartFocus_Click ex - " + ex.Message); }
+        }
+
+        // Tools/wrench (top-right of the focus card) → open the full focus screen in the main window.
+        private void btnFocusTools_Click(object sender, RoutedEventArgs e)
+        {
+            FocusStartExpanded.Visibility = Visibility.Collapsed;
+            btnStartPomodoroMode.Visibility = Visibility.Visible;
+            Hide();
+            if (appSettings.bIsGeekModeEnabled)
+                ((App)(Application.Current)).ShowPomodoroWindow();
+            else
+                ((App)(Application.Current)).ShowSimplePomodoroWindow();
+        }
+
+        private void btnFocusDurUp_Click(object sender, RoutedEventArgs e)
+        {
+            _focusDurationMin = Math.Min(240, _focusDurationMin + 5);
+            UpdateFocusStartCenterText();
+        }
+
+        private void btnFocusDurDown_Click(object sender, RoutedEventArgs e)
+        {
+            _focusDurationMin = Math.Max(5, _focusDurationMin - 5);
+            UpdateFocusStartCenterText();
+        }
+
+        // Day Plan card — open the full Day Plan tab (the "Day Plan" nav leaf maps to LeftButtonType.Habits).
+        private void btnDayPlan_Click(object sender, RoutedEventArgs e)
+        {
+            Hide();
+            try
+            {
+                appSettings.CapturePostHog("tray-open-day-plan");
+                ((App)(Application.Current)).BringMainWindowToFront();
+                ((App)(Application.Current)).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("btnDayPlan_Click ex - " + ex.Message); }
+        }
+
+        // Day Plan card subtitle: show the next actionable habit for today, else a generic label.
+        private void UpdateDayPlanCard()
+        {
+            try
+            {
+                var blocks = Focus_Bear.Habits.DayPlan.DayPlanDataSource.BuildBlocks(DateTime.Now);
+                var habitBlocks = blocks?.Where(b => b.HabitIndex.HasValue).ToList();
+                var current = blocks?.FirstOrDefault(b => b.IsCurrent)
+                              ?? (habitBlocks != null && habitBlocks.Count > 0 ? habitBlocks[0] : null);
+
+                // Is a habit activity in progress right now (running OR paused on-screen)? A *parked* habit
+                // (backed out to the Day Plan, remaining time saved) is NOT "in progress" — it should still
+                // offer Start (which resumes it). Parking saves to dayPlanHabitRemainingSeconds but leaves the
+                // ongoing view non-null, so distinguish the two by whether the current habit is parked.
+                bool habitInProgress = false;
+                try
+                {
+                    var ongoing = ((App)(Application.Current)).wndFocusBearMainWindow?.PageHabits?.PageHabitActivityOnGoing;
+                    var arr = (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                        ? appSettings.arrAllEveningHabits : appSettings.arrAllMorningHabits;
+                    string currentHabitId = (arr != null && appSettings.nHabitIndex >= 0 && appSettings.nHabitIndex < arr.Count)
+                        ? arr[appSettings.nHabitIndex].id : null;
+                    bool currentParked = !string.IsNullOrEmpty(currentHabitId)
+                        && appSettings.dayPlanHabitRemainingSeconds != null
+                        && appSettings.dayPlanHabitRemainingSeconds.ContainsKey(currentHabitId);
+                    habitInProgress = ongoing != null && !currentParked;
+                }
+                catch { }
+
+                // A postponed routine (incl. while a focus session runs) must still offer Start — clicking it
+                // resumes the habits and starts the listed one — so never treat "postponed" as in-progress.
+                if (appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
+                    habitInProgress = false;
+
+                string currentTitle = (current != null && !string.IsNullOrWhiteSpace(current.Title)) ? current.Title.Trim() : null;
+
+                if (habitInProgress && current != null)
+                {
+                    // A habit is running: header shows the running habit; the body shows the NEXT one up, and
+                    // there's no Start button until it finishes (can't start another mid-habit / restart it).
+                    DayPlanSubtitle.Text = currentTitle;
+                    int ci = habitBlocks != null ? habitBlocks.FindIndex(b => ReferenceEquals(b, current)) : -1;
+                    string nextTitle = (habitBlocks != null && ci >= 0 && ci + 1 < habitBlocks.Count)
+                        ? habitBlocks[ci + 1].Title?.Trim() : null;
+                    DayPlanNextHabit.Text = nextTitle ?? MenuViewString("menuLastHabit", "This is the last habit");
+                    btnDayPlanStart.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    DayPlanSubtitle.Text = currentTitle ?? MenuViewString("menuDayPlanSubtitle", "View your day");
+                    DayPlanNextHabit.Text = currentTitle ?? MenuViewString("menuNothingScheduled", "Nothing scheduled right now");
+                    btnDayPlanStart.Visibility = currentTitle != null ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                // Tasks for today (incomplete), a few of them.
+                var tasks = Focus_Bear.Habits.DayPlan.DayPlanTaskStore.Shared.Tasks(DateTime.Now);
+                var pending = tasks?.Where(t => !t.Done).Take(4).ToList();
+                DayPlanTasksList.ItemsSource = pending;
+                DayPlanTasksSection.Visibility = (pending != null && pending.Count > 0) ? Visibility.Visible : Visibility.Collapsed;
+
+                // "Habits postponed until <time>" (mirrors macOS) — only while a routine is postponed and the
+                // stored end time is still ahead; the short-time format follows the system locale.
+                if ((appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
+                    && appSettings.HabitsPostponeEndTime > DateTime.Now)
+                {
+                    // menuHabitsPostponedUntil is a "Habits postponed until %@" template (macOS-aligned);
+                    // %@ is the postpone end time in the system's short-time format.
+                    DayPlanPostponedText.Text = MenuViewString("menuHabitsPostponedUntil", "Habits postponed until %@")
+                        .Replace("%@", appSettings.HabitsPostponeEndTime.ToString("t"));
+                    DayPlanPostponedRow.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    DayPlanPostponedRow.Visibility = Visibility.Collapsed;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpdateDayPlanCard ex - " + ex.Message);
+                DayPlanSubtitle.Text = "View your day";
+                DayPlanNextHabit.Text = "No habits scheduled right now";
+                btnDayPlanStart.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        // Start the next habit — same flow as clicking Play in the Day Plan view (resume if postponed, etc.).
+        private void btnDayPlanStart_Click(object sender, RoutedEventArgs e)
+        {
+            Hide();
+            try
+            {
+                appSettings.CapturePostHog("tray-day-plan-start-habit");
+                var app = (App)(Application.Current);
+                app.BringMainWindowToFront();
+                app.wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
+                // Let the Day Plan page render/create first, then play the current habit.
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    try { app.wndFocusBearMainWindow.PageHabits.PageDayPlan?.PlayCurrentHabit(); }
+                    catch (Exception ex2) { LogWriter.LogWrite("btnDayPlanStart play ex - " + ex2.Message); }
+                }), System.Windows.Threading.DispatcherPriority.Background);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("btnDayPlanStart_Click ex - " + ex.Message); }
+        }
+
+        // Tapping a task in the Day Plan card marks it done (syncs to the to-do) and drops it off the list.
+        private void DayPlanTask_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var id = (sender as System.Windows.Controls.Button)?.Tag as string;
+                if (string.IsNullOrEmpty(id)) return;
+                Focus_Bear.Habits.DayPlan.DayPlanTaskStore.Shared.SetDone(id, true, DateTime.Now);
+                UpdateDayPlanCard();       // re-filter (only incomplete tasks are shown)
+                SetTrayMenuPosition();
+            }
+            catch (Exception ex) { LogWriter.LogWrite("DayPlanTask_Click ex - " + ex.Message); }
         }
 
         public async Task StopFocusSessionRealAsync()
@@ -1034,7 +1218,7 @@ namespace Focus_Bear
 
         private void Window_Deactivated(object sender, EventArgs e)
         {
-            Hide(); 
+            Hide();
         }
 
         private void ListFocusModes_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1184,33 +1368,6 @@ namespace Focus_Bear
             }
         }
 
-        private void btnResumeHabits_Click(object sender, RoutedEventArgs e)
-        {
-            LogWriter.LogWrite("btnResumeHabits_Click" );
-            Hide();
-
-            //Teacher Mode - resuming the routine early would tear down the locked class session's screen
-            //takeover. Block it while a teacher session is active (the tray button is hidden then, so this
-            //is a backstop) and show a brief balloon tip. The routine resumes on its own once the session ends.
-            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
-            {
-                LogWriter.LogWrite("btnResumeHabits_Click blocked - teacher class session is active");
-                appSettings.ShowBaloonTip(
-                    TeacherSessionManager.Instance.GetLocalizedString("resumeHabitsBlockedBody", "You can't resume your habits during a class focus session. They'll resume automatically when your teacher ends the session."),
-                    TeacherSessionManager.Instance.GetLocalizedString("resumeHabitsBlockedTitle", "Class focus session in progress"));
-                return;
-            }
-
-            if (appSettings.bFocusSummaryPostponedState)
-            {
-                ((App)(Application.Current)).wndFocusBearMainWindow.PageFocusSummary.ResumeFocusSummary();
-            }
-            else
-            {
-                ((App)(Application.Current)).ResumeAfterPostponeFinished();
-            }
-        }
-
         private void btnBrainDump_Click(object sender, RoutedEventArgs e)
         {
 
@@ -1224,143 +1381,289 @@ namespace Focus_Bear
             ((App)(Application.Current)).ShowBrainDumpWindow();
 
             Hide();
- 
+
         }
 
-        private void WFHMode_Checked(object sender, RoutedEventArgs e)
+        // Opens the in-app voice-command window (mic). Records the spoken command, transcribes it
+        // and executes the intent (create task with due date/time, start focus, start habit, ...).
+        private void btnVoiceCommand_Click(object sender, RoutedEventArgs e)
         {
-            appSettings.isOfficeModeEnabled = false;
-            //Save thelocal settings and upload to server
-            LocalSettingsManager.PutLocalSettings();
-        }
-
-        private void OfficeMode_Checked(object sender, RoutedEventArgs e)
-        {
-            if (OfficeMode.IsChecked.Value) //means officemode enabled
+            Hide();
+            try
             {
-                //if office friendly activity added then show alert
-                var listItems = appSettings.arrAllbreakActivities.Where(i => i.isOfficeFriendly == true);
-                if (listItems.Count() == 0)
+                appSettings.CapturePostHog("open-voice-command");
+                var wnd = new Focus.VoiceCommandWindow();
+                wnd.Show();
+                wnd.Activate();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnVoiceCommand_Click ex - " + ex.Message);
+            }
+        }
+
+        // Opens the Tab Audit window (extract open browser tabs to a CSV report).
+        private void btnTabAudit_Click(object sender, RoutedEventArgs e)
+        {
+            Hide();
+            try
+            {
+                appSettings.CapturePostHog("open-tab-audit");
+                // Tab Audit lives as a main-window tab (TabAudit.TabAuditView). Bring the main window to the
+                // front and navigate straight to the Tab Audit leaf. NB: do NOT go via ShowPreferencesWindow —
+                // that selects the Settings leaf first, which triggers the "password to change settings"
+                // prompt. Tab Audit is a Tools tab and shouldn't ask for a password.
+                ((App)(Application.Current)).BringMainWindowToFront();
+                ((App)(Application.Current)).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.TabAudit);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnTabAudit_Click ex - " + ex.Message);
+            }
+        }
+
+        // Focus Tools accordion — expand this one, closing the others (only one open at a time).
+        private void btnToolsHeader_Click(object sender, RoutedEventArgs e)
+        {
+            bool expand = ToolsBody.Visibility != Visibility.Visible;
+            SetAccordionState(toolsOpen: expand, breaksOpen: false, dayPlanOpen: false);
+        }
+
+        // Breaks accordion — expand this one, closing the others (only one open at a time).
+        private void btnBreaksHeader_Click(object sender, RoutedEventArgs e)
+        {
+            bool expand = BreaksBody.Visibility != Visibility.Visible;
+            SetAccordionState(toolsOpen: false, breaksOpen: expand, dayPlanOpen: false);
+        }
+
+        // Day Plan accordion — expand this one, closing the others.
+        private void btnDayPlanHeader_Click(object sender, RoutedEventArgs e)
+        {
+            bool expand = DayPlanBody.Visibility != Visibility.Visible;
+            SetAccordionState(toolsOpen: false, breaksOpen: false, dayPlanOpen: expand);
+        }
+
+        // Applies accordion open/closed state. Only one accordion is ever open at a time.
+        // Each card is a white/theme card when collapsed and turns orange when expanded (matches macOS).
+        private void SetAccordionState(bool toolsOpen, bool breaksOpen, bool dayPlanOpen)
+        {
+            // Opening any accordion closes the inline focus card too (only one card open at a time).
+            if (FocusStartExpanded.Visibility == Visibility.Visible)
+            {
+                FocusStartExpanded.Visibility = Visibility.Collapsed;
+                if (!appSettings.isFocusModeRunning) btnStartPomodoroMode.Visibility = Visibility.Visible;
+            }
+            ToolsBody.Visibility = toolsOpen ? Visibility.Visible : Visibility.Collapsed;
+            BreaksBody.Visibility = breaksOpen ? Visibility.Visible : Visibility.Collapsed;
+            DayPlanBody.Visibility = dayPlanOpen ? Visibility.Visible : Visibility.Collapsed;
+            StyleAccordionHeader(ToolsSection, Tools, ToolsSubtitle, ToolsChevronPath, ToolsChevron, toolsOpen);
+            StyleAccordionHeader(BreaksSection, BreaksTitle, BreaksSubtitle, BreaksChevronPath, BreaksChevron, breaksOpen);
+            StyleAccordionHeader(DayPlanSection, DayPlanTitle, DayPlanSubtitle, DayPlanChevronPath, DayPlanChevron, dayPlanOpen);
+            SetTrayMenuPosition();
+        }
+
+        // Colours an accordion header for its open/closed state: collapsed = white card with a dark title,
+        // grey subtitle and grey right-chevron; expanded = orange card with white title/subtitle and a
+        // white chevron rotated to point down. The icon square (peach) and body stay as-is.
+        private void StyleAccordionHeader(Border card, TextBlock title, TextBlock subtitle,
+                                          System.Windows.Shapes.Path chevron, RotateTransform chevronRotate, bool expanded)
+        {
+            try
+            {
+                if (expanded)
                 {
-                    //No office friendly activity is there
-                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["noOfficeFriendlyActivityAlertText"].ToString(), "", MessageBoxButton.YesNo, appSettings.ConfigFileStrings["menuInfo"]["noOfficeFriendlyActivityButtonFirstText"].ToString(), appSettings.ConfigFileStrings["menuInfo"]["noOfficeFriendlyActivityButtonSecondText"].ToString());
-                    ff.ShowDialog();
-                    if (ff.btnClicked == MessageBoxResult.Yes)
+                    card.Background = (Brush)new BrushConverter().ConvertFromString("#f0932a");
+                    // Keep a border but make it orange so the selected card is clearly outlined
+                    // (matches macOS — the expanded Focus Tools card has an orange outline).
+                    card.BorderBrush = (Brush)new BrushConverter().ConvertFromString("#f0932a");
+                    card.BorderThickness = new Thickness(1.3);
+                    title.Foreground = Brushes.White;
+                    subtitle.Foreground = (Brush)new BrushConverter().ConvertFromString("#FFF1E0");
+                    chevron.Stroke = Brushes.White;
+                    chevronRotate.Angle = 90;
+                }
+                else
+                {
+                    card.Background = (Brush)FindResource("TrayCardBg");
+                    card.BorderBrush = (Brush)FindResource("TrayCardBorder");
+                    card.BorderThickness = new Thickness(1);
+                    title.Foreground = (Brush)FindResource("ForegroundColor");
+                    subtitle.Foreground = (Brush)FindResource("TraySubtitleColor");
+                    chevron.Stroke = (Brush)FindResource("TrayChevronColor");
+                    chevronRotate.Angle = 0;
+                }
+            }
+            catch (Exception ex) { LogWriter.LogWrite("StyleAccordionHeader ex - " + ex.Message); }
+        }
+
+        // Hover feedback for the accordion cards: highlight only the border (orange), never fill the header.
+        // A collapsed card's grey border turns orange on hover; an expanded card is already orange, so leave it.
+        private bool IsAccordionExpanded(Border card)
+        {
+            return (card == BreaksSection && BreaksBody.Visibility == Visibility.Visible)
+                || (card == ToolsSection && ToolsBody.Visibility == Visibility.Visible)
+                || (card == DayPlanSection && DayPlanBody.Visibility == Visibility.Visible);
+        }
+
+        private void AccordionCard_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (sender is Border card && !IsAccordionExpanded(card))
+                card.BorderBrush = (Brush)new BrushConverter().ConvertFromString("#f0932a");
+        }
+
+        private void AccordionCard_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (sender is Border card && !IsAccordionExpanded(card))
+                card.BorderBrush = (Brush)FindResource("TrayCardBorder");
+        }
+
+        // Starts a micro break immediately (from the Breaks accordion).
+        private void btnStartBreakNow_Click(object sender, RoutedEventArgs e)
+        {
+            Hide();
+            try
+            {
+                appSettings.CapturePostHog("tray-start-break-now");
+                // Show a break immediately (StartBreakActivityTimer only schedules the *next* break).
+                ((App)(Application.Current)).ShowBreakActivities();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnStartBreakNow_Click ex - " + ex.Message);
+            }
+        }
+
+        // Populates the Breaks accordion header subtitle and body based on the current break state,
+        // and hides the whole section while a routine / break / shut-off is active.
+        private void UpdateBreaksCard()
+        {
+            try
+            {
+                // Don't offer breaks from the tray while a break or shut-off is running, or while a routine
+                // is ACTIVELY running — but DO show them when the routine is postponed (mirrors the guards in
+                // ShowBreakActivities, which allows breaks during a postponed routine).
+                var act = appSettings.nCurrentActivityType;
+                bool morningActive = act == CurrentActivityType.MORNING_HABITS && !appSettings.bHabitsPostponedState;
+                bool eveningActive = act == CurrentActivityType.EVENING_HABITS
+                                     && !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState;
+                if (act == CurrentActivityType.BREAK_ACTIVITY || act == CurrentActivityType.SHUT_OFF
+                    || morningActive || eveningActive)
+                {
+                    BreaksSection.Visibility = Visibility.Collapsed;
+                    return;
+                }
+                BreaksSection.Visibility = Visibility.Visible;
+
+                // Breaks turned off entirely in settings.
+                if (!appSettings.bAreBreaksEnabled)
+                {
+                    SetBreaksDisabled(MenuViewString("menuBreaksOff", "Breaks are turned off"),
+                        MenuViewString("menuBreaksOffBody", "Turn on breaks in settings to take regular breaks."));
+                    return;
+                }
+
+                // Focus / Super Focus session running with micro-breaks skipped (mirrors dispatcherTimer_Breaks).
+                if (appSettings.bSkipMicroBreaksDuringFocus && (appSettings.isFocusModeRunning || appSettings.bUseSuperPomodoroMode))
+                {
+                    string key = appSettings.bUseSuperPomodoroMode ? "breaksDisabledSuperFocusSessionRunning" : "breaksDisabledFocusSessionRunning";
+                    string dflt = appSettings.bUseSuperPomodoroMode ? "Super Focus session is running. Breaks disabled." : "Focus session is running. Breaks disabled.";
+                    string msg = MenuInfoString(key, dflt);
+                    SetBreaksDisabled(msg, msg);
+                    return;
+                }
+
+                // A blocking schedule is active with micro-breaks off. Mirrors dispatcherTimer_Breaks, which
+                // suppresses breaks when !ActiveSchedule.bMicroBreaksEnabled (field means "enabled": true = on).
+                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning
+                    && !appSettings.ActiveSchedule.bMicroBreaksEnabled)
+                {
+                    string msg = MenuInfoString("breaksDisabledBlockingScheduleActive", "Blocking schedule is active. Breaks disabled.");
+                    SetBreaksDisabled(msg, msg);
+                    return;
+                }
+
+                // Breaks available.
+                btnStartBreakNow.Visibility = Visibility.Visible;
+                if (appSettings.NextBreakAt.HasValue)
+                {
+                    int mins = (int)Math.Round((appSettings.NextBreakAt.Value - DateTime.Now).TotalMinutes);
+                    if (mins > 0)
                     {
-                        appSettings.isOfficeModeEnabled = true;
-
-                        //create an office friendly activity
-                        string ActivityID = System.Guid.NewGuid().ToString();
-                        string SequenceID = System.Guid.NewGuid().ToString();
-                        if (appSettings.arrAllbreakActivities.Count() > 0)
-                        {
-                            SequenceID = appSettings.arrAllbreakActivities[0].activity_sequence_id;
-                        }
-                        //add to our array
-                        appSettings.arrAllbreakActivities.Add(new breakActivity(ActivityID, "Stand up and stretch", 20, new List<string>(), false, "", false, new List<string>(), new List<string>(), "", SequenceID, false, false, new List<activityChoice>(), true, "", new List<QuantityQuestion>(), "", true));
-
-                        //add to the json
-                        String jsonString = appSettings.sRawUserSettings;
-
-                        JObject UserSettings = JObject.Parse(appSettings.sRawUserSettings);
-
-                        if (UserSettings.ContainsKey("break_activities"))
-                        {
-                            JArray break_activities_Array = (JArray)UserSettings.GetValue("break_activities");
-                            JObject newActivity = new JObject(
-                               new JProperty("id", ActivityID),
-                               new JProperty("name", appSettings.ConfigFileStrings["common"]["officeFriendlyActivityName"].ToString()), //"Stand up and stretch"
-                               new JProperty("duration_seconds", 20),
-                               new JProperty("is_office_friendly", true),
-                               new JProperty("activity_sequence_id", SequenceID));
-                            break_activities_Array.Add(newActivity);
-
-                            UserSettings.Remove("break_activities");
-                            UserSettings.Add("break_activities", break_activities_Array);
-
-                            //Also save the udpated settings to Registry
-                            appSettings.sRawUserSettings = UserSettings.ToString();
-                            RegistryManager.SaveUserSettings();
-
-                            //We will need to put the settings.
-                            FocusBearAPIClient client = new FocusBearAPIClient();
-                            var xResponse = client.PutUserSettings();
-
-                            FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["officeModeEnabledSuccessfullyText"].ToString());
-                            ff1.ShowDialog();
-                        }
+                        BreaksSubtitle.Text = MenuViewString("menuNextBreakIn", "Next break in %d min").Replace("%d", mins.ToString());
+                        BreaksStatusText.Text = MenuViewString("menuNextBreakAt", "Your next break is at %@.")
+                            .Replace("%@", appSettings.NextBreakAt.Value.ToString("t"));
                     }
                     else
                     {
-                        appSettings.isOfficeModeEnabled = false;
-                        WFHMode.IsChecked = true;
+                        BreaksSubtitle.Text = MenuViewString("menuBreakDueNow", "Break due now");
+                        BreaksStatusText.Text = MenuViewString("menuBreakDueNowBody", "It's time for a break.");
                     }
                 }
                 else
                 {
-                    if (!RegistryManager.GetOfficeModeMessageStatus())
-                    {
-                        //Office friendly activity is there
-                        FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["officeModeEnabledSuccessfullyText"].ToString());
-                        ff.ShowDialog();
-                        RegistryManager.SetOfficeModeMessageStatus();
-                    }
-                    appSettings.isOfficeModeEnabled = true;
+                    BreaksSubtitle.Text = MenuViewString("menuTakeBreakSubtitle", "Take a break");
+                    BreaksStatusText.Text = MenuViewString("menuTakeBreakBody", "Take a break whenever you need one.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                appSettings.isOfficeModeEnabled = false;
-                WFHMode.IsChecked = true;
+                LogWriter.LogWrite("UpdateBreaksCard ex - " + ex.Message);
             }
-                       
-            //Save thelocal settings and upload to server
-            LocalSettingsManager.PutLocalSettings();
         }
 
-        private void GeekMode_Checked(object sender, RoutedEventArgs e)
+        // Shared "breaks are disabled" presentation: show the reason, hide the start-a-break action.
+        private void SetBreaksDisabled(string subtitle, string body)
         {
-            if(appSettings.isExpired)
-            {
-                ((App)(Application.Current)).ShowUpgradeToProNag(appSettings.ConfigFileStrings["upgradeToProNagVcInfo"]["titleNoGeekMode"].ToString());
-                return;
-            }
-            if (!appSettings.bDontShowModeChangeFB)
-            {
-                MessageBoxButton mb = new MessageBoxButton();
-                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString(), "", mb, "", "", "", true, appSettings.ConfigFileStrings["geekModeInfo"]["buttonDontShowAgainText"].ToString(), false);
-                ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                ff.ShowDialog();
-            }
-            appSettings.bIsGeekModeEnabled = true;
-            if(((App)(Application.Current)).wndFocusBearMainWindow != null)
-            {
-                ((App)(Application.Current)).wndFocusBearMainWindow.PageSettings.SetGeekModeStatus();
-
-            }
-            appSettings.CapturePostHog("switch-to-geek-mode");
-            UpdateTrayMenu();
-            SetTrayMenuPosition();
+            BreaksSubtitle.Text = subtitle;
+            BreaksStatusText.Text = body;
+            btnStartBreakNow.Visibility = Visibility.Collapsed;
         }
 
-        private void SimpleMode_Checked(object sender, RoutedEventArgs e)
+        // Reads a menuInfo config string with an English fallback.
+        private string MenuInfoString(string key, string fallback)
         {
-            MessageBoxButton mb = new MessageBoxButton();
-            if (!appSettings.bDontShowModeChangeFB)
+            try
             {
-                FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString(), "", mb, "", "", "", true, appSettings.ConfigFileStrings["geekModeInfo"]["buttonDontShowAgainText"].ToString(), false);
-                ff1.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                ff1.ShowDialog();
+                var val = appSettings.ConfigFileStrings["menuInfo"][key];
+                return (val != null && val.ToString().Length > 0) ? val.ToString() : fallback;
             }
-            appSettings.bIsGeekModeEnabled = false;
-            if (((App)(Application.Current)).wndFocusBearMainWindow != null)
-            {
-                ((App)(Application.Current)).wndFocusBearMainWindow.PageSettings.SetGeekModeStatus();
+            catch { return fallback; }
+        }
 
+        // Reads a menuView config string (the macOS-aligned tray section) with an English fallback.
+        private string MenuViewString(string key, string fallback)
+        {
+            try
+            {
+                var val = appSettings.ConfigFileStrings["menuView"][key];
+                return (val != null && val.ToString().Length > 0) ? val.ToString() : fallback;
             }
-            appSettings.CapturePostHog("switch-to-simple-mode");
-            UpdateTrayMenu();
-            SetTrayMenuPosition();
+            catch { return fallback; }
+        }
+
+        // Applies the static, macOS-aligned tray labels from the menuView config section (English fallbacks so
+        // it still reads correctly before the remote config downloads). Dynamic labels (focus minutes, breaks
+        // status, day-plan next-habit, postponed line) are set in their own update methods.
+        private void ApplyMenuViewStrings()
+        {
+            try
+            {
+                FocusGoalPlaceholder.Text = MenuViewString("menuFocusGoalPlaceholder", "Enter Focus Goal here");
+                SelectFocusModeLabel.Text = MenuViewString("menuSelectFocusMode", "Select Focus Mode");
+                FocusTapToStartText.Text = MenuViewString("menuTapToStart", "TAP TO START");
+                ChangeTimeHint.Text = MenuViewString("menuChangeTimeHint", "CHANGE THE TIME WITH + AND -");
+                BreaksTitle.Text = MenuViewString("menuBreaks", "Breaks");
+                DayPlanTitle.Text = MenuViewString("menuDayPlan", "Day Plan");
+                NextHabitLabel.Text = MenuViewString("menuNextHabitLabel", "NEXT HABIT");
+                DayPlanStartText.Text = MenuViewString("menuStart", "Start");
+                TasksForTodayLabel.Text = MenuViewString("menuTasksForToday", "TASKS FOR TODAY");
+                ViewFullDayPlanText.Text = MenuViewString("menuViewFullDayPlan", "View full day plan");
+                Tools.Text = MenuViewString("menuFocusTools", "Focus Tools");
+                ToolsSubtitle.Text = MenuViewString("menuFocusToolsSubtitle", "Music, brain dump & to-dos");
+                PlayPauseMusicText.Text = MenuViewString("menuPauseMusic", "Pause music");
+                btnFocusTools.ToolTip = MenuViewString("menuOpenFocusScreen", "Open the full focus screen");
+            }
+            catch (Exception ex) { LogWriter.LogWrite("ApplyMenuViewStrings ex - " + ex.Message); }
         }
 
         private void btnToDoPlayer_Click(object sender, RoutedEventArgs e)

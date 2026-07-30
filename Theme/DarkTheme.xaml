@@ -11,6 +11,21 @@
     <SolidColorBrush x:Key="TabChosenColor" Color="#6E6E6E"/>
     <SolidColorBrush x:Key="UpdateNowPageColor" Color="#282828"/>
 
+    <!-- Tray menu (macOS-style cards) — dark theme -->
+    <SolidColorBrush x:Key="TrayCardBg" Color="#2E2E30"/>
+    <SolidColorBrush x:Key="TrayCardBorder" Color="#3C3C3E"/>
+    <SolidColorBrush x:Key="TrayCardHoverBg" Color="#38322B"/>
+    <SolidColorBrush x:Key="TrayCardHoverBorder" Color="#5A4A36"/>
+    <SolidColorBrush x:Key="TraySubtitleColor" Color="#9A9AA0"/>
+    <SolidColorBrush x:Key="TrayChevronColor" Color="#6E6E72"/>
+    <SolidColorBrush x:Key="TrayIconSquareBg" Color="#4A3B28"/>
+    <SolidColorBrush x:Key="TrayCircleBtnBg" Color="#3A3A3C"/>
+    <SolidColorBrush x:Key="TrayCircleBtnHoverBg" Color="#4A4A4C"/>
+    <SolidColorBrush x:Key="TrayCircleIconColor" Color="#D0D0D0"/>
+    <SolidColorBrush x:Key="TrayToolRowBg" Color="#3C332A"/>
+    <SolidColorBrush x:Key="TrayToolRowHoverBg" Color="#473D30"/>
+    <SolidColorBrush x:Key="TrayToolRowText" Color="#E0E0E0"/>
+
     <SolidColorBrush x:Key="PrefenenceTitleBackgroundColor" Color="#383838"/>
     <SolidColorBrush x:Key="PrefenenceButton" Color="#383838"/>
     <SolidColorBrush x:Key="PreferenceButtonColor" Color="#383838"/>

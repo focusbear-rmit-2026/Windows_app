@@ -1853,9 +1853,7 @@ namespace Focus_Bear.Habits
         {
             if (((App) Application.Current).wndTrayMenu != null)
             {
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)Application.Current).wndTrayMenu.btnResumeHabits);
-                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                invokeProv.Invoke();
+                ((App)Application.Current).wndTrayMenu.ResumeHabitsFromTray();
             }
             //Now recall this function after 6 seconds.
             //await Task.Delay(6000);

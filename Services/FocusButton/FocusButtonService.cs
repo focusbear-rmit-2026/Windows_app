@@ -218,6 +218,10 @@ namespace Focus_Bear.Services.FocusButton
         }
         // ── Serial TX ─────────────────────────────────────────────────────────
 
+        // Tells the device to go idle. Public so the shared voice dispatcher can request it
+        // when a habit is started while habits are postponed (matches the hardware-button path).
+        public void SendIdle() => SendCmd("SET|IDLE");
+
         private void SendCmd(string cmd)
         {
             if (_port == null || !_port.IsOpen)
@@ -617,7 +621,7 @@ namespace Focus_Bear.Services.FocusButton
                 try
                 {
                     LogWriter.LogWrite("FocusButton ProcessVoiceCommand() started");
-                    string apiKey = "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";
+                    string apiKey = OpenAIService.OpenAIApiKey;
                     IntentResponse result = await OpenAIService.ProcessVoiceCommand(apiKey, appSettings.RecordingPath);
                     if (result.confidence == "low")
                     {

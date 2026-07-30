@@ -493,10 +493,12 @@ namespace Focus_Bear.Focus
 
             Take5MinsBreak();//needed to execute the finish focus mode api
 
-            //fire the start focus session button again
-            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
-            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-            invokeProv.Invoke();
+            // Open the focus start screen for another session. (Previously this fired the tray Start button,
+            // but that button now opens an inline picker in the tray instead, so call the window directly.)
+            if (appSettings.bIsGeekModeEnabled)
+                ((App)(Application.Current)).ShowPomodoroWindow();
+            else
+                ((App)(Application.Current)).ShowSimplePomodoroWindow();
         }
 
         public void ShowTasksEndWindow()
@@ -592,12 +594,7 @@ namespace Focus_Bear.Focus
                 ((App)Application.Current).ShowFocusProgressWindow();
 
                 ((App)(Application.Current)).wndTrayMenu.OnUntill.Visibility = Visibility.Visible;
-                ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 45;
-
-                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                {
-                    ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 70;
-                }
+                // Header auto-sizes in the redesigned tray menu; no manual OrangeHeader height needed.
 
                 string sTill = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString();
                 sTill = sTill.Replace("<TIME>", newEndTime.ToString());

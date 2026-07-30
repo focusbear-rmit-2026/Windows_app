@@ -617,10 +617,12 @@ namespace Focus_Bear.ShutOff
                 }
             }
 
-            //Launch the pomodoro screen
-            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnStartPomodoroMode);
-            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-            invokeProv.Invoke();
+            //Launch the pomodoro screen. (The tray Start button now opens an inline picker, so open the
+            //focus window directly.)
+            if (appSettings.bIsGeekModeEnabled)
+                ((App)(Application.Current)).ShowPomodoroWindow();
+            else
+                ((App)(Application.Current)).ShowSimplePomodoroWindow();
 
             AbortShutoff();
         }

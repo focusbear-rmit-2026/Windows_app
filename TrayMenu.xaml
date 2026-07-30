@@ -1,4 +1,4 @@
-﻿<Window x:Class="Focus_Bear.TrayMenu"
+<Window x:Class="Focus_Bear.TrayMenu"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,10 +6,14 @@
         xmlns:local="clr-namespace:Focus_Bear"
         xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         mc:Ignorable="d"
-        Title="Focus Bear" AutomationProperties.AutomationId="TrayMenu" Height="auto"  MinWidth="330"  Width="330" MaxWidth="330" WindowStyle="None" Deactivated="Window_Deactivated" >
+        Title="Focus Bear" AutomationProperties.AutomationId="TrayMenu" Height="auto"
+        MinWidth="356" Width="356" MaxWidth="356" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent" ShowInTaskbar="False"
+        Deactivated="Window_Deactivated" >
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
+        <!-- Focus-modes list rows (unchanged behaviour) -->
         <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}" />
@@ -27,7 +31,6 @@
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
-
                             <Trigger Property="IsMouseOver" Value="true">
                                 <Setter TargetName="IconBorder" Property="Background">
                                     <Setter.Value>
@@ -41,202 +44,371 @@
             </Setter>
             <Setter Property="Visibility" Value="{Binding isShowAbleInTrayMenuList, Converter={StaticResource BoolToVis}}" />
         </Style>
+
+        <!-- Circular header icon button (mic / settings / quit) -->
+        <Style x:Key="CircleIconButton" TargetType="Button">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+            <Setter Property="Background" Value="{DynamicResource TrayCircleBtnBg}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="17" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource TrayCircleBtnHoverBg}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Mac-style white card row (grey border, smooth light-orange hover) -->
+        <Style x:Key="MacCardButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="14,5"/>
+            <Setter Property="Background" Value="{DynamicResource TrayCardBg}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="14" Background="{TemplateBinding Background}"
+                                BorderBrush="{DynamicResource TrayCardBorder}" BorderThickness="1" Padding="12,11">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource TrayCardHoverBg}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource TrayCardHoverBorder}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Orange call-to-action card (Start / Stop focus session), darkens on hover -->
+        <Style x:Key="MacCtaButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="14,5"/>
+            <Setter Property="Background" Value="#f0932a"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="14" Background="{TemplateBinding Background}" Padding="12,13">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#E07B1F"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Accordion header (Focus Tools) — borderless, transparent, smooth light-orange hover -->
+        <Style x:Key="AccordionHeaderButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" Padding="14,12">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- No header fill on hover: the card's border is highlighted instead
+                                 (AccordionCard_MouseEnter/Leave in code-behind). -->
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Bare clickable row (Day Plan task) — transparent, subtle hover, left-aligned -->
+        <Style x:Key="PlainRowButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" Padding="0,2">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Focus duration step button (− / +) — small rounded square appears on hover for a button feel.
+             The outer transparent padding keeps a comfortable click target; the visible square stays small. -->
+        <Style x:Key="FocusStepButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent" Padding="12">
+                            <Border x:Name="bd" Width="28" Height="28" CornerRadius="7" Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#33FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Accordion row (a tool inside Focus Tools) — light-orange pill on the white body -->
+        <Style x:Key="ToolRowButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Background" Value="{DynamicResource TrayToolRowBg}"/>
+            <Setter Property="Margin" Value="8,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="9" Background="{TemplateBinding Background}" Padding="12,10">
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource TrayToolRowHoverBg}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
-    <Grid Background="{DynamicResource BackgroundColor}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="14*"/>
-            <ColumnDefinition Width="9*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="70" />
-            <RowDefinition Height="Auto" MinHeight="35" />
-            <RowDefinition Height="Auto"  />
-            <RowDefinition Height="Auto" MinHeight="30" />
+    <!-- Rounded popover container with soft shadow. UseLayoutRounding snaps children to whole pixels so
+         1px card borders render evenly on all edges. (Deliberately NOT SnapsToDevicePixels — that snaps
+         curved edges to the pixel grid and makes the rounded corners look jagged.) -->
+    <Border Margin="12" CornerRadius="16" Background="{DynamicResource BackgroundColor}"
+            UseLayoutRounding="True">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="0" Opacity="0.28" Color="Black"/>
+        </Border.Effect>
 
-        </Grid.RowDefinitions>
-        
-        <Rectangle  Grid.Row="0" Height="70" Margin="14,8,14,7"  Fill="#ffe4c6"  RadiusX="7" RadiusY="7" Grid.ColumnSpan="2" />
-        <Image Grid.Row="0" HorizontalAlignment="Center" Height="40"  Width="250" Margin="0,0,0,0" Source="Images/fb.png" Stretch="None" VerticalAlignment="Center" Grid.ColumnSpan="2"  />
+        <StackPanel Orientation="Vertical">
 
-        <StackPanel  Grid.Row="1" Orientation="Vertical" Grid.ColumnSpan="2">
-            <TextBlock   Name="AlignmentScoreText"  Margin="15,10,0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Visibility="Collapsed" Foreground="#e88800">xFocus alignment score =</TextBlock>
-            <StackPanel    Orientation="Horizontal" HorizontalAlignment="Center"  Margin="0,10,0,10" >
-                <RadioButton x:Name="GeekMode" AutomationProperties.AutomationId="rbGeekMode" Content="xGeek Mode" Style="{StaticResource SegmentRadioButtonStyle}"     Cursor="Hand"  />
-                <RadioButton x:Name="SimpleMode" AutomationProperties.AutomationId="rbSimpleMode" Content="xSimple Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Cursor="Hand"  />
-            </StackPanel>
+            <!-- ── Header: title + circular mic / settings / quit ───────────────── -->
+            <Grid Margin="20,16,14,8">
+                <TextBlock Text="Focus Bear" FontSize="18" FontWeight="Bold"
+                           VerticalAlignment="Center" HorizontalAlignment="Left"
+                           Foreground="{DynamicResource ForegroundColor}"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
 
-            <Button   x:Name="btnReactivate" AutomationProperties.AutomationId="btnReactivate" Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnReactivate_Click" Visibility="Collapsed">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Margin="8" Name="Reactivate">xReactivate</TextBlock>
-                    </StackPanel>
-                </Button.Content>
+                    <!-- Microphone / voice command (shown for paid/trial users) -->
+                    <Button x:Name="btnVoiceCommand" Style="{StaticResource CircleIconButton}"
+                            Click="btnVoiceCommand_Click" ToolTip="Voice command" Visibility="Collapsed"
+                            AutomationProperties.AutomationId="btnVoiceCommand">
+                        <Viewbox Width="18" Height="18">
+                            <Canvas Width="24" Height="24">
+                                <Path Fill="{DynamicResource TrayCircleIconColor}"
+                                      Data="M12,2 C10.34,2 9,3.34 9,5 L9,11 C9,12.66 10.34,14 12,14 C13.66,14 15,12.66 15,11 L15,5 C15,3.34 13.66,2 12,2 Z M17,11 C17,14 14.76,16.1 12,16.1 C9.24,16.1 7,14 7,11 L5,11 C5,14.42 7.72,17.23 11,17.72 L11,21 L13,21 L13,17.72 C16.28,17.23 19,14.42 19,11 L17,11 Z"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Button>
+
+                    <!-- Settings / preferences -->
+                    <Button x:Name="btnSettingsIcon" Style="{StaticResource CircleIconButton}"
+                            Click="btnSettings_Click" ToolTip="Preferences"
+                            AutomationProperties.AutomationId="btnSettingsIcon">
+                        <Viewbox Width="18" Height="18">
+                            <Canvas Width="24" Height="24">
+                                <Path Fill="{DynamicResource TrayCircleIconColor}"
+                                      Data="M12,8 A4,4 0 1,0 12,16 A4,4 0 1,0 12,8 Z M12,10.5 A1.5,1.5 0 1,1 12,13.5 A1.5,1.5 0 1,1 12,10.5 Z M19.4,13 C19.4,12.7 19.4,12.3 19.4,12 C19.4,11.7 19.4,11.3 19.4,11 L21.5,9.4 C21.7,9.2 21.7,9 21.6,8.8 L19.6,5.3 C19.5,5.1 19.2,5 19,5.1 L16.6,6 C16.1,5.6 15.5,5.3 14.9,5 L14.5,2.5 C14.5,2.2 14.3,2 14,2 L10,2 C9.7,2 9.5,2.2 9.5,2.5 L9.1,5 C8.5,5.3 7.9,5.6 7.4,6 L5,5.1 C4.8,5 4.5,5.1 4.4,5.3 L2.4,8.8 C2.3,9 2.3,9.2 2.5,9.4 L4.6,11 C4.6,11.3 4.6,11.7 4.6,12 C4.6,12.3 4.6,12.7 4.6,13 L2.5,14.6 C2.3,14.8 2.3,15 2.4,15.2 L4.4,18.7 C4.5,18.9 4.8,19 5,18.9 L7.4,18 C7.9,18.4 8.5,18.7 9.1,19 L9.5,21.5 C9.5,21.8 9.7,22 10,22 L14,22 C14.3,22 14.5,21.8 14.5,21.5 L14.9,19 C15.5,18.7 16.1,18.4 16.6,18 L19,18.9 C19.2,19 19.5,18.9 19.6,18.7 L21.6,15.2 C21.7,15 21.7,14.8 21.5,14.6 L19.4,13 Z"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Button>
+
+                    <!-- Quit / power -->
+                    <Button x:Name="btnQuitIcon" Style="{StaticResource CircleIconButton}"
+                            Click="btnQuit_Click" ToolTip="Quit"
+                            AutomationProperties.AutomationId="btnQuitIcon">
+                        <Viewbox Width="18" Height="18">
+                            <Canvas Width="24" Height="24">
+                                <Path Fill="Transparent" Stroke="{DynamicResource TrayCircleIconColor}" StrokeThickness="2"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                      Data="M12,3 L12,11 M6.5,6.5 A7,7 0 1,0 17.5,6.5"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- ── Focus area (alignment score + focus modes list + start/stop) ── -->
+            <TextBlock x:Name="AlignmentScoreText" Margin="20,2,20,6" FontSize="13" Cursor="Hand"
+                       FontWeight="SemiBold" Visibility="Collapsed" Foreground="#e88800"
+                       TextWrapping="Wrap">xFocus alignment score =</TextBlock>
+
+            <!-- Running focus session card -->
+            <Grid Name="FocusSection" Visibility="Collapsed" Margin="14,5">
+                <Border CornerRadius="14" Background="#f0932a"/>
+                <StackPanel Orientation="Vertical" Margin="16,10,14,12">
+                    <Label Name="Focus" Padding="0" Foreground="White" FontSize="15" FontWeight="Bold">xFocus</Label>
+                    <Label Name="OnUntill" Visibility="Collapsed" Padding="0" Margin="0,2,0,0"
+                           Foreground="White" FontSize="12">On Untill</Label>
+                    <ListView MaxHeight="220" Margin="0,6,0,0" x:Name="ListFocusModes"
+                              AutomationProperties.AutomationId="lvFocusModes"
+                              VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                              Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0"
+                              Foreground="{x:Null}" SelectionChanged="ListFocusModes_SelectionChanged">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid x:Name="ItemHeader" Height="40" Margin="0" IsHitTestVisible="True" Cursor="Hand">
+                                    <Grid.Style>
+                                        <Style TargetType="{x:Type Grid}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding isOn}" Value="True">
+                                                    <Setter Property="Background" Value="#22FFFFFF" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding isOn}" Value="False">
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="25"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Rectangle Fill="{Binding color, StringFormat=\{0\}}" Width="25" Height="25" RadiusX="4" RadiusY="4"></Rectangle>
+                                    <Image x:Name="imgPlayStop" Height="13" Width="13" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Image.Style>
+                                            <Style TargetType="{x:Type Image}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding isOn}" Value="True">
+                                                        <Setter Property="Source" Value="images/stop_icon.png"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding isOn}" Value="False">
+                                                        <Setter Property="Source" Value="images/play_icon.png"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                    <emoji:TextBlock Grid.Column="1" Text="{Binding name, StringFormat=\{0\}}" FontSize="13" FontWeight="Semibold" Cursor="Hand" VerticalAlignment="Center" Margin="7,0,0,0" HorizontalAlignment="Left" Foreground="White"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Grid>
+
+            <!-- Start focus session card (orange CTA, matches macOS). Click reveals the inline picker below. -->
+            <Button x:Name="btnStartPomodoroMode" AutomationProperties.AutomationId="btnStartPomodoroMode"
+                    Style="{StaticResource MacCtaButton}" Click="btnStartPomodoroMode_Click">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="&#x25B6;" FontSize="13" Foreground="White" VerticalAlignment="Center" Margin="0,0,9,0"/>
+                    <TextBlock Name="PomodoroMode" Text="Start Focus Session" VerticalAlignment="Center"
+                               FontSize="15" FontWeight="SemiBold" Foreground="White"/>
+                </StackPanel>
             </Button>
 
-            <Button   x:Name="btnResumeHabits" AutomationProperties.AutomationId="btnResumeHabits" Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   Height="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnResumeHabits_Click" Visibility="Collapsed">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="23"  Height="23" Source="images/play_circle.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <TextBlock Margin="8" Name="btnResumeHabitsTxt">xResume Habits</TextBlock>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-
-            <Button   x:Name="btnSettings" AutomationProperties.AutomationId="btnSettings"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"  MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnSettings_Click">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="24"  Height="24" Source="images/preferences.png"  RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <TextBlock Margin="8" Name="Preferences">xPreferences</TextBlock>
-                    </StackPanel>
-                </Button.Content>
-
-            </Button>
-            <!--<StackPanel   Height="50" Orientation="Horizontal">
-                <Label   x:Name="lblOfficeMode"  Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" >xWFH Mode Enabledsdsdsd</Label>
-                <ToggleButton x:Name="btnOfficeMode"  Style="{DynamicResource MacStyleToggleSwitch}"    Height="20" Width="52" Margin="15,0,0,0" HorizontalAlignment="Right"  Click="OfficeModeButton_Click"  Cursor="Hand" Focusable="False"/>
-
-            </StackPanel>-->
-            <StackPanel Orientation="Horizontal" Name="LimitedBlockingSection" Visibility="Collapsed">
-                <TextBlock   Name="LimitedBlocking"  Margin="20,10,0,5" FontSize="14" Cursor="Hand" Foreground="{DynamicResource ForegroundColor}" FontWeight="Semibold" Visibility="Visible">xLimited Blocking</TextBlock>
-                <Image Name="LimitedBlockingInfo" Source="{DynamicResource InfoImage}" Width="20"  Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Cursor="Hand"></Image>
-
-                <Button x:Name="btnLimitedBlockingEdit" AutomationProperties.AutomationId="btnLimitedBlockingEdit" Margin="10,6,0,0" Style="{StaticResource BtnStyleInfo}" Click="btnLimitedBlockingEdit_Click" MinWidth="18" Height="18" Cursor="Hand" >
-                    <StackPanel Orientation="Vertical">
-                        <Image Name="LimitedBlockingEdit" Source="images/edit.png" Margin="0,0,0,0" Height="18" Width="18" />
-                    </StackPanel>
-                </Button>
-                
-            </StackPanel>
-            <StackPanel Name="OfficeModeSection"  Orientation="Horizontal" HorizontalAlignment="Center"  Margin="0,10,0,10" >
-                <RadioButton x:Name="OfficeMode" AutomationProperties.AutomationId="rbOfficeMode" Content="xOffice Mode" Style="{StaticResource SegmentRadioButtonStyle}"   Checked="OfficeMode_Checked" Cursor="Hand"  />
-                <RadioButton x:Name="WFHMode" AutomationProperties.AutomationId="rbWFHMode" Content="xWFH Mode" Style="{StaticResource SegmentRadioButtonStyle}"  Checked="WFHMode_Checked" Cursor="Hand"  />
-            </StackPanel>
-        </StackPanel>
-
-        <Grid Name="FocusSection"  Grid.Row="2"   Grid.ColumnSpan="2" Visibility="Collapsed">
-        <Rectangle  Grid.Row="2" Height="auto"   Margin="14,7"  Fill="#ffe4c6"  RadiusX="7" RadiusY="7" Grid.ColumnSpan="2" />
-        <Border  Grid.Row="2" x:Name="OrangeHeader" BorderThickness="1"   VerticalAlignment="Top"  Margin="14,0" Height="25" CornerRadius="7,7,0,0" BorderBrush="#e88800" Background="#e88800" Grid.ColumnSpan="2"/>
-        <StackPanel  Grid.Row="2" Orientation="Vertical" Grid.ColumnSpan="2">
-            <Label   Grid.Row="2" Name="Focus"  Margin="20,-3,0,0"  MinHeight="25"  VerticalAlignment="Top"  Foreground="White" FontSize="14" FontWeight="Semibold" >xFocus</Label>
-            <Label   Grid.Row="2" Name="OnUntill" Visibility="Collapsed"  Margin="20,-2,0,0"  MinHeight="25"  VerticalAlignment="Top"  Foreground="White" FontSize="11"  >On Untill</Label>
-
-            <ListView  MaxHeight="240"    Margin="13,5,16,10" x:Name="ListFocusModes" AutomationProperties.AutomationId="lvFocusModes"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource ListViewItemStyle}" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Foreground="{x:Null}" SelectionChanged="ListFocusModes_SelectionChanged" >
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        
-                        <Grid x:Name="ItemHeader"  Height="40"    Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >
-                            <Grid.Style>
-                                <Style TargetType="{x:Type Grid}">
+            <!-- Expanded start control (shown after clicking Start Focus Session): a goal field + tools button,
+                 a focus-mode dropdown, the orange [−] NN MIN / TAP TO START [+] bar, and a caption — all in
+                 one card. Hidden while a session is running. -->
+            <Border x:Name="FocusStartExpanded" Visibility="Collapsed" Margin="14,5" CornerRadius="14"
+                    Background="{DynamicResource TrayCardBg}" BorderBrush="#f0932a" BorderThickness="1.3">
+            <StackPanel Margin="14,12">
+                <!-- Goal + tools (open full focus screen) -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" CornerRadius="6" BorderBrush="#9A9A9A" BorderThickness="1"
+                            Background="{DynamicResource TextBoxBackgroundColor}" Padding="8,5" VerticalAlignment="Center">
+                        <Grid>
+                        <TextBox x:Name="txtFocusGoal" FontSize="13" BorderThickness="0" VerticalContentAlignment="Center"
+                                 Background="Transparent" Foreground="{DynamicResource ForegroundColor}"/>
+                        <TextBlock x:Name="FocusGoalPlaceholder" Text="Enter Focus Goal here" FontSize="13" IsHitTestVisible="False"
+                                   Foreground="{DynamicResource TraySubtitleColor}" VerticalAlignment="Center" Margin="2,0,0,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding isOn}" Value="True">
-                                            <Setter Property="Background" Value="Cornsilk" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding isOn}" Value="False">
-                                            <Setter Property="Background" Value="Transparent"/>
+                                        <DataTrigger Binding="{Binding Text, ElementName=txtFocusGoal}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </Grid.Style>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="25"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Rectangle Fill="{Binding color, StringFormat=\{0\}}" Width="25" Height="25" RadiusX="4" RadiusY="4"></Rectangle>
-                            <Image x:Name="imgPlayStop" Height="13" Width="13" HorizontalAlignment="Center"  VerticalAlignment="Center" Margin="0,0,0,0" >
-                                <Image.Style>
-                                    <Style TargetType="{x:Type Image}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding isOn}" Value="True">
-                                                <Setter Property="Source" Value="images/stop_icon.png"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding isOn}" Value="False">
-                                                <Setter Property="Source" Value="images/play_icon.png"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Image.Style>
-                            </Image>
-
-                            <emoji:TextBlock Grid.Column="1" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" FontWeight="Semibold" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left">
-                                <emoji:TextBlock.Style>
-                                    <Style TargetType="{x:Type emoji:TextBlock}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding isOn}" Value="True">
-                                                <Setter Property="Foreground" Value="#e88800"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding isOn}" Value="False">
-                                                <Setter Property="Foreground" Value="#000"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </emoji:TextBlock.Style>
-                            </emoji:TextBlock>
+                            </TextBlock.Style>
+                        </TextBlock>
                         </Grid>
-                    </DataTemplate>
-                   
-                </ListView.ItemTemplate>
-            </ListView>
-            
-        </StackPanel>
-        </Grid>
-        <StackPanel Grid.Row="3" Grid.ColumnSpan="2">
+                    </Border>
+                    <Button Grid.Column="1" x:Name="btnFocusTools" AutomationProperties.AutomationId="btnFocusTools"
+                            Style="{StaticResource CircleIconButton}" Width="30" Height="30" Margin="8,0,0,0"
+                            Click="btnFocusTools_Click" ToolTip="Open the full focus screen">
+                        <emoji:TextBlock Text="&#x1F527;" FontSize="14"/>
+                    </Button>
+                </Grid>
 
-            <Border  x:Name="BlockingScheduleSection" Visibility="Collapsed" BorderThickness="1"   VerticalAlignment="Top"  Margin="14,10,14,14" CornerRadius="5,5,5,5" BorderBrush="Gray"  Grid.ColumnSpan="2">
-                <StackPanel  Orientation="Vertical" >
+                <TextBlock x:Name="SelectFocusModeLabel" Text="Select Focus Mode" FontSize="12" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TraySubtitleColor}" Margin="2,10,0,4"/>
+                <ComboBox x:Name="cmbFocusModes" Height="32" FontSize="13"
+                          DisplayMemberPath="name" SelectedValuePath="id"/>
+
+                <Border Margin="0,10,0,0" CornerRadius="14" Background="#f0932a" ClipToBounds="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-
-                        <TextBlock x:Name="BlockingScheduleText"
-                             Grid.Column="0"
-                             Margin="15,10,10,5"
-                             FontSize="14"
-                             Cursor="Hand"
-                             FontWeight="Semibold"
-                             Foreground="{DynamicResource ForegroundColor}"
-                             TextWrapping="NoWrap"
-                             TextTrimming="CharacterEllipsis">xBlocking Schedule</TextBlock>
-
-                        <ToggleButton x:Name="btnPauseBlockingSchedule"
-                            Grid.Column="1"
-                            AutomationProperties.AutomationId="tglbtnPauseBlockingSchedule"
-                            Style="{DynamicResource MacStyleToggleSwitch}"
-                            Margin="0,3,0,0"
-                            VerticalAlignment="Center"
-                            Cursor="Hand"
-                            Focusable="True"
-                            Checked="btnPauseBlockingSchedule_Checked"
-                            Unchecked="btnPauseBlockingSchedule_Unchecked"/>
-
-                        <TextBlock x:Name="BlockingScheduleState"
-                             Grid.Column="2"
-                             Margin="8,10,15,5"
-                             FontSize="14"
-                             Cursor="Hand"
-                             FontWeight="Semibold"
-                             Foreground="{DynamicResource ForegroundColor}">xActive</TextBlock>
+                        <Button Grid.Column="0" x:Name="btnFocusDurDown" AutomationProperties.AutomationId="btnFocusDurDown"
+                                Style="{StaticResource FocusStepButton}" Click="btnFocusDurDown_Click">
+                            <TextBlock Text="&#x2212;" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                        </Button>
+                        <Button Grid.Column="1" x:Name="btnDoStartFocus" AutomationProperties.AutomationId="btnDoStartFocus"
+                                Style="{StaticResource AccordionHeaderButton}" Click="btnDoStartFocus_Click">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                <TextBlock x:Name="FocusStartCenterText" Text="25 MIN" FontSize="16" FontWeight="Bold"
+                                           Foreground="White" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="FocusTapToStartText" Text="TAP TO START" FontSize="10" FontWeight="SemiBold" Foreground="White"
+                                           HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="2" x:Name="btnFocusDurUp" AutomationProperties.AutomationId="btnFocusDurUp"
+                                Style="{StaticResource FocusStepButton}" Click="btnFocusDurUp_Click">
+                            <TextBlock Text="+" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                        </Button>
                     </Grid>
-                    
-                    <TextBlock   Name="BlockingScheduleName"  Margin="15,5,0,5" FontSize="14"  FontWeight="Semibold" Foreground="{DynamicResource ForegroundColor}" >xBlocking Schedule Name</TextBlock>
-                    <TextBlock   Name="BlockingScheduleTime"  Margin="15,5,0,5" FontSize="12"  FontWeight="Normal" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource ForegroundColor}" >xBlocking Schedule Time </TextBlock>
-                </StackPanel>
+                </Border>
+
+                <TextBlock x:Name="ChangeTimeHint" Text="CHANGE THE TIME WITH + AND &#x2212;" FontSize="10" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TraySubtitleColor}" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+            </StackPanel>
             </Border>
-   
 
-            <Button   x:Name="btnStartPomodoroMode" AutomationProperties.AutomationId="btnStartPomodoroMode"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnStartPomodoroMode_Click">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="24"  Height="24" Source="images/start-pomodoro.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <TextBlock Margin="8" Name="PomodoroMode">xStart Focus Session</TextBlock>
-                    </StackPanel>
-                </Button.Content>
-
-            </Button>
-            <Button   x:Name="btnStopPomodoroMode" AutomationProperties.AutomationId="btnStopPomodoroMode" Visibility="Collapsed"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click='btnStopPomodoroMode_Click'>
+            <!-- Running / stop focus session card (orange) -->
+            <Button x:Name="btnStopPomodoroMode" AutomationProperties.AutomationId="btnStopPomodoroMode"
+                    Visibility="Collapsed" Style="{StaticResource MacCtaButton}"
+                    Click='btnStopPomodoroMode_Click'>
                 <Button.ContextMenu>
                     <ContextMenu x:Name="FocusSessionContextMenu">
                         <MenuItem x:Name="PauseResumeFocusMenuItem">
@@ -245,7 +417,6 @@
                             </MenuItem.Icon>
                             <MenuItem.Header>xPause Focus Session</MenuItem.Header>
                         </MenuItem>
-
                         <MenuItem x:Name="StopFocusSessionMenuItem">
                             <MenuItem.Icon>
                                 <Image Width="16" Height="16" Source="pack://application:,,,/Focus Bear;component/images/stop_icon.png" />
@@ -254,77 +425,295 @@
                         </MenuItem>
                     </ContextMenu>
                 </Button.ContextMenu>
-
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <Image x:Name="StopPomodoroModeMainIcon" Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="24"  Height="24" Source="images/start-pomodoro.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <TextBlock Margin="8" Name="btnStopPomodoroModetxt">xStop Focus Session</TextBlock>
-                    </StackPanel>
-                </Button.Content>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Width="40" Height="40" CornerRadius="11" Background="{DynamicResource TrayIconSquareBg}">
+                        <Image x:Name="StopPomodoroModeMainIcon" Width="22" Height="22" Source="images/start-pomodoro.png"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
+                    <TextBlock Grid.Column="1" Name="btnStopPomodoroModetxt" VerticalAlignment="Center" Margin="12,0,0,0"
+                               FontSize="15" FontWeight="SemiBold" Foreground="White">xStop Focus Session</TextBlock>
+                    <TextBlock Grid.Column="2" Text="&#x203A;" FontSize="22" Foreground="White" VerticalAlignment="Center" Margin="6,0,4,2"/>
+                </Grid>
             </Button>
-            <Grid Name="ToolsSection"  Grid.Row="2"   Grid.ColumnSpan="2" Visibility="Visible">
-                <Rectangle  Grid.Row="2" Height="auto"   Margin="14,7"  Fill="#ffe4c6"  RadiusX="7" RadiusY="7" Grid.ColumnSpan="2" />
-                <Border  Grid.Row="2" BorderThickness="1"   VerticalAlignment="Top"  Margin="14,0" Height="25" CornerRadius="7,7,0,0" BorderBrush="#e88800" Background="#e88800" Grid.ColumnSpan="2">
-                    <TextBlock Name="Tools" Foreground="White" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="SemiBold">xTools ></TextBlock>
-                </Border>
-                <StackPanel  Grid.Row="2" Orientation="Horizontal" Height="70" Margin="15,0,0,0" Grid.ColumnSpan="2">
-                   
-                    <Button x:Name="btnPlayPauseMusic" AutomationProperties.AutomationId="btnPlayPauseMusic" Margin="9,17,0,0"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True" Width="25"  Height="25" HorizontalContentAlignment="Left" Padding="0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnPlayPauseMusic_Click" Visibility="Collapsed">
-                        <Button.Content>
-                            <StackPanel  Orientation="Horizontal">
-                                <Image Margin="3,6,3,3" Name="PlayPauseButtonImage" Height="20"  Width="20" Source="Images/pause_icon.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
 
-                    <Button   x:Name="btnBrainDump" AutomationProperties.AutomationId="btnBrainDump" Margin="6,17,0,0"  Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True" Width="25"  Height="25" HorizontalContentAlignment="Left" Padding="0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnBrainDump_Click">
-                        <Button.Content>
-                            <StackPanel  Orientation="Horizontal">
-                                <Image Margin="3" Width="23"  Height="23" Source="images/brainDump.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-
-                    </Button>
-                    <Button   x:Name="btnToDoPlayer" AutomationProperties.AutomationId="btnToDoPlayer" Margin="13,17,0,0" Visibility="Visible"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True" Width="25"  Height="25" HorizontalContentAlignment="Left" Padding="0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnToDoPlayer_Click">
-                        <Button.Content>
-                            <StackPanel  Orientation="Horizontal">
-                                <Image Margin="3" Width="23"  Height="23" Source="images/validIcon.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
-
-                    <Button   x:Name="btnFocusMusic" AutomationProperties.AutomationId="btnFocusMusic" Margin="13,17,0,0" Visibility="Visible"   Style="{StaticResource BtnStyleLightOrange}" IsEnabled="True" Width="25"  Height="25" HorizontalContentAlignment="Left" Padding="0" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnFocusMusic_Click">
-                        <Button.Content>
-                            <StackPanel  Orientation="Horizontal">
-                                <Image Margin="3" Width="23"  Height="23" Source="images/music_albums_fill.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
-                    
+            <!-- Blocking schedule card -->
+            <Border x:Name="BlockingScheduleSection" Visibility="Collapsed" Margin="14,5"
+                    CornerRadius="14" BorderThickness="1.3" BorderBrush="#f0932a" Background="{DynamicResource TrayCardBg}">
+                <StackPanel Orientation="Vertical" Margin="14,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="BlockingScheduleText" Grid.Column="0" Margin="0,0,10,4"
+                                   FontSize="14" Cursor="Hand" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource ForegroundColor}"
+                                   TextWrapping="NoWrap" TextTrimming="CharacterEllipsis">xBlocking Schedule</TextBlock>
+                        <ToggleButton x:Name="btnPauseBlockingSchedule" Grid.Column="1"
+                                      AutomationProperties.AutomationId="tglbtnPauseBlockingSchedule"
+                                      Style="{DynamicResource MacStyleToggleSwitch}" Margin="0,0,0,0"
+                                      VerticalAlignment="Center" Cursor="Hand" Focusable="True"
+                                      Checked="btnPauseBlockingSchedule_Checked"
+                                      Unchecked="btnPauseBlockingSchedule_Unchecked"/>
+                        <TextBlock x:Name="BlockingScheduleState" Grid.Column="2" Margin="8,0,0,4"
+                                   FontSize="14" Cursor="Hand" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource ForegroundColor}">xActive</TextBlock>
+                    </Grid>
+                    <TextBlock Name="BlockingScheduleName" Margin="0,4,0,2" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource ForegroundColor}">xBlocking Schedule Name</TextBlock>
+                    <TextBlock Name="BlockingScheduleTime" Margin="0,0,0,0" FontSize="12" FontWeight="Normal"
+                               TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource ForegroundColor}">xBlocking Schedule Time </TextBlock>
                 </StackPanel>
-            </Grid>
+            </Border>
 
-            <Button   x:Name="btnQuit" AutomationProperties.AutomationId="btnQuit" Click="btnQuit_Click"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="35" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" >
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <Image Grid.ColumnSpan="2"  Margin="10,2,0,0" Width="23"  Height="23" Source="images/pausecircle.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <TextBlock Margin="10" Name="Quit">xQuit</TextBlock>
-                    </StackPanel>
-                    
-                </Button.Content>
-            </Button>
-            <Button   x:Name="btnUpgradeNow" AutomationProperties.AutomationId="btnUpgradeNow"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   MinHeight="55" HorizontalContentAlignment="Left" Padding="0" Margin="14,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnUpgradeNow_Click">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <Image Grid.ColumnSpan="2"  Margin="10,7,0,0" Width="23"  Height="23" Source="images/upgrade.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                        <StackPanel  Orientation="Vertical">
-                            <TextBlock Margin="8,8,2,8" Name="UpgradeNow">xUpgrade Now</TextBlock>
-                            <TextBlock Margin="8,-5,0,6" Width="240" Name="TrialInfo"  FontSize="12" Cursor="Hand" TextWrapping="Wrap">xTrial Version - 27 of 31 days remaining</TextBlock>
+            <!-- Breaks accordion card (white card collapsed, turns orange when expanded — see SetAccordionState) -->
+            <Border Name="BreaksSection" Margin="14,5" CornerRadius="14" Background="{DynamicResource TrayCardBg}"
+                    BorderBrush="{DynamicResource TrayCardBorder}" BorderThickness="1" ClipToBounds="True"
+                    MouseEnter="AccordionCard_MouseEnter" MouseLeave="AccordionCard_MouseLeave">
+                <StackPanel Orientation="Vertical">
+                    <Button x:Name="btnBreaksHeader" Style="{StaticResource AccordionHeaderButton}" Click="btnBreaksHeader_Click">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="42" Height="42" CornerRadius="11" Background="{DynamicResource TrayIconSquareBg}">
+                                <Image Width="22" Height="22" Source="images/break.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                                <TextBlock x:Name="BreaksTitle" Text="Breaks" FontSize="15" FontWeight="Bold"
+                                           Foreground="{DynamicResource ForegroundColor}"/>
+                                <TextBlock x:Name="BreaksSubtitle" Text="Take a break" FontSize="12" Foreground="{DynamicResource TraySubtitleColor}"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Path x:Name="BreaksChevronPath" Grid.Column="2" Data="M0,0 L5,5 L0,10" Stroke="{DynamicResource TrayChevronColor}" StrokeThickness="2"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stretch="None"
+                                  VerticalAlignment="Center" Margin="8,0,6,0" RenderTransformOrigin="0.5,0.5">
+                                <Path.RenderTransform><RotateTransform x:Name="BreaksChevron" Angle="0"/></Path.RenderTransform>
+                            </Path>
+                        </Grid>
+                    </Button>
+                    <Border x:Name="BreaksBody" Visibility="Collapsed" Background="{DynamicResource TrayCardBg}" CornerRadius="0,0,13,13">
+                        <StackPanel>
+                            <TextBlock x:Name="BreaksStatusText" Margin="16,12,16,2" FontSize="13" Foreground="{DynamicResource TraySubtitleColor}"
+                                       TextWrapping="Wrap" Text="Take a break whenever you need one."/>
+                            <Button x:Name="btnStartBreakNow" Style="{StaticResource AccordionHeaderButton}"
+                                    HorizontalAlignment="Left" Click="btnStartBreakNow_Click">
+                                <TextBlock x:Name="StartBreakNowText" FontSize="14" FontWeight="SemiBold" Foreground="#e88800"
+                                           Text="Start a break now"/>
+                            </Button>
                         </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Day Plan accordion — expands to show the next habit + tasks; turns orange when expanded -->
+            <Border Name="DayPlanSection" Margin="14,5" CornerRadius="14" Background="{DynamicResource TrayCardBg}"
+                    BorderBrush="{DynamicResource TrayCardBorder}" BorderThickness="1" ClipToBounds="True"
+                    MouseEnter="AccordionCard_MouseEnter" MouseLeave="AccordionCard_MouseLeave">
+                <StackPanel Orientation="Vertical">
+                    <Button x:Name="btnDayPlanHeader" AutomationProperties.AutomationId="btnDayPlanHeader"
+                            Style="{StaticResource AccordionHeaderButton}" Click="btnDayPlanHeader_Click">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="42" Height="42" CornerRadius="11" Background="{DynamicResource TrayIconSquareBg}">
+                                <Image Width="22" Height="22" Source="pack://application:,,,/Images/play_circle.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                                <TextBlock Name="DayPlanTitle" FontSize="15" FontWeight="Bold"
+                                           Foreground="{DynamicResource ForegroundColor}">Day Plan</TextBlock>
+                                <TextBlock Name="DayPlanSubtitle" FontSize="12" Foreground="{DynamicResource TraySubtitleColor}"
+                                           TextTrimming="CharacterEllipsis" Text="View your day"/>
+                            </StackPanel>
+                            <Path x:Name="DayPlanChevronPath" Grid.Column="2" Data="M0,0 L5,5 L0,10" Stroke="{DynamicResource TrayChevronColor}"
+                                  StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stretch="None"
+                                  VerticalAlignment="Center" Margin="8,0,6,0" RenderTransformOrigin="0.5,0.5">
+                                <Path.RenderTransform><RotateTransform x:Name="DayPlanChevron" Angle="0"/></Path.RenderTransform>
+                            </Path>
+                        </Grid>
+                    </Button>
+                    <Border x:Name="DayPlanBody" Visibility="Collapsed" Background="{DynamicResource TrayCardBg}" CornerRadius="0,0,13,13">
+                        <StackPanel Margin="14,2,14,12">
+                            <TextBlock x:Name="NextHabitLabel" Text="NEXT HABIT" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TraySubtitleColor}" Margin="0,4,0,4"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="DayPlanNextHabit" Grid.Column="0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                           FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundColor}" Text="No habits scheduled"/>
+                                <Button x:Name="btnDayPlanStart" Grid.Column="1" Style="{StaticResource MacCtaButton}" Margin="8,0,0,0"
+                                        Padding="16,6" Click="btnDayPlanStart_Click">
+                                    <TextBlock x:Name="DayPlanStartText" Text="Start" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                </Button>
+                            </Grid>
+
+                            <!-- Habits postponed until <time> — shown only while a routine is postponed. -->
+                            <StackPanel x:Name="DayPlanPostponedRow" Orientation="Horizontal" Visibility="Collapsed" Margin="0,6,0,0">
+                                <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="11" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource TraySubtitleColor}"/>
+                                <TextBlock x:Name="DayPlanPostponedText" Margin="8,0,0,0" FontSize="12" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource TraySubtitleColor}" Text="Habits postponed until 10:07 PM"/>
+                            </StackPanel>
+
+                            <!-- Tasks for today -->
+                            <StackPanel x:Name="DayPlanTasksSection">
+                                <Grid Height="1" Background="{DynamicResource TrayCardBorder}" Margin="0,10,0,8"/>
+                                <TextBlock x:Name="TasksForTodayLabel" Text="TASKS FOR TODAY" FontSize="10" FontWeight="Bold"
+                                           Foreground="{DynamicResource TraySubtitleColor}" Margin="0,0,0,4"/>
+                                <ItemsControl x:Name="DayPlanTasksList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Style="{StaticResource PlainRowButton}" Tag="{Binding Id}"
+                                                    Click="DayPlanTask_Click" ToolTip="Mark done">
+                                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                    <Ellipse Width="14" Height="14" Stroke="{DynamicResource TrayChevronColor}"
+                                                             StrokeThickness="1.5" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding Title}" Margin="8,0,0,0" FontSize="13"
+                                                               Foreground="{DynamicResource ForegroundColor}" VerticalAlignment="Center"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+
+                            <Button x:Name="btnViewFullDayPlan" Style="{StaticResource AccordionHeaderButton}" HorizontalAlignment="Left"
+                                    Margin="0,8,0,0" Padding="0,4" Click="btnDayPlan_Click">
+                                <TextBlock x:Name="ViewFullDayPlanText" Text="View full day plan" FontSize="13" FontWeight="SemiBold" Foreground="#e88800"/>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Focus Tools accordion card (white card collapsed, turns orange when expanded — see SetAccordionState) -->
+            <Border Name="ToolsSection" Margin="14,5" CornerRadius="14" Background="{DynamicResource TrayCardBg}"
+                    BorderBrush="{DynamicResource TrayCardBorder}" BorderThickness="1" ClipToBounds="True"
+                    MouseEnter="AccordionCard_MouseEnter" MouseLeave="AccordionCard_MouseLeave">
+                <StackPanel Orientation="Vertical">
+                    <!-- Header (tap to expand/collapse) -->
+                    <Button x:Name="btnToolsHeader" Style="{StaticResource AccordionHeaderButton}" Click="btnToolsHeader_Click">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="42" Height="42" CornerRadius="11" Background="{DynamicResource TrayIconSquareBg}">
+                                <TextBlock Text="&#x2022;&#x2022;&#x2022;" FontSize="18" FontWeight="Bold" Foreground="#e88800"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-6,0,0"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                                <TextBlock Name="Tools" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource ForegroundColor}">Focus Tools</TextBlock>
+                                <TextBlock x:Name="ToolsSubtitle" Text="Music, brain dump &amp; to-dos" FontSize="12" Foreground="{DynamicResource TraySubtitleColor}"/>
+                            </StackPanel>
+                            <Path x:Name="ToolsChevronPath" Grid.Column="2" Data="M0,0 L5,5 L0,10" Stroke="{DynamicResource TrayChevronColor}" StrokeThickness="2"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stretch="None"
+                                  VerticalAlignment="Center" Margin="8,0,6,0" RenderTransformOrigin="0.5,0.5">
+                                <Path.RenderTransform><RotateTransform x:Name="ToolsChevron" Angle="0"/></Path.RenderTransform>
+                            </Path>
+                        </Grid>
+                    </Button>
+                    <!-- Body (expandable list of tools) -->
+                    <Border x:Name="ToolsBody" Visibility="Collapsed" Background="{DynamicResource TrayCardBg}" CornerRadius="0,0,13,13">
+                        <StackPanel>
+                        <Button x:Name="btnFocusMusic" AutomationProperties.AutomationId="btnFocusMusic"
+                                Style="{StaticResource ToolRowButton}" Margin="8,8,8,4" Click="btnFocusMusic_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Width="20" Height="20" Source="images/music_albums_fill.png"/>
+                                <TextBlock x:Name="FocusMusicLabel" Text="Focus Music" Margin="12,0,0,0" VerticalAlignment="Center"
+                                           FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TrayToolRowText}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnBrainDump" AutomationProperties.AutomationId="btnBrainDump"
+                                Style="{StaticResource ToolRowButton}" Click="btnBrainDump_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Width="20" Height="20" Source="images/brainDump.png"/>
+                                <TextBlock x:Name="BrainDumpLabel" Text="Brain Dump" Margin="12,0,0,0" VerticalAlignment="Center"
+                                           FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TrayToolRowText}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnToDoPlayer" AutomationProperties.AutomationId="btnToDoPlayer"
+                                Style="{StaticResource ToolRowButton}" Click="btnToDoPlayer_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Width="20" Height="20" Source="images/validIcon.png"/>
+                                <TextBlock x:Name="ToDoPlayerLabel" Text="To-Do Player" Margin="12,0,0,0" VerticalAlignment="Center"
+                                           FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TrayToolRowText}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnTabAudit" AutomationProperties.AutomationId="btnTabAudit"
+                                Style="{StaticResource ToolRowButton}" Margin="8,4,8,8" Click="btnTabAudit_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Width="20" Height="20" Source="{DynamicResource TabAuditIcon}"/>
+                                <TextBlock x:Name="TabAuditLabel" Text="Tab Audit" Margin="12,0,0,0" VerticalAlignment="Center"
+                                           FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TrayToolRowText}"/>
+                            </StackPanel>
+                        </Button>
+                        <!-- Music play/pause (shown by code while a track is playing) -->
+                        <Button x:Name="btnPlayPauseMusic" AutomationProperties.AutomationId="btnPlayPauseMusic"
+                                Style="{StaticResource ToolRowButton}" Margin="8,0,8,8" Visibility="Collapsed" Click="btnPlayPauseMusic_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Image x:Name="PlayPauseButtonImage" Width="20" Height="20" Source="Images/pause_icon.png"/>
+                                <TextBlock x:Name="PlayPauseMusicText" Text="Pause music" Margin="12,0,0,0" VerticalAlignment="Center"
+                                           FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TrayToolRowText}"/>
+                            </StackPanel>
+                        </Button>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Upgrade card -->
+            <Button x:Name="btnUpgradeNow" AutomationProperties.AutomationId="btnUpgradeNow"
+                    Style="{StaticResource MacCardButton}" Click="btnUpgradeNow_Click">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Width="40" Height="40" CornerRadius="11" Background="{DynamicResource TrayIconSquareBg}" VerticalAlignment="Top">
+                        <Image Width="22" Height="22" Source="images/upgrade.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                        <TextBlock Name="UpgradeNow" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource ForegroundColor}">xUpgrade Now</TextBlock>
+                        <TextBlock Name="TrialInfo" FontSize="12" Foreground="{DynamicResource TraySubtitleColor}" TextWrapping="Wrap">xTrial Version - 27 of 31 days remaining</TextBlock>
                     </StackPanel>
-                </Button.Content>
+                    <TextBlock Grid.Column="2" Text="&#x203A;" FontSize="22" Foreground="{DynamicResource TrayChevronColor}" VerticalAlignment="Center" Margin="6,0,4,2"/>
+                </Grid>
             </Button>
+
+
+            <!-- Limited blocking (shown conditionally by code) -->
+            <StackPanel Orientation="Horizontal" Name="LimitedBlockingSection" Visibility="Collapsed" Margin="18,0,0,10">
+                <TextBlock Name="LimitedBlocking" Margin="0,0,0,0" FontSize="14" Cursor="Hand"
+                           Foreground="{DynamicResource ForegroundColor}" FontWeight="SemiBold" VerticalAlignment="Center">xLimited Blocking</TextBlock>
+                <Image Name="LimitedBlockingInfo" Source="{DynamicResource InfoImage}" Width="18" Margin="8,0,0,0" VerticalAlignment="Center" Cursor="Hand"/>
+                <Button x:Name="btnLimitedBlockingEdit" AutomationProperties.AutomationId="btnLimitedBlockingEdit" Margin="8,0,0,0" Style="{StaticResource BtnStyleInfo}" Click="btnLimitedBlockingEdit_Click" MinWidth="18" Height="18" Cursor="Hand">
+                    <Image Name="LimitedBlockingEdit" Source="images/edit.png" Height="18" Width="18"/>
+                </Button>
+            </StackPanel>
+
+            <!-- Bottom spacing -->
+            <Border Height="8"/>
+
         </StackPanel>
-    </Grid>
+    </Border>
 
 </Window>

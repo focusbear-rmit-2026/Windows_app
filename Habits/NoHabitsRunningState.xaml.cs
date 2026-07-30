@@ -205,9 +205,7 @@ namespace Focus_Bear.Habits
             }
             else if (nButtonActionState == ActionState.AppDeactivated)
             {
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnReactivate);
-                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-                invokeProv.Invoke();
+                ((App)(Application.Current)).wndTrayMenu.ReactivateFromTray();
             }
             else if (nButtonActionState == ActionState.BreaksNotEnabled)
             {

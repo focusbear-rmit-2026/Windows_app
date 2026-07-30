@@ -27,4 +27,6 @@ jobs:
         run: nuget restore "Focus Bear.sln"
 
       - name: Build solution
+        env:
+          FOCUSBEAR_OPENAI_API_KEY: ${{ secrets.FOCUSBEAR_OPENAI_API_KEY }}
         run: msbuild "Focus Bear.sln" /p:Configuration=Release /p:Platform="Any CPU" /m /v:minimal

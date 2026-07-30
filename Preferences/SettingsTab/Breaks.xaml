@@ -68,7 +68,25 @@
                     </StackPanel>
                     <ToggleButton Grid.Column="1" x:Name="btnDisableNotificationSounds" AutomationProperties.AutomationId="tglDisableNotificationSounds" Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnDisableNotificationSounds_Checked" Unchecked="btnDisableNotificationSounds_Unchecked"/>
                 </Grid>
-                
+
+                <Grid Grid.Row="5"  Margin="15,0,15,0" Background="LightGray" ></Grid>
+
+                <!-- Office / WFH mode (moved here from the tray menu) -->
+                <Grid Margin="15,15" Grid.Row="6" Background="{DynamicResource SoftCreamColor}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0"  Orientation="Vertical"  >
+                        <TextBlock x:Name="WorkLocationLabel" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xOffice Mode / WFH Mode</TextBlock>
+                        <TextBlock x:Name="WorkLocationDesc" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xChoose Office Mode for office-friendly break activities, or WFH Mode for more active ones.</TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0,0,0">
+                        <RadioButton x:Name="OfficeMode" AutomationProperties.AutomationId="rbOfficeMode" Content="xOffice Mode" Style="{StaticResource SegmentRadioButtonStyle}" Checked="OfficeMode_Checked" Cursor="Hand"/>
+                        <RadioButton x:Name="WFHMode" AutomationProperties.AutomationId="rbWFHMode" Content="xWFH Mode" Style="{StaticResource SegmentRadioButtonStyle}" Checked="WFHMode_Checked" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+
             </Grid>
         </Border>
     </Grid>

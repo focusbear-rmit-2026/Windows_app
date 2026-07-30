@@ -1,5 +1,7 @@
 ﻿using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using Focus_Bear.API;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +49,17 @@ namespace Focus_Bear.Preferences.SettingsTab
                 DisableSoundsDesc.Text = appSettings.ConfigFileStrings["settingsNew"]["disableNotificationSoundsDescText"].ToString();
                 btnDisableNotificationSounds.IsChecked = appSettings.bDisableNotificationSounds;
 
+                // Office / WFH mode (moved here from the tray). Label + description reuse the existing config
+                // strings; the per-button tooltips are kept exactly as they were in the tray.
+                WorkLocationLabel.Text = appSettings.ConfigFileStrings["menuInfo"]["segmentOfficeModeText"].ToString()
+                    + " / " + appSettings.ConfigFileStrings["menuInfo"]["segmentWfhModeText"].ToString();
+                WorkLocationDesc.Text = appSettings.ConfigFileStrings["menuInfo"]["toolTipOfficeMode"].ToString()
+                    + " " + appSettings.ConfigFileStrings["menuInfo"]["toolTipWfhMode"].ToString();
+                OfficeMode.Content = appSettings.ConfigFileStrings["menuInfo"]["segmentOfficeModeText"].ToString();
+                WFHMode.Content = appSettings.ConfigFileStrings["menuInfo"]["segmentWfhModeText"].ToString();
+                OfficeMode.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipOfficeMode"].ToString();
+                WFHMode.ToolTip = appSettings.ConfigFileStrings["menuInfo"]["toolTipWfhMode"].ToString();
+                SyncWorkLocationRadios();
 
             }
             catch (Exception ex)
@@ -120,7 +133,110 @@ namespace Focus_Bear.Preferences.SettingsTab
                 btnShowBreaksWhileInCall.IsChecked = appSettings.bShowBreaksWhileInCall;
                 RegistryManager.GetDisableNotificationSounds();
                 btnDisableNotificationSounds.IsChecked = appSettings.bDisableNotificationSounds;
+                SyncWorkLocationRadios();
             }
+        }
+
+        // Reflects the saved office/WFH state onto the radios without firing the Checked handlers.
+        private void SyncWorkLocationRadios()
+        {
+            OfficeMode.Checked -= OfficeMode_Checked;
+            WFHMode.Checked -= WFHMode_Checked;
+            if (appSettings.isOfficeModeEnabled) OfficeMode.IsChecked = true;
+            else WFHMode.IsChecked = true;
+            OfficeMode.Checked += OfficeMode_Checked;
+            WFHMode.Checked += WFHMode_Checked;
+        }
+
+        private void WFHMode_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.isOfficeModeEnabled = false;
+            //Save the local settings and upload to server
+            LocalSettingsManager.PutLocalSettings();
+        }
+
+        private void OfficeMode_Checked(object sender, RoutedEventArgs e)
+        {
+            if (OfficeMode.IsChecked.Value) //means officemode enabled
+            {
+                //if office friendly activity added then show alert
+                var listItems = appSettings.arrAllbreakActivities.Where(i => i.isOfficeFriendly == true);
+                if (listItems.Count() == 0)
+                {
+                    //No office friendly activity is there
+                    FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["noOfficeFriendlyActivityAlertText"].ToString(), "", MessageBoxButton.YesNo, appSettings.ConfigFileStrings["menuInfo"]["noOfficeFriendlyActivityButtonFirstText"].ToString(), appSettings.ConfigFileStrings["menuInfo"]["noOfficeFriendlyActivityButtonSecondText"].ToString());
+                    ff.ShowDialog();
+                    if (ff.btnClicked == MessageBoxResult.Yes)
+                    {
+                        appSettings.isOfficeModeEnabled = true;
+
+                        //create an office friendly activity
+                        string ActivityID = System.Guid.NewGuid().ToString();
+                        string SequenceID = System.Guid.NewGuid().ToString();
+                        if (appSettings.arrAllbreakActivities.Count() > 0)
+                        {
+                            SequenceID = appSettings.arrAllbreakActivities[0].activity_sequence_id;
+                        }
+                        //add to our array
+                        appSettings.arrAllbreakActivities.Add(new breakActivity(ActivityID, "Stand up and stretch", 20, new List<string>(), false, "", false, new List<string>(), new List<string>(), "", SequenceID, false, false, new List<activityChoice>(), true, "", new List<QuantityQuestion>(), "", true));
+
+                        //add to the json
+                        String jsonString = appSettings.sRawUserSettings;
+
+                        JObject UserSettings = JObject.Parse(appSettings.sRawUserSettings);
+
+                        if (UserSettings.ContainsKey("break_activities"))
+                        {
+                            JArray break_activities_Array = (JArray)UserSettings.GetValue("break_activities");
+                            JObject newActivity = new JObject(
+                               new JProperty("id", ActivityID),
+                               new JProperty("name", appSettings.ConfigFileStrings["common"]["officeFriendlyActivityName"].ToString()), //"Stand up and stretch"
+                               new JProperty("duration_seconds", 20),
+                               new JProperty("is_office_friendly", true),
+                               new JProperty("activity_sequence_id", SequenceID));
+                            break_activities_Array.Add(newActivity);
+
+                            UserSettings.Remove("break_activities");
+                            UserSettings.Add("break_activities", break_activities_Array);
+
+                            //Also save the udpated settings to Registry
+                            appSettings.sRawUserSettings = UserSettings.ToString();
+                            RegistryManager.SaveUserSettings();
+
+                            //We will need to put the settings.
+                            FocusBearAPIClient client = new FocusBearAPIClient();
+                            var xResponse = client.PutUserSettings();
+
+                            FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["officeModeEnabledSuccessfullyText"].ToString());
+                            ff1.ShowDialog();
+                        }
+                    }
+                    else
+                    {
+                        appSettings.isOfficeModeEnabled = false;
+                        WFHMode.IsChecked = true;
+                    }
+                }
+                else
+                {
+                    if (!RegistryManager.GetOfficeModeMessageStatus())
+                    {
+                        //Office friendly activity is there
+                        FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["officeModeEnabledSuccessfullyText"].ToString());
+                        ff.ShowDialog();
+                        RegistryManager.SetOfficeModeMessageStatus();
+                    }
+                    appSettings.isOfficeModeEnabled = true;
+                }
+            }
+            else
+            {
+                appSettings.isOfficeModeEnabled = false;
+                WFHMode.IsChecked = true;
+            }
+
+            //Save the local settings and upload to server
+            LocalSettingsManager.PutLocalSettings();
         }
     }
 }

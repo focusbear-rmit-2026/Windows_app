@@ -391,6 +391,9 @@
     <Compile Include="Focus\AlertMaxTabLimitWindow.xaml.cs">
       <DependentUpon>AlertMaxTabLimitWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\VoiceCommandWindow.xaml.cs">
+      <DependentUpon>VoiceCommandWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\AddTempAllowedToFocusModeWindow.xaml.cs">
       <DependentUpon>AddTempAllowedToFocusModeWindow.xaml</DependentUpon>
     </Compile>
@@ -747,6 +750,9 @@
     <Compile Include="Services\FocusButton\FocusButtonProtocol.cs" />
     <Compile Include="Services\FocusButton\FocusButtonService.cs" />
     <Compile Include="Services\OpenAIService.cs" />
+    <!-- Generated at build time by the InjectApiKey target (below); gitignored, never committed. -->
+    <Compile Include="Services\GeneratedSecrets.cs" />
+    <Compile Include="Services\VoiceCommand\VoiceIntentDispatcher.cs" />
     <Compile Include="Services\WebViewTokenSyncService.cs" />
     <Compile Include="SetIntention\SetIntention.xaml.cs">
       <DependentUpon>SetIntention.xaml</DependentUpon>
@@ -839,6 +845,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\AlertMaxTabLimitWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\VoiceCommandWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1623,4 +1633,36 @@
     </VisualStudio>
   </ProjectExtensions>
   <Import Project="packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets" Condition="Exists('packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets')" />
+  <!-- Bakes the OpenAI API key into the build from the FOCUSBEAR_OPENAI_API_KEY environment variable so
+       shipped releases have it (the app also reads the env var at runtime for dev machines). The generated
+       Services\GeneratedSecrets.cs is gitignored. When the key is available it is regenerated; when it isn't
+       but a previously generated file already exists, that file is reused (so a machine that already baked the
+       key doesn't need the env var on every build). A Release build only FAILS when there is neither a key nor
+       an existing file, so we can never accidentally ship a keyless build; Debug only warns. -->
+  <Target Name="InjectApiKey" BeforeTargets="PrepareForBuild;CoreCompile">
+    <PropertyGroup>
+      <!-- Prefer the process environment variable; if it's empty (e.g. Visual Studio was already running
+           when the variable was set, so devenv didn't inherit it), read the User-scope value straight from
+           the registry so no VS restart is needed. -->
+      <FocusBearOpenAIApiKey>$(FOCUSBEAR_OPENAI_API_KEY)</FocusBearOpenAIApiKey>
+      <FocusBearOpenAIApiKey Condition="'$(FocusBearOpenAIApiKey)' == ''">$(Registry:HKEY_CURRENT_USER\Environment@FOCUSBEAR_OPENAI_API_KEY)</FocusBearOpenAIApiKey>
+      <GeneratedSecretsPath>$(MSBuildProjectDirectory)\Services\GeneratedSecrets.cs</GeneratedSecretsPath>
+    </PropertyGroup>
+    <Error Condition="'$(Configuration)' == 'Release' And '$(FocusBearOpenAIApiKey)' == '' And !Exists('$(GeneratedSecretsPath)')"
+           Text="FOCUSBEAR_OPENAI_API_KEY is not set and no Services\GeneratedSecrets.cs exists. A Release build needs the key baked in for the voice command. Set the environment variable (User scope), or in CI provide the FOCUSBEAR_OPENAI_API_KEY secret, and build again." />
+    <Warning Condition="'$(Configuration)' != 'Release' And '$(FocusBearOpenAIApiKey)' == '' And !Exists('$(GeneratedSecretsPath)')"
+             Text="FOCUSBEAR_OPENAI_API_KEY is not set; the voice command will not work in this build." />
+    <ItemGroup>
+      <GeneratedSecretLines Include="// &lt;auto-generated&gt; Injected at build time from FOCUSBEAR_OPENAI_API_KEY. DO NOT COMMIT (gitignored)." />
+      <GeneratedSecretLines Include="namespace Focus_Bear.Services" />
+      <GeneratedSecretLines Include="{" />
+      <GeneratedSecretLines Include="    internal static class GeneratedSecrets" />
+      <GeneratedSecretLines Include="    {" />
+      <GeneratedSecretLines Include="        public const string OpenAIApiKey = &quot;$(FocusBearOpenAIApiKey)&quot;%3B" />
+      <GeneratedSecretLines Include="    }" />
+      <GeneratedSecretLines Include="}" />
+    </ItemGroup>
+    <!-- Only (re)write when we actually have a key; otherwise leave any existing generated file untouched. -->
+    <WriteLinesToFile Condition="'$(FocusBearOpenAIApiKey)' != ''" File="$(GeneratedSecretsPath)" Lines="@(GeneratedSecretLines)" Overwrite="true" Encoding="UTF-8" />
+  </Target>
 </Project>

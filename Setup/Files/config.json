@@ -2990,6 +2990,7 @@
         "menuFocusGoalPlaceholder": "Enter Focus Goal here",
         "menuNextEventLabel": "NEXT EVENT",
         "menuNextHabitLabel": "NEXT HABIT",
+        "menuHabitsPostponedUntil": "Habits postponed until %@",
         "menuNothingScheduled": "Nothing scheduled right now",
         "menuBlockingScheduleActive": "Blocking schedule active",
         "menuBlockingSchedulePaused": "Blocking schedule paused",
@@ -3011,7 +3012,18 @@
         "menuLastBreak": "Last break",
         "menuAgo": "ago",
         "dayPlanStartsAt": "starts at",
-        "dayPlanIn": "in"
+        "dayPlanIn": "in",
+        "menuDayPlanSubtitle": "View your day",
+        "menuLastHabit": "This is the last habit",
+        "menuBreaksOff": "Breaks are turned off",
+        "menuBreaksOffBody": "Turn on breaks in settings to take regular breaks.",
+        "menuNextBreakIn": "Next break in %d min",
+        "menuNextBreakAt": "Your next break is at %@.",
+        "menuBreakDueNow": "Break due now",
+        "menuBreakDueNowBody": "It's time for a break.",
+        "menuTakeBreakSubtitle": "Take a break",
+        "menuTakeBreakBody": "Take a break whenever you need one.",
+        "menuOpenFocusScreen": "Open the full focus screen"
     },
     "leftMenuVcInfo":{
         "menuStats": "Stats",

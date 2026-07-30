@@ -782,6 +782,21 @@ namespace Focus_Bear.Habits
         /// Play: begin the routine starting at the selected habit — move it to the front (like the
         /// Welcome list's Begin) and show the standard routine-start screen.
         /// </summary>
+        // Play the current/next actionable habit — the same flow as clicking Play on that card in the Day
+        // Plan view (resume-from-parked, resume-if-postponed, last-remaining handling). Used by the tray
+        // Day Plan card's Start button.
+        public void PlayCurrentHabit()
+        {
+            try
+            {
+                var blocks = DayPlanDataSource.BuildBlocks(_selectedDate, includeDismissedMeetings: _showDismissedMeetings);
+                var current = blocks?.FirstOrDefault(b => b.IsCurrent && b.HabitIndex.HasValue);
+                if (current != null) OnPlay(current.HabitIndex.Value);
+                else LogWriter.LogWrite("PlayCurrentHabit - no current actionable habit");
+            }
+            catch (Exception ex) { LogWriter.LogWrite("PlayCurrentHabit ex - " + ex.Message); }
+        }
+
         private void OnPlay(int idx)
         {
             try
@@ -802,6 +817,15 @@ namespace Focus_Bear.Habits
                     // Point the single postpone slot at THIS habit so the activity resumes from its time.
                     RegistryManager.SetPostponedHabitData(item.id, savedRemaining.ToString());
                     appSettings.dayPlanHabitRemainingSeconds.Remove(item.id);
+                }
+
+                // If a focus session is running over a postponed routine, playing a habit must finish that
+                // session the same way the postpone timer expiring does — ForceStopFocusSessionOnHabitsTime
+                // (respects a teacher class-session lock, resets pause) — before resuming the routine below.
+                if (appSettings.isFocusModeRunning)
+                {
+                    LogWriter.LogWrite("DayPlan OnPlay: focus session running — finishing it before starting the habit");
+                    ((App)Application.Current).ForceStopFocusSessionOnHabitsTime();
                 }
 
                 // Issue 1: if the routine is postponed, resume it first (stop the postpone timer, clear the

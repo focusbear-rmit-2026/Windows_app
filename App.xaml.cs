@@ -773,7 +773,7 @@ namespace Focus_Bear
             exitItem.Name = "ExitItem";
             exitItem.Click += (s, e) =>
             {
-                ButtonAutomationPeer peer = new ButtonAutomationPeer(wndTrayMenu.btnQuit);
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(wndTrayMenu.btnQuitIcon);
                 IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
                 invokeProv.Invoke();
             };
@@ -5343,13 +5343,7 @@ namespace Focus_Bear
 
                         //Show and Set on untill value
                         ((App)(Application.Current)).wndTrayMenu.OnUntill.Visibility = Visibility.Visible;
-                        //Increase hearder height
-                        ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 45; //Originally 25
-
-                        if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                        {
-                            ((App)(Application.Current)).wndTrayMenu.OrangeHeader.Height = 70;
-                        }
+                        // Header auto-sizes in the redesigned tray menu; no manual OrangeHeader height needed.
 
                         DateTime dTill = DateTime.Now;
 

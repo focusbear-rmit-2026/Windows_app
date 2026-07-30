@@ -58,9 +58,7 @@ namespace Focus_Bear.Habits
             //Show the gridshade as it will take a while for the 5 second timer to get current state again
             ((App)Application.Current).wndFocusBearMainWindow.GridShade.Visibility = Visibility.Visible;
 
-            ButtonAutomationPeer peer = new ButtonAutomationPeer(((App)(Application.Current)).wndTrayMenu.btnResumeHabits);
-            IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-            invokeProv.Invoke();
+            ((App)(Application.Current)).wndTrayMenu.ResumeHabitsFromTray();
         }
 
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)

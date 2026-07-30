@@ -3189,7 +3189,13 @@ namespace Focus_Bear.API
             return PutTodoUpsert(body, "setTodoPlanned");
         }
 
-        internal async Task<int> AddTask(string sTaskTitle) // OK
+        // Overload kept for existing callers that only pass a title (no explicit due date).
+        internal Task<int> AddTask(string sTaskTitle) => AddTask(sTaskTitle, null);
+
+        // Creates a to-do. When dueDateUtc is null the due date defaults to one week from now.
+        // The voice-command path passes the datetime parsed from the spoken command so the task
+        // is created with the requested due date and time.
+        internal async Task<int> AddTask(string sTaskTitle, DateTime? dueDateUtc) // OK
         {
             LogWriter.LogWrite("AddTask()");
             try
@@ -3209,11 +3215,17 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
-                    DateTime dueDate = DateTime.UtcNow.AddDays(7);
-     
-                    string addItemJsonString = $"{{\"title\":\"{sTaskTitle}\"," +
-                           $"\"eisenhower_quadrant\":1," +
-                           $"\"due_date\":\"{dueDate.ToString("o")}\"}}";
+                    DateTime dueDate = (dueDateUtc ?? DateTime.UtcNow.AddDays(7)).ToUniversalTime();
+
+                    // Build via JObject so titles containing quotes/newlines (e.g. from voice
+                    // transcription) can't break the JSON payload.
+                    JObject addItemPayload = new JObject
+                    {
+                        ["title"] = sTaskTitle,
+                        ["eisenhower_quadrant"] = 1,
+                        ["due_date"] = dueDate.ToString("o")
+                    };
+                    string addItemJsonString = addItemPayload.ToString(Newtonsoft.Json.Formatting.None);
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {

@@ -32,6 +32,15 @@ namespace Focus_Bear.Preferences
             return Enum.ToObject(typeof(FOCUSMODESTRICTNESS), (int)(double)value);
         }
     }
+    // Inverts a boolean for two-way bindings. Used for the "Skip microbreaks" checkbox, which is bound to
+    // bMicroBreaksEnabled ("micro breaks enabled"): checking Skip must set the field to false.
+    public class InverseBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => (value is bool b) ? !b : value;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => (value is bool b) ? !b : value;
+    }
     public class DaysOfWeekIndexConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
