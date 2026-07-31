@@ -478,6 +478,69 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        // Undo a force-complete/cancel of a routine sequence ("Uncancel my routine"). The backend then serves
+        // that routine's habits again via current-activity-props. Mirrors ForceCompleteCurrentSequence; the
+        // macOS app hits the same POST .../uncomplete endpoint (expects 201 Created). Returns 1 on success.
+        internal async Task<int> UncompleteCurrentSequence(string activity_sequence_id)
+        {
+            LogWriter.LogWrite("UncompleteCurrentSequence() + " + activity_sequence_id);
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    String jsonString = JsonConvert.SerializeObject(
+                        new
+                        {
+                            operating_system = "Windows",
+                            metadata = new { }
+                        }
+                    );
+
+                    StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+                    string apiPath = string.Format("https://api.focusbear.io/completed-activity-sequence/{0}/uncomplete", activity_sequence_id);
+
+                    var response = await client.PostAsync(apiPath, content);
+                    if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                    {
+                        LogWriter.LogWrite("UncompleteCurrentSequence() SUCCESS");
+                        return 1;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            LogWriter.LogWrite("UncompleteCurrentSequence() FAILED - " + responseCode);
+                        }
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("UncompleteCurrentSequence WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UncompleteCurrentSequence Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
         internal async Task<int> PostDeviceID() //OK
         {
             LogWriter.LogWrite("PostDeviceID()");

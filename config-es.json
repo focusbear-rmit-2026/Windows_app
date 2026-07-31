@@ -2808,6 +2808,8 @@
         "nextRoutineTimeCancelledMorninigRoutine": "Has cancelado tu rutina de la mañana de hoy.\nTu próxima rutina programada (<ROUTINE>) comenzará a las <TIME>. Prepárate para retomarla y seguir fortaleciendo esos hábitos saludables. ¡Tú puedes!",
         "buttonUncancelEveningRoutine": "Restaurar mi rutina de la tarde",
         "buttonUncancelMorningRoutine": "Restaurar mi rutina de la mañana",
+        "cancelledMorningRoutineMessage": "Cancelaste tu rutina de la mañana. Si cambiaste de opinión, haz clic en \"Restaurar mi rutina de la mañana\" para continuar con tus hábitos matutinos.",
+        "cancelledEveningRoutineMessage": "Cancelaste tu rutina de la tarde. Si cambiaste de opinión, haz clic en \"Restaurar mi rutina de la tarde\" para continuar con tus hábitos de la tarde.",
         "restoreRoutineFailedText": "No pudimos restaurar tu rutina en este momento. Inténtalo de nuevo.",
         "setSleepTimeCancelledEveningRoutineWithUndo": "No tienes configurada una hora de sueño.\n\n(Por cierto, cancelaste tu rutina de la tarde. Si cambiaste de opinión y quieres realizar tus hábitos de la tarde, haz clic en Restaurar mi rutina de la tarde).",
         "sleepTimeCancelledEveningRoutineWithUndo": "Tu hora de dormir es a las <CUTOFFTIME>.\n\n(Por cierto, cancelaste tu rutina de la tarde. Si cambiaste de opinión y quieres realizar tus hábitos de la tarde, haz clic en Restaurar mi rutina de la tarde).",

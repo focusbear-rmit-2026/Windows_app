@@ -2810,6 +2810,8 @@
         "nextRoutineTimeCancelledMorninigRoutine": "You cancelled your morning routine for today.\nYour next scheduled routine (<ROUTINE>) is set for <TIME>. Be ready to jump back in and continue building those healthy habits. You've got this!",
         "buttonUncancelEveningRoutine": "Uncancel my evening routine",
         "buttonUncancelMorningRoutine": "Uncancel my morning routine",
+        "cancelledMorningRoutineMessage": "You cancelled your morning routine. If you changed your mind, click \"Uncancel My Morning Routine\" to continue your morning habits.",
+        "cancelledEveningRoutineMessage": "You cancelled your evening routine. If you changed your mind, click \"Uncancel My Evening Routine\" to continue your evening habits.",
         "restoreRoutineFailedText": "We couldn't restore your routine right now. Please try again.",
         "setSleepTimeCancelledEveningRoutineWithUndo": "You do not have sleep time set.\n\n(By the way, you cancelled your evening routine. if you changed your mind and want to do your evening habits click Uncancel my evening routine)",
         "sleepTimeCancelledEveningRoutineWithUndo": "Your sleep time is <CUTOFFTIME>.\n\n(By the way, you cancelled your evening routine. if you changed your mind and want to do your evening habits click Uncancel my evening routine)",

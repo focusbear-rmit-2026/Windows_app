@@ -1508,6 +1508,22 @@ namespace Focus_Bear.Models
             }
         }
 
+        // Clears the "morning routine shown/done for today" marker so the routine can be re-shown (used when
+        // uncancelling a cancelled routine).
+        internal static void RemoveMorningHabitsShownTillDate()
+        {
+            LogWriter.LogWrite("RemoveMorningHabitsShownTillDate()");
+            try { DeleteValue("MORNINGHABITSSHOWNDT"); appSettings.MorningHabitsShownTillDate = DateTime.MinValue; }
+            catch (Exception ex) { LogWriter.LogWrite("RemoveMorningHabitsShownTillDate - " + ex.Message); }
+        }
+
+        internal static void RemoveEveningHabitsShownTillDate()
+        {
+            LogWriter.LogWrite("RemoveEveningHabitsShownTillDate()");
+            try { DeleteValue("EVENINGHABITSSHOWNDT"); appSettings.EveningHabitsShownTillDate = DateTime.MinValue; }
+            catch (Exception ex) { LogWriter.LogWrite("RemoveEveningHabitsShownTillDate - " + ex.Message); }
+        }
+
         internal static void SetMorningHabitsShownTillDate()
         {
             LogWriter.LogWrite("SetMorningHabitsShownTillDate()");

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -102,6 +103,7 @@ namespace Focus_Bear.Habits
                 RenderDayPlan();
                 InitTasksPanel();     // restore panel width + render the tasks list (M7)
                 FetchDayProgress();   // refresh the completed-habit set from the backend, then re-render
+                FetchRoutineCancelledState();   // detect a force-cancelled routine → show its Uncancel card
             }
             catch (Exception ex)
             {
@@ -125,6 +127,7 @@ namespace Focus_Bear.Habits
                 RenderTasksPanel();   // keep the panel in sync on a re-show (M7)
                 HydrateTasksFromBackend();   // reconcile done-state from the to-do list on every re-open
                 FetchDayProgress();
+                FetchRoutineCancelledState();   // detect a force-cancelled routine → show its Uncancel card
                 FetchCalendar(force: true);   // re-sync meetings on every re-open so new/changed events show promptly
             }
             catch (Exception ex) { LogWriter.LogWrite("HabitsDayPlan Refresh ex - " + ex.Message); }
@@ -133,13 +136,25 @@ namespace Focus_Bear.Habits
         // The day (yyyy-MM-dd) we last fetched routine-progress for, to fetch at most once per day.
         private string _lastProgressFetchDay = "";
 
+        // Whether TODAY's morning/evening routine was force-cancelled (the whole routine was skipped). When
+        // set, that routine's Day Plan card shows the "you cancelled … Uncancel" message instead of its
+        // habits. Refreshed from current-activity-props' today_routine_progress[*].was_force_completed.
+        private bool _morningRoutineCancelled;
+        private bool _eveningRoutineCancelled;
+
+        // After a local cancel/uncancel the backend's was_force_completed can lag a moment, so a refresh that
+        // re-reads it would wrongly flip our just-set state back. Trust the local flags until this time.
+        private DateTime _cancelStateStickyUntil = DateTime.MinValue;
+
         /// <summary>
         /// Fetch the selected day's completed habits from the backend so done habits strike through.
         /// Matches the macOS guard: for a PAST/other day always fetch; for TODAY only when the routine is
         /// FINISHED (while a routine is active/postponed the live state already has the completions).
         /// Throttled to once per day; the throttle resets whenever today's routine is active/postponed.
         /// </summary>
-        private async void FetchDayProgress()
+        private async void FetchDayProgress() { await FetchDayProgressAsync(); }
+
+        private async Task FetchDayProgressAsync()
         {
             try
             {
@@ -185,6 +200,73 @@ namespace Focus_Bear.Habits
             catch (Exception ex) { LogWriter.LogWrite("HabitsDayPlan FetchDayProgress ex - " + ex.Message); }
         }
 
+        /// <summary>
+        /// Refresh whether today's morning/evening routine was force-cancelled (skipped as a whole), from
+        /// current-activity-props' today_routine_progress[*].was_force_completed — matching macOS's
+        /// updateUncancelRoutineButtonVisibility. Only meaningful for today; a cancelled routine shows its
+        /// "you cancelled … Uncancel" card (see BuildGroupCard). Re-renders when the state changes.
+        /// </summary>
+        private async void FetchRoutineCancelledState()
+        {
+            try
+            {
+                if (!IsViewingToday)
+                {
+                    if (_morningRoutineCancelled || _eveningRoutineCancelled)
+                    {
+                        _morningRoutineCancelled = _eveningRoutineCancelled = false;
+                        RenderDayPlan();
+                    }
+                    return;
+                }
+
+                // A recent local cancel/uncancel wins over a possibly-stale backend read for a short window.
+                if (DateTime.Now < _cancelStateStickyUntil) return;
+
+                var client = new FocusBearAPIClient();
+                await client.GetLastActivityInfo();
+
+                bool morning = RoutineWasForceCancelled("morning_routine", appSettings.arrAllMorningHabits);
+                bool evening = RoutineWasForceCancelled("evening_routine", appSettings.arrAllEveningHabits);
+
+                if (morning != _morningRoutineCancelled || evening != _eveningRoutineCancelled)
+                {
+                    _morningRoutineCancelled = morning;
+                    _eveningRoutineCancelled = evening;
+                    RenderDayPlan();
+                }
+            }
+            catch (Exception ex) { LogWriter.LogWrite("HabitsDayPlan FetchRoutineCancelledState ex - " + ex.Message); }
+        }
+
+        // Reads today_routine_progress[routineKey] from the cached current-activity-props JSON and returns
+        // true when that routine was force-completed for today (status completed + was_force_completed) and
+        // its sequence matches the current routine's — i.e. the user cancelled the whole routine.
+        private bool RoutineWasForceCancelled(string routineKey, System.Collections.Generic.List<habit> habits)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(appSettings.sLastActivityDoneInfo)) return false;
+                if (habits == null || habits.Count == 0) return false;
+                string sequenceId = habits[0].activity_sequence_id;
+                if (string.IsNullOrEmpty(sequenceId)) return false;
+
+                var info = Newtonsoft.Json.Linq.JObject.Parse(appSettings.sLastActivityDoneInfo);
+                var progress = info["today_routine_progress"];
+                var routine = progress?[routineKey];
+                if (routine == null || routine.Type == Newtonsoft.Json.Linq.JTokenType.Null) return false;
+
+                bool wasForceCompleted = routine["was_force_completed"]?.ToObject<bool>() ?? false;
+                string status = routine["status"]?.ToString() ?? "";
+                string todaySequenceId = routine["sequence_id"]?.ToString() ?? "";
+
+                return wasForceCompleted
+                    && status.ToLowerInvariant() == "completed"
+                    && (string.IsNullOrEmpty(todaySequenceId) || todaySequenceId == sequenceId);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("RoutineWasForceCancelled ex - " + ex.Message); return false; }
+        }
+
         // MARK: - Render
 
         /// <summary>
@@ -198,24 +280,12 @@ namespace Focus_Bear.Habits
 
             List<ScheduleBlock> blocks = DayPlanDataSource.BuildBlocks(_selectedDate, includeDismissedMeetings: _showDismissedMeetings);
 
-            if (blocks.Count == 0)
-            {
-                DayPlanStack.Children.Add(new TextBlock
-                {
-                    Text = IsViewingToday ? DayPlanText.NoHabitsLeft : DayPlanText.NothingScheduled,
-                    FontSize = 15,
-                    TextWrapping = TextWrapping.Wrap,
-                    Margin = new Thickness(4, 8, 0, 0),
-                    Foreground = SecBrush()
-                });
-                return;
-            }
-
             // Deep-work sprints are task drop targets (like habit rows). Pre-compute which deep-work
             // task belongs to which sprint once, using nearest-anchor matching (M7 — deep-work targets).
             List<ScheduleBlock> dwBlocks = blocks.FindAll(b => b.Kind == ScheduleBlockKind.DeepWork);
             Dictionary<ScheduleBlock, List<DayPlanTask>> dwTasks = DeepWorkTasksByBlock(dwBlocks);
 
+            var renderedRoutines = new HashSet<string>();
             int i = 0;
             while (i < blocks.Count)
             {
@@ -228,6 +298,7 @@ namespace Focus_Bear.Habits
                         group.Add(blocks[i]);
                         i++;
                     }
+                    renderedRoutines.Add(name);
                     DayPlanStack.Children.Add(BuildGroupCard(group));
                 }
                 else if (blocks[i].Kind == ScheduleBlockKind.DeepWork)
@@ -246,6 +317,53 @@ namespace Focus_Bear.Habits
                     i++;
                 }
             }
+
+            // Safety net: a force-cancelled routine must show its Uncancel card even when BuildBlocks didn't
+            // emit its group (e.g. right after cancelling, before the day's progress is re-fetched). Add a
+            // standalone cancelled card for any cancelled routine not already rendered above.
+            if (IsViewingToday)
+            {
+                if (_morningRoutineCancelled && !renderedRoutines.Contains(DayPlanText.MorningRoutineHabits))
+                    DayPlanStack.Children.Add(BuildStandaloneCancelledCard(isEvening: false));
+                if (_eveningRoutineCancelled && !appSettings.IsShutOffTime()
+                    && !renderedRoutines.Contains(DayPlanText.EveningRoutineHabits))
+                    DayPlanStack.Children.Add(BuildStandaloneCancelledCard(isEvening: true));
+            }
+
+            // Empty state — only when nothing else (besides the date bar) was rendered.
+            if (DayPlanStack.Children.Count <= 1)
+            {
+                DayPlanStack.Children.Add(new TextBlock
+                {
+                    Text = IsViewingToday ? DayPlanText.NoHabitsLeft : DayPlanText.NothingScheduled,
+                    FontSize = 15,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(4, 8, 0, 0),
+                    Foreground = SecBrush()
+                });
+            }
+        }
+
+        // A standalone cancelled routine card (header + Uncancel body) for the safety-net path in
+        // RenderDayPlan, styled like BuildGroupCard's cancelled state but not tied to a habit block group.
+        private Border BuildStandaloneCancelledCard(bool isEvening)
+        {
+            string name = isEvening ? DayPlanText.EveningRoutineHabits : DayPlanText.MorningRoutineHabits;
+            var inner = new StackPanel { Orientation = Orientation.Vertical };
+            inner.Children.Add(new Emoji.Wpf.TextBlock
+            {
+                Text = "🧩 " + name,
+                FontSize = 15,
+                Foreground = FgBrush(),
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(6, 0, 0, 4)
+            });
+            inner.Children.Add(BuildCancelledRoutineBody(isEvening));
+            return StyledCard(
+                fill: new SolidColorBrush(WithAlpha(COrange, 0.05)),
+                border: new SolidColorBrush(COrange),
+                hasBorder: true,
+                content: inner);
         }
 
         // MARK: - Date navigation
@@ -332,6 +450,7 @@ namespace Focus_Bear.Habits
             RenderTasksPanel();   // tasks are per-day (M7)
             HydrateTasksFromBackend();   // pull that day's planned tasks (Phase 4 read)
             FetchDayProgress();
+            FetchRoutineCancelledState();
             FetchCalendar(force: true);   // pull fresh meetings for the day just navigated to
         }
 
@@ -344,6 +463,7 @@ namespace Focus_Bear.Habits
             RenderTasksPanel();   // tasks are per-day (M7)
             HydrateTasksFromBackend();   // pull that day's planned tasks (Phase 4 read)
             FetchDayProgress();
+            FetchRoutineCancelledState();
             FetchCalendar(force: true);   // pull fresh meetings for today
         }
 
@@ -357,16 +477,32 @@ namespace Focus_Bear.Habits
             ScheduleBlock first = habits[0];
             ScheduleBlock last = habits[habits.Count - 1];
             string name = string.IsNullOrEmpty(first.RoutineName) ? "Habits" : first.RoutineName;
-            bool collapsed = IsRoutineCollapsed(name, isEarlier);
+
+            // A force-cancelled routine (the whole routine was skipped) replaces its habits with a "you
+            // cancelled … Uncancel" body (matches macOS #2010). The card stays collapsible but defaults to
+            // expanded so the message is visible. Evening's uncancel is only offered until shut-off, after
+            // which the focus-summary / evening flow takes over.
+            bool isEveningGroup = name == DayPlanText.EveningRoutineHabits;
+            bool routineCancelled = IsViewingToday &&
+                (((name == DayPlanText.MorningRoutineHabits) && _morningRoutineCancelled)
+                 || (isEveningGroup && _eveningRoutineCancelled && !appSettings.IsShutOffTime()));
+            bool collapsed = IsRoutineCollapsed(name, routineCancelled ? false : isEarlier);
 
             var inner = new StackPanel { Orientation = Orientation.Vertical };
 
             // Accordion header: chevron + "🧩 <routine>  ·  <start>–<end>". Clicking toggles collapse —
             // the completed "earlier today" routine starts collapsed so its struck-through habits are
             // tucked away but one tap away.
+            // An active routine can be cancelled from a red ✕ at the top-left of its card (matches macOS):
+            // clicking it confirms, then force-cancels the routine so the card flips to the Uncancel state.
+            bool showCancelX = isActive && IsViewingToday && !routineCancelled
+                               && (name == DayPlanText.MorningRoutineHabits || isEveningGroup);
+
             var headerGrid = new Grid { Background = Brushes.Transparent, Cursor = Cursors.Hand, Margin = new Thickness(2, 0, 0, 4) };
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });                    // chevron
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // title
+            if (showCancelX) headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // ✕ (top-right)
+
             // Same chevron the left menu uses for its collapsible headers: a thin grey Path that swaps
             // between a right chevron (collapsed) and a down chevron (expanded).
             var chevron = new System.Windows.Shapes.Path
@@ -391,8 +527,25 @@ namespace Focus_Bear.Habits
             Grid.SetColumn(header, 1);
             headerGrid.Children.Add(chevron);
             headerGrid.Children.Add(header);
-            headerGrid.MouseLeftButtonUp += (s, e) => ToggleRoutineCollapsed(name, isEarlier);
+            if (showCancelX)
+            {
+                var cancelX = BuildCancelRoutineX(isEveningGroup);
+                Grid.SetColumn(cancelX, 2);
+                headerGrid.Children.Add(cancelX);
+            }
+            headerGrid.MouseLeftButtonUp += (s, e) => ToggleRoutineCollapsed(name, routineCancelled ? false : isEarlier);
             inner.Children.Add(headerGrid);
+
+            // Cancelled routine → show the Uncancel body instead of the habit rows (card stays collapsible).
+            if (routineCancelled)
+            {
+                if (!collapsed) inner.Children.Add(BuildCancelledRoutineBody(isEveningGroup));
+                return StyledCard(
+                    fill: new SolidColorBrush(WithAlpha(COrange, 0.05)),
+                    border: new SolidColorBrush(COrange),
+                    hasBorder: true,
+                    content: inner);
+            }
 
             if (!collapsed)
             {
@@ -448,6 +601,212 @@ namespace Focus_Bear.Habits
                 border: isActive ? new SolidColorBrush(COrange) : new SolidColorBrush(WithAlpha(CGray, 0.5)),
                 hasBorder: true,
                 content: inner);
+        }
+
+        // The body shown inside a cancelled routine's card: the "you cancelled … " message + an underlined
+        // "Uncancel my … routine" link that restores the routine via the backend.
+        private FrameworkElement BuildCancelledRoutineBody(bool isEvening)
+        {
+            var panel = new StackPanel { Orientation = Orientation.Vertical, Margin = new Thickness(6, 2, 6, 6) };
+
+            string msg = isEvening
+                ? HabitsStateString("cancelledEveningRoutineMessage", "You cancelled your evening routine. If you changed your mind, click \"Uncancel My Evening Routine\" to continue your evening habits.")
+                : HabitsStateString("cancelledMorningRoutineMessage", "You cancelled your morning routine. If you changed your mind, click \"Uncancel My Morning Routine\" to continue your morning habits.");
+            panel.Children.Add(new TextBlock
+            {
+                Text = msg,
+                FontSize = 13,
+                TextWrapping = TextWrapping.Wrap,
+                Foreground = SecBrush(),
+                Margin = new Thickness(0, 0, 0, 8)
+            });
+
+            string btnText = isEvening
+                ? HabitsStateString("buttonUncancelEveningRoutine", "Uncancel my evening routine")
+                : HabitsStateString("buttonUncancelMorningRoutine", "Uncancel my morning routine");
+            var link = new TextBlock
+            {
+                Text = btnText,
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush(COrange),
+                TextDecorations = TextDecorations.Underline,
+                Cursor = Cursors.Hand
+            };
+            link.MouseLeftButtonUp += (s, e) => UncancelRoutine(isEvening);
+            panel.Children.Add(link);
+            return panel;
+        }
+
+        // Restores a cancelled routine: undo the force-complete on the backend; it then serves that routine's
+        // habits again via current-activity-props. Clears our cached progress for today and re-derives so the
+        // card swaps back from the Uncancel message to the habit rows.
+        private async void UncancelRoutine(bool isEvening)
+        {
+            try
+            {
+                var habits = isEvening ? appSettings.arrAllEveningHabits : appSettings.arrAllMorningHabits;
+                if (habits == null || habits.Count == 0 || string.IsNullOrEmpty(habits[0].activity_sequence_id))
+                {
+                    LogWriter.LogWrite("UncancelRoutine - no sequence id to uncancel");
+                    return;
+                }
+
+                SetBusy(true);
+                var client = new FocusBearAPIClient();
+                int result = await client.UncompleteCurrentSequence(habits[0].activity_sequence_id);
+                LogWriter.LogWrite("UncancelRoutine Uncomplete result=" + result);
+                // As with cancel, we don't gate on the return code — a non-201 is typically "already
+                // uncompleted", and the Day Plan reflects the backend's was_force_completed on refresh.
+
+                // Backend no longer marks the routine cancelled. Clear the local flag + today's cached progress
+                // (it's additive, so stale skipped/done entries would linger) and refetch so the restored
+                // habits show. Keep the local flag rather than re-reading was_force_completed, which can lag
+                // right after the write.
+                if (isEvening) _eveningRoutineCancelled = false; else _morningRoutineCancelled = false;
+                _cancelStateStickyUntil = DateTime.Now.AddSeconds(20);   // hold this state over a lagging backend read
+                string dayKey = DateTime.Today.ToString("yyyy-MM-dd");
+                appSettings.dayPlanCompletedHabitIdsByDay.Remove(dayKey);
+                appSettings.dayPlanSkippedHabitIdsByDay.Remove(dayKey);
+                _lastProgressFetchDay = "";
+
+                // Undo the "done for today" mark and re-enter routine state so the app fetches and starts the
+                // habits again — the routine becomes live, not just a closed card (mirrors macOS: clear the
+                // shown-till flag, then re-derive the routine).
+                var app = (App)Application.Current;
+                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                if (isEvening)
+                {
+                    RegistryManager.RemoveEveningHabitsShownTillDate();
+                    app.ShowEveningRoutine();
+                }
+                else
+                {
+                    RegistryManager.RemoveMorningHabitsShownTillDate();
+                    app.ShowMorningRoutine();
+                }
+                SetBusy(false);
+            }
+            catch (Exception ex) { SetBusy(false); LogWriter.LogWrite("UncancelRoutine ex - " + ex.Message); }
+        }
+
+        // Dim the main window (grid shade) as a lightweight busy indicator while an uncancel/cancel API
+        // call + refresh is in flight, and to back the confirmation dialog.
+        private void SetBusy(bool busy)
+        {
+            try { if (_parentWindow != null) _parentWindow.GridShade.Visibility = busy ? Visibility.Visible : Visibility.Collapsed; }
+            catch (Exception ex) { LogWriter.LogWrite("HabitsDayPlan SetBusy ex - " + ex.Message); }
+        }
+
+        // The red ✕ at an active routine card's top-left: confirms, then cancels the whole routine for today.
+        private FrameworkElement BuildCancelRoutineX(bool isEvening)
+        {
+            var x = new TextBlock
+            {
+                Text = "✕",
+                FontSize = 14,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(CRed),
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(8, 0, 6, 0),
+                Cursor = Cursors.Hand,
+                ToolTip = DayPlanText.SkipRoutineForToday
+            };
+            // Handle the click here so it cancels the routine instead of bubbling up to toggle the accordion.
+            x.MouseLeftButtonUp += (s, e) => { e.Handled = true; CancelRoutineForToday(isEvening); };
+            return x;
+        }
+
+        // Confirms ("Cancel Routine?"), then cancels (force-completes) the active routine for today with the
+        // same teardown as the other skip-whole-routine flows — set the shown-till date so it isn't
+        // re-prompted, close secondary windows, clear the activity type — so the Day Plan card flips to the
+        // "you cancelled … Uncancel" state.
+        private async void CancelRoutineForToday(bool isEvening)
+        {
+            try
+            {
+                var habits = isEvening ? appSettings.arrAllEveningHabits : appSettings.arrAllMorningHabits;
+                if (habits == null || habits.Count == 0 || string.IsNullOrEmpty(habits[0].activity_sequence_id))
+                {
+                    LogWriter.LogWrite("CancelRoutineForToday - no sequence id to cancel");
+                    return;
+                }
+
+                // The confirmation message points the user at the matching Uncancel link (<BUTTON> token).
+                string uncancelLabel = isEvening
+                    ? HabitsStateString("buttonUncancelEveningRoutine", "Uncancel my evening routine")
+                    : HabitsStateString("buttonUncancelMorningRoutine", "Uncancel my morning routine");
+                string message = DayPlanText.CancelRoutineMessage.Replace("<BUTTON>", uncancelLabel);
+
+                // Confirmation, centred on the main window with the usual dim grid-shade behind it.
+                SetBusy(true);
+                var box = new FBMessageBox(message, DayPlanText.CancelRoutineTitle, MessageBoxButton.YesNo,
+                    DayPlanText.CancelRoutineOk, DayPlanText.CancelRoutineCancel)
+                {
+                    Owner = _parentWindow,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                };
+                box.ShowDialog();
+                if (box.btnClicked != MessageBoxResult.Yes) { SetBusy(false); return; }   // Cancel → leave unchanged
+
+                // Keep the shade up as a busy indicator while the cancel is sent and the plan refreshes.
+                var client = new FocusBearAPIClient();
+                int result = await client.ForceCompleteCurrentSequence(habits[0].activity_sequence_id, true);
+                LogWriter.LogWrite("CancelRoutineForToday ForceComplete result=" + result);
+                // Note: we do NOT gate on result. A non-201 here is typically "already force-completed" (a
+                // repeat cancel), and the routine is still cancelled on the backend. The Day Plan reflects the
+                // backend's was_force_completed on refresh (macOS approach); we also show it optimistically now.
+
+                // Mark cancelled locally and render immediately so the card flips right away — the active
+                // routine group is still in the blocks, so the flag makes it render as the Uncancel card. We
+                // keep the local flag rather than re-reading was_force_completed (which can lag after the write).
+                if (isEvening) _eveningRoutineCancelled = true; else _morningRoutineCancelled = true;
+                _cancelStateStickyUntil = DateTime.Now.AddSeconds(20);
+                string dayKey = DateTime.Today.ToString("yyyy-MM-dd");
+                appSettings.dayPlanCompletedHabitIdsByDay.Remove(dayKey);
+                appSettings.dayPlanSkippedHabitIdsByDay.Remove(dayKey);
+                _lastProgressFetchDay = "";
+                RenderDayPlan();
+
+                // Tear down the running routine (each step guarded so a failure can't undo the card above):
+                // mark it done for today so it isn't re-prompted, close secondary windows, clear the type.
+                try { if (isEvening) RegistryManager.SetEveningHabitsShownTillDate(); else RegistryManager.SetMorningHabitsShownTillDate(); }
+                catch (Exception e1) { LogWriter.LogWrite("CancelRoutineForToday SetShownTill ex - " + e1.Message); }
+                try { appSettings.RemoveSecondaryWindows(); }
+                catch (Exception e2) { LogWriter.LogWrite("CancelRoutineForToday RemoveSecondaryWindows ex - " + e2.Message); }
+                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+
+                // Refresh the window out of "routine mode" chrome (which we're leaving) without navigating away
+                // from the Day Plan: restore the normal title-bar buttons (min/max, not just close) + resizing,
+                // re-expand/enable the sidebar, and hide the routine postpone/abort ("please spare me") button.
+                try
+                {
+                    ((App)Application.Current).BringMainWindowToFront();
+                    _parentWindow.EnableAllButtons();
+                    if (_parentWindow.PageHabits != null)
+                        _parentWindow.PageHabits.btnPleaseSpareMe.Visibility = Visibility.Collapsed;
+                }
+                catch (Exception e3) { LogWriter.LogWrite("CancelRoutineForToday chrome refresh ex - " + e3.Message); }
+
+                // Re-pull today's progress so the cancelled routine also resurfaces as an "earlier" group and
+                // re-render for the final consistent state.
+                await FetchDayProgressAsync();
+                RenderDayPlan();
+                SetBusy(false);
+            }
+            catch (Exception ex) { SetBusy(false); LogWriter.LogWrite("CancelRoutineForToday ex - " + ex.Message); }
+        }
+
+        // Reads a habitsStateVcInfo config string (where the uncancel/cancelled-routine strings live), English fallback.
+        private string HabitsStateString(string key, string fallback)
+        {
+            try
+            {
+                var val = appSettings.ConfigFileStrings["habitsStateVcInfo"]?[key];
+                return (val != null && val.ToString().Length > 0) ? val.ToString() : fallback;
+            }
+            catch { return fallback; }
         }
 
         /// <summary>

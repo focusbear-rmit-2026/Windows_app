@@ -59,6 +59,11 @@ namespace Focus_Bear.Habits.DayPlan
         public static string Done => T("done", "Done");
         public static string Skip => T("skip", "Skip");
         public static string SkipRoutineForToday => T("skipRoutineForToday", "Skip routine for today");
+        // Cancel-routine confirmation (the ✕ on an active routine card). <BUTTON> → the uncancel link label.
+        public static string CancelRoutineTitle => T("cancelRoutineTitle", "Cancel Routine?");
+        public static string CancelRoutineMessage => T("cancelRoutineMessage", "If you change your mind later, you can click the \"<BUTTON>\" button to restore the routine.");
+        public static string CancelRoutineOk => T("cancelRoutineOk", "OK");
+        public static string CancelRoutineCancel => T("cancelRoutineCancel", "Cancel");
         public static string SkippedTag => T("habitSkippedTag", "skipped");
         public static string PastHabitComplete => T("pastHabitComplete", "Complete");
         public static string PastHabitCompleteHint => T("pastHabitCompleteHint", "I actually did it but forgot to log it 😅");
