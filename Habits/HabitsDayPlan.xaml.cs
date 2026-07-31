@@ -325,7 +325,7 @@ namespace Focus_Bear.Habits
             {
                 if (_morningRoutineCancelled && !renderedRoutines.Contains(DayPlanText.MorningRoutineHabits))
                     DayPlanStack.Children.Add(BuildStandaloneCancelledCard(isEvening: false));
-                if (_eveningRoutineCancelled && !appSettings.IsShutOffTime()
+                if (_eveningRoutineCancelled && !appSettings.DidCutOffTimePassed()
                     && !renderedRoutines.Contains(DayPlanText.EveningRoutineHabits))
                     DayPlanStack.Children.Add(BuildStandaloneCancelledCard(isEvening: true));
             }
@@ -485,7 +485,7 @@ namespace Focus_Bear.Habits
             bool isEveningGroup = name == DayPlanText.EveningRoutineHabits;
             bool routineCancelled = IsViewingToday &&
                 (((name == DayPlanText.MorningRoutineHabits) && _morningRoutineCancelled)
-                 || (isEveningGroup && _eveningRoutineCancelled && !appSettings.IsShutOffTime()));
+                 || (isEveningGroup && _eveningRoutineCancelled && !appSettings.DidCutOffTimePassed()));
             bool collapsed = IsRoutineCollapsed(name, routineCancelled ? false : isEarlier);
 
             var inner = new StackPanel { Orientation = Orientation.Vertical };

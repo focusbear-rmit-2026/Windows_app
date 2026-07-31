@@ -544,7 +544,11 @@ namespace Focus_Bear
                     //V2 todo - postponed view again with button - resume habits
                     PageHabits.ShowHabitsPostponedView();
                 }
-                else if (appSettings.IsShutOffTime())
+                // The shut-off / free-time screen belongs after the CUTOFF (sleep) time, not from the
+                // evening-routine start (IsShutOffTime). Before cutoff — including when the evening routine is
+                // finished or cancelled — keep the Day Plan visible (with the Uncancel card if cancelled),
+                // mirroring macOS (isShutOffTimeGoing && !isCutOffTimeGoing shows the plan, not shut-off).
+                else if (appSettings.DidCutOffTimePassed())
                 {
                     if (RegistryManager.GetShutOffAbortedTillDate())
                     {

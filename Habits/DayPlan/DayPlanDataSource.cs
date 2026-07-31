@@ -170,6 +170,7 @@ namespace Focus_Bear.Habits.DayPlan
         {
             var settings = AppSettings;
             string dayKey = now.ToString("yyyy-MM-dd");
+            string weekday = now.DayOfWeek.ToString();   // only show habits scheduled for today's weekday
             var segs = new List<ScheduleRoutineSegment>();
             DateTime endOfDay = EndOfDay(now);
             DateTime? eveningStart = TimeToday(settings.sDayShutOffTime, now);
@@ -186,7 +187,7 @@ namespace Focus_Bear.Habits.DayPlan
                 DateTime? morningStart = TimeToday(settings.sDayStartTime, now);
                 if (morningStart.HasValue)
                 {
-                    var pastMorning = HabitInputs(settings.arrGLOBALAllMorningHabits, morningStart.Value, dayKey, asEarlier: true);
+                    var pastMorning = HabitInputs(FilterByWeekday(settings.arrGLOBALAllMorningHabits, weekday), morningStart.Value, dayKey, asEarlier: true);
                     if (pastMorning.Count > 0)
                     {
                         segs.Add(new ScheduleRoutineSegment(MorningRoutineHabits, pastMorning,
@@ -197,7 +198,7 @@ namespace Focus_Bear.Habits.DayPlan
 
                 if (eveningStart.HasValue && eveningStart.Value > now)
                 {
-                    var eveningPreview = HabitInputs(settings.arrGLOBALAllEveningHabits, now, dayKey);
+                    var eveningPreview = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), now, dayKey);
                     if (eveningPreview.Count > 0)
                     {
                         segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, eveningPreview,
@@ -222,7 +223,7 @@ namespace Focus_Bear.Habits.DayPlan
             // Evening routine preview, once the morning/day routine hands off at the shutdown time.
             if (isMorningActive && eveningStart.HasValue && eveningStart.Value > now)
             {
-                var eveningHabits = HabitInputs(settings.arrGLOBALAllEveningHabits, now, dayKey);
+                var eveningHabits = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), now, dayKey);
                 if (eveningHabits.Count > 0)
                 {
                     segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, eveningHabits,
