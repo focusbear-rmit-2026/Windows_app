@@ -196,13 +196,25 @@ namespace Focus_Bear.Habits.DayPlan
                     }
                 }
 
-                if (eveningStart.HasValue && eveningStart.Value > now)
+                if (eveningStart.HasValue)
                 {
-                    var eveningPreview = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), now, dayKey);
-                    if (eveningPreview.Count > 0)
+                    if (eveningStart.Value > now)
                     {
-                        segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, eveningPreview,
-                                                            eveningStart.Value, endOfDay, actionable: false));
+                        // Evening routine still ahead → read-only preview.
+                        var eveningPreview = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), now, dayKey);
+                        if (eveningPreview.Count > 0)
+                            segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, eveningPreview,
+                                                                eveningStart.Value, endOfDay, actionable: false));
+                    }
+                    else
+                    {
+                        // Evening window has started but the routine isn't active (finished/skipped — including
+                        // on another device) → show it as a read-only, struck-through "earlier" section, like
+                        // the morning one, instead of dropping it entirely.
+                        var pastEvening = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), eveningStart.Value, dayKey, asEarlier: true);
+                        if (pastEvening.Count > 0)
+                            segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, pastEvening,
+                                                                eveningStart.Value, endOfDay, actionable: false, isEarlier: true));
                     }
                 }
                 return segs;

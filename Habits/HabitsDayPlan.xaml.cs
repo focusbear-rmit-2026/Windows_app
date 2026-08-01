@@ -286,6 +286,7 @@ namespace Focus_Bear.Habits
             Dictionary<ScheduleBlock, List<DayPlanTask>> dwTasks = DeepWorkTasksByBlock(dwBlocks);
 
             var renderedRoutines = new HashSet<string>();
+            bool eveningDoneToday = false;   // the evening routine rendered as a done/"earlier" section today
             int i = 0;
             while (i < blocks.Count)
             {
@@ -299,6 +300,10 @@ namespace Focus_Bear.Habits
                         i++;
                     }
                     renderedRoutines.Add(name);
+                    // Evening rendered as a done/"earlier" section = finished (not cancelled — that shows the
+                    // Uncancel card, where a "well done finishing" prompt would contradict it).
+                    if (name == DayPlanText.EveningRoutineHabits && group.Exists(b => b.IsEarlier) && !_eveningRoutineCancelled)
+                        eveningDoneToday = true;
                     DayPlanStack.Children.Add(BuildGroupCard(group));
                 }
                 else if (blocks[i].Kind == ScheduleBlockKind.DeepWork)
@@ -329,6 +334,14 @@ namespace Focus_Bear.Habits
                     && !renderedRoutines.Contains(DayPlanText.EveningRoutineHabits))
                     DayPlanStack.Children.Add(BuildStandaloneCancelledCard(isEvening: true));
             }
+
+            // Evening shutdown prompt (#2005 part 4): a "well done — sleep / shut down" card at the bottom of
+            // the plan once the evening routine is done (shown as an "earlier" section), before cutoff, until
+            // the user dismisses it for the day. Computed live so it covers local, cross-device and skipped
+            // completions without depending on a specific finish hook firing.
+            if (IsViewingToday && eveningDoneToday && !appSettings.DidCutOffTimePassed()
+                && !RegistryManager.IsEveningShutdownPromptDismissedToday())
+                DayPlanStack.Children.Add(BuildEveningShutdownCard());
 
             // Empty state — only when nothing else (besides the date bar) was rendered.
             if (DayPlanStack.Children.Count <= 1)
@@ -364,6 +377,86 @@ namespace Focus_Bear.Habits
                 border: new SolidColorBrush(COrange),
                 hasBorder: true,
                 content: inner);
+        }
+
+        // The evening shutdown prompt card: 😴 + title/subtitle + [Sleep] [Shut Down] + "Not now" (macOS #2005
+        // part 4). Sleep suspends the PC, Shut Down powers it off; both (and "Not now") clear the prompt.
+        private FrameworkElement BuildEveningShutdownCard()
+        {
+            var panel = new StackPanel { Orientation = Orientation.Vertical, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 18, 0, 10) };
+            panel.Children.Add(new Emoji.Wpf.TextBlock { Text = "😴", FontSize = 34, HorizontalAlignment = HorizontalAlignment.Center });
+            panel.Children.Add(new TextBlock
+            {
+                Text = EveningShutdownString("title", "Well done on finishing your evening routine"),
+                FontSize = 15, FontWeight = FontWeights.Bold, Foreground = FgBrush(),
+                TextAlignment = TextAlignment.Center, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 2)
+            });
+            panel.Children.Add(new TextBlock
+            {
+                Text = EveningShutdownString("subtitle", "Have a restful sleep"),
+                FontSize = 13, Foreground = SecBrush(),
+                TextAlignment = TextAlignment.Center, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 12)
+            });
+
+            var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
+            row.Children.Add(MakeShutdownButton(EveningShutdownString("buttonSleepText", "Sleep"), primary: true, onClick: () =>
+            {
+                RegistryManager.SetEveningShutdownPromptDismissed();
+                RenderDayPlan();
+                Focus_Bear.Utils.Global.SleepPc();
+            }));
+            row.Children.Add(MakeShutdownButton(EveningShutdownString("buttonShutDownText", "Shut Down"), primary: false, onClick: () =>
+            {
+                RegistryManager.SetEveningShutdownPromptDismissed();
+                Focus_Bear.Utils.Global.ShutDownPc();
+            }));
+            panel.Children.Add(row);
+
+            var notNow = new TextBlock
+            {
+                Text = EveningShutdownString("buttonNotNowText", "Not now"),
+                FontSize = 13, Foreground = SecBrush(), TextDecorations = TextDecorations.Underline,
+                Cursor = Cursors.Hand, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 12, 0, 0)
+            };
+            notNow.MouseLeftButtonUp += (s, e) => { RegistryManager.SetEveningShutdownPromptDismissed(); RenderDayPlan(); };
+            panel.Children.Add(notNow);
+            return panel;
+        }
+
+        // A rounded button for the shutdown prompt: orange fill + white text (primary), or white fill + grey
+        // border + black text (secondary) — mirrors macOS AppOrangeButtonStyle.
+        private FrameworkElement MakeShutdownButton(string text, bool primary, Action onClick)
+        {
+            var border = new Border
+            {
+                CornerRadius = new CornerRadius(6),
+                Background = primary ? new SolidColorBrush(COrange) : Brushes.White,
+                BorderBrush = primary ? new SolidColorBrush(COrange) : new SolidColorBrush(Color.FromRgb(0xDC, 0xDC, 0xDC)),
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(18, 9, 18, 9),
+                Margin = new Thickness(6, 0, 6, 0),
+                Cursor = Cursors.Hand,
+                MinWidth = 110
+            };
+            border.Child = new TextBlock
+            {
+                Text = text, FontSize = 14, FontWeight = FontWeights.Medium,
+                Foreground = primary ? Brushes.White : Brushes.Black,
+                HorizontalAlignment = HorizontalAlignment.Center, TextAlignment = TextAlignment.Center
+            };
+            border.MouseLeftButtonUp += (s, e) => { e.Handled = true; onClick(); };
+            return border;
+        }
+
+        // Reads an eveningShutdownInfo config string with an English fallback.
+        private string EveningShutdownString(string key, string fallback)
+        {
+            try
+            {
+                var val = appSettings.ConfigFileStrings["eveningShutdownInfo"]?[key];
+                return (val != null && val.ToString().Length > 0) ? val.ToString() : fallback;
+            }
+            catch { return fallback; }
         }
 
         // MARK: - Date navigation

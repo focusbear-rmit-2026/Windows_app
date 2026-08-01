@@ -856,8 +856,11 @@ namespace Focus_Bear
             {
                 var blocks = Focus_Bear.Habits.DayPlan.DayPlanDataSource.BuildBlocks(DateTime.Now);
                 var habitBlocks = blocks?.Where(b => b.HabitIndex.HasValue).ToList();
-                var current = blocks?.FirstOrDefault(b => b.IsCurrent)
-                              ?? (habitBlocks != null && habitBlocks.Count > 0 ? habitBlocks[0] : null);
+                // Only an ACTIONABLE habit (a routine that's live now) can be started from here. A past/preview
+                // habit (e.g. tomorrow's first morning habit shown before the routine's time) is not startable —
+                // don't fall back to it, or the Start button would do nothing when clicked.
+                var current = blocks?.FirstOrDefault(b => b.IsCurrent && b.IsActionable)
+                              ?? blocks?.FirstOrDefault(b => b.IsActionable && b.HabitIndex.HasValue);
 
                 // Is a habit activity in progress right now (running OR paused on-screen)? A *parked* habit
                 // (backed out to the Day Plan, remaining time saved) is NOT "in progress" — it should still
@@ -896,11 +899,23 @@ namespace Focus_Bear
                     DayPlanNextHabit.Text = nextTitle ?? MenuViewString("menuLastHabit", "This is the last habit");
                     btnDayPlanStart.Visibility = Visibility.Collapsed;
                 }
+                else if (currentTitle != null)
+                {
+                    // A startable habit is up next → show it with the Start button.
+                    DayPlanSubtitle.Text = currentTitle;
+                    DayPlanNextHabit.Text = currentTitle;
+                    btnDayPlanStart.Visibility = Visibility.Visible;
+                }
                 else
                 {
-                    DayPlanSubtitle.Text = currentTitle ?? MenuViewString("menuDayPlanSubtitle", "View your day");
-                    DayPlanNextHabit.Text = currentTitle ?? MenuViewString("menuNothingScheduled", "Nothing scheduled right now");
-                    btnDayPlanStart.Visibility = currentTitle != null ? Visibility.Visible : Visibility.Collapsed;
+                    // Nothing to start right now — the orange header shows when the next routine begins, and the
+                    // NEXT HABIT line just shows that routine's first habit name (if any). No Start button, since
+                    // it can't be started before its time.
+                    string upcomingFirstHabit;
+                    string upcoming = NextRoutineStartText(out upcomingFirstHabit);
+                    DayPlanSubtitle.Text = upcoming ?? MenuViewString("menuDayPlanSubtitle", "View your day");
+                    DayPlanNextHabit.Text = upcomingFirstHabit ?? MenuViewString("menuNothingScheduled", "Nothing scheduled right now");
+                    btnDayPlanStart.Visibility = Visibility.Collapsed;
                 }
 
                 // Tasks for today (incomplete), a few of them.
@@ -932,6 +947,56 @@ namespace Focus_Bear
                 DayPlanNextHabit.Text = "No habits scheduled right now";
                 btnDayPlanStart.Visibility = Visibility.Collapsed;
             }
+        }
+
+        // When no habit is startable now, describe the next routine's start (e.g. "🌅 Morning routine starts
+        // at 7:00 AM") for the Day Plan card — the evening routine if it's still ahead today, otherwise the
+        // next morning routine (today if its time hasn't passed, else tomorrow). Null if neither is scheduled.
+        private string NextRoutineStartText(out string firstHabitName)
+        {
+            firstHabitName = null;
+            try
+            {
+                DateTime now = DateTime.Now;
+                string startsAt = MenuViewString("dayPlanStartsAt", "starts at");
+
+                // Evening routine still ahead today?
+                DateTime? eveningStart = ParseTodayTime(appSettings.sDayShutOffTime, now);
+                var eveningToday = Focus_Bear.Habits.DayPlan.DayPlanDataSource.FilterByWeekday(appSettings.arrGLOBALAllEveningHabits, now.DayOfWeek.ToString());
+                if (eveningStart.HasValue && eveningStart.Value > now && eveningToday.Count > 0)
+                {
+                    firstHabitName = eveningToday[0].name;
+                    return Focus_Bear.Habits.DayPlan.DayPlanText.EveningRoutine + " " + startsAt + " " + eveningStart.Value.ToString("t");
+                }
+
+                // Otherwise the next morning routine (today if still ahead, else tomorrow).
+                DateTime? morningStart = ParseTodayTime(appSettings.sDayStartTime, now);
+                if (morningStart.HasValue)
+                {
+                    DateTime m = morningStart.Value;
+                    if (m <= now) m = m.AddDays(1);
+                    var morning = Focus_Bear.Habits.DayPlan.DayPlanDataSource.FilterByWeekday(appSettings.arrGLOBALAllMorningHabits, m.DayOfWeek.ToString());
+                    if (morning.Count > 0)
+                    {
+                        firstHabitName = morning[0].name;
+                        return Focus_Bear.Habits.DayPlan.DayPlanText.MorningRoutine + " " + startsAt + " " + m.ToString("t");
+                    }
+                }
+            }
+            catch (Exception ex) { LogWriter.LogWrite("NextRoutineStartText ex - " + ex.Message); }
+            return null;
+        }
+
+        // A DateTime at "HH:mm"(":ss") on today's date, or null if the time string is empty/unparseable.
+        private DateTime? ParseTodayTime(string time, DateTime now)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(time)) return null;
+                TimeSpan ts = TimeSpan.Parse(time);
+                return new DateTime(now.Year, now.Month, now.Day, ts.Hours, ts.Minutes, 0);
+            }
+            catch { return null; }
         }
 
         // Start the next habit — same flow as clicking Play in the Day Plan view (resume if postponed, etc.).

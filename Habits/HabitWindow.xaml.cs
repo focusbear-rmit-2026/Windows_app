@@ -764,8 +764,10 @@ namespace Focus_Bear.Habits
                         ((App)(Application.Current)).ShowShutOffScreen();
                     else
                     {
+                        // Before cutoff: keep the Day Plan up so its "sleep / shut down" prompt shows at the
+                        // bottom (#2005 part 4) — the shut-off screen only takes over after the cutoff time.
                         ((App)(Application.Current)).wndFocusBearMainWindow.EnableAllButtons();
-                        ((App)(Application.Current)).wndFocusBearMainWindow.Hide();
+                        ((App)(Application.Current)).ShowHabitsSectionInMainWindow();
                     }
 
                 }

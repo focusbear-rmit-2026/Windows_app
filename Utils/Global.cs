@@ -40,6 +40,30 @@ namespace Focus_Bear.Utils
             // allow sleep
             SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
         }
+
+        [DllImport("powrprof.dll", SetLastError = true)]
+        static extern bool SetSuspendState(bool hibernate, bool forceCritical, bool disableWakeEvent);
+
+        // Put the PC to sleep (the evening shutdown prompt's "Sleep" action — macOS's sleepMac equivalent).
+        public static void SleepPc()
+        {
+            try
+            {
+                EnableSystemSleep();   // clear any keep-awake state we set for routines first
+                SetSuspendState(false, false, false);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("SleepPc - " + ex.Message); }
+        }
+
+        // Shut the PC down (the evening shutdown prompt's "Shut Down" action — macOS's shutDownMac equivalent).
+        public static void ShutDownPc()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo("shutdown", "/s /t 0") { CreateNoWindow = true, UseShellExecute = false });
+            }
+            catch (Exception ex) { LogWriter.LogWrite("ShutDownPc - " + ex.Message); }
+        }
         public static void DisableSystemSleep()
         {
             // types of sleep

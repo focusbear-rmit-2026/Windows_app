@@ -1524,6 +1524,22 @@ namespace Focus_Bear.Models
             catch (Exception ex) { LogWriter.LogWrite("RemoveEveningHabitsShownTillDate - " + ex.Message); }
         }
 
+        // Evening shut-down prompt (#2005 part 4): the Day Plan shows a "well done — sleep / shut down" card
+        // once the evening routine is done (before cutoff); "Not now" (or Sleep/Shut Down) dismisses it for the
+        // day. We track only the DISMISSAL (a per-day date marker) — whether the routine is done is computed
+        // live from the plan, so it works for local, cross-device, and cancelled completions alike.
+        internal static void SetEveningShutdownPromptDismissed()
+        {
+            try { Write("EVENINGSHUTDOWNDISMISSEDDT", DateTime.Now.ToString("yyyy-MM-dd")); }
+            catch (Exception ex) { LogWriter.LogWrite("SetEveningShutdownPromptDismissed - " + ex.Message); }
+        }
+
+        internal static bool IsEveningShutdownPromptDismissedToday()
+        {
+            try { return ReadStr("EVENINGSHUTDOWNDISMISSEDDT") == DateTime.Now.ToString("yyyy-MM-dd"); }
+            catch (Exception ex) { LogWriter.LogWrite("IsEveningShutdownPromptDismissedToday - " + ex.Message); return false; }
+        }
+
         internal static void SetMorningHabitsShownTillDate()
         {
             LogWriter.LogWrite("SetMorningHabitsShownTillDate()");
