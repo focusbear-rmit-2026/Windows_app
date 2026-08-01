@@ -85,20 +85,23 @@ namespace Focus_Bear.ShutOff
             try
             {
                 TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
-                TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+                // The shut-off screen represents the CUTOFF (sleep) time — sDayShutOffTime is only the evening
+                // routine start, not the actual shut-off. Fall back to the shut-off time if no cutoff is set.
+                string sCutOff = !string.IsNullOrEmpty(appSettings.sDayCutOffTime) ? appSettings.sDayCutOffTime : appSettings.sDayShutOffTime;
+                TimeSpan tsCutOffTime = TimeSpan.Parse(sCutOff);
 
                 DateTime now = DateTime.Now;
 
                 DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
                 Console.WriteLine("{0}", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
 
-                DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
-                Console.WriteLine("{0}", myShutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+                DateTime myCutOffTime = new DateTime(now.Year, now.Month, now.Day, tsCutOffTime.Hours, tsCutOffTime.Minutes, 00);
+                Console.WriteLine("{0}", myCutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
 
 
                 Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["title"].ToString();
                 string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["subTitle"].ToString();
-                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", myShutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", myCutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
                 sSubTitle = sSubTitle.Replace("<STARTTIME>", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
                 Description.Text = sSubTitle;
                 btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonAbortText"].ToString();
@@ -284,20 +287,23 @@ namespace Focus_Bear.ShutOff
             try
             {
                 TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
-                TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+                // The shut-off screen represents the CUTOFF (sleep) time — sDayShutOffTime is only the evening
+                // routine start, not the actual shut-off. Fall back to the shut-off time if no cutoff is set.
+                string sCutOff = !string.IsNullOrEmpty(appSettings.sDayCutOffTime) ? appSettings.sDayCutOffTime : appSettings.sDayShutOffTime;
+                TimeSpan tsCutOffTime = TimeSpan.Parse(sCutOff);
 
                 DateTime now = DateTime.Now;
 
                 DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
                 Console.WriteLine("{0}", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
 
-                DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
-                Console.WriteLine("{0}", myShutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+                DateTime myCutOffTime = new DateTime(now.Year, now.Month, now.Day, tsCutOffTime.Hours, tsCutOffTime.Minutes, 00);
+                Console.WriteLine("{0}", myCutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
 
 
                 Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["title"].ToString();
                 string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["subTitle"].ToString();
-                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", myShutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", myCutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
                 sSubTitle = sSubTitle.Replace("<STARTTIME>", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
                 Description.Text = sSubTitle;
                 btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonAbortText"].ToString();

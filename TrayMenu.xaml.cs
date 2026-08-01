@@ -484,6 +484,13 @@ namespace Focus_Bear
                     BlockingScheduleSection.Visibility = Visibility.Collapsed;
                 }
 
+                // Past the cutoff (shut-off) time it's time to wind down: don't offer to start a focus session
+                // (unless the user has aborted shut-off to keep working). A running session's Stop button stays.
+                if (appSettings.DidCutOffTimePassed() && !ShutOffAbortedByUser())
+                {
+                    btnStartPomodoroMode.Visibility = Visibility.Collapsed;
+                    FocusStartExpanded.Visibility = Visibility.Collapsed;
+                }
             }
             catch (Exception ex)
             {
@@ -494,8 +501,23 @@ namespace Focus_Bear
             {
                 //when the user is opening menu for the first time we need to highlight the start piomodoro button and show a tooltip
                 appSettings.bMenuOpeningFirstTime = false;
-                FlashStartPomodoroButton();
+                if (btnStartPomodoroMode.Visibility == Visibility.Visible)   // don't flash a hidden button
+                    FlashStartPomodoroButton();
             }
+        }
+
+        // True when the user has aborted (unlocked) shut-off to keep working, and that unlock is still valid —
+        // so the cutoff wind-down (e.g. hiding "Start Focus Session") shouldn't apply.
+        private bool ShutOffAbortedByUser()
+        {
+            try
+            {
+                DateTime now = DateTime.Now;
+                if (RegistryManager.GetShutOffAbortedTillDate() && now < appSettings.ShutOFFAbortedTillDate) return true;
+                if (RegistryManager.GetShutOffAbortedFor30MinsTillDate() && now < appSettings.ShutOFFAbortedFor30MinsTillDate) return true;
+            }
+            catch (Exception ex) { LogWriter.LogWrite("ShutOffAbortedByUser ex - " + ex.Message); }
+            return false;
         }
 
         private void btnStopPomodoroMode_OpenContextMenu(object sender, RoutedEventArgs e)

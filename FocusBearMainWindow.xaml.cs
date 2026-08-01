@@ -554,7 +554,9 @@ namespace Focus_Bear
                     {
                         if (DateTime.Now < appSettings.ShutOFFAbortedTillDate) //Looks like a current  day aborted value
                         {
-                            PageHabits.ShowShutoffAbortedView();
+                            // Shut-off was aborted (user unlocked to keep working) → just show the Day Plan,
+                            // not the dedicated "shut-off aborted" screen.
+                            PageHabits.ShowMorningRoutineFinishedState();
                         }
                     }
                     else
