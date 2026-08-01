@@ -131,3 +131,9 @@
 #v3.0.233
 - Cancel / uncancel a whole routine from the Day Plan (Windows port of the macOS feature). A red ✕ on the active morning/evening routine card asks "Cancel Routine?" and, on confirm, cancels the whole routine for today. The card then shows "You cancelled your … routine" with an "Uncancel my … routine" link — clicking it restores the routine so its habits are fetched and startable again. The evening routine can be uncancelled until your sleep/cutoff time, after which the shut-off screen takes over #1379.
 - Day Plan: the shut-off / free-time screen now appears only after your cutoff (sleep) time, not from the evening-routine start — so a finished or cancelled evening routine keeps the Day Plan visible until cutoff. Today's plan also only lists habits scheduled for the current weekday (the "earlier today" list and evening preview no longer show habits set for other days) #1380.
+
+#v3.0.234
+- Day Plan: when it's time to wind down, the Day Plan now shows an evening shut-down prompt so you can start your evening routine straight from the plan; once you've finished the evening routine, the Day Plan keeps showing it as done (with the routine's completed habits) instead of hiding it (Windows port of the macOS shut-down flow).
+- Tray Breaks card: you can now start a break from the tray even while your schedule is paused, and if a break has no activities set up the card says so clearly instead of appearing empty; spacing/layout on the card was also tidied up.
+- Cutoff (sleep time) behaviour: the shut-off window now shows your actual cutoff time, the "Start Focus Session" option is hidden once you're past cutoff, and the Day Plan still opens correctly if you abort the shut-off.
+- Fixed: skipping a habit that used allowed-apps / focus-mode now clears its "running" state, so the app no longer behaves as if that habit is still active after you skip it.
