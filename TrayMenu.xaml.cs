@@ -1637,15 +1637,31 @@ namespace Focus_Bear
                     return;
                 }
 
-                // A blocking schedule is active with micro-breaks off. Mirrors dispatcherTimer_Breaks, which
-                // suppresses breaks when !ActiveSchedule.bMicroBreaksEnabled (field means "enabled": true = on).
+                // A blocking schedule is active (and not paused) with micro-breaks off. Mirrors
+                // dispatcherTimer_Breaks, which suppresses breaks when !ActiveSchedule.bMicroBreaksEnabled
+                // (field means "enabled": true = on). A paused schedule enforces nothing, so breaks resume.
                 if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning
+                    && !appSettings.ActiveSchedule.isPaused
                     && !appSettings.ActiveSchedule.bMicroBreaksEnabled)
                 {
                     string msg = MenuInfoString("breaksDisabledBlockingScheduleActive", "Blocking schedule is active. Breaks disabled.");
                     SetBreaksDisabled(msg, msg);
                     return;
                 }
+
+                // No break activities configured → there's nothing to run on a break, so don't offer "Start a
+                // break now". Show the status and an Add action that opens Edit Habits to create one.
+                if (appSettings.arrAllbreakActivities == null || appSettings.arrAllbreakActivities.Count == 0)
+                {
+                    string noAct = BreakStateString("noBreakAddedText", "No break activities added yet.");
+                    BreaksSubtitle.Text = noAct;
+                    BreaksStatusText.Text = noAct;
+                    btnStartBreakNow.Visibility = Visibility.Collapsed;
+                    AddBreakActivityText.Text = BreakStateString("buttonAddBreakActivity", "Add break activity");
+                    btnAddBreakActivity.Visibility = Visibility.Visible;
+                    return;
+                }
+                btnAddBreakActivity.Visibility = Visibility.Collapsed;
 
                 // Breaks available.
                 btnStartBreakNow.Visibility = Visibility.Visible;
@@ -1676,12 +1692,37 @@ namespace Focus_Bear
             }
         }
 
-        // Shared "breaks are disabled" presentation: show the reason, hide the start-a-break action.
+        // Shared "breaks are disabled" presentation: show the reason, hide the start-a-break / add actions.
         private void SetBreaksDisabled(string subtitle, string body)
         {
             BreaksSubtitle.Text = subtitle;
             BreaksStatusText.Text = body;
             btnStartBreakNow.Visibility = Visibility.Collapsed;
+            btnAddBreakActivity.Visibility = Visibility.Collapsed;
+        }
+
+        // Reads a breakStateVcInfo config string with an English fallback.
+        private string BreakStateString(string key, string fallback)
+        {
+            try
+            {
+                var val = appSettings.ConfigFileStrings["breakStateVcInfo"]?[key];
+                return (val != null && val.ToString().Length > 0) ? val.ToString() : fallback;
+            }
+            catch { return fallback; }
+        }
+
+        // No break activities → open Edit Habits so the user can add one.
+        private void btnAddBreakActivity_Click(object sender, RoutedEventArgs e)
+        {
+            Hide();
+            try
+            {
+                var app = (App)(Application.Current);
+                app.BringMainWindowToFront();
+                app.wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.EditHabits);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("btnAddBreakActivity_Click ex - " + ex.Message); }
         }
 
         // Reads a menuInfo config string with an English fallback.
@@ -1823,6 +1864,8 @@ namespace Focus_Bear
 
                 //In case the pomodoro page is visible, lets reload it
                 ((App)Application.Current).wndFocusBearMainWindow?.ReloadLeafViewIfVisible(LeftButtonType.StartFocusSession);
+
+                UpdateBreaksCard();   // schedule active again → refresh whether breaks are allowed
             }
         }
 
@@ -1913,6 +1956,8 @@ namespace Focus_Bear
 
                 //In case the pomodoro page is visible, lets reload it
                 ((App)Application.Current).wndFocusBearMainWindow?.ReloadLeafViewIfVisible(LeftButtonType.StartFocusSession);
+
+                UpdateBreaksCard();   // pausing a schedule lifts its break suppression → refresh the card
             }
         }
 

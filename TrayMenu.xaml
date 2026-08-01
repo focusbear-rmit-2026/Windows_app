@@ -502,13 +502,19 @@
                         </Grid>
                     </Button>
                     <Border x:Name="BreaksBody" Visibility="Collapsed" Background="{DynamicResource TrayCardBg}" CornerRadius="0,0,13,13">
-                        <StackPanel>
+                        <StackPanel Margin="0,0,0,12">
                             <TextBlock x:Name="BreaksStatusText" Margin="16,12,16,2" FontSize="13" Foreground="{DynamicResource TraySubtitleColor}"
                                        TextWrapping="Wrap" Text="Take a break whenever you need one."/>
                             <Button x:Name="btnStartBreakNow" Style="{StaticResource AccordionHeaderButton}"
                                     HorizontalAlignment="Left" Click="btnStartBreakNow_Click">
                                 <TextBlock x:Name="StartBreakNowText" FontSize="14" FontWeight="SemiBold" Foreground="#e88800"
                                            Text="Start a break now"/>
+                            </Button>
+                            <!-- Shown instead of "Start a break now" when there are no break activities configured. -->
+                            <Button x:Name="btnAddBreakActivity" Style="{StaticResource AccordionHeaderButton}" Visibility="Collapsed"
+                                    HorizontalAlignment="Left" Click="btnAddBreakActivity_Click">
+                                <TextBlock x:Name="AddBreakActivityText" FontSize="14" FontWeight="SemiBold" Foreground="#e88800"
+                                           Text="Add break activity"/>
                             </Button>
                         </StackPanel>
                     </Border>

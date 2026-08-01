@@ -56,6 +56,7 @@ using System.Collections.ObjectModel;
 using static Focus_Bear.Focus.TabMetrics;
 using Focus_Bear.Services.FocusButton;
 using Sentry.Protocol;
+using System.Security.Policy;
 
 namespace Focus_Bear
 {
@@ -1021,7 +1022,8 @@ namespace Focus_Bear
                     return;
                 }
 
-                if(appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+                if(appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning
+                    && !appSettings.ActiveSchedule.isPaused)
                 {
                     if (!appSettings.ActiveSchedule.bMicroBreaksEnabled)
                     {
@@ -1979,6 +1981,20 @@ namespace Focus_Bear
                     {
                         LogWriter.LogWrite("dispatcherTimer_Background() -  DateTime.Now > appSettings.EveningHabitsShownTillDate false ShowShutOffScreen(); ");
                         ShowShutOffScreen();
+
+                        if (!appSettings.DidCutOffTimePassed())
+                        {
+                            //If cutoff time is not passed, check and start the blocking schedule
+                            //Check if custom blocking schedule time and no active schedule is running
+                            if (appSettings.ActiveSchedule == null && !appSettings.isBlockingScheduleRunning)
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                            }
+                            else
+                            {
+                                BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                            }
+                        }
                     }
                 }
                 else

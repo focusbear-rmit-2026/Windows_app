@@ -2824,6 +2824,7 @@
         "shutoffTimeText": "La app está en estado de apagado",
         "noBreakScheduledText": "Aún no se ha programado ningún descanso próximo.",
         "noBreakAddedText": "Aún no se han agregado actividades de descanso.",
+        "buttonAddBreakActivity": "Agregar actividad de descanso",
         "buttonChangeTiming": "Cambiar horario"
     },
     "scheduleViewInfo":{

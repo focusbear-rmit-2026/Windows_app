@@ -2826,6 +2826,7 @@
         "shutoffTimeText": "App is in shutoff state",
         "noBreakScheduledText": "No upcoming break has been scheduled yet.",
         "noBreakAddedText": "No break activities added yet.",
+        "buttonAddBreakActivity": "Add break activity",
         "buttonChangeTiming": "Change Timing"
     },
     "scheduleViewInfo":{
