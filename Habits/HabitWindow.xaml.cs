@@ -1560,6 +1560,10 @@ namespace Focus_Bear.Habits
             HideWhySkipHabitsWindow();
             appSettings.bSkipCurrentActivity = true;
 
+            // Skipping the habit means no habit-with-allowed-apps / focus-mode is running anymore.
+            appSettings.bHabitwithAllowedAppsRunning = false;
+            appSettings.bHabitwithUseFocusModeRunning = false;
+
             if (!appSettings.bSkipWhileActivityOngoing) //Increase the index only if the activity was skipped other than when it was ongoing.
             {
                 appSettings.nHabitIndex++; //Increment the index to do the next habit
@@ -1637,6 +1641,10 @@ namespace Focus_Bear.Habits
 
                     HideSkippingHabitInWindow();
                     appSettings.bSkipCurrentActivityCantDoItToday = true;
+
+                    // Skipping the habit means no habit-with-allowed-apps / focus-mode is running anymore.
+                    appSettings.bHabitwithAllowedAppsRunning = false;
+                    appSettings.bHabitwithUseFocusModeRunning = false;
 
                     LogWriter.LogWrite("appSettings.bSkipCurrentActivityCantDoItToday = true;");
 
