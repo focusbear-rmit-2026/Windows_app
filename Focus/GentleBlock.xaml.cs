@@ -412,6 +412,59 @@ namespace Focus_Bear.Focus
                         Console.WriteLine("csvfocusAIDecisions write error: " + ex.Message);
                     }
 
+                    // Non-cuddly (grizzly) / Teacher Mode: no gentle popup and no questions asked. Decide from
+                    // the AI verdict alone - an aligned site is allowed silently; anything else (distracting, or
+                    // the status couldn't be verified) is blocked immediately.
+                    bool bEffectiveCuddly = (appSettings.nFocusBearMode == 1) && !TeacherSessionManager.Instance.IsTeacherSessionActive();
+                    if (!bEffectiveCuddly)
+                    {
+                        await Dispatcher.BeginInvoke((Action)(() =>
+                        {
+                            if (xProbability >= 0.80)
+                            {
+                                //AI says the site is aligned with the focus session - allow it silently
+                                appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
+                                appSettings.CapturePostHog("block-popup-allow-automatically");
+
+                                //Reflect the aligned verdict in the focus-progress popup: productive icon + reason tooltip.
+                                FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sFullURLForBlockedPage] = new Dictionary<string, object>
+                                {
+                                    { "probability", xProbability },
+                                    { "isVisibleUrl", true },
+                                    { "totalSeconds", 0 },
+                                    { "startedTime", DateTime.Now },
+                                    { "reason", appSettings.sChatGPTReasonForCurrentURL }
+                                };
+                                FocusAlignmentScoreManager.CustomToolTip = appSettings.sChatGPTReasonForCurrentURL;
+                                FocusAlignmentScoreManager.SetAppIconForFocusModeScore(xProbability);
+                                FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
+
+                                sCurrentTabTitle = sCurrentTabTitle.Replace(" - Google Chrome", "");
+                                sCurrentTabTitle = sCurrentTabTitle.Replace(" — Mozilla Firefox", "");
+                                sCurrentTabTitle = sCurrentTabTitle.Replace(" - Microsoft? Edge", "");
+                                if (sCurrentTabTitle.Length > 0)
+                                {
+                                    var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sCurrentTabTitle.ToLower());
+                                    if (titleExists.Count() == 0)
+                                        appSettings.TemporaryAllowedURLsTabTitles.Add(sCurrentTabTitle);
+                                }
+                            }
+                            else
+                            {
+                                //AI negative (or status could not be verified) - block now, no reasons/questions asked.
+                                //We are redirecting to the (neutral) block page, so reset the focus-progress icon to
+                                //normal and stop tracking this URL - otherwise it lingers as a productive/smiling score.
+                                appSettings.TemporarryBlockedURLsGentleBlock.Add(sActiveURL.ToLower());
+                                FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                                ProcessBrowserURLs.suppressURLForFirefox(HWND, sFullURLForBlockedPage, "focus");
+                            }
+                            dispatcherTimer.Stop();
+                            appSettings.HideBlurWindow();
+                            Hide();
+                        }));
+                        return;
+                    }
+
                     string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
 
                     if (xProbability == -1)

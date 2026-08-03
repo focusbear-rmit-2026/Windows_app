@@ -5966,10 +5966,24 @@ namespace Focus_Bear
         */
         public async Task SyncTodoTasksFromPlayer()
         {
-            if (wndFocusBearMainWindow.PageToDoPlayer != null)
+            try
             {
-                var tasksArray = await wndFocusBearMainWindow.PageToDoPlayer.webView.ExecuteScriptAsync("getToDosFromPlayer()");
+                var toDoPlayer = wndFocusBearMainWindow?.PageToDoPlayer;
+                var webView = toDoPlayer?.webView;
+
+                // Only run the script when the WebView2 and its CoreWebView2 are alive and initialized,
+                // otherwise ExecuteScriptAsync throws (e.g. before init / after the player is disposed).
+                if (webView?.CoreWebView2 == null)
+                {
+                    return;
+                }
+
+                var tasksArray = await webView.ExecuteScriptAsync("getToDosFromPlayer()");
                 appSettings.sRawTasks = tasksArray?.ToString() ?? "[]";
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SyncTodoTasksFromPlayer() ex - " + ex.Message);
             }
         }
 

@@ -575,7 +575,10 @@ namespace FocusBear.Utils
                                 }
                                 if (!bAllowedAppFound)
                                 {
-                                    if (appSettings.nFocusBearMode == 1)//Cuddly bearMode
+                                    // Teacher Mode forces non-cuddly (grizzly) behaviour for apps too, regardless of the
+                                    // user's own Focus Bear mode - so an unlisted app is hard-blocked, no gentle popup.
+                                    bool bEffectiveCuddly = (appSettings.nFocusBearMode == 1) && !TeacherSessionManager.Instance.IsTeacherSessionActive();
+                                    if (bEffectiveCuddly)//Cuddly bearMode
                                     {
                                         var allowedApps = appSettings.TemporaryAllowedAppsGentleBlock.Where(i => i.sURL.ToLower() == process.ProcessName.ToLower());
                                         if (allowedApps.Count() != 0)

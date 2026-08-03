@@ -293,6 +293,9 @@ namespace Focus_Bear.Utils
          {
              AppSettings appSettings = AppSettings.GetInstance;
 
+             // Teacher Mode forces non-cuddly (grizzly) behaviour, regardless of the user's own mode setting.
+             bool bEffectiveCuddly = (appSettings.nFocusBearMode == 1) && !TeacherSessionManager.Instance.IsTeacherSessionActive();
+
              string sURL = "";
              if (appSettings.FirefoxLastAccWindow != null && (appSettings.sLastActiveURLInFirefox != null && appSettings.sLastActiveURLInFirefox.Length > 0 ))
              {
@@ -302,7 +305,7 @@ namespace Focus_Bear.Utils
              {
                 TabMetrics.Instance.CloseLastDomainIfStarted_Internal();
 
-                if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
+                if (bEffectiveCuddly && appSettings.bAiCheckUrlEnabled)
                  {
                      FocusAlignmentScoreManager.FocusModeCloseCurrentUrlForAlignmentScore();
                      FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
@@ -464,7 +467,7 @@ namespace Focus_Bear.Utils
             }
             if (sURL.Contains("file://"))
             {
-                if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
+                if (bEffectiveCuddly && appSettings.bAiCheckUrlEnabled)
                 {
                     FocusAlignmentScoreManager.FocusModeCloseCurrentUrlForAlignmentScore();
                     FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
@@ -480,7 +483,7 @@ namespace Focus_Bear.Utils
                 {
                     TabMetrics.Instance.CloseLastDomainIfStarted_Internal();
 
-                    if ((appSettings.nFocusBearMode == 1) && appSettings.bAiCheckUrlEnabled)
+                    if (bEffectiveCuddly && appSettings.bAiCheckUrlEnabled)
                     {
                         FocusAlignmentScoreManager.FocusModeCloseCurrentUrlForAlignmentScore();
                         FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
@@ -1362,6 +1365,18 @@ namespace Focus_Bear.Utils
         {
             AppSettings appSettings = AppSettings.GetInstance;
 
+            // Teacher Mode forces non-cuddly (grizzly) behaviour for the whole focus-block flow,
+            // regardless of the user's own Focus Bear mode setting.
+            bool bTeacherActive = TeacherSessionManager.Instance.IsTeacherSessionActive();
+            bool bEffectiveCuddly = (appSettings.nFocusBearMode == 1) && !bTeacherActive;
+
+            // Is the AI URL check switched on for the current context (global / blocking-schedule / teacher session)?
+            bool bAiCheckEnabled = appSettings.bAiCheckUrlEnabled;
+            if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+                bAiCheckEnabled = appSettings.ActiveSchedule.bAIBlockingEnabled;
+            if (bTeacherActive)
+                bAiCheckEnabled = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
+
             try
             {
                 LogWriter.LogWrite("PBU - suppressURLForFirefox - Block URL - " + val);
@@ -1370,7 +1385,11 @@ namespace Focus_Bear.Utils
                 if (type == "focus")
                 {
 
-                    if (appSettings.nFocusBearMode == 1 && !bBlockImmediately)//Cuddly bearMode and not bFocusModeBlockedListApproach
+                    // Cuddly → gentle-block/AI flow (asks the user before blocking).
+                    // Non-cuddly (incl. Teacher Mode) WITH the AI check enabled → same allow-list checks, but
+                    // GentleBlock blocks immediately on an AI-negative verdict (no reasons/questions asked).
+                    // Non-cuddly WITHOUT the AI check falls through to the hard block below.
+                    if (!bBlockImmediately && (bEffectiveCuddly || bAiCheckEnabled))//Cuddly bearMode, or non-cuddly with AI check, and not bFocusModeBlockedListApproach
                     {
                         string sURLForFocusMode = "";
                         sURLForFocusMode = val;
@@ -1538,7 +1557,7 @@ namespace Focus_Bear.Utils
                     {
                         //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
                         string sURL = string.Format(sActivityBlockedWebUrl, HttpUtility.UrlEncode(val), appSettings.sHabitTypeForUseFocusModeIDInActivity, appSettings.AppVersion.ToString());
-                        if (appSettings.nFocusBearMode == 1)//cuddly mode
+                        if (bEffectiveCuddly)//cuddly mode
                             sURL = sURL + "&cuddly_bear_mode=true";
                         appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = sURL;
 
@@ -1575,7 +1594,7 @@ namespace Focus_Bear.Utils
                         string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, HttpUtility.UrlEncode(val), sEndTime, (appSettings.sRunningFocusModeName.Length > 0 ? appSettings.sRunningFocusModeName : focusMode), appSettings.sRunningFocusModeIntention, appSettings.AppVersion.ToString());
                         // "https://focus-bear.github.io/assets/focus-blocked/?old_url={0)&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
 
-                        if (appSettings.nFocusBearMode == 1)//cuddly mode
+                        if (bEffectiveCuddly)//cuddly mode
                             sFcousBlockedUrl = sFcousBlockedUrl + "&cuddly_bear_mode=true";
 
                         appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = sFcousBlockedUrl;
@@ -1632,7 +1651,7 @@ namespace Focus_Bear.Utils
                             //For supporting unblock, we should add it to blocked array with dummy intention
                             appSettings.TemporarryBlockedURLsWithSetIntention.Add(sDomain.ToLower()); //add the domain only
 
-                            appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, HttpUtility.UrlEncode(val), (appSettings.nFocusBearMode == 1) ? "cuddly" : "grizzly", appSettings.AppVersion.ToString()); //1 is cuddly bear mode
+                            appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, HttpUtility.UrlEncode(val), bEffectiveCuddly ? "cuddly" : "grizzly", appSettings.AppVersion.ToString()); //1 is cuddly bear mode
                         }
 
                         
@@ -1688,7 +1707,7 @@ namespace Focus_Bear.Utils
                                 //found in blocked urls..block
                                 appSettings.nTotalDistractingSitesBlocked++;
 
-                                appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, HttpUtility.UrlEncode(val), (appSettings.nFocusBearMode == 1) ? "cuddly" : "grizzly", appSettings.AppVersion.ToString()); //1 is cuddly bear mode
+                                appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, HttpUtility.UrlEncode(val), bEffectiveCuddly ? "cuddly" : "grizzly", appSettings.AppVersion.ToString()); //1 is cuddly bear mode
                             }
                             else
                             {
@@ -1709,6 +1728,7 @@ namespace Focus_Bear.Utils
                 Task.Delay(1); 
                 appSettings.FirefoxLastAccWindow.accSelect(0x1, appSettings.objChild);//take selection
                 
+                
                 SendKeys.SendWait("{ENTER}");
 
                 // type values come from suppressURLForFirefox callers: "blocked", "focus", or one of
@@ -1720,8 +1740,9 @@ namespace Focus_Bear.Utils
                         blockReason = "super_distracting_url";
                         break;
                     case "focus":
-                        // Cuddly-bear focus mode (nFocusBearMode == 1) that isn't an immediate block is AI blocking
-                        blockReason = (!bBlockImmediately && appSettings.nFocusBearMode == 1)
+                        // A non-immediate focus block that went through the AI path (cuddly, or non-cuddly with the
+                        // AI check enabled) is AI blocking; a straight blocked-list / non-AI block is not.
+                        blockReason = (!bBlockImmediately && (bEffectiveCuddly || bAiCheckEnabled))
                             ? "ai_blocking" : "block_in_focus_mode";
                         break;
                     case "morning-habit":
@@ -1748,7 +1769,7 @@ namespace Focus_Bear.Utils
                     }
                     else
                     {
-                        blockMode = appSettings.nFocusBearMode == 1 ? "normal" : "strict";
+                        blockMode = bEffectiveCuddly ? "normal" : "strict";
                     }
                     blockMeta += $",\"block-mode\":\"{blockMode}\"";
                 }
