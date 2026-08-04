@@ -2817,6 +2817,162 @@ namespace Focus_Bear.API
             return -1;
         }
 
+        // App equivalent of ChatGPTIsURLSafe - hits the separate /user/is-app-safe-to-use endpoint
+        // (mirrors the macOS chatGPTIsAppSafe in AllApi.swift). Returns the allowed probability
+        // (0..1), 1 if the response had none, or -1 on failure.
+        internal async Task<double> ChatGPTIsAppSafe(string appName, string focus_mode, string intention, string language)
+        {
+            LogWriter.LogWrite("ChatGPTIsAppSafe() = " + appName);
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string lang = "english";
+                    if (language == "es")
+                        lang = "spanish";
+
+                    //sRawTasks is empty until the task list has been loaded (and could be malformed),
+                    //so default to an empty array instead of letting JArray.Parse throw and abort the
+                    //whole app safety check - the API just receives current_tasks: [].
+                    JArray rawTasks;
+                    if (string.IsNullOrWhiteSpace(appSettings.sRawTasks))
+                    {
+                        rawTasks = new JArray();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            rawTasks = JArray.Parse(appSettings.sRawTasks);
+                        }
+                        catch (Exception exParse)
+                        {
+                            LogWriter.LogWrite("ChatGPTIsAppSafe() - sRawTasks parse failed, using empty list - " + exParse.Message);
+                            rawTasks = new JArray();
+                        }
+                    }
+
+                    JArray sRawTasksToPassInSafeAPI = new JArray(
+                        rawTasks.Select(task => new JObject
+                        {
+                            ["task_name"] = task["title"],
+                            ["task_id"] = task["id"]
+                        })
+                    );
+
+                    // Build the payload with a JObject so app names / justifications are safely escaped.
+                    // Keys match the macOS chatGPTIsAppSafe request exactly.
+                    JObject payload = new JObject
+                    {
+                        ["focusMode"] = focus_mode,
+                        ["intention"] = intention,
+                        ["appName"] = appName,
+                        ["language"] = lang,
+                        ["lastFiveJustificationsInThisFocusSession"] = JArray.FromObject(appSettings._last5Justifications.ToArray()),
+                        ["current_tasks"] = sRawTasksToPassInSafeAPI
+                    };
+
+                    if (!string.IsNullOrEmpty(appSettings.sCurrentTaskPlayingInToDoPlayer))
+                        payload["currentTaskInToDoPlayer"] = appSettings.sCurrentTaskPlayingInToDoPlayer;
+
+                    // The user's "convince AI" justification for this app (empty on the first check),
+                    // so a re-check after convincing can change the verdict - same as the URL flow.
+                    payload["extraJustificationForThisSite"] = appSettings.sExtraJustificationForThisSite ?? "";
+
+                    // A habit with "use focus mode" running carries its activity name as the habit_name.
+                    if (appSettings.bHabitwithUseFocusModeRunning && !string.IsNullOrEmpty(appSettings.sCurrentRunningActivity))
+                        payload["habit_name"] = appSettings.sCurrentRunningActivity;
+
+                    // task_must_align_to_focus_intention when a blocking schedule is running in super strict mode
+                    if (appSettings.isBlockingScheduleRunning &&
+                        appSettings.ActiveSchedule?.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+                        payload["task_must_align_to_focus_intention"] = true;
+
+                    string addItemJsonString = payload.ToString(Formatting.None);
+
+                    StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                    appSettings.sChatGPTPayLoad = addItemJsonString;
+
+                    client.Timeout = TimeSpan.FromSeconds(15); // 15 seconds time out
+
+                    var response = await client.PostAsync("https://api.focusbear.io/user/is-app-safe-to-use", content);
+                    if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                    {
+                        LogWriter.LogWrite("ChatGPTIsAppSafe() SUCCESS");
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            if (responseCode == "")
+                            {
+                                LogWriter.LogWrite("ChatGPTIsAppSafe() responseCode = null");
+                                return -1;
+                            }
+
+                            appSettings.sChatGPTResponse = responseCode;
+
+                            JObject resJson = JObject.Parse(responseCode);
+
+                            if (resJson.ContainsKey("reason"))
+                            {
+                                appSettings.sChatGPTReasonForCurrentURL = resJson["reason"].ToString();
+                            }
+
+                            if (resJson.ContainsKey("allowed_probability"))
+                            {
+                                double dProbability = double.Parse(resJson["allowed_probability"].ToString());
+                                appSettings.dProbablity = dProbability;
+                                return appSettings.dProbablity;
+                            }
+
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            try
+                            {
+                                JObject resJson = JObject.Parse(responseCode);
+                                string sErrorMessage = resJson["message"]?.ToString();
+                                LogWriter.LogWrite("ChatGPTIsAppSafe() FAILED - " + sErrorMessage);
+                            }
+                            catch { }
+                            return -1;
+                        }
+                        return -1;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("ChatGPTIsAppSafe WebException" + ex.Message);
+                Debug.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ChatGPTIsAppSafe Exception" + ex.Message);
+                Debug.WriteLine(ex.Message);
+                return 0.70; //mostly timeout case
+            }
+            return -1;
+        }
+
         private DateTime _lastGetAllTasksCall = DateTime.MinValue;
         internal async Task<int> GetAllTasks() //OK
         {

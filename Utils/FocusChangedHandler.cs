@@ -578,7 +578,18 @@ namespace FocusBear.Utils
                                     // Teacher Mode forces non-cuddly (grizzly) behaviour for apps too, regardless of the
                                     // user's own Focus Bear mode - so an unlisted app is hard-blocked, no gentle popup.
                                     bool bEffectiveCuddly = (appSettings.nFocusBearMode == 1) && !TeacherSessionManager.Instance.IsTeacherSessionActive();
-                                    if (bEffectiveCuddly)//Cuddly bearMode
+
+                                    // Is the AI app-check enabled for the current context (global / blocking-schedule / teacher)?
+                                    bool bAiCheckEnabled = appSettings.bAiCheckUrlEnabled;
+                                    if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+                                        bAiCheckEnabled = appSettings.ActiveSchedule.bAIBlockingEnabled;
+                                    if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+                                        bAiCheckEnabled = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
+
+                                    // Cuddly -> gentle app popup. Non-cuddly (incl. Teacher) with AI enabled -> route through the
+                                    // AI app-check too (GentleBlock blocks immediately on an AI-negative verdict). Non-cuddly
+                                    // without AI falls through to the hard block below.
+                                    if (bEffectiveCuddly || bAiCheckEnabled)//Cuddly bearMode, or non-cuddly with AI app-check
                                     {
                                         var allowedApps = appSettings.TemporaryAllowedAppsGentleBlock.Where(i => i.sURL.ToLower() == process.ProcessName.ToLower());
                                         if (allowedApps.Count() != 0)

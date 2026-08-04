@@ -132,14 +132,46 @@ namespace Focus_Bear.Focus
             bool bAICheckRequired = false;
             if (sAppName.Length > 0)
             {
-                ReportBadAIDecision.Visibility = Visibility.Collapsed;
-                ////AllowThisDomain.Visibility = Visibility.Collapsed;
-               ///// AllowThisDomainText.Visibility = Visibility.Collapsed;
+                // Determine whether the AI app-check is enabled for the current context
+                // (global setting / blocking-schedule / teacher session), mirroring the URL branch below.
+                if (appSettings.bAiCheckUrlEnabled)
+                {
+                    ReportBadAIDecision.Visibility = Visibility.Visible;
+                    bAICheckRequired = true;
+                }
+                else
+                {
+                    ReportBadAIDecision.Visibility = Visibility.Collapsed;
+                    bAICheckRequired = false;
+                }
 
-                ////sHeading = sHeading.Replace("<URL>", sAppName + ".exe");
-                appSettings.ShowBlurWindow(HWND);
+                if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+                {
+                    bAICheckRequired = appSettings.ActiveSchedule.bAIBlockingEnabled;
+                    ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
+                }
 
-                this.Show(); //Will show this window for apps
+                //Teacher Mode - the class session's ai_blocking_enabled setting overrides the global / schedule setting.
+                if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+                {
+                    bAICheckRequired = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
+                    ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                if (bAICheckRequired)
+                {
+                    //Keep the window hidden until the AI verdict comes back (same as the URL flow).
+                    StopTimer();
+                    appSettings.HideBlurWindow();
+                    this.Hide();
+                }
+                else
+                {
+                    //No AI - show the gentle app popup straight away (existing behaviour).
+                    ReportBadAIDecision.Visibility = Visibility.Collapsed;
+                    appSettings.ShowBlurWindow(HWND);
+                    this.Show(); //Will show this window for apps
+                }
             }
             else
             {
@@ -273,7 +305,11 @@ namespace Focus_Bear.Focus
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
 
-            if (sURL.Length > 0 && bAICheckRequired) //check settings from AI tab
+            if (sActiveAppName.Length > 0 && bAICheckRequired) //App AI check (separate endpoint)
+            {
+                CheckWithChatGPTForApp();
+            }
+            else if (sURL.Length > 0 && bAICheckRequired) //check settings from AI tab
             {
                 CheckWithChatGPT();
             }
@@ -739,6 +775,309 @@ namespace Focus_Bear.Focus
             });
         }
 
+        // App equivalent of CheckWithChatGPT - runs the AI app-safety check (separate endpoint) and decides:
+        //  - aligned (>= 0.70)  -> allow the app silently (productive icon + reason tooltip)
+        //  - distracting (< 0.70) -> cuddly: show the gentle popup with score + reason; grizzly/Teacher: block now, no popup
+        //  - could not verify (-1) -> allow (fail-open), matching the macOS app behaviour
+        private async void CheckWithChatGPTForApp()
+        {
+            if (CurrentURLBeingProcessedWithChatGPTAPI == sActiveAppName)
+                return;
+            CurrentURLBeingProcessedWithChatGPTAPI = sActiveAppName;
+
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    //Show thinking icon just before the API call
+                    await Dispatcher.BeginInvoke((Action)(() =>
+                    {
+                        if (((App)(Application.Current)).wndFocusProgress != null)
+                        {
+                            string imagePath = ("pack://application:,,,/Focus Bear;component/images/thinking_icon.png");
+                            var image = new BitmapImage();
+                            image.BeginInit();
+                            image.UriSource = new Uri(imagePath);
+                            image.EndInit();
+                            ((App)(Application.Current)).wndFocusProgress.TopIcon.Source = image;
+                        }
+                    }));
+
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    var nResponse = await client.ChatGPTIsAppSafe(sActiveAppName, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
+                    double xProbability = double.Parse(nResponse.ToString());
+
+                    if (CurrentURLBeingProcessedWithChatGPTAPI != sActiveAppName) //user switched app while the request was in flight
+                        return;
+
+                    string sAppKey = sActiveAppName.ToLower();
+
+                    //Write to focus ai decisions csv
+                    try
+                    {
+                        var currentDate = DateTime.UtcNow;
+                        string isoString = currentDate.ToString("o", CultureInfo.InvariantCulture);
+                        string csvLine = $"{isoString},\"{sActiveAppName}\",{sActiveAppName},\"\",{xProbability}, {""}, {""}, \"{appSettings.sRunningFocusModeIntention}\", \"{appSettings.sChatGPTReasonForCurrentURL}\" ";
+                        appSettings.csvfocusAIDecisions.Append(csvLine);
+                    }
+                    catch (Exception exCsv)
+                    {
+                        Console.WriteLine("csvfocusAIDecisions (app) write error: " + exCsv.Message);
+                    }
+
+                    bool bEffectiveCuddly = (appSettings.nFocusBearMode == 1) && !TeacherSessionManager.Instance.IsTeacherSessionActive();
+
+                    await Dispatcher.BeginInvoke((Action)(() =>
+                    {
+                        if (xProbability == -1)
+                        {
+                            //Could not verify - trust the user and allow (fail-open), like the macOS app.
+                            appSettings.TemporaryAllowedAppsGentleBlock.Add(new DistractingURL(sAppKey, true));
+                            FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                            dispatcherTimer.Stop();
+                            appSettings.HideBlurWindow();
+                            Hide();
+                            return;
+                        }
+
+                        if (xProbability >= 0.70)
+                        {
+                            //AI says the app is aligned with the focus session - allow it silently.
+                            appSettings.TemporaryAllowedAppsGentleBlock.Add(new DistractingURL(sAppKey, true));
+                            appSettings.CapturePostHog("block-popup-allow-automatically");
+
+                            FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sAppKey] = new Dictionary<string, object>
+                            {
+                                { "probability", xProbability },
+                                { "isVisibleApp", true },
+                                { "totalSeconds", 0 },
+                                { "startedTime", DateTime.Now },
+                                { "reason", appSettings.sChatGPTReasonForCurrentURL }
+                            };
+                            FocusAlignmentScoreManager.CustomToolTip = appSettings.sChatGPTReasonForCurrentURL;
+                            FocusAlignmentScoreManager.SetAppIconForFocusModeScore(xProbability);
+                            FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
+
+                            dispatcherTimer.Stop();
+                            appSettings.HideBlurWindow();
+                            Hide();
+                            return;
+                        }
+
+                        //Distracting (< 0.70)
+                        if (!bEffectiveCuddly)
+                        {
+                            //grizzly / Teacher Mode -> block now, no reasons/questions. Reset the focus-progress
+                            //icon to normal; FocusChangedHandler minimizes the app on its next cycle.
+                            appSettings.TemporarryBlockedAppsGentleBlock.Add(sAppKey);
+                            FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                            dispatcherTimer.Stop();
+                            appSettings.HideBlurWindow();
+                            Hide();
+                            return;
+                        }
+
+                        //cuddly -> record the score, then run the SAME distracting-popup flow as URLs
+                        //(ask for goal/task when none, convince AI, set/suggest task).
+                        FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sAppKey] = new Dictionary<string, object>
+                        {
+                            { "probability", xProbability },
+                            { "isVisibleApp", true },
+                            { "totalSeconds", 0 },
+                            { "startedTime", DateTime.Now },
+                            { "reason", appSettings.sChatGPTReasonForCurrentURL }
+                        };
+                        FocusAlignmentScoreManager.CustomToolTip = appSettings.sChatGPTReasonForCurrentURL;
+                        FocusAlignmentScoreManager.SetAppIconForFocusModeScore(xProbability);
+                        double currentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
+
+                        if (currentFocusAlignmentScore < 80)
+                        {
+                            ReportBadAIDecision.Visibility = Visibility.Visible;
+                            ShowDistractingCuddlyPopup(xProbability);
+                        }
+                        else
+                        {
+                            //Overall alignment is still healthy - allow the app without a popup.
+                            appSettings.TemporaryAllowedAppsGentleBlock.Add(new DistractingURL(sAppKey, true));
+                            dispatcherTimer.Stop();
+                            appSettings.HideBlurWindow();
+                            Hide();
+                        }
+                    }));
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("CheckWithChatGPTForApp EX - " + ex.Message);
+                }
+            });
+        }
+
+        private bool IsAppBlocking() => !string.IsNullOrEmpty(sActiveAppName);
+
+        // Re-run the AI check for whatever is currently blocked (URL or app), after the user sets a goal/task
+        // or convinces the AI. Resets the in-flight guard first so the same identity is checked again.
+        private void RecheckCurrentWithAI()
+        {
+            CurrentURLBeingProcessedWithChatGPTAPI = "";
+            if (IsAppBlocking())
+                appSettings.ShowGentleBlockWindow(HWND, sActiveAppName);
+            else
+                appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
+        }
+
+        // Shared cuddly "this is distracting" popup flow, used by BOTH the URL (CheckWithChatGPT) and the app
+        // (CheckWithChatGPTForApp) checks so they behave identically: ask for a goal/task when none is set,
+        // let the user convince the AI, or set/pick a suggested task. The only difference is the identity
+        // (URL vs app), which drives the convince-comparison, temporary-access target and recheck.
+        private void ShowDistractingCuddlyPopup(double xProbability)
+        {
+            string identity = IsAppBlocking() ? sActiveAppName : sActiveURL;
+
+            if (appSettings.sCurrentTaskPlayingInToDoPlayer.Length == 0 && appSettings.sRunningFocusModeIntention.Length == 0)
+            {
+                //No task and no intention - fire the yes button to ask for a goal/task first.
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(btnJustThisTime);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
+            else if (appSettings.sConvincingAIForURL == identity)
+            {
+                //AI was not convinced - show the "couldn't convince" popup and let the user try again.
+                wndConvinceAiFailed = new ConvinceAIFailed(xProbability, nTimer);
+                wndConvinceAiFailed.Owner = this;
+
+                appSettings.ShowBlurWindow(HWND);
+                this.Show();
+                dispatcherTimer.Stop();
+
+                GridShade.Visibility = Visibility.Visible;
+                bool? bResult = wndConvinceAiFailed.ShowDialog();
+                GridShade.Visibility = Visibility.Collapsed;
+
+                appSettings.sConvincingAIForURL = ""; //reset
+
+                if (bResult.Value)
+                {
+                    if (wndConvinceAiFailed.bReportBadAIDecision)
+                    {
+                        Hyperlink link = BtnReportBadAIDecision;
+                        var peerH = new HyperlinkAutomationPeer(link);
+                        var invokeProvH = peerH.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                        invokeProvH?.Invoke();
+                    }
+                    else if (wndConvinceAiFailed.bShowConvincePopupAgain) //Yes this is relevant
+                    {
+                        ButtonAutomationPeer peer = new ButtonAutomationPeer(btnJustThisTime);
+                        IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                        invokeProv.Invoke();
+                    }
+                    else if (wndConvinceAiFailed.bShowAskNewGoalPopup) //I am working on something else
+                    {
+                        ShowAskNewGoalPopup();
+                    }
+                    else if (wndConvinceAiFailed.bShowTemporaryAccessPopup)
+                    {
+                        wndTemporaryAccess = new TemporaryAccess(identity);
+                        wndTemporaryAccess.Owner = this;
+
+                        GridShade.Visibility = Visibility.Visible;
+                        bool? bResultTemp = wndTemporaryAccess.ShowDialog();
+                        GridShade.Visibility = Visibility.Collapsed;
+                        if (bResult.Value) //User temporarily allowed it
+                        {
+                            dispatcherTimer.Stop();
+                            appSettings.HideBlurWindow();
+                            Hide();
+                            return;
+                        }
+                        else //Block it
+                        {
+                            BlockSiteWork();
+                        }
+                        wndTemporaryAccess = null;
+                    }
+                }
+                else
+                {
+                    BlockSiteWork();
+                }
+                wndConvinceAiFailed = null;
+            }
+            else if (appSettings.sChatGPTReasonForCurrentURL.Length > 0) //show reason + suggested task from AI
+            {
+                JObject obj = JObject.Parse(appSettings.sChatGPTResponse);
+
+                string suggestedTask = obj["suggested_task"]?.ToString();
+                if (suggestedTask != null)
+                {
+                    string suggestedTaskId = obj["suggested_task_id"]?.ToString();
+
+                    string sTask = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["suggestedTaskText"].ToString();
+                    WorkingOnTask.Text = sTask.Replace("<TASK>", suggestedTask);
+
+                    ComboBoxTasks.Text = suggestedTask; //Add the suggested task to the textview of the combo box
+
+                    WantToChangeCurrentTask.Visibility = Visibility.Visible;
+                    MarkPreviousTaskComplete.Visibility = Visibility.Visible;
+                    ComboxBoxSection.Visibility = Visibility.Visible;
+
+                    btnNoIamWorkingOnSomethingElse.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    WorkingOnTask.Text = "";
+
+                    WantToChangeCurrentTask.Visibility = Visibility.Collapsed;
+                    MarkPreviousTaskComplete.Visibility = Visibility.Collapsed;
+                    ComboxBoxSection.Visibility = Visibility.Collapsed;
+
+                    string sHead = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["titleGoal"].ToString();
+                    if (appSettings.sCurrentTaskPlayingInToDoPlayer.Length > 0)
+                    {
+                        sHead = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["titleGoalAndTask"].ToString();
+                        sHead = sHead.Replace("<TASK>", appSettings.sCurrentTaskPlayingInToDoPlayer);
+                    }
+                    sHead = sHead.Replace("<GOAL>", appSettings.sRunningFocusModeIntention);
+                    Heading.Text = sHead;
+
+                    btnNoIamWorkingOnSomethingElse.Visibility = Visibility.Visible;
+                    btnNoIamWorkingOnSomethingElseText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["buttonWorkingSomethingElseText"].ToString();
+
+                    btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["buttonSiteRelevantText"].ToString();
+                }
+
+                ScoreSection.Visibility = Visibility.Visible;
+                string sScore = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["aiRelevanceScoreText"].ToString();
+                AIRelevanceScore.Text = sScore.Replace("<SCORE>", ((int)(xProbability * 100)).ToString());
+
+                InfoIcon.ToolTip = appSettings.sChatGPTReasonForCurrentURL;
+                if (suggestedTask != null) //only if there was a suggested task
+                {
+                    string sStillWorking = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttoWorkingOnOldTask"].ToString();
+                    if (appSettings.sCurrentTaskPlayingInToDoPlayer.Length > 0)
+                    {
+                        sStillWorking = sStillWorking.Replace("<TASK>", appSettings.sCurrentTaskPlayingInToDoPlayer);
+                        btnJustThisTimeText.Text = sStillWorking;
+                    }
+                    else if (appSettings.sRunningFocusModeIntention.Length > 0)
+                    {
+                        sStillWorking = sStillWorking.Replace("<TASK>", appSettings.sRunningFocusModeIntention);
+                        btnJustThisTimeText.Text = sStillWorking;
+                    }
+                }
+
+                CommandManager.InvalidateRequerySuggested();
+                //URL: only show if the browser is still on the same URL. App: always show (we know it's focused).
+                if (IsAppBlocking() || appSettings.sLastActiveURLInFirefox == sActiveURL)
+                {
+                    dispatcherTimer.Start();
+                    appSettings.ShowBlurWindow(HWND);
+                    this.Show();
+                }
+            }
+        }
+
         private void ShowAskNewGoalPopup()
         {
             dispatcherTimer.Stop();
@@ -752,11 +1091,8 @@ namespace Focus_Bear.Focus
 
             wndAddGoal = null;
 
-            //Reset the same url to force check again
-            CurrentURLBeingProcessedWithChatGPTAPI = "";
-
-            //now we need to call the chatGPT safe URL api again for this domain
-            appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
+            //now we need to re-run the AI check for this url/app
+            RecheckCurrentWithAI();
 
             dispatcherTimer.Stop();
             appSettings.HideBlurWindow();
@@ -855,13 +1191,12 @@ namespace Focus_Bear.Focus
                 ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
             }
             ///////////////////////////////////////////
-            if (sActiveAppName.Length > 0)
+            if (!bAICheckRequired) //No AI check - allow directly (URL or app)
             {
-                appSettings.TemporaryAllowedAppsGentleBlock.Add( new DistractingURL(sActiveAppName.ToLower(), true));
-            }
-            else if(!bAICheckRequired) //No AI check
-            {
-                appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), false));
+                if (sActiveAppName.Length > 0)
+                    appSettings.TemporaryAllowedAppsGentleBlock.Add(new DistractingURL(sActiveAppName.ToLower(), true));
+                else
+                    appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), false));
             }
             else
             {
@@ -885,13 +1220,11 @@ namespace Focus_Bear.Focus
                         LogWriter.LogWrite("ConvinceAI with intention - " + wndConvince.TxtIntention.Text);
                         appSettings.sExtraJustificationForThisSite = wndConvince.TxtIntention.Text;
 
-                        //Reset the same url to force check again
-                        CurrentURLBeingProcessedWithChatGPTAPI = "";
+                        //store to compare when AI results come (URL or app identity).
+                        appSettings.sConvincingAIForURL = IsAppBlocking() ? sActiveAppName : sActiveURL;
 
-                        appSettings.sConvincingAIForURL = sActiveURL; //store to compare when AI results come.
-
-                        appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
-                        //now we need to call the chatGPT safe URL api again for this domain
+                        //now we need to re-run the AI check for this url/app with the new justification
+                        RecheckCurrentWithAI();
                         dispatcherTimer.Stop();
                         appSettings.HideBlurWindow();
                         Hide();
@@ -921,12 +1254,8 @@ namespace Focus_Bear.Focus
 
                     wndAddGoal = null;
 
-                    //Reset the same url to force check again
-                    CurrentURLBeingProcessedWithChatGPTAPI = "";
-
-                    //now we need to call the chatGPT safe URL api again for this domain
-                    appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
-
+                    //now we need to re-run the AI check for this url/app
+                    RecheckCurrentWithAI();
 
                     dispatcherTimer.Stop();
                     appSettings.HideBlurWindow();
@@ -1038,15 +1367,26 @@ namespace Focus_Bear.Focus
             appSettings.HideBlurWindow();
             Hide();
 
-            string addItemJsonString = $"{{\"url\":\"{sActiveURL}\"," +
-                   $"\"tab_title\":\"{sCurrentTabTitle}\"," +
-                   $"\"meta_description\":\"\"," +
-                   $"\"focus_mode\":\"{appSettings.sRunningFocusModeName}\"," +
-                   $"\"intention\":\"{appSettings.sRunningFocusModeIntention}\"," +
-                   $"\"language\":\"{appSettings.sLangCode}\"}}";
+            string addItemJsonString;
+            if (IsAppBlocking())
+            {
+                addItemJsonString = $"{{\"appName\":\"{sActiveAppName}\"," +
+                       $"\"focusMode\":\"{appSettings.sRunningFocusModeName}\"," +
+                       $"\"intention\":\"{appSettings.sRunningFocusModeIntention}\"," +
+                       $"\"language\":\"{appSettings.sLangCode}\"}}";
+            }
+            else
+            {
+                addItemJsonString = $"{{\"url\":\"{sActiveURL}\"," +
+                       $"\"tab_title\":\"{sCurrentTabTitle}\"," +
+                       $"\"meta_description\":\"\"," +
+                       $"\"focus_mode\":\"{appSettings.sRunningFocusModeName}\"," +
+                       $"\"intention\":\"{appSettings.sRunningFocusModeIntention}\"," +
+                       $"\"language\":\"{appSettings.sLangCode}\"}}";
+            }
 
             //Show the Report Bad AI Desicion Feedback Window
-            appSettings.ShowReportBadAIDecision(addItemJsonString, sActiveURL);
+            appSettings.ShowReportBadAIDecision(addItemJsonString, IsAppBlocking() ? sActiveAppName : sActiveURL);
         }
 
         private async void btnSetTask_Click(object sender, RoutedEventArgs e)
@@ -1092,11 +1432,8 @@ namespace Focus_Bear.Focus
                             }
                         }));
 
-                        //Reset the same url to force check again
-                        CurrentURLBeingProcessedWithChatGPTAPI = "";
-
-                        //now we need to call the chatGPT safe URL api again for this domain
-                        appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
+                        //now we need to re-run the AI check for this url/app
+                        RecheckCurrentWithAI();
                     }
                 }
 
@@ -1125,11 +1462,8 @@ namespace Focus_Bear.Focus
                                 }
                             }));
 
-                            //Reset the same url to force check again
-                            CurrentURLBeingProcessedWithChatGPTAPI = "";
-
-                            //now we need to call the chatGPT safe URL api again for this domain
-                            appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
+                            //now we need to re-run the AI check for this url/app
+                            RecheckCurrentWithAI();
                         }
                     }
                 }
