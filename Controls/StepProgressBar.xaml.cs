@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Focus_Bear.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -220,8 +221,16 @@ namespace Focus_Bear.Controls
             InitializeComponent();
             UpdateProgress();
 
-            Step1Label.Text = "BLOCKING DISTRACTIONS"; //todo Win Texts
-            Step2Label.Text = "SET SCHEDULE";
+            try
+            {
+                AppSettings appSettings = AppSettings.GetInstance;
+                Step1Label.Text = appSettings.ConfigFileStrings["distractionBlockingProgressVcInfo"]["labelFirst"].ToString();
+                Step2Label.Text = appSettings.ConfigFileStrings["distractionBlockingProgressVcInfo"]["labelSecond"].ToString();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StepProgressBar loading labels ex - " + ex.Message);
+            }
         }
 
         private static void OnStepPercentageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

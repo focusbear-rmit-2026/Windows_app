@@ -86,7 +86,7 @@ namespace Focus_Bear.Pomodoro
 
                 TimeUnfocusedText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["timerText"].ToString();
 
-                SelectedTasksTitle.Text = "Selected Tasks:";
+                SelectedTasksTitle.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["selectedTasksTitle"].ToString();
 
                 // For updating the text based on the current value of microbreak setting
                 SkipMicroBreaks.Inlines.Clear();
@@ -98,8 +98,7 @@ namespace Focus_Bear.Pomodoro
                 );
 
 
-                //ShowFocusModeEnd.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonShowFocusProgressText"].ToString();// need to add ES in config
-                ShowFocusModeEnd.Content = "Show focus status when session end"; //to do win texts
+                ShowFocusModeEnd.Content = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonShowFocusProgressText"].ToString();
                 btnStartSessionText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["buttonLetsDoItText"].ToString();
 
                 appSettings.bShowFocusModeEnd = true; //1 sep 2025: FORCING to show the end window.

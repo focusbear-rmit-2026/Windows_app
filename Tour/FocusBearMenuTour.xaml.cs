@@ -36,7 +36,12 @@ namespace Focus_Bear.Tour
                 btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonFinishText"].ToString();
                 Heading.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["title"].ToString();
 
-                Description.Text = "Focus Bear keeps running in System Tray. Click on the icon to bring up the Focus Bear Menu.";
+                Description.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["descriptionSystemTray"].ToString();
+
+                string sStep = appSettings.ConfigFileStrings["menuTourVcInfo"]["indexText"].ToString();
+                sStep = sStep.Replace("<CURRENTINDEX>", (nStep + 2).ToString()); //1
+                sStep = sStep.Replace("<TOTALCOUNT>", "4");
+                Steps.Text = sStep;
             }
             catch (Exception ex)
             {
