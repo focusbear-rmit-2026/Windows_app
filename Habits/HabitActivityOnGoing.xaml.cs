@@ -611,7 +611,7 @@ namespace Focus_Bear.Habits
                 }
             }
         }
-        private void btnPausePlay_Click(object sender, RoutedEventArgs e)
+        private async void btnPausePlay_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnPausePlay_Click");
 
@@ -631,7 +631,7 @@ namespace Focus_Bear.Habits
                     // Reveal "Back to Day Plan" while paused — except on the last habit (nothing to go back for).
                     btnBackToDayPlan.Visibility = IsLastHabit() ? Visibility.Collapsed : Visibility.Visible;
                 }
-                PauseVideo();
+                await PauseVideoAsync();
 
                 App.FocusButton.PauseHabit();
 
@@ -652,8 +652,8 @@ namespace Focus_Bear.Habits
                 CommandManager.InvalidateRequerySuggested();
 
                 Global.DisableSystemSleep();
-                
-                ResumeVideo();
+
+                await ResumeVideoAsync();
 
                 App.FocusButton.ResumeHabit();
 
@@ -673,9 +673,12 @@ namespace Focus_Bear.Habits
                 }
             }
         }
-        public async void PauseVideo()
+        private async Task PauseVideoAsync()
         {
-            await webView.ExecuteScriptAsync(@"
+            if (webView == null || webView.CoreWebView2 == null) return;
+            try
+            {
+                await webView.ExecuteScriptAsync(@"
                         (function () {
                         try {
 
@@ -684,7 +687,13 @@ namespace Focus_Bear.Habits
                                 try { v.pause(); } catch (e) {}
                             });
 
-                            // Pause YouTube
+                            // Pause YouTube player via its internal API (for direct YouTube embed loaded in WebView)
+                            var ytPlayer = document.getElementById('movie_player');
+                            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+                                try { ytPlayer.pauseVideo(); } catch (e) {}
+                            }
+
+                            // Pause YouTube in iframes (postMessage)
                             document.querySelectorAll('iframe').forEach(function (f) {
                                 try {
                                     if (f.src && (f.src.includes('youtube.com') || f.src.includes('youtu.be'))) {
@@ -704,12 +713,20 @@ namespace Focus_Bear.Habits
 
                         } catch (err) {}
 
-                    })();");    
+                    })();");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("PauseVideoAsync() EX - " + ex.Message);
+            }
         }
 
-        public async void ResumeVideo()
+        private async Task ResumeVideoAsync()
         {
-            await webView.ExecuteScriptAsync(@"
+            if (webView == null || webView.CoreWebView2 == null) return;
+            try
+            {
+                await webView.ExecuteScriptAsync(@"
                     (function () {
                         try {
 
@@ -718,7 +735,13 @@ namespace Focus_Bear.Habits
                                 try { v.play(); } catch (e) {}
                             });
 
-                            // Play YouTube
+                            // Resume YouTube player via its internal API (for direct YouTube embed loaded in WebView)
+                            var ytPlayer = document.getElementById('movie_player');
+                            if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+                                try { ytPlayer.playVideo(); } catch (e) {}
+                            }
+
+                            // Play YouTube in iframes (postMessage)
                             document.querySelectorAll('iframe').forEach(function (f) {
                                 try {
                                     if (f.src && (f.src.includes('youtube.com') || f.src.includes('youtu.be'))) {
@@ -739,6 +762,11 @@ namespace Focus_Bear.Habits
                         } catch (err) {}
 
                     })();");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ResumeVideoAsync() EX - " + ex.Message);
+            }
         }
         public void StopTimerOfRunningActivity()
         {
@@ -762,7 +790,7 @@ namespace Focus_Bear.Habits
                     dispatcherTimer.Stop();
                     Global.EnableSystemSleep();
                     CommandManager.InvalidateRequerySuggested();
-                    PauseVideo();
+                    _ = PauseVideoAsync();
                 }
 
                 //It might be an allowed app habit, so need to remove the break window too
@@ -780,7 +808,7 @@ namespace Focus_Bear.Habits
                     dispatcherTimer.Start();
                     CommandManager.InvalidateRequerySuggested();
 
-                    ResumeVideo();
+                    _ = ResumeVideoAsync();
 
                     if (appSettings.bHabitwithAllowedAppsRunning) //if app was an allowed app
                     {
@@ -792,7 +820,7 @@ namespace Focus_Bear.Habits
                         //we will need to show the break window with the duration and the timer
                         //Show the Break Window
                         //If its a non timer (86400) activity, pass the completre after text, else pass the heading text (activity name)
-                        ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (appSettings.bHabitwithUserActionNonTimerRunning) ? CompleteAfter.Text : Heading.Text); 
+                        ((App)(Application.Current)).ShowBreakWindowForAllowedAppsActivity(nTimer, (appSettings.bHabitwithUserActionNonTimerRunning) ? CompleteAfter.Text : Heading.Text);
                     }
                 }
             }
