@@ -5991,26 +5991,31 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("WriteUsageTimingsExplanationCSV()");
 
-            var now = DateTime.Now;
             var AppRecords = TabMetrics.Instance.GetAppRecordsSnapshot();
             foreach (var r in AppRecords)
             {
-                var end = r.EndTime ?? now;
-                int duration = r.Duration > 0 ? r.Duration : (int)(end - r.StartTime).TotalSeconds;
-                string csvLine = $"{r.StartTime},{r.EndTime},{r.AppName},{r.Duration}";
+                string csvLine = $"{FormatUsageTimestamp(r.StartTime)},{FormatUsageTimestamp(r.EndTime)},{r.AppName},{r.Duration}";
                 appSettings.csvUsageTimingsExplanation.Append(csvLine);
             }
-            
+
             var DomainRecords = TabMetrics.Instance.GetDomainRecordsSnapshot();
             foreach (var r in DomainRecords)
             {
-                var end = r.EndTime ?? now;
-                int duration = r.Duration > 0 ? r.Duration : (int)(end - r.StartTime).TotalSeconds;
-                string csvLine = $"{r.StartTime},{r.EndTime},{r.Domain},{r.Duration}";
+                string csvLine = $"{FormatUsageTimestamp(r.StartTime)},{FormatUsageTimestamp(r.EndTime)},{r.Domain},{r.Duration}";
                 appSettings.csvUsageTimingsExplanation.Append(csvLine);
             }
 
         }
+
+        // ISO 8601 date-time so the usage-timings CSV is unambiguous regardless of the machine's locale
+        // (the default DateTime.ToString() renders dd-MM-yyyy on some locales). See issue #1389.
+        private const string UsageTimestampFormat = "yyyy-MM-dd HH:mm:ss";
+
+        private static string FormatUsageTimestamp(DateTime? timestamp)
+        {
+            return timestamp?.ToString(UsageTimestampFormat, CultureInfo.InvariantCulture) ?? "";
+        }
+
         public void ChangeTheme(string theme)
         {
             ResourceDictionary newTheme = new ResourceDictionary();
