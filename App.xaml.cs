@@ -3830,7 +3830,8 @@ namespace Focus_Bear
             WindowInteropHelper helper = new WindowInteropHelper(wndFocusBearMainWindow);
             IntPtr hWnd = helper.Handle;
 
-            ShowWindow(hWnd, SW_SHOW);
+            if (wndFocusBearMainWindow.WindowState == WindowState.Minimized)
+                ShowWindow(hWnd, SW_RESTORE);
 
             if ((appSettings.nCurrentActivityType == CurrentActivityType.ONBOARDING) ||
                 !appSettings.IsLoggedIn) //v3
@@ -3841,8 +3842,8 @@ namespace Focus_Bear
                 wndFocusBearMainWindow.CollapseSideBar();
                 wndFocusBearMainWindow.DisableAllButtons(LeftButtonType.None);
             }
-            else 
-            { 
+            else
+            {
 
                 if (((appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
                 appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
@@ -3865,17 +3866,20 @@ namespace Focus_Bear
                 else
                 {
                     wndFocusBearMainWindow.Topmost = false; //when user is not in habits we will remove topmost
+                    // Were we playing an activity in full screen? Must be read before WindowStyle is reset below.
+                    bool bWasFullScreen = wndFocusBearMainWindow.WindowStyle == WindowStyle.None;
                     wndFocusBearMainWindow.WindowStyle = WindowStyle.SingleBorderWindow;
                     wndFocusBearMainWindow.ResizeMode = ResizeMode.CanResize; //restore normal resizing outside locked activities
-                    // Restore window if minimized
-                    ShowWindow(hWnd, SW_RESTORE);
+                    // Restore window if minimized, or to drop out of full screen activity mode
+                    if (bWasFullScreen || wndFocusBearMainWindow.WindowState == WindowState.Minimized)
+                        ShowWindow(hWnd, SW_RESTORE);
 
                     wndFocusBearMainWindow.SetMinimizeButtonEnabled(true);
                     wndFocusBearMainWindow.SetMaximizeButtonEnabled(true);
 
                 }
             }
-            
+
 
             // Bring to foreground
             SetForegroundWindow(hWnd);
