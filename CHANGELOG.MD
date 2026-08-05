@@ -143,3 +143,11 @@
 - The usage-timings CSV export now writes dates in ISO format (yyyy-MM-dd) so they're unambiguous regardless of your Windows locale (previously locales like en-AU/en-GB produced dd-MM-yyyy) #1390.
 - Fixed several texts that were stuck in English and didn't translate to Spanish: the "Block distractions / Set schedule" progress labels, the system-tray tour description, the Pomodoro "Which block list", "Edit block lists", "Selected Tasks" and "Show focus status when session ends" texts, and "More Options" on Simple Pomodoro #1177.
 - Fixed YouTube pause/resume in micro-break activities: videos loaded directly in the view (not only inside an iframe) now pause and resume in sync with the activity, plus added safety checks so it won't crash if the web view isn't ready yet #1136.
+
+#v3.0.236
+- Side menu: hovering a button while the menu is collapsed now shows a tooltip with its name, so you can tell the icons apart without expanding it (works for every menu item, including Day Plan and Tab Audit) #1228.
+- Removed the "Deactivate Focus Bear for 4 hours" option — it's redundant now that you can postpone/resume your routine from the Day Plan and pause blocking schedules, and it previously marked your whole routine as done on deactivating #1397.
+- Fixed the main window un-maximising itself: when Focus Bear brings its window to the front (e.g. after a break), a window you'd maximised now stays maximised instead of shrinking back to a normal size #1115.
+- The To-Do player now reflects your focus-alignment score live during a focus session, stays in sync when you pause/resume, and follows your light/dark theme #1165.
+- Teacher Mode: during a class focus session the To-Do player now shows the class checklist (loaded for the session) instead of your personal tasks; your personal tasks are set aside and restored automatically when the session ends #1393.
+- Added analytics to better understand sign-in / onboarding drop-off: a logout event with a reason (deliberate vs. involuntary session loss), an onboarding "hold on" screen completion event, and guest-vs-registered state on the sign-in/sign-up screens #1396.
