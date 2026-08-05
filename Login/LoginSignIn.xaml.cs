@@ -58,7 +58,7 @@ namespace Focus_Bear.Login
             }
             Loaded += (sender, e) => TxtEmailAddress.Focus();
 
-            appSettings.CapturePostHog("view-signin-shown");
+            appSettings.CaptureAuthViewShown("view-signin-shown");
             TitleBarThemeChange();
             App.ThemeChanged += TitleBarThemeChange;
         }

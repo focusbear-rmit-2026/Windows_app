@@ -76,7 +76,7 @@ namespace Focus_Bear.Login
             {
                 LogWriter.LogWrite("LoginSignUp Texts Exception - " + ex.Message);
             }
-            appSettings.CapturePostHog("view-signup-shown");
+            appSettings.CaptureAuthViewShown("view-signup-shown");
             TitleBarThemeChange();
             App.ThemeChanged += TitleBarThemeChange;
         }

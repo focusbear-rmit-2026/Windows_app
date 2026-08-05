@@ -25,6 +25,9 @@ namespace Focus_Bear.Onboarding
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
         private FocusBearMainWindow _parentWindow;
+        // Times how long the user sits on the "hold on" gate before proceeding, so analytics
+        // can see where onboarding stalls right before habit setup (analytics#33).
+        private readonly System.Diagnostics.Stopwatch _dwellStopwatch = new System.Diagnostics.Stopwatch();
         public HoldOn()
         {
         }
@@ -50,10 +53,16 @@ namespace Focus_Bear.Onboarding
 
         private void btnOkay_Click(object sender, RoutedEventArgs e)
         {
+            _dwellStopwatch.Stop();
+
             //Disambiguates the holdon-screen-shown abandonment signal: without this event,
             //users who clicked Okay but stalled on the next (habits webview) screen are
             //indistinguishable from users who quit on this screen (windows-app-v2#1316)
             appSettings.CapturePostHog("holdon-okay-clicked");
+            //Dual-fire the analytics-canonical outcome name with dwell time (analytics#33).
+            appSettings.CapturePostHog(Constants.Events.HoldOnScreenSucceeded,
+                $"\"duration_ms\":{_dwellStopwatch.ElapsedMilliseconds}");
+
             _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._SET_UP_HABITS_);
         }
         private void Page_Theme()
@@ -65,6 +74,7 @@ namespace Focus_Bear.Onboarding
         {
             if (IsVisible)
             {
+                _dwellStopwatch.Restart();
                 appSettings.CapturePostHog("holdon-screen-shown");
             }
         }

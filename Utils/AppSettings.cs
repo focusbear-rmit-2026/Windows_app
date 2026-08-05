@@ -825,6 +825,8 @@ namespace Focus_Bear.Utils
                         int nLogged = await GetAllTrialInfo();
                         if (nLogged == 404)
                         {
+                            //Server no longer recognises this account (involuntary session loss)
+                            CaptureLogout(Constants.Events.LogoutReason.AuthError);
                             ((App)(Application.Current)).ShowLoginWindow();
                             return;
                         }
@@ -942,6 +944,8 @@ namespace Focus_Bear.Utils
             else
             {
                 //token renewed failed, Show Login Window after downloading Config file
+                //Refresh failed while the user was signed in = involuntary session loss.
+                CaptureLogout(Constants.Events.LogoutReason.RefreshFailed);
                 ((App)(Application.Current)).ShowLoginWindow();
             }
         }
@@ -2782,6 +2786,39 @@ namespace Focus_Bear.Utils
                 var y = client.CaptureEventEndpoint(sEvent, sMetadataJSON);
             }
         }
+
+        // "Stay anonymous" onboarding creates users with this email prefix (see SetupAccount);
+        // shared here so anonymous-user detection stays in sync with account creation.
+        public const string AnonymousEmailPrefix = "anonymoususer+";
+
+        public bool IsAnonymousUser()
+        {
+            return userAccount.email != null &&
+                   userAccount.email.StartsWith(AnonymousEmailPrefix, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // guest = anonymous ("stay anonymous") account, registered = real account.
+        public string CurrentAuthState()
+        {
+            return IsAnonymousUser()
+                ? Constants.Events.AuthState.Guest
+                : Constants.Events.AuthState.Registered;
+        }
+
+        // Records a session-loss with the reason so analytics can tell a deliberate sign-out
+        // from an involuntary one (analytics#33). Call this immediately before clearing the
+        // login state / showing the sign-in screen, while the user id is still available.
+        public void CaptureLogout(string reason)
+        {
+            CapturePostHog(Constants.Events.Logout, $"\"reason\":\"{reason}\"");
+        }
+
+        // Tags the sign-in/sign-up view with the current auth_state (analytics#33).
+        public void CaptureAuthViewShown(string sEvent)
+        {
+            CapturePostHog(sEvent, $"\"auth_state\":\"{CurrentAuthState()}\"");
+        }
+
         public void RemoveSecondaryWindows()
         {
             LogWriter.LogWrite("RemoveSecondaryWindows()");

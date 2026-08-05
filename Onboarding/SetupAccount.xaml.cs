@@ -69,7 +69,7 @@ namespace Focus_Bear.Onboarding
 
             appSettings.CapturePostHog("button-stay-anonymous-clicked");
             string sPassword = "Passw0rd!";
-            string sEmail = "anonymoususer+" + System.Guid.NewGuid().ToString() + "@focusbear.io";
+            string sEmail = AppSettings.AnonymousEmailPrefix + System.Guid.NewGuid().ToString() + "@focusbear.io";
 
             if(appSettings.bIsTestUser)
             {

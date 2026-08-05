@@ -74,6 +74,7 @@ namespace Focus_Bear.Preferences
                     messageBox.ShowDialog();
 
                     //Logout user and restart the app
+                    appSettings.CaptureLogout(Constants.Events.LogoutReason.AuthError);
                     RegistryManager.RemoveLoggedInStatus();
 
                     //Disable the focus bear time tracker status
