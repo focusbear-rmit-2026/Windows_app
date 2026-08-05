@@ -30,6 +30,8 @@ namespace Focus_Bear.Focus
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
+        private double _lastSentFocusAlignmentScore = -1;
+
         private void OnSourceInitialized(object sender, EventArgs e)
         {
             HwndSource source = (HwndSource)PresentationSource.FromVisual(this);
@@ -318,6 +320,27 @@ namespace Focus_Bear.Focus
             {
                 app.UseImmersiveDarkMode(source.Handle, appSettings.sTheme != "Light");
             }
+
+            try
+            {
+                if (webView?.CoreWebView2 == null)
+                    return;
+
+                string themeValue = appSettings.sTheme == "Light" ? "LIGHT" : "DARK";
+                string script = $@"
+                    (function() {{
+                        if (window.syncWithDevices) {{
+                            window.syncWithDevices({{ theme: ""{themeValue}"" }});
+                        }}
+                    }})();
+                ";
+
+                var _ = webView.ExecuteScriptAsync(script);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("TitleBarThemeChange syncWithDevices ex - " + ex.Message);
+            }
         }
 
         public void UpdateBrainDumpContent(string sBrainDump)
@@ -418,5 +441,42 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("AddAndPlayTaskInCurrentList ex- " + ex.Message);
             }
         }
+
+        public void NotifyFocusAlignmentScore(double score)
+        {
+            if (score == _lastSentFocusAlignmentScore)
+                return;
+
+            _lastSentFocusAlignmentScore = score;
+
+            try
+            {
+                if (webView?.CoreWebView2 == null)
+                    return;
+
+                string scoreValue = score.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                string script = $@"
+                    (function() {{
+                        if (window.syncWithDevices) {{
+                            window.syncWithDevices({{ todoPlayer: {{ focusAlignmentScore: {scoreValue} }} }});
+                        }}
+                    }})();
+                ";
+
+                LogWriter.LogWrite("NotifyFocusAlignmentScore - sending score to ToDoPlayer: " + scoreValue);
+
+                var _ = webView.ExecuteScriptAsync(script);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("NotifyFocusAlignmentScore ex - " + ex.Message);
+            }
+        }
+
+        public void ResetFocusAlignmentScore()
+        {
+            _lastSentFocusAlignmentScore = -1;
+        }
+
     }
 }

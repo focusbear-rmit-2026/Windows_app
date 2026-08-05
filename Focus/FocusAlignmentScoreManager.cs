@@ -288,8 +288,39 @@ namespace Focus_Bear.Focus
 
             totalAlignmentScore = Math.Round(totalAlignmentScore * 100) / 100;
             CurrentFocusAlignmentScore = totalAlignmentScore;
+
+            NotifyToDoPlayerFocusAlignmentScore(CurrentFocusAlignmentScore);
+
             return CurrentFocusAlignmentScore;
         }
+
+        // Pushes the latest focus alignment score to the ToDoPlayer webview.
+        // Centralised here so every score calculation (FocusProgress, GentleBlock, browser URL checks, etc.)
+        // keeps the ToDoPlayer in sync without recalculating or polling on a timer.
+        private static void NotifyToDoPlayerFocusAlignmentScore(double score)
+        {
+            try
+            {
+                bool aiActiveForSession = appSettings.isFocusModeRunning && appSettings.bAiCheckUrlEnabled;
+                bool aiActiveForSchedule = appSettings.isBlockingScheduleRunning &&
+                    appSettings.ActiveSchedule != null &&
+                    appSettings.ActiveSchedule.bAIBlockingEnabled &&
+                    !appSettings.ActiveSchedule.isPaused;
+
+                if (!(aiActiveForSession || aiActiveForSchedule))
+                    return;
+
+                Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    ((App)(Application.Current)).wndFocusBearMainWindow?.PageToDoPlayer?.NotifyFocusAlignmentScore(score);
+                }));
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("FocusAlignmentScoreManager.NotifyToDoPlayerFocusAlignmentScore - " + ex.Message);
+            }
+        }
+
         private static readonly object _lock = new object();
         public static double GetFocusAlignmentScoreFromLastEntry()
         {

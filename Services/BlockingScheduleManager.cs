@@ -1,5 +1,6 @@
 ﻿using EspDotNet.Tools;
 using Focus_Bear.API;
+using Focus_Bear.Focus;
 using Focus_Bear.Models;
 using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
@@ -316,6 +317,8 @@ namespace Focus_Bear.Services
                 //Start it
                 appSettings.ActiveSchedule.isOn = true;
                 appSettings.isBlockingScheduleRunning = true;
+
+                FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
 
                 appSettings.sRunningFocusModeIntention = ""; //Reset
                 appSettings.sCurrentTaskPlayingInToDoPlayer = ""; //Reset

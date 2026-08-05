@@ -5818,8 +5818,8 @@ namespace Focus_Bear
                 string pausedValue = isPaused ? "true" : "false";
                 string script = $@"
                     (function() {{
-                        if (window.setFocusPausedFromDesktopApp) {{
-                        window.setFocusPausedFromDesktopApp({pausedValue});
+                        if (window.syncWithDevices) {{
+                            window.syncWithDevices({{ todoPlayer: {{ isPaused: {pausedValue} }} }});
                         }}
                     }})();
                 ";
@@ -5831,6 +5831,7 @@ namespace Focus_Bear
                 LogWriter.LogWrite("NotifyToDoPlayerPauseState ex - " + ex.Message);
             }
         }
+
 
         public void ShowNaturalBreakDetectionWindow()
         {
@@ -5932,6 +5933,7 @@ namespace Focus_Bear
                 //Set Alignment score related
                 FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
                 FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
+                wndFocusBearMainWindow?.PageToDoPlayer?.ResetFocusAlignmentScore();
 
                 //Write the usage_timings_explanation CSV: 24 April 2026
                 if (appSettings.bAdvancedAnalyticsInFocusModeEnabled)
