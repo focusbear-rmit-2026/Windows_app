@@ -53,3 +53,6 @@ Services/GeneratedSecrets.cs
 *.sln.iml
 .idea/
 /Setup/Output
+
+
+.cursor

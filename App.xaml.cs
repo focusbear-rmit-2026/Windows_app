@@ -5968,6 +5968,13 @@ namespace Focus_Bear
         {
             try
             {
+                // Do not overwrite restored personal sRawTasks while class-session TodoPlayer mode is active.
+                if (!string.IsNullOrEmpty(appSettings.sClassSessionTodoSessionId))
+                {
+                    LogWriter.LogWrite("SyncTodoTasksFromPlayer() skipped — class session TodoPlayer active");
+                    return;
+                }
+
                 var toDoPlayer = wndFocusBearMainWindow?.PageToDoPlayer;
                 var webView = toDoPlayer?.webView;
 

@@ -108,24 +108,54 @@ namespace Focus_Bear.Focus
                 RegistryManager.GetBrainDump();
 
                 string sTheme = appSettings.sTheme == "Light" ? "LIGHT" : "DARK";
-                if(!appSettings.bIsGeekModeEnabled)
+                bool isClassSessionTodo = !string.IsNullOrEmpty(appSettings.sClassSessionTodoSessionId);
+                // Simple mode clears personal tasks so intention-only UX wins — keep class-mode empty inject.
+                if (!appSettings.bIsGeekModeEnabled && !isClassSessionTodo)
                 {
                     appSettings.sRawTasks = "[]"; //fix for amanuel's below work not handled in simple mode to show the intention
                 }
-                var metaData = new
+                // Class session: always inject empty tasks; FE loads checklist via class_session_id.
+                if (isClassSessionTodo)
                 {
-                    access_token = appSettings.userAccount.accessToken,
-                    platform = "win",
-                    tasks = JsonDocument.Parse(string.IsNullOrWhiteSpace(appSettings.sRawTasks) ? "[]" : appSettings.sRawTasks).RootElement.Clone(),
-                    total_duration = durationInMinutes,
-                    lang = appSettings.sLangCode,
-                    font = appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont),
-                    theme = sTheme,
-                    intention = appSettings.sRunningFocusModeIntention,
-                    brain_dump = appSettings.sBrainDump
-                };
+                    appSettings.sRawTasks = "[]";
+                }
 
-                string serializedMetaData = JsonSerializer.Serialize(metaData);
+                string serializedMetaData;
+                if (isClassSessionTodo)
+                {
+                    var metaData = new
+                    {
+                        access_token = appSettings.userAccount.accessToken,
+                        platform = "win",
+                        tasks = JsonDocument.Parse("[]").RootElement.Clone(),
+                        class_session_id = appSettings.sClassSessionTodoSessionId,
+                        total_duration = durationInMinutes,
+                        lang = appSettings.sLangCode,
+                        font = appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont),
+                        theme = sTheme,
+                        intention = appSettings.sRunningFocusModeIntention,
+                        brain_dump = appSettings.sBrainDump
+                    };
+                    serializedMetaData = JsonSerializer.Serialize(metaData);
+                    LogWriter.LogWrite("TodoPlayer LoadMetaData - class_session_id=" +
+                        appSettings.sClassSessionTodoSessionId + " tasks=[]");
+                }
+                else
+                {
+                    var metaData = new
+                    {
+                        access_token = appSettings.userAccount.accessToken,
+                        platform = "win",
+                        tasks = JsonDocument.Parse(string.IsNullOrWhiteSpace(appSettings.sRawTasks) ? "[]" : appSettings.sRawTasks).RootElement.Clone(),
+                        total_duration = durationInMinutes,
+                        lang = appSettings.sLangCode,
+                        font = appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont),
+                        theme = sTheme,
+                        intention = appSettings.sRunningFocusModeIntention,
+                        brain_dump = appSettings.sBrainDump
+                    };
+                    serializedMetaData = JsonSerializer.Serialize(metaData);
+                }
 
                 // Path B - echo the requestId back on a REQUEST_ACCESS_TOKEN reply (omitted on initial load).
                 if (!string.IsNullOrEmpty(requestId))
@@ -229,37 +259,45 @@ namespace Focus_Bear.Focus
                 }
                 if (sContentJson.ContainsKey("tasks"))
                 {
-                    appSettings.sRawTasks = sContentJson["tasks"].ToString();
-                    if(appSettings.sRawTasks == "[]")
+                    // FE owns class checklist; do not write player tasks into personal focus stores.
+                    if (string.IsNullOrEmpty(appSettings.sClassSessionTodoSessionId))
                     {
-                        appSettings.sRawTasks = "";//empty it
-                    }
-
-                    //We need to add it back to the focus mode
-                    var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
-                    if (listItems.Count() != 0)
-                    {
-                        FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
-                        CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
-                    }
-
-                    //Find the isPlaying task
-                    if (appSettings.sRawTasks.Length > 0)
-                    {
-                        JArray tasks = (JArray)sContentJson["tasks"];
-
-                        JObject playingTask = tasks.FirstOrDefault(t => (bool?)t["isPlaying"] == true) as JObject;
-
-                        if (playingTask != null)
+                        appSettings.sRawTasks = sContentJson["tasks"].ToString();
+                        if(appSettings.sRawTasks == "[]")
                         {
-                            appSettings.sCurrentTaskPlayingInToDoPlayer = (string)playingTask["title"];
+                            appSettings.sRawTasks = "";//empty it
                         }
-                    }
 
-                    //If we find a change in tasks, we should call the Get all tasks API to get the list of updated tasks
-                    //We will need to get the list of all the tasks to show in gentle block
-                    FocusBearAPIClient client = new FocusBearAPIClient();
-                    _ = client.GetAllTasks();
+                        //We need to add it back to the focus mode
+                        var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);
+                        if (listItems.Count() != 0)
+                        {
+                            FocusMode CurrentRunningFocusMode = listItems.First<FocusMode>();
+                            CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
+                        }
+
+                        //Find the isPlaying task
+                        if (appSettings.sRawTasks.Length > 0)
+                        {
+                            JArray tasks = (JArray)sContentJson["tasks"];
+
+                            JObject playingTask = tasks.FirstOrDefault(t => (bool?)t["isPlaying"] == true) as JObject;
+
+                            if (playingTask != null)
+                            {
+                                appSettings.sCurrentTaskPlayingInToDoPlayer = (string)playingTask["title"];
+                            }
+                        }
+
+                        //If we find a change in tasks, we should call the Get all tasks API to get the list of updated tasks
+                        //We will need to get the list of all the tasks to show in gentle block
+                        FocusBearAPIClient client = new FocusBearAPIClient();
+                        _ = client.GetAllTasks();
+                    }
+                    else
+                    {
+                        appSettings.sRawTasks = "[]";
+                    }
                 }
                 if (sContentJson.ContainsKey("intention"))
                 {

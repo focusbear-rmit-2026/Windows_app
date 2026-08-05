@@ -678,6 +678,13 @@ namespace Focus_Bear.Utils
         public string sRunningClassSessionId = "";
         // Reason the last class-session start failed (shown to the teacher instead of starting focus).
         public string sLastClassSessionError = "";
+
+        // Student class-session TodoPlayer mode (in-memory only; not persisted).
+        // Non-empty → loadMetaDataForToDoPlayer includes class_session_id and tasks:[]; FE owns checklist.
+        public string sClassSessionTodoSessionId = "";
+        // Personal sRawTasks captured before class mode forces []; restored on session end.
+        public string sPersonalRawTasksBackup = "";
+
         static AppSettings() { }
         private AppSettings()
         {

@@ -549,6 +549,9 @@ namespace Focus_Bear.Focus
                 appSettings.TemporaryAllowedKeywords.Clear();
                 appSettings.TemporaryAllowedURLsTabTitles.Clear();
 
+                // TodoPlayer: FE owns class checklist — pass empty tasks + class_session_id in metadata.
+                PrepareClassSessionTodoPlayer(sSessionId);
+
                 try
                 {
                     ((App)Application.Current).ShowFocusProgressWindow();
@@ -615,6 +618,55 @@ namespace Focus_Bear.Focus
                         TeacherFocusMode.arrAllowedUrls.Add(sUrl);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Prepares TodoPlayer for a student class session: backup personal tasks, force empty tasks
+        /// (FE loads checklist via class-session APIs using class_session_id from LoadMetaData).
+        /// Must run before StartFocusModeTimer / ShowToDoPlayer.
+        /// </summary>
+        private void PrepareClassSessionTodoPlayer(string sSessionId)
+        {
+            try
+            {
+                appSettings.sPersonalRawTasksBackup = appSettings.sRawTasks ?? "";
+                appSettings.sClassSessionTodoSessionId = sSessionId ?? "";
+                appSettings.sRawTasks = "[]";
+                LogWriter.LogWrite("TeacherSessionManager - class session TodoPlayer ready; class_session_id=" +
+                    appSettings.sClassSessionTodoSessionId + " tasks=[] (FE-owned checklist)");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("TeacherSessionManager PrepareClassSessionTodoPlayer ex - " + ex.Message);
+                appSettings.sClassSessionTodoSessionId = sSessionId ?? "";
+                appSettings.sRawTasks = "[]";
+            }
+        }
+
+        /// <summary>
+        /// Clears class-session TodoPlayer mode and optionally restores the personal sRawTasks backup.
+        /// </summary>
+        private void ClearClassSessionTodoPlayerState(bool restorePersonal)
+        {
+            try
+            {
+                bool wasActive = !string.IsNullOrEmpty(appSettings.sClassSessionTodoSessionId);
+                if (restorePersonal && wasActive)
+                {
+                    appSettings.sRawTasks = appSettings.sPersonalRawTasksBackup ?? "";
+                }
+                appSettings.sClassSessionTodoSessionId = "";
+                appSettings.sPersonalRawTasksBackup = "";
+                if (wasActive)
+                {
+                    LogWriter.LogWrite("TeacherSessionManager - cleared class session TodoPlayer state" +
+                        (restorePersonal ? " (personal sRawTasks restored)" : ""));
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("TeacherSessionManager ClearClassSessionTodoPlayerState ex - " + ex.Message);
             }
         }
 
@@ -743,6 +795,11 @@ namespace Focus_Bear.Focus
             catch (Exception ex)
             {
                 LogWriter.LogWrite("TeacherSessionManager TeacherSessionFinished ex - " + ex.Message);
+            }
+            finally
+            {
+                // After finish sync is skipped, restore personal todos and clear class checklist mode.
+                ClearClassSessionTodoPlayerState(restorePersonal: true);
             }
 
             //if we auto-postponed the student's morning/evening routine when the session started, resume
