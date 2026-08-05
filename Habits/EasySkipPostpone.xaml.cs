@@ -83,88 +83,12 @@ namespace Focus_Bear.Habits
                 Heading.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["title"].ToString();
                 PostponeMinsText.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["titleSelectMinutes"].ToString();
                 btnPostponeText.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["buttonPostponeText"].ToString();
-                btnDeactivateTXT.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["buttonDeactivateText"].ToString();
                 FrictionLevel.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["infoText"].ToString();
                 btnCancelText.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite(ex.Message);
-            }
-
-        }
-
-        private void btnDeactivate_Click(object sender, RoutedEventArgs e)
-        {
-            LogWriter.LogWrite("EasyPostpone - btnDeactivate_Click - App should deactivate for 4 hours");
-
-            try
-            {
-                appSettings.AppDeactivatedTillDate = DateTime.Now.AddHours(4);
-                LogWriter.LogWrite("EasyPostpone app deactivated till: )" + appSettings.AppDeactivatedTillDate );
-                RegistryManager.SetAppDeactivatedTillDate();
-
-                //////////////////////////////////////////////////////////
-                //On App Deactivate, do clear the Postponed variables as we will eventually FINISH teh sequnece
-                RegistryManager.RemovePostponedHabitData();
-                //////////////////////////////////////////////////////////
-
-                //If its morning routine, we will need to mark FOrce complete at server and mark at local
-                if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-                {
-                    RegistryManager.SetMorningHabitsShownTillDate();
-
-                    appSettings.CapturePostHog("deactivate-routine", "\"routine-type\":\"morning_routine\",\"deactivate-reason\":\"easy postpone\"");
-
-                    FocusBearAPIClient client = new FocusBearAPIClient();
-                    var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
-                }
-                else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                {
-                    DateTime now = DateTime.Now;
-
-                    TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
-                    //DateTime now = DateTime.Now;
-                    DateTime myShutOffTimeLocal = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
-                    Console.WriteLine("{0}", myShutOffTimeLocal.ToString());
-
-
-                    TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
-                    DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
-                    Console.WriteLine("{0}", myStartTime.ToString());
-
-                    if (now > myShutOffTimeLocal) //Same Day like befoee 12.00 am
-                    {
-                        //Get the morning time and prepare a DT for Evening Habits Shown Till Date
-                        myStartTime = myStartTime.AddDays(1);
-                        Console.WriteLine("{0}", myStartTime.ToString());
-                        appSettings.EveningHabitsShownTillDate = myStartTime;
-                    }
-                    else //Next Day like after 12.00 am
-                    {
-                        appSettings.EveningHabitsShownTillDate = myStartTime;//Today's Morning time
-                    }
-
-                    RegistryManager.SetEveningHabitsShownTillDate();
-
-                    appSettings.CapturePostHog("deactivate-routine", "\"routine-type\":\"evening_routine\",\"deactivate-reason\":\"easy postpone\"");
-
-                    FocusBearAPIClient client = new FocusBearAPIClient();
-                    var sResponse1 = client.ForceCompleteCurrentSequence(appSettings.CurrentRunningSequenceID, true);
-                }
-
-                //We will restart the app here
-                LogWriter.LogWrite("easyskippostpone Restart app now for DEACTIVATE to take Effect!");
-
-                appSettings.bRestartAppNeeded = true;
-                appSettings.bRestartAppNeededAfterDeactivating = true;
-                Application.Current.Shutdown(0);
-
-                Close();
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("easyskippostpone btnDeactivate_Click ex = " + ex.Message);
             }
 
         }
