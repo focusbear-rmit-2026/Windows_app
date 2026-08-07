@@ -151,3 +151,10 @@
 - The To-Do player now reflects your focus-alignment score live during a focus session, stays in sync when you pause/resume, and follows your light/dark theme #1165.
 - Teacher Mode: during a class focus session the To-Do player now shows the class checklist (loaded for the session) instead of your personal tasks; your personal tasks are set aside and restored automatically when the session ends #1393.
 - Added analytics to better understand sign-in / onboarding drop-off: a logout event with a reason (deliberate vs. involuntary session loss), an onboarding "hold on" screen completion event, and guest-vs-registered state on the sign-in/sign-up screens #1396.
+
+#v3.0.237
+- Teacher Mode: while a class focus session is active, the app can no longer be quit via the normal quit reasons — only "I've got an emergency" is allowed — so a student can't trivially bypass the enforced block #1405.
+- AuDHD test results: added a `focusbear://` deep link so the web results page can open the gated advanced results directly in a full-screen in-app window (registered on install; works whether the app is already running or launched fresh) #1402.
+- Day Plan: finished meetings now drop off today's agenda once they've ended (an in-progress meeting still shows), and the agenda no longer gets clipped on smaller screens or when the side menu is expanded — it shrinks to fit instead of a fixed width #1408 #1407.
+- Day Plan: the full-screen clock overlay no longer overlaps the Day Plan's Tasks panel during a routine (the Day Plan already shows its own date/time) #1408.
+- Dev tooling: fast/compressed countdown timers are now an opt-in runtime flag (`.env` / env var) instead of being tied to Debug builds, so a Debug build counts down at real-user speed by default #1404.
