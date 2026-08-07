@@ -792,6 +792,7 @@
     </Compile>
     <Compile Include="Utils\AppSettings.cs" />
     <Compile Include="Utils\CallDetection.cs" />
+    <Compile Include="Utils\DevFlags.cs" />
     <Compile Include="Utils\DeviceNotification.cs" />
     <Compile Include="Utils\DpiDecorator.cs" />
     <Compile Include="Utils\FBMessageBox.xaml.cs">

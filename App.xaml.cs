@@ -1098,23 +1098,29 @@ namespace Focus_Bear
                 if (bUserPostponed) //settimer for 5 minutes
                 {
                     LogWriter.LogWrite("User Postponed set StartBreakActivityTimer() for 5 minutes");
-#if DEBUG
-                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 10, 15);
-                    appSettings.NextBreakAt = DateTime.Now.AddMinutes(10); 
-#else
-                    dispatcherTimerBreaks.Interval = new TimeSpan(0, nMinutesToPostpone, 0);
-                    appSettings.NextBreakAt = DateTime.Now.AddMinutes(nMinutesToPostpone);
-#endif
+                    if (DevFlags.FastTimers)
+                    {
+                        dispatcherTimerBreaks.Interval = new TimeSpan(0, 10, 15);
+                        appSettings.NextBreakAt = DateTime.Now.AddMinutes(10);
+                    }
+                    else
+                    {
+                        dispatcherTimerBreaks.Interval = new TimeSpan(0, nMinutesToPostpone, 0);
+                        appSettings.NextBreakAt = DateTime.Now.AddMinutes(nMinutesToPostpone);
+                    }
                 }
                 else
                 {
-#if DEBUG
-                    dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 10);
-                    appSettings.NextBreakAt = DateTime.Now.AddMinutes(1);
-#else
-                    dispatcherTimerBreaks.Interval = new TimeSpan(0,  appSettings.breakAfterMinutes, 0);
-                    appSettings.NextBreakAt = DateTime.Now.AddMinutes(appSettings.breakAfterMinutes);
-#endif
+                    if (DevFlags.FastTimers)
+                    {
+                        dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 10);
+                        appSettings.NextBreakAt = DateTime.Now.AddMinutes(1);
+                    }
+                    else
+                    {
+                        dispatcherTimerBreaks.Interval = new TimeSpan(0,  appSettings.breakAfterMinutes, 0);
+                        appSettings.NextBreakAt = DateTime.Now.AddMinutes(appSettings.breakAfterMinutes);
+                    }
                 }
 
                 dispatcherTimerBreaks.Start();
@@ -4409,11 +4415,10 @@ namespace Focus_Bear
                 try
                 {
                     dispatcherTimerPostponeHabits.Tick += new EventHandler(dispatcherTimer_Postpone);
-#if DEBUG
-                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 5, nMinutesToPostpone);
-#else
-                    dispatcherTimerPostponeHabits.Interval = new TimeSpan(0,  nMinutesToPostpone, 0);
-#endif
+                    if (DevFlags.FastTimers)
+                        dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 5, nMinutesToPostpone);
+                    else
+                        dispatcherTimerPostponeHabits.Interval = new TimeSpan(0,  nMinutesToPostpone, 0);
                     dispatcherTimerPostponeHabits.Start();
 
                     appSettings.bHabitsPostponedState = true;
@@ -4602,11 +4607,10 @@ namespace Focus_Bear
                 try
                 {
                     dispatcherTimerResumeHabitsAfterPostpone.Tick += new EventHandler(dispatcherTimer_ResumeHabitsPopupBefore2Minutes);
-#if DEBUG
-                    dispatcherTimerResumeHabitsAfterPostpone.Interval = new TimeSpan(0, 0, nMinutesBeforeResume);
-#else
-                    dispatcherTimerResumeHabitsAfterPostpone.Interval = new TimeSpan(0, nMinutesBeforeResume, 0);
-#endif
+                    if (DevFlags.FastTimers)
+                        dispatcherTimerResumeHabitsAfterPostpone.Interval = new TimeSpan(0, 0, nMinutesBeforeResume);
+                    else
+                        dispatcherTimerResumeHabitsAfterPostpone.Interval = new TimeSpan(0, nMinutesBeforeResume, 0);
                     dispatcherTimerResumeHabitsAfterPostpone.Start();
 
                     CommandManager.InvalidateRequerySuggested();

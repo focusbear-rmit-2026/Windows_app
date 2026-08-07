@@ -322,11 +322,10 @@ namespace Focus_Bear.Focus
                     LogWriter.LogWrite("btnNeedOneMinute_Click() clicked");
 
                     dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-#if DEBUG
-                    dispatcherTimer.Interval = new TimeSpan(0, 0, 10); //One minute timer
-#else
-                    dispatcherTimer.Interval = new TimeSpan(0, 1, 0); //One minute timer
-#endif
+                    if (DevFlags.FastTimers)
+                        dispatcherTimer.Interval = new TimeSpan(0, 0, 10); //One minute timer
+                    else
+                        dispatcherTimer.Interval = new TimeSpan(0, 1, 0); //One minute timer
                     dispatcherTimer.Start();
                     ParentWindow.Hide(); //hide self window for 1 minute
                     CommandManager.InvalidateRequerySuggested();
@@ -381,11 +380,10 @@ namespace Focus_Bear.Focus
             //Hide this window, Set a timer for x nMinutesToPostpone and Hide the window and reappear again
             LogWriter.LogWrite("PostponeFocusSummary()");
 
-#if DEBUG
-            dispatcherTimer.Interval = new TimeSpan(0, 0, nMinutesToPostpone);
-#else
-             dispatcherTimer.Interval = new TimeSpan(0, nMinutesToPostpone, 0);
-#endif
+            if (DevFlags.FastTimers)
+                dispatcherTimer.Interval = new TimeSpan(0, 0, nMinutesToPostpone);
+            else
+                dispatcherTimer.Interval = new TimeSpan(0, nMinutesToPostpone, 0);
             appSettings.bFocusSummaryPostponedState = true;
             appSettings.sActivityAllDaySummaryData = ""; //Setting it empty so that API can be fetched again.
             if (appSettings.DidCutOffTimePassed())

@@ -743,11 +743,7 @@ namespace Focus_Bear.Habits
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-#if DEBUG
-            int val = nTimer -= 2;
-#else
-            int val = nTimer--;
-#endif
+            int val = DevFlags.FastTimers ? (nTimer -= 2) : nTimer--;
 
             sTextTimerWrapUp.Text = appSettings.SecondsToTimerText(nTimer);
 
