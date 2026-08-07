@@ -45,6 +45,14 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"; LicenseFile: "l
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
+[Registry]
+; Register the focusbear:// custom URL scheme so the web results page can open the app
+; (Focus-Bear/online-tests#57). Per-user (HKCU) so it works without elevation at launch time.
+Root: HKCU; Subkey: "Software\Classes\focusbear"; ValueType: string; ValueName: ""; ValueData: "URL:Focus Bear Protocol"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\focusbear"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
+Root: HKCU; Subkey: "Software\Classes\focusbear\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
+Root: HKCU; Subkey: "Software\Classes\focusbear\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+
 [Files]
 Source: "Files\Focus Bear.exe"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\Auth0.AuthenticationApi.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 

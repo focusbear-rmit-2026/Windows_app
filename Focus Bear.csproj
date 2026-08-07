@@ -365,6 +365,9 @@
     <Compile Include="AccountabilityBuddy\BuddyDetails.cs" />
     <Compile Include="API\Authentication.cs" />
     <Compile Include="API\FocusBearAPIClient.cs" />
+    <Compile Include="AudhdResults\AudhdResultsWindow.xaml.cs">
+      <DependentUpon>AudhdResultsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="BrainDump\BrainDumpWindow.xaml.cs">
       <DependentUpon>BrainDumpWindow.xaml</DependentUpon>
     </Compile>
@@ -817,6 +820,10 @@
     </Compile>
     <Compile Include="Utils\UploadLogs.cs" />
     <Page Include="AccountabilityBuddy\AccountabilityBuddyView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AudhdResults\AudhdResultsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -75,6 +75,18 @@ namespace Focus_Bear
         private Mutex appMutex;
         bool createdNew;
 
+        // focusbear:// deep link for the gated advanced AuDHD results (Focus-Bear/online-tests#57).
+        // Incoming: focusbear://view-audhd-results?test-code=…  →  loaded as the results page below.
+        private const string DeepLinkScheme = "focusbear://";
+        private const string DeepLinkAudhdHost = "view-audhd-results";
+        private const string DeepLinkTestCodeParam = "test-code";
+        private const string AudhdResultsBaseUrl = "https://dashboard.focusbear.io/view-results?test-code=";
+
+        // Set when the app is launched via a focusbear:// deep link; opened once startup is ready
+        // (cold start) or forwarded across the single-instance boundary (warm start).
+        private string _pendingDeepLinkArg;
+        private AudhdResults.AudhdResultsWindow _audhdResultsWindow;
+
         [DllImport("oleacc.dll")]
         public static extern uint AccessibleObjectFromEvent(IntPtr hwnd, uint dwObjectID, uint dwChildID, out IAccessible ppacc, [MarshalAs(UnmanagedType.Struct)] out object pvarChild);
 
@@ -516,6 +528,10 @@ namespace Focus_Bear
                     Task.Delay(900);
                     appSettings.bStartingAfterDeactivated = true;
                 }
+                else if (e.Args[0].StartsWith(DeepLinkScheme, StringComparison.OrdinalIgnoreCase))
+                {
+                    _pendingDeepLinkArg = e.Args[0];
+                }
             }
 
             if (!bStartingAfterReactivate || !appSettings.bStartingAfterDeactivated)
@@ -531,12 +547,22 @@ namespace Focus_Bear
                     GC.KeepAlive(this.appMutex);
                     if (!createdNew)
                     {
+                        // Single-instance: this 2nd instance is about to exit and its args would be
+                        // lost. If it carries a deep link, hand it to the running instance first.
+                        if (!string.IsNullOrEmpty(_pendingDeepLinkArg))
+                        {
+                            WritePendingDeepLink(_pendingDeepLinkArg);
+                        }
                         appWaitHandle.Set();
                         Application.Current.Shutdown(0);
                         return;
                     }
                     else
                     {
+                        // Fresh primary instance: drop any deep link left behind by a crashed
+                        // session so it can't be replayed on the next bring-to-front signal.
+                        ClearPendingDeepLink();
+
                         var thread = new Thread(() =>
                         {
                             while (this.appWaitHandle.WaitOne())
@@ -553,6 +579,13 @@ namespace Focus_Bear
                                         alreadyRunningMainWin.Activate();
                                         alreadyRunningMainWin.Focus();
                                         alreadyRunningMainWin.SetTrayMenuPosition();
+                                    }
+
+                                    // A 2nd instance may have forwarded a focusbear:// deep link.
+                                    string forwardedDeepLink = ReadAndClearPendingDeepLink();
+                                    if (!string.IsNullOrEmpty(forwardedDeepLink))
+                                    {
+                                        HandleDeepLink(forwardedDeepLink);
                                     }
                                 }));
                             }
@@ -608,6 +641,142 @@ namespace Focus_Bear
 
             //Display settings change event
             Microsoft.Win32.SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
+
+            // Cold start via a focusbear:// deep link (app wasn't already running): open the
+            // results window once the UI is idle so the tray/main window is ready first.
+            if (!string.IsNullOrEmpty(_pendingDeepLinkArg))
+            {
+                string deepLink = _pendingDeepLinkArg;
+                _pendingDeepLinkArg = null;
+                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle,
+                    (Action)(() => HandleDeepLink(deepLink)));
+            }
+        }
+
+        private static string PendingDeepLinkFilePath
+        {
+            get { return Path.Combine(AppSettings.AppDataDirPath, "pending-deeplink.txt"); }
+        }
+
+        private static void WritePendingDeepLink(string rawUrl)
+        {
+            try
+            {
+                File.WriteAllText(PendingDeepLinkFilePath, rawUrl);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("WritePendingDeepLink ex - " + ex.Message);
+            }
+        }
+
+        private static string ReadAndClearPendingDeepLink()
+        {
+            try
+            {
+                if (!File.Exists(PendingDeepLinkFilePath))
+                {
+                    return null;
+                }
+                string rawUrl = File.ReadAllText(PendingDeepLinkFilePath);
+                File.Delete(PendingDeepLinkFilePath);
+                return rawUrl;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ReadAndClearPendingDeepLink ex - " + ex.Message);
+                return null;
+            }
+        }
+
+        private static void ClearPendingDeepLink()
+        {
+            try
+            {
+                if (File.Exists(PendingDeepLinkFilePath))
+                {
+                    File.Delete(PendingDeepLinkFilePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ClearPendingDeepLink ex - " + ex.Message);
+            }
+        }
+
+        // Turns focusbear://view-audhd-results?test-code=… into the results page URL and shows it.
+        private void HandleDeepLink(string rawUrl)
+        {
+            LogWriter.LogWrite("HandleDeepLink - " + rawUrl);
+            string resultsUrl = BuildAudhdResultsUrl(rawUrl);
+            if (string.IsNullOrEmpty(resultsUrl))
+            {
+                LogWriter.LogWrite("HandleDeepLink - unrecognised or incomplete deep link, ignoring");
+                return;
+            }
+            OpenAudhdResultsWindow(resultsUrl);
+        }
+
+        private static string BuildAudhdResultsUrl(string rawUrl)
+        {
+            try
+            {
+                var uri = new Uri(rawUrl);
+                if (!string.Equals(uri.Host, DeepLinkAudhdHost, StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+                string testCode = GetQueryParam(uri.Query, DeepLinkTestCodeParam);
+                if (string.IsNullOrWhiteSpace(testCode))
+                {
+                    return null;
+                }
+                return AudhdResultsBaseUrl + Uri.EscapeDataString(testCode);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("BuildAudhdResultsUrl ex - " + ex.Message);
+                return null;
+            }
+        }
+
+        private static string GetQueryParam(string query, string key)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return null;
+            }
+            foreach (var pair in query.TrimStart('?').Split('&'))
+            {
+                var kv = pair.Split(new[] { '=' }, 2);
+                if (kv.Length == 2 && string.Equals(Uri.UnescapeDataString(kv[0]), key, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Uri.UnescapeDataString(kv[1]);
+                }
+            }
+            return null;
+        }
+
+        private void OpenAudhdResultsWindow(string resultsUrl)
+        {
+            try
+            {
+                if (_audhdResultsWindow != null && _audhdResultsWindow.IsLoaded)
+                {
+                    _audhdResultsWindow.Navigate(resultsUrl);
+                    _audhdResultsWindow.Activate();
+                    return;
+                }
+
+                _audhdResultsWindow = new AudhdResults.AudhdResultsWindow(resultsUrl);
+                _audhdResultsWindow.Closed += (s, e) => _audhdResultsWindow = null;
+                _audhdResultsWindow.Show();
+                _audhdResultsWindow.Activate();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("OpenAudhdResultsWindow ex - " + ex.Message);
+            }
         }
 
         private void OnDisplaySettingsChanged(object sender, EventArgs e)
