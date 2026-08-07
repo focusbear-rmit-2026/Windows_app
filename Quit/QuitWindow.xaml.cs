@@ -1,4 +1,5 @@
 ﻿using Focus_Bear.API;
+using Focus_Bear.Focus;
 using Focus_Bear.Models;
 using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
@@ -128,6 +129,51 @@ namespace Focus_Bear.Quit
             CommandManager.InvalidateRequerySuggested();
         }
 
+        // Teacher Mode: during an active class focus session, only the "emergency" reason may quit the
+        // app. Every other reason is blocked with the locked alert. A determined student can still
+        // force-quit via Task Manager (Ctrl+Alt+Del), so the emergency path is kept as a deliberate
+        // escape hatch rather than pretending to be an unbreakable lock.
+        private bool IsQuitBlockedByTeacher()
+        {
+            if (!TeacherSessionManager.Instance.IsTeacherSessionActive()
+                || TeacherSessionManager.Instance.CanTeacherSessionFinishNow())
+            {
+                return false;
+            }
+
+            try
+            {
+                string sEmergency = appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_1"]["title"].ToString();
+                bool bIsEmergency = ComboBoxReason.SelectedItem != null
+                    && ComboBoxReason.SelectedItem.ToString() == sEmergency;
+                return !bIsEmergency; // emergency is always allowed; everything else is blocked
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("QuitWindow IsQuitBlockedByTeacher ex - " + ex.Message);
+                return false; // never trap the user because of a config lookup failure
+            }
+        }
+
+        // Starts the shutdown countdown, unless a teacher class session blocks this (non-emergency) quit.
+        private void StartShutdownCountdown()
+        {
+            if (IsQuitBlockedByTeacher())
+            {
+                LogWriter.LogWrite("QuitWindow - non-emergency quit blocked while a teacher class session is active");
+                TeacherSessionManager.Instance.ShowTeacherSessionLockedAlert();
+                // Return the window to its initial state so the student can still pick "emergency".
+                dispatcherTimer.Stop();
+                bEmergencyTimer = false;
+                ComboBoxReason.IsEnabled = true;
+                btnQuit.IsEnabled = true;
+                TxtFinalTimer.Visibility = Visibility.Collapsed;
+                ComboBoxReason.SelectedIndex = 0;
+                return;
+            }
+            dispatcherTimer.Start();
+        }
+
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
@@ -184,7 +230,7 @@ namespace Focus_Bear.Quit
                 string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
-                dispatcherTimer.Start();
+                StartShutdownCountdown();
             }
             else if (ComboBoxReason.SelectedItem.ToString() == appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_2"]["title"].ToString())
             {
@@ -207,7 +253,7 @@ namespace Focus_Bear.Quit
                 string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
-                dispatcherTimer.Start();
+                StartShutdownCountdown();
             }
             else if (ComboBoxReason.SelectedItem.ToString() == appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownSomeOneElse"]["title"].ToString())
             {
@@ -223,7 +269,7 @@ namespace Focus_Bear.Quit
                 string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
-                dispatcherTimer.Start();
+                StartShutdownCountdown();
             }
             else if (ComboBoxReason.SelectedItem.ToString() == appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDownAnnoying"]["title"].ToString()) //annoying
             {
@@ -246,7 +292,7 @@ namespace Focus_Bear.Quit
                 string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
-                dispatcherTimer.Start();
+                StartShutdownCountdown();
             }
             else if (ComboBoxReason.SelectedItem.ToString() == appSettings.ConfigFileStrings["quitInfo"]["quittingConfirmInfo"]["dropDown_3"]["title"].ToString()) //Something else
             {
@@ -299,7 +345,7 @@ namespace Focus_Bear.Quit
                 TxtFinalTimer.Visibility = Visibility.Collapsed;
                 bEmergencyTimer = true;
                 nTimer = 1;
-                dispatcherTimer.Start();
+                StartShutdownCountdown();
             }
             else
             {
@@ -307,7 +353,7 @@ namespace Focus_Bear.Quit
                 TxtFinalTimer.Visibility = Visibility.Collapsed;
                 bEmergencyTimer = true;
                 nTimer = 1;
-                dispatcherTimer.Start();
+                StartShutdownCountdown();
             }
               
         }
