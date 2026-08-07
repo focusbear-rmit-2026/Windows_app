@@ -1608,7 +1608,11 @@ namespace Focus_Bear.Habits
 
         private void dispatcherTimerShowDateTime_Tick(object sender, EventArgs e)
         {
-            if (appSettings.bPlayActivitiesInFullScreenMode && !appSettings.bHabitsPostponedState && appSettings.nCurrentActivityType != CurrentActivityType.NONE)
+            // The Day Plan has its own date/time bar, so suppress this legacy top-right overlay clock
+            // while the Day Plan is the active screen — it otherwise overlaps the Day Plan's Tasks panel.
+            if (appSettings.bPlayActivitiesInFullScreenMode && !appSettings.bHabitsPostponedState
+                && appSettings.nCurrentActivityType != CurrentActivityType.NONE
+                && !(AppFrameHabitScreens.Content is HabitsDayPlan))
             {
                 TodaysTime.Visibility = Visibility.Visible;
             }

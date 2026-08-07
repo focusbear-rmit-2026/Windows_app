@@ -120,9 +120,10 @@ namespace Focus_Bear.Habits.DayPlan
                 deepWorkCutoff: deepWorkCutoff,
                 sprintWorkSeconds: 0,                // no break-frequency source on Windows yet
                 sprintBreakSeconds: 0,
-                // Surface the WHOLE day's meetings (including ones earlier than now), not just upcoming —
-                // habits still pack from `now`. Otherwise today's morning meetings vanish after they pass.
-                meetingsFrom: selectedDate.Date,
+                // Meetings floor: for today, start from `now` so already-finished meetings drop off the
+                // agenda (matching how habits pack from `now`); an in-progress meeting (End > now) still
+                // shows. For other days, surface the whole day.
+                meetingsFrom: isToday ? DateTime.Now : selectedDate.Date,
                 labels: labels);
         }
 
