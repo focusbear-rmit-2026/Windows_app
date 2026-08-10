@@ -639,10 +639,32 @@ namespace FocusBear.Utils
                                 {
                                     MinimizeBlockedAppWindow(process.MainWindowHandle);
 
-                                    string sTemp = appSettings.ConfigFileStrings["common"]["appBlockNotificationTitle"].ToString();
-                                    sTemp = sTemp.Replace("<APP_NAME>", process.ProcessName);
-                                    sTemp = sTemp.Replace("<FOCUS_NAME>", appSettings.sRunningFocusModeName);
-                                    appSettings.ShowBaloonTip(sTemp);
+                                    if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+                                    {
+                                        // During a class session, the notification offers a "Request unlock" action that
+                                        // opens the unlock-request form pre-filled with this app's name.
+                                        string sAppName = process.ProcessName;
+                                        string sMsg;
+                                        try
+                                        {
+                                            sMsg = appSettings.ConfigFileStrings["teacherSessionInfo"]["appBlockedRequestUnlockText"].ToString();
+                                        }
+                                        catch
+                                        {
+                                            sMsg = "<APP_NAME> is blocked during your class session. Ask your teacher to unlock it.";
+                                        }
+                                        sMsg = sMsg.Replace("<APP_NAME>", sAppName);
+                                        string sBtn = appSettings.ConfigFileStrings["teacherSessionInfo"]["buttonRequestUnlock"].ToString();
+                                        appSettings.ShowBaloonTip(sMsg, "", sBtn,
+                                            () => TeacherSessionManager.Instance.ShowTeacherUnlockRequestWindow(sAppName));
+                                    }
+                                    else
+                                    {
+                                        string sTemp = appSettings.ConfigFileStrings["common"]["appBlockNotificationTitle"].ToString();
+                                        sTemp = sTemp.Replace("<APP_NAME>", process.ProcessName);
+                                        sTemp = sTemp.Replace("<FOCUS_NAME>", appSettings.sRunningFocusModeName);
+                                        appSettings.ShowBaloonTip(sTemp);
+                                    }
 
                                     LogWriter.LogWrite(process.ProcessName + " Not allowed app found in Focus Element activity - BLOCK");
                                     appSettings.CapturePostHog("block-distracting-app");

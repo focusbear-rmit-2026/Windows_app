@@ -27,6 +27,10 @@ namespace Focus_Bear
     {
         private bool isClosed = true;
         private int _pos = 0; //0 = bottom right, 1 = top right
+        private Action _onAction = null; //optional action-button callback (e.g. teacher-session Request unlock)
+        private System.Windows.Threading.DispatcherTimer _countdownTimer = null; //per-second auto-close countdown when an action button is shown
+        private int _countdownRemaining = 0;
+        private const int ActionCountdownSeconds = 10;
 
         AppSettings appSettings = AppSettings.GetInstance;
         [DllImport("dwmapi.dll")]
@@ -62,6 +66,81 @@ namespace Focus_Bear
 
         }
 
+        // Overload with an action button (e.g. teacher class session "Request unlock"). The button is
+        // shown and, when clicked, runs onAction (then closes the balloon).
+        public TrayBalloon(int pos, string message, string sAppTitle, string actionButtonText, Action onAction)
+            : this(pos, message, sAppTitle)
+        {
+            _onAction = onAction;
+            if (!string.IsNullOrEmpty(actionButtonText) && onAction != null)
+            {
+                btnAction.Content = actionButtonText;
+                ActionPanel.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void btnAction_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                isClosed = true; //don't let Deactivated double-close during the action
+                _onAction?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("TrayBalloon btnAction_Click ex - " + ex.Message);
+            }
+            finally
+            {
+                Close();
+            }
+        }
+
+        // Visible per-second auto-close countdown, shown next to the action button so the student
+        // knows the notification is time-limited. Language-neutral ("⏳ Ns") so no extra config strings.
+        private void StartActionCountdown()
+        {
+            _countdownRemaining = ActionCountdownSeconds;
+            UpdateCountdownText();
+            _countdownTimer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _countdownTimer.Tick += ActionCountdown_Tick;
+            _countdownTimer.Start();
+        }
+
+        private void ActionCountdown_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                _countdownRemaining--;
+                if (_countdownRemaining <= 0)
+                {
+                    _countdownTimer?.Stop();
+                    isClosed = true;
+                    Close();
+                    return;
+                }
+                UpdateCountdownText();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("TrayBalloon ActionCountdown_Tick ex - " + ex.Message);
+            }
+        }
+
+        private void UpdateCountdownText()
+        {
+            TxtCountdown.Text = "⏳ " + _countdownRemaining + "s";
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _countdownTimer?.Stop();
+            base.OnClosed(e);
+        }
+
         Timer TooltipTimer = null;
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -77,17 +156,26 @@ namespace Focus_Bear
                     this.Top = (desktopWorkingArea.Bottom - this.ActualHeight) - 15;
                 }
 
-                TooltipTimer = new Timer();
-                if (appSettings.IsFirstInstall)
+                if (_onAction != null)
                 {
-                    TooltipTimer.Interval = 60000; //1 minute
+                    // Action balloon (e.g. Request unlock): show a visible per-second countdown so the
+                    // student knows it's time-limited, then auto-close.
+                    StartActionCountdown();
                 }
                 else
                 {
-                    TooltipTimer.Interval = 5000;
+                    TooltipTimer = new Timer();
+                    if (appSettings.IsFirstInstall)
+                    {
+                        TooltipTimer.Interval = 60000; //1 minute
+                    }
+                    else
+                    {
+                        TooltipTimer.Interval = 5000;
+                    }
+                    TooltipTimer.Tick += TooltipTimer_Tick;
+                    TooltipTimer.Enabled = true;
                 }
-                TooltipTimer.Tick += TooltipTimer_Tick;
-                TooltipTimer.Enabled = true;
             }
             catch (Exception ex)
             {

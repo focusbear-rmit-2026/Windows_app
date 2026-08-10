@@ -3175,6 +3175,16 @@ namespace Focus_Bear.Utils
                 tt.Show();
             }));
         }
+
+        // Balloon tip with an action button (e.g. teacher class session "Request unlock").
+        public void ShowBaloonTip(string sBaloonTip, string sHeading, string sActionButtonText, Action onAction)
+        {
+            ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
+            {
+                TrayBalloon tt = new TrayBalloon(1, sBaloonTip, sHeading, sActionButtonText, onAction);
+                tt.Show();
+            }));
+        }
         
         public async void ShowBlurWindow(IntPtr hwndTarget)
         {

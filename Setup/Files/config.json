@@ -3171,6 +3171,7 @@
         "lockedAlertTitle": "This session is controlled by your teacher",
         "lockedAlertBody": "You can't stop or pause this focus session early. It ends when your teacher ends it or the scheduled finish time is reached. Need an app or website unlocked? Send your teacher an unlock request.",
         "buttonRequestUnlock": "Request unlock",
+        "appBlockedRequestUnlockText": "<APP_NAME> is blocked during your class session. Ask your teacher to unlock it.",
         "unlockDeclinedTitle": "Unlock request declined",
         "unlockDeclinedBody": "Your teacher declined your unlock request.",
         "titleCreateUnlockRequest": "Ask your teacher to unlock an app or website",

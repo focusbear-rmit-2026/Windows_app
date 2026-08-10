@@ -25,6 +25,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="38"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="58"/>
@@ -33,6 +34,30 @@
         <TextBlock x:Name="AppTitle" Margin="0" TextWrapping="Wrap" Text="" Foreground="White" FontSize="14" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Left" Grid.Column="2"/>
         <TextBlock x:Name="TrayBaloonTipMsg" TextWrapping="Wrap" Text="" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Margin="0,4,12,12" Grid.Row="1"  />
         <Image Width="42" Height="42"  Margin="0" Source="../Images/FBicon-64.png" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" VerticalAlignment="Center" Grid.RowSpan="2" HorizontalAlignment="Center"/>
+
+        <!-- Optional action row (e.g. "Request unlock" during a teacher class session) with an auto-close
+             countdown. Hidden unless an action is supplied. -->
+        <StackPanel x:Name="ActionPanel" Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,12" Visibility="Collapsed">
+            <Button x:Name="btnAction" Content="" Padding="12,5" Cursor="Hand" Foreground="White" FontSize="13" FontWeight="SemiBold" BorderThickness="0" Click="btnAction_Click">
+                <!-- Full template so our orange sticks (the default button template shows a light-blue hover). -->
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="4" Background="#F5A623">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#E08E1A"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#C97F17"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <TextBlock x:Name="TxtCountdown" Text="" Foreground="#B0B0B0" FontSize="12" VerticalAlignment="Center" Margin="10,0,0,0"/>
+        </StackPanel>
 
     </Grid>
 </Window>

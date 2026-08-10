@@ -3169,6 +3169,7 @@
         "lockedAlertTitle": "Esta sesión está controlada por tu profesor(a)",
         "lockedAlertBody": "No puedes detener ni pausar esta sesión de enfoque antes de tiempo. Termina cuando tu profesor(a) la finalice o se alcance la hora de finalización programada. ¿Necesitas desbloquear una aplicación o un sitio web? Envía una solicitud de desbloqueo a tu profesor(a).",
         "buttonRequestUnlock": "Solicitar desbloqueo",
+        "appBlockedRequestUnlockText": "<APP_NAME> está bloqueada durante tu sesión de clase. Pídele a tu profesor(a) que la desbloquee.",
         "unlockDeclinedTitle": "Solicitud de desbloqueo rechazada",
         "unlockDeclinedBody": "Tu profesor(a) ha rechazado tu solicitud de desbloqueo.",
         "titleCreateUnlockRequest": "Pide a tu profesor(a) que desbloquee una aplicación o un sitio web",
