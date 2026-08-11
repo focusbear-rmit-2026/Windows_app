@@ -103,15 +103,37 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("FocusModeEndWindow dispatcherTimerShowTasksEndWindow ex" + ex.Message);
             }
         }
+        // Enable/disable the four end-screen action buttons together. They are disabled the moment one is
+        // clicked so a second can't fire while the first runs or after it dismisses the screen - e.g.
+        // clicking Extend (which starts a focus timer) then Break, which left two timers running, or a
+        // double Continue (#1372, #1373). They are re-enabled when the screen is shown again, and on
+        // failure, so the buttons can never become permanently dead.
+        private void SetActionButtonsEnabled(bool enabled)
+        {
+            btnContinue.IsEnabled = enabled;
+            btnTakeBreak.IsEnabled = enabled;
+            btnExtendSession.IsEnabled = enabled;
+            btnStartAnotherFocusMode.IsEnabled = enabled;
+        }
+
         private void btnTakeBreak_Click(object sender, RoutedEventArgs e)
         {
-            bUserClickedTake5MinBreak = true;
+            SetActionButtonsEnabled(false); //block a second end-screen action until the screen is shown again
+            try
+            {
+                bUserClickedTake5MinBreak = true;
 
-            ((App)Application.Current).wndFocusBearMainWindow.RightContent.Content = null; //We need to empty the view so that isVisible is not invoked when the window is shown after break
+                ((App)Application.Current).wndFocusBearMainWindow.RightContent.Content = null; //We need to empty the view so that isVisible is not invoked when the window is shown after break
 
-            ((App)Application.Current).wndFocusBearMainWindow.Hide();
+                ((App)Application.Current).wndFocusBearMainWindow.Hide();
 
-            Take5MinsBreak();
+                Take5MinsBreak();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnTakeBreak_Click EX - " + ex.Message);
+                SetActionButtonsEnabled(true); //failed: keep the buttons usable
+            }
         }
 
         private async void Take5MinsBreak()
@@ -129,40 +151,48 @@ namespace Focus_Bear.Focus
             }
 
 
-            DateTime now = DateTime.Now;
-            // Guard against an empty/invalid stored start time - parsing it directly threw here and
-            // aborted the whole Continue flow (the screen just sat there). Fall back to 0 duration.
-            int nSeconds = 0;
-            if (DateTime.TryParse(appSettings.sRunningFocusModeStartTime, out DateTime focusStartTime))
-            {
-                nSeconds = Convert.ToInt32(now.Subtract(focusStartTime).TotalSeconds);
-            }
-
-            string sAchieve = TxtAchieve.Text.Replace(Environment.NewLine, " ");
+            string sAchieve = "";
             string sDistractions = ""; //removed
-            appSettings.AddEntryInCSV("focus block", appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, sAchieve, sDistractions, "", "");
-
-            if (appSettings.bUseSuperPomodoroMode)
+            // Best-effort logging/analytics before finishing the session. Any failure here must NOT abort
+            // the flow - the screen only dismisses further down, so a throw here left it frozen (#1372).
+            // The two known throwers (start-time parse, focus-mode .First()) are guarded individually; this
+            // outer guard covers anything else (e.g. AddEntryInCSV) so we always reach the dismissal below.
+            try
             {
-                if (appSettings.nSuperPomodoroCountCompleted >= appSettings.NumberOfSuperPomodorosToRun) //check if all pomodoros have been finished.
+                DateTime now = DateTime.Now;
+                int nSeconds = 0;
+                if (DateTime.TryParse(appSettings.sRunningFocusModeStartTime, out DateTime focusStartTime))
                 {
-                    appSettings.bUseSuperPomodoroMode = false;
-                    ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartFocusSession"].ToString());
+                    nSeconds = Convert.ToInt32(now.Subtract(focusStartTime).TotalSeconds);
                 }
+
+                sAchieve = TxtAchieve.Text.Replace(Environment.NewLine, " ");
+                appSettings.AddEntryInCSV("focus block", appSettings.sRunningFocusModeName, nSeconds.ToString(), "", "", appSettings.sRunningFocusModeStartTime, sAchieve, sDistractions, "", "");
+
+                if (appSettings.bUseSuperPomodoroMode)
+                {
+                    if (appSettings.nSuperPomodoroCountCompleted >= appSettings.NumberOfSuperPomodorosToRun) //check if all pomodoros have been finished.
+                    {
+                        appSettings.bUseSuperPomodoroMode = false;
+                        ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartFocusSession"].ToString());
+                    }
+                }
+
+                appSettings.CapturePostHog("completed-focus-session", string.Format("\"focus-type\":\"manual_focus\",\"focusDurationMinutes\":{0}", (nSeconds / 60)));
+
+                //We need to add it back to the focus mode. FirstOrDefault - when the running focus mode id no
+                //longer matches any known mode, .First() threw "Sequence contains no elements", aborting the
+                //Continue flow silently (Continue appeared to do nothing). Skip the update instead of crashing.
+                FocusMode CurrentRunningFocusMode = appSettings.arrFocusModes.FirstOrDefault(i => i.id == appSettings.sRunningFocusModeID);
+                if (CurrentRunningFocusMode != null)
+                    CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
+                else
+                    LogWriter.LogWrite("FocusModeEnd - focus mode not found in local list: " + appSettings.sRunningFocusModeID);
             }
-
-            appSettings.CapturePostHog("completed-focus-session", string.Format("\"focus-type\":\"manual_focus\",\"focusDurationMinutes\":{0}", (nSeconds / 60)));
-
-            //We need to add it back to the focus mode
-            // Use FirstOrDefault - when the running focus mode id no longer matches any known mode,
-            // .First() threw "Sequence contains no elements" here, outside the try/catch below, aborting
-            // the Continue flow silently (so clicking Continue appeared to do nothing). Skip the update
-            // in that case instead of crashing.
-            FocusMode CurrentRunningFocusMode = appSettings.arrFocusModes.FirstOrDefault(i => i.id == appSettings.sRunningFocusModeID);
-            if (CurrentRunningFocusMode != null)
-                CurrentRunningFocusMode.lastTaskUsed = appSettings.sRawTasks;
-            else
-                LogWriter.LogWrite("FocusModeEnd - focus mode not found in local list: " + appSettings.sRunningFocusModeID);
+            catch (Exception exPre)
+            {
+                LogWriter.LogWrite("Take5MinsBreak() pre-finish work EX (continuing to dismiss the screen) - " + exPre.Message);
+            }
 
             //Call api to finish focus mode
             FocusBearAPIClient client = new FocusBearAPIClient();
@@ -297,11 +327,12 @@ namespace Focus_Bear.Focus
                     appSettings.bStartingAnotherFocusMode = false;
                     bUserClickedContinue = false;
                     bUserClickedExtendSession = false;
+                    SetActionButtonsEnabled(true); //fresh screen - accept a new action
 
                     //if a break is running and focus session ends, the button should be Continue Break
                     if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                     {
-                        btnContinueText.Text = "Continue Break";//appSettings.ConfigFileStrings["focusCompletedInfo"]["buttonContinueMicroBreak"].ToString();
+                        btnContinueText.Text = appSettings.ConfigFileStrings["focusInfo"]["focusCompletedInfo"]["buttonContinueMicroBreak"].ToString();
                     }
                     else
                     {
@@ -489,16 +520,25 @@ namespace Focus_Bear.Focus
         }
         private void btnStartAnotherFocusMode_Click(object sender, RoutedEventArgs e)
         {
-            appSettings.bStartingAnotherFocusMode = true;
+            SetActionButtonsEnabled(false); //block a second end-screen action until the screen is shown again
+            try
+            {
+                appSettings.bStartingAnotherFocusMode = true;
 
-            Take5MinsBreak();//needed to execute the finish focus mode api
+                Take5MinsBreak();//needed to execute the finish focus mode api
 
-            // Open the focus start screen for another session. (Previously this fired the tray Start button,
-            // but that button now opens an inline picker in the tray instead, so call the window directly.)
-            if (appSettings.bIsGeekModeEnabled)
-                ((App)(Application.Current)).ShowPomodoroWindow();
-            else
-                ((App)(Application.Current)).ShowSimplePomodoroWindow();
+                // Open the focus start screen for another session. (Previously this fired the tray Start button,
+                // but that button now opens an inline picker in the tray instead, so call the window directly.)
+                if (appSettings.bIsGeekModeEnabled)
+                    ((App)(Application.Current)).ShowPomodoroWindow();
+                else
+                    ((App)(Application.Current)).ShowSimplePomodoroWindow();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnStartAnotherFocusMode_Click EX - " + ex.Message);
+                SetActionButtonsEnabled(true); //failed: keep the buttons usable
+            }
         }
 
         public void ShowTasksEndWindow()
@@ -527,25 +567,36 @@ namespace Focus_Bear.Focus
 
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
-            bUserClickedContinue = true;
-            bDoNotShowBreak = true;
-             var duration = (appSettings.CurrentFocusSessionDuration * appSettings.CurrentFocusAlignmentScore) / 100;
-                    DeepWorkValue.Text = appSettings.SecondsToTextHMS((int) Math.Round(duration));
-            if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+            SetActionButtonsEnabled(false); //block a second end-screen action until the screen is shown again
+            try
             {
-                //go to micro breaks screen
-                ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.MicroBreaks);
-            }
-            else
-            {
-                appSettings.bUseSuperPomodoroMode = false; //Force stop the super focus session
-            }
+                bUserClickedContinue = true;
+                bDoNotShowBreak = true;
+                var duration = (appSettings.CurrentFocusSessionDuration * appSettings.CurrentFocusAlignmentScore) / 100;
+                DeepWorkValue.Text = appSettings.SecondsToTextHMS((int)Math.Round(duration));
+                if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                {
+                    //go to micro breaks screen
+                    ((App)Application.Current).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.MicroBreaks);
+                }
+                else
+                {
+                    appSettings.bUseSuperPomodoroMode = false; //Force stop the super focus session
+                }
 
-            Take5MinsBreak();
+                Take5MinsBreak();
+            }
+            catch (Exception ex)
+            {
+                //Never leave the end screen stuck: log and release the guard so the button stays usable.
+                LogWriter.LogWrite("btnContinue_Click EX - " + ex.Message);
+                SetActionButtonsEnabled(true); //failed: keep the buttons usable
+            }
         }
 
         private async void btnExtendSession_Click(object sender, RoutedEventArgs e)
         {
+            SetActionButtonsEnabled(false); //block a second end-screen action until the screen is shown again
             try
             {
                 LogWriter.LogWrite("btnExtendSession_Click()");
@@ -607,6 +658,7 @@ namespace Focus_Bear.Focus
             catch (Exception ex)
             {
                 LogWriter.LogWrite("btnExtendSession_Click EX = " + ex.Message);
+                SetActionButtonsEnabled(true); //failed: keep the buttons usable
             }
         }
 

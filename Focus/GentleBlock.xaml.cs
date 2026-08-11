@@ -122,6 +122,13 @@ namespace Focus_Bear.Focus
             sActiveURL = sURL;
             sCurrentTabTitle = sTabTitle;
             HWND = hWnd;
+
+            //Don't (re)show the block popup if the focus session / schedule has ended in the meantime - e.g.
+            //RecheckCurrentWithAI re-enters here after the user closes the goal/task modal, by which point the
+            //session may have expired and the focus-end screen is showing.
+            if (SuppressPopupIfBlockingEnded())
+                return;
+
             if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
                 this.Height = 600;
@@ -608,6 +615,11 @@ namespace Focus_Bear.Focus
                             }
                             else if (currentFocusAlignmentScore < 80 /*minFocusAlignmentScoreToShowDistractingPopUp*/)// Need to ASk USER if probability is < 0
                             {
+                                //The AI check is async - the focus session may have ended while it was in
+                                //flight. Don't pop the distracting/goal-task UI over the focus-end screen.
+                                if (SuppressPopupIfBlockingEnded())
+                                    return;
+
                                 //Re-entrancy guard: if a modal sub-popup is already open (e.g. the user switched
                                 //tabs while the goal/task box was up), don't stack another one for this URL - that
                                 //is what left duplicate/orphaned goal-task popups. Just hide; the next focus event
@@ -810,6 +822,17 @@ namespace Focus_Bear.Focus
         //  - could not verify (-1) -> allow (fail-open), matching the macOS app behaviour
         private async void CheckWithChatGPTForApp()
         {
+            //No app name to check (some windows have no resolvable process name) - skip the AI call, it can
+            //only match nothing and just wastes a request. Allow and hide, like the fail-open path.
+            if (string.IsNullOrWhiteSpace(sActiveAppName))
+            {
+                LogWriter.LogWrite("CheckWithChatGPTForApp - empty app name, skipping AI check");
+                dispatcherTimer.Stop();
+                appSettings.HideBlurWindow();
+                Hide();
+                return;
+            }
+
             if (CurrentURLBeingProcessedWithChatGPTAPI == sActiveAppName)
                 return;
             CurrentURLBeingProcessedWithChatGPTAPI = sActiveAppName;
@@ -831,6 +854,14 @@ namespace Focus_Bear.Focus
                             ((App)(Application.Current)).wndFocusProgress.TopIcon.Source = image;
                         }
                     }));
+
+                    //Guard the race where a URL block reset sActiveAppName to "" after this app check was
+                    //launched - don't fire the AI call with an empty app name (it can only match nothing).
+                    if (string.IsNullOrWhiteSpace(sActiveAppName))
+                    {
+                        LogWriter.LogWrite("CheckWithChatGPTForApp - app name cleared before AI call, skipping");
+                        return;
+                    }
 
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var nResponse = await client.ChatGPTIsAppSafe(sActiveAppName, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
@@ -944,6 +975,38 @@ namespace Focus_Bear.Focus
 
         private bool IsAppBlocking() => !string.IsNullOrEmpty(sActiveAppName);
 
+        // True while something that legitimately blocks is active: a (non-paused) focus session, a
+        // focus-mode habit, or a (non-paused) blocking schedule. Mirrors the app/URL blocking gates.
+        private bool IsBlockingStillActive()
+        {
+            return (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused)
+                || appSettings.bHabitwithUseFocusModeRunning
+                || (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null && !appSettings.ActiveSchedule.isPaused);
+        }
+
+        // Guard used before this block popup (and its goal/task modal) is made visible. If blocking is no
+        // longer active - e.g. the focus session expired while the user sat on the goal/task modal or moved
+        // to the main window - tear the popup down and report suppression, so it can't reappear over the
+        // focus-end screen. Returns true when the popup was suppressed (caller should return).
+        private bool SuppressPopupIfBlockingEnded()
+        {
+            if (IsBlockingStillActive())
+                return false;
+
+            LogWriter.LogWrite("GentleBlock - blocking no longer active (session/schedule ended), suppressing popup");
+            try
+            {
+                StopTimer();                    //also closes any modal sub-popups over it
+                appSettings.HideBlurWindow();
+                Hide();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GentleBlock SuppressPopupIfBlockingEnded ex - " + ex.Message);
+            }
+            return true;
+        }
+
         // Re-run the AI check for whatever is currently blocked (URL or app), after the user sets a goal/task
         // or convinces the AI. Resets the in-flight guard first so the same identity is checked again.
         private void RecheckCurrentWithAI()
@@ -961,6 +1024,11 @@ namespace Focus_Bear.Focus
         // (URL vs app), which drives the convince-comparison, temporary-access target and recheck.
         private void ShowDistractingCuddlyPopup(double xProbability)
         {
+            //The app AI check is async - if the focus session ended while it was in flight, don't pop the
+            //distracting/goal-task UI over the focus-end screen.
+            if (SuppressPopupIfBlockingEnded())
+                return;
+
             string identity = IsAppBlocking() ? sActiveAppName : sActiveURL;
 
             if (appSettings.sCurrentTaskPlayingInToDoPlayer.Length == 0 && appSettings.sRunningFocusModeIntention.Length == 0)
@@ -1287,13 +1355,24 @@ namespace Focus_Bear.Focus
                     wndConvince = null;
                     return;
                 }
-                else 
+                else
                 {
+                    //Last-chance guard: if the focus session/schedule ended (e.g. it expired while this popup
+                    //was being prepared), don't pop the no-goal/no-task modal over the focus-end screen.
+                    if (SuppressPopupIfBlockingEnded())
+                        return;
+
+                    //Log which app/URL is triggering the no-goal/no-task popup, to identify spurious triggers.
+                    LogWriter.LogWrite("GentleBlock - showing no-goal/no-task modal for " +
+                        (IsAppBlocking() ? "app '" + sActiveAppName + "'" : "url '" + sActiveURL + "'") +
+                        " | focusRunning=" + appSettings.isFocusModeRunning + " paused=" + appSettings.isFocusModePaused +
+                        " scheduleRunning=" + appSettings.isBlockingScheduleRunning);
+
                     //If the task name and intention are empty, we will ask the user the new goal and the task
                     this.Show(); //We need to show the window too
 
                     dispatcherTimer.Stop();
-                    
+
                     wndAddGoal = new AddFocusGoalAndTask(true); //true for bNoGoalNoTask
                     wndAddGoal.Owner = this;
 

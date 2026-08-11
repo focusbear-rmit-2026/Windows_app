@@ -6113,6 +6113,12 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("FinishFocusModeCommonTasks()");
 
+                // The focus session is ending - tear down any block popup (and its open goal/task modal)
+                // now, before the focus-end screen appears. Otherwise a goal/task modal that was up when the
+                // session expired lingered over the end screen (the block popup re-shows via async AI
+                // callbacks that outlive the session).
+                appSettings.HideGentleBlockWindow();
+
                 // Sync the todo tasks first
                 try
                 {
