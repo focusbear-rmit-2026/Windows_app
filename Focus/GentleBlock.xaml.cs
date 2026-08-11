@@ -80,6 +80,14 @@ namespace Focus_Bear.Focus
         AddFocusGoalAndTask wndAddGoal = null;
         ConvinceAI wndConvince = null;
 
+        // Guards against re-entrant stacking of the modal sub-popups below. ShowDialog() spins a nested
+        // message loop, and because this GentleBlock window is a singleton reused across URLs, the async
+        // AI callback for a newly-focused tab can fire inside that loop and open a second modal on top -
+        // orphaning the first (the wnd* fields get overwritten, so StopTimer can no longer close it).
+        // While a modal is open we refuse to open another; the pipeline re-blocks on the next focus
+        // event once the open one is dealt with.
+        private bool bModalSubPopupOpen = false;
+
         public GentleBlock()
         {
             InitializeComponent();
@@ -124,7 +132,10 @@ namespace Focus_Bear.Focus
             MarkPreviousTaskCompleteText.Text = appSettings.ConfigFileStrings["popUpAddNewFocusGoalVcInfo"]["buttonMarkCurrentTaskAsCompleted"].ToString();
 
             btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonAllowText"].ToString();
-            TextBlockThisPage.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockUrlText"].ToString();
+            //Block button wording depends on app vs URL. Set it up-front (covers the AI app path, which
+            //hides the window and never reaches the non-AI override below, so it used to read "Block this
+            //page" for apps).
+            TextBlockThisPage.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"][sAppName.Length > 0 ? "buttonBlockAppText" : "buttonBlockUrlText"].ToString();
 
             TextReportBadAIDecision.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["reportBadAiTooltip"].ToString();
             btnSetTaskText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["buttonSetTask"].ToString();
@@ -597,6 +608,18 @@ namespace Focus_Bear.Focus
                             }
                             else if (currentFocusAlignmentScore < 80 /*minFocusAlignmentScoreToShowDistractingPopUp*/)// Need to ASk USER if probability is < 0
                             {
+                                //Re-entrancy guard: if a modal sub-popup is already open (e.g. the user switched
+                                //tabs while the goal/task box was up), don't stack another one for this URL - that
+                                //is what left duplicate/orphaned goal-task popups. Just hide; the next focus event
+                                //re-evaluates once the open modal is dealt with.
+                                if (bModalSubPopupOpen)
+                                {
+                                    LogWriter.LogWrite("GentleBlock AI callback - modal sub-popup already open, skipping to avoid stacking");
+                                    dispatcherTimer.Stop();
+                                    appSettings.HideBlurWindow();
+                                    Hide();
+                                    return;
+                                }
                                 if (appSettings.sCurrentTaskPlayingInToDoPlayer.Length == 0 && appSettings.sRunningFocusModeIntention.Length == 0)
                                 {
                                     //Mean there is no task and no intention
@@ -610,7 +633,7 @@ namespace Focus_Bear.Focus
                                 {
                                     //Means AI was not convinced and we need to show a different popup to user that AI is not convinced and allow to convince again
                                     
-                                    wndConvinceAiFailed = new ConvinceAIFailed(xProbability, nTimer);
+                                    wndConvinceAiFailed = new ConvinceAIFailed(xProbability, nTimer, IsAppBlocking());
                                     wndConvinceAiFailed.Owner = this;
 
                                     //Show the main window first
@@ -619,7 +642,10 @@ namespace Focus_Bear.Focus
                                     dispatcherTimer.Stop();//stop the timer here as the convince failed will start it.
 
                                     GridShade.Visibility = Visibility.Visible;
-                                    bool? bResult = wndConvinceAiFailed.ShowDialog(); //yeh beechmein hai
+                                    bModalSubPopupOpen = true;
+                                    bool? bResult = null;
+                                    try { bResult = wndConvinceAiFailed.ShowDialog(); } //yeh beechmein hai
+                                    finally { bModalSubPopupOpen = false; }
                                     GridShade.Visibility = Visibility.Collapsed;
 
                                     appSettings.sConvincingAIForURL = ""; //reset
@@ -650,7 +676,10 @@ namespace Focus_Bear.Focus
                                             wndTemporaryAccess.Owner = this;
 
                                             GridShade.Visibility = Visibility.Visible;
-                                            bool? bResultTemp = wndTemporaryAccess.ShowDialog();
+                                            bModalSubPopupOpen = true;
+                                            bool? bResultTemp = null;
+                                            try { bResultTemp = wndTemporaryAccess.ShowDialog(); }
+                                            finally { bModalSubPopupOpen = false; }
                                             GridShade.Visibility = Visibility.Collapsed;
                                             if (bResult.Value) //User temporarily allowed the url
                                             {
@@ -944,7 +973,7 @@ namespace Focus_Bear.Focus
             else if (appSettings.sConvincingAIForURL == identity)
             {
                 //AI was not convinced - show the "couldn't convince" popup and let the user try again.
-                wndConvinceAiFailed = new ConvinceAIFailed(xProbability, nTimer);
+                wndConvinceAiFailed = new ConvinceAIFailed(xProbability, nTimer, IsAppBlocking());
                 wndConvinceAiFailed.Owner = this;
 
                 appSettings.ShowBlurWindow(HWND);
@@ -1044,11 +1073,12 @@ namespace Focus_Bear.Focus
                     btnNoIamWorkingOnSomethingElse.Visibility = Visibility.Visible;
                     btnNoIamWorkingOnSomethingElseText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["buttonWorkingSomethingElseText"].ToString();
 
-                    btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["buttonSiteRelevantText"].ToString();
+                    //App vs URL wording (this popup path is the app AI check).
+                    btnJustThisTimeText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"][IsAppBlocking() ? "buttonAppRelevantText" : "buttonSiteRelevantText"].ToString();
                 }
 
                 ScoreSection.Visibility = Visibility.Visible;
-                string sScore = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["aiRelevanceScoreText"].ToString();
+                string sScore = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"][IsAppBlocking() ? "aiRelevanceScoreAppText" : "aiRelevanceScoreText"].ToString();
                 AIRelevanceScore.Text = sScore.Replace("<SCORE>", ((int)(xProbability * 100)).ToString());
 
                 InfoIcon.ToolTip = appSettings.sChatGPTReasonForCurrentURL;
@@ -1080,13 +1110,19 @@ namespace Focus_Bear.Focus
 
         private void ShowAskNewGoalPopup()
         {
+            if (bModalSubPopupOpen)
+            {
+                LogWriter.LogWrite("ShowAskNewGoalPopup - modal sub-popup already open, ignoring re-entrant call");
+                return;
+            }
             dispatcherTimer.Stop();
 
             wndAddGoal = new AddFocusGoalAndTask(false); //true for bNoGoalNoTask
             wndAddGoal.Owner = this;
 
             GridShade.Visibility = Visibility.Visible;
-            wndAddGoal.ShowDialog();
+            bModalSubPopupOpen = true;
+            try { wndAddGoal.ShowDialog(); } finally { bModalSubPopupOpen = false; }
             GridShade.Visibility = Visibility.Collapsed;
 
             wndAddGoal = null;
@@ -1155,6 +1191,14 @@ namespace Focus_Bear.Focus
 
         private void btnJustThisTime_Click(object sender, RoutedEventArgs e)
         {
+            //Re-entrancy guard: this handler is also fired programmatically from the async AI callback,
+            //so a fast tab switch could invoke it again while its own modal is still open. Refuse the
+            //re-entrant call so we never stack a second goal/task (or convince) popup.
+            if (bModalSubPopupOpen)
+            {
+                LogWriter.LogWrite("btnJustThisTime_Click - modal sub-popup already open, ignoring re-entrant call");
+                return;
+            }
             ///////////////////////////////////////////////////////////////////
             ///
             bool bAICheckRequired = false;
@@ -1208,11 +1252,13 @@ namespace Focus_Bear.Focus
                     dispatcherTimer.Stop();
                     appSettings.sExtraJustificationForThisSite = ""; //Reset
                     //Ask the user to convinve the AI
-                    wndConvince = new ConvinceAI(nTimer); //Pass the current timer value
+                    wndConvince = new ConvinceAI(nTimer, IsAppBlocking()); //Pass the current timer value + app/URL wording
                     wndConvince.Owner = this;
 
                     GridShade.Visibility = Visibility.Visible;
-                    bool? bResult = wndConvince.ShowDialog();
+                    bModalSubPopupOpen = true;
+                    bool? bResult = null;
+                    try { bResult = wndConvince.ShowDialog(); } finally { bModalSubPopupOpen = false; }
                     GridShade.Visibility = Visibility.Collapsed;
 
                     if (bResult.Value == true) //Convince clicked, get the reason
@@ -1231,8 +1277,11 @@ namespace Focus_Bear.Focus
                     }
                     else
                     {
-                        //Cancel clicked or timer went off
-                        nTimer = wndConvince.nTimer;//Let's see how much time was spent after convince was taken off, start from there.
+                        //Cancel clicked or timer went off. wndConvince can already be null here if the
+                        //dialog was force-closed from elsewhere (e.g. StopTimer on a tab switch), so guard
+                        //against the NRE that crashed this path before.
+                        if (wndConvince != null)
+                            nTimer = wndConvince.nTimer;//Let's see how much time was spent after convince was taken off, start from there.
                         dispatcherTimer.Start();
                     }
                     wndConvince = null;
@@ -1249,7 +1298,9 @@ namespace Focus_Bear.Focus
                     wndAddGoal.Owner = this;
 
                     GridShade.Visibility = Visibility.Visible;
-                    bool? bResult = wndAddGoal.ShowDialog();
+                    bModalSubPopupOpen = true;
+                    bool? bResult = null;
+                    try { bResult = wndAddGoal.ShowDialog(); } finally { bModalSubPopupOpen = false; }
                     GridShade.Visibility = Visibility.Collapsed;
 
                     wndAddGoal = null;

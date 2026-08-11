@@ -33,7 +33,7 @@ namespace Focus_Bear.Focus
         public ConvinceAI()
         {
         }
-        public ConvinceAI(int nTimerVal = 30)
+        public ConvinceAI(int nTimerVal = 30, bool bIsApp = false)
         {
             InitializeComponent();
 
@@ -41,7 +41,8 @@ namespace Focus_Bear.Focus
             {
                 nTimer = nTimerVal;
                 Heading.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["convinceAiTitle"].ToString();
-                Description.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["convinceAiDescription"].ToString();
+                //App vs URL wording - this popup is shared by the URL and app AI checks.
+                Description.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"][bIsApp ? "appConvinceAiDescription" : "convinceAiDescription"].ToString();
                 btnConvinceAIText.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonConvinceText"].ToString();
                 btnCancelText.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
 

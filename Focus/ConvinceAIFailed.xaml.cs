@@ -34,7 +34,7 @@ namespace Focus_Bear.Focus
         public ConvinceAIFailed()
         {
         }
-        public ConvinceAIFailed( double nProbability, int nTimerVal = 30)
+        public ConvinceAIFailed( double nProbability, int nTimerVal = 30, bool bIsApp = false)
         {
             InitializeComponent();
 
@@ -42,11 +42,12 @@ namespace Focus_Bear.Focus
             {
                 nTimer = nTimerVal;
 
-                Heading.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["stillDistractingTitle"].ToString();
+                //App vs URL wording - this popup is shared by the URL and app AI checks.
+                Heading.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"][bIsApp ? "appStillDistractingTitle" : "stillDistractingTitle"].ToString();
 
                 Reason.Text = appSettings.sChatGPTReasonForCurrentURL;
 
-                string sScore = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["aiRelevanceScoreText"].ToString();
+                string sScore = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"][bIsApp ? "aiRelevanceScoreAppText" : "aiRelevanceScoreText"].ToString();
                 Score.Text = sScore.Replace("<SCORE>", ((int)(nProbability * 100)).ToString());
 
                 string sAskNeed = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["stillDistractingDescription"].ToString(); //"Focus Bear's AI still thinks <URL> isn't relevant for what you're trying to achieve. Are you sure you need it?",
@@ -91,7 +92,7 @@ namespace Focus_Bear.Focus
                 }
 
                 HeadingStillWorking.Text = sTaskInfo;
-                btnYesThisSiteIsRelevantText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["buttonSiteRelevantText"].ToString();
+                btnYesThisSiteIsRelevantText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"][bIsApp ? "buttonAppRelevantText" : "buttonSiteRelevantText"].ToString();
                 btnWorkingOnSomethingElseText.Text = appSettings.ConfigFileStrings["popUpFocusGoalConfirmationVcInfo"]["buttonWorkingSomethingElseText"].ToString();
 
                 //save task for later
