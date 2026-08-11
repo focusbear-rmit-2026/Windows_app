@@ -158,3 +158,11 @@
 - Day Plan: finished meetings now drop off today's agenda once they've ended (an in-progress meeting still shows), and the agenda no longer gets clipped on smaller screens or when the side menu is expanded — it shrinks to fit instead of a fixed width #1408 #1407.
 - Day Plan: the full-screen clock overlay no longer overlaps the Day Plan's Tasks panel during a routine (the Day Plan already shows its own date/time) #1408.
 - Dev tooling: fast/compressed countdown timers are now an opt-in runtime flag (`.env` / env var) instead of being tied to Debug builds, so a Debug build counts down at real-user speed by default #1404.
+
+#v3.0.238
+- Teacher Mode: when a student opens a blocked app during a class focus session, the block notification now has a "Request unlock" button (pre-filled with the app name) to ask the teacher to unlock it, and auto-dismisses after a few seconds — instead of the app just being blocked silently #1411.
+- Scheduled blocking now keeps running after the evening routine: a blocking schedule (e.g. 4 PM–12 AM) no longer stops when you finish your evening routine and reach the wind-down screen — it stays active until its window ends #932.
+- Pausing a focus session now pauses blocking too: while paused, apps, websites and AI checks are no longer blocked (resuming restores it); your always-blocked lists still apply #1274.
+- "Free time – no blocking" schedules now block nothing: a blocking schedule set to the Relax focus mode no longer blocks apps like Chrome — nothing is blocked while it's active #1262.
+- Fixed the focus-session end screen freezing: the Continue / Break / Extend / Start-another buttons can no longer leave the screen stuck or start two timers at once (e.g. Extend followed by Break); each action now runs once and reliably returns you to the app. The "set a goal/task" block popup also no longer lingers or reappears over the end screen after a session ends #1372 #1373.
+- AI blocking popups: fixed duplicate/stacked "set a goal/task" popups when quickly switching tabs, corrected wording that said "site" instead of "app" for AI-checked apps, and skip the AI check when there's no app name #1413.
