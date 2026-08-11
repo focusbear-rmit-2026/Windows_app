@@ -2900,9 +2900,35 @@ namespace Focus_Bear.Utils
                         HideBlurWindow();
                     wndGentleBlock.StopTimer(); //also take care of closing modal popups over it
                     wndGentleBlock.Hide();
-                    
+
                 }
             }));
+        }
+
+        // The focus mode that currently governs blocking: the running habit's use-focus-mode, else the
+        // active (non-paused) blocking schedule's mode, else the switched-on focus mode. Returns null if
+        // none resolves. Used to pre-check for a "block nothing" (Relax) mode so neither the app nor the
+        // URL path blocks anything while it is active (#1262).
+        public FocusMode GetActiveBlockingFocusMode()
+        {
+            try
+            {
+                string id = null;
+                if (bHabitwithUseFocusModeRunning)
+                    id = sUseFocusModeIDInActivity;
+                else if (isBlockingScheduleRunning && ActiveSchedule != null && !ActiveSchedule.isPaused)
+                    id = ActiveSchedule.SelectedFocusModeId;
+
+                if (!string.IsNullOrEmpty(id))
+                    return arrFocusModes.FirstOrDefault(i => i.id == id);
+
+                return arrFocusModes.FirstOrDefault(i => i.isOn == true);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetActiveBlockingFocusMode ex - " + ex.Message);
+                return null;
+            }
         }
 
         public bool DidCutOffTimePassed()

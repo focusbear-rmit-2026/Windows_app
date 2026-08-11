@@ -460,6 +460,18 @@ namespace FocusBear.Utils
                         
                         TabMetrics.Instance.FrontAppChanged(process.ProcessName);
 
+                        // Pre-check: if the focus mode governing blocking right now is the Relax / "block
+                        // nothing" mode (e.g. a blocking schedule set to "Free time - no blocking"), nothing
+                        // should be blocked - not the focus mode's own list and not the always-blocked apps.
+                        // The URL path already skips everything for a relax mode; do the same for apps so a
+                        // browser like Chrome isn't blocked under a no-blocking schedule (#1262).
+                        FocusMode activeBlockingMode = appSettings.GetActiveBlockingFocusMode();
+                        if (activeBlockingMode != null && activeBlockingMode.isRelaxFocus)
+                        {
+                            FocusAlignmentScoreManager.SetAppIconForFocusModeScore(null);
+                            return;
+                        }
+
                         // Check global whitelist (Always Allowed Apps) - these apps should never be blocked
                         if (appSettings.arrAlwaysAllowedApps != null && appSettings.arrAlwaysAllowedApps.Count > 0)
                         {
