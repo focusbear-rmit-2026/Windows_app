@@ -83,12 +83,16 @@ namespace Focus_Bear.Utils
                 }
             }
 
-            if (appSettings.isFocusModeRunning || appSettings.bHabitwithUseFocusModeRunning || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
+            //A paused focus session must not keep blocking (URLs / AI) - pausing means "suspend focus
+            //enforcement until resumed" (#1274). Treat isFocusModePaused like a paused blocking schedule
+            //(which is already excluded via !ActiveSchedule.isPaused). Falls through to the baseline
+            //always-blocked-URLs handling below, same as when no focus session is running.
+            if ((appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || appSettings.bHabitwithUseFocusModeRunning || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
             {
                 ProcessURLForFocusModes(hwnd);
             }
 
-            if (appSettings.bHabitwithAllowedAppsRunning || appSettings.isFocusModeRunning || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
+            if (appSettings.bHabitwithAllowedAppsRunning || (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
                 return;
 
             if(appSettings.IsAppDeactivated())//no need to track always blocked urls
