@@ -2393,6 +2393,19 @@ namespace Focus_Bear
                             }
                         }
 
+                        //Keep the custom blocking schedule alive while sitting on the shut-off / wind-down
+                        //screen. Without this an overnight schedule that should still be active (e.g. a
+                        //19:00-07:00 block) never restarts after the evening routine completes, since the
+                        //routine stopped it and this branch used to just return (#932).
+                        if (appSettings.ActiveSchedule == null && !appSettings.isBlockingScheduleRunning)
+                        {
+                            BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                        }
+                        else
+                        {
+                            BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                        }
+
                         return;
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
@@ -2591,6 +2604,22 @@ namespace Focus_Bear
                         {
                             LogWriter.LogWrite("dispatcherTimer_Background() DateTime.Now > appSettings.EveningHabitsShownTillDate false ShowShutOffScreen(); ");
                             ShowShutOffScreen();
+
+                            //Before the cutoff time ShowShutOffScreen() leaves the state at NONE (no wind-down
+                            //screen yet), so re-evaluate the custom blocking schedule here too - otherwise a
+                            //schedule that should run in the evening window (e.g. 16:00-00:00) stays dead after
+                            //the evening routine completes until the day rolls over. Mirrors StartWorkFlow (#932).
+                            if (!appSettings.DidCutOffTimePassed())
+                            {
+                                if (appSettings.ActiveSchedule == null && !appSettings.isBlockingScheduleRunning)
+                                {
+                                    BlockingScheduleManager.CheckCustomBlockingScheduleTime();
+                                }
+                                else
+                                {
+                                    BlockingScheduleManager.CheckCustomBlockingScheduleTimeToStop();
+                                }
+                            }
                         }
                     }
                     else
