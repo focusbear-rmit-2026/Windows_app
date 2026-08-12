@@ -3306,7 +3306,7 @@ namespace Focus_Bear.Utils
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("FocusActivitySummary() InitializeFocusSummaryView ex + " + ex.Message);
+                LogWriter.LogWrite("GetTotalDeepFocusedTime() ex + " + ex.Message);
             }
 
         }

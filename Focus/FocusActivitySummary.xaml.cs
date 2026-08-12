@@ -124,16 +124,21 @@ namespace Focus_Bear.Focus
                         {
                             string name = item.ContainsKey("name") ? item.GetValue("name").ToString() : "";
                             string start_time = item.ContainsKey("start_time") ? item.GetValue("start_time").ToString() : "";
-                            DateTime Local = DateTime.Parse(start_time).ToLocalTime(); //Convert the UTC time to Local time
+                            // A missing/blank/invalid start_time used to throw here (DateTime.Parse("")), which
+                            // was swallowed by the outer catch and left the WHOLE summary blank (#1315). Fall
+                            // back to the raw value instead of throwing so the rest of the summary still renders.
+                            string startTimeDisplay = DateTime.TryParse(start_time, out DateTime parsedStart)
+                                ? parsedStart.ToLocalTime().ToString()
+                                : start_time;
 
-                            int durationSeconds = item.ContainsKey("duration") ? (int)item.GetValue("duration") : 0;
+                            int durationSeconds = SafeInt(item, "duration");
                             nTotalFocusTime += durationSeconds;
                             string duration = appSettings.SecondsToText(durationSeconds);
                             string achievements = item.ContainsKey("achievements") ? item.GetValue("achievements").ToString() : "";
                             achievements = HttpUtility.UrlDecode(achievements);
                             string distractions = item.ContainsKey("distractions") ? item.GetValue("distractions").ToString() : "";
 
-                            FocusSummaryItems.Add(new FocusSummary(name, Local.ToString(), duration, achievements, distractions));
+                            FocusSummaryItems.Add(new FocusSummary(name, startTimeDisplay, duration, achievements, distractions));
                         }
                     }
 
@@ -144,7 +149,7 @@ namespace Focus_Bear.Focus
                         foreach (JObject item in arrayItems)
                         {
                             string name = item.ContainsKey("name") ? item.GetValue("name").ToString() : "";
-                            int nQuantity = item.ContainsKey("quantity") ? (int)item.GetValue("quantity") : 0;
+                            int nQuantity = SafeInt(item, "quantity");
 
                             ActivityQuantityItems.Add(new ActivitySummary(name, nQuantity.ToString()));
                         }
@@ -157,7 +162,7 @@ namespace Focus_Bear.Focus
                         foreach (JObject item in arrayItems)
                         {
                             string name = item.ContainsKey("name") ? item.GetValue("name").ToString() : "";
-                            int nQuantity = item.ContainsKey("quantity") ? (int)item.GetValue("quantity") : 0;
+                            int nQuantity = SafeInt(item, "quantity");
 
                             ActivityAverageItems.Add(new ActivitySummary(name, nQuantity.ToString()));
                         }
@@ -170,7 +175,7 @@ namespace Focus_Bear.Focus
                         foreach (JObject item in arrayItems)
                         {
                             string name = item.ContainsKey("name") ? item.GetValue("name").ToString() : "";
-                            int durationSeconds = item.ContainsKey("duration") ? (int)item.GetValue("duration") : 0;
+                            int durationSeconds = SafeInt(item, "duration");
                             string duration = appSettings.SecondsToText(durationSeconds);
 
                             ActivityDurationItems.Add(new ActivitySummary(name, duration));
@@ -234,7 +239,26 @@ namespace Focus_Bear.Focus
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("FocusActivitySummary() InitializeFocusSummaryView ex + " + ex.Message);
+                // Log the full exception (stack + line), not just the message - this catch previously hid
+                // where the summary parse failed, so a blank summary was hard to diagnose (#1315).
+                LogWriter.LogWrite("FocusActivitySummary() InitializeFocusSummaryView ex + " + ex.ToString());
+            }
+        }
+
+        // Reads an int from a JSON item, tolerating a missing key or a non-numeric/null value (returns 0)
+        // so one malformed field can't throw and blank the whole summary (#1315).
+        private static int SafeInt(Newtonsoft.Json.Linq.JObject item, string key)
+        {
+            try
+            {
+                if (item == null || !item.ContainsKey(key)) return 0;
+                var token = item.GetValue(key);
+                if (token == null || token.Type == Newtonsoft.Json.Linq.JTokenType.Null) return 0;
+                return token.Value<int?>() ?? 0;
+            }
+            catch
+            {
+                return 0;
             }
         }
         private void SetSimpleModeTexts()

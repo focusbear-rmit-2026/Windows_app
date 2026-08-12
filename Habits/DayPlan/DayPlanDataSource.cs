@@ -202,7 +202,7 @@ namespace Focus_Bear.Habits.DayPlan
                     if (eveningStart.Value > now)
                     {
                         // Evening routine still ahead → read-only preview.
-                        var eveningPreview = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), now, dayKey);
+                        var eveningPreview = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), now, dayKey, dropNonHighPriorityPastCutoff: true);
                         if (eveningPreview.Count > 0)
                             segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, eveningPreview,
                                                                 eveningStart.Value, endOfDay, actionable: false));
@@ -227,7 +227,9 @@ namespace Focus_Bear.Habits.DayPlan
             if (isMorningActive) { activeSource = settings.arrAllMorningHabits; activeName = MorningRoutineHabits; }
             else { activeSource = settings.arrAllEveningHabits; activeName = EveningRoutineHabits; }
 
-            var activeHabits = HabitInputs(activeSource, now, dayKey);
+            // For the active evening routine, drop non-high-priority habits once the cutoff has passed
+            // (they can no longer be done) so the plan matches the routine and can fall to the empty state.
+            var activeHabits = HabitInputs(activeSource, now, dayKey, dropNonHighPriorityPastCutoff: !isMorningActive);
             // Cap the morning/day routine at the evening start so it never bleeds into the evening.
             DateTime activeEnd = (isMorningActive && eveningStart.HasValue && eveningStart.Value > now)
                 ? eveningStart.Value : endOfDay;
@@ -236,7 +238,7 @@ namespace Focus_Bear.Habits.DayPlan
             // Evening routine preview, once the morning/day routine hands off at the shutdown time.
             if (isMorningActive && eveningStart.HasValue && eveningStart.Value > now)
             {
-                var eveningHabits = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), now, dayKey);
+                var eveningHabits = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), now, dayKey, dropNonHighPriorityPastCutoff: true);
                 if (eveningHabits.Count > 0)
                 {
                     segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, eveningHabits,
@@ -251,7 +253,7 @@ namespace Focus_Bear.Habits.DayPlan
         /// Maps a routine's habits to engine inputs (index = position in the passed array, so
         /// Play/Done/Skip target the right row). Mirrors macOS habitInputs.
         /// </summary>
-        public static List<ScheduleHabitInput> HabitInputs(List<habit> habits, DateTime now, string dayKey, bool asEarlier = false)
+        public static List<ScheduleHabitInput> HabitInputs(List<habit> habits, DateTime now, string dayKey, bool asEarlier = false, bool dropNonHighPriorityPastCutoff = false)
         {
             var settings = AppSettings;
             var result = new List<ScheduleHabitInput>();
@@ -266,6 +268,12 @@ namespace Focus_Bear.Habits.DayPlan
                 // actually-completed ones done (struck through) — a not-done past habit (e.g. one added
                 // after the routine) stays un-struck and selectable so it can be marked done retroactively.
                 if (!asEarlier && inDoneSet) continue;
+                // Past the non-high-priority cutoff time, only high-priority evening habits can still be
+                // done — the routine build drops the rest (App.ShowEveningRoutine). Mirror that here so the
+                // Day Plan doesn't list habits that are no longer actionable; when nothing is left the
+                // "No habits left — enjoy your free time" empty state shows instead (#1315-followup).
+                if (dropNonHighPriorityPastCutoff && !asEarlier && settings.DidCutOffTimePassed() && !h.bHighPriorityActivity)
+                    continue;
                 bool playing = !string.IsNullOrEmpty(playingId) && playingId == h.id;
                 result.Add(new ScheduleHabitInput(
                     index: idx,
