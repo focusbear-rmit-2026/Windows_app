@@ -15,6 +15,11 @@ namespace Focus_Bear.AudhdResults
     /// </summary>
     public partial class AudhdResultsWindow : Window
     {
+        // Case-sensitive marker the results Worker (/api/advanced-results) requires in the
+        // User-Agent to serve the gated profile; without it the page shows "Open in the app"
+        // (Worker returns 403). Must match the mobile client's marker (Focus-Bear/online-tests#57).
+        private const string AppUserAgentMarker = "FocusBearApp";
+
         private readonly string _resultsUrl;
 
         public AudhdResultsWindow(string resultsUrl)
@@ -57,6 +62,9 @@ namespace Focus_Bear.AudhdResults
                 // Kiosk-style: no dev-tools accelerator keys, no right-click menu (mirrors HelpTab).
                 settings.AreBrowserAcceleratorKeysEnabled = false;
                 settings.AreDefaultContextMenusEnabled = false;
+                // Append the app marker to the default Chromium UA so the page still renders
+                // normally while the marker rides both the page load and its results fetches.
+                settings.UserAgent = settings.UserAgent + " " + AppUserAgentMarker;
 
                 webView.Source = new Uri(_resultsUrl);
             }

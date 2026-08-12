@@ -77,10 +77,13 @@ namespace Focus_Bear
 
         // focusbear:// deep link for the gated advanced AuDHD results (Focus-Bear/online-tests#57).
         // Incoming: focusbear://view-audhd-results?test-code=…  →  loaded as the results page below.
+        // Note the split: 'view-audhd-results' is the custom-scheme host only; the web results
+        // page lives at the pages.dev test app under /view-results (view-audhd-results 404s as a
+        // web path). The base host may move to a custom domain later — keep it in this constant.
         private const string DeepLinkScheme = "focusbear://";
         private const string DeepLinkAudhdHost = "view-audhd-results";
         private const string DeepLinkTestCodeParam = "test-code";
-        private const string AudhdResultsBaseUrl = "https://dashboard.focusbear.io/view-results?test-code=";
+        private const string AudhdResultsBaseUrl = "https://audhdtest-focusbear.pages.dev/view-results?test-code=";
 
         // Set when the app is launched via a focusbear:// deep link; opened once startup is ready
         // (cold start) or forwarded across the single-instance boundary (warm start).
@@ -659,15 +662,29 @@ namespace Focus_Bear
             //Display settings change event
             Microsoft.Win32.SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
 
-            // Cold start via a focusbear:// deep link (app wasn't already running): open the
-            // results window once the UI is idle so the tray/main window is ready first.
+            // Cold start via a focusbear:// deep link (app wasn't already running): DON'T open the results
+            // window here - the app is still on the splash / loading screen. _pendingDeepLinkArg is held for
+            // the app's lifetime and opened later by ProcessPendingColdStartDeepLink() once the post-login
+            // setup is done (splash closed, tray + main window up, StartWorkFlow started), so it appears on
+            // top of a ready UI instead of racing the splash.
             if (!string.IsNullOrEmpty(_pendingDeepLinkArg))
             {
-                string deepLink = _pendingDeepLinkArg;
-                _pendingDeepLinkArg = null;
-                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle,
-                    (Action)(() => HandleDeepLink(deepLink)));
+                LogWriter.LogWrite("Cold-start deep link queued until after startup - " + _pendingDeepLinkArg);
             }
+        }
+
+        // Opens a cold-start focusbear:// deep link once the app is fully ready. Called at the end of the
+        // post-login setup (after StartWorkFlow). No-op if there's no pending cold-start deep link.
+        private void ProcessPendingColdStartDeepLink()
+        {
+            if (string.IsNullOrEmpty(_pendingDeepLinkArg))
+                return;
+
+            string deepLink = _pendingDeepLinkArg;
+            _pendingDeepLinkArg = null;
+            LogWriter.LogWrite("ProcessPendingColdStartDeepLink - " + deepLink);
+            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle,
+                (Action)(() => HandleDeepLink(deepLink)));
         }
 
         private static string PendingDeepLinkFilePath
@@ -781,12 +798,16 @@ namespace Focus_Bear
                 if (_audhdResultsWindow != null && _audhdResultsWindow.IsLoaded)
                 {
                     _audhdResultsWindow.Navigate(resultsUrl);
+                    _audhdResultsWindow.Topmost = true; //keep above other Focus Bear windows
                     _audhdResultsWindow.Activate();
                     return;
                 }
 
                 _audhdResultsWindow = new AudhdResults.AudhdResultsWindow(resultsUrl);
                 _audhdResultsWindow.Closed += (s, e) => _audhdResultsWindow = null;
+                //Show on top of any other open Focus Bear window (habits / focus / tray), otherwise the
+                //results window could open behind them.
+                _audhdResultsWindow.Topmost = true;
                 _audhdResultsWindow.Show();
                 _audhdResultsWindow.Activate();
             }
@@ -1916,6 +1937,11 @@ namespace Focus_Bear
             appSettings.LoadNotificationSoundsSetting();
 
             StartWorkFlow();
+
+            // Now that the splash is gone and the main window/workflow are up, open any focusbear:// deep
+            // link that launched the app from cold (e.g. AuDHD advanced results), so it lands on top of a
+            // ready UI rather than during loading.
+            ProcessPendingColdStartDeepLink();
         }
 
         // Teacher Mode (issue #1343): true when pressing Focus should start a class (teacher) session
