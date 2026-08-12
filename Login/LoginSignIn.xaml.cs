@@ -211,7 +211,12 @@ namespace Focus_Bear.Login
                                     else
                                     {
                                         title = appSettings.ConfigFileStrings["accountVcInfo"]["linkSendFailedTitle"].ToString();
-                                        description = appSettings.ConfigFileStrings["accountVcInfo"]["linkSendFailedDescription"].ToString();
+                                        // Prefer the actual API reason (e.g. "this account was created with Google")
+                                        // so the user understands why no reset email was sent, instead of a generic
+                                        // failure message (#1238).
+                                        description = !string.IsNullOrWhiteSpace(apiClient.sLastResetPasswordErrorMessage)
+                                            ? apiClient.sLastResetPasswordErrorMessage
+                                            : appSettings.ConfigFileStrings["accountVcInfo"]["linkSendFailedDescription"].ToString();
                                     }
                                     FBMessageBox ff = new FBMessageBox(description, title);
                                     ff.Owner = _parentWindow;

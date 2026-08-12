@@ -4263,9 +4263,15 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        // Holds the API's message from the last failed RequestPasswordReset call (e.g. "this account was
+        // created with Google - sign in with Google instead") so the login screen can show the real reason
+        // instead of a generic failure message (#1238). The response body is the message itself.
+        public string sLastResetPasswordErrorMessage = "";
+
         internal async Task<int> RequestPasswordReset(string email)
         {
             LogWriter.LogWrite("RequestPasswordReset()");
+            sLastResetPasswordErrorMessage = ""; //reset before each attempt
             try
             {
                 bool nInternetOn = await IsInternetOn();
@@ -4286,6 +4292,7 @@ namespace Focus_Bear.API
                         {
                             var responseCode = await response.Content.ReadAsStringAsync();
                             LogWriter.LogWrite("RequestPasswordReset() failed - " + responseCode);
+                            sLastResetPasswordErrorMessage = responseCode;
                         }
                         return 0;
                     }

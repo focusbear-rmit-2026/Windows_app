@@ -580,6 +580,23 @@ namespace Focus_Bear
                                         alreadyRunningMainWin.Focus();
                                         alreadyRunningMainWin.SetTrayMenuPosition();
                                     }
+                                    else
+                                    {
+                                        // Before login the tray menu isn't the main window yet (it's only made the
+                                        // MainWindow after setup), so the branch above did nothing and hitting the
+                                        // shortcut while the login window was minimized left it minimized. Bring the
+                                        // main app window - which hosts the login screen - to the front instead
+                                        // (BringMainWindowToFront handles the not-logged-in case). (#1238)
+                                        try
+                                        {
+                                            if (wndFocusBearMainWindow != null)
+                                                BringMainWindowToFront();
+                                        }
+                                        catch (Exception exBring)
+                                        {
+                                            LogWriter.LogWrite("Single-instance bring login window to front ex - " + exBring.Message);
+                                        }
+                                    }
 
                                     // A 2nd instance may have forwarded a focusbear:// deep link.
                                     string forwardedDeepLink = ReadAndClearPendingDeepLink();
