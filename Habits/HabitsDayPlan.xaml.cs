@@ -300,9 +300,12 @@ namespace Focus_Bear.Habits
                         i++;
                     }
                     renderedRoutines.Add(name);
-                    // Evening rendered as a done/"earlier" section = finished (not cancelled — that shows the
-                    // Uncancel card, where a "well done finishing" prompt would contradict it).
-                    if (name == DayPlanText.EveningRoutineHabits && group.Exists(b => b.IsEarlier) && !_eveningRoutineCancelled)
+                    // The "well done finishing your evening routine" shutdown card should only appear when the
+                    // routine was actually done - i.e. the evening rendered as an "earlier" section AND at
+                    // least one of its habits is actually done/skipped. Merely being past the evening window
+                    // with nothing done is NOT "finished" and must not show the well-done prompt (#1421).
+                    // (Not cancelled either — that shows the Uncancel card, which would contradict it.)
+                    if (name == DayPlanText.EveningRoutineHabits && group.Exists(b => b.IsEarlier && b.IsDone) && !_eveningRoutineCancelled)
                         eveningDoneToday = true;
                     DayPlanStack.Children.Add(BuildGroupCard(group));
                 }

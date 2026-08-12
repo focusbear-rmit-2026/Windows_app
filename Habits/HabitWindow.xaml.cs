@@ -756,6 +756,13 @@ namespace Focus_Bear.Habits
                     appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                     LogWriter.LogWrite(" appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
 
+                    // The evening routine is complete (last habit done/skipped) - it's finished, NOT
+                    // postponed. Clear any leftover postpone flags, otherwise the Habits view's NONE branch
+                    // shows the "Resume Habits" postponed screen instead of the Day Plan / shut-off, leaving
+                    // the app stuck with no unlock option before cutoff (#1421).
+                    appSettings.bHabitsPostponedState = false;
+                    appSettings.bFocusSummaryPostponedState = false;
+
                     //Routine over - resume focus music if we auto-paused it
                     ((App)(Application.Current)).ResumeFocusMusicAfterRoutine();
 
