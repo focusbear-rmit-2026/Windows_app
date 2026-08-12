@@ -331,7 +331,10 @@ namespace Focus_Bear.Login
                 ImgPasswordNumbers.Visibility = Visibility.Collapsed;
             }
            
-            Regex regex3 = new Regex(@".*[!&^%$#@()/]+.*");
+            // Count ANY non-alphanumeric, non-whitespace character as a special character. The old set
+            // [!&^%$#@()/] missed common ones like * - " ' : ; ? etc. (the rule text even advertises *),
+            // so valid passwords were rejected at signup (#1325).
+            Regex regex3 = new Regex(@"[^a-zA-Z0-9\s]");
             if(regex3.IsMatch(TxtPassword.Password))
             {
                 passwordRuleAppliedCount += 1;
