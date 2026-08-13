@@ -530,6 +530,15 @@ namespace Focus_Bear.Utils
         [DllImport("user32.dll")]
         static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
+        [DllImport("user32.dll")]
+        static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        // Browsers keep a strip at the top of the blur so their address bar stays reachable; every other
+        // (app) window has no address bar, so the blur should cover it fully (#blur-app-sizing).
+        private static readonly System.Collections.Generic.HashSet<string> BlurBrowserProcessNames =
+            new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            { "chrome", "firefox", "msedge", "brave", "vivaldi", "opera", "comet" };
+
         public int nFocusBearMode = 1; //1 is cuddly bear mode
         ////
         public bool isOfficeModeEnabled = false;
@@ -3243,10 +3252,34 @@ namespace Focus_Bear.Utils
                 int width = rect.Right - rect.Left;
                 int height = rect.Bottom - rect.Top;
 
+                // Browsers: leave ~90px at the top so the address bar stays visible (the user needs it to
+                // navigate away from the blocked site). Apps have no address bar, so cover the whole window.
+                int topOffset = IsBrowserWindow(hwndTarget) ? 90 : 0;
+
                 blurWindow.Left = rect.Left;
-                blurWindow.Top = rect.Top + 90;
+                blurWindow.Top = rect.Top + topOffset;
                 blurWindow.Width = width;
                 blurWindow.Height = height;
+            }
+        }
+
+        // True when the target window belongs to a supported browser process; used to decide whether the
+        // blur leaves the address bar visible (browser) or covers the whole window (app).
+        private bool IsBrowserWindow(IntPtr hwnd)
+        {
+            try
+            {
+                GetWindowThreadProcessId(hwnd, out uint pid);
+                if (pid == 0) return false;
+                using (var p = System.Diagnostics.Process.GetProcessById((int)pid))
+                {
+                    return BlurBrowserProcessNames.Contains(p.ProcessName);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("IsBrowserWindow ex - " + ex.Message);
+                return false;
             }
         }
 
