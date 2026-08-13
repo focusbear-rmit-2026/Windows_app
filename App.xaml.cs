@@ -489,6 +489,17 @@ namespace Focus_Bear
         }
         public App()
         {
+            // Run the whole process under InvariantCulture so date/number parsing is locale-independent.
+            // The app parses many machine/API date strings (ISO / invariant format) with the CURRENT culture,
+            // which threw "String was not recognized as a valid DateTime" at startup on non-US regions and
+            // stopped the app launching (#1374). Working (US-compatible) locales already parse these fine, so
+            // this doesn't change their behaviour; it only fixes the locales that previously crashed.
+            var invariant = System.Globalization.CultureInfo.InvariantCulture;
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = invariant;
+            System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = invariant;
+            System.Threading.Thread.CurrentThread.CurrentCulture = invariant;
+            System.Threading.Thread.CurrentThread.CurrentUICulture = invariant;
+
             SentrySdk.Init(o =>
             {
                 // Tells which project in Sentry to send events to:

@@ -1063,7 +1063,9 @@ namespace Focus_Bear.Utils
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("DownloadAndLoadConfigFile() - " + ex.Message);
+                // Log the full exception (stack + line), not just the message - this catch swallowed a
+                // culture-dependent DateTime.Parse that aborted startup on non-US regions (#1374).
+                LogWriter.LogWrite("DownloadAndLoadConfigFile() - " + ex.ToString());
             }
         }
         public void SaveLoggedInUserInfo()
