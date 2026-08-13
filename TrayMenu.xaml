@@ -473,6 +473,47 @@
                 </StackPanel>
             </Border>
 
+            <!-- Teacher class session available to join (shown only if the student declined the join prompt
+                 but the session is still running, so they have a way back in). -->
+            <Border x:Name="TeacherSessionJoinSection" Visibility="Collapsed" Margin="14,5"
+                    CornerRadius="14" BorderThickness="1.3" BorderBrush="#f0932a" Background="{DynamicResource TrayCardBg}">
+                <StackPanel Orientation="Vertical" Margin="14,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,0,10,0" VerticalAlignment="Center">
+                            <TextBlock x:Name="TeacherSessionJoinTitle" FontSize="14" FontWeight="SemiBold"
+                                       TextWrapping="Wrap" Foreground="{DynamicResource ForegroundColor}">xA class focus session is running</TextBlock>
+                            <TextBlock x:Name="TeacherSessionJoinName" FontSize="12" FontWeight="Normal" Margin="0,2,0,0"
+                                       TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                                       Foreground="{DynamicResource ForegroundColor}" Visibility="Collapsed">xName</TextBlock>
+                        </StackPanel>
+                        <Button x:Name="btnJoinTeacherSession" Grid.Column="1" AutomationProperties.AutomationId="btnJoinTeacherSession"
+                                Padding="14,7" Cursor="Hand" Foreground="White" FontSize="13" FontWeight="SemiBold"
+                                BorderThickness="0" VerticalAlignment="Center" Click="btnJoinTeacherSession_Click">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" CornerRadius="8" Background="#F5A623">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#E08E1A"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#C97F17"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <TextBlock x:Name="btnJoinTeacherSessionText">xJoin</TextBlock>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <!-- Breaks accordion card (white card collapsed, turns orange when expanded — see SetAccordionState) -->
             <Border Name="BreaksSection" Margin="14,5" CornerRadius="14" Background="{DynamicResource TrayCardBg}"
                     BorderBrush="{DynamicResource TrayCardBorder}" BorderThickness="1" ClipToBounds="True"

@@ -248,6 +248,8 @@ namespace Focus_Bear
 
                 UpdateBreaksCard();
 
+                UpdateTeacherSessionJoinCard();
+
                 // Reset the inline focus control to collapsed each time the menu opens, and refresh the Day Plan card.
                 FocusStartExpanded.Visibility = Visibility.Collapsed;
                 UpdateDayPlanCard();
@@ -701,6 +703,50 @@ namespace Focus_Bear
             {
                 ((App)(Application.Current)).ResumeAfterPostponeFinished();
             }
+        }
+
+        // Show the "A class focus session is running / Join" card only when the student declined the join
+        // prompt for a still-running class session (so there's a way back in). Hidden once joined/ended.
+        private void UpdateTeacherSessionJoinCard()
+        {
+            try
+            {
+                if (TeacherSessionManager.Instance.HasJoinableSession())
+                {
+                    TeacherSessionJoinTitle.Text = TeacherSessionManager.Instance.GetLocalizedString(
+                        "classSessionRunningTitle", "A class focus session is running");
+                    btnJoinTeacherSessionText.Text = TeacherSessionManager.Instance.GetLocalizedString(
+                        "buttonJoin", "Join session");
+
+                    string sName = TeacherSessionManager.Instance.GetJoinableSessionName();
+                    if (!string.IsNullOrEmpty(sName))
+                    {
+                        TeacherSessionJoinName.Text = sName;
+                        TeacherSessionJoinName.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        TeacherSessionJoinName.Visibility = Visibility.Collapsed;
+                    }
+
+                    TeacherSessionJoinSection.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    TeacherSessionJoinSection.Visibility = Visibility.Collapsed;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpdateTeacherSessionJoinCard ex - " + ex.Message);
+            }
+        }
+
+        private void btnJoinTeacherSession_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnJoinTeacherSession_Click()");
+            Hide();
+            TeacherSessionManager.Instance.JoinDeclinedSession();
         }
 
         // Reactivates the app after deactivation and restarts it. This used to be the tray

@@ -472,8 +472,11 @@ namespace FocusBear.Utils
                             return;
                         }
 
-                        // Check global whitelist (Always Allowed Apps) - these apps should never be blocked
-                        if (appSettings.arrAlwaysAllowedApps != null && appSettings.arrAlwaysAllowedApps.Count > 0)
+                        // Check global whitelist (Always Allowed Apps) - these apps should never be blocked.
+                        // Exception: during a teacher class session the student's personal whitelist must NOT
+                        // apply - only apps the teacher has allowed are permitted, so skip this global list.
+                        if (appSettings.arrAlwaysAllowedApps != null && appSettings.arrAlwaysAllowedApps.Count > 0
+                            && !TeacherSessionManager.Instance.IsTeacherSessionActive())
                         {
                             foreach (AppDetails allowedApp in appSettings.arrAlwaysAllowedApps)
                             {

@@ -38,6 +38,9 @@ namespace Focus_Bear.Focus
         public bool bTeacherSessionAiBlockingEnabled = false; //ai_blocking_enabled from the class session payload - AI URL checks depend on this while the session is active
 
         string sPendingInviteSessionId = "";
+        // Set when the student declines the join prompt: keeps the session payload so they can still join
+        // later from the tray "A class focus session is running" card (declining otherwise left no way back).
+        JObject _joinableSessionData = null;
         bool bDidPostponeHabitsForSession = false; //true only when we auto-postponed a running routine on join, so we resume it on finish
         FocusMode TeacherFocusMode = null;
         DispatcherTimer dispatcherTimerHeartbeat = null;
@@ -301,7 +304,23 @@ namespace Focus_Bear.Focus
         public void HandleSessionEnded(JObject ObjData)
         {
             string sSessionId = GetSessionIdFromData(ObjData);
-            if (sSessionId.Length == 0 || sSessionId != sActiveTeacherSessionId)
+            if (sSessionId.Length == 0)
+            {
+                return;
+            }
+
+            // A class session ended - drop any pending "Join" offer in the tray. Only one teacher session
+            // runs at a time, so any class-session-ended the student receives means the session they could
+            // join is over; clear regardless of an exact id match (id mismatch was leaving the card up).
+            if (_joinableSessionData != null)
+            {
+                LogWriter.LogWrite("TeacherSessionManager - class-session-ended (ended id=" + sSessionId
+                    + ", joinable id=" + GetSessionIdFromData(_joinableSessionData) + ") - clearing tray join offer");
+                _joinableSessionData = null;
+                RefreshTrayMenu();
+            }
+
+            if (sSessionId != sActiveTeacherSessionId)
             {
                 return;
             }
@@ -398,6 +417,11 @@ namespace Focus_Bear.Focus
                     LogWriter.LogWrite("TeacherSessionManager - join prompt declined");
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     _ = client.DeclineClassSession(sSessionId);
+
+                    // Keep the session so the student can still join later from the tray - declining
+                    // otherwise left no way back into a running class session.
+                    _joinableSessionData = ObjData;
+                    RefreshTrayMenu();
                 }
             }
             catch (Exception ex)
@@ -427,6 +451,9 @@ namespace Focus_Bear.Focus
                 else
                 {
                     LogWriter.LogWrite("TeacherSessionManager - join api failed for session " + sSessionId);
+                    // The session is no longer joinable (likely ended) - drop the tray "join" offer for it.
+                    _joinableSessionData = null;
+                    RefreshTrayMenu();
                     string sTitle = GetLocalizedString("joinFailedTitle", "Could not join the class session");
                     string sBody = GetLocalizedString("joinFailedBody", "The class focus session is no longer active or could not be joined. Please ask your teacher to start it again.");
                     FBMessageBox msg = new FBMessageBox(sBody, sTitle, MessageBoxButton.OK, bAutoClose: true);
@@ -438,6 +465,55 @@ namespace Focus_Bear.Focus
             catch (Exception ex)
             {
                 LogWriter.LogWrite("TeacherSessionManager JoinTeacherSession ex - " + ex.Message);
+            }
+        }
+
+        // A class session the student declined but can still join from the tray card. False once they join,
+        // once a session is active, or once joining it fails (ended).
+        public bool HasJoinableSession()
+        {
+            return _joinableSessionData != null && !IsTeacherSessionActive();
+        }
+
+        // Name of the joinable (declined) session, for the tray card. Empty if none/unnamed.
+        public string GetJoinableSessionName()
+        {
+            try
+            {
+                if (_joinableSessionData != null && _joinableSessionData.ContainsKey("name")
+                    && _joinableSessionData["name"].Type != JTokenType.Null)
+                    return _joinableSessionData["name"].ToString();
+            }
+            catch (Exception ex) { LogWriter.LogWrite("GetJoinableSessionName ex - " + ex.Message); }
+            return "";
+        }
+
+        // Join the previously-declined class session (from the tray "join" card).
+        public void JoinDeclinedSession()
+        {
+            JObject data = _joinableSessionData;
+            if (data == null)
+            {
+                return;
+            }
+            LogWriter.LogWrite("TeacherSessionManager - joining previously-declined class session from tray");
+            JoinTeacherSession(data);
+        }
+
+        // Repaint the tray menu so the "A class focus session is running / Join" card appears or disappears.
+        private void RefreshTrayMenu()
+        {
+            try
+            {
+                Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    try { ((App)Application.Current).wndTrayMenu?.UpdateTrayMenu(); }
+                    catch (Exception exInner) { LogWriter.LogWrite("RefreshTrayMenu inner ex - " + exInner.Message); }
+                }));
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RefreshTrayMenu ex - " + ex.Message);
             }
         }
 
@@ -456,6 +532,7 @@ namespace Focus_Bear.Focus
                 HandleAllowlistChanged(ObjData);
                 return;
             }
+            _joinableSessionData = null; //joined now - clear the "join from tray" offer
             LogWriter.LogWrite("TeacherSessionManager - starting teacher session " + sSessionId);
 
             try

@@ -3164,6 +3164,7 @@
         "invitePromptBody": "Join to start the focus session on this computer. Only the apps and websites your teacher allowed will be usable, and you won't be able to stop the session early.",
         "buttonJoin": "Join session",
         "buttonDecline": "Decline",
+        "classSessionRunningTitle": "A class focus session is running",
         "joinFailedTitle": "Could not join the class session",
         "joinFailedBody": "The class focus session is no longer active or could not be joined. Please ask your teacher to start it again.",
         "sessionEndedTitle": "Class focus session ended",

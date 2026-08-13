@@ -3162,6 +3162,7 @@
         "invitePromptBody": "Únete para iniciar la sesión de enfoque en este equipo. Solo podrás usar las aplicaciones y sitios web permitidos por tu profesor(a), y no podrás detener la sesión antes de tiempo.",
         "buttonJoin": "Unirse a la sesión",
         "buttonDecline": "Rechazar",
+        "classSessionRunningTitle": "Hay una sesión de enfoque de clase en curso",
         "joinFailedTitle": "No se pudo unir a la sesión de clase",
         "joinFailedBody": "La sesión de enfoque de clase ya no está activa o no se pudo unir. Pide a tu profesor(a) que la inicie de nuevo.",
         "sessionEndedTitle": "Sesión de enfoque de clase finalizada",
