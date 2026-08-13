@@ -4464,7 +4464,11 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
-                    string addItemJsonString = $"{{\"feedback_message\":\"{HttpUtility.UrlEncode(sFeedback)}\"," +
+                    // The API rejects a blank feedback_message, so sharing logs failed when the user added
+                    // no explanation and no screenshot (#1399). Send a default when it's empty.
+                    string sFeedbackToSend = string.IsNullOrWhiteSpace(sFeedback) ? "No Feedback" : sFeedback;
+
+                    string addItemJsonString = $"{{\"feedback_message\":\"{HttpUtility.UrlEncode(sFeedbackToSend)}\"," +
                         $"\"app_platform\":\"windows\"," +
                          $"\"uploaded_file_url\":\"{sUploadURL}\"," +
                         $"\"app_version\":\"{ appSettings.AppVersion.ToString()}\"}}";
