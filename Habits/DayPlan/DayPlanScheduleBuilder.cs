@@ -89,11 +89,20 @@ namespace Focus_Bear.Habits.DayPlan
                     int remaining = Math.Max(0, h.DurationSeconds - (h.IsPlaying ? h.ElapsedSeconds : 0));
                     double dur = remaining;
                     DateTime? start = NextFreeStart(cursor, dur, habitBusy, seg.WindowEnd);
+                    bool overflow = false;
                     if (start == null)
                     {
-                        // Can't fit before the window ends. Habits run in sequence, so everything after
-                        // this one can't fit either — stop rather than leap-frogging to a shorter later habit.
-                        break;
+                        // Can't fit before the window ends — the meetings leave no room. For a preview /
+                        // "earlier today" section it's fine to omit it (habits run in sequence, so nothing
+                        // after it fits either — stop rather than leap-frogging to a shorter later habit).
+                        if (!seg.Actionable) break;
+                        // But the ACTIVE routine must always stay startable: a locked routine the user
+                        // can't begin because their calendar is fully booked traps them with no way out
+                        // but to skip (#1371). Keep the habit in the plan — flagged as not-enough-time
+                        // (rendered red + a card note), stacked after the cursor in list order. Meetings
+                        // keep their slots; we don't reclaim their time, we just still list the habit.
+                        start = cursor;
+                        overflow = true;
                     }
                     DateTime end = start.Value.AddSeconds(dur);
                     cursor = end;
@@ -103,7 +112,8 @@ namespace Focus_Bear.Habits.DayPlan
                         IsActionable = seg.Actionable,
                         IsDone = h.IsDone,       // (Mac-App #2012)
                         HabitId = h.Id,
-                        IsEarlier = seg.IsEarlier
+                        IsEarlier = seg.IsEarlier,
+                        DidOverflow = overflow   // "no free time for this one" — red, with a card note (#1371)
                     };
                     blocks.Add(b);
                     placed.Add(blocks.Count - 1);

@@ -570,6 +570,10 @@ namespace Focus_Bear.Habits
         {
             bool isActive = habits.Exists(b => b.IsActionable);
             bool isEarlier = habits.Exists(b => b.IsEarlier);
+            // The active routine doesn't fit around today's meetings (#1371). It stays startable, but the
+            // card defaults to collapsed ONLY in this case — its header shows a short "not enough time"
+            // heading (in place of the time range), and the full explanation shows once expanded.
+            bool hasOverflow = isActive && habits.Exists(b => b.DidOverflow);
             ScheduleBlock first = habits[0];
             ScheduleBlock last = habits[habits.Count - 1];
             string name = string.IsNullOrEmpty(first.RoutineName) ? "Habits" : first.RoutineName;
@@ -582,7 +586,7 @@ namespace Focus_Bear.Habits
             bool routineCancelled = IsViewingToday &&
                 (((name == DayPlanText.MorningRoutineHabits) && _morningRoutineCancelled)
                  || (isEveningGroup && _eveningRoutineCancelled && !appSettings.DidCutOffTimePassed()));
-            bool collapsed = IsRoutineCollapsed(name, routineCancelled ? false : isEarlier);
+            bool collapsed = IsRoutineCollapsed(name, routineCancelled ? false : (isEarlier || hasOverflow));
 
             var inner = new StackPanel { Orientation = Orientation.Vertical };
 
@@ -615,9 +619,14 @@ namespace Focus_Bear.Habits
             Grid.SetColumn(chevron, 0);
             var header = new Emoji.Wpf.TextBlock
             {
-                Text = string.Format("🧩 {0}  ·  {1}–{2}", name, TimeString(first.Start), TimeString(last.End)),
+                // Overflow: show the short "not enough time" heading in place of the (misleading) packed
+                // time range, tinted orange so the card reads as needing attention (#1371).
+                Text = hasOverflow
+                    ? string.Format("🧩 {0}  ·  {1}", name, DayPlanText.NotEnoughTimeHeading)
+                    : string.Format("🧩 {0}  ·  {1}–{2}", name, TimeString(first.Start), TimeString(last.End)),
                 FontSize = 15,
-                Foreground = FgBrush(),
+                Foreground = hasOverflow ? new SolidColorBrush(COrange) : FgBrush(),
+                TextWrapping = TextWrapping.Wrap,
                 VerticalAlignment = VerticalAlignment.Center
             };
             Grid.SetColumn(header, 1);
@@ -629,7 +638,7 @@ namespace Focus_Bear.Habits
                 Grid.SetColumn(cancelX, 2);
                 headerGrid.Children.Add(cancelX);
             }
-            headerGrid.MouseLeftButtonUp += (s, e) => ToggleRoutineCollapsed(name, routineCancelled ? false : isEarlier);
+            headerGrid.MouseLeftButtonUp += (s, e) => ToggleRoutineCollapsed(name, routineCancelled ? false : (isEarlier || hasOverflow));
             inner.Children.Add(headerGrid);
 
             // Cancelled routine → show the Uncancel body instead of the habit rows (card stays collapsible).
@@ -645,6 +654,20 @@ namespace Focus_Bear.Habits
 
             if (!collapsed)
             {
+                // The active routine's habits don't fit around today's meetings, but it stays startable —
+                // the full explanation shows here once the (collapsed-by-default) card is expanded (#1371).
+                if (hasOverflow)
+                {
+                    inner.Children.Add(new Emoji.Wpf.TextBlock
+                    {
+                        Text = DayPlanText.NotEnoughTimeForRoutine,
+                        FontSize = 12.5,
+                        Foreground = new SolidColorBrush(COrange),
+                        TextWrapping = TextWrapping.Wrap,
+                        Margin = new Thickness(24, 0, 6, 6)
+                    });
+                }
+
                 // Default selection = the next-up (current) habit; keep the user's pick if it's still valid.
                 var actionableIdxs = new HashSet<int>();
                 foreach (var b in habits) if (b.IsActionable && b.HabitIndex.HasValue) actionableIdxs.Add(b.HabitIndex.Value);
@@ -918,8 +941,7 @@ namespace Focus_Bear.Habits
             bool skipped = block.IsDone && !string.IsNullOrEmpty(block.HabitId)
                            && DayPlanDataSource.IsHabitSkipped(block.HabitId, _selectedDate.ToString("yyyy-MM-dd"));
             string title = skipped ? block.Title + "   ·  " + DayPlanText.SkippedTag : block.Title;
-            Brush titleColor = block.IsDone ? SecBrush()
-                             : block.DidOverflow ? new SolidColorBrush(CRed) : FgBrush();
+            Brush titleColor = block.IsDone ? SecBrush() : FgBrush();
             Grid row = LayoutColumns(timeText, title, SecBrush(), titleColor, vPad: 4, strikeThrough: block.IsDone);
 
             // A caller-supplied select handler (past-habit rows) wins; otherwise a live actionable row

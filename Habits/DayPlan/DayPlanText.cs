@@ -68,6 +68,15 @@ namespace Focus_Bear.Habits.DayPlan
         public static string PastHabitComplete => T("pastHabitComplete", "Complete");
         public static string PastHabitCompleteHint => T("pastHabitCompleteHint", "I actually did it but forgot to log it 😅");
 
+        // Shown on an active routine card when its habits don't fit around today's meetings (#1371):
+        // the routine stays startable, but we tell the user there isn't enough free time. The short
+        // heading replaces the time range in the (collapsed-by-default) card header; the longer detail
+        // shows in the body once the card is expanded.
+        public static string NotEnoughTimeHeading => T("dayPlanNotEnoughTimeHeading",
+            "⏰ Not enough free time today");
+        public static string NotEnoughTimeForRoutine => T("dayPlanNotEnoughTime",
+            "Your meetings fill the rest of today, so there isn't enough free time for your whole routine. You can still start it below, or postpone it.");
+
         // Empty / misc states
         public static string NoHabitsLeft => T("noHabitsLeft", "No habits left for now — enjoy your free time! 🎉");
         public static string NothingScheduled => T("nothingScheduled", "Nothing scheduled for this day.");

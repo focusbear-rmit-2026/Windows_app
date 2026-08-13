@@ -85,14 +85,34 @@ namespace Focus_Bear.Habits.DayPlan
                 return null;
             });
 
-            // 2. Stops at the first habit that doesn't fit (no leap-frogging).
-            Check("StopsAtFirstHabitThatDoesNotFit", () =>
+            // 2. An ACTIVE routine keeps every habit in list order even when the later ones don't fit the
+            // window — the ones that overflow are flagged (not dropped) so the routine stays startable
+            // (#1371). Order is still preserved (no leap-frogging to a shorter later habit).
+            Check("ActiveRoutineKeepsOverflowHabitsFlaggedInOrder", () =>
             {
                 DateTime now = T(9, 0);
                 var segs = new List<ScheduleRoutineSegment> { Seg(new List<ScheduleHabitInput>
                     { Habit(0, "A", 10), Habit(1, "B", 30), Habit(2, "C", 5) }, now, T(9, 20)) };
-                var titles = HabitBlocks(Build(segs, now, T(18, 0))).Select(b => b.Title).ToList();
-                return titles.SequenceEqual(new[] { "A" }) ? null : "expected [A], got [" + string.Join(",", titles) + "]";
+                var blocks = HabitBlocks(Build(segs, now, T(18, 0)));
+                var titles = blocks.Select(b => b.Title).ToList();
+                if (!titles.SequenceEqual(new[] { "A", "B", "C" })) return "expected [A,B,C], got [" + string.Join(",", titles) + "]";
+                if (blocks[0].DidOverflow) return "A fit, should not overflow";
+                if (!blocks[1].DidOverflow || !blocks[2].DidOverflow) return "B/C should be flagged overflow";
+                return null;
+            });
+
+            // 2b. A fully-booked day (a meeting covering the whole window) still lists the active routine's
+            // habit — flagged overflow and marked current — so the user is never locked out (#1371).
+            Check("FullyBookedDayStillListsActiveHabit", () =>
+            {
+                DateTime now = T(9, 0);
+                var meetings = new List<ScheduleMeetingInput> { new ScheduleMeetingInput("m1", "All day", T(9, 0), T(18, 0)) };
+                var segs = new List<ScheduleRoutineSegment> { Seg(new List<ScheduleHabitInput> { Habit(0, "A", 15) }, now, T(17, 0), actionable: true) };
+                var blocks = HabitBlocks(Build(segs, now, T(18, 0), meetings));
+                if (blocks.Count != 1) return "expected the habit to still be listed, got " + blocks.Count;
+                if (!blocks[0].DidOverflow) return "habit should be flagged overflow";
+                if (!blocks[0].IsCurrent || !blocks[0].IsActionable) return "habit should be current+actionable (startable)";
+                return null;
             });
 
             // 3. Habit pushed past an overlapping meeting.

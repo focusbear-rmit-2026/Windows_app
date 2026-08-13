@@ -2864,6 +2864,8 @@
         "eveningRoutine": "Evening routine",
         "morningRoutine": "Morning routine",
         "noHabitsLeft": "No habits left for now — enjoy your free time! 🎉",
+        "dayPlanNotEnoughTimeHeading": "⏰ Not enough free time today",
+        "dayPlanNotEnoughTime": "Your meetings fill the rest of today, so there isn't enough free time for your whole routine. You can still start it below, or postpone it.",
         "nothingScheduled": "Nothing scheduled for this day.",
         "calendarBanner": "Connect your calendar to see meetings and free time for deep work.",
         "grantAccess": "Grant access",
