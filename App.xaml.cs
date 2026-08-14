@@ -428,6 +428,12 @@ namespace Focus_Bear
 
 
         DispatcherTimer dispatcherTimerBreaks = new DispatcherTimer(DispatcherPriority.Normal);
+        // Generation counter: incremented every time StartBreakActivityTimer() is called so that an
+        // in-progress async dispatcherTimer_Breaks continuation can detect it has become stale and abort.
+        // Fixes #731: a break was prompted immediately after returning from a natural break, because the
+        // old timer's continuation resumed (after its await) and showed BreakWarning even though the user
+        // had just confirmed a natural break and reset the timer.
+        private int _breakTimerGeneration = 0;
         DispatcherTimer dispatcherTimerBackground = new DispatcherTimer(DispatcherPriority.Normal);
         DispatcherTimer dispatcherTimerPostponeHabits = new DispatcherTimer(DispatcherPriority.Normal);
         DispatcherTimer dispatcherTimerResumeHabitsAfterPostpone = new DispatcherTimer(DispatcherPriority.Normal);
@@ -1097,6 +1103,9 @@ namespace Focus_Bear
         public void StartBreakActivityTimer(bool bUserPostponed = false, int nMinutesToPostpone = 0)
         {
             LogWriter.LogWrite("StartBreakActivityTimer() invoked");
+            // Invalidate any in-progress async dispatcherTimer_Breaks continuation so it aborts instead of
+            // showing a break prompt right after the break timer was reset (e.g. natural break confirmed). #731
+            _breakTimerGeneration++;
 
             if (!appSettings.bAreBreaksEnabled)
             {
@@ -1186,6 +1195,11 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("dispatcherTimer_Breaks()");
 
+            // Capture the current generation. If StartBreakActivityTimer() is called while we await below
+            // (e.g. the user confirms a natural break), the generation increments and we abort this stale
+            // continuation instead of showing a break prompt. #731
+            int capturedGeneration = _breakTimerGeneration;
+
             dispatcherTimerBreaks.Stop(); //Tick Once only
 
             if(appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
@@ -1204,9 +1218,17 @@ namespace Focus_Bear
                 LogWriter.LogWrite("dispatcherTimer_Breaks() WaitForIdleAsync Error: " + ex.Message);
             }
 
+            // If StartBreakActivityTimer() ran while we were awaiting (e.g. natural break confirmed), the
+            // generation changed — abort so we don't show a break prompt immediately after the reset. #731
+            if (_breakTimerGeneration != capturedGeneration)
+            {
+                LogWriter.LogWrite("dispatcherTimer_Breaks() generation changed (timer reset / natural break) - aborting stale continuation");
+                return;
+            }
+
             try
             {
-                
+
 
                 CommandManager.InvalidateRequerySuggested();
 
