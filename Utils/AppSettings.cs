@@ -1280,8 +1280,15 @@ namespace Focus_Bear.Utils
                             string allowedFocusMode = item.ContainsKey("allowed_focus_mode_id") ? item.GetValue("allowed_focus_mode_id").ToString() : "";
                             string activity_sequence_id = item.ContainsKey("activity_sequence_id") ? item.GetValue("activity_sequence_id").ToString() : "";
                             string completion_requirements = item.ContainsKey("completion_requirements") ? item.GetValue("completion_requirements").ToString() : "";
+                            List<string> check_list = new List<string>();
+                            if (item.ContainsKey("check_list") && item.GetValue("check_list").Type != JTokenType.Null)
+                            {
+                                check_list = ((JArray)item.GetValue("check_list")).ToObject<List<string>>();
+                            }
                             bool useTimer = true;
-                            if (completion_requirements.Length > 0)
+                            // A checklist activity is completed manually via "I'm done" (it isn't a
+                            // countdown), so it must not run a timer that would expire before it shows. (#343)
+                            if (completion_requirements.Length > 0 || check_list.Count > 0)
                             {
                                 useTimer = false;
                             }
@@ -1295,7 +1302,7 @@ namespace Focus_Bear.Utils
                                 arrDaysOfWeek = arrTempDays.ToObject<List<string>>();
                             }
 
-                            arrAllMorningHabits.Add(new habit(id, name, nIdFakeForDevice.ToString(), nameWithoutIcon, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, ""));
+                            arrAllMorningHabits.Add(new habit(id, name, nIdFakeForDevice.ToString(), nameWithoutIcon, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, "", check_list));
                             nIdFakeForDevice++;
                         }
                         //copy to Global Array but do not reference
@@ -1384,8 +1391,15 @@ namespace Focus_Bear.Utils
                             string activity_sequence_id = item.ContainsKey("activity_sequence_id") ? item.GetValue("activity_sequence_id").ToString() : "";
 
                             string completion_requirements = item.ContainsKey("completion_requirements") ? item.GetValue("completion_requirements").ToString() : "";
+                            List<string> check_list = new List<string>();
+                            if (item.ContainsKey("check_list") && item.GetValue("check_list").Type != JTokenType.Null)
+                            {
+                                check_list = ((JArray)item.GetValue("check_list")).ToObject<List<string>>();
+                            }
                             bool useTimer = true;
-                            if (completion_requirements.Length > 0)
+                            // A checklist activity is completed manually via "I'm done" (it isn't a
+                            // countdown), so it must not run a timer that would expire before it shows. (#343)
+                            if (completion_requirements.Length > 0 || check_list.Count > 0)
                             {
                                 useTimer = false;
                             }
@@ -1408,7 +1422,7 @@ namespace Focus_Bear.Utils
                                 }
                             }
 
-                            arrAllEveningHabits.Add(new habit(id, name, nIdFakeForDevice.ToString(), nameWithoutIcon, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, sCutOffTime));
+                            arrAllEveningHabits.Add(new habit(id, name, nIdFakeForDevice.ToString(), nameWithoutIcon, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, sCutOffTime, check_list));
                             nIdFakeForDevice++;
                         }
 
@@ -1470,8 +1484,15 @@ namespace Focus_Bear.Utils
                             string activity_sequence_id = item.ContainsKey("activity_sequence_id") ? item.GetValue("activity_sequence_id").ToString() : "";
 
                             string completion_requirements = item.ContainsKey("completion_requirements") ? item.GetValue("completion_requirements").ToString() : "";
+                            List<string> check_list = new List<string>();
+                            if (item.ContainsKey("check_list") && item.GetValue("check_list").Type != JTokenType.Null)
+                            {
+                                check_list = ((JArray)item.GetValue("check_list")).ToObject<List<string>>();
+                            }
                             bool useTimer = true;
-                            if (completion_requirements.Length > 0)
+                            // A checklist activity is completed manually via "I'm done" (it isn't a
+                            // countdown), so it must not run a timer that would expire before it shows. (#343)
+                            if (completion_requirements.Length > 0 || check_list.Count > 0)
                             {
                                 useTimer = false;
                             }
@@ -1538,13 +1559,19 @@ namespace Focus_Bear.Utils
                                     }
 
                                     string completion_requirementsCH = choiceitem.ContainsKey("completion_requirements") ? choiceitem.GetValue("completion_requirements").ToString() : "";
+                                    List<string> check_listCH = new List<string>();
+                                    if (choiceitem.ContainsKey("check_list") && choiceitem.GetValue("check_list").Type != JTokenType.Null)
+                                    {
+                                        check_listCH = ((JArray)choiceitem.GetValue("check_list")).ToObject<List<string>>();
+                                    }
                                     bool useTimerCH = true;
-                                    if (completion_requirementsCH.Length > 0)
+                                    // A checklist choice completes manually via "I'm done", not on a timer. (#343)
+                                    if (completion_requirementsCH.Length > 0 || check_listCH.Count > 0)
                                     {
                                         useTimerCH = false;
                                     }
 
-                                    choicesToAdd.Add(new activityChoice(idchoice, namechoice, arrVideoUrlsArraychoice, logQuantityQuestionchoice, logQuantitychoice, logQuantityTypechoice, logQuantityQuestionsCh, completion_requirementsCH, useTimerCH));
+                                    choicesToAdd.Add(new activityChoice(idchoice, namechoice, arrVideoUrlsArraychoice, logQuantityQuestionchoice, logQuantitychoice, logQuantityTypechoice, logQuantityQuestionsCh, completion_requirementsCH, useTimerCH, check_listCH));
 
                                 }
                             }
@@ -1585,7 +1612,7 @@ namespace Focus_Bear.Utils
                             }
 
 
-                            arrAllbreakActivities.Add(new breakActivity(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, IncludeInEveryBreak, isRandomChoice, choicesToAdd, isOfficeFriendly, logQuantityType, logQuantityQuestions, completion_requirements, useTimer));
+                            arrAllbreakActivities.Add(new breakActivity(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, IncludeInEveryBreak, isRandomChoice, choicesToAdd, isOfficeFriendly, logQuantityType, logQuantityQuestions, completion_requirements, useTimer, check_list));
                         }
                     }
                 }

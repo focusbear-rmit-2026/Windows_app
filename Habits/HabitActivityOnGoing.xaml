@@ -30,11 +30,58 @@
 
         <Image Name="TopIcon" Grid.Row="0"  Margin="0,50,0,0" Height="180" Width="180" Models:ImageBehavior.AnimatedSource="../Images/gifs/random/4.gif"   VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         <emoji:TextBlock  Grid.Row="1"  Name="Heading" Margin="0,30,0,0" TextWrapping="Wrap" Text="xActivity Title" Foreground="#e88800" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <Viewbox Grid.Row="2"  Stretch="Uniform">
-            <DockPanel  Margin="50,25,50,25" Width="853" Height="505">
-                <wv2:WebView2 Name="webView" />
-            </DockPanel>
-        </Viewbox>
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Video / Checklist tab switcher (#343): shown ONLY when the activity has BOTH a video and a
+                 checklist, so the user can switch between them (macOS parity). Borders (not Buttons) so the
+                 active/inactive colours are fully controlled and theme-independent. -->
+            <StackPanel x:Name="ChecklistVideoTabs" Grid.Row="0" Orientation="Horizontal"
+                        HorizontalAlignment="Center" Margin="0,14,0,0" Visibility="Collapsed">
+                <Border x:Name="btnTabVideo" MouseLeftButtonUp="btnTabVideo_Click" Cursor="Hand"
+                        CornerRadius="17" Height="34" MinWidth="120" Margin="5,0"
+                        Background="#e88800" BorderBrush="#e88800" BorderThickness="1">
+                    <TextBlock x:Name="btnTabVideoTXT" Text="Video" FontSize="15" FontWeight="SemiBold"
+                               Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16,0"/>
+                </Border>
+                <Border x:Name="btnTabChecklist" MouseLeftButtonUp="btnTabChecklist_Click" Cursor="Hand"
+                        CornerRadius="17" Height="34" MinWidth="120" Margin="5,0"
+                        Background="Transparent" BorderBrush="#e88800" BorderThickness="1">
+                    <TextBlock x:Name="btnTabChecklistTXT" Text="Checklist" FontSize="15" FontWeight="SemiBold"
+                               Foreground="#e88800" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16,0"/>
+                </Border>
+            </StackPanel>
+
+            <Grid Grid.Row="1">
+                <Viewbox Stretch="Uniform">
+                    <DockPanel  Margin="50,25,50,25" Width="853" Height="505">
+                        <wv2:WebView2 Name="webView" />
+                    </DockPanel>
+                </Viewbox>
+
+                <!-- Checklist steps (#343). Local visual aid only — ticks are held on the ChecklistItem
+                     objects (so they survive a pause/resume re-render) and are never saved to the backend;
+                     completion is via "I'm done". -->
+                <ScrollViewer x:Name="SectionChecklist" Visibility="Collapsed"
+                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                              Margin="0,20,0,10" MaxWidth="700" HorizontalAlignment="Center">
+                    <ItemsControl x:Name="ChecklistItemsControl">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Margin="24,10,24,10"
+                                          VerticalContentAlignment="Center" Cursor="Hand">
+                                    <emoji:TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="18"
+                                                     Foreground="{DynamicResource ForegroundColor}" Margin="10,0,0,0"/>
+                                </CheckBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
 
         <StackPanel x:Name="SectionNonTimer" Grid.Row="3" Orientation="Vertical" MinHeight="85" Visibility="Collapsed">
             <TextBlock  Grid.Row="1"  Name="CompleteAfter" Margin="0,0,0,10" TextWrapping="Wrap" Text="xComplete after: " FontSize="18" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>

@@ -430,7 +430,8 @@ namespace Focus_Bear.Utils
         public bool bHighPriorityActivity;
         public List<string> DaysOfWeek;
         public string sCutOffTime;
-        public habit(string id, string name, string idFakeForDevice, string nameWithoutIcon, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites, bool bHighPriorityActivity, List<string> DaysOfWeek, string sCutOffTime)
+        public List<string> check_list;   // optional per-activity checklist steps (#343); null/empty = none
+        public habit(string id, string name, string idFakeForDevice, string nameWithoutIcon, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites, bool bHighPriorityActivity, List<string> DaysOfWeek, string sCutOffTime, List<string> check_list = null)
         {
             this.id = id;
             this.name = name;
@@ -452,7 +453,17 @@ namespace Focus_Bear.Utils
             this.bHighPriorityActivity = bHighPriorityActivity;
             this.DaysOfWeek = DaysOfWeek;
             this.sCutOffTime = sCutOffTime;
+            this.check_list = check_list;
         }
+    }
+
+    // One checklist step shown during an activity (#343). IsChecked is local-only visual state — nothing
+    // is saved to the backend — but it's held on this object (not the CheckBox) so a tick survives the
+    // ItemsControl regenerating its containers on pause/resume/layout changes.
+    public class ChecklistItem
+    {
+        public string Text { get; set; }
+        public bool IsChecked { get; set; }
     }
 
     public class HabitListSelectable : INotifyPropertyChanged
@@ -512,7 +523,8 @@ namespace Focus_Bear.Utils
         public List<QuantityQuestion> logQuantityQuestions;
         public string completion_requirements;
         public bool useTimer;
-        public breakActivity(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, bool IncludeInEveryBreak, bool isRandomChoice, List<activityChoice> choices, bool isOfficeFriendly, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer)
+        public List<string> check_list;   // optional per-activity checklist steps (#343); null/empty = none
+        public breakActivity(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, bool IncludeInEveryBreak, bool isRandomChoice, List<activityChoice> choices, bool isOfficeFriendly, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, List<string> check_list = null)
         {
             this.id = id;
             this.name = name;
@@ -533,6 +545,7 @@ namespace Focus_Bear.Utils
             this.logQuantityQuestions = logQuantityQuestions;
             this.completion_requirements = completion_requirements;
             this.useTimer = useTimer;
+            this.check_list = check_list;
         }
     }
 
@@ -547,7 +560,8 @@ namespace Focus_Bear.Utils
         public List<QuantityQuestion> logQuantityQuestions;
         public string completion_requirements;
         public bool useTimer;
-        public activityChoice(string id, string name, List<string> videoUrls, string logQuantityQuestion, bool logQuantity, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer)
+        public List<string> check_list;   // optional per-choice checklist steps (#343); null/empty = none
+        public activityChoice(string id, string name, List<string> videoUrls, string logQuantityQuestion, bool logQuantity, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, List<string> check_list = null)
         {
             this.id = id;
             this.name = name;
@@ -558,6 +572,7 @@ namespace Focus_Bear.Utils
             this.logQuantityQuestions = logQuantityQuestions;
             this.completion_requirements = completion_requirements;
             this.useTimer = useTimer;
+            this.check_list = check_list;
         }
     }
 
