@@ -180,3 +180,11 @@
 - Fixed "Error when attempting to share logs" when there was no screenshot and no message: sharing logs with a blank description no longer fails (the description now defaults to "No Feedback") #1399.
 - Teacher Mode: during a class focus session a student's own "always allowed" apps are now ignored, so they can't be used to bypass the class block; and if a student declines the "join class session" prompt, the tray menu now shows that a class session is running with a button to join it #1427.
 - Fixed the gentle-block blur not covering the whole window for apps: the dimmed blur overlay now covers the full app window instead of leaving part of it un-blurred #1426.
+
+#v3.0.241
+- Added a Delete Account button to Settings → Account (GDPR): a two-step confirmation (an "are you sure" prompt, then typing "DELETE") permanently deletes your account and all its data, then signs you out. Each step can be cancelled #993.
+- Habit checklists: a habit can now show its checklist steps during the activity as tappable items (a local visual aid — ticking them isn't required to finish). If the habit also has a video, a Video / Checklist tab switcher lets you flip between the two #343.
+- Fixed side-menu clicks: the whole menu button is now clickable, not just the text, so tapping a menu item reliably switches the view. The side menu also stays a fixed width now and can't be dragged wider #980.
+- Fixed a break being prompted immediately after returning from a natural break: confirming a natural break now resets the break timer correctly, so the next break only comes after your full break interval #731.
+- Follow-up to the fully-booked-calendar fix: when there's no free time around your meetings, the morning routine's habits now stay together in a single "Not enough free time today" card instead of a meeting splitting the routine into two cards #1371.
+- Fixed a crash in the gentle-block popup when the current tab's URL was malformed (e.g. contained spaces or unicode) — the block now handles those URLs without crashing #1095.
