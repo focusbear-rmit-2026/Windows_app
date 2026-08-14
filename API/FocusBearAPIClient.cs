@@ -64,6 +64,8 @@ namespace Focus_Bear.API
 
         public static string AccountabilityBuddies { get { return "https://api.focusbear.io/accountability-buddy"; } }
 
+        public static string DeleteAccountUrl { get { return "https://api.focusbear.io/user-data"; } }
+
         public static string OccupationSpecificRelevantSites { get { return "https://api.focusbear.io/user/generate-occupation-specific-relevant-sites"; } }
 
         public static string AllTasks { get { return "https://api.focusbear.io/to-do"; } }
@@ -5045,6 +5047,57 @@ namespace Focus_Bear.API
             {
                 LogWriter.LogWrite("GetAllUnlockRequests - Exception" + ex.Message);
 
+            }
+            return 0;
+        }
+
+        // Permanently deletes the user's account and all their data (Auth0, RevenueCat, Stripe, DB) via
+        // DELETE /user-data — GDPR account deletion, NOT recoverable. Returns 1 on success, 0 otherwise.
+        internal async Task<int> DeleteAccount()
+        {
+            LogWriter.LogWrite("DeleteAccount() API");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    var response = await client.DeleteAsync(DeleteAccountUrl);
+                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent ||
+                        response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        LogWriter.LogWrite("DeleteAccount() GOT Success");
+                        return 1;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            LogWriter.LogWrite("DeleteAccount() FAILED: " + responseCode);
+                        }
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("DeleteAccount WebException" + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("DeleteAccount Exception" + ex.Message);
             }
             return 0;
         }

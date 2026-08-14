@@ -24,7 +24,7 @@
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
-                <RowDefinition Height="80"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="1"/>
                 
                 <RowDefinition Height="50"/>
@@ -73,6 +73,14 @@
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnLogoutTXT" Text="xLogout" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+
+                <Button  x:Name="btnDeleteAccount" AutomationProperties.AutomationId="btnDeleteAccount" Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"    Height="27" Width="200" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,5" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnDeleteAccount_Click" >
+                    <Button.Content>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock x:Name="btnDeleteAccountTXT" Text="xDelete Account" Style="{DynamicResource ButtonTextBlockStyle}"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>

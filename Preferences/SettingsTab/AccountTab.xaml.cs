@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Models;
+using Focus_Bear.Preferences.SettingsTab;
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
@@ -68,6 +69,7 @@ namespace Focus_Bear.Preferences
             btnLogoutTXT.Text = appSettings.ConfigFileStrings["accountVcInfo"]["buttonLogoutText"].ToString();
             btnSyncPaymentTXT.Text = appSettings.ConfigFileStrings["accountVcInfo"]["buttonRestoreText"].ToString();
             btnResetPasswordTXT.Text = appSettings.ConfigFileStrings["enterPasswordViewInfo"]["buttonResetPasswordText"].ToString();
+            btnDeleteAccountTXT.Text = appSettings.ConfigFileStrings["accountVcInfo"]["buttonDeleteAccountText"].ToString();
         }
 
         private void btnLogout_Click(object sender, RoutedEventArgs e)
@@ -165,6 +167,95 @@ namespace Focus_Bear.Preferences
             catch (Exception ex)
             {
                 LogWriter.LogWrite("btnSyncPayment_Click ex + " + ex.Message);
+            }
+        }
+
+        private async void btnDeleteAccount_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnDeleteAccount_Click");
+
+            var mainWindow = ((App)(Application.Current)).wndFocusBearMainWindow;
+
+            FBMessageBox firstDialog = new FBMessageBox(
+                appSettings.ConfigFileStrings["accountVcInfo"]["deleteAccountAlertText"].ToString(),
+                appSettings.ConfigFileStrings["accountVcInfo"]["deleteAccountAlertTitle"].ToString(),
+                MessageBoxButton.YesNo);
+            firstDialog.Owner = mainWindow;
+            mainWindow.GridShade.Visibility = Visibility.Visible;
+            firstDialog.ShowDialog();
+            mainWindow.GridShade.Visibility = Visibility.Collapsed;
+
+            if (firstDialog.btnClicked != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            DeleteAccountConfirmDialog confirmDialog = new DeleteAccountConfirmDialog();
+            confirmDialog.Owner = mainWindow;
+            mainWindow.GridShade.Visibility = Visibility.Visible;
+            confirmDialog.ShowDialog();
+            mainWindow.GridShade.Visibility = Visibility.Collapsed;
+
+            if (confirmDialog.Confirmed != true)
+            {
+                return;
+            }
+
+            try
+            {
+                btnDeleteAccount.IsEnabled = false;
+                btnLogout.IsEnabled = false;
+                btnResetPassword.IsEnabled = false;
+                btnSyncPayment.IsEnabled = false;
+                ProgressSync.Visibility = Visibility.Visible;
+
+                appSettings.CapturePostHog("delete-account");
+
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var result = await client.DeleteAccount();
+
+                if (result == 1)
+                {
+                    LogWriter.LogWrite("DeleteAccount success — clearing local session");
+                    RegistryManager.RemoveLoggedInStatus();
+
+                    FBMessageBox successMsg = new FBMessageBox(
+                        appSettings.ConfigFileStrings["accountVcInfo"]["deleteAccountSuccessText"].ToString(),
+                        appSettings.ConfigFileStrings["accountVcInfo"]["deleteAccountSuccessTitle"].ToString());
+                    successMsg.Owner = mainWindow;
+                    mainWindow.GridShade.Visibility = Visibility.Visible;
+                    successMsg.ShowDialog();
+                    mainWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                    Application.Current.Shutdown(0);
+                }
+                else
+                {
+                    LogWriter.LogWrite("DeleteAccount failed — re-enabling buttons");
+                    FBMessageBox errorMsg = new FBMessageBox(
+                        appSettings.ConfigFileStrings["accountVcInfo"]["deleteAccountFailedText"].ToString(),
+                        appSettings.ConfigFileStrings["accountVcInfo"]["deleteAccountFailedTitle"].ToString());
+                    errorMsg.Owner = mainWindow;
+                    mainWindow.GridShade.Visibility = Visibility.Visible;
+                    errorMsg.ShowDialog();
+                    mainWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                    btnDeleteAccount.IsEnabled = true;
+                    btnLogout.IsEnabled = true;
+                    btnResetPassword.IsEnabled = true;
+                    btnSyncPayment.IsEnabled = true;
+                    ProgressSync.Visibility = Visibility.Collapsed;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnDeleteAccount_Click ex: " + ex.Message);
+                mainWindow.GridShade.Visibility = Visibility.Collapsed;
+                btnDeleteAccount.IsEnabled = true;
+                btnLogout.IsEnabled = true;
+                btnResetPassword.IsEnabled = true;
+                btnSyncPayment.IsEnabled = true;
+                ProgressSync.Visibility = Visibility.Collapsed;
             }
         }
 
