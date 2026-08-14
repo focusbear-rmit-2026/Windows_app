@@ -114,6 +114,32 @@ namespace Focus_Bear.Focus
             App.ThemeChanged += TitleBarThemeChange;
         }
 
+        /// <summary>
+        /// Extracts the host from a URL without ever throwing. The previous pattern
+        /// (try new Uri(url) / catch new UriBuilder(url).Uri) crashed the gentle-block popup because
+        /// <c>new UriBuilder(url).Uri</c> itself throws <see cref="UriFormatException"/> for malformed
+        /// URLs (spaces, unicode, bare IP:port, …) — 87 crash events across 5 users (#1095, windows-app#5).
+        /// <see cref="Uri.TryCreate(string, UriKind, out Uri)"/> never throws; we retry with an
+        /// <c>https://</c> prefix for scheme-less URLs (mirroring UriBuilder's old scheme-adding).
+        /// Returns false (host = "") when no host can be parsed.
+        /// </summary>
+        private static bool TryGetHost(string sUrl, out string sHost)
+        {
+            sHost = "";
+            if (string.IsNullOrWhiteSpace(sUrl)) return false;
+            if (Uri.TryCreate(sUrl, UriKind.Absolute, out Uri parsed) && !string.IsNullOrEmpty(parsed.Host))
+            {
+                sHost = parsed.Host;
+                return true;
+            }
+            if (Uri.TryCreate("https://" + sUrl, UriKind.Absolute, out Uri prefixed) && !string.IsNullOrEmpty(prefixed.Host))
+            {
+                sHost = prefixed.Host;
+                return true;
+            }
+            return false;
+        }
+
         public void ShowGentleBlockWindowAndStartTimer(IntPtr hWnd, string sFocusModeTitle, string sAppName, string sURL = "", string sIntention = "", string sTabTitle = "")
         {
             sFocusModeName = sFocusModeTitle;
@@ -229,24 +255,9 @@ namespace Focus_Bear.Focus
                 }
 
 
+                // Safe host extraction — the old try/UriBuilder pattern crashed on malformed URLs (#1095).
                 string sHost = "";
-                try
-                {
-                    Uri myUri = new Uri(sActiveURL);
-                    sHost = myUri.Host; //fails if there is no http://
-                }
-                catch (Exception ex)
-                {
-                    /*
-                    This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
-                    If uri does not specify a scheme, the scheme defaults to "http:".
-                    */
-                    // Ensure it has a scheme, otherwise UriBuilder will throw
-                    Uri myUri = new UriBuilder(sActiveURL).Uri;
-                    sHost = myUri.Host;
-
-                    Debug.WriteLine(ex.Message);
-                }
+                TryGetHost(sActiveURL, out sHost);
 
                 string sDomain = appSettings.ConfigFileStrings["common"]["allowAllUrlsFromDomainText"].ToString();
                 sDomain = sDomain.Replace("<DOMAIN>", sHost);
@@ -432,24 +443,9 @@ namespace Focus_Bear.Focus
                     await Task.Delay(20);
 
                     //Write to focus ai decisions csv
+                    // Safe host extraction — the old try/UriBuilder pattern crashed on malformed URLs (#1095).
                     string sHost = "";
-                    try
-                    {
-                        Uri myUri = new Uri(sActiveURL);
-                        sHost = myUri.Host; //fails if there is no http://
-                    }
-                    catch (Exception ex)
-                    {
-                        /*
-                        This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
-                        If uri does not specify a scheme, the scheme defaults to "http:".
-                        */
-                        // Ensure it has a scheme, otherwise UriBuilder will throw
-                        Uri myUri = new UriBuilder(sActiveURL).Uri;
-                        sHost = myUri.Host;
-
-                        Debug.WriteLine(ex.Message);
-                    }
+                    TryGetHost(sActiveURL, out sHost);
 
                     try
                     {
