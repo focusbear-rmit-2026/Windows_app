@@ -89,7 +89,7 @@
                                                         BorderThickness="{TemplateBinding BorderThickness}"
                                                         HorizontalAlignment="Stretch"
                                                         CornerRadius="4" 
-                                                        Cursor="Hand" Width="230">
+                                                        Cursor="Hand">
                                                     <!-- Grid to layout header content and toggle button side by side -->
                                                     <Grid HorizontalAlignment="Stretch">
                                                         <Grid.ColumnDefinitions>
@@ -229,7 +229,7 @@
 
                                                 <!-- Trigger for empty items (no children) -->
                                                 <Trigger Property="HasItems" Value="False">
-                                                    <Setter TargetName="RightExpander" Property="Visibility" Value="Hidden"/>
+                                                    <Setter TargetName="RightExpander" Property="Visibility" Value="Collapsed"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -332,8 +332,8 @@
                 </Grid>
             </DockPanel>
         </Border>
-        <!-- Vertical line -->
-        <GridSplitter Grid.Column="1" Width="1" Background="Gray" HorizontalAlignment="Stretch" ShowsPreview="False" />
+        <!-- Vertical line (static divider — the left menu is a fixed width, not user-resizable) -->
+        <Border Grid.Column="1" Width="1" Background="Gray" HorizontalAlignment="Stretch" />
         <!-- RIGHT CONTENT -->
         <ContentControl Grid.Column="2" x:Name="RightContent"/>
 
