@@ -287,17 +287,42 @@ namespace Focus_Bear.Habits
 
             var renderedRoutines = new HashSet<string>();
             bool eveningDoneToday = false;   // the evening routine rendered as a done/"earlier" section today
+
+            // An overflowed active routine is stacked at fictional back-to-back times (it doesn't actually
+            // fit around the meetings), so a meeting can sort between two of its habits and split the card
+            // (#1371 follow-up). Keep that routine whole: gather ALL its habit blocks into one card and skip
+            // them where they'd otherwise re-render. Interleaved meetings still show in their own place.
+            string overflowRoutine = null;
+            foreach (var b in blocks)
+                if (b.Kind == ScheduleBlockKind.Habit && b.DidOverflow) { overflowRoutine = b.RoutineName; break; }
+            var consumed = new HashSet<int>();
+
             int i = 0;
             while (i < blocks.Count)
             {
+                if (consumed.Contains(i)) { i++; continue; }
                 if (blocks[i].Kind == ScheduleBlockKind.Habit)
                 {
                     string name = blocks[i].RoutineName;
                     var group = new List<ScheduleBlock>();
-                    while (i < blocks.Count && blocks[i].Kind == ScheduleBlockKind.Habit && blocks[i].RoutineName == name)
+                    if (overflowRoutine != null && name == overflowRoutine)
                     {
-                        group.Add(blocks[i]);
+                        // Pull every habit of the overflowed routine into this one card, wherever it sorted.
+                        for (int j = i; j < blocks.Count; j++)
+                            if (blocks[j].Kind == ScheduleBlockKind.Habit && blocks[j].RoutineName == name)
+                            {
+                                group.Add(blocks[j]);
+                                consumed.Add(j);
+                            }
                         i++;
+                    }
+                    else
+                    {
+                        while (i < blocks.Count && blocks[i].Kind == ScheduleBlockKind.Habit && blocks[i].RoutineName == name)
+                        {
+                            group.Add(blocks[i]);
+                            i++;
+                        }
                     }
                     renderedRoutines.Add(name);
                     // The "well done finishing your evening routine" shutdown card should only appear when the
