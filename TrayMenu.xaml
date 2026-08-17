@@ -551,6 +551,12 @@
                                 <TextBlock x:Name="StartBreakNowText" FontSize="14" FontWeight="SemiBold" Foreground="#e88800"
                                            Text="Start a break now"/>
                             </Button>
+                            <!-- Shown when a focus session is running with breaks off: re-enable automatic breaks (#1215). -->
+                            <Button x:Name="btnResumeAutoBreaks" Style="{StaticResource AccordionHeaderButton}" Visibility="Collapsed"
+                                    HorizontalAlignment="Left" Click="btnResumeAutoBreaks_Click">
+                                <TextBlock x:Name="ResumeAutoBreaksText" FontSize="14" FontWeight="SemiBold" Foreground="#e88800"
+                                           Text="Resume automatic breaks"/>
+                            </Button>
                             <!-- Shown instead of "Start a break now" when there are no break activities configured. -->
                             <Button x:Name="btnAddBreakActivity" Style="{StaticResource AccordionHeaderButton}" Visibility="Collapsed"
                                     HorizontalAlignment="Left" Click="btnAddBreakActivity_Click">

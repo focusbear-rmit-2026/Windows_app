@@ -1686,6 +1686,7 @@ namespace Focus_Bear
                     return;
                 }
                 BreaksSection.Visibility = Visibility.Visible;
+                btnResumeAutoBreaks.Visibility = Visibility.Collapsed; // only shown in the focus-session-breaks-off case below
 
                 // Breaks turned off entirely in settings.
                 if (!appSettings.bAreBreaksEnabled)
@@ -1696,12 +1697,22 @@ namespace Focus_Bear
                 }
 
                 // Focus / Super Focus session running with micro-breaks skipped (mirrors dispatcherTimer_Breaks).
+                // Unlike a blocking schedule, a manual break is still allowed here — so keep "Start a break now"
+                // (when there are activities) and offer to resume automatic breaks for the session. (#1215)
                 if (appSettings.bSkipMicroBreaksDuringFocus && (appSettings.isFocusModeRunning || appSettings.bUseSuperPomodoroMode))
                 {
                     string key = appSettings.bUseSuperPomodoroMode ? "breaksDisabledSuperFocusSessionRunning" : "breaksDisabledFocusSessionRunning";
                     string dflt = appSettings.bUseSuperPomodoroMode ? "Super Focus session is running. Breaks disabled." : "Focus session is running. Breaks disabled.";
                     string msg = MenuInfoString(key, dflt);
-                    SetBreaksDisabled(msg, msg);
+                    BreaksSubtitle.Text = msg;
+                    BreaksStatusText.Text = msg;
+
+                    bool hasActivities = appSettings.arrAllbreakActivities != null && appSettings.arrAllbreakActivities.Count > 0;
+                    btnStartBreakNow.Visibility = hasActivities ? Visibility.Visible : Visibility.Collapsed;
+                    btnAddBreakActivity.Visibility = Visibility.Collapsed;
+
+                    btnResumeAutoBreaks.Visibility = Visibility.Visible;
+                    ResumeAutoBreaksText.Text = BreakStateString("txtEnableMicroBreaksForFocusSession", "Resume automatic breaks");
                     return;
                 }
 
@@ -1767,6 +1778,18 @@ namespace Focus_Bear
             BreaksStatusText.Text = body;
             btnStartBreakNow.Visibility = Visibility.Collapsed;
             btnAddBreakActivity.Visibility = Visibility.Collapsed;
+        }
+
+        private void btnResumeAutoBreaks_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Turn automatic micro-breaks back on for the current focus session, then refresh the card
+                // (which now shows the normal "next break" state instead of "breaks disabled"). (#1215)
+                appSettings.bSkipMicroBreaksDuringFocus = false;
+                UpdateBreaksCard();
+            }
+            catch (Exception ex) { LogWriter.LogWrite("btnResumeAutoBreaks_Click ex - " + ex.Message); }
         }
 
         // Reads a breakStateVcInfo config string with an English fallback.

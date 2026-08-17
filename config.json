@@ -2822,6 +2822,8 @@
         "buttonEnableBreaks": "Enable Breaks",
         "buttonStartBreak": "Start Break",
         "titleEnableBreaks": "Breaks are currently disabled. Enable taking breaks at regular intervals to boost your productivity, energy levels, and focus.",
+        "titleSkipMicroBreaksOn": "A focus session is running with micro-breaks turned off.",
+        "txtEnableMicroBreaksForFocusSession": "Resume automatic breaks for this session",
         "pausedBreaksText": "You’ve paused breaks for today. They’ll be back tomorrow to help you recharge and focus.",
         "shutoffTimeText": "App is in shutoff state",
         "noBreakScheduledText": "No upcoming break has been scheduled yet.",

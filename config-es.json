@@ -2820,6 +2820,8 @@
         "buttonEnableBreaks": "Activar descansos",
         "buttonStartBreak": "Iniciar descanso",
         "titleEnableBreaks": "Los descansos están desactivados. Activa los descansos a intervalos regulares para aumentar tu productividad, energía y enfoque.",
+        "titleSkipMicroBreaksOn": "Hay una sesión de enfoque en curso con los microdescansos desactivados.",
+        "txtEnableMicroBreaksForFocusSession": "Reanudar los descansos automáticos de esta sesión",
         "pausedBreaksText": "Has pausado los descansos por hoy. Mañana volverán para ayudarte a recargar energías y mantener el enfoque.",
         "shutoffTimeText": "La app está en estado de apagado",
         "noBreakScheduledText": "Aún no se ha programado ningún descanso próximo.",
