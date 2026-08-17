@@ -106,20 +106,38 @@ namespace Focus_Bear.Preferences
                         return;
                 }
 
+                // Files picked via "Select File" — each stored with all the exes from its install folder.
+                foreach (var custom in aa.SelectedCustomApps)
+                {
+                    var existing = appSettings.arrAlwaysAllowedApps.FirstOrDefault(
+                        i => i.AppName.ToLower() == custom.AppName.ToLower());
+                    if (existing == null)
+                    {
+                        appSettings.arrAlwaysAllowedApps.Add(custom);
+                        appSettings.CapturePostHog("add-always-allowed-app-manually");
+                    }
+                }
+
+                // Typed names — added alongside any selected files.
                 if (!string.IsNullOrEmpty(sApps))
                 {
                     string[] apps = sApps.Split(',');
                     bool bAppAdded = false;
                     foreach (string app in apps)
                     {
-                        string trimmedApp = app.Trim();
+                        // Trim surrounding quotes too — Explorer's "Copy as path" wraps the path in quotes,
+                        // and a quote is an illegal path char that would otherwise throw in Path.GetFileName.
+                        string trimmedApp = app.Trim().Trim('"');
                         if (!string.IsNullOrEmpty(trimmedApp))
                         {
                             string appName = System.IO.Path.GetFileNameWithoutExtension(trimmedApp);
+                            // Strip any directory the user pasted — blocking matches on the bare exe name, so a
+                            // full path stored here would never match a running process (root cause of #1140).
+                            string exeName = System.IO.Path.GetFileName(trimmedApp);
                             var listItems = appSettings.arrAlwaysAllowedApps.Where(i => i.AppName.ToLower() == appName.ToLower());
                             if (listItems.Count() == 0)
                             {
-                                appSettings.arrAlwaysAllowedApps.Add(new AppDetails(appName, trimmedApp));
+                                appSettings.arrAlwaysAllowedApps.Add(new AppDetails(appName, exeName));
                                 bAppAdded = true;
                             }
                         }

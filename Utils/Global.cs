@@ -272,22 +272,15 @@ namespace Focus_Bear.Utils
 
                     try
                     {
-                        // Search for matching .exe files
-                        var files = Directory.GetFiles(basePath, searchName + ".exe", SearchOption.AllDirectories);
-                        if (files.Length > 0)
+                        // Lazy, first-match search for the exe by name. Windows file matching is already
+                        // case-insensitive, so this covers case variations too. EnumerateFiles returns as
+                        // soon as it finds a match (no big array). The previous code ALSO enumerated EVERY
+                        // *.exe under the tree into an array on every base path — that redundant full scan
+                        // was the main slowdown and is removed. (#1140)
+                        string match = Directory.EnumerateFiles(basePath, searchName + ".exe", SearchOption.AllDirectories).FirstOrDefault();
+                        if (!string.IsNullOrEmpty(match))
                         {
-                            return Path.GetFileName(files[0]);
-                        }
-
-                        // Also search for similar names (case-insensitive variations)
-                        var allExes = Directory.GetFiles(basePath, "*.exe", SearchOption.AllDirectories);
-                        foreach (string exePath in allExes)
-                        {
-                            string exeName = Path.GetFileNameWithoutExtension(exePath).ToLower();
-                            if (exeName == searchName)
-                            {
-                                return Path.GetFileName(exePath);
-                            }
+                            return Path.GetFileName(match);
                         }
                     }
                     catch (UnauthorizedAccessException)

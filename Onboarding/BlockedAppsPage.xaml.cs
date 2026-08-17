@@ -118,20 +118,32 @@ namespace Focus_Bear.Onboarding
                         return;
                 }
 
+                // Files picked via "Select File" — each stored with the exes from its install folder.
+                foreach (var custom in aa.SelectedCustomApps)
+                {
+                    if (!appSettings.arrAlwaysBlockedApps.Any(i => i.AppName.ToLower() == custom.AppName.ToLower()))
+                    {
+                        appSettings.arrAlwaysBlockedApps.Add(custom);
+                        appSettings.CapturePostHog("added-always-blocked-app-manually");
+                    }
+                }
+
+                // Typed names — added alongside any selected files.
                 if (!string.IsNullOrEmpty(sApps))
                 {
                     string[] apps = sApps.Split(',');
                     bool bAppAdded = false;
                     foreach (string app in apps)
                     {
-                        string trimmedApp = app.Trim();
+                        string trimmedApp = app.Trim().Trim('"');
                         if (!string.IsNullOrEmpty(trimmedApp))
                         {
                             string appName = System.IO.Path.GetFileNameWithoutExtension(trimmedApp);
+                            string exeName = System.IO.Path.GetFileName(trimmedApp);
                             var listItems = appSettings.arrAlwaysBlockedApps.Where(i => i.AppName.ToLower() == appName.ToLower());
                             if (listItems.Count() == 0)
                             {
-                                appSettings.arrAlwaysBlockedApps.Add(new AppDetails(appName, trimmedApp));
+                                appSettings.arrAlwaysBlockedApps.Add(new AppDetails(appName, exeName));
                                 bAppAdded = true;
                             }
                         }
