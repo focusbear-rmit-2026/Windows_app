@@ -142,6 +142,12 @@ namespace Focus_Bear.Habits
         private bool _morningRoutineCancelled;
         private bool _eveningRoutineCancelled;
 
+        // True when today's plan contains at least one meeting. A routine can "overflow" (not fit its
+        // window) either because meetings pack the day (#1371) OR simply because its window is nearly
+        // closed at the morning→evening handoff. Only the former warrants the "meetings fill your day"
+        // overflow message; without meetings we render the routine normally (set in RenderDayPlan).
+        private bool _dayHasMeetings;
+
         // After a local cancel/uncancel the backend's was_force_completed can lag a moment, so a refresh that
         // re-reads it would wrongly flip our just-set state back. Trust the local flags until this time.
         private DateTime _cancelStateStickyUntil = DateTime.MinValue;
@@ -279,6 +285,7 @@ namespace Focus_Bear.Habits
             DayPlanStack.Children.Add(BuildDateBar());
 
             List<ScheduleBlock> blocks = DayPlanDataSource.BuildBlocks(_selectedDate, includeDismissedMeetings: _showDismissedMeetings);
+            _dayHasMeetings = blocks.Exists(b => b.Kind == ScheduleBlockKind.Meeting);
 
             // Deep-work sprints are task drop targets (like habit rows). Pre-compute which deep-work
             // task belongs to which sprint once, using nearest-anchor matching (M7 — deep-work targets).
@@ -318,10 +325,19 @@ namespace Focus_Bear.Habits
                     }
                     else
                     {
-                        while (i < blocks.Count && blocks[i].Kind == ScheduleBlockKind.Habit && blocks[i].RoutineName == name)
+                        // Collect this routine's consecutive habits, but step over any blocks already
+                        // consumed by an overflowed routine's card. Without this, an overflowed routine's
+                        // habit (stacked at a fictional time) sorted between two of THIS routine's habits
+                        // would break the run and split this routine across several cards (#1371 follow-up).
+                        while (i < blocks.Count)
                         {
-                            group.Add(blocks[i]);
-                            i++;
+                            if (consumed.Contains(i)) { i++; continue; }
+                            if (blocks[i].Kind == ScheduleBlockKind.Habit && blocks[i].RoutineName == name)
+                            {
+                                group.Add(blocks[i]);
+                                i++;
+                            }
+                            else break;
                         }
                     }
                     renderedRoutines.Add(name);
@@ -598,7 +614,10 @@ namespace Focus_Bear.Habits
             // The active routine doesn't fit around today's meetings (#1371). It stays startable, but the
             // card defaults to collapsed ONLY in this case — its header shows a short "not enough time"
             // heading (in place of the time range), and the full explanation shows once expanded.
-            bool hasOverflow = isActive && habits.Exists(b => b.DidOverflow);
+            // Gate on the day actually having meetings: an active routine can also "overflow" simply because
+            // its window is nearly closed at the morning→evening handoff (no meetings) — that must render as
+            // a normal card, not the misleading "your meetings fill the day" message.
+            bool hasOverflow = isActive && _dayHasMeetings && habits.Exists(b => b.DidOverflow);
             ScheduleBlock first = habits[0];
             ScheduleBlock last = habits[habits.Count - 1];
             string name = string.IsNullOrEmpty(first.RoutineName) ? "Habits" : first.RoutineName;
