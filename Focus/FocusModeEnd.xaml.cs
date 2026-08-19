@@ -194,6 +194,29 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("Take5MinsBreak() pre-finish work EX (continuing to dismiss the screen) - " + exPre.Message);
             }
 
+            // Show the break UI up-front, BEFORE the FinishFocusMode / UpdateAllFocusModes calls below, so
+            // the popup appears immediately instead of waiting on two network round-trips (that delay was
+            // the "break popup shows late" issue). Nothing here depends on those API results (they're only
+            // logged), and sRunningFocusModeID is still current at the call site because showing the popup
+            // doesn't start a new session. The force-close / start-another-mode guards that used to be the
+            // early-returns after the awaits now wrap this whole break-UI block. #1065
+
+            if (!appSettings.bForceClosingFocusMode && !appSettings.bStartingAnotherFocusMode)
+            {
+                //Since the user is taking a few minutes break, we need to push back the micro breaks
+                //Only if morning habits have been done
+                if (((App)(Application.Current)).isMorningHabitsAlreadyShown)
+                    ((App)(Application.Current)).StartBreakActivityTimer();
+
+                if (!bDoNotShowBreak) 
+                {
+                    appSettings.bHabitwithAllowedAppsRunning = false; //reset
+                    appSettings.bHabitwithUserActionNonTimerRunning = false; //reset
+                                                                             //Show the Break Window
+                    ((App)(Application.Current)).ShowBreakWindow();
+                }
+            }
+
             //Call api to finish focus mode
             FocusBearAPIClient client = new FocusBearAPIClient();
             try
@@ -223,19 +246,7 @@ namespace Focus_Bear.Focus
             if (appSettings.bStartingAnotherFocusMode)
                 return;
 
-            //Since the user is taking a few minutes break, we need to push back the micro breaks
-            //Only if morning habits have been done
-            if(((App)(Application.Current)).isMorningHabitsAlreadyShown)
-                ((App)(Application.Current)).StartBreakActivityTimer();
-
-            if (!bDoNotShowBreak)
-            {
-                appSettings.bHabitwithAllowedAppsRunning = false; //reset
-                appSettings.bHabitwithUserActionNonTimerRunning = false; //reset
-                //Show the Break Window
-                ((App)(Application.Current)).ShowBreakWindow();
-            }
-
+            
             //Ask the user for adding temp apps / urls but should not be Super distracting URLs focus mode
             bool bRunningDefaultFocusMode = false;
             var listItemsDefault = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());

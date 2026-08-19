@@ -5727,6 +5727,13 @@ namespace Focus_Bear
                 appSettings.isFocusModeRunning = true;
                 appSettings.isFocusModePaused = false;
 
+                // A focus session is starting — dismiss the break popup if it's still on screen. #1065
+                if (wndTakeABreak != null && wndTakeABreak.IsVisible)
+                {
+                    wndTakeABreak.Close();
+                    wndTakeABreak = null;
+                }
+
                 DateTime dTill = DateTime.Now;
 
                 appSettings.sRunningFocusModeStartTime = dTill.ToString("yyyy-MM-dd HH:mm:ss");
