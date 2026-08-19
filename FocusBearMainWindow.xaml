@@ -264,6 +264,7 @@
                                                 HorizontalAlignment="Stretch"
                                                 ToolTip="{Binding Title}"
                                                 ToolTipService.InitialShowDelay="100"
+                                                AutomationProperties.AutomationId="{Binding ButtonType, StringFormat=navItem_{0}}"
                                                 MouseLeftButtonDown="NavLeaf_Click" >
                                                 <Border.Style>
                                                     <Style TargetType="Border">

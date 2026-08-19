@@ -279,7 +279,7 @@
                               Foreground="{x:Null}" SelectionChanged="ListFocusModes_SelectionChanged">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Grid x:Name="ItemHeader" Height="40" Margin="0" IsHitTestVisible="True" Cursor="Hand">
+                                <Grid x:Name="ItemHeader" AutomationProperties.AutomationId="gridFocusModeRow" Height="40" Margin="0" IsHitTestVisible="True" Cursor="Hand">
                                     <Grid.Style>
                                         <Style TargetType="{x:Type Grid}">
                                             <Style.Triggers>
@@ -344,7 +344,7 @@
                     <Border Grid.Column="0" CornerRadius="6" BorderBrush="#9A9A9A" BorderThickness="1"
                             Background="{DynamicResource TextBoxBackgroundColor}" Padding="8,5" VerticalAlignment="Center">
                         <Grid>
-                        <TextBox x:Name="txtFocusGoal" FontSize="13" BorderThickness="0" VerticalContentAlignment="Center"
+                        <TextBox x:Name="txtFocusGoal" AutomationProperties.AutomationId="txtBoxFocusGoal" FontSize="13" BorderThickness="0" VerticalContentAlignment="Center"
                                  Background="Transparent" Foreground="{DynamicResource ForegroundColor}"/>
                         <TextBlock x:Name="FocusGoalPlaceholder" Text="Enter Focus Goal here" FontSize="13" IsHitTestVisible="False"
                                    Foreground="{DynamicResource TraySubtitleColor}" VerticalAlignment="Center" Margin="2,0,0,0">
@@ -370,7 +370,7 @@
 
                 <TextBlock x:Name="SelectFocusModeLabel" Text="Select Focus Mode" FontSize="12" FontWeight="SemiBold"
                            Foreground="{DynamicResource TraySubtitleColor}" Margin="2,10,0,4"/>
-                <ComboBox x:Name="cmbFocusModes" Height="32" FontSize="13"
+                <ComboBox x:Name="cmbFocusModes" AutomationProperties.AutomationId="cmbFocusModes" Height="32" FontSize="13"
                           DisplayMemberPath="name" SelectedValuePath="id"/>
 
                 <Border Margin="0,10,0,0" CornerRadius="14" Background="#f0932a" ClipToBounds="True">
@@ -411,13 +411,13 @@
                     Click='btnStopPomodoroMode_Click'>
                 <Button.ContextMenu>
                     <ContextMenu x:Name="FocusSessionContextMenu">
-                        <MenuItem x:Name="PauseResumeFocusMenuItem">
+                        <MenuItem x:Name="PauseResumeFocusMenuItem" AutomationProperties.AutomationId="mnuPauseResume">
                             <MenuItem.Icon>
                                 <Image Width="16" Height="16" Source="pack://application:,,,/Focus Bear;component/images/pause_icon.png" />
                             </MenuItem.Icon>
                             <MenuItem.Header>xPause Focus Session</MenuItem.Header>
                         </MenuItem>
-                        <MenuItem x:Name="StopFocusSessionMenuItem">
+                        <MenuItem x:Name="StopFocusSessionMenuItem" AutomationProperties.AutomationId="mnuStopSession">
                             <MenuItem.Icon>
                                 <Image Width="16" Height="16" Source="pack://application:,,,/Focus Bear;component/images/stop_icon.png" />
                             </MenuItem.Icon>
@@ -519,7 +519,7 @@
                     BorderBrush="{DynamicResource TrayCardBorder}" BorderThickness="1" ClipToBounds="True"
                     MouseEnter="AccordionCard_MouseEnter" MouseLeave="AccordionCard_MouseLeave">
                 <StackPanel Orientation="Vertical">
-                    <Button x:Name="btnBreaksHeader" Style="{StaticResource AccordionHeaderButton}" Click="btnBreaksHeader_Click">
+                    <Button x:Name="btnBreaksHeader" AutomationProperties.AutomationId="btnBreaksHeader" Style="{StaticResource AccordionHeaderButton}" Click="btnBreaksHeader_Click">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -546,7 +546,7 @@
                         <StackPanel Margin="0,0,0,12">
                             <TextBlock x:Name="BreaksStatusText" Margin="16,12,16,2" FontSize="13" Foreground="{DynamicResource TraySubtitleColor}"
                                        TextWrapping="Wrap" Text="Take a break whenever you need one."/>
-                            <Button x:Name="btnStartBreakNow" Style="{StaticResource AccordionHeaderButton}"
+                            <Button x:Name="btnStartBreakNow" AutomationProperties.AutomationId="btnStartBreakNow" Style="{StaticResource AccordionHeaderButton}"
                                     HorizontalAlignment="Left" Click="btnStartBreakNow_Click">
                                 <TextBlock x:Name="StartBreakNowText" FontSize="14" FontWeight="SemiBold" Foreground="#e88800"
                                            Text="Start a break now"/>
@@ -558,7 +558,7 @@
                                            Text="Resume automatic breaks"/>
                             </Button>
                             <!-- Shown instead of "Start a break now" when there are no break activities configured. -->
-                            <Button x:Name="btnAddBreakActivity" Style="{StaticResource AccordionHeaderButton}" Visibility="Collapsed"
+                            <Button x:Name="btnAddBreakActivity" AutomationProperties.AutomationId="btnAddBreakActivity" Style="{StaticResource AccordionHeaderButton}" Visibility="Collapsed"
                                     HorizontalAlignment="Left" Click="btnAddBreakActivity_Click">
                                 <TextBlock x:Name="AddBreakActivityText" FontSize="14" FontWeight="SemiBold" Foreground="#e88800"
                                            Text="Add break activity"/>
@@ -608,7 +608,7 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock x:Name="DayPlanNextHabit" Grid.Column="0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
                                            FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundColor}" Text="No habits scheduled"/>
-                                <Button x:Name="btnDayPlanStart" Grid.Column="1" Style="{StaticResource MacCtaButton}" Margin="8,0,0,0"
+                                <Button x:Name="btnDayPlanStart" AutomationProperties.AutomationId="btnDayPlanStart" Grid.Column="1" Style="{StaticResource MacCtaButton}" Margin="8,0,0,0"
                                         Padding="16,6" Click="btnDayPlanStart_Click">
                                     <TextBlock x:Name="DayPlanStartText" Text="Start" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
                                 </Button>
@@ -631,6 +631,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Button Style="{StaticResource PlainRowButton}" Tag="{Binding Id}"
+                                                    AutomationProperties.AutomationId="btnDayPlanTaskRow"
                                                     Click="DayPlanTask_Click" ToolTip="Mark done">
                                                 <StackPanel Orientation="Horizontal" Margin="0,3">
                                                     <Ellipse Width="14" Height="14" Stroke="{DynamicResource TrayChevronColor}"
@@ -645,7 +646,7 @@
                                 </ItemsControl>
                             </StackPanel>
 
-                            <Button x:Name="btnViewFullDayPlan" Style="{StaticResource AccordionHeaderButton}" HorizontalAlignment="Left"
+                            <Button x:Name="btnViewFullDayPlan" AutomationProperties.AutomationId="btnViewFullDayPlan" Style="{StaticResource AccordionHeaderButton}" HorizontalAlignment="Left"
                                     Margin="0,8,0,0" Padding="0,4" Click="btnDayPlan_Click">
                                 <TextBlock x:Name="ViewFullDayPlanText" Text="View full day plan" FontSize="13" FontWeight="SemiBold" Foreground="#e88800"/>
                             </Button>
@@ -660,7 +661,7 @@
                     MouseEnter="AccordionCard_MouseEnter" MouseLeave="AccordionCard_MouseLeave">
                 <StackPanel Orientation="Vertical">
                     <!-- Header (tap to expand/collapse) -->
-                    <Button x:Name="btnToolsHeader" Style="{StaticResource AccordionHeaderButton}" Click="btnToolsHeader_Click">
+                    <Button x:Name="btnToolsHeader" AutomationProperties.AutomationId="btnToolsHeader" Style="{StaticResource AccordionHeaderButton}" Click="btnToolsHeader_Click">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
