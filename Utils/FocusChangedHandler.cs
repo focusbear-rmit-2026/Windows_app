@@ -154,12 +154,12 @@ namespace FocusBear.Utils
             //A paused focus session must not keep blocking apps - pausing means "suspend focus enforcement
             //until resumed" (#1274). Treat isFocusModePaused like a paused blocking schedule (already
             //excluded via !ActiveSchedule.isPaused).
-            if ((appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || appSettings.bHabitwithUseFocusModeRunning || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
+            if ((appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || appSettings.bHabitwithUseFocusModeRunning || appSettings.IsBlockingScheduleActiveAndNotPaused(out _))
             {
                 processCurrentFocusElement(element);
             }
 
-            if (appSettings.bHabitwithAllowedAppsRunning || (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
+            if (appSettings.bHabitwithAllowedAppsRunning || (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || appSettings.IsBlockingScheduleActiveAndNotPaused(out _))
                 return;
 
             if (appSettings.IsAppDeactivated())//no need to track always blocked urls
@@ -525,9 +525,9 @@ namespace FocusBear.Utils
                         {
                             listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.sUseFocusModeIDInActivity).ToList();
                         }
-                        else if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                        else if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForFocusMode)) // Blocking schedule
                         {
-                            listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.ActiveSchedule.SelectedFocusModeId).ToList();
+                            listItems = appSettings.arrFocusModes.Where(i => i.id == scheduleForFocusMode.SelectedFocusModeId).ToList();
                         }
                         else //Normal focus mode running
                         {
@@ -599,8 +599,8 @@ namespace FocusBear.Utils
 
                                     // Is the AI app-check enabled for the current context (global / blocking-schedule / teacher)?
                                     bool bAiCheckEnabled = appSettings.bAiCheckUrlEnabled;
-                                    if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
-                                        bAiCheckEnabled = appSettings.ActiveSchedule.bAIBlockingEnabled;
+                                    if (appSettings.TryGetActiveSchedule(out var scheduleForAiCheck))
+                                        bAiCheckEnabled = scheduleForAiCheck.bAIBlockingEnabled;
                                     if (TeacherSessionManager.Instance.IsTeacherSessionActive())
                                         bAiCheckEnabled = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
 

@@ -87,12 +87,12 @@ namespace Focus_Bear.Utils
             //enforcement until resumed" (#1274). Treat isFocusModePaused like a paused blocking schedule
             //(which is already excluded via !ActiveSchedule.isPaused). Falls through to the baseline
             //always-blocked-URLs handling below, same as when no focus session is running.
-            if ((appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || appSettings.bHabitwithUseFocusModeRunning || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
+            if ((appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || appSettings.bHabitwithUseFocusModeRunning || appSettings.IsBlockingScheduleActiveAndNotPaused(out _))
             {
                 ProcessURLForFocusModes(hwnd);
             }
 
-            if (appSettings.bHabitwithAllowedAppsRunning || (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
+            if (appSettings.bHabitwithAllowedAppsRunning || (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || appSettings.IsBlockingScheduleActiveAndNotPaused(out _))
                 return;
 
             if(appSettings.IsAppDeactivated())//no need to track always blocked urls
@@ -508,9 +508,9 @@ namespace Focus_Bear.Utils
             {
                 listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.sUseFocusModeIDInActivity).ToList();
             }
-            else if(appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+            else if(appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForFocusMode)) // Blocking schedule
             {
-                listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.ActiveSchedule.SelectedFocusModeId).ToList();
+                listItems = appSettings.arrFocusModes.Where(i => i.id == scheduleForFocusMode.SelectedFocusModeId).ToList();
             }
             else //Normal focus mode running
             {
@@ -857,9 +857,9 @@ namespace Focus_Bear.Utils
             {
                 listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.sUseFocusModeIDInActivity).ToList();
             }
-            else if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+            else if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForFocusMode2)) // Blocking schedule
             {
-                listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.ActiveSchedule.SelectedFocusModeId).ToList();
+                listItems = appSettings.arrFocusModes.Where(i => i.id == scheduleForFocusMode2.SelectedFocusModeId).ToList();
             }
             else //Normal focus mode running
             {
@@ -1376,8 +1376,8 @@ namespace Focus_Bear.Utils
 
             // Is the AI URL check switched on for the current context (global / blocking-schedule / teacher session)?
             bool bAiCheckEnabled = appSettings.bAiCheckUrlEnabled;
-            if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
-                bAiCheckEnabled = appSettings.ActiveSchedule.bAIBlockingEnabled;
+            if (appSettings.TryGetActiveSchedule(out var scheduleForAiCheck))
+                bAiCheckEnabled = scheduleForAiCheck.bAIBlockingEnabled;
             if (bTeacherActive)
                 bAiCheckEnabled = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
 
@@ -1581,9 +1581,9 @@ namespace Focus_Bear.Utils
                             sEndTime = "";
                         }
 
-                        if(appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+                        if(appSettings.TryGetActiveSchedule(out var scheduleForEndTime))
                         {
-                            if (DateTime.TryParse(appSettings.ActiveSchedule.EndTimeValue,
+                            if (DateTime.TryParse(scheduleForEndTime.EndTimeValue,
                                               out DateTime endTBS))
                             {
                                 sEndTime = endTBS.ToUniversalTime().ToString("o");
@@ -1762,11 +1762,11 @@ namespace Focus_Bear.Utils
                 if (blockReason == "ai_blocking" || blockReason == "block_in_focus_mode")
                 {
                     string blockMode;
-                    if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+                    if (appSettings.TryGetActiveSchedule(out var scheduleForBlockMode))
                     {
-                        if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+                        if (scheduleForBlockMode.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
                             blockMode = "super_strict";
-                        else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
+                        else if (scheduleForBlockMode.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
                             blockMode = "strict";
                         else
                             blockMode = "normal";

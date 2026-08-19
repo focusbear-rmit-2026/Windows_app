@@ -189,9 +189,9 @@ namespace Focus_Bear.Focus
                     bAICheckRequired = false;
                 }
 
-                if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+                if (appSettings.TryGetActiveSchedule(out var scheduleForAiReq))
                 {
-                    bAICheckRequired = appSettings.ActiveSchedule.bAIBlockingEnabled;
+                    bAICheckRequired = scheduleForAiReq.bAIBlockingEnabled;
                     ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
                 }
 
@@ -232,9 +232,9 @@ namespace Focus_Bear.Focus
                     bAICheckRequired = false;
                 }
 
-                if(appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+                if(appSettings.TryGetActiveSchedule(out var scheduleForAiReq2))
                 {
-                    if(appSettings.ActiveSchedule.bAIBlockingEnabled)
+                    if(scheduleForAiReq2.bAIBlockingEnabled)
                     {
                         ReportBadAIDecision.Visibility = Visibility.Visible;
                         bAICheckRequired = true;
@@ -356,9 +356,9 @@ namespace Focus_Bear.Focus
                     TextBlockThisPage.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockUrlText"].ToString();
                 }
 
-                if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForHeading)) // Blocking schedule
                 {
-                    sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
+                    sHeading = sHeading.Replace("<FOCUSTYPE>", scheduleForHeading.name);
                 }
                 else
                 {
@@ -527,9 +527,9 @@ namespace Focus_Bear.Focus
                             sHeading = sHeading + "\n\n" + "The status of this url could not be verified.";
                             sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
 
-                            if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                            if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForHeading2)) // Blocking schedule
                             {
-                                sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
+                                sHeading = sHeading.Replace("<FOCUSTYPE>", scheduleForHeading2.name);
                             }
                             else
                             {
@@ -777,9 +777,9 @@ namespace Focus_Bear.Focus
                                     sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
 
                                     
-                                    if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                                    if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForHeading3)) // Blocking schedule
                                     {
-                                        sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
+                                        sHeading = sHeading.Replace("<FOCUSTYPE>", scheduleForHeading3.name);
                                     }
                                     else
                                     {
@@ -1277,9 +1277,9 @@ namespace Focus_Bear.Focus
                 bAICheckRequired = false;
             }
 
-            if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
+            if (appSettings.TryGetActiveSchedule(out var scheduleForAiReq3))
             {
-                if (appSettings.ActiveSchedule.bAIBlockingEnabled)
+                if (scheduleForAiReq3.bAIBlockingEnabled)
                 {
                     ReportBadAIDecision.Visibility = Visibility.Visible;
                     bAICheckRequired = true;

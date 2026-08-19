@@ -607,6 +607,23 @@ namespace Focus_Bear.Utils
         public bool isBlockingScheduleRunning = false;
         public CustomBlockingSchedule ActiveSchedule = null;
 
+        // ActiveSchedule (a reference) and isBlockingScheduleRunning (a bool) are updated on the UI thread
+        // but read on the background UI-Automation COM thread (FocusChangedHandler / ProcessBrowserURLs).
+        // Reading them as two separate fields is a TOCTOU race: the flag can read true, then ActiveSchedule
+        // is nulled, then the deref throws NullReferenceException (Sentry #6573800049, #1048). These helpers
+        // capture the reference ONCE into a local so the null-check and the member access see the same value.
+        public bool IsBlockingScheduleActiveAndNotPaused(out CustomBlockingSchedule schedule)
+        {
+            schedule = ActiveSchedule; // capture once — avoids the TOCTOU race
+            return isBlockingScheduleRunning && schedule != null && !schedule.isPaused;
+        }
+
+        public bool TryGetActiveSchedule(out CustomBlockingSchedule schedule)
+        {
+            schedule = ActiveSchedule; // capture once — avoids the TOCTOU race
+            return isBlockingScheduleRunning && schedule != null;
+        }
+
         //Meetings detection related
         public bool bIsUserOnCall = false;
         public string sLastAppUsingMicrophone = "";
@@ -2954,8 +2971,8 @@ namespace Focus_Bear.Utils
                 string id = null;
                 if (bHabitwithUseFocusModeRunning)
                     id = sUseFocusModeIDInActivity;
-                else if (isBlockingScheduleRunning && ActiveSchedule != null && !ActiveSchedule.isPaused)
-                    id = ActiveSchedule.SelectedFocusModeId;
+                else if (IsBlockingScheduleActiveAndNotPaused(out var schedule))
+                    id = schedule.SelectedFocusModeId;
 
                 if (!string.IsNullOrEmpty(id))
                     return arrFocusModes.FirstOrDefault(i => i.id == id);

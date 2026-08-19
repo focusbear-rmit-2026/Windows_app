@@ -649,7 +649,8 @@ namespace Focus_Bear.Pomodoro
         {
             if (BlockingScheduleManager.IsIronFocusScheduleActive())
             {
-                ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
+                var scheduleForPomodoro = appSettings.ActiveSchedule;   // capture once — may be nulled on the UI thread
+                ComboBoxFocusModes.SelectedValue = scheduleForPomodoro?.FocusModeName;
                 ComboBoxFocusModes.IsEnabled = false;
                 BlockingScheduleBannerText.Text = appSettings.ConfigFileStrings?["pomodoroInfo"]?["superStrictBlockingActiveMessage"]?.ToString()
                     ?? "A super strict blocking schedule is active.";

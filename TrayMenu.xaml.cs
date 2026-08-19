@@ -383,7 +383,7 @@ namespace Focus_Bear
 
                     //Focus Alignment score
                     bool bShowAlignmentScore = appSettings.isFocusModeRunning ||
-                        (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled);
+                        (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForAlignScore) && scheduleForAlignScore.bAIBlockingEnabled);
                     //Teacher Mode - during a class session the score follows the session's ai_blocking_enabled
                     //setting (isFocusModeRunning is always true then, so it would otherwise always show).
                     if (TeacherSessionManager.Instance.IsTeacherSessionActive())
@@ -467,12 +467,12 @@ namespace Focus_Bear
                     }
                 }
 
-                if (appSettings.isBlockingScheduleRunning)
+                if (appSettings.TryGetActiveSchedule(out var scheduleForTray))
                 {
                     BlockingScheduleSection.Visibility = Visibility.Visible;
-                    BlockingScheduleName.Text = appSettings.ActiveSchedule.name;
-                    BlockingScheduleTime.Text = appSettings.ActiveSchedule.BlockingScheduleDaysTime;
-                    if (appSettings.ActiveSchedule.isPaused)
+                    BlockingScheduleName.Text = scheduleForTray.name;
+                    BlockingScheduleTime.Text = scheduleForTray.BlockingScheduleDaysTime;
+                    if (scheduleForTray.isPaused)
                     {
                         BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
                     }
@@ -1719,9 +1719,8 @@ namespace Focus_Bear
                 // A blocking schedule is active (and not paused) with micro-breaks off. Mirrors
                 // dispatcherTimer_Breaks, which suppresses breaks when !ActiveSchedule.bMicroBreaksEnabled
                 // (field means "enabled": true = on). A paused schedule enforces nothing, so breaks resume.
-                if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning
-                    && !appSettings.ActiveSchedule.isPaused
-                    && !appSettings.ActiveSchedule.bMicroBreaksEnabled)
+                if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForBreaks)
+                    && !scheduleForBreaks.bMicroBreaksEnabled)
                 {
                     string msg = MenuInfoString("breaksDisabledBlockingScheduleActive", "Blocking schedule is active. Breaks disabled.");
                     SetBreaksDisabled(msg, msg);
@@ -1948,9 +1947,10 @@ namespace Focus_Bear
         private void btnPauseBlockingSchedule_Checked(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("BlockingSchedule Reactivated from menu");
-            if (appSettings.ActiveSchedule != null)
+            var scheduleToReactivate = appSettings.ActiveSchedule;   // capture once
+            if (scheduleToReactivate != null)
             {
-                appSettings.ActiveSchedule.isPaused = false;
+                scheduleToReactivate.isPaused = false;
                 BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
 
                 //In case the pomodoro page is visible, lets reload it
@@ -1963,15 +1963,16 @@ namespace Focus_Bear
         private void btnPauseBlockingSchedule_Unchecked(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("BlockingSchedule Paused from menu");
-            if (appSettings.ActiveSchedule != null)
+            var scheduleToPause = appSettings.ActiveSchedule;   // capture once
+            if (scheduleToPause != null)
             {
-                if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.CHILL_MODE)
+                if (scheduleToPause.BlockLevel == FOCUSMODESTRICTNESS.CHILL_MODE)
                 {
-                    appSettings.ActiveSchedule.isPaused = true;
+                    scheduleToPause.isPaused = true;
 
-                    BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
+                    BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused";
                 }
-                else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
+                else if (scheduleToPause.BlockLevel == FOCUSMODESTRICTNESS.STRICT)
                 {
                     //Timer
                     BlockingScheduleStrictTimer mwndTimer = new BlockingScheduleStrictTimer();
@@ -1981,16 +1982,17 @@ namespace Focus_Bear
 
                     if (dialogResult.Value == true)
                     {
-                        if (appSettings.ActiveSchedule != null)
+                        var scheduleAfterDialog = appSettings.ActiveSchedule;   // re-capture after the dialog
+                        if (scheduleAfterDialog != null)
                         {
-                            appSettings.ActiveSchedule.isPaused = true;
+                            scheduleAfterDialog.isPaused = true;
 
                             ((App)(Application.Current)).wndTrayMenu.BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Active";
                         }
                     }
                     else
                     {
-                        appSettings.ActiveSchedule.isPaused = false;
+                        scheduleToPause.isPaused = false;
 
                         BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
                         Dispatcher.BeginInvoke(new Action(() =>
@@ -1999,7 +2001,7 @@ namespace Focus_Bear
                         }), System.Windows.Threading.DispatcherPriority.Normal);
                     }
                 }
-                else if (appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
+                else if (scheduleToPause.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
                 {
                     if(appSettings.isPasswordSet)
                     {
@@ -2011,13 +2013,13 @@ namespace Focus_Bear
                         if (bRes.Value)
                         {
                             //Password is correct
-                            appSettings.ActiveSchedule.isPaused = true;
-                            BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused"; 
+                            scheduleToPause.isPaused = true;
+                            BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["statePaused"].ToString(); //"Paused";
 
                         }
                         else
                         {
-                            appSettings.ActiveSchedule.isPaused = false;
+                            scheduleToPause.isPaused = false;
 
                             BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
                             Dispatcher.BeginInvoke(new Action(() =>
@@ -2033,7 +2035,7 @@ namespace Focus_Bear
                         ff.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                         ff.ShowDialog();
 
-                        appSettings.ActiveSchedule.isPaused = false;
+                        scheduleToPause.isPaused = false;
 
                         BlockingScheduleState.Text = appSettings.ConfigFileStrings["menuInfo"]["stateActive"].ToString(); //"Active";
                         Dispatcher.BeginInvoke(new Action(() =>

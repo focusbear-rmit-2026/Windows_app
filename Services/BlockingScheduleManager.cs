@@ -417,11 +417,12 @@ namespace Focus_Bear.Services
                 return;
             }
 
-            appSettings.ActiveSchedule = GetActiveSchedule();
-            if(appSettings.ActiveSchedule != null)
+            var newSchedule = GetActiveSchedule();
+            appSettings.ActiveSchedule = newSchedule;
+            if(newSchedule != null)
             {
                 //Start it
-                appSettings.ActiveSchedule.isOn = true;
+                newSchedule.isOn = true;
                 appSettings.isBlockingScheduleRunning = true;
 
                 FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
@@ -429,7 +430,7 @@ namespace Focus_Bear.Services
                 appSettings.sRunningFocusModeIntention = ""; //Reset
                 appSettings.sCurrentTaskPlayingInToDoPlayer = ""; //Reset
 
-                if (!appSettings.ActiveSchedule.isPaused) //check if it was running and paused
+                if (!newSchedule.isPaused) //check if it was running and paused
                     ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = true; //Active
                 else
                     ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = false; //Paused
@@ -438,21 +439,23 @@ namespace Focus_Bear.Services
 
         public static void CheckCustomBlockingScheduleTimeToStop()
         {
-            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+            if (appSettings.TryGetActiveSchedule(out var currentSchedule))
             {
                 CustomBlockingSchedule TempSchedule = GetActiveSchedule();
                 if(TempSchedule == null || appSettings.ActiveSchedule != TempSchedule) //will be null if no time matches
                 {
-                    appSettings.ActiveSchedule.isOn = false;
+                    // Stop: update the captured reference, then clear the flag and null the field. Readers on
+                    // the background thread use the capture-once accessors so they never deref a nulled field.
+                    currentSchedule.isOn = false;
                     appSettings.isBlockingScheduleRunning = false;
-                    appSettings.ActiveSchedule = null; 
+                    appSettings.ActiveSchedule = null;
                 }
                 else
                 {
                     //if a focusmode is running then also we need to stop it
                     if(appSettings.isFocusModeRunning || ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) && (!appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState)))
                     {
-                        appSettings.ActiveSchedule.isOn = false;
+                        currentSchedule.isOn = false;
                         appSettings.isBlockingScheduleRunning = false;
                         appSettings.ActiveSchedule = null;
                     }
@@ -464,10 +467,8 @@ namespace Focus_Bear.Services
         // Focus session views use this to lock controls and show the active-schedule banner.
         public static bool IsIronFocusScheduleActive()
         {
-            return appSettings.ActiveSchedule != null
-                && appSettings.isBlockingScheduleRunning
-                && !appSettings.ActiveSchedule.isPaused
-                && appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS;
+            return appSettings.IsBlockingScheduleActiveAndNotPaused(out var schedule)
+                && schedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS;
         }
 
         private static CustomBlockingSchedule GetActiveSchedule()

@@ -1268,10 +1268,9 @@ namespace Focus_Bear
                     return;
                 }
 
-                if(appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning
-                    && !appSettings.ActiveSchedule.isPaused)
+                if(appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForBreakTimer))
                 {
-                    if (!appSettings.ActiveSchedule.bMicroBreaksEnabled)
+                    if (!scheduleForBreakTimer.bMicroBreaksEnabled)
                     {
                         LogWriter.LogWrite("appSettings.ActiveSchedule.bMicroBreaksEnabled is false - return reset timer");
                         //Start the break Activities Timer

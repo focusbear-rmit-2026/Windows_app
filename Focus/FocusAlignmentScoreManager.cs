@@ -47,9 +47,9 @@ namespace Focus_Bear.Focus
             IsCuddlyModeEnabled = (appSettings.nFocusBearMode == 1) ? true : false;
             IsAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabled;
 
-            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning )
+            if (appSettings.TryGetActiveSchedule(out var scheduleForAppScore))
             {
-                if (!appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled)
+                if (!scheduleForAppScore.isPaused && scheduleForAppScore.bAIBlockingEnabled)
                 {
                     IsAiCheckUrlEnabled = true;
                 }
@@ -165,9 +165,9 @@ namespace Focus_Bear.Focus
 
         public static void FocusModeOpenCurrentUrlForAlignmentScore(string domain)
         {
-            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+            if (appSettings.TryGetActiveSchedule(out var scheduleForUrlScore))
             {
-                if (!appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled)
+                if (!scheduleForUrlScore.isPaused && scheduleForUrlScore.bAIBlockingEnabled)
                 {
                     IsAiCheckUrlEnabled = true;
                 }
@@ -302,10 +302,8 @@ namespace Focus_Bear.Focus
             try
             {
                 bool aiActiveForSession = appSettings.isFocusModeRunning && appSettings.bAiCheckUrlEnabled;
-                bool aiActiveForSchedule = appSettings.isBlockingScheduleRunning &&
-                    appSettings.ActiveSchedule != null &&
-                    appSettings.ActiveSchedule.bAIBlockingEnabled &&
-                    !appSettings.ActiveSchedule.isPaused;
+                bool aiActiveForSchedule = appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForNotify)
+                    && scheduleForNotify.bAIBlockingEnabled;
 
                 if (!(aiActiveForSession || aiActiveForSchedule))
                     return;
