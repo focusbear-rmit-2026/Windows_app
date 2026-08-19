@@ -3,6 +3,7 @@ using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,7 +23,10 @@ namespace Focus_Bear.Preferences
     public partial class AskPassword : Window
     {
         AppSettings appSettings = AppSettings.GetInstance;
- 
+
+        // A variable to hold the generated password
+        private string _generatedPassword;
+
         public AskPassword()
         {
             InitializeComponent();
@@ -42,16 +46,21 @@ namespace Focus_Bear.Preferences
                 btnOKTXT.Text = appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString();
                 btnCancelTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
 
-                PasswordTab.Header = "Password";
-                AccountabilityBuddy.Header = "Accountability Buddy";
+                RandomPasswordHeading.Text = appSettings.ConfigFileStrings["enterPasswordViewInfo"]["titleEnterCharacters"].ToString();
+                btnCancelRandomTXT.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();
+                btnOKRandomTXT.Text = appSettings.ConfigFileStrings["common"]["buttonOkText"].ToString();
 
-                TxtPassword.Focus();
+                PasswordTab.Header = appSettings.ConfigFileStrings["enterPasswordViewInfo"]["tabViewPasswordTitle"].ToString();
+                RandomPasswordTab.Header = appSettings.ConfigFileStrings["enterPasswordViewInfo"]["tabViewRandomCharactersTitle"].ToString();
+                AccountabilityBuddy.Header = appSettings.ConfigFileStrings["enterPasswordViewInfo"]["tabViewAccountabilityBuddyTitle"].ToString();
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("AskPassword() ex + " + ex.Message);
             }
 
+            //Outside the try: a missing config key must not cost the password box its focus.
+            TxtPassword.Focus();
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
@@ -61,8 +70,7 @@ namespace Focus_Bear.Preferences
 
         private void btnOK_Click(object sender, RoutedEventArgs e)
         {
- 
-            if(TxtPassword.Password.Length == 0)
+            if (TxtPassword.Password.Length == 0)
             {
                 FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["enterPasswordViewInfo"]["blankPasswordErrorTitle"].ToString(), "Focus Bear");
                 ff.Owner = this;
@@ -70,7 +78,7 @@ namespace Focus_Bear.Preferences
             }
             else
             {
-                if(Global.Base64Decode(appSettings.sUserPassword) == TxtPassword.Password)
+                if (Global.Base64Decode(appSettings.sUserPassword) == TxtPassword.Password)
                 {
                     appSettings.PasswordVerifiedTillTime = DateTime.Now.AddMinutes(2);
                     DialogResult = true;
@@ -88,14 +96,24 @@ namespace Focus_Bear.Preferences
         {
             if (e.Source is TabControl)
             {
-                bool isFirstTab = MainTabControl.SelectedIndex == 0;
+                //
+                if (MainTabControl.SelectedItem == RandomPasswordTab)
+                {
+                    this.Height = 360;
+                    this.Width = 500;
 
-                if (isFirstTab )
+                    if (string.IsNullOrEmpty(_generatedPassword))
+                    {
+                        _generatedPassword = GenerateRandomPassword(100);
+                        TxtGeneratedCode.Text = _generatedPassword;
+                    }
+                }
+
+                if (MainTabControl.SelectedItem == PasswordTab)
                 {
                     this.Height = 300;
                     this.Width = 450;
                 }
-               
             }
         }
 
@@ -128,5 +146,46 @@ namespace Focus_Bear.Preferences
                 return;
             }
         }
+
+        private string GenerateRandomPassword(int length)
+        {
+            //The user has to read this off the screen and retype it, so the alphabet leaves out the
+            //glyph pairs that can't be told apart: I/1 and O/0. That also brings it to 32 characters,
+            //which divides 256 exactly, so the modulo below stays unbiased.
+            const string validChars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            byte[] randomBytes = new byte[length];
+
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomBytes);
+            }
+
+            var chars = randomBytes.Select(b => validChars[b % validChars.Length]);
+            return new string(chars.ToArray());
+        }
+
+        private void btnVerifyRandom_Click(object sender, RoutedEventArgs e)
+        {
+            // Clean spaces
+            if (TxtUserEntry.Text.Trim() == _generatedPassword)
+            {
+                //Same grace period the password tab grants, so unlocking this way isn't punished
+                //by being re-challenged on the very next protected action.
+                appSettings.PasswordVerifiedTillTime = DateTime.Now.AddMinutes(2);
+                DialogResult = true;
+            }
+            else
+            {
+                //Neutral caption: no password was entered on this tab, so "Invalid password." would be
+                //misleading. Matches the caption used by the blank-password path above.
+                FBMessageBox ff = new FBMessageBox(appSettings.ConfigFileStrings["enterPasswordViewInfo"]["incorrectCharactersErrorTitle"].ToString(), "Focus Bear");
+                ff.Owner = this;
+                ff.ShowDialog();
+
+                TxtUserEntry.Text = "";
+                TxtUserEntry.Focus();
+            }
+        }
+
     }
 }
