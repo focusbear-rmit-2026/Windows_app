@@ -228,6 +228,7 @@
         "otherReasonText": "Other",
         "loadingText": "Loading...",
         "cutOffTimePassedText": "Running low on time - let's just focus on the high priority habits for the rest of the evening.",
+        "cutOffTimePassedSubText": "Your high priority habits will start in 5 seconds.",
         "noHighPriorityActivityText": "No activities with high Priority found.",
         "focusEndsText": "Focus mode ends in",
         "postponeEndsText": "Habit resumes in",

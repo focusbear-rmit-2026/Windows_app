@@ -228,6 +228,7 @@
         "otherReasonText": "Otro",
         "loadingText": "Cargando",
         "cutOffTimePassedText": "Se está acabando el tiempo - concentrémonos en los hábitos de alta prioridad para el resto de la noche.",
+        "cutOffTimePassedSubText": "Tus hábitos de alta prioridad comenzarán en 5 segundos.",
         "noHighPriorityActivityText": "No se encontraron actividades con alta prioridad.",
         "focusEndsText": "El modo de enfoque termina en",
         "postponeEndsText": "El hábito se reanuda en",

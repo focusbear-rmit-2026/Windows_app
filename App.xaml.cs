@@ -2543,8 +2543,15 @@ namespace Focus_Bear
                                                 //If the above is null, finish screen may be visible, as ShowACtivityFinishedScreen() make is null
                                                 appSettings.RemoveSecondaryWindows();
 
-                                                LogWriter.LogWrite("EVENING_HABITS STATE - now > myCutoffTime - Show Alert");
-                                                FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["common"]["cutOffTimePassedText"].ToString());
+                                                LogWriter.LogWrite("EVENING_HABITS STATE - now > myCutoffTime - Show auto-closing alert, high-priority habits start automatically");
+                                                // Auto-start the high-priority habits at cutoff instead of waiting for the user to
+                                                // click OK (#866). The box auto-closes after 5s (or an early OK), then the flow below
+                                                // (ShowACtivityFinishedScreen) proceeds on its own. The cutoff text is the heading and a
+                                                // subheading tells the user the habits will start shortly.
+                                                string sCutoffMsg = appSettings.ConfigFileStrings["common"]["cutOffTimePassedText"].ToString();
+                                                string sCutoffSub = appSettings.ConfigFileStrings["common"]["cutOffTimePassedSubText"]?.ToString()
+                                                    ?? "Your high priority habits will start in 5 seconds.";
+                                                FBMessageBox msg = new FBMessageBox(sCutoffSub, sCaption: sCutoffMsg, bAutoClose: true);
                                                 msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                                                 msg.ShowDialog();
 
