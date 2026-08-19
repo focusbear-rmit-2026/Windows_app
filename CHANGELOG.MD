@@ -188,3 +188,14 @@
 - Fixed a break being prompted immediately after returning from a natural break: confirming a natural break now resets the break timer correctly, so the next break only comes after your full break interval #731.
 - Follow-up to the fully-booked-calendar fix: when there's no free time around your meetings, the morning routine's habits now stay together in a single "Not enough free time today" card instead of a meeting splitting the routine into two cards #1371.
 - Fixed a crash in the gentle-block popup when the current tab's URL was malformed (e.g. contained spaces or unicode) — the block now handles those URLs without crashing #1095.
+
+#v3.0.242
+- Manually adding an app to your blocked/allowed lists now has a "Select File" option to browse for the app's `.exe` (you can pick several at once, shown as removable tags), alongside typing exe names #1140.
+- Micro-breaks being off during a focus session is now shown clearly — on the breaks page and in the tray's break section — with a link to resume automatic breaks, so it's obvious why breaks aren't appearing #1215.
+- Fixed the Day Plan at the morning→evening handoff: it no longer shows a misleading "Not enough free time today" morning card when you have no meetings, and the evening routine's habits no longer get split across separate cards #1445.
+- Blocking schedules and block lists now update without restarting the app: a schedule or block list created/deleted on another device shows up when you reopen Settings → Blocking, and an open schedule editor closes itself if that schedule was deleted elsewhere #1114.
+- The break popup now has "Extend break (+5 min)" and "End break early" links. Also, starting a new focus session while a break is running now closes the break popup, and the popup no longer appears a few seconds late #1065.
+- Fixed a crash (NullReferenceException) that could occur when a blocking schedule started or stopped while you were switching between apps #1048.
+- Past the evening cutoff time, your high-priority habits now start automatically — the reminder auto-closes after a few seconds — instead of waiting for you to click OK #866.
+- The password prompt has a new "Type random characters" tab: instead of your password, you can unlock by retyping a generated string of characters #998.
+- Internal: added AutomationIds across more controls (tray, side menu, keyboard shortcuts, tab audit, activity checklist) to support end-to-end UI test automation #1439.
