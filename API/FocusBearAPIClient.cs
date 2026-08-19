@@ -4620,7 +4620,10 @@ namespace Focus_Bear.API
                         StringContent content = new StringContent(addJsonString, Encoding.UTF8, "application/json");
 
                         //Make the data for Focus Mode
-                        var response = await client.PostAsync(BlockingSchedules, content);
+                        // Pass device_id so the backend can skip re-notifying this device once the
+                        // blocking-schedule-updated Pusher event ships (avoids a redundant self-refresh). #1114
+                        string postPath = BlockingSchedules + "?device_id=" + appSettings.sDeviceID;
+                        var response = await client.PostAsync(postPath, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
                         {
                             if (response.Content != null)
@@ -4685,7 +4688,7 @@ namespace Focus_Bear.API
                     {
                         StringContent content = new StringContent(addJsonString, Encoding.UTF8, "application/json");
 
-                        string path = BlockingSchedules + "/" + sBlockingScheduleID;
+                        string path = BlockingSchedules + "/" + sBlockingScheduleID + "?device_id=" + appSettings.sDeviceID;
 
                         //Make the data for Focus Mode
                         var response = await client.PutAsync(path, content);
@@ -4750,7 +4753,7 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
-                    string path = BlockingSchedules + "/" + sBlockingScheduleID;
+                    string path = BlockingSchedules + "/" + sBlockingScheduleID + "?device_id=" + appSettings.sDeviceID;
 
                     var response = await client.DeleteAsync(path);
                     if (response.StatusCode == System.Net.HttpStatusCode.NoContent) //204

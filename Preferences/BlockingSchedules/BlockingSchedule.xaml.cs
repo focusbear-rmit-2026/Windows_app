@@ -48,7 +48,10 @@ namespace Focus_Bear.Preferences
                 LogWriter.LogWrite("Blocking schedule text set ex- " + ex.Message);
             }
 
+            // Bind the live collection then kick off a server refresh so schedules created or
+            // deleted on other devices show up without restarting the app. #1114
             ListBlockingSchedules.ItemsSource = appSettings.arrCustomBlockingSchedules;
+            _ = Focus_Bear.Services.BlockingScheduleManager.RefreshBlockingSchedulesFromServerAsync();
         }
 
         private void ListBlockingSchedules_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -237,6 +237,62 @@ namespace Focus_Bear.Preferences
             {
                 LogWriter.LogWrite("AddApp load text ex + " + ex.Message);
             }
+
+            // When editing an existing schedule, listen for server refreshes (the future Pusher
+            // blocking-schedule-updated event). If this schedule was deleted on another device while
+            // it's open here, drop back to the now-refreshed list instead of showing a ghost. #1114
+            if (instance != null)
+            {
+                BlockingScheduleManager.SchedulesRefreshed += OnSchedulesRefreshed;
+                Unloaded += (s, e) => BlockingScheduleManager.SchedulesRefreshed -= OnSchedulesRefreshed;
+            }
+
+            // Refresh the block-list combo whenever focus modes are re-fetched, so a block list added
+            // on another device becomes selectable here without restarting (covers both new + edit). #1114
+            BlockingScheduleManager.FocusModesRefreshed += OnFocusModesRefreshed;
+            Unloaded += (s, e) => BlockingScheduleManager.FocusModesRefreshed -= OnFocusModesRefreshed;
+        }
+
+        // Fired (on the UI thread) after focus modes were re-fetched from the server. Rebuild the
+        // block-list combo, preserving whatever the user currently has selected. #1114
+        private void OnFocusModesRefreshed()
+        {
+            try
+            {
+                object keepSelected = ComboBoxFocusModes.SelectedValue;
+                AddFocusModesToComboBox();
+                if (keepSelected != null)
+                    ComboBoxFocusModes.SelectedValue = keepSelected;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("OnFocusModesRefreshed ex - " + ex.Message);
+            }
+        }
+
+        // Fired (on the UI thread) after a server refresh changed the schedule collection. If the
+        // schedule being edited here no longer exists, it was deleted elsewhere — return to the list. #1114
+        private void OnSchedulesRefreshed()
+        {
+            try
+            {
+                if (_instance == null || string.IsNullOrEmpty(_instance.id))
+                    return;   // brand-new unsaved schedule — nothing to reconcile
+
+                if (appSettings.arrCustomBlockingSchedules.Any(s => s.id == _instance.id))
+                    return;   // still exists — leave the editor as-is
+
+                LogWriter.LogWrite("BlockingScheduleDetail - schedule deleted elsewhere, returning to list");
+
+                // Navigate back to the (refreshed) list the same way Cancel/Delete do.
+                ButtonAutomationPeer peer = new ButtonAutomationPeer(_ParentWindow.PageBlocks.btnBlockingSchedule);
+                IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+                invokeProv.Invoke();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("OnSchedulesRefreshed ex - " + ex.Message);
+            }
         }
         public void AddFocusModesToComboBox()
         {

@@ -21,6 +21,14 @@ namespace Focus_Bear.Services
     {
         private static AppSettings appSettings = AppSettings.GetInstance;
         private static FocusBearAPIClient client = new FocusBearAPIClient();
+
+        // Raised (on the UI thread) after a server refresh actually changes the schedule collection.
+        // The open details screen listens so it can close itself when its schedule was deleted elsewhere. #1114
+        public static event Action SchedulesRefreshed;
+
+        // Raised (on the UI thread) after a server refresh actually changes the focus-mode collection.
+        // The open schedule editor listens so its block-list combo reflects modes added elsewhere. #1114
+        public static event Action FocusModesRefreshed;
         /// <summary>
         /// Adds a new blocking schedule from the provided Instance
         /// </summary>
@@ -194,6 +202,104 @@ namespace Focus_Bear.Services
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ReadAndParseBlockingSchedules() top ex -" + ex.Message);
+            }
+        }
+
+        // Re-fetches blocking schedules from the server and, when the data changed, clears and
+        // refills the live collection the same way startup does. Safe to call from any thread. #1114
+        public static async Task<bool> RefreshBlockingSchedulesFromServerAsync()
+        {
+            try
+            {
+                LogWriter.LogWrite("RefreshBlockingSchedulesFromServerAsync()");
+
+                // A schedule references a focus mode (block list), and those are otherwise only fetched
+                // at startup. Refresh them on the same trigger so a block list created on another device
+                // is selectable in the schedule editor without restarting the app. #1114
+                await RefreshFocusModesFromServerAsync();
+
+                string oldRaw = appSettings.sRawBlockingSchedules;
+
+                int result = await client.GetAllBlockingSchedules();
+                if (result != 1)
+                {
+                    LogWriter.LogWrite("RefreshBlockingSchedulesFromServerAsync - fetch failed");
+                    return false;
+                }
+
+                if (oldRaw == appSettings.sRawBlockingSchedules)
+                {
+                    return false;
+                }
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        appSettings.arrCustomBlockingSchedules.Clear();
+                        ReadAndParseBlockingSchedules();
+                        LogWriter.LogWrite("RefreshBlockingSchedulesFromServerAsync - schedules updated");
+                        SchedulesRefreshed?.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("RefreshBlockingSchedulesFromServerAsync Dispatcher - " + ex.Message);
+                    }
+                });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RefreshBlockingSchedulesFromServerAsync - " + ex.Message);
+                return false;
+            }
+        }
+
+        // Re-fetches focus modes (block lists) from the server and, when the data changed, clears and
+        // refills the live collection the same way startup does. ReadAndParseFocusModes appends, so the
+        // Clear() first is required to avoid duplicates. Safe to call from any thread. #1114
+        public static async Task<bool> RefreshFocusModesFromServerAsync()
+        {
+            try
+            {
+                LogWriter.LogWrite("RefreshFocusModesFromServerAsync()");
+
+                string oldRaw = appSettings.sFocusModes;
+
+                int result = await client.GetFocusModes();
+                if (result != 1)
+                {
+                    LogWriter.LogWrite("RefreshFocusModesFromServerAsync - fetch failed");
+                    return false;
+                }
+
+                if (oldRaw == appSettings.sFocusModes)
+                {
+                    return false;
+                }
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        appSettings.arrFocusModes.Clear();
+                        appSettings.ReadAndParseFocusModes();
+                        LogWriter.LogWrite("RefreshFocusModesFromServerAsync - focus modes updated");
+                        FocusModesRefreshed?.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("RefreshFocusModesFromServerAsync Dispatcher - " + ex.Message);
+                    }
+                });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RefreshFocusModesFromServerAsync - " + ex.Message);
+                return false;
             }
         }
 

@@ -92,6 +92,12 @@ namespace Focus_Bear.Utils
 
                 ((App)(Application.Current)).RestartApp();
             }
+            else if (eventName == "blocking-schedule-updated")
+            {
+                LogWriter.LogWrite("Pusher blocking-schedule-updated - refreshing blocking schedules in place");
+
+                _ = Focus_Bear.Services.BlockingScheduleManager.RefreshBlockingSchedulesFromServerAsync();
+            }
             else if (eventName == "activity-completed")
             {
                 HandleActivityCompletedEvent(sData);
