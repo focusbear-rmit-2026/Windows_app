@@ -199,3 +199,10 @@
 - Past the evening cutoff time, your high-priority habits now start automatically — the reminder auto-closes after a few seconds — instead of waiting for you to click OK #866.
 - The password prompt has a new "Type random characters" tab: instead of your password, you can unlock by retyping a generated string of characters #998.
 - Internal: added AutomationIds across more controls (tray, side menu, keyboard shortcuts, tab audit, activity checklist) to support end-to-end UI test automation #1439.
+
+#v3.0.243
+- Habits with an "allowed app" and a timer no longer show the break controls ("Extend break (+5 min)" / "End break early") — those links only make sense during an actual break, so they're now hidden for allowed-app habits #1453.
+- Guest accounts can now be turned into real accounts from Settings → Account: anonymous users see a "Create account" option (email + password) that saves their progress and settings, and a "Leaderboard username" row was added. The "email not verified" banner and its "Resend confirmation" link now only show for real (non-anonymous) accounts and line up with the email address #643.
+- Fixed a stale focus intention/task carrying over: when a focus session ends, the running intention and current to-do task are now cleared, so they don't wrongly reappear on the next session or end screen #1264.
+- The gentle-block "Report Bad AI Decision" (👎) now also allows the current site/app: since the report means the AI blocked it by mistake, you're no longer immediately re-blocked on the thing you just reported #1290.
+- The gentle-block "working on something else" / "just this time" buttons now handle long task names cleanly — the text is trimmed with an ellipsis and the full text shows in a tooltip on hover, instead of being cut off.
