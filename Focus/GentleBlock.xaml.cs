@@ -1493,6 +1493,13 @@ namespace Focus_Bear.Focus
             appSettings.HideBlurWindow();
             Hide();
 
+            // Reporting a bad AI decision means the AI wrongly blocked this site/app — so allow the current
+            // URL/app too (same as the direct-allow path), otherwise it stays blocked after reporting. #1290
+            if (IsAppBlocking())
+                appSettings.TemporaryAllowedAppsGentleBlock.Add(new DistractingURL(sActiveAppName.ToLower(), true));
+            else
+                appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), false));
+
             string addItemJsonString;
             if (IsAppBlocking())
             {
