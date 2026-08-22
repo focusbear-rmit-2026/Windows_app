@@ -6241,6 +6241,12 @@ namespace Focus_Bear
                 //Make the global variables false
                 appSettings.isFocusModeRunning = false;
 
+                // Clear the focus session's intention/task so a later blocking-schedule block popup doesn't
+                // show a stale intention from the just-ended session (#1264). The schedule-start path clears
+                // it too; an AI-enabled schedule sets its own intention fresh via the goal/task popup.
+                appSettings.sRunningFocusModeIntention = "";
+                appSettings.sCurrentTaskPlayingInToDoPlayer = "";
+
                 App.FocusButton.FinishFocusSession();
 
                 //Clear the Gentle block temp arrays
