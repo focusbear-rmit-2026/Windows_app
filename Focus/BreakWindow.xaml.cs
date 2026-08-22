@@ -126,7 +126,10 @@ namespace Focus_Bear.Focus
             {
                 UseTimerRelated.Visibility = Visibility.Visible;
                 DoNotUseTimerRelated.Visibility = Visibility.Collapsed;
-                ExtendEndBreakSection.Visibility = Visibility.Visible;     // timed break — allow extend/end. #1065
+                // Extend/End only apply to a real break. An allowed-app morning/evening habit is also shown in
+                // this window with a timer, but it always passes a title (a real break passes none) — so keep
+                // the extend/end links hidden for habits, otherwise a habit shows break controls. #1065
+                ExtendEndBreakSection.Visibility = (sTitle.Length == 0) ? Visibility.Visible : Visibility.Collapsed;
             }
 
             if (sTitle.Length > 0) //Set the activity title if thelength is > 0

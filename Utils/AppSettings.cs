@@ -1303,9 +1303,12 @@ namespace Focus_Bear.Utils
                                 check_list = ((JArray)item.GetValue("check_list")).ToObject<List<string>>();
                             }
                             bool useTimer = true;
-                            // A checklist activity is completed manually via "I'm done" (it isn't a
-                            // countdown), so it must not run a timer that would expire before it shows. (#343)
-                            if (completion_requirements.Length > 0 || check_list.Count > 0)
+                            // Only an activity with explicit completion_requirements is finished manually via
+                            // "I'm done" (no countdown), so it must not run a timer. A checklist alone no longer
+                            // forces this: the checklist is just a visual aid shown alongside the normal timer,
+                            // so a timed habit that also has a checklist keeps its timer instead of being
+                            // mis-treated as a non-timer "I'm done" activity. (#343)
+                            if (completion_requirements.Length > 0 )
                             {
                                 useTimer = false;
                             }
@@ -1414,9 +1417,12 @@ namespace Focus_Bear.Utils
                                 check_list = ((JArray)item.GetValue("check_list")).ToObject<List<string>>();
                             }
                             bool useTimer = true;
-                            // A checklist activity is completed manually via "I'm done" (it isn't a
-                            // countdown), so it must not run a timer that would expire before it shows. (#343)
-                            if (completion_requirements.Length > 0 || check_list.Count > 0)
+                            // Only an activity with explicit completion_requirements is finished manually via
+                            // "I'm done" (no countdown), so it must not run a timer. A checklist alone no longer
+                            // forces this: the checklist is just a visual aid shown alongside the normal timer,
+                            // so a timed habit that also has a checklist keeps its timer instead of being
+                            // mis-treated as a non-timer "I'm done" activity. (#343)
+                            if (completion_requirements.Length > 0 )
                             {
                                 useTimer = false;
                             }
@@ -1507,9 +1513,12 @@ namespace Focus_Bear.Utils
                                 check_list = ((JArray)item.GetValue("check_list")).ToObject<List<string>>();
                             }
                             bool useTimer = true;
-                            // A checklist activity is completed manually via "I'm done" (it isn't a
-                            // countdown), so it must not run a timer that would expire before it shows. (#343)
-                            if (completion_requirements.Length > 0 || check_list.Count > 0)
+                            // Only an activity with explicit completion_requirements is finished manually via
+                            // "I'm done" (no countdown), so it must not run a timer. A checklist alone no longer
+                            // forces this: the checklist is just a visual aid shown alongside the normal timer,
+                            // so a timed habit that also has a checklist keeps its timer instead of being
+                            // mis-treated as a non-timer "I'm done" activity. (#343)
+                            if (completion_requirements.Length > 0)
                             {
                                 useTimer = false;
                             }
@@ -1582,8 +1591,10 @@ namespace Focus_Bear.Utils
                                         check_listCH = ((JArray)choiceitem.GetValue("check_list")).ToObject<List<string>>();
                                     }
                                     bool useTimerCH = true;
-                                    // A checklist choice completes manually via "I'm done", not on a timer. (#343)
-                                    if (completion_requirementsCH.Length > 0 || check_listCH.Count > 0)
+                                    // Only completion_requirements makes a choice finish manually via "I'm done"
+                                    // (no timer). A checklist alone no longer forces this — it's just a visual
+                                    // aid shown alongside the timer. (#343)
+                                    if (completion_requirementsCH.Length > 0 )
                                     {
                                         useTimerCH = false;
                                     }
