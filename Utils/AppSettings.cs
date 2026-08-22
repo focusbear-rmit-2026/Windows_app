@@ -258,7 +258,10 @@ namespace Focus_Bear.Utils
         public string sUser_id;
         public string sUser_name;
         public string sUser_email;
+        public string sLeaderboardUsername = "";   // shown on the Account screen; empty = "Not set" (#643)
         public bool bEmailVerified = false;
+        public bool bIsAnonymousFromSettings = false;   // is_anonymous/is_guest from the backend user object (#643)
+        public string sConvertGuestError = "";   // server message from the last failed guest→account conversion (#643)
 
         public string sUserLocalDeviceSettings; // All local user device settings.
         public string sFocusModes; //array of all focus modes
@@ -1681,6 +1684,14 @@ namespace Focus_Bear.Utils
 
                         bEmailVerified = UserSettings.ContainsKey("email_verified") ? Convert.ToBoolean(UserSettings["email_verified"]) : false;
 
+                        // Guest/anonymous flag from the backend user object (if provided). Combined with the
+                        // JWT is_anonymous claim + email prefix in IsAnonymousUser() for reliable detection. #643
+                        bIsAnonymousFromSettings = (UserSettings.ContainsKey("is_anonymous") && UserSettings["is_anonymous"].Type != JTokenType.Null && Convert.ToBoolean(UserSettings["is_anonymous"]))
+                            || (UserSettings.ContainsKey("is_guest") && UserSettings["is_guest"].Type != JTokenType.Null && Convert.ToBoolean(UserSettings["is_guest"]));
+
+                        sLeaderboardUsername = (UserSettings.ContainsKey("leaderboard_username") && UserSettings["leaderboard_username"].Type != JTokenType.Null)
+                            ? UserSettings["leaderboard_username"].ToString() : "";
+
                     }
                     catch (Exception ex)
                     {
@@ -2853,14 +2864,42 @@ namespace Focus_Bear.Utils
             }
         }
 
-        // "Stay anonymous" onboarding creates users with this email prefix (see SetupAccount);
-        // shared here so anonymous-user detection stays in sync with account creation.
+        // "Stay anonymous" onboarding creates users with these email prefixes (see SetupAccount):
+        // internal test users get "internaltest+", everyone else "anonymoususer+". Shared here so
+        // anonymous-user detection stays in sync with account creation.
         public const string AnonymousEmailPrefix = "anonymoususer+";
+        public const string TestUserAnonymousEmailPrefix = "internaltest+";
 
         public bool IsAnonymousUser()
         {
-            return userAccount.email != null &&
-                   userAccount.email.StartsWith(AnonymousEmailPrefix, StringComparison.OrdinalIgnoreCase);
+            // 1) Backend user object flag (is_anonymous / is_guest), when provided.
+            if (bIsAnonymousFromSettings) return true;
+
+            // 2) Supabase marks anonymous sessions with an is_anonymous JWT claim — the reliable signal even
+            //    when the account has a real-looking email (a guest that hasn't been converted yet).
+            if (IsAnonymousFromToken()) return true;
+
+            // 3) Legacy fallback: the "stay anonymous" onboarding creates anonymoususer+... emails
+            //    (internaltest+... for internal test users). Check the parsed user email as well as the
+            //    account email, since either may hold the generated address.
+            string email = !string.IsNullOrEmpty(sUser_email) ? sUser_email : userAccount.email;
+            return email != null &&
+                   (email.StartsWith(AnonymousEmailPrefix, StringComparison.OrdinalIgnoreCase) ||
+                    email.StartsWith(TestUserAnonymousEmailPrefix, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Reads the is_anonymous boolean claim from the current Supabase access token (JWT). #643
+        private bool IsAnonymousFromToken()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(userAccount.accessToken)) return false;
+                var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                var jwt = (System.IdentityModel.Tokens.Jwt.JwtSecurityToken)handler.ReadToken(userAccount.accessToken);
+                var claim = jwt.Claims.FirstOrDefault(c => c.Type == "is_anonymous")?.Value;
+                return !string.IsNullOrEmpty(claim) && bool.TryParse(claim, out bool isAnon) && isAnon;
+            }
+            catch { return false; }
         }
 
         // guest = anonymous ("stay anonymous") account, registered = real account.

@@ -38,17 +38,38 @@ namespace Focus_Bear.Preferences
             LoadTexts();
         }
 
+        // Config string with an English fallback so new keys work before the remote/assets config ships. (#643)
+        private string Cfg(string section, string key, string fallback)
+        {
+            try { return appSettings.ConfigFileStrings[section]?[key]?.ToString() ?? fallback; }
+            catch { return fallback; }
+        }
+
         public void LoadTexts()
         {
             Heading.Text = appSettings.ConfigFileStrings["accountVcInfo"]["title"].ToString();
             LblEmail.Text = appSettings.ConfigFileStrings["accountVcInfo"]["titleEmailIdText"].ToString();
-            LblName.Text = appSettings.ConfigFileStrings["accountVcInfo"]["titleNameText"].ToString();
             LblUserId.Text = appSettings.ConfigFileStrings["accountVcInfo"]["titleUserIdText"].ToString();
             btnCopyUserId.ToolTip = appSettings.ConfigFileStrings["upgradeNowVcInfo"]["toolTipCopyId"].ToString();
 
+            // Account-screen strings — these keys already exist in config (shipped for macOS). Only the two
+            // guest-banner strings are Windows-new, so they keep an English fallback. #643
+            LblLeaderboard.Text = Cfg("accountVcInfo", "titleLeaderboardUsernameText", "Leaderboard Username:");
+            SubscriptionHeading.Text = Cfg("accountVcInfo", "subscriptionDetails", "Subscription Details");
+            LblStatusLabel.Text = Cfg("accountVcInfo", "status", "Status:");
+            LblEmailNotVerified.Text = Cfg("accountVcInfo", "emailNotVerified", "Email not Verified");
+            btnResendConfirmTXT.Text = Cfg("accountVcInfo", "buttonResendConfirmation", "Resend Confirmation Email");
+            LblGuestTitle.Text = Cfg("accountVcInfo", "titleGuestAccount", "You're using a guest account");
+            LblGuestDesc.Text = Cfg("customLoginVcInfo", "explainCreateAccountText", "Create an account to save your progress and settings across your devices.");
+            btnCreateAccountTXT.Text = Cfg("customLoginVcInfo", "buttonCreateAccountText", "Create an account");
+
             LblEmailValue.Text = appSettings.sUser_email;
-            LblNameValue.Text = appSettings.sUser_name;
             LblUserIdValue.Text = appSettings.sUser_id;
+            LblLeaderboardValue.Text = string.IsNullOrWhiteSpace(appSettings.sLeaderboardUsername)
+                ? Cfg("accountVcInfo", "leaderboardUsernamePlaceholder", "Not set — update your leaderboard username in the web app")
+                : appSettings.sLeaderboardUsername;
+
+            UpdateAccountBanners();
 
             if (appSettings.isPurchased)
             {
@@ -373,6 +394,86 @@ namespace Focus_Bear.Preferences
             }
 
             btnResetPassword.IsEnabled = true;
+        }
+
+        // Show the right banner: a guest (anonymous) account → "Create account"; a registered user whose
+        // email isn't verified → "Resend Confirmation Email"; a verified registered user → no banner. #643
+        private void UpdateAccountBanners()
+        {
+            bool isGuest = appSettings.IsAnonymousUser();
+            BannerGuest.Visibility = isGuest ? Visibility.Visible : Visibility.Collapsed;
+            BannerEmailUnverified.Visibility = (!isGuest && !appSettings.bEmailVerified) ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private async void btnResendConfirm_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnResendConfirm_Click");
+            var mainWindow = ((App)(Application.Current)).wndFocusBearMainWindow;
+            try
+            {
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var resp = await client.ResendConfirmationEmail();
+                if (resp == 1)
+                {
+                    FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["descriptionEmailSent"].ToString(), appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["titleEmailSent"].ToString());
+                    msg.Owner = mainWindow; msg.ShowDialog();
+                }
+                else
+                {
+                    FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["descriptionEmailFailed"].ToString(), appSettings.ConfigFileStrings["unverifiedEmailVcInfo"]["titleEmailFailed"].ToString());
+                    msg.Owner = mainWindow; msg.ShowDialog();
+                }
+            }
+            catch (Exception ex) { LogWriter.LogWrite("btnResendConfirm_Click ex - " + ex.Message); }
+        }
+
+        private async void btnCreateAccount_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnCreateAccount_Click");
+            var mainWindow = ((App)(Application.Current)).wndFocusBearMainWindow;
+
+            var dlg = new CreateAccountDialog();
+            dlg.Owner = mainWindow;
+            mainWindow.GridShade.Visibility = Visibility.Visible;
+            dlg.ShowDialog();
+            mainWindow.GridShade.Visibility = Visibility.Collapsed;
+
+            if (dlg.Confirmed != true) return;
+
+            try
+            {
+                btnCreateAccount.IsEnabled = false;
+                appSettings.CapturePostHog("convert-guest-account");
+
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                var result = await client.ConvertGuestAccount(dlg.Email, dlg.Password);
+                if (result == 1)
+                {
+                    // Refresh user details so email / verified state reflect the new account, then re-render.
+                    await client.GetUserDetailsInfo();
+                    appSettings.ReadAndParseUserDetailsJson();
+                    LoadTexts();
+
+                    FBMessageBox msg = new FBMessageBox(
+                        Cfg("accountVcInfo", "convertGuestSuccessText", "Your account has been created. Please check your email to verify it."),
+                        Cfg("accountVcInfo", "convertGuestSuccessTitle", "Account Created"));
+                    msg.Owner = mainWindow; msg.ShowDialog();
+                }
+                else
+                {
+                    string err = string.IsNullOrWhiteSpace(appSettings.sConvertGuestError)
+                        ? Cfg("accountVcInfo", "convertGuestFailedText", "Couldn't create your account. Please try again.")
+                        : appSettings.sConvertGuestError;
+                    FBMessageBox msg = new FBMessageBox(err, Cfg("accountVcInfo", "convertGuestFailedTitle", "Account Creation Failed"));
+                    msg.Owner = mainWindow; msg.ShowDialog();
+                    btnCreateAccount.IsEnabled = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("btnCreateAccount_Click ex - " + ex.Message);
+                btnCreateAccount.IsEnabled = true;
+            }
         }
 
         private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)

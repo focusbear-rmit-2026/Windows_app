@@ -4381,6 +4381,69 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        // Converts the current guest (anonymous) account into a real account by setting the user's email
+        // and password. Sends the current access token (via GetClientWithHeaders) so the backend links the
+        // new credentials to the existing user id, preserving all their data. Returns 1 on success; on
+        // failure returns 0 and stores the server message in appSettings.sConvertGuestError for display. #643
+        internal async Task<int> ConvertGuestAccount(string sEmail, string sPassword)
+        {
+            LogWriter.LogWrite("ConvertGuestAccount()");
+            appSettings.sConvertGuestError = "";
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    // Backend expects the new password under "newPassword" (not "password"). #643
+                    string addItemJsonString = $"{{\"email\":{JsonConvert.SerializeObject(sEmail)},\"newPassword\":{JsonConvert.SerializeObject(sPassword)}}}";
+                    StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                    var response = await client.PostAsync("https://api.focusbear.io/auth/convert-guest", content);
+                    if (response.StatusCode == System.Net.HttpStatusCode.Created || response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        LogWriter.LogWrite("ConvertGuestAccount() GOT Success");
+                        return 1;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            try
+                            {
+                                JObject resJson = JObject.Parse(responseCode);
+                                appSettings.sConvertGuestError = resJson["message"]?.ToString() ?? "";
+                            }
+                            catch { }
+                            LogWriter.LogWrite("ConvertGuestAccount() FAILED - " + appSettings.sConvertGuestError);
+                        }
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("ConvertGuestAccount WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ConvertGuestAccount Exception - " + ex.Message);
+            }
+            return 0;
+        }
+
         internal async Task<int> GetUploadLogsURL() //OK
         {
             LogWriter.LogWrite("GetUploadLogsURL()");

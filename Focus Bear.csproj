@@ -644,6 +644,9 @@
     <Compile Include="Preferences\SettingsTab\DeleteAccountConfirmDialog.xaml.cs">
       <DependentUpon>DeleteAccountConfirmDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\SettingsTab\CreateAccountDialog.xaml.cs">
+      <DependentUpon>CreateAccountDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Preferences\AddApp.xaml.cs">
       <DependentUpon>AddApp.xaml</DependentUpon>
     </Compile>
@@ -1160,6 +1163,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Preferences\SettingsTab\DeleteAccountConfirmDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Preferences\SettingsTab\CreateAccountDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
