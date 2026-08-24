@@ -810,6 +810,9 @@
     <Compile Include="Utils\HourControl.xaml.cs">
       <DependentUpon>HourControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\TimeRangeSlider.xaml.cs">
+      <DependentUpon>TimeRangeSlider.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\IdleDetector.cs" />
     <Compile Include="Utils\IdleWaiter.cs" />
     <Compile Include="Utils\ImageExtractor.cs" />
@@ -1373,6 +1376,10 @@
     <Page Include="Utils\HourControl.xaml">
       <SubType>Designer</SubType>
       <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Page>
+    <Page Include="Utils\TimeRangeSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Utils\TrayBalloon.xaml">
       <Generator>MSBuild:Compile</Generator>
