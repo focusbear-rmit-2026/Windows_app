@@ -193,7 +193,8 @@ namespace Focus_Bear.Onboarding
                    // BlockingScheduleManager.AddBlockingSchedule(_instance);
                 }
 
-                _ParentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._ALL_SET_);
+                // Hold On now shows after distraction blocking, right before habit setup (flow reorder to match mac).
+                _ParentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._HOLD_ON_);
             }
             catch (Exception ex)
             {

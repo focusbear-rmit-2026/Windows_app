@@ -63,6 +63,7 @@ namespace Focus_Bear.Onboarding
             appSettings.CapturePostHog(Constants.Events.HoldOnScreenSucceeded,
                 $"\"duration_ms\":{_dwellStopwatch.ElapsedMilliseconds}");
 
+            // Hold On now shows after distraction blocking, right before habit setup (flow reorder to match mac).
             _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._SET_UP_HABITS_);
         }
         private void Page_Theme()

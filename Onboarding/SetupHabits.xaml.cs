@@ -61,7 +61,9 @@ namespace Focus_Bear.Onboarding
         private void btnSkip_Click(object sender, RoutedEventArgs e)
         {
             appSettings.CapturePostHog("set-up-habits-skipped");
-            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._SET_DISTRACTION_BLOCKING_);
+            // Habit setup is now the last section (flow reorder to match mac) - skipping it goes
+            // straight to the finish screen instead of into distraction blocking.
+            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._ALL_SET_);
         }
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

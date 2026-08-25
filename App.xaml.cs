@@ -1636,7 +1636,8 @@ namespace Focus_Bear
 
                     ShowWelcomeAbordOnBoradingFlow();//Will show the onboarding view in right content
 
-                    wndFocusBearMainWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._HOLD_ON_);
+                    // Hold On now shows after distraction blocking, right before habit setup (flow reorder to match mac).
+                    wndFocusBearMainWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._SET_DISTRACTION_BLOCKING_);
                     return;
                 }
                 else

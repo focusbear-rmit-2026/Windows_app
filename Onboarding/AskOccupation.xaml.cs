@@ -139,9 +139,10 @@ namespace Focus_Bear.Onboarding
 
             Mouse.OverrideCursor = null;
 
-            appSettings.CapturePostHog("occupation-selected"); 
+            appSettings.CapturePostHog("occupation-selected");
 
-            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._ALLOWED_URLS_);
+            // Blocked URLs/Apps now come before Allowed URLs (flow reorder to match mac).
+            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._BLOCKED_URLS_);
         }
         private void AddUrlsFromJsonArray(JObject json, string key, IList<DistractingURL> targetList, bool isAllowed)
         {
@@ -160,7 +161,8 @@ namespace Focus_Bear.Onboarding
         private void btnSkip_Click(object sender, RoutedEventArgs e)
         {
             appSettings.CapturePostHog("ask-occupation-skipped");
-            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._ALLOWED_URLS_);
+            // Blocked URLs/Apps now come before Allowed URLs (flow reorder to match mac).
+            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._BLOCKED_URLS_);
         }
         private void RadioButton1_Checked(object sender, RoutedEventArgs e) //student
         {

@@ -28,7 +28,10 @@
             <!-- 25% -->
         </Grid.RowDefinitions>
 
-        <TextBlock  Grid.Row="0"  Name="Heading" Margin="0,0,0,10" TextWrapping="Wrap" Text="xCreate your account." FontSize="35" FontWeight="SemiBold" VerticalAlignment="Bottom" TextAlignment="Center" HorizontalAlignment="Center"/>
+        <StackPanel Grid.Row="0" VerticalAlignment="Bottom">
+            <TextBlock  Name="Heading" Margin="0,0,0,10" TextWrapping="Wrap" Text="xCreate your account." FontSize="35" FontWeight="SemiBold" TextAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="SubHeading" AutomationProperties.AutomationId="txtSubHeading" Margin="0,0,0,0" TextWrapping="Wrap" Text="xWe use Auth0, our secure login partner, to sign you in." FontSize="17" TextAlignment="Center" HorizontalAlignment="Center" MaxWidth="500"/>
+        </StackPanel>
 
         <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Image MaxHeight="260" MaxWidth="260" Source="../Images/new/bear_createAccount.png" Stretch="Uniform" HorizontalAlignment="Center"  />

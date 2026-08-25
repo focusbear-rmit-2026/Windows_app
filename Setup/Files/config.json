@@ -1240,7 +1240,8 @@
         "buttonCreateAccount": "Create Your Account",
         "orText": "OR",
         "continueInBrowser": "Continue in your browser",
-        "bubbleText": "One account, all your devices - let's get you set up!"
+        "bubbleText": "One account, all your devices - let's get you set up!",
+        "subTitleText": "We use Auth0, our secure login partner, to sign you in."
     },
     "upgradeNowVcInfo": {
         "pointFirstText": "Personalized habit routines",

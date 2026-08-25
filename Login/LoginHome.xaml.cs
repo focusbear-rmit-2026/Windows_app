@@ -60,6 +60,7 @@ namespace Focus_Bear.Login
                 {
                     Heading.Text = appSettings.ConfigFileStrings["customLoginVcInfo"]["subTitleSignIn"].ToString();
                     Bubble1.Visibility = Visibility.Collapsed;
+                    SubHeading.Visibility = Visibility.Collapsed;
 
                     btnSignInWithGoogleText.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonSignInGoogleText"].ToString();
                     btnSignInAppleText.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonSignInAppleText"].ToString();
@@ -69,7 +70,10 @@ namespace Focus_Bear.Login
                 }
                 else
                 {
-                    Heading.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonCreateAccount"].ToString(); //"Create your account"; 
+                    Heading.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["buttonCreateAccount"].ToString(); //"Create your account";
+
+                    SubHeading.Visibility = Visibility.Visible;
+                    SubHeading.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["subTitleText"].ToString();
 
                     Bubble1.Visibility = Visibility.Visible;
                     Bubble1.Text = appSettings.ConfigFileStrings["askLogInVcInfo"]["bubbleText"].ToString();

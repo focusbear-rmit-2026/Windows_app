@@ -65,7 +65,8 @@ namespace Focus_Bear.Onboarding
 
         private void btnPickMyself_Click(object sender, RoutedEventArgs e)
         {
-            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._ALLOWED_URLS_);
+            // Blocked URLs/Apps now come before Allowed URLs (flow reorder to match mac).
+            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._BLOCKED_URLS_);
         }
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

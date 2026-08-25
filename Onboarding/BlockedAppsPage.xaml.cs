@@ -66,7 +66,8 @@ namespace Focus_Bear.Onboarding
 
         private void btnProceed_Click(object sender, RoutedEventArgs e)
         {
-            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._Add_BLOCKING_SCHEDULE_);
+            // Allowed URLs now comes after Blocked URLs/Apps (flow reorder to match mac).
+            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._ALLOWED_URLS_);
         }
 
         private void btnAdd_Click(object sender, RoutedEventArgs e)
@@ -175,7 +176,8 @@ namespace Focus_Bear.Onboarding
         }
         private void btnSkip_Click(object sender, RoutedEventArgs e)
         {
-            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._Add_BLOCKING_SCHEDULE_);
+            // Allowed URLs now comes after Blocked URLs/Apps (flow reorder to match mac).
+            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._ALLOWED_URLS_);
         }
 
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
