@@ -1089,7 +1089,7 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="BorderBrush" Value="LightGray"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="UseLayoutRounding" Value="True"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -1131,7 +1131,7 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="BorderBrush" Value="LightGray"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Focusable" Value="False"/>
             <Setter Property="UseLayoutRounding" Value="True"/>
@@ -1200,7 +1200,7 @@
             <Setter Property="Background" Value="{DynamicResource TextBoxBackgroundColor}"/>
             <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
             <Setter Property="BorderBrush" Value="LightGray"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="UseLayoutRounding" Value="True"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -1242,7 +1242,7 @@
                         <Border x:Name="border"
                                 Background="{DynamicResource TextBoxBackgroundColor}"
                                 BorderBrush="LightGray"
-                                BorderThickness="2"
+                                BorderThickness="1"
                                 CornerRadius="8"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
@@ -1272,7 +1272,7 @@
                         <Border x:Name="border"
                                 Background="{DynamicResource TextBoxBackgroundColor}"
                                 BorderBrush="LightGray"
-                                BorderThickness="2"
+                                BorderThickness="1"
                                 CornerRadius="8"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
@@ -1318,7 +1318,7 @@
             <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
             <Setter Property="Background" Value="{DynamicResource TextBoxBackgroundColor}"/>
             <Setter Property="BorderBrush" Value="LightGray"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="ItemContainerStyle" Value="{StaticResource RoundedComboBoxItemStyle}"/>
             <Setter Property="UseLayoutRounding" Value="True"/>
@@ -1343,7 +1343,7 @@
                                    AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
                                 <Border x:Name="DropDownBorder"
                                         Background="{DynamicResource TextBoxBackgroundColor}"
-                                        BorderBrush="LightGray" BorderThickness="2" CornerRadius="8"
+                                        BorderBrush="LightGray" BorderThickness="1" CornerRadius="8"
                                         MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
                                         MaxHeight="220" SnapsToDevicePixels="True" Margin="0,4,0,0">
                                     <Border.Effect>
@@ -1371,12 +1371,13 @@
              and is used elsewhere - left that one alone.) -->
         <Style x:Key="CardExpanderStyle" TargetType="{x:Type Expander}">
             <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Expander}">
                         <Border Background="{DynamicResource SoftCreamColor}"
                                 BorderBrush="#FFF2E1C1"
-                                BorderThickness="2"
+                                BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="12"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
@@ -1398,7 +1399,13 @@
                                             <ContentPresenter/>
                                         </ControlTemplate>
                                     </ToggleButton.Template>
-                                    <Grid MinHeight="44">
+                                    <!-- Background explicit (not relying on any inherited/implicit style) - the
+                                         ToggleButton's own template above is a bare ContentPresenter with no
+                                         background layer of its own, so its ENTIRE clickable area is only whatever
+                                         this Grid renders as hit-testable. Without an explicit Background here, empty
+                                         space (including most of the small chevron icon's bounding box) hit-tests as
+                                         nothing at all and the click never reaches the ToggleButton to begin with. -->
+                                    <Grid MinHeight="44" Background="Transparent">
                                         <Border x:Name="HoverOverlay"
                                             Background="{DynamicResource PreferenceTitleButtonPressedColor}"
                                             CornerRadius="12"
@@ -1409,6 +1416,11 @@
                                             ContentTemplate="{TemplateBinding HeaderTemplate}"
                                             Margin="20,0,40,0"
                                             VerticalAlignment="Center"/>
+                                        <!-- IsHitTestVisible=False: a Stroke-only Path (no Fill) only hit-tests along its
+                                             thin 2px line, not its full bounding box, so clicks landing anywhere else in
+                                             that small 12x8 area (i.e. most clicks aimed at "the chevron") were missing
+                                             it entirely and doing nothing instead of falling through to the header
+                                             ToggleButton beneath. -->
                                         <Path x:Name="Chevron"
                                             Stroke="{DynamicResource ForegroundGrey}"
                                             StrokeThickness="2"
@@ -1419,7 +1431,8 @@
                                             VerticalAlignment="Center"
                                             Width="12" Height="8"
                                             Data="M 0 0 L 6 6 L 12 0"
-                                            RenderTransformOrigin="0.5,0.5">
+                                            RenderTransformOrigin="0.5,0.5"
+                                            IsHitTestVisible="False">
                                             <Path.RenderTransform>
                                                 <RotateTransform Angle="-90"/>
                                             </Path.RenderTransform>

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Focus_Bear.Preferences" xmlns:localView="clr-namespace:Focus_Bear.Utils"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
              mc:Ignorable="d"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
              d:DesignHeight="900" d:DesignWidth="900" AutomationProperties.AutomationId="BlockingScheduleDetail">
@@ -21,7 +22,7 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="ContentScrollViewer" VerticalScrollBarVisibility="Auto">
             <StackPanel MaxWidth="820">
 
                 <!-- Card 1: Name + Schedule + Active time -->
@@ -29,7 +30,7 @@
                     Background="{DynamicResource SoftCreamColor}"
                     CornerRadius="12"
                     BorderBrush="#FFF2E1C1"
-                    BorderThickness="2"
+                    BorderThickness="1"
                     SnapsToDevicePixels="True"
                     UseLayoutRounding="True">
                     <StackPanel>
@@ -45,26 +46,26 @@
                                 <Binding Path="name"/>
                             </TextBox>
                             <Button Grid.Column="1" x:Name="BtnEmojiPicker" AutomationProperties.AutomationId="btnEmojiPicker" Style="{StaticResource EmojiPickerButtonStyle}" Margin="10,0,0,0" ToolTip="Choose an emoji for this schedule" Click="BtnEmojiPicker_Click">
-                                <TextBlock x:Name="EmojiPickerText" FontSize="17"/>
+                                <emoji:TextBlock x:Name="EmojiPickerText" FontSize="17"/>
                                 <Button.ContextMenu>
                                     <ContextMenu x:Name="EmojiContextMenu" Placement="Bottom">
                                         <MenuItem Header="None" AutomationProperties.AutomationId="miEmojiNone" Click="EmojiMenuItem_Click"/>
                                         <Separator/>
-                                        <MenuItem Header="🧠" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="🌅" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="🌙" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="⚡️" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="🏕️" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="🛠️" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="🎯" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="😎" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="💪" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="📵" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="💻" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="📚" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="🎨" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="🏋️" Click="EmojiMenuItem_Click"/>
-                                        <MenuItem Header="🧘" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Tag="🧠" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🧠" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🌅" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🌅" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🌙" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🌙" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="⚡️" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="⚡️" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🏕️" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🏕️" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🛠️" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🛠️" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🎯" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🎯" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="😎" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="😎" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="💪" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="💪" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="📵" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="📵" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="💻" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="💻" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="📚" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="📚" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🎨" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🎨" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🏋️" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🏋️" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🧘" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🧘" FontSize="16"/></MenuItem.Header></MenuItem>
                                     </ContextMenu>
                                 </Button.ContextMenu>
                             </Button>
@@ -103,7 +104,7 @@
                     Background="{DynamicResource SoftCreamColor}"
                     CornerRadius="12"
                     BorderBrush="#FFF2E1C1"
-                    BorderThickness="2"
+                    BorderThickness="1"
                     SnapsToDevicePixels="True"
                     UseLayoutRounding="True">
                     <StackPanel>
@@ -139,9 +140,9 @@
                 </Border>
 
                 <!-- More Options -->
-                <Expander x:Name="MoreOptionsExpander" AutomationProperties.AutomationId="expMoreOptions" Padding="0" Margin="0,16,0,0" HorizontalAlignment="Stretch" Cursor="Hand" Style="{StaticResource CardExpanderStyle}">
+                <Expander x:Name="MoreOptionsExpander" AutomationProperties.AutomationId="expMoreOptions" Padding="0" Margin="0,16,0,0" HorizontalAlignment="Stretch" Cursor="Hand" Style="{StaticResource CardExpanderStyle}" Expanded="MoreOptionsExpander_Expanded">
                     <Expander.Header>
-                        <TextBlock x:Name="MoreOptionsHeaderText" FontSize="14" Padding="20,0,0,0" FontWeight="Normal" TextAlignment="Left"/>
+                        <TextBlock x:Name="MoreOptionsHeaderText" FontSize="14" Padding="0,0,0,0" FontWeight="Normal" TextAlignment="Left"/>
                     </Expander.Header>
 
                     <StackPanel Margin="20,10,20,10">

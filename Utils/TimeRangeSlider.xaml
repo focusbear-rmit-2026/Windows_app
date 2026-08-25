@@ -61,11 +61,11 @@
         <!-- Start/End shown as two separate rounded chips with a dash between, left-aligned - matches
              mac's Active time display instead of a single centered text line. -->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="10,0,0,14">
-            <Border Background="{DynamicResource TextBoxBackgroundColor}" BorderBrush="LightGray" BorderThickness="2" CornerRadius="8" Padding="14,8" SnapsToDevicePixels="True" UseLayoutRounding="True">
+            <Border Background="{DynamicResource TextBoxBackgroundColor}" BorderBrush="LightGray" BorderThickness="1" CornerRadius="8" Padding="14,8" SnapsToDevicePixels="True" UseLayoutRounding="True">
                 <TextBlock x:Name="StartTimeLabel" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundColor}"/>
             </Border>
             <TextBlock Text="–" FontSize="14" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource ForegroundGrey}"/>
-            <Border Background="{DynamicResource TextBoxBackgroundColor}" BorderBrush="LightGray" BorderThickness="2" CornerRadius="8" Padding="14,8" SnapsToDevicePixels="True" UseLayoutRounding="True">
+            <Border Background="{DynamicResource TextBoxBackgroundColor}" BorderBrush="LightGray" BorderThickness="1" CornerRadius="8" Padding="14,8" SnapsToDevicePixels="True" UseLayoutRounding="True">
                 <TextBlock x:Name="EndTimeLabel" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundColor}"/>
             </Border>
         </StackPanel>
@@ -77,6 +77,11 @@
             <Slider x:Name="EndSlider" AutomationProperties.AutomationId="sldTimeRangeEnd" Style="{StaticResource RangeThumbSliderStyle}" Minimum="0" Maximum="1439" IsSnapToTickEnabled="True" TickFrequency="15" ValueChanged="Slider_ValueChanged"/>
         </Grid>
 
+        <!-- 4 equal columns = the 4 quarters of the day; each label sits at its quarter's LEFT edge
+             (true 0%/25%/50%/75% position), not centered within its column - that's what was making
+             "6PM" (which should be at 75%) render pinned to the grid's right edge (100%) instead,
+             making the whole row misleadingly read as a 12AM-6PM axis. A final "12AM" is overlaid at
+             the true right edge (100%) to show the range wrapping back to midnight. -->
         <Grid Background="Transparent" Margin="10,6,10,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -85,9 +90,10 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="12AM" FontSize="11" Foreground="{DynamicResource ForegroundGrey}" HorizontalAlignment="Left"/>
-            <TextBlock Grid.Column="1" Text="6AM" FontSize="11" Foreground="{DynamicResource ForegroundGrey}" HorizontalAlignment="Center"/>
-            <TextBlock Grid.Column="2" Text="12PM" FontSize="11" Foreground="{DynamicResource ForegroundGrey}" HorizontalAlignment="Center"/>
-            <TextBlock Grid.Column="3" Text="6PM" FontSize="11" Foreground="{DynamicResource ForegroundGrey}" HorizontalAlignment="Right"/>
+            <TextBlock Grid.Column="1" Text="6AM" FontSize="11" Foreground="{DynamicResource ForegroundGrey}" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="2" Text="12PM" FontSize="11" Foreground="{DynamicResource ForegroundGrey}" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="3" Text="6PM" FontSize="11" Foreground="{DynamicResource ForegroundGrey}" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="0" Grid.ColumnSpan="4" Text="12AM" FontSize="11" Foreground="{DynamicResource ForegroundGrey}" HorizontalAlignment="Right"/>
         </Grid>
     </StackPanel>
 </UserControl>

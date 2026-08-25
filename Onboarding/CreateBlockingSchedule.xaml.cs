@@ -1,4 +1,5 @@
-﻿using Focus_Bear.Models;
+using Focus_Bear.Models;
+using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using System.Diagnostics;
 using System.Linq;
@@ -17,7 +18,7 @@ using System.Windows.Automation.Provider;
 
 namespace Focus_Bear.Onboarding
 {
-   
+
     public partial class CreateBlockingSchedule : Page
     {
         AppSettings appSettings = AppSettings.GetInstance;
@@ -40,7 +41,8 @@ namespace Focus_Bear.Onboarding
                     id = "", // will be assigned on save
                     name = "",
                     isOn = false,
-                    DaysOfWeek = new bool[7],
+                    // Default to the "Weekdays" scope (Mon-Fri), matching mac's onboarding default.
+                    DaysOfWeek = new bool[] { true, true, true, true, true, false, false },
 
                     //make sure toa dd in 24 hours format which server accepts and convert to am/pm per UI
                     StartTimeValue = DateTime.Now.ToString("HH:mm:ss"),
@@ -49,45 +51,28 @@ namespace Focus_Bear.Onboarding
                     SelectedFocusModeId = null,
                     BlockLevel = FOCUSMODESTRICTNESS.CHILL_MODE,
 
-                    bAIBlockingEnabled = false,
+                    // Onboarding shows AI/skip-microbreaks directly (More Options expanded by default)
+                    // and mac defaults both on there, unlike the in-app editor which defaults both off.
+                    bAIBlockingEnabled = true,
                     bMicroBreaksEnabled = false,
-                   
+                    Emoji = null,
+
                 };
                 _instance = _editableCopy;
             }
-            
+
             //Set start time and end time in UI
-            // Parse and reformat as we know server side it 24 hour format
-            DateTime timeStart = DateTime.ParseExact(_editableCopy.StartTimeValue, "HH:mm:ss", CultureInfo.InvariantCulture);
-            string time12 = timeStart.ToString("hh:mm:ss tt"); // "12:00:00 PM" as we show AM/PM in UI
-
-            // Split into hour/min/sec if needed
-            string[] parts = time12.Split(':');
-            string hour = parts[0];               // "12"
-            string minute = parts[1];             // "00"
-            string second = parts[2].Split(' ')[0]; // "00"
-            string ampm = timeStart.ToString("tt");    // "PM"
-
-            StartTimePicker.NUDHTextBox.Text = hour;
-            StartTimePicker.NUDMTextBox.Text = minute;
-            StartTimePicker.NUDAMPTextBox.Text = ampm;
-
-            DateTime timeEnd = DateTime.ParseExact(_editableCopy.EndTimeValue, "HH:mm:ss", null);
-            string timeEnd12 = timeEnd.ToString("hh:mm:ss tt"); // "12:00:00 PM" as we show AM/PM in UI
-
-            // Split into hour/min/sec if needed
-            string[] partsEnd = timeEnd12.Split(':');
-            string hourEnd = partsEnd[0];               // "12"
-            string minuteEnd = partsEnd[1];             // "00"
-            string secondEnd = partsEnd[2].Split(' ')[0]; // "00"
-            string ampmEnd = timeEnd.ToString("tt");    // "PM"
-
-            EndTimePicker.NUDHTextBox.Text = hourEnd;
-            EndTimePicker.NUDMTextBox.Text = minuteEnd;
-            EndTimePicker.NUDAMPTextBox.Text = ampmEnd;
+            // Parse as we know server side it 24 hour format
+            TimeSpan timeStart = DateTime.ParseExact(_editableCopy.StartTimeValue, "HH:mm:ss", CultureInfo.InvariantCulture).TimeOfDay;
+            TimeSpan timeEnd = DateTime.ParseExact(_editableCopy.EndTimeValue, "HH:mm:ss", CultureInfo.InvariantCulture).TimeOfDay;
+            ActiveTimeSlider.SetTimes(timeStart, timeEnd);
 
             // Bind to UI
             DataContext = _editableCopy;
+
+            UpdateWeekdayPresetHighlight();
+            UpdateStrictnessDescription(_editableCopy.BlockLevel);
+            UpdateEmojiPickerText();
 
             //Initialize Texts
 
@@ -99,26 +84,34 @@ namespace Focus_Bear.Onboarding
 
                 BlockName.Text = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["titleScheduleName"].ToString();
                 Title.Text = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["title"].ToString();
-                 
-                BlockingScheduleName.Text = "";
-                From.Text = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["titleFromTime"].ToString();
-                Till.Text = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["titleTillTime"].ToString();
 
-                Mon.Content = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["dayMon"].ToString();
-                Tue.Content = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["dayTue"].ToString();
-                Wed.Content = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["dayWed"].ToString();
-                Thu.Content = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["dayThu"].ToString();
-                Fri.Content = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["dayFri"].ToString();
-                Sat.Content = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["daySat"].ToString();
-                Sun.Content = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["daySun"].ToString();
+                BlockingScheduleName.Text = "";
+
+                // Single-letter day circles (mac shows "M T W T F S S"), same as the in-app editor -
+                // reuses the existing localized dayMon/dayTue/... strings rather than new config keys.
+                Mon.Content = FirstLetter(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["dayMon"].ToString());
+                Tue.Content = FirstLetter(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["dayTue"].ToString());
+                Wed.Content = FirstLetter(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["dayWed"].ToString());
+                Thu.Content = FirstLetter(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["dayThu"].ToString());
+                Fri.Content = FirstLetter(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["dayFri"].ToString());
+                Sat.Content = FirstLetter(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["daySat"].ToString());
+                Sun.Content = FirstLetter(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["daySun"].ToString());
+
+                // These keys aren't in the shared assets config yet - fall back to English rather than
+                // let a missing key throw and abort the rest of this try block.
+                BtnWeekdays.Content = GetConfigStringOrDefault("blockingScheduleEditorVcInfo", "titleWeekdays", "Weekdays");
+                BtnWeekends.Content = GetConfigStringOrDefault("blockingScheduleEditorVcInfo", "titleWeekends", "Weekends");
+                BtnEveryday.Content = GetConfigStringOrDefault("blockingScheduleEditorVcInfo", "titleEveryday", "Everyday");
+
+                ActiveTimeTitle.Text = GetConfigStringOrDefault("blockingScheduleEditorVcInfo", "titleActiveTime", "Active time");
 
                 StrictnessLevel.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["titleStrictnessLevel"].ToString();
-                //Change strictness level text based on slider value
-                //SliderStrictnessLevel.Value = 50;  // assuming x:Name="mySlider"
 
-                Chill.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleNormalMode"].ToString();
-                WaitForIt.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleStrictMode"].ToString();
-                IronFocus.Text = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleSuperStrictMode"].ToString();
+                RadioFlexible.Content = GetConfigStringOrDefault("blockingScheduleEditorVcInfo", "titleStrictnessFlexible", "Flexible");
+                RadioModerate.Content = GetConfigStringOrDefault("blockingScheduleEditorVcInfo", "titleStrictnessModerate", "Moderate");
+                RadioStrict.Content = GetConfigStringOrDefault("blockingScheduleEditorVcInfo", "titleStrictnessStrict", "Strict");
+
+                MoreOptionsHeaderText.Text = appSettings.ConfigFileStrings["pomodoroInfo"]["moreOptionsText"].ToString();
 
                 SkipMicroBreaks.Content = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["buttonSkipMicrobreaks"].ToString();
                 UseAIToDecide.Content = appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["buttonEnableAi"].ToString();
@@ -128,14 +121,14 @@ namespace Focus_Bear.Onboarding
                 if(_instance.name.IsNullOrEmpty())
                 {
                     BlockingScheduleName.Focus();
-                }    
+                }
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("AddApp load text ex + " + ex.Message);
             }
         }
-        
+
         private void btnAddBlock_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -165,21 +158,8 @@ namespace Focus_Bear.Onboarding
                     return;
                 }
 
-               
-                // Validate the time inputs BEFORE mutating _instance. Both From and
-                // Till must parse, otherwise show a clear message and bail out without
-                // leaving the schedule half-saved (e.g. id assigned).
-                if (!StartTimePicker.TryGetTime24(out string timeStart24)
-                    || !EndTimePicker.TryGetTime24(out string timeEnd24))
-                {
-                    FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["blockingScheduleEditorVcInfo"]["alertInvalidTime"].ToString());
-                    msg.Owner = _ParentWindow;
-                    msg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                    _ParentWindow.GridShade.Visibility = Visibility.Visible;
-                    msg.ShowDialog();
-                    _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
-                    return;
-                }
+                string timeStart24 = ActiveTimeSlider.StartTime24;
+                string timeEnd24 = ActiveTimeSlider.EndTime24;
 
                 bool bAddingNew = false;
                 // 2. If new schedule (no ID), assign one
@@ -201,12 +181,12 @@ namespace Focus_Bear.Onboarding
 
                 _instance.bAIBlockingEnabled = _editableCopy.bAIBlockingEnabled;
                 _instance.bMicroBreaksEnabled = _editableCopy.bMicroBreaksEnabled;
-                
+                _instance.Emoji = _editableCopy.Emoji;
 
                 for (int i = 0; i < 7; i++)
                     _instance.DaysOfWeek[i] = _editableCopy.DaysOfWeek[i];
 
-                // 4. Save or update the list 
+                // 4. Save or update the list
                 if (bAddingNew)
                 {
                     appSettings.arrCustomBlockingSchedules.Add(_instance);//Later we will add a Focus mode to this and upload it.
@@ -221,91 +201,148 @@ namespace Focus_Bear.Onboarding
             }
         }
 
-        private void SliderStrictnessLevel_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        { 
-            //Change strictness level text based on slider value
-            double newValue = e.NewValue;
+        // Fired when the user checks one of the Flexible/Moderate/Strict radio buttons. The Tag
+        // carries the FOCUSMODESTRICTNESS value so this doesn't depend on the binding having
+        // already pushed the new value into _editableCopy.BlockLevel by the time this runs.
+        private void StrictnessRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            string tag = (sender as RadioButton)?.Tag as string;
+            FOCUSMODESTRICTNESS level = FOCUSMODESTRICTNESS.CHILL_MODE;
+            if (tag == "STRICT")
+                level = FOCUSMODESTRICTNESS.STRICT;
+            else if (tag == "IRON_FOCUS")
+                level = FOCUSMODESTRICTNESS.IRON_FOCUS;
 
-            // Use the value as needed
-            Debug.WriteLine($"Slider value changed to: {newValue}");
-
-            SliderStrictnessLevel.ToolTip = "";
-            //"descriptionNormalMode": "Stop focusing anytime, no questions asked.",
-            //"toolTipNormalMode": "Best for gentle focus days. No barriers to pausing or stopping a session.",
-            //"titleStrictMode": "Wait for it…",
-            //"descriptionStrictMode": "15-second delay before you can stop",
-            //"toolTipStrictMode": "Adds a 15s countdown before you can pause/stop. Great for catching impulsive decisions.",
-            //"titleSuperStrictMode": "Iron Focus",
-            //"descriptionSuperStrictMode": "Once you start, you can't stop",
-            //"toolTipSuperStrictMode": "Once you start, there’s no backing out. Best for deep, distraction-free sessions."
-
-            if (SliderStrictnessLevel.Value == 0)
-            {
-                StrictnessLevel.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["titleStrictnessLevel"].ToString() +
-                                        " " + appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleNormalMode"].ToString() +
-                                        " (" + appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["descriptionNormalMode"].ToString() + ")";
-                StrictnessLevelInfo.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["descriptionNormalMode"].ToString();
-            }
-            else if (SliderStrictnessLevel.Value == 50)
-            {
-                StrictnessLevel.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["titleStrictnessLevel"].ToString() +
-                                        " " + appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleStrictMode"].ToString() +
-                                        " (" + appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["descriptionStrictMode"].ToString() + ")";
-                StrictnessLevelInfo.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["toolTipStrictMode"].ToString();
-            }
-            else if (SliderStrictnessLevel.Value == 100)
-            {
-                StrictnessLevel.Text = appSettings.ConfigFileStrings["focusInfo"]["startingFocusModeInfo"]["titleStrictnessLevel"].ToString() +
-                                        " " + appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["titleSuperStrictMode"].ToString() +
-                                        " (" + appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["descriptionSuperStrictMode"].ToString() + ")";
-                StrictnessLevelInfo.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["toolTipSuperStrictMode"].ToString();
-
-                SliderStrictnessLevel.ToolTip = appSettings.ConfigFileStrings["simplePomodoroVcInfo"]["toolTipSuperStrictMode"].ToString();
-               
-                var slider = (Slider)sender;
-
-                // Create a tooltip only once
-               var _strictTooltip = new ToolTip
-                {
-                    Content = SliderStrictnessLevel.ToolTip,
-                    PlacementTarget = slider,
-                    Placement = PlacementMode.Relative,
-                    StaysOpen = false
-                };
-
-                
-                if (_strictTooltip != null)
-                {
-
-                    if (slider.Value == slider.Maximum)
-                    {
-                        // Position near the right edge (end of slider)
-                        double xOffset = slider.ActualWidth - 30; // tweak 30 to align visually
-                        double yOffset = -60; // slightly above the slider
-
-                        _strictTooltip.HorizontalOffset = xOffset;
-                        _strictTooltip.VerticalOffset = yOffset;
-
-                        _strictTooltip.PlacementTarget = slider;
-                        _strictTooltip.IsOpen = true;
-                        // Auto close after 2 seconds
-                        Task.Delay(5000).ContinueWith(_ =>
-                        {
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                _strictTooltip.IsOpen = false;
-                            });
-                        });
-                    }
-                    else
-                    {
-                        _strictTooltip.IsOpen = false;
-                    }
-                }
-
-            }
-
+            UpdateStrictnessDescription(level);
         }
+
+        private void UpdateStrictnessDescription(FOCUSMODESTRICTNESS level)
+        {
+            string titleKey, titleFallback, descriptionKey;
+            switch (level)
+            {
+                case FOCUSMODESTRICTNESS.STRICT:
+                    titleKey = "titleStrictnessModerate";
+                    titleFallback = "Moderate";
+                    descriptionKey = "descriptionStrictMode";
+                    break;
+                case FOCUSMODESTRICTNESS.IRON_FOCUS:
+                    titleKey = "titleStrictnessStrict";
+                    titleFallback = "Strict";
+                    descriptionKey = "descriptionSuperStrictMode";
+                    break;
+                default:
+                    titleKey = "titleStrictnessFlexible";
+                    titleFallback = "Flexible";
+                    descriptionKey = "descriptionNormalMode";
+                    break;
+            }
+
+            string title = GetConfigStringOrDefault("blockingScheduleEditorVcInfo", titleKey, titleFallback);
+            string description = GetConfigStringOrDefault("simplePomodoroVcInfo", descriptionKey, "");
+            StrictnessDescription.Text = title + " — " + description;
+        }
+
+        private void BtnWeekdays_Click(object sender, RoutedEventArgs e)
+        {
+            SetDays(true, true, true, true, true, false, false);
+        }
+
+        private void BtnWeekends_Click(object sender, RoutedEventArgs e)
+        {
+            SetDays(false, false, false, false, false, true, true);
+        }
+
+        private void BtnEveryday_Click(object sender, RoutedEventArgs e)
+        {
+            SetDays(true, true, true, true, true, true, true);
+        }
+
+        private void SetDays(bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun)
+        {
+            _editableCopy.Monday = mon;
+            _editableCopy.Tuesday = tue;
+            _editableCopy.Wednesday = wed;
+            _editableCopy.Thursday = thu;
+            _editableCopy.Friday = fri;
+            _editableCopy.Saturday = sat;
+            _editableCopy.Sunday = sun;
+
+            UpdateWeekdayPresetHighlight();
+        }
+
+        // Fired whenever an individual day circle is toggled, so the Weekdays/Weekends/Everyday
+        // pills re-highlight (or clear) to reflect the resulting day pattern.
+        private void DayToggle_Changed(object sender, RoutedEventArgs e)
+        {
+            UpdateWeekdayPresetHighlight();
+        }
+
+        private void UpdateWeekdayPresetHighlight()
+        {
+            if (BtnWeekdays == null || _editableCopy?.DaysOfWeek == null)
+                return;
+
+            bool[] d = _editableCopy.DaysOfWeek;
+            BtnWeekdays.IsChecked = d[0] && d[1] && d[2] && d[3] && d[4] && !d[5] && !d[6];
+            BtnWeekends.IsChecked = !d[0] && !d[1] && !d[2] && !d[3] && !d[4] && d[5] && d[6];
+            BtnEveryday.IsChecked = d.All(x => x);
+        }
+
+        private void BtnEmojiPicker_Click(object sender, RoutedEventArgs e)
+        {
+            BtnEmojiPicker.ContextMenu.PlacementTarget = BtnEmojiPicker;
+            BtnEmojiPicker.ContextMenu.IsOpen = true;
+        }
+
+        private void EmojiMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            if (item == null)
+                return;
+
+            // Every real emoji item carries its character in Tag (Header holds the emoji:TextBlock
+            // used for display instead, since Emoji.Wpf renders it in color). "None" has no Tag.
+            _editableCopy.Emoji = item.Tag as string;
+
+            UpdateEmojiPickerText();
+        }
+
+        private void UpdateEmojiPickerText()
+        {
+            bool hasEmoji = !string.IsNullOrEmpty(_editableCopy.Emoji);
+            EmojiPickerText.Text = hasEmoji ? _editableCopy.Emoji : "🙂";
+            EmojiPickerText.Opacity = hasEmoji ? 1.0 : 0.5;
+        }
+
+        private string FirstLetter(string s)
+        {
+            return string.IsNullOrEmpty(s) ? s : s.Substring(0, 1).ToUpperInvariant();
+        }
+
+        // Safe config lookup that falls back to English text instead of throwing when a key isn't
+        // present - some of the strings this screen uses aren't in the shared assets config yet.
+        private string GetConfigStringOrDefault(string section, string key, string fallback)
+        {
+            try
+            {
+                var token = appSettings.ConfigFileStrings?[section]?[key];
+                return token != null ? token.ToString() : fallback;
+            }
+            catch
+            {
+                return fallback;
+            }
+        }
+
+        // Scroll the newly-revealed More Options content into view. Deferred to Background priority
+        // so it runs after the Expander's layout pass has actually grown ContentScrollViewer's extent -
+        // calling ScrollToEnd() synchronously here would still see the pre-expand (shorter) extent.
+        private void MoreOptionsExpander_Expanded(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() => ContentScrollViewer.ScrollToEnd()), System.Windows.Threading.DispatcherPriority.Background);
+        }
+
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (IsVisible)

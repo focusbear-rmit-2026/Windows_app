@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Focus_Bear.Preferences"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
              mc:Ignorable="d"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
              d:DesignHeight="450" d:DesignWidth="800" AutomationProperties.AutomationId="BlockingSchedule">
@@ -31,7 +32,7 @@
         <!-- Pill badge (Days / Block list / Strictness) -->
         <Style x:Key="SchedulePillStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="12,5"/>
             <Setter Property="Margin" Value="0,0,8,0"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -54,7 +55,7 @@
                 <DataTemplate>
                     <Border Background="{DynamicResource SoftCreamColor}"
                             BorderBrush="#FFF2E1C1"
-                            BorderThickness="2"
+                            BorderThickness="1"
                             CornerRadius="12"
                             Padding="16"
                             Cursor="Hand"
@@ -63,7 +64,7 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
                             <Border Width="5" CornerRadius="3" Margin="0,2,0,0" SnapsToDevicePixels="True" UseLayoutRounding="True"
                                     Background="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource ScheduleAccentColorConverter}}"/>
-                            <TextBlock Text="{Binding CardEmoji}" FontSize="22" Margin="12,0,12,0" VerticalAlignment="Top"/>
+                            <emoji:TextBlock Text="{Binding CardEmoji}" FontSize="22" Margin="12,0,12,0" VerticalAlignment="Top"/>
 
                             <StackPanel Orientation="Vertical">
                                 <TextBlock Text="{Binding name}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundColor}" TextTrimming="CharacterEllipsis"/>
@@ -98,7 +99,7 @@
                 <ControlTemplate TargetType="Button">
                     <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
                         <!-- Border has no dashed-stroke support - a Rectangle does. -->
-                        <Rectangle RadiusX="12" RadiusY="12" Fill="Transparent" Stroke="#e88800" StrokeThickness="2" StrokeDashArray="4,3"/>
+                        <Rectangle RadiusX="12" RadiusY="12" Fill="Transparent" Stroke="#e88800" StrokeThickness="1.5" StrokeDashArray="4,3"/>
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Grid>
                 </ControlTemplate>

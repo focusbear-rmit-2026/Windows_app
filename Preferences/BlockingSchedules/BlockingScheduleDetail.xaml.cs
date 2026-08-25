@@ -547,6 +547,14 @@ namespace Focus_Bear.Preferences
             _ParentWindow.ShowFocusMode();
         }
 
+        // Scroll the newly-revealed More Options content into view. Deferred to Background priority
+        // so it runs after the Expander's layout pass has actually grown ContentScrollViewer's extent -
+        // calling ScrollToEnd() synchronously here would still see the pre-expand (shorter) extent.
+        private void MoreOptionsExpander_Expanded(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() => ContentScrollViewer.ScrollToEnd()), System.Windows.Threading.DispatcherPriority.Background);
+        }
+
         // Fired when the user checks one of the Flexible/Moderate/Strict radio buttons. The Tag
         // carries the FOCUSMODESTRICTNESS value so this doesn't depend on the binding having
         // already pushed the new value into _editableCopy.BlockLevel by the time this runs.
@@ -626,11 +634,9 @@ namespace Focus_Bear.Preferences
             if (item == null)
                 return;
 
-            // "None" is always the first item and has no real emoji to store.
-            if (item.Header?.ToString() == "None")
-                _editableCopy.Emoji = null;
-            else
-                _editableCopy.Emoji = item.Header.ToString();
+            // Every real emoji item carries its character in Tag (Header holds the emoji:TextBlock
+            // used for display instead, since Emoji.Wpf renders it in color). "None" has no Tag.
+            _editableCopy.Emoji = item.Tag as string;
 
             UpdateEmojiPickerText();
         }
