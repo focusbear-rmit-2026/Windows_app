@@ -206,3 +206,13 @@
 - Fixed a stale focus intention/task carrying over: when a focus session ends, the running intention and current to-do task are now cleared, so they don't wrongly reappear on the next session or end screen #1264.
 - The gentle-block "Report Bad AI Decision" (👎) now also allows the current site/app: since the report means the AI blocked it by mistake, you're no longer immediately re-blocked on the thing you just reported #1290.
 - The gentle-block "working on something else" / "just this time" buttons now handle long task names cleanly — the text is trimmed with an ellipsis and the full text shows in a tooltip on hover, instead of being cut off.
+
+#v3.0.244
+- The Blocking Schedule editor (Settings → Blocking) has been redesigned to match the macOS app: a draggable time-range slider instead of separate time spinners, Flexible/Moderate/Strict strictness buttons instead of a slider, Weekdays/Weekends/Everyday quick-select day presets, and a collapsible "More Options" section #1462.
+- The Blocking Schedule list now shows each schedule as a card with a colored accent, an emoji, and pills for its days/block list/strictness — and you can now pick an emoji for each schedule from the editor, synced with the mac app #1463.
+- The onboarding "Set Block Details" screen has been redesigned to match the same new look, and now supports picking a schedule emoji too #1464.
+- Fixed the Active Time slider's tick labels always reading up to "6PM" regardless of your selection - the slider itself covered the full 24 hours all along, just the labels were misplaced #1464.
+- Fixed blocking-schedule emoji sometimes showing in black-and-white instead of color #1464.
+- Fixed the "More Options" section on the blocking-schedule editor not expanding when you clicked directly on its arrow icon #1464.
+- Reordered onboarding so distraction blocking is set up before habits (previously the reverse), and Blocked URLs/Apps are set up before Allowed URLs #1465.
+- The Create Account screen now explains that Focus Bear uses Auth0 for sign-in #1465.
