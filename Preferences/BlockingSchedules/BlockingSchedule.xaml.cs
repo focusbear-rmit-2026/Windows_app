@@ -2,6 +2,7 @@
 using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,37 @@ using System.Windows.Shapes;
 
 namespace Focus_Bear.Preferences
 {
+    // Maps a card's ListView.AlternationIndex (0-7, cycling via AlternationCount="8") to a distinct
+    // accent colour, matching mac's BlockingScheduleStore.schedulePalette exactly so the same
+    // schedule reads with a similar accent on both platforms (colours are position-based, not
+    // per-schedule state, on both apps).
+    public class ScheduleAccentColorConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush[] Palette = new[]
+        {
+            new SolidColorBrush(Color.FromRgb(0xF2, 0x8C, 0x26)), // orange
+            new SolidColorBrush(Color.FromRgb(0x33, 0xA3, 0x9E)), // teal
+            new SolidColorBrush(Color.FromRgb(0x45, 0x85, 0xD1)), // blue
+            new SolidColorBrush(Color.FromRgb(0x8F, 0x66, 0xC7)), // purple
+            new SolidColorBrush(Color.FromRgb(0x5C, 0xAD, 0x66)), // green
+            new SolidColorBrush(Color.FromRgb(0xDE, 0x66, 0x78)), // pink
+            new SolidColorBrush(Color.FromRgb(0xD6, 0xA3, 0x33)), // amber
+            new SolidColorBrush(Color.FromRgb(0x66, 0x78, 0xC2)), // indigo
+        };
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            int index = value is int i ? i : 0;
+            int n = Palette.Length;
+            return Palette[((index % n) + n) % n];
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
     /// <summary>
     /// Interaction logic for BlockingSchedule.xaml
     /// </summary>

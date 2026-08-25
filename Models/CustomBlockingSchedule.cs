@@ -239,7 +239,95 @@ namespace Focus_Bear.Models
                 parts.Add($"{dayNames[start]} to {dayNames[end]}");
         }
 
+        // Card-view-only formatting (mac's BlockingScheduleListView): "Mon-Fri" / "Everyday" style,
+        // separate from BlockingScheduleDaysTime above (which the tray menu already depends on in
+        // its own "Mon, Tue, ... to 5:00 PM" combined format - left that one alone).
+        public string DaysCompact
+        {
+            get { return GetCompactDaysString(_daysOfWeek); }
+        }
 
+        public string TimeRangeCompact
+        {
+            get
+            {
+                DateTime timeStart = DateTime.ParseExact(StartTimeValue, "HH:mm:ss", CultureInfo.InvariantCulture);
+                DateTime timeEnd = DateTime.ParseExact(EndTimeValue, "HH:mm:ss", CultureInfo.InvariantCulture);
+                return timeStart.ToString("h:mm tt") + " to " + timeEnd.ToString("h:mm tt");
+            }
+        }
+
+        private string GetCompactDaysString(bool[] daysOfWeek)
+        {
+            if (daysOfWeek == null || daysOfWeek.Length != 7)
+                return "";
+
+            if (daysOfWeek.All(d => d))
+                return "Everyday";
+
+            string[] dayNames = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+            List<string> parts = new List<string>();
+            int start = -1;
+
+            for (int i = 0; i < 7; i++)
+            {
+                if (daysOfWeek[i])
+                {
+                    if (start == -1)
+                        start = i;
+                }
+                else if (start != -1)
+                {
+                    AddCompactDayRange(parts, dayNames, start, i - 1);
+                    start = -1;
+                }
+            }
+
+            if (start != -1)
+                AddCompactDayRange(parts, dayNames, start, 6);
+
+            return string.Join(", ", parts);
+        }
+
+        private void AddCompactDayRange(List<string> parts, string[] dayNames, int start, int end)
+        {
+            if (start == end)
+                parts.Add(dayNames[start]);
+            else
+                parts.Add($"{dayNames[start]}-{dayNames[end]}");
+        }
+
+        // Per-schedule emoji (backend field "emoji", nullable, <=32 chars - matches the mac app's
+        // customBlockingSchedule.emoji, backend#2094).
+        private string _emoji;
+        public string Emoji
+        {
+            get => _emoji;
+            set
+            {
+                if (_emoji != value)
+                {
+                    _emoji = value;
+                    OnChanged(nameof(Emoji));
+                    OnChanged(nameof(CardEmoji));
+                }
+            }
+        }
+
+        // Same deterministic-fallback set/logic as mac's ScheduleCard.emoji(for:), so a schedule
+        // without an explicit emoji still looks lively and stays visually consistent across devices.
+        private static readonly string[] FallbackEmojiSet = { "🧠", "🌅", "🌙", "⚡️", "🏕️", "🛠️", "🎯", "😎", "💪", "📵" };
+        public string CardEmoji
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Emoji))
+                    return Emoji;
+
+                int hash = Math.Abs((id ?? "").GetHashCode());
+                return FallbackEmojiSet[hash % FallbackEmojiSet.Length];
+            }
+        }
 
         private bool _bAIBlockingEnabled;
         public bool bAIBlockingEnabled
@@ -322,6 +410,7 @@ namespace Focus_Bear.Models
                BlockLevel = this.BlockLevel,
                bAIBlockingEnabled = this.bAIBlockingEnabled,
                bMicroBreaksEnabled = this.bMicroBreaksEnabled,
+               Emoji = this.Emoji,
             };
         }
 
@@ -331,6 +420,7 @@ namespace Focus_Bear.Models
             id = other.id;
             name = other.name;
             isOn = other.isOn;
+            Emoji = other.Emoji;
             StartTimeValue = other.StartTimeValue;
             EndTimeValue = other.EndTimeValue;
             DaysOfWeek = other.DaysOfWeek;

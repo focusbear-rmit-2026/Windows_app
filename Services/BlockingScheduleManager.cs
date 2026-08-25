@@ -65,6 +65,9 @@ namespace Focus_Bear.Services
                                     $"\"pause_friction\":\"none\"," +
                                     $"\"block_level\":\"{blockLevel}\"," +
                                     $"\"is_ai_blocking_enabled\":{JsonConvert.SerializeObject(Instance.bAIBlockingEnabled)}," +
+                                    // Top-level "emoji" (nullable, <=32 chars) - matches the mac app's
+                                    // customBlockingSchedule.emoji field (backend#2094), not nested in metadata.
+                                    $"\"emoji\":{JsonConvert.SerializeObject(Instance.Emoji)}," +
                                     $"\"metadata\":{metadata}}}";
 
             if(bUpdating)
@@ -181,7 +184,13 @@ namespace Focus_Bear.Services
                                         }
                                     }
 
-                                    appSettings.arrCustomBlockingSchedules.Add(new CustomBlockingSchedule(id, name, false, startTime, endTime, daysOfWeek, focusModeId, FMS, isAiBlockingEnabled, isMicroBreaksEnabled)); 
+                                    string emoji = item.ContainsKey("emoji") && item.GetValue("emoji").Type != JTokenType.Null
+                                        ? item.GetValue("emoji").ToString()
+                                        : null;
+
+                                    var newSchedule = new CustomBlockingSchedule(id, name, false, startTime, endTime, daysOfWeek, focusModeId, FMS, isAiBlockingEnabled, isMicroBreaksEnabled);
+                                    newSchedule.Emoji = emoji;
+                                    appSettings.arrCustomBlockingSchedules.Add(newSchedule);
                                 }
                                 catch (Exception ex)
                                 {

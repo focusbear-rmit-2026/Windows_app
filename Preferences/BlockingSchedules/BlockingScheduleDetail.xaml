@@ -29,16 +29,46 @@
                     Background="{DynamicResource SoftCreamColor}"
                     CornerRadius="12"
                     BorderBrush="#FFF2E1C1"
-                    BorderThickness="1"
+                    BorderThickness="2"
                     SnapsToDevicePixels="True"
                     UseLayoutRounding="True">
                     <StackPanel>
 
                         <!-- Block name -->
                         <TextBlock x:Name="BlockName" Text="xBlock name" FontWeight="SemiBold" Margin="0,0,0,10" />
-                        <TextBox TabIndex="0" x:Name="BlockingScheduleName" Style="{StaticResource RoundedTextBoxStyle}" AutomationProperties.AutomationId="txtBlockingScheduleName" TextWrapping="Wrap" MaxLength="45" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="34" VerticalContentAlignment="Center">
-                            <Binding Path="name"/>
-                        </TextBox>
+                        <Grid Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" TabIndex="0" x:Name="BlockingScheduleName" Style="{StaticResource RoundedTextBoxStyle}" AutomationProperties.AutomationId="txtBlockingScheduleName" TextWrapping="Wrap" MaxLength="45" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="34" VerticalContentAlignment="Center">
+                                <Binding Path="name"/>
+                            </TextBox>
+                            <Button Grid.Column="1" x:Name="BtnEmojiPicker" AutomationProperties.AutomationId="btnEmojiPicker" Style="{StaticResource EmojiPickerButtonStyle}" Margin="10,0,0,0" ToolTip="Choose an emoji for this schedule" Click="BtnEmojiPicker_Click">
+                                <TextBlock x:Name="EmojiPickerText" FontSize="17"/>
+                                <Button.ContextMenu>
+                                    <ContextMenu x:Name="EmojiContextMenu" Placement="Bottom">
+                                        <MenuItem Header="None" AutomationProperties.AutomationId="miEmojiNone" Click="EmojiMenuItem_Click"/>
+                                        <Separator/>
+                                        <MenuItem Header="🧠" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="🌅" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="🌙" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="⚡️" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="🏕️" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="🛠️" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="🎯" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="😎" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="💪" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="📵" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="💻" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="📚" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="🎨" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="🏋️" Click="EmojiMenuItem_Click"/>
+                                        <MenuItem Header="🧘" Click="EmojiMenuItem_Click"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
+                        </Grid>
 
                         <!-- Weekday selector -->
                         <TextBlock x:Name="Title" Text="xBlocking schedule" FontWeight="SemiBold" Margin="0,20,0,10"/>
@@ -73,7 +103,7 @@
                     Background="{DynamicResource SoftCreamColor}"
                     CornerRadius="12"
                     BorderBrush="#FFF2E1C1"
-                    BorderThickness="1"
+                    BorderThickness="2"
                     SnapsToDevicePixels="True"
                     UseLayoutRounding="True">
                     <StackPanel>

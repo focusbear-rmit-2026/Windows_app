@@ -1131,7 +1131,7 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="BorderBrush" Value="LightGray"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Focusable" Value="False"/>
             <Setter Property="UseLayoutRounding" Value="True"/>
@@ -1200,7 +1200,7 @@
             <Setter Property="Background" Value="{DynamicResource TextBoxBackgroundColor}"/>
             <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
             <Setter Property="BorderBrush" Value="LightGray"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="UseLayoutRounding" Value="True"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -1229,6 +1229,35 @@
             </Setter>
         </Style>
 
+        <!-- Emoji-picker Button (next to the Name field), matching mac's per-schedule emoji chip -->
+        <Style x:Key="EmojiPickerButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{DynamicResource TextBoxBackgroundColor}"
+                                BorderBrush="LightGray"
+                                BorderThickness="2"
+                                CornerRadius="8"
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#e88800"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Rounded, theme-aware ComboBox (WPF's default ComboBox template doesn't respect the app's
              theme resources at all, so it looks wrong in dark mode). Used by the mac-styled Blocking
              Schedule editor's block-list picker. -->
@@ -1243,7 +1272,7 @@
                         <Border x:Name="border"
                                 Background="{DynamicResource TextBoxBackgroundColor}"
                                 BorderBrush="LightGray"
-                                BorderThickness="1"
+                                BorderThickness="2"
                                 CornerRadius="8"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
@@ -1289,7 +1318,7 @@
             <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
             <Setter Property="Background" Value="{DynamicResource TextBoxBackgroundColor}"/>
             <Setter Property="BorderBrush" Value="LightGray"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="ItemContainerStyle" Value="{StaticResource RoundedComboBoxItemStyle}"/>
             <Setter Property="UseLayoutRounding" Value="True"/>
@@ -1314,7 +1343,7 @@
                                    AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
                                 <Border x:Name="DropDownBorder"
                                         Background="{DynamicResource TextBoxBackgroundColor}"
-                                        BorderBrush="LightGray" BorderThickness="1" CornerRadius="8"
+                                        BorderBrush="LightGray" BorderThickness="2" CornerRadius="8"
                                         MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
                                         MaxHeight="220" SnapsToDevicePixels="True" Margin="0,4,0,0">
                                     <Border.Effect>
@@ -1347,7 +1376,7 @@
                     <ControlTemplate TargetType="{x:Type Expander}">
                         <Border Background="{DynamicResource SoftCreamColor}"
                                 BorderBrush="#FFF2E1C1"
-                                BorderThickness="1"
+                                BorderThickness="2"
                                 CornerRadius="12"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">

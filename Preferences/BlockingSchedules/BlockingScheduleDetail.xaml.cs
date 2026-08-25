@@ -144,7 +144,8 @@ namespace Focus_Bear.Preferences
 
                     bAIBlockingEnabled = false,
                     bMicroBreaksEnabled = false,
-                   
+                    Emoji = null,
+
                 };
                 _instance = _editableCopy;
             }
@@ -167,7 +168,8 @@ namespace Focus_Bear.Preferences
                     BlockLevel = instance.BlockLevel,
 
                     bMicroBreaksEnabled = instance.bMicroBreaksEnabled,
-                    bAIBlockingEnabled = instance.bAIBlockingEnabled
+                    bAIBlockingEnabled = instance.bAIBlockingEnabled,
+                    Emoji = instance.Emoji,
 
                 };
             }
@@ -183,6 +185,7 @@ namespace Focus_Bear.Preferences
 
             UpdateWeekdayPresetHighlight();
             UpdateStrictnessDescription(_editableCopy.BlockLevel);
+            UpdateEmojiPickerText();
 
             //Initialize Texts
 
@@ -435,7 +438,8 @@ namespace Focus_Bear.Preferences
 
                 _instance.bAIBlockingEnabled = _editableCopy.bAIBlockingEnabled;
                 _instance.bMicroBreaksEnabled = _editableCopy.bMicroBreaksEnabled;
-                
+                _instance.Emoji = _editableCopy.Emoji;
+
 
                 for (int i = 0; i < 7; i++)
                     _instance.DaysOfWeek[i] = _editableCopy.DaysOfWeek[i];
@@ -493,6 +497,7 @@ namespace Focus_Bear.Preferences
 
             _editableCopy.bAIBlockingEnabled = _instance.bAIBlockingEnabled;
             _editableCopy.bMicroBreaksEnabled = _instance.bMicroBreaksEnabled;
+            _editableCopy.Emoji = _instance.Emoji;
 
             ButtonAutomationPeer peer = new ButtonAutomationPeer(_ParentWindow.PageBlocks.btnBlockingSchedule);
             IInvokeProvider invokeProv = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
@@ -607,6 +612,34 @@ namespace Focus_Bear.Preferences
             {
                 return fallback;
             }
+        }
+
+        private void BtnEmojiPicker_Click(object sender, RoutedEventArgs e)
+        {
+            BtnEmojiPicker.ContextMenu.PlacementTarget = BtnEmojiPicker;
+            BtnEmojiPicker.ContextMenu.IsOpen = true;
+        }
+
+        private void EmojiMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            if (item == null)
+                return;
+
+            // "None" is always the first item and has no real emoji to store.
+            if (item.Header?.ToString() == "None")
+                _editableCopy.Emoji = null;
+            else
+                _editableCopy.Emoji = item.Header.ToString();
+
+            UpdateEmojiPickerText();
+        }
+
+        private void UpdateEmojiPickerText()
+        {
+            bool hasEmoji = !string.IsNullOrEmpty(_editableCopy.Emoji);
+            EmojiPickerText.Text = hasEmoji ? _editableCopy.Emoji : "🙂";
+            EmojiPickerText.Opacity = hasEmoji ? 1.0 : 0.5;
         }
 
         private void BtnWeekdays_Click(object sender, RoutedEventArgs e)
