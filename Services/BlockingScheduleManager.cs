@@ -480,7 +480,12 @@ namespace Focus_Bear.Services
                 && schedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS;
         }
 
-        private static CustomBlockingSchedule GetActiveSchedule()
+        // Public so AppSettings.IsBlockingScheduleActiveAndNotPaused can re-verify against this authoritative,
+        // stateless time-window check instead of trusting only the cached isBlockingScheduleRunning/
+        // ActiveSchedule fields (#1314 - those are maintained by CheckCustomBlockingScheduleTime/ToStop calls
+        // scattered across dispatcherTimer_Background's many nCurrentActivityType branches, and a gap in any
+        // one of them leaves the cached "running" state stale past the schedule's actual end time).
+        public static CustomBlockingSchedule GetActiveSchedule()
         {
             var now = DateTime.Now;
             int todayIndex = (int)now.DayOfWeek - 1;

@@ -697,14 +697,36 @@ namespace Focus_Bear.Utils
         // capture the reference ONCE into a local so the null-check and the member access see the same value.
         public bool IsBlockingScheduleActiveAndNotPaused(out CustomBlockingSchedule schedule)
         {
+            RefreshStaleActiveSchedule();
             schedule = ActiveSchedule; // capture once — avoids the TOCTOU race
             return isBlockingScheduleRunning && schedule != null && !schedule.isPaused;
         }
 
         public bool TryGetActiveSchedule(out CustomBlockingSchedule schedule)
         {
+            RefreshStaleActiveSchedule();
             schedule = ActiveSchedule; // capture once — avoids the TOCTOU race
             return isBlockingScheduleRunning && schedule != null;
+        }
+
+        // Self-heals a stale isBlockingScheduleRunning/ActiveSchedule. Those are normally maintained by
+        // BlockingScheduleManager.CheckCustomBlockingScheduleTime/ToStop, called from ~10 separate
+        // nCurrentActivityType branches inside App.dispatcherTimer_Background - a gap in any one of them
+        // can leave "running" cached true past the schedule's actual end time, so an app in that schedule's
+        // block list kept getting blocked outside its window (#1314: Discord stayed blocked outside both
+        // blocking-schedule hours and any focus session). Re-verify against BlockingScheduleManager's
+        // authoritative, stateless time-window check right here - at the point every blocking decision
+        // reads this state - instead of only trusting the periodic tick to have caught the transition.
+        private void RefreshStaleActiveSchedule()
+        {
+            if (!isBlockingScheduleRunning) return;
+            CustomBlockingSchedule current = BlockingScheduleManager.GetActiveSchedule();
+            if (current == null || current != ActiveSchedule)
+            {
+                if (ActiveSchedule != null) ActiveSchedule.isOn = false;
+                isBlockingScheduleRunning = false;
+                ActiveSchedule = null;
+            }
         }
 
         //Meetings detection related
