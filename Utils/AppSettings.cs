@@ -340,6 +340,23 @@ namespace Focus_Bear.Utils
             return i;
         }
 
+        // Non-timer/log-quantity habits log their elapsed duration as (now - ActivityStartTime).
+        // ActivityStartTime is only ever set when the activity's own ongoing/timer screen actually loads
+        // (HabitActivityOnGoing) or via the Day Plan's direct "Done" flow (HabitsDayPlan.OnDone) - a
+        // habit finished through a shortcut that skips both, e.g. skipping the "get focused" intro screen
+        // straight to "I already did this" on the why-skip nag, leaves it at its default DateTime.MinValue.
+        // Converting ~2026 years to seconds overflows Int32 and throws; every caller here wrapped that in
+        // a try/catch that just logs and returns, silently skipping the rest of the method (posting the
+        // completion, and dismissing whatever UI triggered it - #1440, the log-quantity nag getting stuck
+        // open forever). Clamp to a sane non-negative range instead of trusting the start time blindly.
+        public int SafeElapsedSeconds(DateTime activityStartTime)
+        {
+            if (activityStartTime == default(DateTime)) return 0;
+            double seconds = DateTime.Now.Subtract(activityStartTime.ToLocalTime()).TotalSeconds;
+            if (double.IsNaN(seconds) || seconds < 0 || seconds > int.MaxValue) return 0;
+            return Convert.ToInt32(seconds);
+        }
+
         // Habit ids completed per day (key "yyyy-MM-dd") per the backend
         // (GET /completed-activity-sequence/routine-progress), fetched when the Day Plan opens/navigates.
         // Reliable across restarts / habit edits and after the routine is finished — used to strike

@@ -434,6 +434,19 @@ namespace Focus_Bear.Habits
 
             try
             {
+                // Normally created by InitializeInnerScreens() - but resuming a habits postpone that
+                // survived an app restart calls straight into ShowHabitsPostponedView() without ever
+                // going through ShowMorningRoutine/ShowEveningRoutine/ShowBreakActivities (the only
+                // three callers of InitializeInnerScreens), so this stays at its default null. Any habit
+                // finished afterwards then null-refs right here, silently (caught below), leaving the
+                // triggering UI (e.g. the why-skip nag) stuck (#1440). Lazily create it, same as
+                // ShowDayPlanReused already does for PageDayPlan, instead of assuming some upstream
+                // caller always initialized it first.
+                if (nScreenHabitActivityFinished == null)
+                {
+                    nScreenHabitActivityFinished = new HabitActivityFinished(ParentWindow);
+                }
+
                 //////////////////////////////////////////////////////////
                 //On activity Finished, do clear the Postponed variables
                 RegistryManager.RemovePostponedHabitData();
@@ -531,10 +544,12 @@ namespace Focus_Bear.Habits
                         int nDurationLogged = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds;
                         if (!appSettings.arrAllMorningHabits[appSettings.nHabitIndex].useTimer)
                         {
-                            DateTime now = DateTime.Now;
-                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
-                            var durationSeconds = difference.TotalSeconds;
-                            nDurationLogged = Convert.ToInt32(durationSeconds);
+                            // A habit finished via a shortcut that never opened its own timer screen (e.g.
+                            // skipping the "get focused" intro straight to "I already did this") leaves
+                            // ActivityStartTime at its default, unset value - computing straight off it
+                            // overflows Int32 and silently aborts this whole method (#1440). Clamped helper
+                            // instead of trusting it blindly.
+                            nDurationLogged = appSettings.SafeElapsedSeconds(ActivityStartTime);
                         }
 
                         sLogType = "morning routine";
@@ -554,10 +569,12 @@ namespace Focus_Bear.Habits
                         int nDurationLogged = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds;
                         if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].useTimer)
                         {
-                            DateTime now = DateTime.Now;
-                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
-                            var durationSeconds = difference.TotalSeconds;
-                            nDurationLogged = Convert.ToInt32(durationSeconds);
+                            // A habit finished via a shortcut that never opened its own timer screen (e.g.
+                            // skipping the "get focused" intro straight to "I already did this") leaves
+                            // ActivityStartTime at its default, unset value - computing straight off it
+                            // overflows Int32 and silently aborts this whole method (#1440). Clamped helper
+                            // instead of trusting it blindly.
+                            nDurationLogged = appSettings.SafeElapsedSeconds(ActivityStartTime);
                         }
 
                         sLogType = "evening routine";
@@ -587,10 +604,12 @@ namespace Focus_Bear.Habits
                         int nDurationLogged = currentActivity.durationSeconds;
                         if (!currentActivity.useTimer)
                         {
-                            DateTime now = DateTime.Now;
-                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
-                            var durationSeconds = difference.TotalSeconds;
-                            nDurationLogged = Convert.ToInt32(durationSeconds);
+                            // A habit finished via a shortcut that never opened its own timer screen (e.g.
+                            // skipping the "get focused" intro straight to "I already did this") leaves
+                            // ActivityStartTime at its default, unset value - computing straight off it
+                            // overflows Int32 and silently aborts this whole method (#1440). Clamped helper
+                            // instead of trusting it blindly.
+                            nDurationLogged = appSettings.SafeElapsedSeconds(ActivityStartTime);
                         }
 
                         if (!currentActivity.isRandomChoice)
@@ -979,10 +998,12 @@ namespace Focus_Bear.Habits
                         int nDurationLogged = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds;
                         if (!appSettings.arrAllMorningHabits[appSettings.nHabitIndex].useTimer)
                         {
-                            DateTime now = DateTime.Now;
-                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
-                            var durationSeconds = difference.TotalSeconds;
-                            nDurationLogged = Convert.ToInt32(durationSeconds);
+                            // A habit finished via a shortcut that never opened its own timer screen (e.g.
+                            // skipping the "get focused" intro straight to "I already did this") leaves
+                            // ActivityStartTime at its default, unset value - computing straight off it
+                            // overflows Int32 and silently aborts this whole method (#1440). Clamped helper
+                            // instead of trusting it blindly.
+                            nDurationLogged = appSettings.SafeElapsedSeconds(ActivityStartTime);
                         }
 
                         sLogType = "morning routine";
@@ -995,10 +1016,12 @@ namespace Focus_Bear.Habits
                         int nDurationLogged = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds;
                         if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].useTimer)
                         {
-                            DateTime now = DateTime.Now;
-                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
-                            var durationSeconds = difference.TotalSeconds;
-                            nDurationLogged = Convert.ToInt32(durationSeconds);
+                            // A habit finished via a shortcut that never opened its own timer screen (e.g.
+                            // skipping the "get focused" intro straight to "I already did this") leaves
+                            // ActivityStartTime at its default, unset value - computing straight off it
+                            // overflows Int32 and silently aborts this whole method (#1440). Clamped helper
+                            // instead of trusting it blindly.
+                            nDurationLogged = appSettings.SafeElapsedSeconds(ActivityStartTime);
                         }
 
 
@@ -1023,10 +1046,12 @@ namespace Focus_Bear.Habits
                         int nDurationLogged = currentActivity.durationSeconds;
                         if (!currentActivity.useTimer)
                         {
-                            DateTime now = DateTime.Now;
-                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
-                            var durationSeconds = difference.TotalSeconds;
-                            nDurationLogged = Convert.ToInt32(durationSeconds);
+                            // A habit finished via a shortcut that never opened its own timer screen (e.g.
+                            // skipping the "get focused" intro straight to "I already did this") leaves
+                            // ActivityStartTime at its default, unset value - computing straight off it
+                            // overflows Int32 and silently aborts this whole method (#1440). Clamped helper
+                            // instead of trusting it blindly.
+                            nDurationLogged = appSettings.SafeElapsedSeconds(ActivityStartTime);
                         }
 
                         if (!currentActivity.isRandomChoice)
@@ -1079,10 +1104,12 @@ namespace Focus_Bear.Habits
                         int nDurationLogged = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds;
                         if (!appSettings.arrAllMorningHabits[appSettings.nHabitIndex].useTimer)
                         {
-                            DateTime now = DateTime.Now;
-                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
-                            var durationSeconds = difference.TotalSeconds;
-                            nDurationLogged = Convert.ToInt32(durationSeconds);
+                            // A habit finished via a shortcut that never opened its own timer screen (e.g.
+                            // skipping the "get focused" intro straight to "I already did this") leaves
+                            // ActivityStartTime at its default, unset value - computing straight off it
+                            // overflows Int32 and silently aborts this whole method (#1440). Clamped helper
+                            // instead of trusting it blindly.
+                            nDurationLogged = appSettings.SafeElapsedSeconds(ActivityStartTime);
                         }
 
                         sLogType = "morning routine";
@@ -1094,10 +1121,12 @@ namespace Focus_Bear.Habits
                         int nDurationLogged = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds;
                         if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].useTimer)
                         {
-                            DateTime now = DateTime.Now;
-                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
-                            var durationSeconds = difference.TotalSeconds;
-                            nDurationLogged = Convert.ToInt32(durationSeconds);
+                            // A habit finished via a shortcut that never opened its own timer screen (e.g.
+                            // skipping the "get focused" intro straight to "I already did this") leaves
+                            // ActivityStartTime at its default, unset value - computing straight off it
+                            // overflows Int32 and silently aborts this whole method (#1440). Clamped helper
+                            // instead of trusting it blindly.
+                            nDurationLogged = appSettings.SafeElapsedSeconds(ActivityStartTime);
                         }
                         sLogType = "evening routine";
                         appSettings.AddEntryInCSV(sLogType, appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name, nDurationLogged.ToString(), appSettings.arrAllEveningHabits[appSettings.nHabitIndex].logQuantityQuestion,/* dQuantityLogged.ToString()*/"", sStartTime);
@@ -1120,10 +1149,12 @@ namespace Focus_Bear.Habits
                         int nDurationLogged = currentActivity.durationSeconds;
                         if (!currentActivity.useTimer)
                         {
-                            DateTime now = DateTime.Now;
-                            TimeSpan difference = now.Subtract(ActivityStartTime.ToLocalTime());
-                            var durationSeconds = difference.TotalSeconds;
-                            nDurationLogged = Convert.ToInt32(durationSeconds);
+                            // A habit finished via a shortcut that never opened its own timer screen (e.g.
+                            // skipping the "get focused" intro straight to "I already did this") leaves
+                            // ActivityStartTime at its default, unset value - computing straight off it
+                            // overflows Int32 and silently aborts this whole method (#1440). Clamped helper
+                            // instead of trusting it blindly.
+                            nDurationLogged = appSettings.SafeElapsedSeconds(ActivityStartTime);
                         }
 
                         if (!currentActivity.isRandomChoice)
