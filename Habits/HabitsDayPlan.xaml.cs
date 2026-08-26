@@ -1491,6 +1491,16 @@ namespace Focus_Bear.Habits
                 habit h = arr[idx];
                 LogWriter.LogWrite("DayPlan OnDone: '" + (h.name ?? "") + "' idx=" + idx);
 
+                // Same as OnPlay (#1101): marking a habit Done straight from the Day Plan - without ever
+                // clicking Play - never went through the one place (ResumeHabitsForDayPlanPlay) that stops
+                // the postpone timer/popup. Finishing the whole routine that way left a stale postpone
+                // running in the background, which fired later and re-showed "Habit resumes in X" even
+                // though the routine was already complete.
+                if (appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
+                {
+                    ((App)Application.Current).ResumeHabitsForDayPlanPlay();
+                }
+
                 // Last remaining habit → route to the finished screen so it shows the routine-complete
                 // state with the "Unlock the machine" button (and handles its own log-quantity prompt),
                 // exactly like the normal end-of-routine flow. (macOS parity.)
@@ -1609,6 +1619,13 @@ namespace Focus_Bear.Habits
                 if (arr == null || idx < 0 || idx >= arr.Count) { RenderDayPlan(); return; }
                 habit h = arr[idx];
                 LogWriter.LogWrite("DayPlan OnSkip: '" + (h.name ?? "") + "' idx=" + idx);
+
+                // Same as OnPlay/OnDone (#1101): skipping straight from the Day Plan without ever clicking
+                // Play never cleared a stale postpone timer/popup either.
+                if (appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState)
+                {
+                    ((App)Application.Current).ResumeHabitsForDayPlanPlay();
+                }
 
                 // Last remaining habit → route to the finished screen (skipped variant) so it shows the
                 // routine-complete + "Unlock the machine" state. It posts the skip itself.
