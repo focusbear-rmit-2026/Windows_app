@@ -3323,16 +3323,9 @@ namespace Focus_Bear
             //If its the expired version, then we need to show top 3 activities only
             if (appSettings.isExpired)
             {
-                appSettings.bShowReducedHabitsOnExpired = false;
-                for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
-                {
-                    if (i > 2)
-                    {
-                        appSettings.arrAllMorningHabits.RemoveAt(i);
-                        i--;
-                        appSettings.bShowReducedHabitsOnExpired = true;
-                    }
-                }
+                int nBeforeLimit = appSettings.arrAllMorningHabits.Count;
+                appSettings.arrAllMorningHabits = appSettings.ApplyExpiredHabitLimit(appSettings.arrAllMorningHabits, isEvening: false);
+                appSettings.bShowReducedHabitsOnExpired = appSettings.arrAllMorningHabits.Count != nBeforeLimit;
             }
             
             FocusButton.SendHabits();
@@ -3969,42 +3962,9 @@ namespace Focus_Bear
             //If its the expired version, then we need to show top 3 activities only but ignore the relax one whereever it is in the list
             if (appSettings.isExpired)
             {
-                appSettings.bShowReducedHabitsOnExpired = false;
-           
-                var list = appSettings.arrAllEveningHabits;
-
-                // Find the relax habit (first one with the flag)
-                int relaxIndex = list.FindIndex(h => h.show_saved_distracting_websites);
-
-                List<habit> reduced;
-
-                if (relaxIndex >= 0)
-                {
-                    var relaxHabit = list[relaxIndex];
-
-                    // Take the top 3 *excluding* the special habit
-                    var others = list
-                        .Where(h => !h.show_saved_distracting_websites)
-                        .Take(3)
-                        .ToList();
-
-                    reduced = new List<habit>();
-                    reduced.AddRange(others);
-
-                    // Add the relax habit (ensure it's included)
-                    reduced.Add(relaxHabit);
-                }
-                else
-                {
-                    // No special → only top 3
-                    reduced = list.Take(3).ToList();
-                }
-
-                // Replace original list
-                bool wasReduced = list.Count != reduced.Count;
-                appSettings.arrAllEveningHabits = reduced;
-                appSettings.bShowReducedHabitsOnExpired = wasReduced;
-
+                int nBeforeLimit = appSettings.arrAllEveningHabits.Count;
+                appSettings.arrAllEveningHabits = appSettings.ApplyExpiredHabitLimit(appSettings.arrAllEveningHabits, isEvening: true);
+                appSettings.bShowReducedHabitsOnExpired = appSettings.arrAllEveningHabits.Count != nBeforeLimit;
             }
 
             FocusButton.SendHabits();

@@ -43,6 +43,7 @@ namespace Focus_Bear.Habits
         private static readonly Color CIndigo = Color.FromRgb(0x58, 0x56, 0xD6);
         private static readonly Color CGray = Color.FromRgb(0x8E, 0x8E, 0x93);   // secondary text / separator
         private static readonly Color CRed = Color.FromRgb(0xFF, 0x3B, 0x30);
+        private static readonly Color CYellow = Color.FromRgb(0xFF, 0xCC, 0x00);   // trial-expired alert card
 
         // Fixed column widths so every row's time / emoji / title line up (matches macOS layoutColumns).
         private const double TimeColWidth = 140;
@@ -284,6 +285,12 @@ namespace Focus_Bear.Habits
             DayPlanStack.Children.Clear();
             DayPlanStack.Children.Add(BuildDateBar());
 
+            // Trial-expired accounts only get the top 3 habits of each routine (ApplyExpiredHabitLimit) -
+            // shown once, above the morning routine, so the cap isn't silent. Today only (IsViewingToday):
+            // it's about what the account can currently do, not a note on every past/future day.
+            if (IsViewingToday && appSettings.isExpired)
+                DayPlanStack.Children.Add(BuildTrialExpiredCard());
+
             List<ScheduleBlock> blocks = DayPlanDataSource.BuildBlocks(_selectedDate, includeDismissedMeetings: _showDismissedMeetings);
             _dayHasMeetings = blocks.Exists(b => b.Kind == ScheduleBlockKind.Meeting);
 
@@ -399,6 +406,76 @@ namespace Focus_Bear.Habits
                     Foreground = SecBrush()
                 });
             }
+        }
+
+        // Informational card shown above the morning routine for trial-expired accounts, since the top-3
+        // habit cap (AppSettings.ApplyExpiredHabitLimit) is otherwise silent - reuses the same config
+        // strings as the one-off "alertLimitedUsageVcInfo" popup shown when a routine starts, so the Day
+        // Plan explains the cap even when neither routine is actively running (#1440 follow-up).
+        private Border BuildTrialExpiredCard()
+        {
+            string title = "You are running the Basic FREE Version of Focus Bear";
+            string subTitle = "Basic version limits the number of habits to 3 per routine. You'll be able to do your first 3 habits. Upgrade to unlock unlimited access and other premium features.";
+            string upgradeText = "Upgrade now";
+            try
+            {
+                var cfg = appSettings.ConfigFileStrings?["alertLimitedUsageVcInfo"];
+                if (cfg != null)
+                {
+                    title = cfg["title"]?.ToString() ?? title;
+                    subTitle = (cfg["subTitle"]?.ToString() ?? subTitle).Replace("<COUNT>", "3");
+                    upgradeText = cfg["buttonUpgradeNowText"]?.ToString() ?? upgradeText;
+                }
+            }
+            catch { /* fall back to the English defaults above */ }
+
+            var inner = new StackPanel { Orientation = Orientation.Vertical };
+
+            var headerRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(6, 0, 0, 4) };
+            headerRow.Children.Add(new Emoji.Wpf.TextBlock { Text = "⚠️ ", FontSize = 15, VerticalAlignment = VerticalAlignment.Center });
+            headerRow.Children.Add(new TextBlock
+            {
+                Text = title,
+                FontSize = 15,
+                FontWeight = FontWeights.Bold,
+                Foreground = FgBrush(),
+                TextWrapping = TextWrapping.Wrap,
+                VerticalAlignment = VerticalAlignment.Center
+            });
+            inner.Children.Add(headerRow);
+
+            inner.Children.Add(new TextBlock
+            {
+                Text = subTitle,
+                FontSize = 13,
+                Foreground = FgBrush(),
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(6, 0, 0, 6)
+            });
+
+            var upgradeLink = new TextBlock
+            {
+                Text = upgradeText,
+                FontSize = 13,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(COrange),
+                TextDecorations = TextDecorations.Underline,
+                Cursor = Cursors.Hand,
+                Margin = new Thickness(6, 0, 0, 0)
+            };
+            upgradeLink.MouseLeftButtonUp += (s, e) =>
+            {
+                e.Handled = true;
+                appSettings.CapturePostHog("day-plan-trial-expired-card-upgrade-clicked");
+                ((App)Application.Current).ShowUpgradeToProNag("");
+            };
+            inner.Children.Add(upgradeLink);
+
+            return StyledCard(
+                fill: new SolidColorBrush(WithAlpha(CYellow, 0.12)),
+                border: new SolidColorBrush(CYellow),
+                hasBorder: true,
+                content: inner);
         }
 
         // A standalone cancelled routine card (header + Uncancel body) for the safety-net path in

@@ -143,7 +143,7 @@ namespace Focus_Bear.Habits.DayPlan
             DateTime morningStart = TimeToday(settings.sDayStartTime, date) ?? dayStart;
             DateTime? eveningStart = TimeToday(settings.sDayShutOffTime, date);
 
-            var morning = HabitInputs(FilterByWeekday(settings.arrGLOBALAllMorningHabits, weekday), morningStart, dayKey, asEarlier: true);
+            var morning = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllMorningHabits, weekday), isEvening: false), morningStart, dayKey, asEarlier: true);
             if (morning.Count > 0)
             {
                 segs.Add(new ScheduleRoutineSegment(MorningRoutineHabits, morning,
@@ -152,7 +152,7 @@ namespace Focus_Bear.Habits.DayPlan
 
             if (eveningStart.HasValue)
             {
-                var evening = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), eveningStart.Value, dayKey, asEarlier: true);
+                var evening = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), isEvening: true), eveningStart.Value, dayKey, asEarlier: true);
                 if (evening.Count > 0)
                 {
                     segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, evening,
@@ -188,7 +188,7 @@ namespace Focus_Bear.Habits.DayPlan
                 DateTime? morningStart = TimeToday(settings.sDayStartTime, now);
                 if (morningStart.HasValue)
                 {
-                    var pastMorning = HabitInputs(FilterByWeekday(settings.arrGLOBALAllMorningHabits, weekday), morningStart.Value, dayKey, asEarlier: true);
+                    var pastMorning = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllMorningHabits, weekday), isEvening: false), morningStart.Value, dayKey, asEarlier: true);
                     if (pastMorning.Count > 0)
                     {
                         segs.Add(new ScheduleRoutineSegment(MorningRoutineHabits, pastMorning,
@@ -202,7 +202,7 @@ namespace Focus_Bear.Habits.DayPlan
                     if (eveningStart.Value > now)
                     {
                         // Evening routine still ahead → read-only preview.
-                        var eveningPreview = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), now, dayKey, dropNonHighPriorityPastCutoff: true);
+                        var eveningPreview = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), isEvening: true), now, dayKey, dropNonHighPriorityPastCutoff: true);
                         if (eveningPreview.Count > 0)
                             segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, eveningPreview,
                                                                 eveningStart.Value, endOfDay, actionable: false));
@@ -212,7 +212,7 @@ namespace Focus_Bear.Habits.DayPlan
                         // Evening window has started but the routine isn't active (finished/skipped — including
                         // on another device) → show it as a read-only, struck-through "earlier" section, like
                         // the morning one, instead of dropping it entirely.
-                        var pastEvening = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), eveningStart.Value, dayKey, asEarlier: true);
+                        var pastEvening = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), isEvening: true), eveningStart.Value, dayKey, asEarlier: true);
                         if (pastEvening.Count > 0)
                             segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, pastEvening,
                                                                 eveningStart.Value, endOfDay, actionable: false, isEarlier: true));
@@ -222,10 +222,27 @@ namespace Focus_Bear.Habits.DayPlan
             }
 
             // Active routine (the live to-do array — indices must match Play/Done/Skip in later milestones).
+            // ShowMorningRoutine/ShowEveningRoutine normally apply the expired-trial top-3 trim right
+            // after populating this array - but ShowEveningRoutine sets nCurrentActivityType = EVENING_HABITS
+            // and can then early-return into the Focus Summary screen (not shown yet today) BEFORE ever
+            // reaching that trim. The Day Plan then renders "active" with the untrimmed array. Apply the
+            // trim here too (idempotent - a no-op once already trimmed) and reassign the actual field, not
+            // a local copy, so Play/Done/Skip (which index into settings.arrAll*Habits directly) stay in
+            // sync with what's displayed.
             List<habit> activeSource;
             string activeName;
-            if (isMorningActive) { activeSource = settings.arrAllMorningHabits; activeName = MorningRoutineHabits; }
-            else { activeSource = settings.arrAllEveningHabits; activeName = EveningRoutineHabits; }
+            if (isMorningActive)
+            {
+                settings.arrAllMorningHabits = settings.ApplyExpiredHabitLimit(settings.arrAllMorningHabits, isEvening: false);
+                activeSource = settings.arrAllMorningHabits;
+                activeName = MorningRoutineHabits;
+            }
+            else
+            {
+                settings.arrAllEveningHabits = settings.ApplyExpiredHabitLimit(settings.arrAllEveningHabits, isEvening: true);
+                activeSource = settings.arrAllEveningHabits;
+                activeName = EveningRoutineHabits;
+            }
 
             // For the active evening routine, drop non-high-priority habits once the cutoff has passed
             // (they can no longer be done) so the plan matches the routine and can fall to the empty state.
@@ -238,7 +255,7 @@ namespace Focus_Bear.Habits.DayPlan
             // Evening routine preview, once the morning/day routine hands off at the shutdown time.
             if (isMorningActive && eveningStart.HasValue && eveningStart.Value > now)
             {
-                var eveningHabits = HabitInputs(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), now, dayKey, dropNonHighPriorityPastCutoff: true);
+                var eveningHabits = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), isEvening: true), now, dayKey, dropNonHighPriorityPastCutoff: true);
                 if (eveningHabits.Count > 0)
                 {
                     segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, eveningHabits,

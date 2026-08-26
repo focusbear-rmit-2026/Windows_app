@@ -357,6 +357,28 @@ namespace Focus_Bear.Utils
             return Convert.ToInt32(seconds);
         }
 
+        // When the trial is expired, only the top 3 habits of a routine are usable. This was previously
+        // applied only inline in App.ShowMorningRoutine/ShowEveningRoutine (i.e. only once a routine
+        // actually starts), so DayPlanDataSource's read-only/preview/"earlier today" segments - which
+        // source straight from the full arrGLOBALAll*Habits list since there's no routine-start to hook
+        // into for a non-active day - showed (and let the user mark done) more than the allowed 3 once
+        // neither routine was actively in progress, e.g. after an app restart. Evening keeps its "relax"
+        // (show_saved_distracting_websites) habit alongside the top 3 non-relax ones either way, matching
+        // ShowEveningRoutine's original carve-out.
+        public List<habit> ApplyExpiredHabitLimit(List<habit> habits, bool isEvening)
+        {
+            if (!isExpired || habits == null) return habits;
+            if (!isEvening) return habits.Take(3).ToList();
+
+            int relaxIndex = habits.FindIndex(h => h.show_saved_distracting_websites);
+            if (relaxIndex < 0) return habits.Take(3).ToList();
+
+            habit relaxHabit = habits[relaxIndex];
+            List<habit> reduced = habits.Where(h => !h.show_saved_distracting_websites).Take(3).ToList();
+            reduced.Add(relaxHabit);
+            return reduced;
+        }
+
         // Habit ids completed per day (key "yyyy-MM-dd") per the backend
         // (GET /completed-activity-sequence/routine-progress), fetched when the Day Plan opens/navigates.
         // Reliable across restarts / habit edits and after the routine is finished — used to strike
