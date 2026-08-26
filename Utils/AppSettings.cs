@@ -299,15 +299,23 @@ namespace Focus_Bear.Utils
         // Cleared when a fresh routine's Day Plan is shown.
         public HashSet<string> dayPlanDoneOrSkippedHabitIds = new HashSet<string>();
 
-        // True if a habit id has already been completed or skipped — checks both the in-session set
+        // True if a habit id has already been completed or skipped — checks the in-session set
         // (dayPlanDoneOrSkippedHabitIds, updated immediately client-side the moment a habit is
-        // finished/skipped) and the backend-synced "current_sequence_skipped_activities" (arraySkipped,
-        // re-fetched on init), so a habit skipped on another device or before this session's last
-        // refresh is also recognised, not just ones skipped in the current app session.
+        // finished/skipped) plus the two backend-synced arrays, "current_sequence_completed_activities"
+        // (arrayCompletedActivities) and "current_sequence_skipped_activities" (arraySkipped), so a
+        // habit completed/skipped on another device, or completed in THIS session via a path that never
+        // touched dayPlanDoneOrSkippedHabitIds (e.g. finishing a habit then jumping straight to another
+        // via the Day Plan's Play button, bypassing "Start Next Activity"/ShowDayPlanReturn - #1444), is
+        // also recognised. Mirrors DayPlanDataSource.IsHabitDoneOrSkipped's same-day checks so the
+        // routine's own "next habit" navigation and the Day Plan agree on what's already done.
         public bool IsHabitAlreadyDoneOrSkipped(string id)
         {
             if (string.IsNullOrEmpty(id)) return false;
             if (dayPlanDoneOrSkippedHabitIds.Contains(id)) return true;
+            foreach (JToken t in arrayCompletedActivities)
+            {
+                if (t != null && t.ToString() == id) return true;
+            }
             foreach (JToken t in arraySkipped)
             {
                 if (t != null && t.ToString() == id) return true;
