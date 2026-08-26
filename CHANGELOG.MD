@@ -216,3 +216,10 @@
 - Fixed the "More Options" section on the blocking-schedule editor not expanding when you clicked directly on its arrow icon #1464.
 - Reordered onboarding so distraction blocking is set up before habits (previously the reverse), and Blocked URLs/Apps are set up before Allowed URLs #1465.
 - The Create Account screen now explains that Focus Bear uses Auth0 for sign-in #1465.
+
+#v3.0.245
+- Fixed the morning/evening routine getting stuck offering an already-completed or already-skipped habit as the "next" one, including when it was finished out of order via the Day Plan #1460.
+- Fixed the log-quantity confirmation popup getting stuck open (and the habit never marked complete) when a habit was finished through a shortcut that skips its timer screen #1440.
+- Fixed the Day Plan showing, and letting you interact with, more than your trial's 3-habit limit outside of an active routine; also added a card at the top of the Day Plan explaining the limit for trial accounts, with a link to upgrade #1320.
+- Fixed a stale "Habit resumes in X minutes" popup reappearing after a routine was already fully finished, when it was completed by marking habits Done/Skip on the Day Plan rather than clicking Play #1101.
+- Fixed blocked apps sometimes staying blocked outside your blocking schedule's active hours #1314.
