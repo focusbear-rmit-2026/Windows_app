@@ -1574,10 +1574,24 @@ namespace Focus_Bear.Habits
             if (!appSettings.bSkipWhileActivityOngoing) //Increase the index only if the activity was skipped other than when it was ongoing.
             {
                 appSettings.nHabitIndex++; //Increment the index to do the next habit
+                appSettings.nHabitIndex = AdvancePastDoneOrSkippedHabits(appSettings.nHabitIndex);
                 LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
             }
 
             ShowACtivityFinishedScreen(true);
+        }
+
+        // Skip forward past any habit already recorded done/skipped elsewhere (e.g. an earlier
+        // out-of-order Day Plan skip), so the routine's "next habit" navigation doesn't land on -
+        // and later re-offer - a habit that's already been dealt with. No-op for anything other than
+        // the morning/evening routine (breaks track completion separately).
+        private int AdvancePastDoneOrSkippedHabits(int index)
+        {
+            if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                return appSettings.GetNextPendingHabitIndex(appSettings.arrAllMorningHabits, index);
+            if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
+                return appSettings.GetNextPendingHabitIndex(appSettings.arrAllEveningHabits, index);
+            return index;
         }
 
         private void btnCantDoItToday_Click(object sender, RoutedEventArgs e)
@@ -1662,6 +1676,7 @@ namespace Focus_Bear.Habits
                     if (!appSettings.bSkipWhileActivityOngoing) //Increase the index only if the activity was skipped other than when it was ongoing.
                     {
                         appSettings.nHabitIndex++; //Increment the index to do the next habit
+                        appSettings.nHabitIndex = AdvancePastDoneOrSkippedHabits(appSettings.nHabitIndex);
                         LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
                     }
                     ShowACtivityFinishedScreen(true);

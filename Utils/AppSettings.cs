@@ -299,6 +299,39 @@ namespace Focus_Bear.Utils
         // Cleared when a fresh routine's Day Plan is shown.
         public HashSet<string> dayPlanDoneOrSkippedHabitIds = new HashSet<string>();
 
+        // True if a habit id has already been completed or skipped — checks both the in-session set
+        // (dayPlanDoneOrSkippedHabitIds, updated immediately client-side the moment a habit is
+        // finished/skipped) and the backend-synced "current_sequence_skipped_activities" (arraySkipped,
+        // re-fetched on init), so a habit skipped on another device or before this session's last
+        // refresh is also recognised, not just ones skipped in the current app session.
+        public bool IsHabitAlreadyDoneOrSkipped(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return false;
+            if (dayPlanDoneOrSkippedHabitIds.Contains(id)) return true;
+            foreach (JToken t in arraySkipped)
+            {
+                if (t != null && t.ToString() == id) return true;
+            }
+            return false;
+        }
+
+        // Finds the next habit at or after `fromIndex` that isn't already done/skipped (per
+        // IsHabitAlreadyDoneOrSkipped above), or returns habits.Count if none remain. The routine-flow
+        // "next habit" navigation (morning/evening habit index advance, both the button-preview text
+        // and the actual click handlers) used to just do nHabitIndex+1/nHabitIndex++, which doesn't
+        // account for a habit already finished/skipped out of order (e.g. via the Day Plan, or an
+        // earlier skip in the same routine) sitting at that next position — it would silently
+        // re-offer an already-done habit instead of moving on to the next pending one.
+        public int GetNextPendingHabitIndex(List<habit> habits, int fromIndex)
+        {
+            int i = fromIndex;
+            while (i < habits.Count && IsHabitAlreadyDoneOrSkipped(habits[i].id))
+            {
+                i++;
+            }
+            return i;
+        }
+
         // Habit ids completed per day (key "yyyy-MM-dd") per the backend
         // (GET /completed-activity-sequence/routine-progress), fetched when the Day Plan opens/navigates.
         // Reliable across restarts / habit edits and after the routine is finished — used to strike
