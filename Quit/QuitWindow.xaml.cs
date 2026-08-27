@@ -53,6 +53,17 @@ namespace Focus_Bear.Quit
             }
             App.ThemeChanged += TitleBarThemeChange;
 
+            // Attach the countdown Tick handler here, synchronously, instead of inside the delayed
+            // TurnOffCompletely() (reached via InitializeAsync's 1-second await). btnQuit_Click starts
+            // this same dispatcherTimer independently via StartShutdownCountdown() - if the user clicks
+            // "Nope, just quit" before that delayed continuation has run, the timer was starting with no
+            // Tick handler attached at all, so it ticked forever doing nothing: nTimer never decremented,
+            // Application.Current.Shutdown() was never reached, and the popup looked completely frozen
+            // (#1190 - confirmed from a real user's logs: TurnOffCompletely() never logged for that
+            // click). Subscribing before the window can even be shown/clicked removes the race entirely.
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+
             this.Topmost = true;
            
             try
@@ -124,8 +135,6 @@ namespace Focus_Bear.Quit
             TxtFinalTimer.Text = "00:02";
             //start the timer for 10 seconds
             nTimer = 2;
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             CommandManager.InvalidateRequerySuggested();
         }
 
