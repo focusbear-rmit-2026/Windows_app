@@ -1317,6 +1317,38 @@ namespace Focus_Bear.Utils
             }
         }
 
+        // Instructions section (web_dashboard#2184): a note + up to a few images, shared parsing so the
+        // 4 call sites below (morning/evening habits, break activities, random-choice sub-items) can't
+        // drift out of sync with each other the way arraySkipped/arrayCompletedActivities briefly did.
+        private static string ParseTextInstructions(JObject item)
+        {
+            if (item.ContainsKey("text_instructions") && item.GetValue("text_instructions").Type != JTokenType.Null)
+            {
+                return item.GetValue("text_instructions").ToString();
+            }
+            return null;
+        }
+
+        private static List<ActivityImage> ParseImageUrls(JObject item)
+        {
+            List<ActivityImage> images = new List<ActivityImage>();
+            if (item.ContainsKey("image_urls") && item.GetValue("image_urls").Type != JTokenType.Null)
+            {
+                foreach (JToken t in (JArray)item.GetValue("image_urls"))
+                {
+                    JObject o = t as JObject;
+                    if (o == null) continue;
+                    string url = (o.ContainsKey("url") && o.GetValue("url").Type != JTokenType.Null) ? o.GetValue("url").ToString() : null;
+                    string filePath = (o.ContainsKey("file_path") && o.GetValue("file_path").Type != JTokenType.Null) ? o.GetValue("file_path").ToString() : null;
+                    if (!string.IsNullOrEmpty(url) || !string.IsNullOrEmpty(filePath))
+                    {
+                        images.Add(new ActivityImage { Url = url, FilePath = filePath });
+                    }
+                }
+            }
+            return images;
+        }
+
         public void ReadAndParseSettingsJson()
         {
             LogWriter.LogWrite("ReadAndParseSettingsJson()");
@@ -1441,6 +1473,8 @@ namespace Focus_Bear.Utils
                             {
                                 check_list = ((JArray)item.GetValue("check_list")).ToObject<List<string>>();
                             }
+                            string text_instructions = ParseTextInstructions(item);
+                            List<ActivityImage> image_urls = ParseImageUrls(item);
                             bool useTimer = true;
                             // Only an activity with explicit completion_requirements is finished manually via
                             // "I'm done" (no countdown), so it must not run a timer. A checklist alone no longer
@@ -1461,7 +1495,7 @@ namespace Focus_Bear.Utils
                                 arrDaysOfWeek = arrTempDays.ToObject<List<string>>();
                             }
 
-                            arrAllMorningHabits.Add(new habit(id, name, nIdFakeForDevice.ToString(), nameWithoutIcon, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, "", check_list));
+                            arrAllMorningHabits.Add(new habit(id, name, nIdFakeForDevice.ToString(), nameWithoutIcon, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, "", check_list, text_instructions, image_urls));
                             nIdFakeForDevice++;
                         }
                         //copy to Global Array but do not reference
@@ -1555,6 +1589,8 @@ namespace Focus_Bear.Utils
                             {
                                 check_list = ((JArray)item.GetValue("check_list")).ToObject<List<string>>();
                             }
+                            string text_instructions = ParseTextInstructions(item);
+                            List<ActivityImage> image_urls = ParseImageUrls(item);
                             bool useTimer = true;
                             // Only an activity with explicit completion_requirements is finished manually via
                             // "I'm done" (no countdown), so it must not run a timer. A checklist alone no longer
@@ -1584,7 +1620,7 @@ namespace Focus_Bear.Utils
                                 }
                             }
 
-                            arrAllEveningHabits.Add(new habit(id, name, nIdFakeForDevice.ToString(), nameWithoutIcon, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, sCutOffTime, check_list));
+                            arrAllEveningHabits.Add(new habit(id, name, nIdFakeForDevice.ToString(), nameWithoutIcon, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, logQuantityQuestions, completion_requirements, useTimer, show_saved_distracting_websites, bHighPriorityActivity, arrDaysOfWeek, sCutOffTime, check_list, text_instructions, image_urls));
                             nIdFakeForDevice++;
                         }
 
@@ -1651,6 +1687,8 @@ namespace Focus_Bear.Utils
                             {
                                 check_list = ((JArray)item.GetValue("check_list")).ToObject<List<string>>();
                             }
+                            string text_instructions = ParseTextInstructions(item);
+                            List<ActivityImage> image_urls = ParseImageUrls(item);
                             bool useTimer = true;
                             // Only an activity with explicit completion_requirements is finished manually via
                             // "I'm done" (no countdown), so it must not run a timer. A checklist alone no longer
@@ -1729,6 +1767,8 @@ namespace Focus_Bear.Utils
                                     {
                                         check_listCH = ((JArray)choiceitem.GetValue("check_list")).ToObject<List<string>>();
                                     }
+                                    string text_instructionsCH = ParseTextInstructions(choiceitem);
+                                    List<ActivityImage> image_urlsCH = ParseImageUrls(choiceitem);
                                     bool useTimerCH = true;
                                     // Only completion_requirements makes a choice finish manually via "I'm done"
                                     // (no timer). A checklist alone no longer forces this — it's just a visual
@@ -1738,7 +1778,7 @@ namespace Focus_Bear.Utils
                                         useTimerCH = false;
                                     }
 
-                                    choicesToAdd.Add(new activityChoice(idchoice, namechoice, arrVideoUrlsArraychoice, logQuantityQuestionchoice, logQuantitychoice, logQuantityTypechoice, logQuantityQuestionsCh, completion_requirementsCH, useTimerCH, check_listCH));
+                                    choicesToAdd.Add(new activityChoice(idchoice, namechoice, arrVideoUrlsArraychoice, logQuantityQuestionchoice, logQuantitychoice, logQuantityTypechoice, logQuantityQuestionsCh, completion_requirementsCH, useTimerCH, check_listCH, text_instructionsCH, image_urlsCH));
 
                                 }
                             }
@@ -1779,7 +1819,7 @@ namespace Focus_Bear.Utils
                             }
 
 
-                            arrAllbreakActivities.Add(new breakActivity(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, IncludeInEveryBreak, isRandomChoice, choicesToAdd, isOfficeFriendly, logQuantityType, logQuantityQuestions, completion_requirements, useTimer, check_list));
+                            arrAllbreakActivities.Add(new breakActivity(id, name, durationSeconds, arrVideoUrlsArray, logQuantity, logQuantityQuestion, openSpecificApps, allowedUrls, allowedApps, allowedFocusMode, activity_sequence_id, IncludeInEveryBreak, isRandomChoice, choicesToAdd, isOfficeFriendly, logQuantityType, logQuantityQuestions, completion_requirements, useTimer, check_list, text_instructions, image_urls));
                         }
                     }
                 }

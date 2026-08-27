@@ -400,6 +400,15 @@ namespace Focus_Bear.Utils
         ONBOARDING = 5,
     }
 
+    // One image attached to a habit's "Instructions" section (web_dashboard#2184). Either Url (a ready
+    // external URL) or FilePath (a private R2 object key needing GetActivityImageReadUrl to resolve to a
+    // real URL) is set, never both - mirrors the backend's ActivityImageData shape.
+    public struct ActivityImage
+    {
+        public string Url;
+        public string FilePath;
+    }
+
     public struct habit
     {
         public string id;
@@ -424,7 +433,9 @@ namespace Focus_Bear.Utils
         public List<string> DaysOfWeek;
         public string sCutOffTime;
         public List<string> check_list;   // optional per-activity checklist steps (#343); null/empty = none
-        public habit(string id, string name, string idFakeForDevice, string nameWithoutIcon, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites, bool bHighPriorityActivity, List<string> DaysOfWeek, string sCutOffTime, List<string> check_list = null)
+        public string text_instructions;   // optional Instructions note (web_dashboard#2184); null/empty = none
+        public List<ActivityImage> image_urls;   // optional Instructions images (web_dashboard#2184); null/empty = none
+        public habit(string id, string name, string idFakeForDevice, string nameWithoutIcon, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites, bool bHighPriorityActivity, List<string> DaysOfWeek, string sCutOffTime, List<string> check_list = null, string text_instructions = null, List<ActivityImage> image_urls = null)
         {
             this.id = id;
             this.name = name;
@@ -447,6 +458,8 @@ namespace Focus_Bear.Utils
             this.DaysOfWeek = DaysOfWeek;
             this.sCutOffTime = sCutOffTime;
             this.check_list = check_list;
+            this.text_instructions = text_instructions;
+            this.image_urls = image_urls;
         }
     }
 
@@ -457,6 +470,28 @@ namespace Focus_Bear.Utils
     {
         public string Text { get; set; }
         public bool IsChecked { get; set; }
+    }
+
+    // One Instructions image bound into the ongoing-activity screen's thumbnail row (web_dashboard#2184).
+    // url-only entries set DisplayUrl immediately; file_path entries start null and are updated once
+    // GetActivityImageReadUrl resolves - INotifyPropertyChanged so the bound Image picks up that later
+    // update automatically.
+    public class ActivityImageDisplayItem : INotifyPropertyChanged
+    {
+        private string _displayUrl;
+        public string DisplayUrl
+        {
+            get { return _displayUrl; }
+            set
+            {
+                if (value != _displayUrl)
+                {
+                    _displayUrl = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayUrl)));
+                }
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 
     public class HabitListSelectable : INotifyPropertyChanged
@@ -517,7 +552,9 @@ namespace Focus_Bear.Utils
         public string completion_requirements;
         public bool useTimer;
         public List<string> check_list;   // optional per-activity checklist steps (#343); null/empty = none
-        public breakActivity(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, bool IncludeInEveryBreak, bool isRandomChoice, List<activityChoice> choices, bool isOfficeFriendly, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, List<string> check_list = null)
+        public string text_instructions;   // optional Instructions note (web_dashboard#2184); null/empty = none
+        public List<ActivityImage> image_urls;   // optional Instructions images (web_dashboard#2184); null/empty = none
+        public breakActivity(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, bool IncludeInEveryBreak, bool isRandomChoice, List<activityChoice> choices, bool isOfficeFriendly, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, List<string> check_list = null, string text_instructions = null, List<ActivityImage> image_urls = null)
         {
             this.id = id;
             this.name = name;
@@ -539,6 +576,8 @@ namespace Focus_Bear.Utils
             this.completion_requirements = completion_requirements;
             this.useTimer = useTimer;
             this.check_list = check_list;
+            this.text_instructions = text_instructions;
+            this.image_urls = image_urls;
         }
     }
 
@@ -554,7 +593,9 @@ namespace Focus_Bear.Utils
         public string completion_requirements;
         public bool useTimer;
         public List<string> check_list;   // optional per-choice checklist steps (#343); null/empty = none
-        public activityChoice(string id, string name, List<string> videoUrls, string logQuantityQuestion, bool logQuantity, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, List<string> check_list = null)
+        public string text_instructions;   // optional Instructions note (web_dashboard#2184); null/empty = none
+        public List<ActivityImage> image_urls;   // optional Instructions images (web_dashboard#2184); null/empty = none
+        public activityChoice(string id, string name, List<string> videoUrls, string logQuantityQuestion, bool logQuantity, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, List<string> check_list = null, string text_instructions = null, List<ActivityImage> image_urls = null)
         {
             this.id = id;
             this.name = name;
@@ -566,6 +607,8 @@ namespace Focus_Bear.Utils
             this.completion_requirements = completion_requirements;
             this.useTimer = useTimer;
             this.check_list = check_list;
+            this.text_instructions = text_instructions;
+            this.image_urls = image_urls;
         }
     }
 

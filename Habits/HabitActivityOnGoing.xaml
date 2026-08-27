@@ -36,9 +36,10 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Video / Checklist tab switcher (#343): shown ONLY when the activity has BOTH a video and a
-                 checklist, so the user can switch between them (macOS parity). Borders (not Buttons) so the
-                 active/inactive colours are fully controlled and theme-independent. -->
+            <!-- Video / Checklist / Instructions tab switcher (#343, web_dashboard#2184): shown ONLY when
+                 2+ of these are present for the activity, so the user can switch between them (macOS
+                 parity). Borders (not Buttons) so the active/inactive colours are fully controlled and
+                 theme-independent. -->
             <StackPanel x:Name="ChecklistVideoTabs" Grid.Row="0" Orientation="Horizontal"
                         HorizontalAlignment="Center" Margin="0,14,0,0" Visibility="Collapsed">
                 <Border x:Name="btnTabVideo" AutomationProperties.AutomationId="btnTabVideo" MouseLeftButtonUp="btnTabVideo_Click" Cursor="Hand"
@@ -51,6 +52,12 @@
                         CornerRadius="17" Height="34" MinWidth="120" Margin="5,0"
                         Background="Transparent" BorderBrush="#e88800" BorderThickness="1">
                     <TextBlock x:Name="btnTabChecklistTXT" Text="Checklist" FontSize="15" FontWeight="SemiBold"
+                               Foreground="#e88800" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16,0"/>
+                </Border>
+                <Border x:Name="btnTabInstructions" AutomationProperties.AutomationId="btnTabInstructions" MouseLeftButtonUp="btnTabInstructions_Click" Cursor="Hand"
+                        CornerRadius="17" Height="34" MinWidth="120" Margin="5,0"
+                        Background="Transparent" BorderBrush="#e88800" BorderThickness="1">
+                    <TextBlock x:Name="btnTabInstructionsTXT" Text="Instructions" FontSize="15" FontWeight="SemiBold"
                                Foreground="#e88800" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16,0"/>
                 </Border>
             </StackPanel>
@@ -81,6 +88,44 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
+
+                <!-- Instructions: an image row + a note (web_dashboard#2184). Local display only - never
+                     edited here, only shown, matching the checklist's own "visual aid" treatment. The
+                     image row stays fixed at the top; only the note below it scrolls, so images stay
+                     visible while a long note is scrolled through. -->
+                <Grid x:Name="SectionInstructions" Visibility="Collapsed" Margin="0,20,0,10" MaxWidth="700" HorizontalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Row 1: image thumbnails, horizontally aligned, fixed (does not scroll away). -->
+                    <ScrollViewer x:Name="SectionInstructionsImages" Grid.Row="0"
+                                  VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto"
+                                  Margin="0,0,0,10">
+                        <ItemsControl x:Name="InstructionsImagesItemsControl">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Width="140" Height="140" Margin="8,0" CornerRadius="8" ClipToBounds="True"
+                                            Background="{DynamicResource ForegroundGrey}" BorderThickness="1" BorderBrush="#33808080">
+                                        <Image Source="{Binding DisplayUrl}" Stretch="UniformToFill"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- Row 2: the instructions note, in its own scroll region below the images. -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <TextBlock x:Name="TxtInstructionsNote" TextWrapping="Wrap" FontSize="16"
+                                   Foreground="{DynamicResource ForegroundColor}" TextAlignment="Left"/>
+                    </ScrollViewer>
+                </Grid>
             </Grid>
         </Grid>
 

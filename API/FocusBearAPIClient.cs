@@ -4254,6 +4254,63 @@ namespace Focus_Bear.API
             return false;
         }
 
+        // Resolves a habit Instructions image's R2 object key (ActivityImage.FilePath) to an actual
+        // downloadable URL (web_dashboard#2184). The returned URL is only valid for the response's
+        // expiresInSeconds (currently 1 hour server-side) - fine here since the ongoing-activity screen
+        // that calls this is never open anywhere near that long. url-only images never need this call.
+        internal async Task<string> GetActivityImageReadUrl(string activityId, string fileKey)
+        {
+            LogWriter.LogWrite("GetActivityImageReadUrl()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return null;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string apiPath = string.Format("https://api.focusbear.io/activity/{0}/images?file_key={1}", activityId, HttpUtility.UrlEncode(fileKey));
+
+                    var response = await client.GetAsync(apiPath);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK && response.Content != null) //200
+                    {
+                        var responseCode = await response.Content.ReadAsStringAsync();
+                        JObject resJson = JObject.Parse(responseCode);
+                        string readUrl = resJson["readUrl"]?.ToString();
+                        LogWriter.LogWrite("GetActivityImageReadUrl() GOT Success");
+                        return readUrl;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            LogWriter.LogWrite("GetActivityImageReadUrl() FAILED - " + responseCode);
+                        }
+                        return null;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetActivityImageReadUrl WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetActivityImageReadUrl Exception - " + ex.Message);
+            }
+            return null;
+        }
+
         internal async Task<int> ResetPassword() // OK
         {
             LogWriter.LogWrite("ResetPassword()");

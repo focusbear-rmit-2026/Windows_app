@@ -7,6 +7,8 @@ using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -49,9 +51,19 @@ namespace Focus_Bear.Habits
         // Held for the lifetime of the screen so a ticked checkbox survives the ItemsControl regenerating
         // its containers (pause/resume/layout). Local-only visual state; never sent to the backend. (#343)
         private List<ChecklistItem> _checklistItems;
-        private bool _checklistOnlyMode;        // has a checklist and NO video → no tabs, video suppressed (#343)
-        private bool _hasVideoChecklistTabs;    // has BOTH → show the Video/Checklist tab switcher (#343)
-        private bool _videoTabActive = true;    // which tab is showing while both exist (video is the default)
+        // Instructions images (web_dashboard#2184), resolved (for file_path entries) after population.
+        private ObservableCollection<ActivityImageDisplayItem> _instructionsImages;
+
+        // Video / Checklist / Instructions: which content types this activity actually has, and which is
+        // showing. Tabs (ChecklistVideoTabs) only appear when 2+ are present - with exactly 1, it fills
+        // the content area directly with no tabs (unchanged from the original #343 checklist-only case,
+        // now generalised to any single type, including Instructions-only). (#343, web_dashboard#2184)
+        private enum HabitContentTab { Video, Checklist, Instructions }
+        private bool _hasVideo;
+        private bool _hasChecklist;
+        private bool _hasInstructions;
+        private HabitContentTab _activeTab = HabitContentTab.Video;
+        private bool HasTabs => (new[] { _hasVideo, _hasChecklist, _hasInstructions }.Count(b => b)) >= 2;
         public HabitActivityOnGoing()
         {
             bTimerRunning = false;
@@ -118,10 +130,14 @@ namespace Focus_Bear.Habits
                 btnSkipThisHabitTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonSkipHabitText"].ToString();
                 SkipThisHabitText.Visibility = Visibility.Collapsed;
                 List<string> currentChecklist = null;   // this activity's checklist steps, if any (#343)
+                string currentInstructionsText = null;   // Instructions note, if any (web_dashboard#2184)
+                List<ActivityImage> currentImages = null;   // Instructions images, if any (web_dashboard#2184)
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
                     sActivityIdToGetDataFromAPI = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].id;
                     currentChecklist = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].check_list;
+                    currentInstructionsText = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].text_instructions;
+                    currentImages = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].image_urls;
 
                     show_saved_distracting_websites = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].show_saved_distracting_websites;
 
@@ -162,6 +178,8 @@ namespace Focus_Bear.Habits
                 {
                     sActivityIdToGetDataFromAPI = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].id;
                     currentChecklist = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].check_list;
+                    currentInstructionsText = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].text_instructions;
+                    currentImages = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].image_urls;
 
                     show_saved_distracting_websites = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].show_saved_distracting_websites;
 
@@ -214,6 +232,8 @@ namespace Focus_Bear.Habits
                     if (!currentActivity.isRandomChoice)
                     {
                         currentChecklist = currentActivity.check_list;
+                        currentInstructionsText = currentActivity.text_instructions;
+                        currentImages = currentActivity.image_urls;
                         Heading.Text = currentActivity.name;
                         appSettings.sCurrentRunningActivity = currentActivity.name;
                         appSettings.sHabitTypeForUseFocusModeIDInActivity = "break-activity";//evening-habit, morning-habit, break-activity
@@ -253,6 +273,8 @@ namespace Focus_Bear.Habits
                         {
                             sActivityChoiceIdToGetDataFromAPI = randomChoice.id;
                             currentChecklist = randomChoice.check_list;
+                            currentInstructionsText = randomChoice.text_instructions;
+                            currentImages = randomChoice.image_urls;
 
                             Heading.Text = randomChoice.name;
                             appSettings.sCurrentRunningActivity = currentActivity.name;
@@ -291,9 +313,12 @@ namespace Focus_Bear.Habits
 
                 // Checklist activity (#343): completion stays manual via "I'm done" (parsed as non-timer),
                 // matching mobile — ticking is a local visual aid, not a gate. Held in _checklistItems so
-                // ticks survive re-renders. If the activity ALSO has a video, show both behind a Video /
-                // Checklist tab switcher (macOS parity); otherwise the checklist replaces the video.
-                if (currentChecklist != null && currentChecklist.Count > 0)
+                // ticks survive re-renders.
+                _hasVideo = nVideoUrlsCount > 0;
+                _hasChecklist = currentChecklist != null && currentChecklist.Count > 0;
+                _hasInstructions = !string.IsNullOrEmpty(currentInstructionsText) || (currentImages != null && currentImages.Count > 0);
+
+                if (_hasChecklist)
                 {
                     _checklistItems = new List<ChecklistItem>();
                     foreach (string step in currentChecklist)
@@ -302,31 +327,38 @@ namespace Focus_Bear.Habits
                     // The checklist is the completion guide, so drop the single-line "Complete after: …"
                     // text; the "I'm done" button below stays.
                     CompleteAfter.Visibility = Visibility.Collapsed;
-
-                    if (nVideoUrlsCount > 0)
-                    {
-                        // Both video + checklist → tabbed. Default to the video (it autoplays via the
-                        // WebView init flow); the checklist is one tap away. The video still LOADS even
-                        // while hidden, so switching to it later isn't blank.
-                        _hasVideoChecklistTabs = true;
-                        _videoTabActive = true;
-                        try
-                        {
-                            btnTabVideoTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonVideoText"].ToString();
-                            btnTabChecklistTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["titleCheckList"].ToString();
-                        }
-                        catch (Exception exTab) { LogWriter.LogWrite("checklist tab labels - " + exTab.Message); }
-                        ChecklistVideoTabs.Visibility = Visibility.Visible;
-                        SectionChecklist.Visibility = Visibility.Collapsed;   // video tab is default
-                    }
-                    else
-                    {
-                        // Checklist only → no tabs, replace the video area.
-                        _checklistOnlyMode = true;
-                        SectionChecklist.Visibility = Visibility.Visible;
-                        webView.Visibility = Visibility.Collapsed;
-                    }
                 }
+
+                if (_hasInstructions)
+                {
+                    PopulateInstructions(currentInstructionsText, currentImages);
+                }
+
+                // Video / Checklist / Instructions tabs (#343, web_dashboard#2184): shown only when 2+ of
+                // these are present, so the user can switch between them (macOS parity). With exactly one
+                // present, it fills the content area directly with no tabs. Default priority when tabs
+                // show: Video (it autoplays via the WebView init flow, and still LOADS even while hidden
+                // so switching to it later isn't blank), then Checklist, then Instructions.
+                if (HasTabs)
+                {
+                    btnTabVideo.Visibility = _hasVideo ? Visibility.Visible : Visibility.Collapsed;
+                    btnTabChecklist.Visibility = _hasChecklist ? Visibility.Visible : Visibility.Collapsed;
+                    btnTabInstructions.Visibility = _hasInstructions ? Visibility.Visible : Visibility.Collapsed;
+                    try
+                    {
+                        btnTabVideoTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonVideoText"].ToString();
+                        btnTabChecklistTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["titleCheckList"].ToString();
+                        btnTabInstructionsTXT.Text = appSettings.ConfigFileStrings["activityInfo"]["buttonInstructionsText"].ToString();
+                    }
+                    catch (Exception exTab) { LogWriter.LogWrite("checklist tab labels - " + exTab.Message); }
+                    ChecklistVideoTabs.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    ChecklistVideoTabs.Visibility = Visibility.Collapsed;
+                }
+                _activeTab = _hasVideo ? HabitContentTab.Video : (_hasChecklist ? HabitContentTab.Checklist : HabitContentTab.Instructions);
+                ApplyActiveTabVisibility();
 
                 TxtTimer.Text = appSettings.SecondsToTimerText(nTimer);
 
@@ -471,12 +503,12 @@ namespace Focus_Bear.Habits
                         args.Request.Headers.SetHeader("Referer", "https://www.focusbear.io/");
                     };
 
-                    // WebView2 initializes asynchronously. Load the video unless this is a checklist-ONLY
-                    // activity (no video tab). In tabbed mode the video still loads while hidden, so
-                    // switching to its tab later isn't blank; its visibility follows the active tab. (#343)
-                    if (nVideoUrlsCount > 0 && !_checklistOnlyMode)
+                    // WebView2 initializes asynchronously. Load the video whenever this activity has one -
+                    // in tabbed mode it still loads while hidden, so switching to its tab later isn't
+                    // blank; its visibility follows the active tab. (#343, web_dashboard#2184)
+                    if (_hasVideo)
                     {
-                        webView.Visibility = (_hasVideoChecklistTabs && !_videoTabActive) ? Visibility.Collapsed : Visibility.Visible;
+                        webView.Visibility = (_activeTab == HabitContentTab.Video) ? Visibility.Visible : Visibility.Collapsed;
                         isVideoPresent = true;
 
                         Random rnd = new Random();
@@ -735,36 +767,107 @@ namespace Focus_Bear.Habits
                 }
             }
         }
-        // Video / Checklist tab switching (#343). Only wired up when the activity has both a video and a
-        // checklist (ChecklistVideoTabs is otherwise collapsed). The video keeps loading while hidden, so
-        // switching is instant; audio is paused/resumed so a hidden video doesn't keep playing.
+        // Video / Checklist / Instructions tab switching (#343, web_dashboard#2184). Only wired up when
+        // 2+ of these are present (ChecklistVideoTabs is otherwise collapsed, and only the tabs for
+        // present types are shown). The video keeps loading while hidden, so switching to it is instant;
+        // audio is paused/resumed so a hidden video doesn't keep playing.
         private void btnTabVideo_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            SetActiveTab(videoActive: true);
+            SetActiveTab(HabitContentTab.Video);
         }
 
         private void btnTabChecklist_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            SetActiveTab(videoActive: false);
+            SetActiveTab(HabitContentTab.Checklist);
         }
 
-        private void SetActiveTab(bool videoActive)
+        private void btnTabInstructions_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            _videoTabActive = videoActive;
+            SetActiveTab(HabitContentTab.Instructions);
+        }
 
+        private void SetActiveTab(HabitContentTab tab)
+        {
+            bool wasVideoActive = _activeTab == HabitContentTab.Video;
+            _activeTab = tab;
+            ApplyActiveTabVisibility();
+
+            bool videoActiveNow = _activeTab == HabitContentTab.Video;
+            // Only auto-resume on switching back to the Video tab if the habit itself isn't paused -
+            // otherwise switching tabs while paused (e.g. Video -> Instructions -> Video) incorrectly
+            // restarted playback regardless of the user's own pause/play state.
+            if (videoActiveNow && !wasVideoActive && bTimerRunning)
+                _ = ResumeVideoAsync();
+            else if (!videoActiveNow && wasVideoActive)
+                _ = PauseVideoAsync();
+        }
+
+        // Applies _activeTab to the tab buttons' colours and to which content section is visible.
+        // Called both on initial population and on every tab switch.
+        private void ApplyActiveTabVisibility()
+        {
             SolidColorBrush orange = new SolidColorBrush(Color.FromRgb(0xE8, 0x88, 0x00));
+
+            bool videoActive = _activeTab == HabitContentTab.Video;
+            bool checklistActive = _activeTab == HabitContentTab.Checklist;
+            bool instructionsActive = _activeTab == HabitContentTab.Instructions;
+
             btnTabVideo.Background = videoActive ? (Brush)orange : Brushes.Transparent;
             btnTabVideoTXT.Foreground = videoActive ? Brushes.White : orange;
-            btnTabChecklist.Background = videoActive ? Brushes.Transparent : orange;
-            btnTabChecklistTXT.Foreground = videoActive ? orange : Brushes.White;
+            btnTabChecklist.Background = checklistActive ? (Brush)orange : Brushes.Transparent;
+            btnTabChecklistTXT.Foreground = checklistActive ? Brushes.White : orange;
+            btnTabInstructions.Background = instructionsActive ? (Brush)orange : Brushes.Transparent;
+            btnTabInstructionsTXT.Foreground = instructionsActive ? Brushes.White : orange;
 
-            SectionChecklist.Visibility = videoActive ? Visibility.Collapsed : Visibility.Visible;
-            webView.Visibility = videoActive ? Visibility.Visible : Visibility.Collapsed;
+            SectionChecklist.Visibility = (_hasChecklist && checklistActive) ? Visibility.Visible : Visibility.Collapsed;
+            SectionInstructions.Visibility = (_hasInstructions && instructionsActive) ? Visibility.Visible : Visibility.Collapsed;
+            webView.Visibility = (_hasVideo && videoActive) ? Visibility.Visible : Visibility.Collapsed;
+        }
 
-            if (videoActive)
-                _ = ResumeVideoAsync();
-            else
-                _ = PauseVideoAsync();
+        // Instructions section (web_dashboard#2184): a note (row 2) + image thumbnails (row 1). url-based
+        // images display immediately; file_path (R2) images resolve asynchronously via
+        // GetActivityImageReadUrl and update their thumbnail once resolved.
+        private void PopulateInstructions(string instructionsText, List<ActivityImage> images)
+        {
+            TxtInstructionsNote.Text = instructionsText ?? "";
+            TxtInstructionsNote.Visibility = string.IsNullOrEmpty(instructionsText) ? Visibility.Collapsed : Visibility.Visible;
+
+            _instructionsImages = new ObservableCollection<ActivityImageDisplayItem>();
+            InstructionsImagesItemsControl.ItemsSource = _instructionsImages;
+            SectionInstructionsImages.Visibility = (images != null && images.Count > 0) ? Visibility.Visible : Visibility.Collapsed;
+            if (images == null) return;
+
+            string instructionsActivityId = sActivityChoiceIdToGetDataFromAPI.Length > 0 ? sActivityChoiceIdToGetDataFromAPI : sActivityIdToGetDataFromAPI;
+            foreach (ActivityImage img in images)
+            {
+                var displayItem = new ActivityImageDisplayItem();
+                _instructionsImages.Add(displayItem);
+                if (!string.IsNullOrEmpty(img.Url))
+                {
+                    displayItem.DisplayUrl = img.Url;
+                }
+                else if (!string.IsNullOrEmpty(img.FilePath))
+                {
+                    _ = ResolveInstructionsImageAsync(instructionsActivityId, img.FilePath, displayItem);
+                }
+            }
+        }
+
+        private async Task ResolveInstructionsImageAsync(string activityId, string fileKey, ActivityImageDisplayItem displayItem)
+        {
+            try
+            {
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                string readUrl = await client.GetActivityImageReadUrl(activityId, fileKey);
+                if (!string.IsNullOrEmpty(readUrl))
+                {
+                    displayItem.DisplayUrl = readUrl;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ResolveInstructionsImageAsync ex - " + ex.Message);
+            }
         }
 
         private async Task PauseVideoAsync()
