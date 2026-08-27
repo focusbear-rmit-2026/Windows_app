@@ -4193,6 +4193,67 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        // One-time migration of the local Brain Dump text to the backend note store (matches the mac
+        // app's PUT {baseUrl}/note - is_brain_dump identifies it, title is just a required label since
+        // the create path 400s without one). Not idempotent server-side (no id in the payload always
+        // creates a new note), so the caller must only call this once per user - see
+        // AppSettings.MigrateBrainDumpToBackendIfNeeded.
+        internal async Task<bool> UpsertBrainDumpNote(string body)
+        {
+            LogWriter.LogWrite("UpsertBrainDumpNote()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return false;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    JObject payload = new JObject
+                    {
+                        ["title"] = "Brain dump",
+                        ["body"] = body ?? "",
+                        ["is_brain_dump"] = true
+                    };
+                    StringContent content = new StringContent(payload.ToString(), Encoding.UTF8, "application/json");
+
+                    var response = await client.PutAsync("https://api.focusbear.io/note", content);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        LogWriter.LogWrite("UpsertBrainDumpNote() GOT Success");
+                        return true;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            LogWriter.LogWrite("UpsertBrainDumpNote() FAILED - " + responseCode);
+                        }
+                        return false;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("UpsertBrainDumpNote WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpsertBrainDumpNote Exception - " + ex.Message);
+            }
+            return false;
+        }
+
         internal async Task<int> ResetPassword() // OK
         {
             LogWriter.LogWrite("ResetPassword()");

@@ -1550,6 +1550,7 @@ namespace Focus_Bear
                 AddIfAlive(list, w.PageStats != null ? w.PageStats.webView : null);
                 AddIfAlive(list, w.PageToDoList != null ? w.PageToDoList.webView : null);
                 AddIfAlive(list, w.PageToDoPlayer != null ? w.PageToDoPlayer.webView : null);
+                AddIfAlive(list, w.PageBrainDump != null ? w.PageBrainDump.webView : null);
                 if (w.PageHelp != null)
                 {
                     AddIfAlive(list, w.PageHelp.webViewGetSupport);
@@ -1811,6 +1812,10 @@ namespace Focus_Bear
 
                 //Write the Offline data CSV file with headers
                 appSettings.WriteDefaultOffilineCSVFile();
+
+                //One-time: push any existing local Brain Dump text to the backend note store so the
+                //new Notes webview has it. No-ops after the first successful run (per-user flag).
+                appSettings.MigrateBrainDumpToBackendIfNeeded();
 
                 CommandManager.InvalidateRequerySuggested();
             }))).Start();

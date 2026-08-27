@@ -489,6 +489,40 @@ namespace Focus_Bear.Utils
 
         public string sBrainDump = "";
 
+        // One-time port of an existing user's local Brain Dump text to the backend note store, so the
+        // new Notes webview (BrainDumpWindow) has it available on first load. Guarded by a persisted
+        // per-user registry flag, only set after a confirmed 200 - a failed call simply retries on the
+        // next app start. Not safe to call more than once per user if it succeeds: the /note PUT has no
+        // idempotency without an id, so a second real call would create a duplicate "Brain dump" note.
+        public async void MigrateBrainDumpToBackendIfNeeded()
+        {
+            try
+            {
+                if (RegistryManager.GetExistingBrainDumpMigratedToWeb())
+                {
+                    return;
+                }
+
+                RegistryManager.GetBrainDump(); //populates sBrainDump if a local value exists
+
+                FocusBearAPIClient client = new FocusBearAPIClient();
+                bool bSuccess = await client.UpsertBrainDumpNote(sBrainDump);
+                if (bSuccess)
+                {
+                    RegistryManager.SetExistingBrainDumpMigratedToWeb();
+                    LogWriter.LogWrite("MigrateBrainDumpToBackendIfNeeded() - migrated");
+                }
+                else
+                {
+                    LogWriter.LogWrite("MigrateBrainDumpToBackendIfNeeded() - failed, will retry next launch");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("MigrateBrainDumpToBackendIfNeeded ex - " + ex.Message);
+            }
+        }
+
         public bool isFocusModeRunning = false;
 
         public bool isFocusModePaused = false;

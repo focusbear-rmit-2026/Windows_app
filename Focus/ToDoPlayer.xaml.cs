@@ -253,11 +253,6 @@ namespace Focus_Bear.Focus
                 {
                     appSettings.sBrainDump = sContentJson["brain_dump_content"].ToString();
                     RegistryManager.SaveBrainDump();
-                    //Update the braindump window ui
-                    if (app.wndBrainDump != null)
-                    {
-                        app.wndBrainDump.TxtDumpDown.Text = appSettings.sBrainDump;
-                    }
                 }
                 if (sContentJson.ContainsKey("tasks"))
                 {

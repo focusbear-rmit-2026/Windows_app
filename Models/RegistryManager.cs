@@ -2193,6 +2193,36 @@ namespace Focus_Bear.Models
             }
         }
 
+        // One-time flag: has this user's local Brain Dump text already been pushed to the backend note
+        // store (Notes webview migration)? Only set after a confirmed successful upsert - see
+        // AppSettings.MigrateBrainDumpToBackendIfNeeded.
+        internal static bool GetExistingBrainDumpMigratedToWeb()
+        {
+            try
+            {
+                var regData = ReadStr("EXISTINGBRAINDUMPMIGRATEDTOWEB");
+                return regData != null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetExistingBrainDumpMigratedToWeb ex - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetExistingBrainDumpMigratedToWeb()
+        {
+            LogWriter.LogWrite("SetExistingBrainDumpMigratedToWeb()");
+            try
+            {
+                Write("EXISTINGBRAINDUMPMIGRATEDTOWEB", "1");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetExistingBrainDumpMigratedToWeb ex - " + ex.Message);
+            }
+        }
+
         internal static bool GetHasEditedBlockedURLs()
         {
             try
