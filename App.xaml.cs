@@ -741,6 +741,13 @@ namespace Focus_Bear
                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                     if (!match.Success)
                         return;
+
+                    // Stitch the web-quiz PostHog identity onto this app's person, same as the
+                    // focusbear:// deep-link path in HandleDeepLink — this clipboard fallback is
+                    // the path most downloaders actually take (deep link is lost across install),
+                    // so skipping it here would miss most of the quiz -> download -> sign-up stitch.
+                    _ = new FocusBearAPIClient().PostHogIdentify(match.Value);
+
                     string resultsUrl = AudhdResultsBaseUrl + Uri.EscapeDataString(match.Value);
                     LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch - opening " + resultsUrl);
                     OpenAudhdResultsWindow(resultsUrl);
@@ -813,6 +820,26 @@ namespace Focus_Bear
                 LogWriter.LogWrite("HandleDeepLink - unrecognised or incomplete deep link, ignoring");
                 return;
             }
+
+            // Stitch the web-quiz PostHog identity onto this app's person. The public
+            // AuDHD test identifies its PostHog person by the retest code, so aliasing
+            // the same test-code here merges the two — otherwise the quiz -> download ->
+            // sign-up journey shows up as two disjoint people and looks like nobody
+            // converts. PostHogIdentify sends $create_alias(alias = testCode). Same
+            // call pattern as ConnectGlobalAndMacIDWithDistinctUserID().
+            try
+            {
+                string testCode = GetQueryParam(new Uri(rawUrl).Query, DeepLinkTestCodeParam);
+                if (!string.IsNullOrWhiteSpace(testCode))
+                {
+                    _ = new FocusBearAPIClient().PostHogIdentify(testCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("HandleDeepLink alias ex - " + ex.Message);
+            }
+
             OpenAudhdResultsWindow(resultsUrl);
         }
 
