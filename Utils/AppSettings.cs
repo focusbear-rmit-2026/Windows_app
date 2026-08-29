@@ -1865,8 +1865,8 @@ namespace Focus_Bear.Utils
                         bIsAnonymousFromSettings = (UserSettings.ContainsKey("is_anonymous") && UserSettings["is_anonymous"].Type != JTokenType.Null && Convert.ToBoolean(UserSettings["is_anonymous"]))
                             || (UserSettings.ContainsKey("is_guest") && UserSettings["is_guest"].Type != JTokenType.Null && Convert.ToBoolean(UserSettings["is_guest"]));
 
-                        sLeaderboardUsername = (UserSettings.ContainsKey("leaderboard_username") && UserSettings["leaderboard_username"].Type != JTokenType.Null)
-                            ? UserSettings["leaderboard_username"].ToString() : "";
+                        sLeaderboardUsername = (UserSettings.ContainsKey("username") && UserSettings["username"].Type != JTokenType.Null)
+                            ? UserSettings["username"].ToString() : "";
 
                     }
                     catch (Exception ex)
