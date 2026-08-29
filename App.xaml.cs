@@ -892,16 +892,23 @@ namespace Focus_Bear
                     _audhdResultsWindow.Navigate(resultsUrl);
                     _audhdResultsWindow.Topmost = true; //keep above other Focus Bear windows
                     _audhdResultsWindow.Activate();
+                    appSettings.CapturePostHog("audhd-results-window-shown");
                     return;
                 }
 
                 _audhdResultsWindow = new AudhdResults.AudhdResultsWindow(resultsUrl);
-                _audhdResultsWindow.Closed += (s, e) => _audhdResultsWindow = null;
+                //Pairs with 'audhd-results-window-shown'; canonical cross-platform names (Mac AudhdResults enum).
+                _audhdResultsWindow.Closed += (s, e) =>
+                {
+                    _audhdResultsWindow = null;
+                    appSettings.CapturePostHog("audhd-results-window-closed");
+                };
                 //Show on top of any other open Focus Bear window (habits / focus / tray), otherwise the
                 //results window could open behind them.
                 _audhdResultsWindow.Topmost = true;
                 _audhdResultsWindow.Show();
                 _audhdResultsWindow.Activate();
+                appSettings.CapturePostHog("audhd-results-window-shown");
             }
             catch (Exception ex)
             {
