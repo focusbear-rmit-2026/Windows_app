@@ -228,3 +228,9 @@
 - Brain Dump is now backed by the same Notes system as the rest of Focus Bear: your existing entries are moved over automatically the first time you open the app after updating, so they're no longer only stored on this one device #1132.
 - Fixed the "Quit Focus Bear?" confirmation popup occasionally freezing and not responding to any button if you clicked "Nope, just quit" right as it appeared #1190.
 - Habits with an image and/or note added to their Instructions now show them during the habit, alongside the existing Video/Checklist tabs when more than one is set up.
+
+#v3.0.247
+- Fresh installs from the public AuDHD web test now correctly open your results on first launch, even when the deep link that normally carries the retest code is lost during install - the code is picked up from the clipboard instead #1476.
+- Added a warning when starting a focus session, or saving/auto-starting a blocking schedule, that uses an Allow List with AI turned off - without AI, every new page on an already-allowed site would otherwise need separate approval #1420.
+- Fixed the leaderboard username not loading in Settings → Account - it was being read from the wrong settings key #1485.
+- Internal: added PostHog identity-stitching and shown/closed analytics events for the AuDHD results screen #1468 #1461.
