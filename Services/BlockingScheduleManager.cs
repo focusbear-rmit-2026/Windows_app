@@ -426,6 +426,9 @@ namespace Focus_Bear.Services
                 return;
             }
 
+            bool wasAlreadyRunning = appSettings.isBlockingScheduleRunning;
+            string previousActiveId = appSettings.ActiveSchedule?.id;
+
             var newSchedule = GetActiveSchedule();
             appSettings.ActiveSchedule = newSchedule;
             if(newSchedule != null)
@@ -433,6 +436,19 @@ namespace Focus_Bear.Services
                 //Start it
                 newSchedule.isOn = true;
                 appSettings.isBlockingScheduleRunning = true;
+
+                // #1420: this schedule just started (not a repeated poll tick while it was already
+                // running) - if it's an Allow-List block list with AI off, every new page on an
+                // already-allowed site will still trigger a permission prompt. Warn once, non-modally,
+                // since nobody may be watching when a schedule auto-starts.
+                if (!wasAlreadyRunning || previousActiveId != newSchedule.id)
+                {
+                    var modeForAiWarning = appSettings.arrFocusModes.FirstOrDefault(f => f.id == newSchedule.SelectedFocusModeId);
+                    if (modeForAiWarning != null && modeForAiWarning.isAllowedListApproach && !newSchedule.bAIBlockingEnabled)
+                    {
+                        ShowScheduleStartedWithoutAiWarning(newSchedule, modeForAiWarning.name);
+                    }
+                }
 
                 FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
 
@@ -443,6 +459,46 @@ namespace Focus_Bear.Services
                     ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = true; //Active
                 else
                     ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = false; //Paused
+            }
+        }
+
+        // #1420: non-modal, self-dismissing heads-up shown when a schedule auto-starts with AI off on an
+        // Allow-List block list. Uses FBMessageBox's existing auto-close mechanism (Show() instead of
+        // ShowDialog() so it never blocks the schedule from actually running); an unattended 30s timeout
+        // leaves btnClicked at its constructed default (No) so it can't silently flip a setting the user
+        // never confirmed.
+        private static void ShowScheduleStartedWithoutAiWarning(CustomBlockingSchedule schedule, string sBlockListName)
+        {
+            try
+            {
+                string sMessage = appSettings.GetConfigStringSafe("'<SCHEDULE>' started with AI off — its '<BLOCKLIST>' block list uses an Allow List, so you may get repeated prompts on already-allowed sites.", "blockingScheduleEditorVcInfo", "warningScheduleStartedNoAiText")
+                    .Replace("<SCHEDULE>", schedule.name)
+                    .Replace("<BLOCKLIST>", sBlockListName);
+
+                FBMessageBox msg = new FBMessageBox(
+                    sMessage,
+                    appSettings.GetConfigStringSafe("AI isn't enabled", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
+                    MessageBoxButton.YesNo,
+                    appSettings.GetConfigStringSafe("Turn On AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
+                    appSettings.GetConfigStringSafe("Save Without AI", "blockingScheduleEditorVcInfo", "buttonSaveWithoutAiText"),
+                    "", false, "",
+                    bAutoClose: true,
+                    btnClicked: MessageBoxResult.No,
+                    nAutoCloseSeconds: 30);
+                msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                msg.Closed += (s, e) =>
+                {
+                    if (msg.btnClicked == MessageBoxResult.Yes)
+                    {
+                        schedule.bAIBlockingEnabled = true;
+                        AddBlockingSchedule(schedule, true);
+                    }
+                };
+                msg.Show(); //non-modal - a schedule can auto-start with nobody watching
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShowScheduleStartedWithoutAiWarning ex - " + ex.Message);
             }
         }
 

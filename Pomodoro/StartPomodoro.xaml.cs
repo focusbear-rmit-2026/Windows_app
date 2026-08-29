@@ -478,6 +478,34 @@ namespace Focus_Bear.Pomodoro
                 }
             }
 
+            // #1420: an Allow-List mode with AI off means every new page on an already-allowed site
+            // still gets a permission prompt - warn before starting rather than letting the user hit
+            // that wall mid-session.
+            string sSelectedModeName = ComboBoxFocusModes.SelectedItem?.ToString();
+            FocusMode selectedMode = appSettings.arrFocusModes.FirstOrDefault(m => m.name == sSelectedModeName);
+            if (selectedMode != null && selectedMode.isAllowedListApproach && !appSettings.bAiCheckUrlEnabled)
+            {
+                _ParentWindow.GridShade.Visibility = Visibility.Visible;
+                FBMessageBox msg = new FBMessageBox(
+                    appSettings.GetConfigStringSafe("This focus mode uses an Allow List, but AI is off — you'll be asked for permission on every new page, even within a site you've already allowed.", "focusInfo", "startingFocusModeInfo", "bodyAllowListNoAiWarningText"),
+                    appSettings.GetConfigStringSafe("AI isn't enabled", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
+                    MessageBoxButton.YesNoCancel,
+                    appSettings.GetConfigStringSafe("Turn On AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
+                    appSettings.GetConfigStringSafe("Start Without AI", "focusInfo", "startingFocusModeInfo", "buttonStartWithoutAiText"),
+                    appSettings.GetConfigStringSafe("Cancel", "common", "buttonCancelText"));
+                msg.Owner = _ParentWindow;
+                msg.ShowDialog();
+                _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                if (msg.btnClicked == MessageBoxResult.Cancel)
+                    return;
+                if (msg.btnClicked == MessageBoxResult.Yes)
+                {
+                    appSettings.bAiCheckUrlEnabled = true;
+                    LocalSettingsManager.PutLocalSettings();
+                }
+            }
+
             //Start Normal Focus mode
             StartFocusMode();
 

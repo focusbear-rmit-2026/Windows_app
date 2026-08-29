@@ -864,7 +864,11 @@
             "titleStrictnessLevel": "Nivel de Rigor:",
             "strictnessSuperStrictClickedText": "Entiendo que no puedo detener esta sesión de enfoque hasta que termine. Me comprometo a evitar las distracciones y a trabajar mucho.",
             "warningDefaultFocusMode": "Atención: esto no utilizará el bloqueo IA. Focus Bear solo bloqueará los sitios de tu lista de sitios superdistractores.",
-            "strictnessSuperStrictClickedNewText": "Entiendo que no puedo detener esta sesión de enfoque. Me comprometo a evitar distracciones y a avanzar muchísimo en mi trabajo."
+            "strictnessSuperStrictClickedNewText": "Entiendo que no puedo detener esta sesión de enfoque. Me comprometo a evitar distracciones y a avanzar muchísimo en mi trabajo.",
+            "titleAllowListNoAiWarning": "La IA no está activada",
+            "bodyAllowListNoAiWarningText": "Este modo de enfoque usa una lista de permitidos, pero la IA está desactivada: se te pedirá permiso en cada página nueva, incluso dentro de un sitio que ya permitiste.",
+            "buttonTurnOnAiText": "Activar IA",
+            "buttonStartWithoutAiText": "Iniciar sin IA"
         },
         "abortingFocusModeInfo": {
             "title": "Desactivación del tipo de enfoque - <FOCUSTYPE>",
@@ -3144,7 +3148,10 @@
         "permissionsInformativeText": "Necesitarás permitir los permisos para bloquear sitios web y apps distractoras.",
         "permissionsButtonGrantPermissions": "Conceder permisos",
         "permissionsButtonNo": "No, gracias",
-        "titleMissingBlockList": "Lista de bloqueo faltante"
+        "titleMissingBlockList": "Lista de bloqueo faltante",
+        "buttonSaveWithoutAiText": "Guardar sin IA",
+        "bodyAllowListNoAiWarningText": "La lista de bloqueo '<BLOCKLIST>' usa una lista de permitidos, pero la IA está desactivada: se te pedirá permiso en cada página nueva, incluso dentro de un sitio que ya permitiste.",
+        "warningScheduleStartedNoAiText": "Se inició '<SCHEDULE>' sin IA: su lista de bloqueo '<BLOCKLIST>' usa una lista de permitidos, por lo que es posible que se te pida permiso repetidamente en sitios ya permitidos."
     },
     "abortingCustomScheduleBlockingVcInfo":{
         "titlePauseText": "Pausando horario personalizado - <SCHEDULE>",

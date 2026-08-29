@@ -852,7 +852,11 @@
             "titleStrictnessLevel": "Strictness level:",
             "strictnessSuperStrictClickedText": "I understand I cannot stop this focus session until it ends. I am committed to avoiding distractions and getting a ton of work done.",
             "warningDefaultFocusMode": "Heads up: this will not use AI blocking. Focus Bear will only block the sites in your super distracting sites list",
-            "strictnessSuperStrictClickedNewText": "I understand I cannot stop this focus session. I am committed to avoiding distractions and getting a ton of work done."
+            "strictnessSuperStrictClickedNewText": "I understand I cannot stop this focus session. I am committed to avoiding distractions and getting a ton of work done.",
+            "titleAllowListNoAiWarning": "AI isn't enabled",
+            "bodyAllowListNoAiWarningText": "This focus mode uses an Allow List, but AI is off — you'll be asked for permission on every new page, even within a site you've already allowed.",
+            "buttonTurnOnAiText": "Turn On AI",
+            "buttonStartWithoutAiText": "Start Without AI"
         },
         "abortingFocusModeInfo": {
             "title": "Deactivating Focus Block - <FOCUSTYPE>",
@@ -3148,7 +3152,10 @@
         "permissionsInformativeText": "You will need to allow permissions to block distracting websites and distracting apps.",
         "permissionsButtonGrantPermissions": "Grant permissions",
         "permissionsButtonNo": "No thanks",
-        "titleMissingBlockList": "Missing block list"
+        "titleMissingBlockList": "Missing block list",
+        "buttonSaveWithoutAiText": "Save Without AI",
+        "bodyAllowListNoAiWarningText": "The '<BLOCKLIST>' block list uses an Allow List, but AI is off — you'll be asked for permission on every new page, even within a site you've already allowed.",
+        "warningScheduleStartedNoAiText": "'<SCHEDULE>' started with AI off — its '<BLOCKLIST>' block list uses an Allow List, so you may get repeated prompts on already-allowed sites."
     },
     "abortingCustomScheduleBlockingVcInfo":{
         "titlePauseText": "Pausing Custom schedule - <SCHEDULE>",

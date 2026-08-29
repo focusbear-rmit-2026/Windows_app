@@ -30,7 +30,7 @@ namespace Focus_Bear.Utils
         public FBMessageBox()
         {
         }
-        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false, string sDontShowCheckboxText = "", bool bAutoClose = false, MessageBoxResult btnClicked = MessageBoxResult.Yes)
+        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false, string sDontShowCheckboxText = "", bool bAutoClose = false, MessageBoxResult btnClicked = MessageBoxResult.Yes, int nAutoCloseSeconds = 5)
         {
             InitializeComponent();
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
@@ -135,9 +135,10 @@ namespace Focus_Bear.Utils
 
             if(bAutoClose)
             {
-                //Set a timer after 5 seconds to auto close
+                //Auto close after nAutoCloseSeconds - btnClicked stays whatever it was constructed with
+                //(the default param above), so callers get a well-defined result on an unattended timeout.
                 dispatcherTimerAutoClose.Tick += new EventHandler(dispatcherTimer_Tick);
-                dispatcherTimerAutoClose.Interval = new TimeSpan(0, 0, 5);
+                dispatcherTimerAutoClose.Interval = new TimeSpan(0, 0, nAutoCloseSeconds);
                 dispatcherTimerAutoClose.Start();
                 CommandManager.InvalidateRequerySuggested();
 

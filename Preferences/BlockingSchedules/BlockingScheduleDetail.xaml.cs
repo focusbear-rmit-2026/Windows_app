@@ -418,6 +418,32 @@ namespace Focus_Bear.Preferences
                     }
                 }
 
+                // #1420: an Allow-List block list with AI off means every new page on an already-allowed
+                // site still gets a permission prompt - warn on save rather than only when it fires.
+                var modeForAiWarning = appSettings.arrFocusModes.FirstOrDefault(f => f.id == _editableCopy.SelectedFocusModeId);
+                if (modeForAiWarning != null && modeForAiWarning.isAllowedListApproach && !_editableCopy.bAIBlockingEnabled)
+                {
+                    string sWarningBody = appSettings.GetConfigStringSafe("The '<BLOCKLIST>' block list uses an Allow List, but AI is off — you'll be asked for permission on every new page, even within a site you've already allowed.", "blockingScheduleEditorVcInfo", "bodyAllowListNoAiWarningText")
+                        .Replace("<BLOCKLIST>", modeForAiWarning.name);
+
+                    FBMessageBox msg = new FBMessageBox(
+                        sWarningBody,
+                        appSettings.GetConfigStringSafe("AI isn't enabled", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
+                        MessageBoxButton.YesNo,
+                        appSettings.GetConfigStringSafe("Turn On AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
+                        appSettings.GetConfigStringSafe("Save Without AI", "blockingScheduleEditorVcInfo", "buttonSaveWithoutAiText"));
+                    msg.Owner = _ParentWindow;
+                    msg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                    _ParentWindow.GridShade.Visibility = Visibility.Visible;
+                    msg.ShowDialog();
+                    _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                    if (msg.btnClicked == MessageBoxResult.Yes)
+                    {
+                        _editableCopy.bAIBlockingEnabled = true;
+                    }
+                }
+
                 bool bAddingNew = false;
                 // 2. If new schedule (no ID), assign one
                 if (string.IsNullOrEmpty(_instance.id))

@@ -822,6 +822,23 @@ namespace Focus_Bear.Utils
         public Version FirmwareVersion { get; set; }
 
         public JObject ConfigFileStrings;
+
+        // ConfigFileStrings is usually a SERVER-downloaded copy (DownloadAndLoadConfigFile), not the
+        // repo's config.json - a client-side change that adds a new key can ship before the server-side
+        // config catches up, so a plain ConfigFileStrings["a"]["b"]["c"].ToString() crashes with a
+        // NullReferenceException on any machine still serving the older config. Use this for any newly
+        // added key until it's confirmed live server-side; existing/established keys can stay as-is.
+        public string GetConfigStringSafe(string sFallback, params string[] path)
+        {
+            JToken node = ConfigFileStrings;
+            foreach (var key in path)
+            {
+                node = node?[key];
+                if (node == null)
+                    return sFallback;
+            }
+            return node.ToString();
+        }
         // Global keyboard shortcuts (issue #383/#1150): action id -> shortcut. Loaded from the registry on
         // startup and registered via GlobalHotkeyManager; edited in the Keyboard Shortcuts settings tab.
         public Dictionary<string, Focus_Bear.Models.KeyboardShortcut> KeyboardShortcuts = new Dictionary<string, Focus_Bear.Models.KeyboardShortcut>();

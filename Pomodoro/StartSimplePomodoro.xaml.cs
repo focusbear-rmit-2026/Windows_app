@@ -316,6 +316,35 @@ namespace Focus_Bear.Pomodoro
             appSettings.sMinutesBreakPomodoro = "";
             // Simple pomodoro never starts a class session (#1343) — a teacher here runs a personal session.
             appSettings.bTeacherStartPersonalSession = true;
+
+            // #1420: warn before starting an Allow-List mode with AI off (bAiCheckUrlEnabled was just set
+            // above by the AI/Super Distracting radio choice) - every new page on an already-allowed site
+            // would otherwise still trigger a permission prompt.
+            FocusMode selectedMode = appSettings.arrFocusModes.FirstOrDefault(m =>
+                (RadioAI.IsChecked.Value && m.isDeepWorkFocus) || (RadioSuperDistracting.IsChecked.Value && m.isDefault));
+            if (selectedMode != null && selectedMode.isAllowedListApproach && !appSettings.bAiCheckUrlEnabled)
+            {
+                _ParentWindow.GridShade.Visibility = Visibility.Visible;
+                FBMessageBox msg = new FBMessageBox(
+                    appSettings.GetConfigStringSafe("This focus mode uses an Allow List, but AI is off — you'll be asked for permission on every new page, even within a site you've already allowed.", "focusInfo", "startingFocusModeInfo", "bodyAllowListNoAiWarningText"),
+                    appSettings.GetConfigStringSafe("AI isn't enabled", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
+                    MessageBoxButton.YesNoCancel,
+                    appSettings.GetConfigStringSafe("Turn On AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
+                    appSettings.GetConfigStringSafe("Start Without AI", "focusInfo", "startingFocusModeInfo", "buttonStartWithoutAiText"),
+                    appSettings.GetConfigStringSafe("Cancel", "common", "buttonCancelText"));
+                msg.Owner = _ParentWindow;
+                msg.ShowDialog();
+                _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                if (msg.btnClicked == MessageBoxResult.Cancel)
+                    return;
+                if (msg.btnClicked == MessageBoxResult.Yes)
+                {
+                    appSettings.bAiCheckUrlEnabled = true;
+                    LocalSettingsManager.PutLocalSettings();
+                }
+            }
+
             //Start Normal Focus mode
             StartFocusMode();
 
