@@ -704,6 +704,54 @@ namespace Focus_Bear
                 (Action)(() => HandleDeepLink(deepLink)));
         }
 
+        private static string AudhdClipboardCheckedFilePath
+        {
+            get { return Path.Combine(AppSettings.AppDataDirPath, "audhd-clipboard-checked.txt"); }
+        }
+
+        // Deferred deep link: a fresh install from the web AuDHD test carries the retest
+        // code on the clipboard (the deep link is lost across the install), so read it
+        // ONCE on the first launch and open the results — otherwise a new downloader
+        // lands on the home screen and never sees their results. A marker file gates it
+        // to the first launch so a returning user's clipboard is never re-scanned.
+        private void CheckAudhdClipboardOnFirstLaunch()
+        {
+            try
+            {
+                if (File.Exists(AudhdClipboardCheckedFilePath))
+                    return;
+                File.WriteAllText(AudhdClipboardCheckedFilePath, DateTime.UtcNow.ToString("o"));
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch flag ex - " + ex.Message);
+                return;
+            }
+
+            // Clipboard access needs the STA/UI thread; run once the app is idle.
+            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, (Action)(() =>
+            {
+                try
+                {
+                    string clip = System.Windows.Clipboard.GetText();
+                    if (string.IsNullOrWhiteSpace(clip))
+                        return;
+                    var match = System.Text.RegularExpressions.Regex.Match(
+                        clip, "BEAR-[A-Z0-9]+(-[A-Z0-9]+)?",
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    if (!match.Success)
+                        return;
+                    string resultsUrl = AudhdResultsBaseUrl + Uri.EscapeDataString(match.Value);
+                    LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch - opening " + resultsUrl);
+                    OpenAudhdResultsWindow(resultsUrl);
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch ex - " + ex.Message);
+                }
+            }));
+        }
+
         private static string PendingDeepLinkFilePath
         {
             get { return Path.Combine(AppSettings.AppDataDirPath, "pending-deeplink.txt"); }
@@ -1980,6 +2028,7 @@ namespace Focus_Bear
             // link that launched the app from cold (e.g. AuDHD advanced results), so it lands on top of a
             // ready UI rather than during loading.
             ProcessPendingColdStartDeepLink();
+            CheckAudhdClipboardOnFirstLaunch();
         }
 
         // Teacher Mode (issue #1343): true when pressing Focus should start a class (teacher) session
