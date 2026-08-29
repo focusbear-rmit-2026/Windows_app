@@ -223,3 +223,8 @@
 - Fixed the Day Plan showing, and letting you interact with, more than your trial's 3-habit limit outside of an active routine; also added a card at the top of the Day Plan explaining the limit for trial accounts, with a link to upgrade #1320.
 - Fixed a stale "Habit resumes in X minutes" popup reappearing after a routine was already fully finished, when it was completed by marking habits Done/Skip on the Day Plan rather than clicking Play #1101.
 - Fixed blocked apps sometimes staying blocked outside your blocking schedule's active hours #1314.
+
+#v3.0.246
+- Brain Dump is now backed by the same Notes system as the rest of Focus Bear: your existing entries are moved over automatically the first time you open the app after updating, so they're no longer only stored on this one device #1132.
+- Fixed the "Quit Focus Bear?" confirmation popup occasionally freezing and not responding to any button if you clicked "Nope, just quit" right as it appeared #1190.
+- Habits with an image and/or note added to their Instructions now show them during the habit, alongside the existing Video/Checklist tabs when more than one is set up.
