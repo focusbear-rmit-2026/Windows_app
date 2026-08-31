@@ -1588,7 +1588,9 @@
         "titleSelectMinutes": "Select minutes to postpone:",
         "buttonPostponeText": "Postpone",
         "buttonDeactivateText": "Deactivate Focus Bear for 4 hours",
-        "infoText": "If you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab."
+        "infoText": "If you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab.",
+        "customTimeError": "Enter a valid positive number for minutes",
+        "toolTipMinimumMinutes": "Pick a preset or type your own - minimum 1 minute"
     },
     "popUpOfflineVcInfo": {
         "titleOffline": "It seems like you're offline. Please go online to continue with your habits.",

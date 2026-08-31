@@ -1588,7 +1588,9 @@
         "titleSelectMinutes": "Selecciona los minutos a posponer:",
         "buttonPostponeText": "Posponer",
         "buttonDeactivateText": "Desactivar Focus Bear por 4 horas",
-        "infoText": "Si deseas más de un empujón para mantener tus hábitos, abre las preferencias y cambie el nivel de fricción desde la configuración general."
+        "infoText": "Si deseas más de un empujón para mantener tus hábitos, abre las preferencias y cambie el nivel de fricción desde la configuración general.",
+        "customTimeError": "Ingresa un número positivo válido de minutos",
+        "toolTipMinimumMinutes": "Elige una opción o escribe la tuya - mínimo 1 minuto"
     },
     "popUpOfflineVcInfo": {
         "titleOffline": "Parece que estás desconectado de Internet. Por favor conéctate para continuar con tus hábitos.",
