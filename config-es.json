@@ -865,10 +865,11 @@
             "strictnessSuperStrictClickedText": "Entiendo que no puedo detener esta sesión de enfoque hasta que termine. Me comprometo a evitar las distracciones y a trabajar mucho.",
             "warningDefaultFocusMode": "Atención: esto no utilizará el bloqueo IA. Focus Bear solo bloqueará los sitios de tu lista de sitios superdistractores.",
             "strictnessSuperStrictClickedNewText": "Entiendo que no puedo detener esta sesión de enfoque. Me comprometo a evitar distracciones y a avanzar muchísimo en mi trabajo.",
-            "titleAllowListNoAiWarning": "La IA no está activada",
-            "bodyAllowListNoAiWarningText": "Este modo de enfoque usa una lista de permitidos, pero la IA está desactivada: se te pedirá permiso en cada página nueva, incluso dentro de un sitio que ya permitiste.",
+            "titleAllowListNoAiWarning": "Esto podría ser molesto",
+            "bodyAllowListNoAiWarningText": "Has iniciado una sesión con lista de permitidos sin IA, lo que significa que se te pedirá aprobación muy a menudo.\n\nTe sugerimos que hagas la sesión más estricta o que actives la IA.",
             "buttonTurnOnAiText": "Activar IA",
-            "buttonStartWithoutAiText": "Iniciar sin IA"
+            "buttonStartWithoutAiText": "Continuar de todos modos",
+            "buttonMakeStricterText": "Hacerlo más estricto: bloquear de inmediato los sitios no permitidos"
         },
         "abortingFocusModeInfo": {
             "title": "Desactivación del tipo de enfoque - <FOCUSTYPE>",
@@ -3149,9 +3150,9 @@
         "permissionsButtonGrantPermissions": "Conceder permisos",
         "permissionsButtonNo": "No, gracias",
         "titleMissingBlockList": "Lista de bloqueo faltante",
-        "buttonSaveWithoutAiText": "Guardar sin IA",
-        "bodyAllowListNoAiWarningText": "La lista de bloqueo '<BLOCKLIST>' usa una lista de permitidos, pero la IA está desactivada: se te pedirá permiso en cada página nueva, incluso dentro de un sitio que ya permitiste.",
-        "warningScheduleStartedNoAiText": "Se inició '<SCHEDULE>' sin IA: su lista de bloqueo '<BLOCKLIST>' usa una lista de permitidos, por lo que es posible que se te pida permiso repetidamente en sitios ya permitidos."
+        "buttonSaveWithoutAiText": "Continuar de todos modos",
+        "bodyAllowListNoAiWarningText": "La lista de bloqueo '<BLOCKLIST>' usa una lista de permitidos sin IA, lo que significa que se te pedirá aprobación muy a menudo.\n\nTe sugerimos que hagas el horario más estricto o que actives la IA.",
+        "warningScheduleStartedNoAiText": "Se inició '<SCHEDULE>' sin IA. Su lista de bloqueo '<BLOCKLIST>' usa una lista de permitidos sin IA, lo que significa que se te pedirá aprobación muy a menudo.\n\nTe sugerimos que hagas el horario más estricto o que actives la IA."
     },
     "abortingCustomScheduleBlockingVcInfo":{
         "titlePauseText": "Pausando horario personalizado - <SCHEDULE>",

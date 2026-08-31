@@ -30,7 +30,7 @@ namespace Focus_Bear.Utils
         public FBMessageBox()
         {
         }
-        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false, string sDontShowCheckboxText = "", bool bAutoClose = false, MessageBoxResult btnClicked = MessageBoxResult.Yes, int nAutoCloseSeconds = 5)
+        public FBMessageBox(string sMessage, string sCaption = "", MessageBoxButton btn = MessageBoxButton.OK, string btnYesText = "", string btnNoText = "", string btnCancelText = "", bool bShowDontShowCheckbox = false, string sDontShowCheckboxText = "", bool bAutoClose = false, MessageBoxResult btnClicked = MessageBoxResult.Yes, int nAutoCloseSeconds = 5, bool bCancelAsLink = false)
         {
             InitializeComponent();
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
@@ -83,7 +83,14 @@ namespace Focus_Bear.Utils
             {
                 btnYes.Visibility = Visibility.Visible;
                 btnNo.Visibility = Visibility.Visible;
-                btnCancel.Visibility = Visibility.Visible;
+
+                //Continue-anyway-style dismiss (per #1420 feedback): render as a de-emphasized hyperlink
+                //instead of a full button, matching the Hyperlink-in-TextBlock pattern used throughout
+                //the app (e.g. GentleBlock's "Report Bad AI Decision" / "Block this page").
+                if (bCancelAsLink)
+                    LinkCancel.Visibility = Visibility.Visible;
+                else
+                    btnCancel.Visibility = Visibility.Visible;
 
                 btnOK.Visibility = Visibility.Collapsed;
             }
@@ -124,6 +131,7 @@ namespace Focus_Bear.Utils
             {
                 btnCancelTxt.Text = btnCancelText;
             }
+            LinkCancelTxt.Text = btnCancelTxt.Text;
 
             if (btn == MessageBoxButton.OK)
             {
@@ -176,6 +184,12 @@ namespace Focus_Bear.Utils
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            btnClicked = MessageBoxResult.Cancel;
+            Close();
+        }
+
+        private void HyperlinkCancel_Click(object sender, RoutedEventArgs e)
         {
             btnClicked = MessageBoxResult.Cancel;
             Close();

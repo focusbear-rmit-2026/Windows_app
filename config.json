@@ -853,10 +853,11 @@
             "strictnessSuperStrictClickedText": "I understand I cannot stop this focus session until it ends. I am committed to avoiding distractions and getting a ton of work done.",
             "warningDefaultFocusMode": "Heads up: this will not use AI blocking. Focus Bear will only block the sites in your super distracting sites list",
             "strictnessSuperStrictClickedNewText": "I understand I cannot stop this focus session. I am committed to avoiding distractions and getting a ton of work done.",
-            "titleAllowListNoAiWarning": "AI isn't enabled",
-            "bodyAllowListNoAiWarningText": "This focus mode uses an Allow List, but AI is off — you'll be asked for permission on every new page, even within a site you've already allowed.",
-            "buttonTurnOnAiText": "Turn On AI",
-            "buttonStartWithoutAiText": "Start Without AI"
+            "titleAllowListNoAiWarning": "This might be annoying",
+            "bodyAllowListNoAiWarningText": "You've started an allow list session without AI which means you're going to get asked for approval a lot.\n\nWe suggest you either make the session stricter or enable AI.",
+            "buttonTurnOnAiText": "Enable AI",
+            "buttonStartWithoutAiText": "Continue anyway",
+            "buttonMakeStricterText": "Make it stricter - block non-allowed sites immediately"
         },
         "abortingFocusModeInfo": {
             "title": "Deactivating Focus Block - <FOCUSTYPE>",
@@ -3153,9 +3154,9 @@
         "permissionsButtonGrantPermissions": "Grant permissions",
         "permissionsButtonNo": "No thanks",
         "titleMissingBlockList": "Missing block list",
-        "buttonSaveWithoutAiText": "Save Without AI",
-        "bodyAllowListNoAiWarningText": "The '<BLOCKLIST>' block list uses an Allow List, but AI is off — you'll be asked for permission on every new page, even within a site you've already allowed.",
-        "warningScheduleStartedNoAiText": "'<SCHEDULE>' started with AI off — its '<BLOCKLIST>' block list uses an Allow List, so you may get repeated prompts on already-allowed sites."
+        "buttonSaveWithoutAiText": "Continue anyway",
+        "bodyAllowListNoAiWarningText": "The '<BLOCKLIST>' block list uses an Allow List without AI, which means you're going to get asked for approval a lot.\n\nWe suggest you either make the schedule stricter or enable AI.",
+        "warningScheduleStartedNoAiText": "'<SCHEDULE>' started with AI off. Its '<BLOCKLIST>' block list uses an Allow List without AI, which means you're going to get asked for approval a lot.\n\nWe suggest you either make the schedule stricter or enable AI."
     },
     "abortingCustomScheduleBlockingVcInfo":{
         "titlePauseText": "Pausing Custom schedule - <SCHEDULE>",

@@ -420,28 +420,38 @@ namespace Focus_Bear.Preferences
 
                 // #1420: an Allow-List block list with AI off means every new page on an already-allowed
                 // site still gets a permission prompt - warn on save rather than only when it fires.
+                // Skipped in grizzly mode (per Jeremy's feedback on #1420) - grizzly already blocks
+                // immediately with no back-and-forth, so the "asked a lot" framing doesn't apply.
                 var modeForAiWarning = appSettings.arrFocusModes.FirstOrDefault(f => f.id == _editableCopy.SelectedFocusModeId);
-                if (modeForAiWarning != null && modeForAiWarning.isAllowedListApproach && !_editableCopy.bAIBlockingEnabled)
+                if (modeForAiWarning != null && modeForAiWarning.isAllowedListApproach && !_editableCopy.bAIBlockingEnabled && !appSettings.IsEffectivelyGrizzly())
                 {
-                    string sWarningBody = appSettings.GetConfigStringSafe("The '<BLOCKLIST>' block list uses an Allow List, but AI is off — you'll be asked for permission on every new page, even within a site you've already allowed.", "blockingScheduleEditorVcInfo", "bodyAllowListNoAiWarningText")
+                    string sWarningBody = appSettings.GetConfigStringSafe("The '<BLOCKLIST>' block list uses an Allow List without AI, which means you're going to get asked for approval a lot.\n\nWe suggest you either make the schedule stricter or enable AI.", "blockingScheduleEditorVcInfo", "bodyAllowListNoAiWarningText")
                         .Replace("<BLOCKLIST>", modeForAiWarning.name);
 
                     FBMessageBox msg = new FBMessageBox(
                         sWarningBody,
-                        appSettings.GetConfigStringSafe("AI isn't enabled", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
-                        MessageBoxButton.YesNo,
-                        appSettings.GetConfigStringSafe("Turn On AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
-                        appSettings.GetConfigStringSafe("Save Without AI", "blockingScheduleEditorVcInfo", "buttonSaveWithoutAiText"));
+                        appSettings.GetConfigStringSafe("This might be annoying", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
+                        MessageBoxButton.YesNoCancel,
+                        appSettings.GetConfigStringSafe("Make it stricter - block non-allowed sites immediately", "focusInfo", "startingFocusModeInfo", "buttonMakeStricterText"),
+                        appSettings.GetConfigStringSafe("Enable AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
+                        appSettings.GetConfigStringSafe("Continue anyway", "blockingScheduleEditorVcInfo", "buttonSaveWithoutAiText"),
+                        bCancelAsLink: true);
                     msg.Owner = _ParentWindow;
                     msg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                     _ParentWindow.GridShade.Visibility = Visibility.Visible;
                     msg.ShowDialog();
                     _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
 
-                    if (msg.btnClicked == MessageBoxResult.Yes)
+                    if (msg.btnClicked == MessageBoxResult.Yes) //Make it stricter
+                    {
+                        appSettings.nFocusBearMode = 0; //Grizzly bear mode
+                        LocalSettingsManager.PutLocalSettings();
+                    }
+                    else if (msg.btnClicked == MessageBoxResult.No) //Enable AI
                     {
                         _editableCopy.bAIBlockingEnabled = true;
                     }
+                    //Cancel = Continue anyway - save as configured
                 }
 
                 bool bAddingNew = false;

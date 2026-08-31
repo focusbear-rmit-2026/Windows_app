@@ -319,30 +319,36 @@ namespace Focus_Bear.Pomodoro
 
             // #1420: warn before starting an Allow-List mode with AI off (bAiCheckUrlEnabled was just set
             // above by the AI/Super Distracting radio choice) - every new page on an already-allowed site
-            // would otherwise still trigger a permission prompt.
+            // would otherwise still trigger a permission prompt. Skipped in grizzly mode (per Jeremy's
+            // feedback on #1420) - grizzly already blocks immediately, no back-and-forth to warn about.
             FocusMode selectedMode = appSettings.arrFocusModes.FirstOrDefault(m =>
                 (RadioAI.IsChecked.Value && m.isDeepWorkFocus) || (RadioSuperDistracting.IsChecked.Value && m.isDefault));
-            if (selectedMode != null && selectedMode.isAllowedListApproach && !appSettings.bAiCheckUrlEnabled)
+            if (selectedMode != null && selectedMode.isAllowedListApproach && !appSettings.bAiCheckUrlEnabled && !appSettings.IsEffectivelyGrizzly())
             {
                 _ParentWindow.GridShade.Visibility = Visibility.Visible;
                 FBMessageBox msg = new FBMessageBox(
-                    appSettings.GetConfigStringSafe("This focus mode uses an Allow List, but AI is off — you'll be asked for permission on every new page, even within a site you've already allowed.", "focusInfo", "startingFocusModeInfo", "bodyAllowListNoAiWarningText"),
-                    appSettings.GetConfigStringSafe("AI isn't enabled", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
+                    appSettings.GetConfigStringSafe("You've started an allow list session without AI which means you're going to get asked for approval a lot.\n\nWe suggest you either make the session stricter or enable AI.", "focusInfo", "startingFocusModeInfo", "bodyAllowListNoAiWarningText"),
+                    appSettings.GetConfigStringSafe("This might be annoying", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
                     MessageBoxButton.YesNoCancel,
-                    appSettings.GetConfigStringSafe("Turn On AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
-                    appSettings.GetConfigStringSafe("Start Without AI", "focusInfo", "startingFocusModeInfo", "buttonStartWithoutAiText"),
-                    appSettings.GetConfigStringSafe("Cancel", "common", "buttonCancelText"));
+                    appSettings.GetConfigStringSafe("Make it stricter - block non-allowed sites immediately", "focusInfo", "startingFocusModeInfo", "buttonMakeStricterText"),
+                    appSettings.GetConfigStringSafe("Enable AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
+                    appSettings.GetConfigStringSafe("Continue anyway", "focusInfo", "startingFocusModeInfo", "buttonStartWithoutAiText"),
+                    bCancelAsLink: true);
                 msg.Owner = _ParentWindow;
                 msg.ShowDialog();
                 _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
 
-                if (msg.btnClicked == MessageBoxResult.Cancel)
-                    return;
-                if (msg.btnClicked == MessageBoxResult.Yes)
+                if (msg.btnClicked == MessageBoxResult.Yes) //Make it stricter
+                {
+                    appSettings.nFocusBearMode = 0; //Grizzly bear mode
+                    LocalSettingsManager.PutLocalSettings();
+                }
+                else if (msg.btnClicked == MessageBoxResult.No) //Enable AI
                 {
                     appSettings.bAiCheckUrlEnabled = true;
                     LocalSettingsManager.PutLocalSettings();
                 }
+                //Cancel = Continue anyway - proceed with the session as configured
             }
 
             //Start Normal Focus mode

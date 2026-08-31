@@ -440,11 +440,12 @@ namespace Focus_Bear.Services
                 // #1420: this schedule just started (not a repeated poll tick while it was already
                 // running) - if it's an Allow-List block list with AI off, every new page on an
                 // already-allowed site will still trigger a permission prompt. Warn once, non-modally,
-                // since nobody may be watching when a schedule auto-starts.
+                // since nobody may be watching when a schedule auto-starts. Skipped in grizzly mode (per
+                // Jeremy's feedback on #1420) - grizzly already blocks immediately, no back-and-forth.
                 if (!wasAlreadyRunning || previousActiveId != newSchedule.id)
                 {
                     var modeForAiWarning = appSettings.arrFocusModes.FirstOrDefault(f => f.id == newSchedule.SelectedFocusModeId);
-                    if (modeForAiWarning != null && modeForAiWarning.isAllowedListApproach && !newSchedule.bAIBlockingEnabled)
+                    if (modeForAiWarning != null && modeForAiWarning.isAllowedListApproach && !newSchedule.bAIBlockingEnabled && !appSettings.IsEffectivelyGrizzly())
                     {
                         ShowScheduleStartedWithoutAiWarning(newSchedule, modeForAiWarning.name);
                     }
@@ -465,34 +466,42 @@ namespace Focus_Bear.Services
         // #1420: non-modal, self-dismissing heads-up shown when a schedule auto-starts with AI off on an
         // Allow-List block list. Uses FBMessageBox's existing auto-close mechanism (Show() instead of
         // ShowDialog() so it never blocks the schedule from actually running); an unattended 30s timeout
-        // leaves btnClicked at its constructed default (No) so it can't silently flip a setting the user
-        // never confirmed.
+        // leaves btnClicked at its constructed default (Cancel = "Continue anyway") so it can't silently
+        // change a setting the user never confirmed.
         private static void ShowScheduleStartedWithoutAiWarning(CustomBlockingSchedule schedule, string sBlockListName)
         {
             try
             {
-                string sMessage = appSettings.GetConfigStringSafe("'<SCHEDULE>' started with AI off — its '<BLOCKLIST>' block list uses an Allow List, so you may get repeated prompts on already-allowed sites.", "blockingScheduleEditorVcInfo", "warningScheduleStartedNoAiText")
+                string sMessage = appSettings.GetConfigStringSafe("'<SCHEDULE>' started with AI off. Its '<BLOCKLIST>' block list uses an Allow List without AI, which means you're going to get asked for approval a lot.\n\nWe suggest you either make the schedule stricter or enable AI.", "blockingScheduleEditorVcInfo", "warningScheduleStartedNoAiText")
                     .Replace("<SCHEDULE>", schedule.name)
                     .Replace("<BLOCKLIST>", sBlockListName);
 
                 FBMessageBox msg = new FBMessageBox(
                     sMessage,
-                    appSettings.GetConfigStringSafe("AI isn't enabled", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
-                    MessageBoxButton.YesNo,
-                    appSettings.GetConfigStringSafe("Turn On AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
-                    appSettings.GetConfigStringSafe("Save Without AI", "blockingScheduleEditorVcInfo", "buttonSaveWithoutAiText"),
-                    "", false, "",
+                    appSettings.GetConfigStringSafe("This might be annoying", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
+                    MessageBoxButton.YesNoCancel,
+                    appSettings.GetConfigStringSafe("Make it stricter - block non-allowed sites immediately", "focusInfo", "startingFocusModeInfo", "buttonMakeStricterText"),
+                    appSettings.GetConfigStringSafe("Enable AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
+                    appSettings.GetConfigStringSafe("Continue anyway", "blockingScheduleEditorVcInfo", "buttonSaveWithoutAiText"),
+                    false, "",
                     bAutoClose: true,
-                    btnClicked: MessageBoxResult.No,
-                    nAutoCloseSeconds: 30);
+                    btnClicked: MessageBoxResult.Cancel,
+                    nAutoCloseSeconds: 30,
+                    bCancelAsLink: true);
                 msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 msg.Closed += (s, e) =>
                 {
-                    if (msg.btnClicked == MessageBoxResult.Yes)
+                    if (msg.btnClicked == MessageBoxResult.Yes) //Make it stricter
+                    {
+                        appSettings.nFocusBearMode = 0; //Grizzly bear mode
+                        LocalSettingsManager.PutLocalSettings();
+                    }
+                    else if (msg.btnClicked == MessageBoxResult.No) //Enable AI
                     {
                         schedule.bAIBlockingEnabled = true;
                         AddBlockingSchedule(schedule, true);
                     }
+                    //Cancel/timeout = Continue anyway - no state change
                 };
                 msg.Show(); //non-modal - a schedule can auto-start with nobody watching
             }

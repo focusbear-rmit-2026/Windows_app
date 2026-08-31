@@ -839,6 +839,15 @@ namespace Focus_Bear.Utils
             }
             return node.ToString();
         }
+
+        // True when the user's Focus Bear mode is effectively "grizzly" (non-cuddly) - grizzly already
+        // blocks non-allowed sites immediately with no back-and-forth, so an "you'll be asked a lot"
+        // warning doesn't apply. Mirrors the cuddly/grizzly + Teacher Mode override in GentleBlock.
+        public bool IsEffectivelyGrizzly()
+        {
+            bool bEffectiveCuddly = (nFocusBearMode == 1) && !TeacherSessionManager.Instance.IsTeacherSessionActive();
+            return !bEffectiveCuddly;
+        }
         // Global keyboard shortcuts (issue #383/#1150): action id -> shortcut. Loaded from the registry on
         // startup and registered via GlobalHotkeyManager; edited in the Keyboard Shortcuts settings tab.
         public Dictionary<string, Focus_Bear.Models.KeyboardShortcut> KeyboardShortcuts = new Dictionary<string, Focus_Bear.Models.KeyboardShortcut>();
