@@ -85,6 +85,15 @@ namespace Focus_Bear
         }
         public void ChangeTheme()
         {
+            // ThemeChanged can fire from another window's thread (e.g. the WM_SETTINGCHANGE
+            // hook on FullScreenParent). Marshal onto this window's dispatcher so brushes are
+            // applied on the owning thread, avoiding cross-thread Freezable-context crashes.
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke((Action)ChangeTheme);
+                return;
+            }
+
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {

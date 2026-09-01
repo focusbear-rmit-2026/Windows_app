@@ -133,12 +133,14 @@ namespace Focus_Bear.FocusMusic
         }
         private void PlaybackTimer_Tick(object sender, EventArgs e)
         {
-            var current = appSettings.arrFocusMusicTracks.FirstOrDefault(t => t.IsPlaying);
-            if (current == null) return;
-            if (!_currentTrack.IsPlaying) return;
+            // Capture into a local: the tick only refreshes the current track's elapsed time.
+            // Enumerating arrFocusMusicTracks here raced with mutations on other threads
+            // ("Collection was modified"), and _currentTrack could be nulled concurrently.
+            var track = _currentTrack;
+            if (track == null || !track.IsPlaying) return;
 
-            var elapsed = _currentTrack.PausedOffset + (DateTime.Now - _currentTrack.StartTime);
-            _currentTrack.ElapsedFormatted = elapsed.ToString(@"mm\:ss");
+            var elapsed = track.PausedOffset + (DateTime.Now - track.StartTime);
+            track.ElapsedFormatted = elapsed.ToString(@"mm\:ss");
 
         }
 

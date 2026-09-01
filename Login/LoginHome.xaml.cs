@@ -127,6 +127,15 @@ namespace Focus_Bear.Login
 
         private void TitleBarThemeChange()
         {
+            // ThemeChanged can fire from another window's thread (e.g. the WM_SETTINGCHANGE
+            // hook on FullScreenParent). Marshal onto this control's dispatcher so brushes are
+            // applied on the owning thread, avoiding cross-thread Freezable-context crashes.
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke((Action)TitleBarThemeChange);
+                return;
+            }
+
             var source = (HwndSource)PresentationSource.FromVisual(this);
             if (source != null)
             {

@@ -35,6 +35,19 @@ namespace Focus_Bear.Pomodoro
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
+
+        // FocusAlignmentThresholdCombo lists 50..100 in steps of 10 (see StartPomodoro.xaml).
+        private const int MinAlignmentThresholdPercent = 50;
+        private const int MaxAlignmentThresholdPercent = 100;
+        private const int DefaultAlignmentThresholdPercent = 80;
+
+        // Maps a focus-mode alignment threshold (percent) to the matching combo box index,
+        // clamped so an out-of-range stored value can never select a non-existent item.
+        private static int AlignmentThresholdToIndex(int thresholdPercent)
+        {
+            int clamped = Math.Max(MinAlignmentThresholdPercent, Math.Min(MaxAlignmentThresholdPercent, thresholdPercent));
+            return (clamped / 10) - 5;
+        }
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         FocusBearMainWindow _ParentWindow = null;
@@ -159,7 +172,10 @@ namespace Focus_Bear.Pomodoro
 
                 var selectedMode = appSettings.arrFocusModes.FirstOrDefault(m => m.name == ComboBoxFocusModes.SelectedItem?.ToString());
                 if (selectedMode != null)
-                    FocusAlignmentThresholdCombo.SelectedItem = selectedMode.AlignmentScoreThreshold;
+                    // The combo items are ComboBoxItems (Content "50".."100"), so select by index.
+                    // Assigning the raw threshold to SelectedItem leaves nothing selected and later
+                    // causes a NullReferenceException when the selection is read back as a ComboBoxItem.
+                    FocusAlignmentThresholdCombo.SelectedIndex = AlignmentThresholdToIndex(selectedMode.AlignmentScoreThreshold);
             }
         }
 
@@ -292,7 +308,7 @@ namespace Focus_Bear.Pomodoro
             {
                 if (appSettings.arrFocusModes[i].name == sFocusModeToStart)
                 {
-                    FocusAlignmentThresholdCombo.SelectedIndex = (appSettings.arrFocusModes[i].AlignmentScoreThreshold / 10) - 5;
+                    FocusAlignmentThresholdCombo.SelectedIndex = AlignmentThresholdToIndex(appSettings.arrFocusModes[i].AlignmentScoreThreshold);
                 }
             }
         }
@@ -441,8 +457,11 @@ namespace Focus_Bear.Pomodoro
                 if (UseSuperPomodoroMode.IsChecked.Value)
                 {
                     appSettings.bUseSuperPomodoroMode = true;
-                    ComboBoxItem typeItem = (ComboBoxItem)ComboBoxNumberOfPomodoros.SelectedItem;
-                    appSettings.NumberOfSuperPomodorosToRun = int.Parse(typeItem.Content.ToString());
+                    ComboBoxItem typeItem = ComboBoxNumberOfPomodoros.SelectedItem as ComboBoxItem;
+                    if (typeItem != null && int.TryParse(typeItem.Content?.ToString(), out int numberOfPomodoros))
+                    {
+                        appSettings.NumberOfSuperPomodorosToRun = numberOfPomodoros;
+                    }
                     appSettings.nSuperPomodoroCountCompleted = 0; //Initialize
                     appSettings.CapturePostHog("start-focus-session-manually", string.Format("\"type\":\"super-focus\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
                 }
@@ -452,8 +471,12 @@ namespace Focus_Bear.Pomodoro
                 }
 
             }
+            // Fall back to the default threshold if nothing valid is selected, so a missing/
+            // mismatched selection can't crash starting a focus session (NullReferenceException).
             ComboBoxItem selectedItem = FocusAlignmentThresholdCombo.SelectedItem as ComboBoxItem;
-            int value = int.Parse(selectedItem.Content.ToString());
+            int value = (selectedItem != null && int.TryParse(selectedItem.Content?.ToString(), out int parsedValue))
+                ? parsedValue
+                : DefaultAlignmentThresholdPercent;
             appSettings.sRunningFocusModeAlignmentScoreThreshold = (double) value / 100;
 
             appSettings.sMinutesBreakPomodoro = "";
@@ -674,7 +697,10 @@ namespace Focus_Bear.Pomodoro
                 if (appSettings.arrFocusModes[i].name == sFocusModeToStart)
                 {
                     ComboBoxItem selectedItem = FocusAlignmentThresholdCombo.SelectedItem as ComboBoxItem;
-                    int value = int.Parse(selectedItem.Content.ToString());
+                    if (selectedItem == null || !int.TryParse(selectedItem.Content?.ToString(), out int value))
+                    {
+                        continue;
+                    }
                     appSettings.arrFocusModes[i].AlignmentScoreThreshold = value;
                 }
             }
