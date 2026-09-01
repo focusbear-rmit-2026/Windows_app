@@ -1620,7 +1620,11 @@ namespace Focus_Bear.Utils
                         return;
                     }**/
 
-                    if (appSettings.bImmediatelyBlockDistractingSites) //BLock immediately
+                    // A teacher class session forces immediate blocking of super-distracting sites,
+                    // regardless of the student's own "Immediately block super distracting sites"
+                    // setting - teacher sessions already run non-cuddly/grizzly, and a student shouldn't
+                    // be able to negotiate a delay via the Set-Intention flow during a class.
+                    if (appSettings.bImmediatelyBlockDistractingSites || TeacherSessionManager.Instance.IsTeacherSessionActive()) //BLock immediately
                     {
                         string sDomain = "";
                         /// //here we need to check the domain of the url in question

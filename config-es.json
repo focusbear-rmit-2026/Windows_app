@@ -3196,7 +3196,7 @@
         "unlockDeclinedBody": "Tu profesor(a) ha rechazado tu solicitud de desbloqueo.",
         "titleCreateUnlockRequest": "Pide a tu profesor(a) que desbloquee una aplicación o un sitio web",
         "appOrUrlTitle": "Nombre de la aplicación o sitio web",
-        "reasonTitle": "Motivo (opcional)",
+        "reasonTitle": "Motivo",
         "placeHolderAppOrUrl": "p. ej. Desmos o desmos.com",
         "placeHolderReason": "Explica por qué necesitas este desbloqueo....",
         "buttonCreateRequest": "Enviar solicitud",

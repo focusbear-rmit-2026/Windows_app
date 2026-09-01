@@ -3200,7 +3200,7 @@
         "unlockDeclinedBody": "Your teacher declined your unlock request.",
         "titleCreateUnlockRequest": "Ask your teacher to unlock an app or website",
         "appOrUrlTitle": "App name or website",
-        "reasonTitle": "Reason (optional)",
+        "reasonTitle": "Reason",
         "placeHolderAppOrUrl": "e.g. Desmos or desmos.com",
         "placeHolderReason": "Explain why you need this unlock....",
         "buttonCreateRequest": "Send Request",
