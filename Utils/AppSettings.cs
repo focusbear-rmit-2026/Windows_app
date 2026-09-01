@@ -3046,8 +3046,38 @@ namespace Focus_Bear.Utils
             }
         }
 
+        // CI / automated-test / E2E builds must never emit telemetry: they boot to the welcome
+        // screen and would fire onboarding-funnel events (welcome-screen-shown, …) as fake users,
+        // polluting PostHog (analytics#33, mirror of Mac-App#2257). Detected via env vars set by the
+        // CI runner; CI can also set FOCUSBEAR_DISABLE_TELEMETRY=1 when the others don't reach the
+        // launched app. Cached because the environment cannot change during a run.
+        private const string EnvDisableTelemetry = "FOCUSBEAR_DISABLE_TELEMETRY";
+        private const string EnvContinuousIntegration = "CI";
+        private const string EnvGithubActions = "GITHUB_ACTIONS";
+
+        private static readonly bool _isRunningInCIOrAutomatedTest =
+            HasTruthyEnvVar(EnvDisableTelemetry) || HasTruthyEnvVar(EnvContinuousIntegration) || HasTruthyEnvVar(EnvGithubActions);
+
+        public static bool IsRunningInCIOrAutomatedTest => _isRunningInCIOrAutomatedTest;
+
+        private static bool HasTruthyEnvVar(string sName)
+        {
+            string sValue = Environment.GetEnvironmentVariable(sName);
+            if (string.IsNullOrWhiteSpace(sValue))
+            {
+                return false;
+            }
+            sValue = sValue.Trim().ToLowerInvariant();
+            return sValue != "0" && sValue != "false" && sValue != "no";
+        }
+
         public void CapturePostHog(string sEvent, string sMetadataJSON = "")
         {
+            if (IsRunningInCIOrAutomatedTest)
+            {
+                return; //no telemetry in CI/E2E/test builds (analytics#33)
+            }
+
             if ((userAccount.email != null && userAccount.email.Length > 0) && userAccount.email.ToLower().Contains("internaltest"))
             {
                 return; //Do not log events for internal test users

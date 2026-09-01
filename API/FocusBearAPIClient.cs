@@ -2413,6 +2413,10 @@ namespace Focus_Bear.API
 
         internal async Task<int> PostHogIdentify(string sAliasID) // OK
         {
+            if (AppSettings.IsRunningInCIOrAutomatedTest)
+            {
+                return 0; //no telemetry in CI/E2E/test builds (analytics#33) - don't create fake PostHog users
+            }
             LogWriter.LogWrite("PostHogIdentify() - " + sAliasID);
             try
             {
