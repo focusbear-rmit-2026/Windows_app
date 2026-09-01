@@ -234,3 +234,11 @@
 - Added a warning when starting a focus session, or saving/auto-starting a blocking schedule, that uses an Allow List with AI turned off - without AI, every new page on an already-allowed site would otherwise need separate approval #1420.
 - Fixed the leaderboard username not loading in Settings → Account - it was being read from the wrong settings key #1485.
 - Internal: added PostHog identity-stitching and shown/closed analytics events for the AuDHD results screen #1468 #1461.
+
+#v3.0.248
+- Reworked the Allow-List/AI-off warning with clearer copy and a "Make it stricter" option that turns on Grizzly mode, and it's now skipped entirely when Grizzly mode is already on #1420.
+- The "postpone" time picker now lets you type your own number of minutes directly instead of only picking from a preset list #1036.
+- During a teacher class session, a distracting site is now blocked immediately regardless of your own "immediately block" setting, and requesting an unlock now requires a reason before you can send it.
+- Several onboarding screens improved: a "Select / Deselect all" option for the suggested-websites and blocked-websites lists, and default suggested apps to block (News, Movies & TV, Solitaire).
+- Fixed several crashes: starting a focus session could fail if the alignment-threshold dropdown had nothing selected, playing focus music could occasionally crash during a rare timing conflict, and changing your Windows theme could crash the login/splash screen.
+- Internal: CI/automated test builds no longer send analytics events, keeping test runs out of the real usage data.
