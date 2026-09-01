@@ -3296,7 +3296,8 @@
         "buttonContinue": "Eso es todo",
         "buttonSkip": "Omitir",
         "textFieldPlaceholder": "Agrega una URL o palabra clave",
-        "bubbleText": "Cuando visites uno de estos sitios, iniciaré una sesión de concentración para ti"
+        "bubbleText": "Cuando visites uno de estos sitios, iniciaré una sesión de concentración para ti",
+        "textChangeLaterText": "Puedes cambiar esto más tarde"
     },
     "createFirstBlockingScheduleVcInfo": {
         "title": "Configura los detalles del bloqueo",
