@@ -515,37 +515,48 @@ namespace Focus_Bear.Focus
                         return;
                     }
 
-                    string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
-
                     if (xProbability == -1)
                     {
                         CurrentURLBeingProcessedWithChatGPTAPI = "";
                         await Dispatcher.BeginInvoke((Action)(() =>
                         {
-                            //API failed. Nothing to do.
-                            ReportBadAIDecision.Visibility = Visibility.Collapsed;
-                            sHeading = sHeading + "\n\n" + "The status of this url could not be verified.";
-                            sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
+                            // The AI check failed (couldn't verify), not "AI says distracting" - fail open
+                            // the same way the non-cuddly branch already does, rather than stopping the user
+                            // with a popup over something that isn't actually a verdict. Record a neutral
+                            // 0.5 probability so this URL still contributes to the focus-alignment average
+                            // instead of being silently excluded from it.
+                            const double NeutralProbabilityOnVerificationFailure = 0.5;
+                            string sUrlNotVerifiedText = appSettings.GetConfigStringSafe("The status of this url could not be verified.", "popUpBlockConfirmVcInfo", "urlNotVerifiedText");
 
-                            if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForHeading2)) // Blocking schedule
+                            FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sFullURLForBlockedPage] = new Dictionary<string, object>
                             {
-                                sHeading = sHeading.Replace("<FOCUSTYPE>", scheduleForHeading2.name);
-                            }
-                            else
+                                { "probability", NeutralProbabilityOnVerificationFailure },
+                                { "isVisibleUrl", true },
+                                { "totalSeconds", 0 },
+                                { "startedTime", DateTime.Now },
+                                { "reason", sUrlNotVerifiedText }
+                            };
+                            FocusAlignmentScoreManager.CustomToolTip = sUrlNotVerifiedText;
+                            FocusAlignmentScoreManager.SetAppIconForFocusModeScore(NeutralProbabilityOnVerificationFailure);
+                            FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
+
+                            appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
+
+                            sCurrentTabTitle = sCurrentTabTitle.Replace(" - Google Chrome", "");
+                            sCurrentTabTitle = sCurrentTabTitle.Replace(" — Mozilla Firefox", "");
+                            sCurrentTabTitle = sCurrentTabTitle.Replace(" - Microsoft? Edge", "");
+                            if (sCurrentTabTitle.Length > 0)
                             {
-                                sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
+                                var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sCurrentTabTitle.ToLower());
+                                if (titleExists.Count() == 0)
+                                {
+                                    appSettings.TemporaryAllowedURLsTabTitles.Add(sCurrentTabTitle);
+                                }
                             }
 
-                            Heading.Text = sHeading;
-                            
-                            CommandManager.InvalidateRequerySuggested();
-                            
-                            if (appSettings.sLastActiveURLInFirefox == sActiveURL)
-                            {
-                                dispatcherTimer.Start();
-                                appSettings.ShowBlurWindow(HWND);
-                                this.Show();
-                            }
+                            dispatcherTimer.Stop();
+                            appSettings.HideBlurWindow();
+                            Hide();
                         }));
                     }
                     else  //we have got the probability
