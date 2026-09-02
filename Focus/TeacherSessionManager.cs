@@ -45,6 +45,7 @@ namespace Focus_Bear.Focus
         FocusMode TeacherFocusMode = null;
         DispatcherTimer dispatcherTimerHeartbeat = null;
         TeacherUnlockRequestWindow wndTeacherUnlockRequest = null;
+        TeacherPactInviteWindow wndTeacherPactInvite = null;
 
         const int HEARTBEAT_INTERVAL_SECONDS = 25; //canonical 20-30s heartbeat interval
         const int OPEN_ENDED_FALLBACK_HOURS = 12; //mirror the backend fallback for sessions with no scheduled finish time
@@ -388,47 +389,165 @@ namespace Focus_Bear.Focus
             }
             sPendingInviteSessionId = sSessionId;
 
-            string sSessionName = ObjData.ContainsKey("name") && ObjData["name"].Type != JTokenType.Null ? ObjData["name"].ToString() : "";
-            string sTitle = GetLocalizedString("invitePromptTitle", "Your teacher started a class focus session");
-            string sBody = GetLocalizedString("invitePromptBody", "Join to start the focus session on this computer. Only the apps and websites your teacher allowed will be usable, and you won't be able to stop the session early.");
-            string sButtonJoin = GetLocalizedString("buttonJoin", "Join session");
-            string sButtonDecline = GetLocalizedString("buttonDecline", "Decline");
-            if (sSessionName.Length > 0)
-            {
-                sTitle = sTitle + ": " + sSessionName;
-            }
-
-            LogWriter.LogWrite("TeacherSessionManager - showing join prompt for session " + sSessionId);
+            LogWriter.LogWrite("TeacherSessionManager - showing PACT invite for session " + sSessionId);
             try
             {
-                FBMessageBox msg = new FBMessageBox(sBody, sTitle, MessageBoxButton.YesNo, btnYesText: sButtonJoin, btnNoText: sButtonDecline, btnClicked: MessageBoxResult.None);
-                OwnToMainWindow(msg); //render above the (possibly full-screen topmost) main window so it's clickable
-                msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                msg.ShowDialog();
-                sPendingInviteSessionId = "";
-
-                if (msg.btnClicked == MessageBoxResult.Yes)
-                {
-                    LogWriter.LogWrite("TeacherSessionManager - join prompt accepted");
-                    JoinTeacherSession(ObjData);
-                }
-                else if (msg.btnClicked == MessageBoxResult.No)
-                {
-                    LogWriter.LogWrite("TeacherSessionManager - join prompt declined");
-                    FocusBearAPIClient client = new FocusBearAPIClient();
-                    _ = client.DeclineClassSession(sSessionId);
-
-                    // Keep the session so the student can still join later from the tray - declining
-                    // otherwise left no way back into a running class session.
-                    _joinableSessionData = ObjData;
-                    RefreshTrayMenu();
-                }
+                ShowTeacherPactInvitePrompt(ObjData, sSessionId);
             }
             catch (Exception ex)
             {
                 sPendingInviteSessionId = "";
                 LogWriter.LogWrite("TeacherSessionManager ShowJoinPrompt ex - " + ex.Message);
             }
+        }
+
+        //Two-screen PACT invite window (mirrors Mac-App#2377). Non-modal, callback driven: Activate joins
+        //the session, Decline (after the friction hold) reports a reason to the teacher.
+        private void ShowTeacherPactInvitePrompt(JObject ObjData, string sSessionId)
+        {
+            CloseTeacherPactInviteWindowIfVisible();
+
+            string sSubtitle = BuildSessionSubtitle(ObjData);
+            string sEndsLine;
+            string sInviteBody = BuildInviteBody(ObjData, out sEndsLine);
+            System.Collections.Generic.List<string> allowedSites = BuildAllowedSites(ObjData);
+
+            wndTeacherPactInvite = new TeacherPactInviteWindow(
+                sSubtitle, sEndsLine, sInviteBody, allowedSites,
+                onActivate: () =>
+                {
+                    LogWriter.LogWrite("TeacherSessionManager - PACT invite accepted");
+                    JoinTeacherSession(ObjData);
+                },
+                onDecline: (sReason) =>
+                {
+                    LogWriter.LogWrite("TeacherSessionManager - PACT invite declined");
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    _ = client.DeclineClassSession(sSessionId, sReason);
+
+                    // Keep the session so the student can still join later from the tray - declining
+                    // otherwise left no way back into a running class session.
+                    _joinableSessionData = ObjData;
+                    RefreshTrayMenu();
+                });
+
+            wndTeacherPactInvite.Closed += (s, e) =>
+            {
+                sPendingInviteSessionId = "";
+                wndTeacherPactInvite = null;
+            };
+
+            OwnToMainWindow(wndTeacherPactInvite); //render above the (possibly full-screen topmost) main window
+            wndTeacherPactInvite.Show();
+            wndTeacherPactInvite.Activate();
+
+            //On launch-adoption (AdoptCurrentSessionOnLaunch), the main/full-screen-lock window is already
+            //shown by the time the async current-session lookup resolves and this prompt appears - both are
+            //Topmost, and being shown later isn't enough to win the z-order. Toggling Topmost off/on forces
+            //this window back to the very front of the always-on-top band.
+            wndTeacherPactInvite.Topmost = false;
+            wndTeacherPactInvite.Topmost = true;
+        }
+
+        public void CloseTeacherPactInviteWindowIfVisible()
+        {
+            try
+            {
+                if (wndTeacherPactInvite != null)
+                {
+                    if (wndTeacherPactInvite.IsVisible)
+                    {
+                        wndTeacherPactInvite.Close();
+                    }
+                    wndTeacherPactInvite = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("TeacherSessionManager CloseTeacherPactInviteWindowIfVisible ex - " + ex.Message);
+            }
+        }
+
+        private string GetStringField(JObject ObjData, string sKey)
+        {
+            if (ObjData.ContainsKey(sKey) && ObjData[sKey].Type != JTokenType.Null)
+            {
+                return ObjData[sKey].ToString();
+            }
+            return "";
+        }
+
+        //mirror Mac teacherSessionSubtitle: "<subject> · <topic>", falling back to the session name
+        private string BuildSessionSubtitle(JObject ObjData)
+        {
+            string sSubject = GetStringField(ObjData, "subject");
+            string sTopic = GetStringField(ObjData, "topic");
+            if (sSubject.Length > 0 && sTopic.Length > 0)
+            {
+                return sSubject + " · " + sTopic;
+            }
+            if (sSubject.Length > 0)
+            {
+                return sSubject;
+            }
+            if (sTopic.Length > 0)
+            {
+                return sTopic;
+            }
+            string sName = GetStringField(ObjData, "name");
+            return sName.Length > 0 ? sName : GetLocalizedString("defaultSessionName", "Class focus session");
+        }
+
+        //mirror Mac teacherSessionAllowedSites: allowed_urls, falling back to allowed_apps (both string arrays)
+        private System.Collections.Generic.List<string> BuildAllowedSites(JObject ObjData)
+        {
+            System.Collections.Generic.List<string> sites = ReadStringArray(ObjData, "allowed_urls");
+            if (sites.Count == 0)
+            {
+                sites = ReadStringArray(ObjData, "allowed_apps");
+            }
+            return sites;
+        }
+
+        private System.Collections.Generic.List<string> ReadStringArray(JObject ObjData, string sKey)
+        {
+            System.Collections.Generic.List<string> result = new System.Collections.Generic.List<string>();
+            if (ObjData.ContainsKey(sKey) && ObjData[sKey].Type == JTokenType.Array)
+            {
+                foreach (JToken item in (JArray)ObjData[sKey])
+                {
+                    if (item.Type != JTokenType.Null)
+                    {
+                        string sItem = item.ToString().Trim();
+                        if (sItem.Length > 0)
+                        {
+                            result.Add(sItem);
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        //"Ends <TIME>" (empty when open-ended) + the invite body with <TIME> resolved to the local end
+        //time, or the "the session ends" fallback - mirrors Mac's pactEndsLine / pactInviteBody handling.
+        private string BuildInviteBody(JObject ObjData, out string sEndsLine)
+        {
+            string sBodyTime;
+            if (TryGetUtcDate(ObjData, "scheduled_finish_time", out DateTime dtFinishUtc))
+            {
+                string sTime = dtFinishUtc.ToLocalTime().ToString("h:mm tt");
+                sEndsLine = GetLocalizedString("pactEndsLine", "Ends <TIME>").Replace("<TIME>", sTime);
+                sBodyTime = sTime;
+            }
+            else
+            {
+                sEndsLine = "";
+                sBodyTime = GetLocalizedString("pactEndFallback", "the session ends");
+            }
+            return GetLocalizedString("pactInviteBody",
+                "Everything else is paused until <TIME>. If you need another site, you can ask your teacher to add it. You cannot end the session early.")
+                .Replace("<TIME>", sBodyTime);
         }
 
         public async void JoinTeacherSession(JObject ObjData)
@@ -841,6 +960,7 @@ namespace Focus_Bear.Focus
             bTeacherSessionEndAllowed = false;
             bTeacherSessionAiBlockingEnabled = false;
             CloseTeacherUnlockRequestWindowIfVisible();
+            CloseTeacherPactInviteWindowIfVisible();
 
             try
             {

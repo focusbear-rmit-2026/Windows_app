@@ -5357,7 +5357,7 @@ namespace Focus_Bear.API
             return null;
         }
 
-        internal async Task<int> DeclineClassSession(string sSessionId) //POST /class-session/{id}/decline
+        internal async Task<int> DeclineClassSession(string sSessionId, string sReason = "") //POST /class-session/{id}/decline
         {
             LogWriter.LogWrite("DeclineClassSession()");
             try
@@ -5377,7 +5377,14 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
-                    StringContent content = new StringContent("{}", Encoding.UTF8, "application/json");
+                    //optional free-text decline reason the teacher sees in their report; empty stays "{}"
+                    //for back-compatibility (the server rejects an empty body sent as application/json)
+                    JObject payload = new JObject();
+                    if (!string.IsNullOrWhiteSpace(sReason))
+                    {
+                        payload["reason"] = sReason.Trim();
+                    }
+                    StringContent content = new StringContent(payload.ToString(Formatting.None), Encoding.UTF8, "application/json");
 
                     string sPath = ClassSession + "/" + sSessionId + "/decline";
 

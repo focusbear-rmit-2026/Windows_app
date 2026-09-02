@@ -442,6 +442,9 @@
     </Compile>
     <Compile Include="Focus\TabMatrics.cs" />
     <Compile Include="Focus\TeacherSessionManager.cs" />
+    <Compile Include="Focus\TeacherPactInviteWindow.xaml.cs">
+      <DependentUpon>TeacherPactInviteWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Focus\TeacherUnlockRequestWindow.xaml.cs">
       <DependentUpon>TeacherUnlockRequestWindow.xaml</DependentUpon>
     </Compile>
@@ -922,6 +925,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Focus\StopFocusMode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Focus\TeacherPactInviteWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1437,6 +1444,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\FBicon-256.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\welcome_bear.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Noise.png" />
