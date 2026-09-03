@@ -5497,10 +5497,12 @@ namespace Focus_Bear.API
             return null;
         }
 
-        //POST /class-session/{id}/heartbeat with the canonical body {in_focus, device_id}.
-        //Best effort every 25s - no IsInternetOn probe (it would double the request volume) and no
-        //retry (the next beat is 25 seconds away; the server tolerates gaps of up to ~90s).
-        internal async Task<int> ClassSessionHeartbeat(string sSessionId, bool bInFocus)
+        //POST /class-session/{id}/heartbeat with the canonical body {in_focus, device_id, idle_seconds,
+        //alignment_score?}. idle_seconds (seconds since last user input) lets the teacher report derive
+        //Engagement server-side; alignment_score (0-100 site-relevance) is sent only when AI URL checking
+        //is on (null omits it). Best effort every 25s - no IsInternetOn probe (it would double the request
+        //volume) and no retry (the next beat is 25 seconds away; the server tolerates gaps of up to ~90s).
+        internal async Task<int> ClassSessionHeartbeat(string sSessionId, bool bInFocus, int idleSeconds, int? alignmentScore = null)
         {
             try
             {
@@ -5515,7 +5517,11 @@ namespace Focus_Bear.API
 
                 HttpClient client = GetClientWithHeaders();
 
-                string addJsonString = "{\"in_focus\":" + (bInFocus ? "true" : "false") + ",\"device_id\":\"" + appSettings.sDeviceID + "\"}";
+                string addJsonString = "{\"in_focus\":" + (bInFocus ? "true" : "false")
+                    + ",\"device_id\":\"" + appSettings.sDeviceID + "\""
+                    + ",\"idle_seconds\":" + idleSeconds
+                    + (alignmentScore.HasValue ? ",\"alignment_score\":" + alignmentScore.Value : "")
+                    + "}";
                 StringContent content = new StringContent(addJsonString, Encoding.UTF8, "application/json");
 
                 string sPath = ClassSession + "/" + sSessionId + "/heartbeat";

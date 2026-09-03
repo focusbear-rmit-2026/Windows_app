@@ -1051,7 +1051,42 @@ namespace Focus_Bear.Focus
             }
             bool bInFocus = appSettings.isFocusModeRunning && !appSettings.isFocusModePaused;
             FocusBearAPIClient client = new FocusBearAPIClient();
-            _ = client.ClassSessionHeartbeat(sActiveTeacherSessionId, bInFocus);
+            _ = client.ClassSessionHeartbeat(sActiveTeacherSessionId, bInFocus, GetIdleSeconds(), GetAlignmentScoreForHeartbeat());
+        }
+
+        //Seconds since the last keyboard/mouse input (Win32 GetLastInputInfo). Sent on every beat so the
+        //teacher report can derive Engagement = (1 - idle_fraction) * 100 on the server.
+        private int GetIdleSeconds()
+        {
+            try
+            {
+                return Math.Max(0, (int)IdleWaiter.GetIdleTime().TotalSeconds);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("TeacherSessionManager GetIdleSeconds ex - " + ex.Message);
+                return 0;
+            }
+        }
+
+        //Focus-alignment / site-relevance score (0-100), reported only when AI URL relevance checking is
+        //enabled (mirrors Mac's isAiCheckUrlEnabled gating). Returns null otherwise so the field is omitted.
+        private int? GetAlignmentScoreForHeartbeat()
+        {
+            if (!appSettings.bAiCheckUrlEnabled)
+            {
+                return null;
+            }
+            try
+            {
+                double score = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
+                return (int)Math.Round(Math.Max(0, Math.Min(100, score)));
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("TeacherSessionManager GetAlignmentScoreForHeartbeat ex - " + ex.Message);
+                return null;
+            }
         }
 
         //best-effort final {in_focus:false} beat on quit; the server also infers quit from the heartbeat gap.
@@ -1074,7 +1109,7 @@ namespace Focus_Bear.Focus
                     {
                         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", appSettings.userAccount.accessToken);
                     }
-                    string sBody = "{\"in_focus\":false,\"device_id\":\"" + appSettings.sDeviceID + "\"}";
+                    string sBody = "{\"in_focus\":false,\"device_id\":\"" + appSettings.sDeviceID + "\",\"idle_seconds\":" + GetIdleSeconds() + "}";
                     StringContent content = new StringContent(sBody, Encoding.UTF8, "application/json");
                     string sPath = FocusBearAPIClient.ClassSession + "/" + sActiveTeacherSessionId + "/heartbeat";
                     client.PostAsync(sPath, content).Wait(2000); //don't hold up termination for more than 2 seconds
