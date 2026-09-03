@@ -2160,7 +2160,14 @@ namespace Focus_Bear.Utils
 
                             isOfficeModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsOfficeModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsOfficeModeEnabled") : false;
 
-                            sUserPassword = sMacOSSettingsOBJ.ContainsKey("kAppPassword") ? (string)sMacOSSettingsOBJ.GetValue("kAppPassword") : "";
+                            //Null-coalesced: kAppPassword can be present with a JSON null value (not just
+                            //absent). A null here used to reach sUserPassword.Length below and throw a
+                            //NullReferenceException that aborted the rest of this whole try block silently -
+                            //isPasswordSet was never set (issue #1483), and every other setting parsed further
+                            //down (tab limiter, geek mode, cuddly mode, all the password-require-in-X flags,
+                            //AI check enabled, etc.) failed to apply too, on every sync while the payload kept
+                            //sending a null password.
+                            sUserPassword = sMacOSSettingsOBJ.ContainsKey("kAppPassword") ? (string)sMacOSSettingsOBJ.GetValue("kAppPassword") ?? "" : "";
                             RegistryManager.SetUserPassword(); //save to local
                             if (sUserPassword.Length > 0)
                             {
@@ -2203,14 +2210,18 @@ namespace Focus_Bear.Utils
 
                             bEnterPomodoroModeAfterMorningRoutine = sMacOSSettingsOBJ.ContainsKey("kPomodoroModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kPomodoroModeEnabled") : true; //default true
                             bAutomaticUseSuperPomodoroModeSetting = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroEnabled") : false; //default false
-                            PomodoroMinutes = sMacOSSettingsOBJ.ContainsKey("kPomodoroDurationMinutes") ? (string)sMacOSSettingsOBJ.GetValue("kPomodoroDurationMinutes") : "25";
-                            PomodoroBreakMinutes = sMacOSSettingsOBJ.ContainsKey("kBreakDurationMinutes") ? (string)sMacOSSettingsOBJ.GetValue("kBreakDurationMinutes") : "5";
+                            //Null-coalesced against a present-but-JSON-null value, same latent crash risk as
+                            //kAppPassword above (#1483) - these two just haven't hit it yet because nothing
+                            //reads .Length off them immediately afterward.
+                            PomodoroMinutes = sMacOSSettingsOBJ.ContainsKey("kPomodoroDurationMinutes") ? (string)sMacOSSettingsOBJ.GetValue("kPomodoroDurationMinutes") ?? "25" : "25";
+                            PomodoroBreakMinutes = sMacOSSettingsOBJ.ContainsKey("kBreakDurationMinutes") ? (string)sMacOSSettingsOBJ.GetValue("kBreakDurationMinutes") ?? "5" : "5";
                             PomodoroWorkToBreakRatio = sMacOSSettingsOBJ.ContainsKey("kWorkToBreakRatio") ? (int)sMacOSSettingsOBJ.GetValue("kWorkToBreakRatio") : 5;
                             if (PomodoroWorkToBreakRatio < 1) PomodoroWorkToBreakRatio = 5;
                             PomodoroBreakRatio = sMacOSSettingsOBJ.ContainsKey("kBreakRatio") ? (int)sMacOSSettingsOBJ.GetValue("kBreakRatio") : 1;
                             if (PomodoroBreakRatio < 1) PomodoroBreakRatio = 1;
 
-                            AutomaticSuperPomodoroFocusedName = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedName") ? (string)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroFocusedName") : "";
+                            //Same null-coalescing as above (#1483).
+                            AutomaticSuperPomodoroFocusedName = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedName") ? (string)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroFocusedName") ?? "" : "";
                             AutomaticNumberOfSuperPomodorosToRun = sMacOSSettingsOBJ.ContainsKey("kHardcorePomodoroFocusedCount") ? (int)sMacOSSettingsOBJ.GetValue("kHardcorePomodoroFocusedCount") : 2;
                             if (AutomaticNumberOfSuperPomodorosToRun < 2)
                                 AutomaticNumberOfSuperPomodorosToRun = 2;
