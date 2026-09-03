@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.Utils;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sentry.Protocol;
 using System;
@@ -138,6 +139,71 @@ namespace Focus_Bear.Focus
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Builds the PostHog metadata fragment (comma-separated "key":value pairs, no braces -
+        /// <see cref="AppSettings.CapturePostHog"/> wraps it) describing WHAT set off this gentle-block
+        /// popup: whether the trigger was an app or a URL, which app/host, the blocking source
+        /// (teacher session / blocking schedule / focus mode), the bear mode, and - when the AI
+        /// distraction check ran - its probability and reason. Shared by "block-popup-shown" (fired only
+        /// where the popup is actually rendered: the non-AI branch of ShowGentleBlockWindowAndStartTimer,
+        /// ShowDistractingCuddlyPopup for apps, and the equivalent inline branch in CheckWithChatGPT for
+        /// URLs) and the existing "block-popup-allow-automatically" events, so all of them carry the same
+        /// shape and analytics can tell an AI-distraction popup apart from a plain block-list one.
+        /// </summary>
+        private string BuildBlockPopupMetadata(bool bAICheckEnabled, double? xAiProbability = null)
+        {
+            bool bIsApp = sActiveAppName.Length > 0;
+
+            string sBlockingSource;
+            string sContextName;
+            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                sBlockingSource = "teacher-session";
+                sContextName = sFocusModeName;
+            }
+            else if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var schedule))
+            {
+                sBlockingSource = "blocking-schedule";
+                sContextName = schedule.name;
+            }
+            else
+            {
+                sBlockingSource = "focus-mode";
+                sContextName = sFocusModeName;
+            }
+
+            var parts = new List<string>
+            {
+                "\"triggerType\":" + JsonConvert.SerializeObject(bIsApp ? "app" : "url"),
+                "\"blockingSource\":" + JsonConvert.SerializeObject(sBlockingSource),
+                "\"focusContextName\":" + JsonConvert.SerializeObject(sContextName ?? ""),
+                "\"bearMode\":" + JsonConvert.SerializeObject(appSettings.nFocusBearMode == 1 ? "cuddly" : "grizzly"),
+                "\"aiCheckEnabled\":" + JsonConvert.SerializeObject(bAICheckEnabled),
+            };
+
+            if (bIsApp)
+            {
+                parts.Add("\"blockedApp\":" + JsonConvert.SerializeObject(sActiveAppName));
+            }
+            else
+            {
+                TryGetHost(sActiveURL, out string sHost);
+                parts.Add("\"blockedHost\":" + JsonConvert.SerializeObject(sHost));
+            }
+
+            if (xAiProbability.HasValue)
+            {
+                parts.Add("\"aiProbability\":" + xAiProbability.Value.ToString("0.###", CultureInfo.InvariantCulture));
+            }
+
+            if (!string.IsNullOrEmpty(appSettings.sChatGPTReasonForCurrentURL))
+            {
+                parts.Add("\"aiReason\":" + JsonConvert.SerializeObject(appSettings.sChatGPTReasonForCurrentURL));
+            }
+
+            return string.Join(",", parts);
         }
 
         public void ShowGentleBlockWindowAndStartTimer(IntPtr hWnd, string sFocusModeTitle, string sAppName, string sURL = "", string sIntention = "", string sTabTitle = "")
@@ -392,9 +458,12 @@ namespace Focus_Bear.Focus
 
                 CommandManager.InvalidateRequerySuggested();
 
+                //Analytics: no AI check applies here (grizzly mode / AI off / AI off for this schedule or
+                //teacher session), so this block popup is shown to the user unconditionally - record it.
+                appSettings.CapturePostHog("block-popup-shown", BuildBlockPopupMetadata(false));
 
                 appSettings.ShowBlurWindow(HWND);
-                this.Show(); //Will show this window 
+                this.Show(); //Will show this window
                 dispatcherTimer.Start();
                 CommandManager.InvalidateRequerySuggested();
             }
@@ -474,7 +543,7 @@ namespace Focus_Bear.Focus
                             {
                                 //AI says the site is aligned with the focus session - allow it silently
                                 appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
-                                appSettings.CapturePostHog("block-popup-allow-automatically");
+                                appSettings.CapturePostHog("block-popup-allow-automatically", BuildBlockPopupMetadata(true, xProbability));
 
                                 //Reflect the aligned verdict in the focus-progress popup: productive icon + reason tooltip.
                                 FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sFullURLForBlockedPage] = new Dictionary<string, object>
@@ -600,7 +669,7 @@ namespace Focus_Bear.Focus
 
                                 appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
 
-                                appSettings.CapturePostHog("block-popup-allow-automatically");
+                                appSettings.CapturePostHog("block-popup-allow-automatically", BuildBlockPopupMetadata(true, xProbability));
 
                                 sCurrentTabTitle = sCurrentTabTitle.Replace(" - Google Chrome", "");
                                 sCurrentTabTitle = sCurrentTabTitle.Replace(" — Mozilla Firefox", "");
@@ -639,6 +708,14 @@ namespace Focus_Bear.Focus
                                     Hide();
                                     return;
                                 }
+
+                                //Analytics: URL counterpart of ShowDistractingCuddlyPopup's "block-popup-shown" -
+                                //this branch is its own un-refactored copy of that flow (ask for goal/task,
+                                //convince AI, suggested task) rather than calling the shared method, so it needs
+                                //its own call. Past both early-return guards above, so this only fires when a
+                                //popup is genuinely about to be shown.
+                                appSettings.CapturePostHog("block-popup-shown", BuildBlockPopupMetadata(true, xProbability));
+
                                 if (appSettings.sCurrentTaskPlayingInToDoPlayer.Length == 0 && appSettings.sRunningFocusModeIntention.Length == 0)
                                 {
                                     //Mean there is no task and no intention
@@ -911,7 +988,7 @@ namespace Focus_Bear.Focus
                         {
                             //AI says the app is aligned with the focus session - allow it silently.
                             appSettings.TemporaryAllowedAppsGentleBlock.Add(new DistractingURL(sAppKey, true));
-                            appSettings.CapturePostHog("block-popup-allow-automatically");
+                            appSettings.CapturePostHog("block-popup-allow-automatically", BuildBlockPopupMetadata(true, xProbability));
 
                             FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sAppKey] = new Dictionary<string, object>
                             {
@@ -1025,16 +1102,23 @@ namespace Focus_Bear.Focus
                 appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
         }
 
-        // Shared cuddly "this is distracting" popup flow, used by BOTH the URL (CheckWithChatGPT) and the app
-        // (CheckWithChatGPTForApp) checks so they behave identically: ask for a goal/task when none is set,
-        // let the user convince the AI, or set/pick a suggested task. The only difference is the identity
-        // (URL vs app), which drives the convince-comparison, temporary-access target and recheck.
+        // Cuddly "this is distracting" popup flow for the APP check (CheckWithChatGPTForApp): ask for a
+        // goal/task when none is set, let the user convince the AI, or set/pick a suggested task.
+        // NOTE: despite the name, this is not actually shared with the URL check - CheckWithChatGPT has its
+        // own separate, un-refactored copy of this same flow inline (search "block-popup-shown" there);
+        // keep both in sync (and their "block-popup-shown" analytics calls) until they're unified.
         private void ShowDistractingCuddlyPopup(double xProbability)
         {
             //The app AI check is async - if the focus session ended while it was in flight, don't pop the
             //distracting/goal-task UI over the focus-end screen.
             if (SuppressPopupIfBlockingEnded())
                 return;
+
+            //Analytics: the AI came back with a distracting verdict, so - whichever branch below actually
+            //renders (ask for a goal/task, the convince-AI dialog, or the main decision screen) - the user
+            //is about to see a block popup. Includes the AI's probability/reason for this verdict, matching
+            //what the auto-allow events already record.
+            appSettings.CapturePostHog("block-popup-shown", BuildBlockPopupMetadata(true, xProbability));
 
             string identity = IsAppBlocking() ? sActiveAppName : sActiveURL;
 
