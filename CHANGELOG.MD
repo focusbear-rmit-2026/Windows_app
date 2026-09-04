@@ -242,3 +242,10 @@
 - Several onboarding screens improved: a "Select / Deselect all" option for the suggested-websites and blocked-websites lists, and default suggested apps to block (News, Movies & TV, Solitaire).
 - Fixed several crashes: starting a focus session could fail if the alignment-threshold dropdown had nothing selected, playing focus music could occasionally crash during a rare timing conflict, and changing your Windows theme could crash the login/splash screen.
 - Internal: CI/automated test builds no longer send analytics events, keeping test runs out of the real usage data.
+
+#v3.0.249
+- Fixed the gentle-block popup blocking you when the AI URL check fails to respond — it now fails open (allows the page) instead of showing a "could not be verified" message, matching how a failed check is already handled outside cuddly mode #1501.
+- Redesigned the Teacher Mode class-session invite as a two-screen card matching the Mac app: allowed-site tags, a required decline reason, and a hold-for-15-seconds decline button instead of a plain Yes/No prompt #1502.
+- The class-session heartbeat now reports idle time and your live focus-alignment score, so a teacher's report can show Engagement and Site-relevance #1504.
+- Fixed the gentle-block analytics event recording every AI check as a "shown" popup, even when the AI silently auto-allowed the page and nothing was ever shown to you - it's now only recorded when the popup genuinely appears.
+- Fixed a crash in the background settings sync that could silently stop several settings (including a saved password) from applying whenever the synced data included a blank password field - this was the cause of "pause strict blocking schedule" incorrectly asking you to set a password when one was already set #1483.
