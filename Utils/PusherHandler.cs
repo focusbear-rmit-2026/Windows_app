@@ -90,7 +90,20 @@ namespace Focus_Bear.Utils
             {
                 LogWriter.LogWrite("Pusher settings-updated - Restart app now for settings to take Effect!");
 
-                ((App)(Application.Current)).RestartApp();
+                // Same alert-then-restart pattern as ValidateSettingsChange() (App.xaml.cs) - this event
+                // previously went straight to RestartApp(), which shuts down with no warning at all, so a
+                // settings edit on another device (e.g. saving a habit on mobile) looked like the Windows
+                // app had just crashed (#1509). Auto-closes after 5s so the restart isn't stuck waiting on
+                // a click if the user isn't at the keyboard - they can still dismiss it early instead.
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["common"]["settingsChangedText"].ToString(), bAutoClose: true, nAutoCloseSeconds: 5);
+                    msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                    msg.ShowDialog();
+
+                    appSettings.bRestartAppNeeded = true;
+                    Application.Current.Shutdown(0);
+                });
             }
             else if (eventName == "blocking-schedule-updated")
             {
