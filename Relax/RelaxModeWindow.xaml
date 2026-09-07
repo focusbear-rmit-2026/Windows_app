@@ -33,7 +33,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox  IsChecked="{Binding Path=IsItemChecked}" AutomationProperties.AutomationId="chk0"/>
+                            <CheckBox  IsChecked="{Binding Path=IsItemChecked}" AutomationProperties.AutomationId="{Binding sURL, StringFormat=chkRelaxUrl_{0}}"/>
                             <TextBlock Grid.Column="0" Text="{Binding sURL, StringFormat=\{0\}}" Foreground="Blue"  FontSize="15" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" Padding="0,-2,0,0" HorizontalAlignment="Left"/>
                         </StackPanel>
                     </Grid>

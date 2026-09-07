@@ -631,7 +631,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Button Style="{StaticResource PlainRowButton}" Tag="{Binding Id}"
-                                                    AutomationProperties.AutomationId="btnDayPlanTaskRow"
+                                                    AutomationProperties.AutomationId="{Binding Title, StringFormat=btnDayPlanTaskRow_{0}}"
                                                     Click="DayPlanTask_Click" ToolTip="Mark done">
                                                 <StackPanel Orientation="Horizontal" Margin="0,3">
                                                     <Ellipse Width="14" Height="14" Stroke="{DynamicResource TrayChevronColor}"

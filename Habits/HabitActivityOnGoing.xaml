@@ -42,22 +42,22 @@
                  theme-independent. -->
             <StackPanel x:Name="ChecklistVideoTabs" Grid.Row="0" Orientation="Horizontal"
                         HorizontalAlignment="Center" Margin="0,14,0,0" Visibility="Collapsed">
-                <Border x:Name="btnTabVideo" AutomationProperties.AutomationId="btnTabVideo" MouseLeftButtonUp="btnTabVideo_Click" Cursor="Hand"
+                <Border x:Name="btnTabVideo" MouseLeftButtonUp="btnTabVideo_Click" Cursor="Hand"
                         CornerRadius="17" Height="34" MinWidth="120" Margin="5,0"
                         Background="#e88800" BorderBrush="#e88800" BorderThickness="1">
-                    <TextBlock x:Name="btnTabVideoTXT" Text="Video" FontSize="15" FontWeight="SemiBold"
+                    <TextBlock x:Name="btnTabVideoTXT" AutomationProperties.AutomationId="btnTabVideo" Text="Video" FontSize="15" FontWeight="SemiBold"
                                Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16,0"/>
                 </Border>
-                <Border x:Name="btnTabChecklist" AutomationProperties.AutomationId="btnTabChecklist" MouseLeftButtonUp="btnTabChecklist_Click" Cursor="Hand"
+                <Border x:Name="btnTabChecklist" MouseLeftButtonUp="btnTabChecklist_Click" Cursor="Hand"
                         CornerRadius="17" Height="34" MinWidth="120" Margin="5,0"
                         Background="Transparent" BorderBrush="#e88800" BorderThickness="1">
-                    <TextBlock x:Name="btnTabChecklistTXT" Text="Checklist" FontSize="15" FontWeight="SemiBold"
+                    <TextBlock x:Name="btnTabChecklistTXT" AutomationProperties.AutomationId="btnTabChecklist" Text="Checklist" FontSize="15" FontWeight="SemiBold"
                                Foreground="#e88800" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16,0"/>
                 </Border>
-                <Border x:Name="btnTabInstructions" AutomationProperties.AutomationId="btnTabInstructions" MouseLeftButtonUp="btnTabInstructions_Click" Cursor="Hand"
+                <Border x:Name="btnTabInstructions" MouseLeftButtonUp="btnTabInstructions_Click" Cursor="Hand"
                         CornerRadius="17" Height="34" MinWidth="120" Margin="5,0"
                         Background="Transparent" BorderBrush="#e88800" BorderThickness="1">
-                    <TextBlock x:Name="btnTabInstructionsTXT" Text="Instructions" FontSize="15" FontWeight="SemiBold"
+                    <TextBlock x:Name="btnTabInstructionsTXT" AutomationProperties.AutomationId="btnTabInstructions" Text="Instructions" FontSize="15" FontWeight="SemiBold"
                                Foreground="#e88800" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16,0"/>
                 </Border>
             </StackPanel>
@@ -79,7 +79,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Margin="24,10,24,10"
-                                          AutomationProperties.AutomationId="chkChecklistItem"
+                                          AutomationProperties.AutomationId="{Binding Text, StringFormat=chkChecklistItem_{0}}"
                                           VerticalContentAlignment="Center" Cursor="Hand">
                                     <emoji:TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="18"
                                                      Foreground="{DynamicResource ForegroundColor}" Margin="10,0,0,0"/>

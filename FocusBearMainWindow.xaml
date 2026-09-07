@@ -70,6 +70,8 @@
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                 <!-- Bind TreeViewItem.IsEnabled to NavLeaf.IsEnabled -->
                                 <Setter Property="IsEnabled" Value="{Binding IsEnabled}"/>
+                                <!-- Id on the container: a Border gets no AutomationPeer, so an id there never reaches UIA. -->
+                                <Setter Property="AutomationProperties.AutomationId" Value="{Binding ButtonType, StringFormat=navItem_{0}}"/>
                                 
                                 <!-- Custom template with working right-side expander -->
                                 <Setter Property="Template">
@@ -264,7 +266,6 @@
                                                 HorizontalAlignment="Stretch"
                                                 ToolTip="{Binding Title}"
                                                 ToolTipService.InitialShowDelay="100"
-                                                AutomationProperties.AutomationId="{Binding ButtonType, StringFormat=navItem_{0}}"
                                                 MouseLeftButtonDown="NavLeaf_Click" >
                                                 <Border.Style>
                                                     <Style TargetType="Border">

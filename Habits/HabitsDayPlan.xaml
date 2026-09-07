@@ -86,7 +86,7 @@
                                Foreground="{DynamicResource ForegroundGrey}"/>
                     <!-- Borderless: on hover only a soft rounded rectangle appears (like the back
                          button), not the default square button chrome. -->
-                    <Button Grid.Column="1" x:Name="BtnTasksCog" Content="⚙" FontSize="15" Cursor="Hand"
+                    <Button Grid.Column="1" x:Name="BtnTasksCog" AutomationProperties.AutomationId="BtnTasksCog" Content="⚙" FontSize="15" Cursor="Hand"
                             Foreground="{DynamicResource ForegroundGrey}"
                             ToolTip="Task settings" Click="BtnTasksCog_Click">
                         <Button.Template>
@@ -111,10 +111,10 @@
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" x:Name="BtnAddNew" Content="Add task" Height="30"
+                    <Button Grid.Column="0" x:Name="BtnAddNew" AutomationProperties.AutomationId="BtnAddNew" Content="Add task" Height="30"
                             Style="{StaticResource BtnStyleClearOrangeBordered}"
                             Click="BtnAddNew_Click"/>
-                    <Button Grid.Column="2" x:Name="BtnAddFromList" Content="From to-do list" Height="30"
+                    <Button Grid.Column="2" x:Name="BtnAddFromList" AutomationProperties.AutomationId="BtnAddFromList" Content="From to-do list" Height="30"
                             Style="{StaticResource BtnStyleClearOrangeBordered}"
                             Click="BtnAddFromList_Click"/>
                 </Grid>
