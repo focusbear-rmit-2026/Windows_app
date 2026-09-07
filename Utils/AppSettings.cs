@@ -2423,7 +2423,7 @@ namespace Focus_Bear.Utils
                         //public List<string> arrAllowedApps; //wont use this as this is for mac apps
                         ObservableCollection<string> arrAllowedUrls = new ObservableCollection<string>();
                         arrAllowedUrls.Add("meet.google.com");
-                        arrAllowedUrls.Add("meet.zoho.com");
+                        arrAllowedUrls.Add("meeting.zoho.*"); // Zoho Meeting rooms live on meeting.zoho.<region> (.com, .in, .eu, ...), not meet.zoho.com (Mac-App#2388)
                         arrAllowedUrls.Add("focusmate.com");
                         arrAllowedUrls.Add("shimmer.care");
                         arrAllowedUrls.Add("webex.com");
