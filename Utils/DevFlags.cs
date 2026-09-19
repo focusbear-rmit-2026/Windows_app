@@ -19,12 +19,18 @@ namespace Focus_Bear.Utils
         private const string EnvVarPrefix = "FOCUSBEAR_";
 
         private static readonly Lazy<bool> _fastTimers = new Lazy<bool>(() => ReadFlag("FAST_TIMERS"));
-
+        private static readonly Lazy<bool> _disagreementEval =
+           new Lazy<bool>(() => ReadFlag("DISAGREEMENT_EVAL"));
         /// <summary>
         /// When true, countdown timers (postpone, breaks, habit wrap-ups, etc.) use compressed,
         /// seconds-based intervals so they can be tested without waiting the full real duration.
         /// </summary>
         public static bool FastTimers => _fastTimers.Value;
+        /// <summary>
+        /// Enables the developer-only distraction-classifier disagreement evaluator.
+        /// Disabled by default and must be explicitly enabled locally.
+        /// </summary>
+        public static bool DisagreementEval => _disagreementEval.Value;
 
         private static bool ReadFlag(string key)
         {

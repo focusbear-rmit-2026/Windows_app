@@ -432,10 +432,62 @@ namespace Focus_Bear.Focus
                         }
                     }));
 
+                    string shadowAction = "";
+                    string shadowConfidence = "";
+                    string shadowTier = "";
+                    string shadowFallbackRequired = "";
+                    // Shadow-mode check with the local distraction classifier.
+                    // This does NOT change the current blocking decision.
+                    try
+                    {
+                        RelevanceModelClient relevanceClient = new RelevanceModelClient();
 
+                        JObject relevanceResult = await relevanceClient.Predict(
+                            appSettings.sRunningFocusModeIntention,
+                            sCurrentTabTitle,
+                            sActiveURL
+                        );
+
+                        string action = relevanceResult["action"]?.ToString() ?? "";
+                        string confidence = relevanceResult["confidence"]?.ToString() ?? "";
+                        string tier = relevanceResult["tier"]?.ToString() ?? "";
+                        string fallbackRequired =
+                            relevanceResult["llm_fallback_required"]?.ToString() ?? "";
+
+                        shadowAction = action;
+                        shadowConfidence = confidence;
+                        shadowTier = tier;
+                        shadowFallbackRequired = fallbackRequired;
+
+                        LogWriter.LogWrite(
+                            "RelevanceModel SHADOW - URL=" + sActiveURL +
+                            " | Action=" + action +
+                            " | Tier=" + tier +
+                            " | Confidence=" + confidence +
+                            " | LLMFallback=" + fallbackRequired
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        // Shadow mode must never interrupt the existing Focus Bear behaviour.
+                        LogWriter.LogWrite(
+                            "RelevanceModel SHADOW failed - " + ex.Message
+                        );
+                    }
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var nResponse = await client.ChatGPTIsURLSafe(sActiveURL, sCurrentTabTitle, "", appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
                     double xProbability = double.Parse(nResponse.ToString());
+                    
+                    bool backendAllows = xProbability >= 0.80;
+                    bool shadowAllows = shadowAction.Equals(
+                       "Allow",
+                        StringComparison.OrdinalIgnoreCase
+                    );
+
+                    bool isDisagreement =
+                        !string.IsNullOrEmpty(shadowAction) &&
+                        xProbability >= 0 &&
+                        (backendAllows != shadowAllows);
 
                     if (CurrentURLBeingProcessedWithChatGPTAPI != sActiveURL) //If user have moved to another url, do not do anything
                         return;
@@ -461,6 +513,22 @@ namespace Focus_Bear.Focus
                     {
                         Console.WriteLine("csvfocusAIDecisions write error: " + ex.Message);
                     }
+                    
+                    // Record classifier/backend disagreements for shadow-mode analysis.
+                    if (isDisagreement)
+                    {
+                            LogWriter.LogWrite(
+                                    "RelevanceModel DISAGREEMENT - URL=" + sActiveURL +
+                                    " | ShadowAction=" + shadowAction +
+                                    " | ShadowTier=" + shadowTier +
+                                    " | ShadowConfidence=" + shadowConfidence +
+                                    " | ShadowLLMFallback=" + shadowFallbackRequired +
+                                    " | BackendProbability=" + xProbability +
+                                    " | BackendAction=" + (backendAllows ? "Allow" : "Block")
+                            );
+                    }
+
+
 
                     // Non-cuddly (grizzly) / Teacher Mode: no gentle popup and no questions asked. Decide from
                     // the AI verdict alone - an aligned site is allowed silently; anything else (distracting, or

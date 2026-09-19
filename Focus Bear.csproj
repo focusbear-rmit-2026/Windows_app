@@ -365,6 +365,8 @@
     <Compile Include="AccountabilityBuddy\BuddyDetails.cs" />
     <Compile Include="API\Authentication.cs" />
     <Compile Include="API\FocusBearAPIClient.cs" />
+    <Compile Include="API\RelevanceModelClient.cs" />
+    <Compile Include="DistractionClassifierEvaluation\DisagreementEvaluator.cs" />
     <Compile Include="AudhdResults\AudhdResultsWindow.xaml.cs">
       <DependentUpon>AudhdResultsWindow.xaml</DependentUpon>
     </Compile>

@@ -140,6 +140,9 @@ namespace Focus_Bear
         {
             //Always get the last active app name when the menu is clicked and ignore Focus Bear
             string sAppName = GetLastActiveAppName(hwnd);
+            
+            if (sAppName == "chrome.exe")
+                LogWriter.LogWrite("DEBUG Chrome WinEvent - eventType=" + eventType + " hwnd=" + hwnd);
 
             if (string.IsNullOrEmpty(sAppName))
                 return;
@@ -282,6 +285,9 @@ namespace Focus_Bear
                     StringBuilder ClassName = new StringBuilder(256);
                     //Get the window class name
                     nRet = GetClassName(hwnd, ClassName, ClassName.Capacity);
+
+                    LogWriter.LogWrite("DEBUG Chrome ClassName - nRet=" + nRet + " class=" + ClassName.ToString() + " eventType=" + eventType);
+                    
                     // Vivaldi fires events from a child hwnd with no class name, so we walk up to the root window
                     if (nRet == 0 && appSettings.sLastActiveAppName == "vivaldi.exe")
                     {
@@ -1975,6 +1981,13 @@ namespace Focus_Bear
             // link that launched the app from cold (e.g. AuDHD advanced results), so it lands on top of a
             // ready UI rather than during loading.
             ProcessPendingColdStartDeepLink();
+            if (DevFlags.DisagreementEval)
+            {
+                await DisagreementEvaluator.RunFiveExampleTestAsync(
+                    appSettings.sRunningFocusModeName,
+                    appSettings.sLangCode
+                );
+            }
         }
 
         // Teacher Mode (issue #1343): true when pressing Focus should start a class (teacher) session
