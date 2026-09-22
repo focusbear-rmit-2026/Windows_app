@@ -33,10 +33,12 @@ namespace Focus_Bear.Tour
 
             try
             {
-                btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonFinishText"].ToString();
+                btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonGetStartedText"].ToString();
                 Heading.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["title"].ToString();
 
                 Description.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["descriptionSystemTray"].ToString();
+
+                FBMenu.Source = GetLocalizedImage("fb-tray");
 
                 string sStep = appSettings.ConfigFileStrings["menuTourVcInfo"]["indexText"].ToString();
                 sStep = sStep.Replace("<CURRENTINDEX>", (nStep + 2).ToString()); //1
@@ -47,7 +49,34 @@ namespace Focus_Bear.Tour
             {
                 LogWriter.LogWrite("FocusBearMenuTour setting texts ex - " + ex.Message);
             }
-            
+
+        }
+
+        // Loads Images/{imageName}-{langCode}.png, falling back to Images/{imageName}.png
+        // when there is no image for the current app language yet.
+        private BitmapImage GetLocalizedImage(string imageName)
+        {
+            string folder = "Images";
+            string extension = ".png";
+            string lang = appSettings.sLangCode;
+
+            string localizedPath = $"pack://application:,,,/Focus Bear;component/{folder}/{imageName}-{lang}{extension}";
+            try
+            {
+                var bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                bmp.CreateOptions = BitmapCreateOptions.None;
+                bmp.UriSource = new Uri(localizedPath);
+                bmp.EndInit();
+                return bmp;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("FocusBearMenuTour.GetLocalizedImage - " + ex.Message);
+                string defaultPath = $"pack://application:,,,/Focus Bear;component/{folder}/{imageName}{extension}";
+                return new BitmapImage(new Uri(defaultPath));
+            }
         }
 
         void SetTexts()
@@ -89,9 +118,49 @@ namespace Focus_Bear.Tour
         }
         private void btnNext_Click(object sender, RoutedEventArgs e)
         {
-            appSettings.bMenuOpeningFirstTime = true;
-            Close();
-            return;
+            nStep++;
+            if (nStep == 0) //we started with -1 for system tray info
+            {
+                // Generic intro for the new menu - points at the "Focus Bear" header
+                // row (top of the menu) instead of the middle of the image, since it
+                // isn't calling out a specific row.
+                FBMenu.Source = GetLocalizedImage("fbmenu");
+
+                btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonNextText"].ToString();
+                SetTexts();
+                GridPopup.Margin = new Thickness(0, 0, 370, 350);
+                Arrow.Margin = new Thickness(0, 0, 350, 405);
+
+                appSettings.CapturePostHog("menu_tour_next_clicked");
+            }
+            else if (nStep == 1)
+            {
+                // Points at the settings gear icon (top-right of the new tray menu),
+                // not the old "Preferences" row - margins are a first estimate from the
+                // screenshot proportions, unverified against the running app.
+                btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonNextText"].ToString();
+                SetTexts();
+                GridPopup.Margin = new Thickness(0, 0, 370, 350);
+                Arrow.Margin = new Thickness(0, 0, 350, 405);
+
+                appSettings.CapturePostHog("menu_tour_next_clicked");
+            }
+            else if (nStep == 2)
+            {
+                // Points at "Start Focus Session", now the top CTA button instead of a
+                // lower row - margins are a first estimate, unverified against the running app.
+                btnNextTXT.Text = appSettings.ConfigFileStrings["menuTourVcInfo"]["buttonFinishText"].ToString();
+                SetTexts();
+                GridPopup.Margin = new Thickness(0, 0, 370, 300);
+                Arrow.Margin = new Thickness(0, 0, 350, 340);
+
+                appSettings.CapturePostHog("menu_tour_next_clicked");
+            }
+            else
+            {
+                appSettings.bMenuOpeningFirstTime = true;
+                Close();
+            }
         }
     }
 }

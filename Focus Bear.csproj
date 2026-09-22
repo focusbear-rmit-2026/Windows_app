@@ -1548,6 +1548,7 @@
     <Resource Include="Images\close.png" />
     <Resource Include="Images\FocusBear-Geek.png" />
     <Resource Include="Images\fb-tray.png" />
+    <Resource Include="Images\fb-tray-es.png" />
     <Resource Include="Images\notProductive_icon.png" />
     <Resource Include="Images\productive_icon.png" />
     <Resource Include="Images\blocked_list.png" />
@@ -1558,6 +1559,7 @@
     <Resource Include="Images\expand.png" />
     <Resource Include="Images\edit-habits.png" />
     <Resource Include="Images\fbmenu.png" />
+    <Resource Include="Images\fbmenu-es.png" />
     <Resource Include="Images\FocusTips\ai-block.png" />
     <Resource Include="Images\forward.png" />
     <Resource Include="Images\img_browsers.png" />
