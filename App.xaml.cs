@@ -78,12 +78,12 @@ namespace Focus_Bear
         // focusbear:// deep link for the gated advanced AuDHD results (Focus-Bear/online-tests#57).
         // Incoming: focusbear://view-audhd-results?test-code=…  →  loaded as the results page below.
         // Note the split: 'view-audhd-results' is the custom-scheme host only; the web results
-        // page lives at the pages.dev test app under /view-results (view-audhd-results 404s as a
+        // page lives at the pages.dev test app under /resume (view-audhd-results 404s as a
         // web path). The base host may move to a custom domain later — keep it in this constant.
         private const string DeepLinkScheme = "focusbear://";
         private const string DeepLinkAudhdHost = "view-audhd-results";
         private const string DeepLinkTestCodeParam = "test-code";
-        private const string AudhdResultsBaseUrl = "https://audhdtest-focusbear.pages.dev/view-results?test-code=";
+        private const string AudhdResultsBaseUrl = "https://audhdtest-focusbear.pages.dev/resume?test-code=";
 
         // Set when the app is launched via a focusbear:// deep link; opened once startup is ready
         // (cold start) or forwarded across the single-instance boundary (warm start).
@@ -714,48 +714,94 @@ namespace Focus_Bear
         // ONCE on the first launch and open the results — otherwise a new downloader
         // lands on the home screen and never sees their results. A marker file gates it
         // to the first launch so a returning user's clipboard is never re-scanned.
-        private void CheckAudhdClipboardOnFirstLaunch()
+        //
+        // onContinue (optional) is what should happen next: on a brand-new install this is
+        // the welcome/onboarding flow, which must wait until the user has closed the results
+        // window (results first, then onboarding). It's invoked exactly once — right away when
+        // there's nothing to show (already checked / no code on the clipboard / window failed
+        // to open), otherwise when the results window closes. Callers that just want the
+        // legacy fire-and-forget behaviour (post-login path) pass nothing.
+        private void CheckAudhdClipboardOnFirstLaunch(Action onContinue = null)
         {
+            Action continueOnce = null;
+            if (onContinue != null)
+            {
+                bool bContinued = false;
+                continueOnce = () =>
+                {
+                    if (bContinued)
+                        return;
+                    bContinued = true;
+                    onContinue();
+                };
+            }
+
             try
             {
                 if (File.Exists(AudhdClipboardCheckedFilePath))
+                {
+                    continueOnce?.Invoke();
                     return;
+                }
                 File.WriteAllText(AudhdClipboardCheckedFilePath, DateTime.UtcNow.ToString("o"));
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch flag ex - " + ex.Message);
+                continueOnce?.Invoke();
                 return;
             }
 
             // Clipboard access needs the STA/UI thread; run once the app is idle.
             Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, (Action)(() =>
             {
+                AudhdResults.AudhdResultsWindow wndResults = null;
                 try
                 {
                     string clip = System.Windows.Clipboard.GetText();
-                    if (string.IsNullOrWhiteSpace(clip))
-                        return;
-                    var match = System.Text.RegularExpressions.Regex.Match(
-                        clip, "BEAR-[A-Z0-9]+(-[A-Z0-9]+)?",
-                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                    if (!match.Success)
-                        return;
+                    if (!string.IsNullOrWhiteSpace(clip))
+                    {
+                        var match = System.Text.RegularExpressions.Regex.Match(
+                            clip, "BEAR-[A-Z0-9]+(-[A-Z0-9]+)?",
+                            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        if (match.Success)
+                        {
+                            // Stitch the web-quiz PostHog identity onto this app's person, same as the
+                            // focusbear:// deep-link path in HandleDeepLink — this clipboard fallback is
+                            // the path most downloaders actually take (deep link is lost across install),
+                            // so skipping it here would miss most of the quiz -> download -> sign-up stitch.
+                            _ = new FocusBearAPIClient().PostHogIdentify(match.Value);
 
-                    // Stitch the web-quiz PostHog identity onto this app's person, same as the
-                    // focusbear:// deep-link path in HandleDeepLink — this clipboard fallback is
-                    // the path most downloaders actually take (deep link is lost across install),
-                    // so skipping it here would miss most of the quiz -> download -> sign-up stitch.
-                    _ = new FocusBearAPIClient().PostHogIdentify(match.Value);
-
-                    string resultsUrl = AudhdResultsBaseUrl + Uri.EscapeDataString(match.Value);
-                    LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch - opening " + resultsUrl);
-                    OpenAudhdResultsWindow(resultsUrl);
+                            string resultsUrl = AudhdResultsBaseUrl + Uri.EscapeDataString(match.Value);
+                            LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch - opening " + resultsUrl);
+                            wndResults = OpenAudhdResultsWindow(resultsUrl);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch ex - " + ex.Message);
                 }
+
+                if (continueOnce == null)
+                    return;
+
+                if (wndResults == null)
+                {
+                    // Nothing to show (or it couldn't be shown) - carry on straight away.
+                    continueOnce();
+                    return;
+                }
+
+                // Results are up: hold the next step until the user closes them. Defer past the
+                // Closed handler so the results window has fully gone before the next screen
+                // (main window / onboarding) is brought to the front.
+                LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch - holding next step until results window closes");
+                wndResults.Closed += (s, e) =>
+                {
+                    LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch - results window closed, continuing");
+                    Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, continueOnce);
+                };
             }));
         }
 
@@ -883,7 +929,9 @@ namespace Focus_Bear
             return null;
         }
 
-        private void OpenAudhdResultsWindow(string resultsUrl)
+        // Returns the results window that is now showing (new or re-used), or null if it
+        // couldn't be opened - callers that need to wait for it to close hook its Closed event.
+        private AudhdResults.AudhdResultsWindow OpenAudhdResultsWindow(string resultsUrl)
         {
             try
             {
@@ -893,7 +941,7 @@ namespace Focus_Bear
                     _audhdResultsWindow.Topmost = true; //keep above other Focus Bear windows
                     _audhdResultsWindow.Activate();
                     appSettings.CapturePostHog("audhd-results-window-shown");
-                    return;
+                    return _audhdResultsWindow;
                 }
 
                 _audhdResultsWindow = new AudhdResults.AudhdResultsWindow(resultsUrl);
@@ -909,10 +957,12 @@ namespace Focus_Bear
                 _audhdResultsWindow.Show();
                 _audhdResultsWindow.Activate();
                 appSettings.CapturePostHog("audhd-results-window-shown");
+                return _audhdResultsWindow;
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("OpenAudhdResultsWindow ex - " + ex.Message);
+                return null;
             }
         }
 
@@ -1058,7 +1108,10 @@ namespace Focus_Bear
                 engine.GetData();
                 bAppExtracted = true;
 
-                ShowWelcomeAbordOnBoradingFlow();
+                // Brand-new install: if the web AuDHD test's retest code is on the clipboard, show the
+                // results FIRST (before the welcome screen / account creation) and only start the
+                // onboarding once the user has closed them. With no code this goes straight to onboarding.
+                CheckAudhdClipboardOnFirstLaunch(ShowWelcomeAbordOnBoradingFlow);
             }
             else
             {
@@ -2062,6 +2115,9 @@ namespace Focus_Bear
             // link that launched the app from cold (e.g. AuDHD advanced results), so it lands on top of a
             // ready UI rather than during loading.
             ProcessPendingColdStartDeepLink();
+            // On a brand-new install this already ran (results-before-onboarding) in Application_Startup
+            // and the marker file makes this a no-op; it still covers an existing/logged-in user whose
+            // first launch of a build with this check is post-login.
             CheckAudhdClipboardOnFirstLaunch();
         }
 
