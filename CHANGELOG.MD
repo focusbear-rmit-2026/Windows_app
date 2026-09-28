@@ -249,3 +249,11 @@
 - The class-session heartbeat now reports idle time and your live focus-alignment score, so a teacher's report can show Engagement and Site-relevance #1504.
 - Fixed the gentle-block analytics event recording every AI check as a "shown" popup, even when the AI silently auto-allowed the page and nothing was ever shown to you - it's now only recorded when the popup genuinely appears.
 - Fixed a crash in the background settings sync that could silently stop several settings (including a saved password) from applying whenever the synced data included a blank password field - this was the cause of "pause strict blocking schedule" incorrectly asking you to set a password when one was already set #1483.
+
+#v3.0.250
+- Fresh installs from the public AuDHD web test now open your results before the welcome/onboarding screens (onboarding starts once you close them), and the results link goes through the web app's /resume route so a code for a test you haven't taken yet starts the test instead of showing an empty results page #1576 #1520.
+- When your settings are changed on another device (e.g. saving a habit on mobile), the Windows app now shows a short "settings changed, restarting" alert before it restarts instead of closing with no warning, which looked like a crash #1509.
+- Fixed the micro-break countdown on the Breaks view appearing frozen - it now ticks down every second while the view is open #1030 #1127.
+- Fixed the tray menu tour: the first popup image is now in Spanish when the app language is Spanish, and the full 4-step tour (menu overview, Settings gear, Start Focus Session) is restored with screenshots and text updated for the current menu design #489.
+- The default "Meetings" focus mode's Zoho entry now matches meeting.zoho.* so Zoho Meeting rooms on any regional domain (.com, .in, .eu, ...) are allowed, instead of only meet.zoho.com which never matched a live call #1511.
+- Internal: AutomationIds are now unique per row in checklist/task/checkbox lists and moved off Border/Grid elements so they're reachable by UI Automation for automated testing #1452 #1488.
