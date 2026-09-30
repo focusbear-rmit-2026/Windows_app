@@ -35,9 +35,14 @@ jobs:
         run: nuget restore "Focus Bear.sln"
 
       - name: Build solution
-        env:
-          FOCUSBEAR_OPENAI_API_KEY: ${{ secrets.FOCUSBEAR_OPENAI_API_KEY }}
         run: msbuild "Focus Bear.sln" /p:Configuration=Release /p:Platform="Any CPU" /m /v:minimal
+
+      # Runs even when the build fails so a committed key is still reported; the build output is
+      # scanned too, because a key baked in by MSBuild never appears in the source.
+      - name: Scan source and build output for OpenAI API keys
+        if: ${{ !cancelled() }}
+        shell: pwsh
+        run: ./.github/scripts/scan-for-openai-keys.ps1 -ExtraDirectories bin/Release
 
       # FocusBear.Core is deliberately WPF-free and multi-targeted, so these also run with
       # `dotnet test Core.Tests` on any developer machine, Windows or not. Here they run twice:

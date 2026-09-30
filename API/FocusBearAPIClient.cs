@@ -1,5 +1,6 @@
 ﻿
 using Focus_Bear.Models;
+using Focus_Bear.Services.VoiceCommand;
 using Focus_Bear.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -67,6 +68,10 @@ namespace Focus_Bear.API
         public static string DeleteAccountUrl { get { return "https://api.focusbear.io/user-data"; } }
 
         public static string OccupationSpecificRelevantSites { get { return "https://api.focusbear.io/user/generate-occupation-specific-relevant-sites"; } }
+
+        // Voice commands go through the backend so no OpenAI key ships in the app.
+        public static string VoiceTranscribe { get { return "https://api.focusbear.io/voice/transcribe"; } }
+        public static string VoiceIntent { get { return "https://api.focusbear.io/voice/intent"; } }
 
         public static string AllTasks { get { return "https://api.focusbear.io/to-do"; } }
 
@@ -5825,6 +5830,114 @@ namespace Focus_Bear.API
                 LogWriter.LogWrite("GetFocusModes Exception - " + ex.Message);
             }
             return 0;
+        }
+
+        // ── Voice commands ────────────────────────────────────────────────────
+        // Unlike the int-status calls above, these throw VoiceCommandException so the voice UI can
+        // tell the user why a command failed (offline, signed out, too long, rate-limited, failed).
+
+        // .NET Framework's HttpStatusCode has no members for these.
+        private const HttpStatusCode HttpStatusPayloadTooLarge = (HttpStatusCode)413;
+        private const HttpStatusCode HttpStatusTooManyRequests = (HttpStatusCode)429;
+
+        // A little above the backend's own route timeouts (60 s transcribe, 45 s intent), so the
+        // server's answer arrives before the client gives up.
+        private static readonly TimeSpan VoiceTranscribeTimeout = TimeSpan.FromSeconds(65);
+        private static readonly TimeSpan VoiceIntentTimeout = TimeSpan.FromSeconds(50);
+
+        private const string VoiceRecordingPartName = "file";
+        private const string VoiceRecordingContentType = "audio/wav";
+
+        internal Task<VoiceTranscription> TranscribeVoice(string wavFile)
+        {
+            var recording = new ByteArrayContent(File.ReadAllBytes(wavFile));
+            recording.Headers.ContentType = new MediaTypeHeaderValue(VoiceRecordingContentType);
+            var form = new MultipartFormDataContent();
+            form.Add(recording, VoiceRecordingPartName, Path.GetFileName(wavFile));
+            return SendVoiceRequest<VoiceTranscription>(VoiceTranscribe, form, VoiceTranscribeTimeout);
+        }
+
+        internal Task<IntentResponse> ClassifyVoiceIntent(VoiceIntentRequest request)
+        {
+            var body = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+            return SendVoiceRequest<IntentResponse>(VoiceIntent, body, VoiceIntentTimeout);
+        }
+
+        private async Task<T> SendVoiceRequest<T>(string url, HttpContent body, TimeSpan timeout) where T : class
+        {
+            using (body)
+            {
+                await EnsureVoiceSession();
+
+                string responseText;
+                HttpStatusCode status;
+                try
+                {
+                    using (HttpClient client = GetClientWithHeaders())
+                    {
+                        client.Timeout = timeout;
+                        using (HttpResponseMessage response = await client.PostAsync(url, body))
+                        {
+                            status = response.StatusCode;
+                            responseText = await response.Content.ReadAsStringAsync();
+                        }
+                    }
+                }
+                catch (TaskCanceledException ex)
+                {
+                    throw new VoiceCommandException(VoiceCommandFailure.TimedOut, "Voice request timed out: " + url, ex);
+                }
+                catch (HttpRequestException ex)
+                {
+                    throw new VoiceCommandException(VoiceCommandFailure.Offline, "Voice request failed to send: " + url, ex);
+                }
+
+                ThrowForVoiceErrorStatus(status, url);
+
+                T result = JsonConvert.DeserializeObject<T>(responseText);
+                if (result == null)
+                {
+                    throw new VoiceCommandException(VoiceCommandFailure.Failed, "Empty voice response from " + url);
+                }
+                return result;
+            }
+        }
+
+        private async Task EnsureVoiceSession()
+        {
+            if (!await IsInternetOn())
+            {
+                throw new VoiceCommandException(VoiceCommandFailure.Offline, "No internet connection for voice command");
+            }
+            if (!appSettings.ValidateTokenValidBeforeAPICall() && await RenewToken() == 0)
+            {
+                throw new VoiceCommandException(VoiceCommandFailure.NotSignedIn, "Access token could not be renewed for voice command");
+            }
+        }
+
+        // Branches on the status alone: the voice routes' error bodies have no stable shape (a 502
+        // is an HTML page, most others a bare string).
+        private static void ThrowForVoiceErrorStatus(HttpStatusCode status, string url)
+        {
+            if ((int)status >= 200 && (int)status < 300)
+            {
+                return;
+            }
+
+            string detail = "Voice request " + url + " returned " + (int)status;
+            LogWriter.LogWrite(detail);
+
+            switch (status)
+            {
+                case HttpStatusCode.Unauthorized:
+                    throw new VoiceCommandException(VoiceCommandFailure.NotSignedIn, detail);
+                case HttpStatusPayloadTooLarge:
+                    throw new VoiceCommandException(VoiceCommandFailure.TooLong, detail);
+                case HttpStatusTooManyRequests:
+                    throw new VoiceCommandException(VoiceCommandFailure.RateLimited, detail);
+                default:
+                    throw new VoiceCommandException(VoiceCommandFailure.Failed, detail);
+            }
         }
 
     }

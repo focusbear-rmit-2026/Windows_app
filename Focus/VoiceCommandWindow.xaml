@@ -77,28 +77,15 @@
                        TextAlignment="Center" HorizontalAlignment="Center"
                        Foreground="#2a9d3a" Visibility="Collapsed"/>
 
-            <!-- Buttons -->
+            <!-- Buttons: the app's orange styles (App.xaml), so hover is the app's pale orange rather than the
+                 default WPF chrome's light blue; the primary action sits on the right, as in the other popups. -->
             <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
-                <Button x:Name="btnPrimary" Content="Done" Click="btnPrimary_Click"
-                        MinWidth="110" Height="36" Margin="6,0" Cursor="Hand"
-                        FontSize="14" FontWeight="SemiBold" Foreground="White"
-                        BorderThickness="0" Background="#e88800">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="8"/>
-                        </Style>
-                    </Button.Resources>
-                </Button>
-                <Button x:Name="btnSecondary" Content="Cancel" Click="btnSecondary_Click"
-                        MinWidth="110" Height="36" Margin="6,0" Cursor="Hand"
-                        FontSize="14" FontWeight="SemiBold" Foreground="#e88800"
-                        BorderThickness="1" BorderBrush="#e88800" Background="Transparent">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="8"/>
-                        </Style>
-                    </Button.Resources>
-                </Button>
+                <Button x:Name="btnSecondary" Content="Cancel" Click="btnSecondary_Click" AutomationProperties.AutomationId="btnVoiceSecondary"
+                        Style="{StaticResource BtnStyleClearOrangeBordered}" Foreground="Black"
+                        MinWidth="110" Height="36" Margin="6,0" Cursor="Hand" FontSize="14" FontWeight="SemiBold"/>
+                <Button x:Name="btnPrimary" Content="Done" Click="btnPrimary_Click" AutomationProperties.AutomationId="btnVoicePrimary"
+                        Style="{StaticResource BtnStyleLightOrangeBordered}" Foreground="Black"
+                        MinWidth="110" Height="36" Margin="6,0" Cursor="Hand" FontSize="14" FontWeight="SemiBold"/>
             </StackPanel>
         </Grid>
     </Border>

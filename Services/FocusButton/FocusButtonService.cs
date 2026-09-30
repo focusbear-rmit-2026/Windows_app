@@ -1,5 +1,6 @@
 ﻿using Duende.IdentityModel;
 using Focus_Bear.API;
+using Focus_Bear.Services.VoiceCommand;
 using Focus_Bear.Utils;
 using Sentry.Protocol;
 using System;
@@ -624,8 +625,7 @@ namespace Focus_Bear.Services.FocusButton
                 try
                 {
                     LogWriter.LogWrite("FocusButton ProcessVoiceCommand() started");
-                    string apiKey = OpenAIService.OpenAIApiKey;
-                    IntentResponse result = await OpenAIService.ProcessVoiceCommand(apiKey, appSettings.RecordingPath);
+                    IntentResponse result = await VoiceCommandService.ProcessVoiceCommand(appSettings.RecordingPath);
                     if (result.confidence == "low")
                     {
                         // Ask user for clarification.
@@ -642,7 +642,7 @@ namespace Focus_Bear.Services.FocusButton
 
                                     // Create the task.
                                     // Parse time if needed.
-                                    if (task.Length > 0)
+                                    if (!string.IsNullOrEmpty(task))
                                     {
                                         FocusBearAPIClient client = new FocusBearAPIClient();
                                         var m = await client.AddTask(task);
@@ -669,7 +669,7 @@ namespace Focus_Bear.Services.FocusButton
                                     }
                                     //todo Start the most recent focus session here
                                     //use appSettings.sMostRecentFocusmodeDoneID;
-                                    if(goal.Length > 0)
+                                    if (!string.IsNullOrEmpty(goal))
                                     {
                                         appSettings.sRunningFocusModeIntention = goal;
                                     }
@@ -711,7 +711,7 @@ namespace Focus_Bear.Services.FocusButton
                                     int duration = result.parameters?.duration_minutes ?? 0;
                                     string repeat = result.parameters?.repeat;
                                     // Start the habit.
-                                    if (habit.Length > 0)
+                                    if (!string.IsNullOrEmpty(habit))
                                     {
                                         if (((App)Application.Current).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing?.bTimerRunning == true)
                                         {
@@ -765,11 +765,25 @@ namespace Focus_Bear.Services.FocusButton
                         }
                     }
                 }
+                catch (VoiceCommandException ex)
+                {
+                    LogWriter.LogWrite("FocusButton ProcessVoiceCommand() FAILED " + ex.Reason + " - " + ex.Message);
+                    ShowVoiceCommandError(VoiceCommandMessages.ForFailure(ex.Reason));
+                }
                 catch (Exception ex)
                 {
-                    LogWriter.LogWrite("FocusButton ProcessVoiceCommand() FAILED ex - " + ex.Message);
+                    LogWriter.LogWrite("FocusButton ProcessVoiceCommand() FAILED ex - " + ex);
+                    ShowVoiceCommandError(VoiceCommandMessages.Failed());
                 }
             }
+        }
+
+        // The hardware button has no screen of its own, so a failed voice command is reported in an
+        // auto-closing message box; otherwise the press would appear to do nothing.
+        private static void ShowVoiceCommandError(string message)
+        {
+            FBMessageBox msg = new FBMessageBox(message, "", MessageBoxButton.OK, "", "", "", false, "", true);
+            msg.ShowDialog();
         }
 
         // ── UI state machine ──────────────────────────────────────────────────
