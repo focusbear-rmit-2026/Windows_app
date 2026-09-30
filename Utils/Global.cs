@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.Models;
 using Interop.UIAutomationClient;
 using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -47,6 +48,7 @@ namespace Focus_Bear.Utils
         // Put the PC to sleep (the evening shutdown prompt's "Sleep" action — macOS's sleepMac equivalent).
         public static void SleepPc()
         {
+            if (!E2EBuild.MachineIntegrationAllowed) { LogWriter.LogWrite("SleepPc skipped - E2E test build"); return; }
             try
             {
                 EnableSystemSleep();   // clear any keep-awake state we set for routines first
@@ -58,6 +60,7 @@ namespace Focus_Bear.Utils
         // Shut the PC down (the evening shutdown prompt's "Shut Down" action — macOS's shutDownMac equivalent).
         public static void ShutDownPc()
         {
+            if (!E2EBuild.MachineIntegrationAllowed) { LogWriter.LogWrite("ShutDownPc skipped - E2E test build"); return; }
             try
             {
                 Process.Start(new ProcessStartInfo("shutdown", "/s /t 0") { CreateNoWindow = true, UseShellExecute = false });
@@ -116,12 +119,17 @@ namespace Focus_Bear.Utils
         }
 
         //"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        /// <summary>
+        /// Unix seconds for a UTC DateTime. It ignores Kind, so a local time comes out as wall-clock seconds, not
+        /// a Unix time: the registry's local "till" dates use FocusBear.Core.Schedule.StoredWallClock instead.
+        /// </summary>
         public static long ConvertToUnixTime(DateTime datetime)
         {
             DateTime sTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             return (long)(datetime - sTime).TotalSeconds;
         }
 
+        /// <summary>A Unix time as a Kind=Utc DateTime. For the registry's local "till" dates use StoredWallClock.FromStored.</summary>
         public static DateTime ConvertFromUnixTimeToDT(long unixtime)
         {
             DateTime sTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -820,6 +828,15 @@ namespace Focus_Bear.Utils
         }
 
         public bool bUserClickedNoDoNotSuggestAnymore { get; set; }
+
+        /// <summary>
+        /// The <c>metadata</c> object exactly as the server last sent it, or null for a mode this
+        /// client has just created. Saving replaces that column wholesale, so it is kept in order to
+        /// write back the keys Windows does not understand instead of deleting them. See
+        /// <see cref="FocusModeMetadata"/>.
+        /// </summary>
+        public JObject serverMetadata { get; set; }
+
         public FocusMode()
         {
 

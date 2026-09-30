@@ -119,6 +119,11 @@ namespace Focus_Bear.Utils
             {
                 HandleFocusModeFnishedEvent(sData);
             }
+            else if (eventName == FocusBear.Core.LateNoMore.LateNoMoreSyncContract.DismissedPusherEvent)
+            {
+                //A meeting was dealt with on another device (backend#2395): stop alerting for it here.
+                Focus_Bear.LateNoMore.LateNoMoreService.Shared.OnDismissedElsewhere(sData);
+            }
             else if (eventName == "focus-mode-started")
             {
                 /*
@@ -212,7 +217,7 @@ namespace Focus_Bear.Utils
         static void TraceMessage(object sender, string message)
         {
             Pusher client = sender as Pusher;
-            LogWriter.LogWrite($"{DateTime.Now:o} - {client.SocketID} - {message}");
+            LogWriter.LogWrite($"Pusher {client?.SocketID} - {message}");   // the log line has its own timestamp
         }
 
         //Handler functions
@@ -220,14 +225,18 @@ namespace Focus_Bear.Utils
         {
             LogWriter.LogWrite("HandleFocusModeStartedEvent()");
 
-            if ((appSettings.isFocusModeRunning ||
-               appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
+            //A session already running here is never replaced by one from another device (as on the Mac):
+            //a Late No More meeting session from another computer used to take over a buddy-approved
+            //postpone session this way, and the replacement could then be paused and stopped.
+            bool bBusyWithRoutine = appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS ||
                appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS ||
                appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF ||
                appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY ||
-               appSettings.bUseSuperPomodoroMode) &&
-               (!appSettings.bHabitsPostponedState ) && (!appSettings.bFocusSummaryPostponedState))
+               appSettings.bUseSuperPomodoroMode;
+            if (FocusBear.Core.Postpone.FocusSessionSync.IgnoresRemoteStart(appSettings.isFocusModeRunning, bBusyWithRoutine,
+                    appSettings.bHabitsPostponedState || appSettings.bFocusSummaryPostponedState))
             {
+                LogWriter.LogWrite("HandleFocusModeStartedEvent ignored - running=" + appSettings.isFocusModeRunning + " (" + appSettings.sRunningFocusModeID + "), activity=" + appSettings.nCurrentActivityType + ", postponed=" + appSettings.bHabitsPostponedState);
                 return;
             }
 
@@ -271,6 +280,7 @@ namespace Focus_Bear.Utils
 
                             //Make the global variable true
                             appSettings.isFocusModeRunning = true;
+                            appSettings.ServerFocusSession.PersonalStarted();   //another device's session, now running here too
                             appSettings.sRunningFocusModeStartTime = StartTimeLocal.ToString("yyyy-MM-dd HH:mm:ss");
                             appSettings.focusSessionStartTime = DateTime.Now;
                             appSettings.isFocusModePaused = false;
@@ -333,6 +343,22 @@ namespace Focus_Bear.Utils
                 LogWriter.LogWrite("HandleFocusModeFnishedEvent ignored - teacher class session is active");
                 return;
             }
+
+            //Another device can't end an accountability-buddy postpone session (Mac #2640): the approval
+            //allows stopping it only here, which hands the user back to their routine.
+            bool bPostponeSessionKept = false;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                bPostponeSessionKept = ((App)Application.Current).HandlePostponeSessionControl(FocusBear.Core.Postpone.FocusSessionControl.RemoteFinish);
+            });
+            if (bPostponeSessionKept)
+            {
+                LogWriter.LogWrite("HandleFocusModeFnishedEvent ignored - accountability-buddy postpone session is running");
+                return;
+            }
+
+            //The server's session is over (finished here or elsewhere): the end screen has nothing to finish.
+            appSettings.ServerFocusSession.Finished();
 
             //First check if it is already added
             var listItems = appSettings.arrFocusModes.Where(i => i.isOn == true);

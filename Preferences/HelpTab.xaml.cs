@@ -90,6 +90,75 @@ namespace Focus_Bear.Preferences
                 LogWriter.LogWrite("HelpTab() texts ex=" + ex.Message);
             }
 
+            // The Report Problem tab is one form now (Mac ReportProblemForm): note, screenshots, one Send,
+            // and for the tester account the support / local-Claude choice plus the local reports list.
+            ReportProblemTab.Content = new Reports.ReportProblemForm(async note =>
+            {
+                if (_ParentWindow != null) _ParentWindow.IsEnabled = false;
+                try { return await UploadLogs.UploadLogsToServer(note); }
+                finally { if (_ParentWindow != null) _ParentWindow.IsEnabled = true; }
+            });
+        }
+
+        private Reports.LocalReportsView _localReports;
+        private TextBlock _localReportStatus;
+
+        /// <summary>
+        /// For the tester account only (as on the Mac): a second way to send a report — into
+        /// %USERPROFILE%\FocusBear-Claude-Tasks for the local Claude review loop — and the list of reports filed that way.
+        /// </summary>
+        private void SetUpLocalReports()
+        {
+            try
+            {
+                if (_localReports != null) return;
+                if (!FocusBear.Core.Reports.LocalReportCapability.IsEnabled(appSettings.userAccount?.userID)) return;
+                var grid = (ReportProblemTab.Content as ScrollViewer)?.Content as Grid;
+                if (grid == null) return;
+                var strings = new Reports.LocalReportStrings();
+                var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(20, 0, 0, 10) };
+                var create = Reports.LocalReportsView.SmallButton(strings["sendToLocal"], CreateLocalReport_Click, primary: true);
+                create.Margin = new Thickness(0);
+                System.Windows.Automation.AutomationProperties.SetAutomationId(create, "btnCreateLocalReport");
+                row.Children.Add(create);
+                _localReportStatus = Reports.LocalReportsView.Text("", 12, secondary: true);
+                _localReportStatus.VerticalAlignment = VerticalAlignment.Center;
+                _localReportStatus.Margin = new Thickness(12, 0, 0, 0);
+                System.Windows.Automation.AutomationProperties.SetAutomationId(_localReportStatus, "txtLocalReportStatus");
+                row.Children.Add(_localReportStatus);
+                grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                Grid.SetRow(row, grid.RowDefinitions.Count - 1);
+                grid.Children.Add(row);
+                _localReports = new Reports.LocalReportsView(() => AppSettings.GetInstance.userAccount?.userID);
+                grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                Grid.SetRow(_localReports, grid.RowDefinitions.Count - 1);
+                grid.Children.Add(_localReports);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("HelpTab SetUpLocalReports ex - " + ex.Message);
+            }
+        }
+
+        /// <summary>The same note and screenshots as a support upload, written as a local report folder instead.</summary>
+        private void CreateLocalReport_Click(object sender, RoutedEventArgs e)
+        {
+            var strings = new Reports.LocalReportStrings();
+            var screenshots = appSettings.droppedFiles.Select(file => file.FilePath).ToList();
+            LogWriter.Flush();
+            string folder = FocusBear.Core.Reports.LocalReportTaskFile.Write(FocusBear.Core.Reports.LocalReportFolders.DefaultRoot, TxtFeedback.Text, screenshots,
+                AppSettings.AppDataDirLogsPath, appSettings.AppVersion?.ToString() ?? "", appSettings.userAccount?.userID, DateTime.Now);
+            if (folder == null)
+            {
+                _localReportStatus.Text = strings["localFailed"];
+                return;
+            }
+            LogWriter.LogWrite("HelpTab - local report written to " + folder);
+            _localReportStatus.Text = strings["localSaved"];
+            TxtFeedback.Text = string.Empty;
+            appSettings.droppedFiles.Clear();
+            RefreshScreenshots();
+            _localReports?.Refresh();
         }
         private async void btnExportLogs_Click(object sender, RoutedEventArgs e)
         {
@@ -133,10 +202,14 @@ namespace Focus_Bear.Preferences
         // (omit on initial load); it rides along with the other flags in the same payload.
         public void LoadAccessTokenGetSupport(string requestId = null)
         {
-            string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
-            string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3}{4}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme, sRequestId);
-            string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataFoGetSupport) {{ loadMetaDataFoGetSupport({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+            //Built as JSON (WebviewPayload), including the requestId the page echoes back.
+            string settingsFunc = new FocusBear.Core.Ui.WebviewPayload()
+                .Add("access_token", appSettings.userAccount.accessToken)
+                .Add("font", appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont))
+                .Add("lang", appSettings.sLangCode)
+                .Add("theme", appSettings.sTheme == "Light" ? "LIGHT" : "DARK")
+                .WithRequestId(requestId)
+                .WaitAndCall("loadMetaDataFoGetSupport");
             var ss = webViewGetSupport.ExecuteScriptAsync(settingsFunc);
         }
 
@@ -169,6 +242,7 @@ namespace Focus_Bear.Preferences
                     webViewGetSupport.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
                     webViewGetSupport.WebMessageReceived += webViewGetSupport_WebMessageReceived;
+                    Utils.WebViewTabOut.Attach(webViewGetSupport);   // Tab / Shift+Tab can leave the chat widget
 
                     webViewGetSupport.Source = new System.Uri("https://dashboard.focusbear.io/webview/get-support?bust_cache=" + DateTime.UtcNow.ToString());
 
@@ -205,10 +279,14 @@ namespace Focus_Bear.Preferences
         // (omit on initial load); it rides along with the other flags in the same payload.
         public void LoadAccessTokenTutorials(string requestId = null)
         {
-            string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
-            string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3}{4}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme, sRequestId);
-            string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForEnrolledCourses) {{ loadMetaDataForEnrolledCourses({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+            //Built as JSON (WebviewPayload), including the requestId the page echoes back.
+            string settingsFunc = new FocusBear.Core.Ui.WebviewPayload()
+                .Add("access_token", appSettings.userAccount.accessToken)
+                .Add("font", appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont))
+                .Add("lang", appSettings.sLangCode)
+                .Add("theme", appSettings.sTheme == "Light" ? "LIGHT" : "DARK")
+                .WithRequestId(requestId)
+                .WaitAndCall("loadMetaDataForEnrolledCourses");
             var ss = webViewTutorials.ExecuteScriptAsync(settingsFunc);
         }
 
@@ -241,6 +319,7 @@ namespace Focus_Bear.Preferences
                     webViewTutorials.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
                     webViewTutorials.WebMessageReceived += webViewTutorials_WebMessageReceived;
+                    Utils.WebViewTabOut.Attach(webViewTutorials);
 
                     webViewTutorials.Source = new System.Uri("https://dashboard.focusbear.io/webview/enrolled-courses?bust_cache=" + DateTime.UtcNow.ToString());
 

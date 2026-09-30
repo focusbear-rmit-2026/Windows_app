@@ -30,6 +30,7 @@ namespace Focus_Bear
         public SplashWindow(bool bProgressIndicator = false)
         {
             InitializeComponent();
+            Utils.IdleProgressBars.Watch(Progress);   // hidden, then closed: its bar kept animating for the whole session
 
             this.Topmost = true;
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;

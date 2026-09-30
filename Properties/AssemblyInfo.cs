@@ -11,7 +11,14 @@ using System.Windows;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
+#if E2E
+// The isolated E2E test build (see Utils\E2EBuild.cs). The metadata is what FocusBear.Core.AppInstance reads; the
+// product name is what the test runner checks before it launches an exe.
+[assembly: AssemblyProduct("Focus Bear (E2E)")]
+[assembly: AssemblyMetadata("FocusBearBuild", "E2E")]
+#else
 [assembly: AssemblyProduct("Focus Bear")]
+#endif
 [assembly: AssemblyCopyright("Copyright © 2022-2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -21,6 +28,9 @@ using System.Windows;
 // to COM components.  If you need to access a type in this assembly from
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
+
+// The seam between the WPF app and FocusBear.Core is tested headlessly; see App.Tests.
+[assembly: InternalsVisibleTo("FocusBear.App.Tests")]
 
 //In order to begin building localizable applications, set
 //<UICulture>CultureYouAreCodingWith</UICulture> in your .csproj file

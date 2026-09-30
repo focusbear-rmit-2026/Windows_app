@@ -130,7 +130,7 @@ namespace Focus_Bear.Upgrade
                 //Renew the token and check again
                 LogWriter.LogWrite("Attempting RenewToken to sync payment details");
                 var authenticator = new Authentication();
-                var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                var x = await authenticator.RefreshTokenForced(); //a new refresh, for the claims the purchase changed
                 if (x)
                 {
                     //token renewed

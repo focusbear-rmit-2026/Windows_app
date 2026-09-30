@@ -65,6 +65,21 @@
     <!-- Sends sources to Sentry, enabling display of source context. -->
     <SentryUploadSources>true</SentryUploadSources>
   </PropertyGroup>
+  <!--
+    The isolated E2E test build, for the pywinauto suite (Focus-Bear/windows-app-e2e-tests):
+      MSBuild "Focus Bear.csproj" -p:Configuration=Debug -p:FocusBearE2E=true
+    It defines E2E (see Utils\E2EBuild.cs: own data folder, registry root and instance names, no startup tasks,
+    updates or blocking hooks) and builds to bin\E2E\ with its own obj folder, so it never mixes with a normal build.
+    Debug only: a Release E2E build is refused, so it can never ship.
+  -->
+  <PropertyGroup Condition=" '$(FocusBearE2E)' == 'true' ">
+    <DefineConstants>$(DefineConstants);E2E</DefineConstants>
+    <OutputPath>bin\E2E\</OutputPath>
+    <IntermediateOutputPath>obj\E2E\</IntermediateOutputPath>
+  </PropertyGroup>
+  <Target Name="RefuseReleaseE2EBuild" BeforeTargets="PrepareForBuild" Condition=" '$(FocusBearE2E)' == 'true' And '$(Configuration)' != 'Debug' ">
+    <Error Text="FocusBearE2E=true is for Debug builds only (the E2E test build must never ship)." />
+  </Target>
   <PropertyGroup>
     <ApplicationIcon>focus-bear.ico</ApplicationIcon>
   </PropertyGroup>
@@ -340,6 +355,7 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Speech" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -363,11 +379,19 @@
       <DependentUpon>AccountabilityBuddyView.xaml</DependentUpon>
     </Compile>
     <Compile Include="AccountabilityBuddy\BuddyDetails.cs" />
+    <Compile Include="API\ActivityCompletedBody.cs" />
     <Compile Include="API\Authentication.cs" />
     <Compile Include="API\FocusBearAPIClient.cs" />
+    <Compile Include="API\FocusBearAPIClient.Notes.cs" />
+    <Compile Include="API\FocusBearAPIClient.Stats.cs" />
     <Compile Include="AudhdResults\AudhdResultsWindow.xaml.cs">
       <DependentUpon>AudhdResultsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BrainDump\NoteRow.cs" />
+    <Compile Include="BrainDump\ProjectPickerBox.xaml.cs">
+      <DependentUpon>ProjectPickerBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="BrainDump\ProjectNoteEditor.cs" />
     <Compile Include="BrainDump\BrainDumpWindow.xaml.cs">
       <DependentUpon>BrainDumpWindow.xaml</DependentUpon>
     </Compile>
@@ -384,9 +408,10 @@
       <DependentUpon>StepProgressBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="FocusMusic\FocusMusicTrack.cs" />
-    <Compile Include="FocusMusic\FocusMusicView.xaml.cs">
-      <DependentUpon>FocusMusicView.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="FocusMusic\CustomMusicLinkStore.cs" />
+    <Compile Include="FocusMusic\FocusMusicView.cs" />
+    <Compile Include="FocusMusic\SpotifyDesktop.cs" />
+    <Compile Include="FocusMusic\YouTubeMusicPlayer.cs" />
     <Compile Include="FocusMusic\FocusMusicManager.cs" />
     <Compile Include="Focus\AddFocusGoalAndTask.xaml.cs">
       <DependentUpon>AddFocusGoalAndTask.xaml</DependentUpon>
@@ -418,6 +443,7 @@
     <Compile Include="Focus\FocusActivitySummary.xaml.cs">
       <DependentUpon>FocusActivitySummary.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\FocusAlignmentActivities.cs" />
     <Compile Include="Focus\FocusAlignmentScoreManager.cs" />
     <Compile Include="Focus\FocusModeEnd.xaml.cs">
       <DependentUpon>FocusModeEnd.xaml</DependentUpon>
@@ -425,6 +451,7 @@
     <Compile Include="Focus\FocusProgress.xaml.cs">
       <DependentUpon>FocusProgress.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Focus\AiBlockBuddyWindow.cs" />
     <Compile Include="Focus\GentleBlock.xaml.cs">
       <DependentUpon>GentleBlock.xaml</DependentUpon>
     </Compile>
@@ -475,6 +502,9 @@
     <Compile Include="Habits\BreakWarning\BreakWarning.xaml.cs">
       <DependentUpon>BreakWarning.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Habits\BreakWarning\DeactivateBreaksWindow.xaml.cs">
+      <DependentUpon>DeactivateBreaksWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Habits\BreakWarning\FadeInBreakWindow.xaml.cs">
       <DependentUpon>FadeInBreakWindow.xaml</DependentUpon>
     </Compile>
@@ -487,6 +517,7 @@
     <Compile Include="Habits\HabitsPostponedView.xaml.cs">
       <DependentUpon>HabitsPostponedView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Habits\HabitsPostponeEnd.cs" />
     <Compile Include="Habits\HabitsResumeInPopup.xaml.cs">
       <DependentUpon>HabitsResumeInPopup.xaml</DependentUpon>
     </Compile>
@@ -503,6 +534,7 @@
       <DependentUpon>HabitExtraPersonal.xaml</DependentUpon>
     </Compile>
     <Compile Include="Habits\DayPlan\DayPlanDataSource.cs" />
+    <Compile Include="Habits\DayPlan\RoutineHabitDays.cs" />
     <Compile Include="Habits\DayPlan\DayPlanLogQuantityWindow.xaml.cs">
       <DependentUpon>DayPlanLogQuantityWindow.xaml</DependentUpon>
     </Compile>
@@ -513,17 +545,45 @@
       <DependentUpon>DayPlanTaskDetailWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Habits\DayPlan\DayPlanText.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanComposerText.cs" />
     <Compile Include="Habits\DayPlan\DayPlanModels.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanDurations.cs" />
     <Compile Include="Habits\DayPlan\DayPlanTaskModels.cs" />
     <Compile Include="Habits\DayPlan\DayPlanTaskVisuals.cs" />
     <Compile Include="Habits\DayPlan\DayPlanSync.cs" />
     <Compile Include="Habits\DayPlan\DayPlanCalendar.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanCalendarFixture.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanDatePicker.cs" />
     <Compile Include="Habits\DayPlan\DayPlanScheduleBuilder.cs" />
     <Compile Include="Habits\DayPlan\DayPlanScheduleBuilderSelfTest.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanHabitTrims.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanSettingsEdits.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanDialogs.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanHabitEditor.cs" />
+    <Compile Include="Habits\DayPlan\TitleWithSuffixPanel.cs" />
+    <Compile Include="Habits\DayPlan\ToDoCatalogue.cs" />
+    <Compile Include="Habits\DayPlan\ForecastText.cs" />
+    <Compile Include="Habits\DayPlan\ReprioritiseForecast.cs" />
+    <Compile Include="Habits\DayPlan\ReprioritiseWrites.cs" />
+    <Compile Include="Habits\DayPlan\ReprioritiseWindow.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanFixDialog.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanMeetingTrims.cs" />
     <Compile Include="Habits\HabitsDayPlan.xaml.cs">
       <DependentUpon>HabitsDayPlan.xaml</DependentUpon>
     </Compile>
     <Compile Include="Habits\HabitsDayPlan.Tasks.cs">
+      <DependentUpon>HabitsDayPlan.xaml.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\HabitsDayPlan.Actions.cs">
+      <DependentUpon>HabitsDayPlan.xaml.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\HabitsDayPlan.Fix.cs">
+      <DependentUpon>HabitsDayPlan.xaml.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\HabitsDayPlan.Composer.cs">
+      <DependentUpon>HabitsDayPlan.xaml.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Habits\HabitsDayPlan.ScheduleSettings.cs">
       <DependentUpon>HabitsDayPlan.xaml.cs</DependentUpon>
     </Compile>
     <Compile Include="Habits\HabitsWelcomeList.xaml.cs">
@@ -558,6 +618,7 @@
     </Compile>
     <Compile Include="Models\AppsEngine.cs" />
     <Compile Include="Models\AppTaskScheduler.cs" />
+    <Compile Include="Models\AppWatchdog.cs" />
     <Compile Include="Models\AppUpdater.cs" />
     <Compile Include="Models\CustomBlockingSchedule.cs" />
     <Compile Include="Models\HttpCommunication.cs">
@@ -635,6 +696,13 @@
     <Compile Include="Pomodoro\StartSimplePomodoro.xaml.cs">
       <DependentUpon>StartSimplePomodoro.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pomodoro\FocusSessionStarter.cs" />
+    <Compile Include="Pomodoro\FocusStartUi.cs" />
+    <Compile Include="Pomodoro\FocusStartSimpleScreen.cs" />
+    <Compile Include="Pomodoro\FocusStartAdvancedScreen.cs" />
+    <Compile Include="Pomodoro\FocusSessionActions.cs" />
+    <Compile Include="Pomodoro\FocusSessionScreen.cs" />
+    <Compile Include="Pomodoro\FocusSessionTaskPicker.cs" />
     <Compile Include="Pomodoro\StartPomodoro.xaml.cs">
       <DependentUpon>StartPomodoro.xaml</DependentUpon>
     </Compile>
@@ -686,6 +754,7 @@
     <Compile Include="Preferences\BlockingSchedules\BlockingScheduleStrictTimer.xaml.cs">
       <DependentUpon>BlockingScheduleStrictTimer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\BlockListsView.cs" />
     <Compile Include="Preferences\BlocksTab.xaml.cs">
       <DependentUpon>BlocksTab.xaml</DependentUpon>
     </Compile>
@@ -701,6 +770,8 @@
     <Compile Include="Preferences\FocusPage.xaml.cs">
       <DependentUpon>FocusPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Reports\LocalReportsView.cs" />
+    <Compile Include="Reports\ReportProblemForm.cs" />
     <Compile Include="Preferences\HelpTab.xaml.cs">
       <DependentUpon>HelpTab.xaml</DependentUpon>
     </Compile>
@@ -734,6 +805,7 @@
     <Compile Include="Preferences\SettingsTab\TabLimiterSetting.xaml.cs">
       <DependentUpon>TabLimiterSetting.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Preferences\SettingsTab\ShortcutRecorderBox.cs" />
     <Compile Include="Preferences\SettingsTab\KeyboardShortcuts.xaml.cs">
       <DependentUpon>KeyboardShortcuts.xaml</DependentUpon>
     </Compile>
@@ -800,7 +872,9 @@
       <DependentUpon>UpgradeToPro.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils\AppSettings.cs" />
+    <Compile Include="Utils\WebViewTabOut.cs" />
     <Compile Include="Utils\CallDetection.cs" />
+    <Compile Include="Utils\RunningActivityRules.cs" />
     <Compile Include="Utils\DevFlags.cs" />
     <Compile Include="Utils\DeviceNotification.cs" />
     <Compile Include="Utils\DpiDecorator.cs" />
@@ -808,7 +882,12 @@
       <DependentUpon>FBMessageBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils\FocusChangedHandler.cs" />
+    <Compile Include="Utils\FocusEventsSubscriber.cs" />
     <Compile Include="Utils\FullScreenParent.cs" />
+    <Compile Include="Utils\AiBlocking.cs" />
+    <Compile Include="Utils\BrowserUrlEntries.cs" />
+    <Compile Include="Utils\FocusModeMetadata.cs" />
+    <Compile Include="Utils\LoadedAnimation.cs" />
     <Compile Include="Utils\Global.cs" />
     <Compile Include="Utils\HourControl.xaml.cs">
       <DependentUpon>HourControl.xaml</DependentUpon>
@@ -823,6 +902,35 @@
     <Compile Include="Utils\GlobalHotkeyManager.cs" />
     <Compile Include="TabAudit\TabAuditService.cs" />
     <Compile Include="Utils\LogWriter.cs" />
+    <Compile Include="Utils\ToolTipFonts.cs" />
+    <Compile Include="Focus\BlockForeground.cs" />
+    <Compile Include="Utils\E2EBuild.cs" />
+    <Compile Include="Utils\E2EProbe.cs" />
+    <Compile Include="Utils\E2EBackground.cs" />
+    <Compile Include="Utils\DispatcherProfiler.cs" />
+    <Compile Include="Utils\IdleProgressBars.cs" />
+    <Compile Include="Utils\AccessibilityDefaults.cs" />
+    <Compile Include="Utils\NoteFlowDocument.cs" />
+    <Compile Include="Stats\StatsStrings.cs" />
+    <Compile Include="ToDo\ToDoStrings.cs" />
+    <Compile Include="ToDo\ToDoStore.cs" />
+    <Compile Include="ToDo\ToDoToolsWindows.cs" />
+    <Compile Include="ToDo\ToDoTaskDiscussion.cs" />
+    <Compile Include="ToDo\ToDoTaskAttachments.cs" />
+    <Compile Include="ToDo\ProjectsStore.cs" />
+    <Compile Include="ToDo\ProjectsView.cs" />
+    <Compile Include="ToDo\ThemedCalendar.cs" />
+    <Compile Include="ToDo\ToDoDueDatePopup.cs" />
+    <Compile Include="ToDo\ToDoUi.cs" />
+    <Compile Include="ToDo\ToDoScreen.cs" />
+    <Compile Include="ToDo\ToDoEditorWindow.cs" />
+    <Compile Include="API\FocusBearAPIClient.ToDo.cs" />
+    <Compile Include="Stats\StatsUi.cs" />
+    <Compile Include="Stats\StatsCharts.cs" />
+    <Compile Include="Stats\StatsScreen.cs" />
+    <Compile Include="Stats\StatsTabs.cs" />
+    <Compile Include="Stats\StatsTabs2.cs" />
+    <Compile Include="Stats\FocusLogTab.cs" />
     <Compile Include="Utils\OfflineActivities.cs" />
     <Compile Include="Utils\ProcessBrowserURLs.cs" />
     <Compile Include="Utils\PusherHandler.cs" />
@@ -840,6 +948,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="BrainDump\ProjectPickerBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="BrainDump\BrainDumpWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -853,10 +965,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\StepProgressBar.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="FocusMusic\FocusMusicView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -972,6 +1080,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Habits\BreakWarning\DeactivateBreaksWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Habits\BreakWarning\FadeInBreakWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1068,6 +1180,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="App.AccountabilityBuddy.cs" />
+    <Compile Include="API\FocusBearAPIClient.Buddy.cs" />
+    <Compile Include="API\FocusBearAPIClient.LateNoMore.cs" />
+    <Compile Include="App.LateNoMore.cs" />
+    <Compile Include="LateNoMore\LateNoMoreAlertWindow.cs" />
+    <Compile Include="LateNoMore\LateNoMoreService.cs" />
+    <Compile Include="LateNoMore\LateNoMoreUi.cs" />
+    <Compile Include="LateNoMore\LateNoMoreView.cs" />
+    <Compile Include="Habits\AccountabilityBuddyWindow.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -1434,6 +1555,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\FocusStart\aiBuddyBear.png" />
+    <Resource Include="Images\FocusStart\focusStartBearSimple.png" />
+    <Resource Include="Images\FocusStart\focusStartBearAdvanced.png" />
+    <Resource Include="Images\FocusStart\focusSessionBear.png" />
     <Resource Include="Images\FBicon-64.png" />
   </ItemGroup>
   <ItemGroup>
@@ -1524,6 +1649,16 @@
     <Resource Include="Images\Settings\uiwindow_black.png" />
     <Resource Include="Images\Settings\uiwindow_white.png" />
     <Resource Include="Images\brainDump.png" />
+    <Resource Include="Images\Levels\levelNovice.png" />
+    <Resource Include="Images\Levels\levelApprentice.png" />
+    <Resource Include="Images\Levels\levelExplorer.png" />
+    <Resource Include="Images\Levels\levelDisciplined.png" />
+    <Resource Include="Images\Levels\levelDiligent.png" />
+    <Resource Include="Images\Levels\levelStrategist.png" />
+    <Resource Include="Images\Levels\levelMentor.png" />
+    <Resource Include="Images\Levels\levelScholar.png" />
+    <Resource Include="Images\Levels\levelGuardian.png" />
+    <Resource Include="Images\Levels\levelAchiever.png" />
     <Resource Include="Images\music_albums_fill.png" />
     <Resource Include="Images\gifs\audio Wave.gif" />
     <Resource Include="Images\email.png" />
@@ -1608,6 +1743,18 @@
     <None Include="Graph\GraphDays.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="Notes\ProjectNoteEditorWeb\index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Notes\ProjectNoteEditorWeb\editor.bundle.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Notes\ProjectNoteEditorWeb\editor.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Notes\ProjectNoteEditorWeb\THIRD-PARTY-LICENSES.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Graph\GraphDaysDuration.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -1652,6 +1799,10 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="Core\FocusBear.Core.csproj">
+      <Project>{48b2a3f4-e373-4147-8c16-b7a463b71385}</Project>
+      <Name>FocusBear.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="ESPTool\EspDotNet.csproj">
       <Project>{d5732a11-fe96-43d5-844d-f6f598458946}</Project>
       <Name>EspDotNet</Name>

@@ -92,7 +92,7 @@ namespace Focus_Bear.Focus
             if (string.IsNullOrWhiteSpace(url))
                 return url;
 
-            if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            if (FocusBear.Core.SafeUri.TryCreate(url, UriKind.Absolute, out var uri))
             {
                 return uri.GetLeftPart(UriPartial.Path);
             }

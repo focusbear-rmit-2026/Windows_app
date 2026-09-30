@@ -54,6 +54,12 @@ namespace Focus_Bear
         {
             InitializeComponent();
 
+            // The tray menu lives for the whole run and is the app's MainWindow. Closing it (Alt+F4 while it has
+            // focus, or any WM_CLOSE) destroyed it, and the tray icon never showed a menu again until a restart
+            // (found by the E2E suite). Hide it instead. During Application.Shutdown WPF ignores this Cancel, so
+            // quitting still works.
+            Closing += (s, e) => { e.Cancel = true; Hide(); };
+
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
                 this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
@@ -117,8 +123,12 @@ namespace Focus_Bear
             this.SizeToContent = SizeToContent.WidthAndHeight;
 
             var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            // Never taller than the screen: with Breaks, Day Plan and Focus Tools all open the menu ran off the
+            // top of a 1080p screen, out of reach of the mouse (found by the E2E tests). The content scrolls.
+            this.MaxHeight = desktopWorkingArea.Height;
+            this.UpdateLayout();
             this.Left = (desktopWorkingArea.Right - this.Width);
-            this.Top = (desktopWorkingArea.Bottom - this.ActualHeight);
+            this.Top = Math.Max(desktopWorkingArea.Top, desktopWorkingArea.Bottom - this.ActualHeight);
 
         }
 
@@ -139,7 +149,7 @@ namespace Focus_Bear
 
                 // Focus Tools accordion — row labels (header stays "Focus Tools")
                 FocusMusicLabel.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemFocusMusicTitle"].ToString();
-                BrainDumpLabel.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemBrainDumpTitle"].ToString();
+                BrainDumpLabel.Text = appSettings.GetConfigStringSafe("Notes", "menuInfo", "menuItemNotesTitle");
                 ToDoPlayerLabel.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
                 // Breaks accordion — "start a break" link text
                 StartBreakNowText.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonStartBreakNowText"].ToString();
@@ -382,14 +392,15 @@ namespace Focus_Bear
                     btnBrainDump.Visibility = Visibility.Visible;
 
                     //Focus Alignment score
-                    bool bShowAlignmentScore = appSettings.isFocusModeRunning ||
-                        (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForAlignScore) && scheduleForAlignScore.bAIBlockingEnabled);
-                    //Teacher Mode - during a class session the score follows the session's ai_blocking_enabled
-                    //setting (isFocusModeRunning is always true then, so it would otherwise always show).
-                    if (TeacherSessionManager.Instance.IsTeacherSessionActive())
-                    {
-                        bShowAlignmentScore = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
-                    }
+                    //The score shows for a running focus mode, or for a schedule whose block list has AI
+                    //on. AiBlocking.IsEnabled() answers the second half via the ladder in FocusBear.Core,
+                    //and also covers the teacher session, which is why no override follows: during a class
+                    //session isFocusModeRunning is always true, so the score has to be gated on the
+                    //teacher's setting alone.
+                    bool bShowAlignmentScore = TeacherSessionManager.Instance.IsTeacherSessionActive()
+                        ? AiBlocking.IsEnabled()
+                        : appSettings.isFocusModeRunning
+                          || (appSettings.IsBlockingScheduleActiveAndNotPaused(out _) && AiBlocking.IsEnabled());
                     if (bShowAlignmentScore)
                     {
                         AlignmentScoreText.Visibility = Visibility.Visible;
@@ -1030,7 +1041,7 @@ namespace Focus_Bear
 
                 // Evening routine still ahead today?
                 DateTime? eveningStart = ParseTodayTime(appSettings.sDayShutOffTime, now);
-                var eveningToday = Focus_Bear.Habits.DayPlan.DayPlanDataSource.FilterByWeekday(appSettings.arrGLOBALAllEveningHabits, now.DayOfWeek.ToString());
+                var eveningToday = Focus_Bear.Habits.DayPlan.RoutineHabitDays.ScheduledOn(appSettings.arrGLOBALAllEveningHabits, now);
                 if (eveningStart.HasValue && eveningStart.Value > now && eveningToday.Count > 0)
                 {
                     firstHabitName = eveningToday[0].name;
@@ -1043,7 +1054,7 @@ namespace Focus_Bear
                 {
                     DateTime m = morningStart.Value;
                     if (m <= now) m = m.AddDays(1);
-                    var morning = Focus_Bear.Habits.DayPlan.DayPlanDataSource.FilterByWeekday(appSettings.arrGLOBALAllMorningHabits, m.DayOfWeek.ToString());
+                    var morning = Focus_Bear.Habits.DayPlan.RoutineHabitDays.ScheduledOn(appSettings.arrGLOBALAllMorningHabits, m);
                     if (morning.Count > 0)
                     {
                         firstHabitName = morning[0].name;
@@ -1123,6 +1134,13 @@ namespace Focus_Bear
                     LogWriter.LogWrite("StopFocusSessionRealAsync blocked - teacher class session is active");
                     TeacherSessionManager.Instance.ShowTeacherSessionLockedAlert();
                 }
+                return;
+            }
+
+            //A buddy-approved postpone or Late No More meeting session over a postponed routine can't just
+            //be stopped: Stop hands the user back to that routine (no completion screen, no password), as on the Mac.
+            if (((App)Application.Current).HandlePostponeSessionControl(FocusBear.Core.Postpone.FocusSessionControl.Stop))
+            {
                 return;
             }
 
@@ -1245,6 +1263,14 @@ namespace Focus_Bear
                     return false;
                 }
 
+                //Sessions the app started for the user (an accountability-buddy postpone, a Late No More
+                //meeting) can't be paused; the full focus screen comes back instead.
+                if (((App)Application.Current).HandlePostponeSessionControl(FocusBear.Core.Postpone.FocusSessionControl.Pause))
+                {
+                    Hide();
+                    return false;
+                }
+
                 if (!DateTime.TryParse(appSettings.sRunningFocusModeEndTime, out DateTime endTime))
                 {
                     LogWriter.LogWrite("ToggleFocusPauseFromUI() - Could not parse sRunningFocusModeEndTime, returning false");
@@ -1311,6 +1337,7 @@ namespace Focus_Bear
 
                 // Notify all UI components of the pause state change
                 var app = (App)Application.Current;
+                app.UpdateFocusEventsSubscription();
 
                 UpdateTrayMenu();
                 app.wndFocusProgress?.UpdatePauseControls();
@@ -1339,6 +1366,55 @@ namespace Focus_Bear
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ToggleFocusPauseFromUI() exception = " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// The session screen's −5 / +5: moves a running (not paused) session's end by <paramref name="minutes"/>,
+        /// never to less than a minute from now, and re-arms the end timer the way Resume does. A class session's
+        /// schedule belongs to the teacher, so it is left alone. Returns whether the end moved.
+        /// </summary>
+        public bool AdjustRunningFocusSession(int minutes)
+        {
+            try
+            {
+                if (!appSettings.isFocusModeRunning || appSettings.isFocusModePaused) return false;
+                if (TeacherSessionManager.Instance.IsTeacherSessionActive()) return false;
+                if (!DateTime.TryParse(appSettings.sRunningFocusModeEndTime, out DateTime endTime)) return false;
+                DateTime now = DateTime.Now;
+                // +5 on a session covering a postponed routine can't reach past the cutoff (Mac cutoffLimitedMinutes).
+                DateTime? cutoff = Focus_Bear.Habits.DayPlan.DayPlanDataSource.TimeToday(appSettings.sDayCutOffTime, now);
+                DateTime? moved = FocusBear.Core.Focus.FocusSessionProgress.AdjustedEndWithinCutoff(endTime, now, minutes, cutoff,
+                    appSettings.DidCutOffTimePassed(), appSettings.bPasswordRequireInPostponeEveningAfterCutOff,
+                    ((App)Application.Current).SessionProtectsRoutine);
+                if (moved == null)
+                {
+                    if (minutes > 0 && ((App)Application.Current).SessionProtectsRoutine && !string.IsNullOrEmpty(appSettings.sDayCutOffTime))
+                    {
+                        LogWriter.LogWrite("AdjustRunningFocusSession(" + minutes + ") - refused: the cutoff leaves no room");
+                        ((App)Application.Current).ShowCutoffExtensionRefused();
+                    }
+                    return false;
+                }
+                DateTime newEnd = moved.Value;
+                appSettings.sRunningFocusModeEndTime = newEnd.ToString();
+                OnUntill.Content = appSettings.ConfigFileStrings["menuInfo"]["untilTimeText"].ToString().Replace("<TIME>", newEnd.ToString());
+                dispatcherTimerFocus.Stop();
+                dispatcherTimerFocus.Interval = newEnd - now;
+                dispatcherTimerFocus.Start();
+                App.FocusButton.ExtendFocusSession((int)(newEnd - now).TotalSeconds);
+                ((App)Application.Current).wndFocusProgress?.UpdateUI();
+                // The server (and every other device) keeps the old end otherwise, and its finish there ends this
+                // session early after a +5 (the Mac's extendFocusMode / reduce both PATCH it).
+                if (appSettings.ServerFocusSession.HasSessionToFinish)
+                    _ = new FocusBearAPIClient().ExtendFocusMode(appSettings.sRunningFocusModeID, minutes);
+                LogWriter.LogWrite("AdjustRunningFocusSession(" + minutes + ") - new end time = " + appSettings.sRunningFocusModeEndTime);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("AdjustRunningFocusSession ex = " + ex.Message);
                 return false;
             }
         }
@@ -1413,16 +1489,25 @@ namespace Focus_Bear
 
                 dispatcherTimerFocus.Start();
                 CommandManager.InvalidateRequerySuggested();
+                ((App)Application.Current).UpdateFocusEventsSubscription();   // blocking starts now, not on the next tick
 
-                //Start the todo player
-                Task.Run(async () =>
+                //Show the running session. The native session screen needs nothing loaded first, so it goes up
+                //straight away; the one-second wait is kept only for the web To Do Player a class checklist uses.
+                if (FocusSessionQueueWriter.NativeOwnsQueue)
                 {
-                    await Task.Delay(1000);
-                    Application.Current.Dispatcher.Invoke(() =>
+                    ((App)(Application.Current)).ShowToDoPlayer();
+                }
+                else
+                {
+                    Task.Run(async () =>
                     {
-                        ((App)(Application.Current)).ShowToDoPlayer();
+                        await Task.Delay(1000);
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            ((App)(Application.Current)).ShowToDoPlayer();
+                        });
                     });
-                });
+                }
 
                 if (appSettings.isFocusModeRunning)
                 {
@@ -1596,8 +1681,8 @@ namespace Focus_Bear
         }
 
         // Colours an accordion header for its open/closed state: collapsed = white card with a dark title,
-        // grey subtitle and grey right-chevron; expanded = orange card with white title/subtitle and a
-        // white chevron rotated to point down. The icon square (peach) and body stay as-is.
+        // grey subtitle and grey right-chevron; expanded = orange card with a near-black title/subtitle and a
+        // near-black chevron rotated to point down. The icon square (peach) and body stay as-is.
         private void StyleAccordionHeader(Border card, TextBlock title, TextBlock subtitle,
                                           System.Windows.Shapes.Path chevron, RotateTransform chevronRotate, bool expanded)
         {
@@ -1610,9 +1695,10 @@ namespace Focus_Bear
                     // (matches macOS — the expanded Focus Tools card has an orange outline).
                     card.BorderBrush = (Brush)new BrushConverter().ConvertFromString("#f0932a");
                     card.BorderThickness = new Thickness(1.3);
-                    title.Foreground = Brushes.White;
-                    subtitle.Foreground = (Brush)new BrushConverter().ConvertFromString("#FFF1E0");
-                    chevron.Stroke = Brushes.White;
+                    // Near-black on the orange (7.5:1); white there was 2.4:1 (title) and 2.1:1 (subtitle).
+                    title.Foreground = (Brush)FindResource("OnOrangeText");
+                    subtitle.Foreground = (Brush)FindResource("OnOrangeSubtitle");
+                    chevron.Stroke = (Brush)FindResource("OnOrangeText");
                     chevronRotate.Angle = 90;
                 }
                 else
@@ -1877,7 +1963,11 @@ namespace Focus_Bear
 
         private void btnLimitedBlockingEdit_Click(object sender, RoutedEventArgs e)
         {
-            ((App)(Application.Current)).ShowPreferencesWindow();
+            // Straight to Blocking. Going through ShowPreferencesWindow selected Settings first, so with a password
+            // rule on it asked twice - and a Cancel on the Settings prompt queued a jump to Help that then landed
+            // on top of the Blocking prompt.
+            Hide();
+            ((App)(Application.Current)).BringMainWindowToFront();
             ((App)(Application.Current)).wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Blocking);
         }
 

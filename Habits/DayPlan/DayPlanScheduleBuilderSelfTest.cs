@@ -85,19 +85,20 @@ namespace Focus_Bear.Habits.DayPlan
                 return null;
             });
 
-            // 2. An ACTIVE routine keeps every habit in list order even when the later ones don't fit the
-            // window — the ones that overflow are flagged (not dropped) so the routine stays startable
-            // (#1371). Order is still preserved (no leap-frogging to a shorter later habit).
-            Check("ActiveRoutineKeepsOverflowHabitsFlaggedInOrder", () =>
+            // 2. Mac gap-filling (report 2026-09-25_09-01-38): a later, shorter habit is pulled into a gap
+            // the next habit is too long for; what fits nowhere is still listed as a zero-length overflow
+            // habit (never dropped) so the active routine stays startable (#1371).
+            Check("ShorterLaterHabitFillsGapLongOneOverflows", () =>
             {
                 DateTime now = T(9, 0);
                 var segs = new List<ScheduleRoutineSegment> { Seg(new List<ScheduleHabitInput>
                     { Habit(0, "A", 10), Habit(1, "B", 30), Habit(2, "C", 5) }, now, T(9, 20)) };
                 var blocks = HabitBlocks(Build(segs, now, T(18, 0)));
-                var titles = blocks.Select(b => b.Title).ToList();
-                if (!titles.SequenceEqual(new[] { "A", "B", "C" })) return "expected [A,B,C], got [" + string.Join(",", titles) + "]";
-                if (blocks[0].DidOverflow) return "A fit, should not overflow";
-                if (!blocks[1].DidOverflow || !blocks[2].DidOverflow) return "B/C should be flagged overflow";
+                var timed = blocks.Where(b => !b.DidOverflow).Select(b => b.Title).ToList();
+                var over = blocks.Where(b => b.DidOverflow).Select(b => b.Title).ToList();
+                if (!timed.SequenceEqual(new[] { "A", "C" })) return "expected timed [A,C], got [" + string.Join(",", timed) + "]";
+                if (!over.SequenceEqual(new[] { "B" })) return "expected overflow [B], got [" + string.Join(",", over) + "]";
+                if (blocks.Single(b => b.Title == "B").OverflowDurationSeconds != 30 * 60) return "overflow should keep B's length";
                 return null;
             });
 

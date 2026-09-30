@@ -33,6 +33,8 @@ namespace Focus_Bear.Habits
         AppSettings appSettings = AppSettings.GetInstance;
         private string sButtonTitle;
 
+        private readonly bool _showPepTalk;
+
         public HabitExtraPersonal()
         {
         }
@@ -50,14 +52,21 @@ namespace Focus_Bear.Habits
             }
 
             _parentWindow = parentWindow;
+
+            // Once per routine per day (Mac #2617): this screen comes round after every habit, and each fresh
+            // pep talk is a /user/motivational-summary request against the rate limit.
+            string routine = appSettings.nCurrentActivityType.ToString();
+            _showPepTalk = appSettings.bMotivationalMessageEnabled
+                && FocusBear.Core.Stats.PepTalkRoutineDisplay.Shared.ShouldShow(routine, DateTime.Now);
+            if (_showPepTalk) FocusBear.Core.Stats.PepTalkRoutineDisplay.Shared.Record(routine, DateTime.Now);
  
            //Get the First activity name and duration to set on the Button
-           if(appSettings.bMotivationalMessageEnabled)
+           if(_showPepTalk)
            {
-                SetWebView();
-
-                webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
-                webView.NavigationCompleted += CoreWebView2NavigationCompleted;
+                // The Mac's routine start opens its Stats screen on the Pep Talk tab, which streams
+                // /user/motivational-summary natively; this used to be the dashboard's motivational-summary
+                // webview. A fresh screen per routine start, so each start is one fresh stream.
+                pepTalkHost.Content = new StatsScreens.StatsScreen(FocusBear.Core.Stats.StatsTab.PepTalk);
 
                 ConatainerWebView.Visibility = Visibility.Visible;
                 CrossHair.Visibility = Visibility.Collapsed;
@@ -75,22 +84,14 @@ namespace Focus_Bear.Habits
                     appSettings.CapturePostHog("visualize-morning-routine");
 
                     //Simple take the first element
-                    if (appSettings.arrAllMorningHabits.Count > 0)
+                    //The button starts the routine's first habit, so its wording follows that habit - not the
+                    //one at nHabitIndex, which may be stale (or -1 after the Focus Summary).
+                    sButtonTitle = StartButtonTitle(appSettings.arrAllMorningHabits,
+                        appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString(),
+                        appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString(),
+                        appSettings.SecondsToText);
+                    if (sButtonTitle != null)
                     {
-                        if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].useTimer)
-                        {
-                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[0].name);
-                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllMorningHabits[0].durationSeconds));
-
-                        }
-                        else
-                        {
-                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
-                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[0].name);
-                        }
-
-
                         btnStartACtivityTXT.Text = sButtonTitle;
                     }
                 }
@@ -99,32 +100,25 @@ namespace Focus_Bear.Habits
                     appSettings.CapturePostHog("visualize-evening-routine");
 
                     //Simple take the first element
-                    if (appSettings.arrAllEveningHabits.Count > 0)
+                    //The button starts the routine's first habit, so its wording follows that habit - not the
+                    //one at nHabitIndex, which may be stale (or -1 after the Focus Summary).
+                    sButtonTitle = StartButtonTitle(appSettings.arrAllEveningHabits,
+                        appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString(),
+                        appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString(),
+                        appSettings.SecondsToText);
+                    if (sButtonTitle != null)
                     {
-                        if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].useTimer)
-                        {
-                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[0].name);
-                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllEveningHabits[0].durationSeconds));
-
-                        }
-                        else
-                        {
-                            sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
-                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllEveningHabits[0].name);
-                        }
                         btnStartACtivityTXT.Text = sButtonTitle;
                     }
 
                 }
 
-                if (appSettings.bMotivationalMessageEnabled)
+                if (_showPepTalk)
                 {
-                    JArray arrMessages = (JArray)appSettings.ConfigFileStrings["inspirations"];
-                    int n = arrMessages.Count;
                     Random rnd = new Random();
-                    int nRandom = rnd.Next(0, n - 1);
-                    btnStartACtivityTXT.Text = arrMessages[nRandom].ToString();
+                    string inspiration = PickInspiration(appSettings.ConfigFileStrings["inspirations"] as JArray, rnd.Next);
+                    if (inspiration != null)
+                        btnStartACtivityTXT.Text = inspiration;
                 }
             }
             catch (Exception ex)
@@ -133,7 +127,7 @@ namespace Focus_Bear.Habits
             }
 
             //Start timer only when we are not showing the webview
-            if (!appSettings.bMotivationalMessageEnabled)
+            if (!_showPepTalk)
             {
                 dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
                 dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
@@ -146,6 +140,28 @@ namespace Focus_Bear.Habits
                 TxtTimer.Visibility = Visibility.Collapsed;
                 Description.Visibility = Visibility.Collapsed;
             }
+        }
+
+        /// <summary>
+        /// A random inspiration, or null when there are none. <paramref name="nextBelow"/>(n) returns an index in
+        /// [0, n) - Random.Next's upper bound is exclusive, so asking for n - 1 never picked the last message.
+        /// </summary>
+        internal static string PickInspiration(JArray messages, Func<int, int> nextBelow)
+        {
+            if (messages == null || messages.Count == 0)
+                return null;
+            return messages[nextBelow(messages.Count)].ToString();
+        }
+
+        /// <summary>The start button's text for <paramref name="routine"/>'s first habit; null when there is none.</summary>
+        internal static string StartButtonTitle(IList<habit> routine, string timerTemplate, string nonTimerTemplate, Func<int, string> secondsToText)
+        {
+            if (routine == null || routine.Count == 0)
+                return null;
+            habit first = routine[0];
+            if (first.useTimer)
+                return timerTemplate.Replace("<NAME>", first.name).Replace("<TIME>", secondsToText(first.durationSeconds));
+            return nonTimerTemplate.Replace("<NAME>", first.name);
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
@@ -183,8 +199,8 @@ namespace Focus_Bear.Habits
         {
             LogWriter.LogWrite("extra personal btnStartACtivity_Clicked " );
 
-            if (appSettings.bMotivationalMessageEnabled)
-                webView.Dispose();
+            if (_showPepTalk)
+                pepTalkHost.Content = null;
 
             appSettings.nHabitIndex = 0;
             LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex);
@@ -211,8 +227,8 @@ namespace Focus_Bear.Habits
                 {
                     if (appSettings.bPasswordRequireInSkipMorning)
                     {
-                        if (appSettings.bMotivationalMessageEnabled)
-                            webView.Visibility = Visibility.Collapsed;
+                        if (_showPepTalk)
+                            pepTalkHost.Visibility = Visibility.Collapsed;
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = _parentWindow;
                         _parentWindow.GridShade.Visibility = Visibility.Visible;
@@ -221,8 +237,8 @@ namespace Focus_Bear.Habits
 
                         _parentWindow.GridShade.Visibility = Visibility.Collapsed;
 
-                        if (appSettings.bMotivationalMessageEnabled)
-                            webView.Visibility = Visibility.Visible;
+                        if (_showPepTalk)
+                            pepTalkHost.Visibility = Visibility.Visible;
 
                         if (bResult.Value)
                         {
@@ -239,8 +255,8 @@ namespace Focus_Bear.Habits
                 {
                     if (appSettings.bPasswordRequireInSkipEvening || (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff))
                     {
-                        if (appSettings.bMotivationalMessageEnabled)
-                            webView.Visibility = Visibility.Collapsed;
+                        if (_showPepTalk)
+                            pepTalkHost.Visibility = Visibility.Collapsed;
 
                         AskPassword pwdWnd = new AskPassword();
                         pwdWnd.Owner = _parentWindow;
@@ -251,8 +267,8 @@ namespace Focus_Bear.Habits
                         _parentWindow.GridShade.Visibility = Visibility.Collapsed;
 
 
-                        if (appSettings.bMotivationalMessageEnabled)
-                            webView.Visibility = Visibility.Visible;
+                        if (_showPepTalk)
+                            pepTalkHost.Visibility = Visibility.Visible;
 
 
                         if (bResult.Value)
@@ -282,95 +298,5 @@ namespace Focus_Bear.Habits
             _parentWindow.PageHabits.ShowWhySkipHabitsWindow();
         }
 
-        private async Task SetWebView()
-        {
-            try
-            {
-                var userDataFolder = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FBCustomWebView2");
-
-                var task = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
-                if (webView != null)
-                {
-                    await webView.EnsureCoreWebView2Async(task);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("HabitExtraPersonal SetWebView() EX - " + ex.Message);
-            }
-        }
-
-        private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
-        {
-            if (e.IsSuccess)
-            {
-                try
-                {
-                    webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
-                    webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
-                    webView.CoreWebView2.Settings.IsScriptEnabled = true;
-                    webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
-
-                    webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
-                    webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
-
-                    webView.WebMessageReceived += webView_WebMessageReceived;
-
-                    string sSettingsURL = "https://dashboard.focusbear.io/webview/motivational-summary";
-                    ////string sSettingsURL = "https://dashboard.focusbear.io/webview/todo-list";
-                    
-                    webView.Source = new System.Uri(sSettingsURL);
-
-                    CommandManager.InvalidateRequerySuggested();
-
-                }
-                catch (Exception ex)
-                {
-                    LogWriter.LogWrite("Habit WelcomeList CoreWebView2InitializationCompleted() EX=" + ex.Message);
-                }
-            }
-        }
-
-        private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
-        {
-            if (e.IsSuccess)
-            {
-                LoadAccessToken();
-            }
-        }
-
-        // Path A initial load + Path B reactive reply. Pass the echoed requestId on a reply
-        // (omit on initial load); it rides along with the other flags in the same payload.
-        public void LoadAccessToken(string requestId = null)
-        {
-            string sFlags = string.Format("[\"{0}\"]", "migrate-stats-to-motivational-summary");
-            string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-
-            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
-
-            string Settings = string.Format("{{\"access_token\":\"{0}\",\"font\":\"{1}\",lang:\"{2}\",\"theme\":{3},\"flags\":{4},\"motivation_type\":\"desktop\"{5}}}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sTheme, sFlags, sRequestId);
-            string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForInspirationPage) {{ loadAccessTokenForInspirationPage({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
-
-            var sReturn = webView.ExecuteScriptAsync(settingsFunc);
-        }
-
-        private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
-        {
-            // Path B - reactive token refresh. This screen has no other native messages.
-            try
-            {
-                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
-                if (req.IsTokenRequest)
-                {
-                    if (req.RefreshSucceeded)
-                        LoadAccessToken(req.RequestId);
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("HabitExtraPersonal webView_WebMessageReceived() ex - " + ex.Message);
-            }
-        }
     }
 }

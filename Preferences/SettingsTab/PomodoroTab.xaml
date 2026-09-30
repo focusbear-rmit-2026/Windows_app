@@ -97,7 +97,7 @@
                                 <TextBlock x:Name="PomodoroMode" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEnter Focus session after completing morning routine</TextBlock>
                                 <TextBlock x:Name="PomodoroModeDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xSupercharge your morning routine! If you activate this feature,....</TextBlock>
                             </StackPanel>
-                            <ToggleButton Grid.Column="1" x:Name="EnterPomodoroCheck" AutomationProperties.AutomationId="tglEnterPomodoroCheck"  Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="EnterPomodoroCheck_Checked" Unchecked="EnterPomodoroCheck_Unchecked" />
+                            <ToggleButton Grid.Column="1" x:Name="EnterPomodoroCheck" AutomationProperties.AutomationId="tglEnterPomodoroCheck" AutomationProperties.LabeledBy="{Binding ElementName=PomodoroMode}"  Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="EnterPomodoroCheck_Checked" Unchecked="EnterPomodoroCheck_Unchecked" />
                         </Grid>
 
                         <Grid Grid.Row="1"  Margin="15,0,15,0" Background="LightGray" ></Grid>
@@ -111,7 +111,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0"  Orientation="Vertical"  >
                                         <TextBlock x:Name="btnAdvancedTXT" FontSize="14" FontWeight="Normal" >xAdvanced</TextBlock>
-                                        <TextBlock Name="SuperPomodoroStatus" Margin="0,10,0,0" TextWrapping="Wrap" Foreground="Gray" FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom"  />
+                                        <TextBlock Name="SuperPomodoroStatus" Margin="0,10,0,0" TextWrapping="Wrap" Foreground="{DynamicResource TraySubtitleColor}" FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom"  />
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="❯" FontSize="18" FontWeight="Normal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 </Grid>
@@ -127,7 +127,7 @@
                             <TextBlock Grid.Column="0" Name="PomodoroModeDuration" Margin="0,0,0,0" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                                 <TextBox x:Name="PomodoroMinutes"
-                                     AutomationProperties.AutomationId="txtBoxPomodoroMinutes"
+                                     AutomationProperties.AutomationId="txtBoxPomodoroMinutes" AutomationProperties.LabeledBy="{Binding ElementName=PomodoroModeDuration}"
                                      Margin="20,0,0,0" 
                                      MinHeight="25"  
                                      Width="35"
@@ -149,7 +149,7 @@
                                 <TextBlock Name="MinutesTitle" Margin="10,0,10,0" TextWrapping="Wrap" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
                                 <Button Content="Save"
-                                        AutomationProperties.AutomationId="btnSavePomodoroMinutes"
+                                        AutomationProperties.AutomationId="btnSavePomodoroMinutes" AutomationProperties.Name="Save focus session length"
                                         Width="80"
                                         Height="30"
                                         Margin="10,0,0,0"
@@ -175,7 +175,7 @@
 
                             <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                 <TextBox x:Name="WorkRatioInput"
-                                         AutomationProperties.AutomationId="txtBoxWorkRatioInput"
+                                         AutomationProperties.AutomationId="txtBoxWorkRatioInput" AutomationProperties.Name="Focus minutes"
                                          Margin="20,0,0,0"
                                          MinHeight="25"
                                          Width="35"
@@ -195,7 +195,7 @@
                                 </TextBox>
                                 <TextBlock x:Name="RatioToText" Margin="8,0,8,0" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" Text="to"/>
                                 <TextBox x:Name="BreakRatioInput"
-                                         AutomationProperties.AutomationId="txtBoxBreakRatioInput"
+                                         AutomationProperties.AutomationId="txtBoxBreakRatioInput" AutomationProperties.Name="Break minutes"
                                          Margin="0,0,0,0"
                                          MinHeight="25"
                                          Width="35"
@@ -214,7 +214,7 @@
                                     </TextBox.Effect>
                                 </TextBox>
                                 <Button x:Name="btnSaveRatio"
-                                        AutomationProperties.AutomationId="btnSaveRatio"
+                                        AutomationProperties.AutomationId="btnSaveRatio" AutomationProperties.Name="Save focus to break ratio"
                                         Content="Save"
                                         Width="80"
                                         Height="30"
@@ -224,7 +224,7 @@
                                         Click="SaveRatio_Click"/>
                             </StackPanel>
 
-                            <TextBlock Grid.Row="1" Grid.ColumnSpan="2" x:Name="WorkToBreakRatioDesc" Margin="0,8,0,0" TextWrapping="Wrap" FontSize="12" Foreground="Gray"/>
+                            <TextBlock Grid.Row="1" Grid.ColumnSpan="2" x:Name="WorkToBreakRatioDesc" Margin="0,8,0,0" TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource CardSubtitleColor}"/>
 
                         </Grid>
 

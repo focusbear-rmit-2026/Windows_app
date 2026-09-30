@@ -132,42 +132,20 @@ namespace Focus_Bear.Habits
 
         private void btnPostpone_Click(object sender, RoutedEventArgs e)
         {
-            if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && appSettings.isPasswordSet)
+            //This button opens the postpone window, so it takes the postpone rule. It used the skip settings,
+            //which let a postpone through for a user who had only asked for a password to postpone.
+            //A focus session running at postpone time sets the activity type to NONE; gate the routine that was postponed.
+            if (appSettings.PostponeRequiresPassword(AppSettings.PostponedRoutine(appSettings.nCurrentActivityType,
+                    appSettings.bHabitsPostponedState, appSettings.HabitsPostponeActivityType)))
             {
-                if (appSettings.bPasswordRequireInSkipEvening || (appSettings.DidCutOffTimePassed() && appSettings.bPasswordRequireToSkipEveningAfterCutOff))
-                {
-                    AskPassword pwdWnd = new AskPassword();
-                    pwdWnd.Owner = this;
-                    
-                    bool? bResult = pwdWnd.ShowDialog();
-                                       
-                    if (bResult.Value)
-                    {
-                        //Password is correct
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-            }
-            else if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS && appSettings.isPasswordSet)
-            {
-                if (appSettings.bPasswordRequireInSkipMorning)
-                {
-                    AskPassword pwdWnd = new AskPassword();
-                    pwdWnd.Owner = this;
+                AskPassword pwdWnd = new AskPassword();
+                pwdWnd.Owner = this;
 
-                    bool? bResult = pwdWnd.ShowDialog();
+                bool? bResult = pwdWnd.ShowDialog();
 
-                    if (bResult.Value)
-                    {
-                        //Password is correct
-                    }
-                    else
-                    {
-                        return;
-                    }
+                if (bResult != true)
+                {
+                    return;
                 }
             }
             

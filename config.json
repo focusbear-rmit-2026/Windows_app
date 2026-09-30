@@ -168,6 +168,7 @@
         "buttonUninstallText": "Uninstall Focus Bear",
         "shutdownNotificationTitle": "It's time to wrap up for the day. Your shutdown time is in 5 minutes.",
         "appBlockNotificationTitle": "<APP_NAME> isn't allowed in the <FOCUS_NAME> focus mode.",
+        "appBlockNotificationAllowButton": "Oops I actually need it",
         "superDistractingAppBlockedText": "<APP_NAME> is a Super distracting app.",
         "focusBreakNotificationTitle": "Your break ends in",
         "tabGeneralText": "General",
@@ -1368,6 +1369,7 @@
         "buttonPrivacyText": "Click here to view Privacy Policy"
     },
     "breakWarningVcInfo": {
+        "holdToPostponeProgress": "Keep holding... {seconds}s",
         "title": "Your <DURATION> second micro break starts in",
         "titleWIN": "Your micro break starts in",
         "buttonPostponeText": "Postpone for 5 minutes",
@@ -1590,7 +1592,8 @@
         "buttonDeactivateText": "Deactivate Focus Bear for 4 hours",
         "infoText": "If you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab.",
         "customTimeError": "Enter a valid positive number for minutes",
-        "toolTipMinimumMinutes": "Pick a preset or type your own - minimum 1 minute"
+        "toolTipMinimumMinutes": "Pick a preset or type your own - minimum 1 minute",
+        "customTimeMaxInfo": "You can postpone for up to 24 hours (1440 minutes)."
     },
     "popUpOfflineVcInfo": {
         "titleOffline": "It seems like you're offline. Please go online to continue with your habits.",
@@ -3229,7 +3232,9 @@
         "breakBlockedTitle": "Class focus session in progress",
         "breakBlockedBody": "You can't start a break during a class focus session. It resumes automatically when your teacher ends the session.",
         "resumeHabitsBlockedTitle": "Class focus session in progress",
-        "resumeHabitsBlockedBody": "You can't resume your habits during a class focus session. They'll resume automatically when your teacher ends the session."
+        "resumeHabitsBlockedBody": "You can't resume your habits during a class focus session. They'll resume automatically when your teacher ends the session.",
+        "personalSessionOnlyTitle": "This starts a personal focus session",
+        "classSessionFromDashboardText": "To start a class session for your students, use the Focus Bear dashboard in your browser."
     },
     "focusStateVcInfo":{
         "titleIntention": "Focus Goal:",

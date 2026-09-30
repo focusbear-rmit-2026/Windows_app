@@ -26,6 +26,8 @@ namespace Focus_Bear.Models
         private string _DownloadUpdateFileName;
         public bool ForceUpdate;
         public bool bCheckingForFocusButton = false;
+        /// <summary>The last firmware check found no image for the connected device's board.</summary>
+        public bool NoFirmwareForBoard;
         public AppUpdater()
         {
             this._UpdateFolderPath = AppSettings.AppDataDirPath;
@@ -34,6 +36,8 @@ namespace Focus_Bear.Models
         public async Task<bool> CheckForUpdate(bool bCheckingForFocusButton = false)
         {
             LogWriter.LogWrite("Task<bool> CheckForUpdate()");
+            // The E2E test build never downloads or installs an update (app or Focus Button firmware).
+            if (!E2EBuild.MachineIntegrationAllowed) return false;
             try
             {
                 this.bCheckingForFocusButton = bCheckingForFocusButton;
@@ -69,16 +73,32 @@ namespace Focus_Bear.Models
 
                 _DownloadUpdateURL = objIniParser.ReadValue(section, "program_url");
 
-                Version updateVersion = null;
-                Version.TryParse(versionInsideINIFile, out updateVersion);
+                //Missing components count as 0 (System.Version makes them -1, so 3.0.249.0 > 3.0.249 offered the
+                //installed version again), and a stray "v" or whitespace doesn't hide an update.
+                Version updateVersion = FocusBear.Core.Updates.VersionCompare.Parse(versionInsideINIFile);
 
                 if (bCheckingForFocusButton)
                 {
+                    //Only an image built for this device's board is offered: the INI served the M5Dial build to
+                    //every device, the VIEWE C3 included. A device that hasn't named its board (blank) may get the
+                    //image, and the flash refuses it unless the image header matches the detected chip.
+                    var release = FocusBear.Core.FocusButton.FirmwareBoard.ReleaseFor(
+                        FocusBear.Core.FocusButton.FirmwareBoard.ParseIni(System.IO.File.ReadAllText(updateINIPath)),
+                        appSettings.sFirmwareHardwareCode);
+                    if (release == null)
+                    {
+                        LogWriter.LogWrite("Firmware update: no image for board '" + appSettings.sFirmwareHardwareCode + "' in the update INI");
+                        NoFirmwareForBoard = true;
+                        return false;
+                    }
+                    _DownloadUpdateURL = release.Url;
+                    updateVersion = release.Version;
+
                     // Offer the firmware when the server has a build AND either the device's firmware
                     // version is unknown (a blank/un-flashed device, or one that didn't report a version)
                     // or the server build is newer. The unknown case is what lets a brand-new device with
                     // no firmware be flashed instead of being treated as already up to date.
-                    if (updateVersion != null && (appSettings.FirmwareVersion == null || updateVersion > appSettings.FirmwareVersion))
+                    if (FocusBear.Core.Updates.VersionCompare.IsNewer(updateVersion, appSettings.FirmwareVersion))
                     {
                         LogWriter.LogWrite("Firmware Update available");
                         return true;
@@ -86,7 +106,7 @@ namespace Focus_Bear.Models
                 }
                 else
                 {
-                    if (updateVersion != null && appSettings.AppVersion != null && updateVersion > appSettings.AppVersion)
+                    if (appSettings.AppVersion != null && FocusBear.Core.Updates.VersionCompare.IsNewer(updateVersion, appSettings.AppVersion))
                     {
                         LogWriter.LogWrite("Application Update available");
                         return true;

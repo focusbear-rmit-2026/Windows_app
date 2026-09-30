@@ -30,7 +30,7 @@
             <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" Width="520">
 
             <TextBlock Width="400"  Name="lblEmail" Margin="60,20,40,10" TextWrapping="Wrap" Text="xEmail Address"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
-            <TextBox Width="400" TabIndex="1" x:Name="TxtEmailAddress" AutomationProperties.AutomationId="txtBoxEmailAddress" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"   BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" >
+            <TextBox Width="400" TabIndex="1" x:Name="TxtEmailAddress" AutomationProperties.AutomationId="txtBoxEmailAddress" AutomationProperties.LabeledBy="{Binding ElementName=lblEmail}" Margin="0" TextWrapping="Wrap" Background="#FFF" BorderBrush="#000" Padding="5,2,5,5"   BorderThickness="1" FontSize="15" TextAlignment="Left" MaxLines="1" >
                 <TextBox.Effect>
                     <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -53,7 +53,7 @@
             <TextBlock Width="400"  Name="lblPassword" Margin="60,10,40,10" TextWrapping="Wrap" Text="xPassword"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
 
             <Grid>
-                <PasswordBox Width="400" TabIndex="2" x:Name="TxtPassword" AutomationProperties.AutomationId="passwordBox" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15"  PasswordChanged="TxtPassword_PasswordChanged"   >
+                <PasswordBox Width="400" TabIndex="2" x:Name="TxtPassword" AutomationProperties.AutomationId="passwordBox" AutomationProperties.LabeledBy="{Binding ElementName=lblPassword}" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15"  PasswordChanged="TxtPassword_PasswordChanged"   >
                     <PasswordBox.Effect>
                         <DropShadowEffect ShadowDepth="3"
                               Direction="330"
@@ -72,7 +72,7 @@
                         </Style>
                     </PasswordBox.FocusVisualStyle>
                 </PasswordBox>
-                <TextBox Width="400" x:Name="TxtPasswordVisible" AutomationProperties.AutomationId="txtPasswordVisible" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" TextChanged="TxtPasswordVisible_TextChanged" Visibility="Collapsed">
+                <TextBox Width="400" TabIndex="2" x:Name="TxtPasswordVisible" AutomationProperties.AutomationId="txtPasswordVisible" AutomationProperties.LabeledBy="{Binding ElementName=lblPassword}" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="15" TextChanged="TxtPasswordVisible_TextChanged" Visibility="Collapsed">
                     <TextBox.Effect>
                         <DropShadowEffect ShadowDepth="3"
                           Direction="330"
@@ -91,13 +91,18 @@
                         </Style>
                     </TextBox.FocusVisualStyle>
                 </TextBox>
-                <Image x:Name="EyePassword" Source="../images/eye-dark.png" Width="20" Height="20" Margin="440,0,0,0" Cursor="Hand" MouseUp="EyePassword_MouseUp"></Image>
+                <!-- Show / hide password: a button so Tab and Enter/Space reach it (as on the sign-in form). -->
+                <Button x:Name="btnEyePassword" TabIndex="2" AutomationProperties.AutomationId="btnEyePassword" Style="{StaticResource ImageButtonStyle}" Padding="0"
+                        AutomationProperties.Name="{Binding ToolTip, ElementName=EyePassword}" Click="EyePassword_Click"
+                        Margin="440,0,0,0" HorizontalAlignment="Center" Width="20" Height="20">
+                    <Image x:Name="EyePassword" AutomationProperties.AutomationId="EyePassword" ToolTip="Show Password" Source="../images/eye-dark.png" Width="20" Height="20"/>
+                </Button>
                 <Image  Name="ImgPasswordValid" Source="../images/validIcon.png" Width="20" Height="20" Margin="490,0,0,0" Visibility="Collapsed"></Image>
             </Grid>
 
             <TextBlock Visibility="Collapsed" Width="400"  Name="lblConfirmPassword" Margin="60,20,40,10" TextWrapping="Wrap" Text="xConfirm Password"  FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Left" HorizontalAlignment="Left"/>
             <Grid Visibility="Collapsed">
-                <PasswordBox Width="300" TabIndex="3" x:Name="TxtConfirmPassword" AutomationProperties.AutomationId="passwordBoxConfirm" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"   BorderThickness="1" FontSize="15"  PasswordChanged="TxtConfirmPassword_PasswordChanged"  >
+                <PasswordBox Width="300" TabIndex="3" x:Name="TxtConfirmPassword" AutomationProperties.AutomationId="passwordBoxConfirm" AutomationProperties.LabeledBy="{Binding ElementName=lblConfirmPassword}" Margin="0"   Background="#FFF" BorderBrush="#000" Foreground="#000" Padding="5,2,5,5"   BorderThickness="1" FontSize="15"  PasswordChanged="TxtConfirmPassword_PasswordChanged"  >
                     <PasswordBox.Effect>
                         <DropShadowEffect ShadowDepth="3"
                               Direction="330"

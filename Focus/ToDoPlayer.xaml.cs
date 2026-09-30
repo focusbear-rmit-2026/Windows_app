@@ -374,6 +374,11 @@ namespace Focus_Bear.Focus
                 {
                     LogWriter.LogWrite("AddAndPlayTaskInCurrentList - " + appSettings.sCurrentTaskCreated);
 
+                    // The native session screen owns the queue now (outside a class session's checklist): the
+                    // task goes into it, and the headless web player below only hears about it if it is loaded.
+                    Pomodoro.FocusSessionQueueWriter.AddAndPlay(appSettings.sCurrentTaskCreated, bMarkCurrentTaskAsComplete);
+                    if (Pomodoro.FocusSessionQueueWriter.NativeOwnsQueue && webView?.CoreWebView2 == null) return;
+
                     JObject currentTask = JObject.Parse(appSettings.sCurrentTaskCreated);
 
                     JObject selectedTaskDic = new JObject

@@ -33,6 +33,18 @@ namespace Focus_Bear.Habits
     /// </summary>
     public partial class HabitActivityOnGoing : Page
     {
+        /// <summary>
+        /// The saved remaining seconds of a postponed habit, or null to start it from its full duration. It was read
+        /// with int.Parse, so a corrupt or negative registry value threw instead.
+        /// </summary>
+        internal static int? SavedTimerSeconds(string saved)
+        {
+            if (int.TryParse((saved ?? "").Trim(), System.Globalization.NumberStyles.None,
+                             System.Globalization.CultureInfo.InvariantCulture, out int seconds) && seconds >= 0)
+                return seconds;
+            return null;
+        }
+
         private FocusBearMainWindow _parentWindow = null;
 
         AppSettings appSettings = AppSettings.GetInstance;
@@ -100,9 +112,10 @@ namespace Focus_Bear.Habits
                     LogWriter.LogWrite("Starting After Postponed in mid- Get the set timer value");
                     //Get the set timer value
                     string sTimer = RegistryManager.GetCurrentActivityPostponedTimerVal();
-                    if (sTimer != null && sTimer.Length > 0)
+                    int? savedSeconds = SavedTimerSeconds(sTimer);
+                    if (savedSeconds.HasValue)
                     {
-                        nTimer = int.Parse(sTimer);
+                        nTimer = savedSeconds.Value;
                     }
                     else
                     {
@@ -146,7 +159,7 @@ namespace Focus_Bear.Habits
                     appSettings.sHabitTypeForUseFocusModeIDInActivity = "morning-habit";//evening-habit, morning-habit, break-activity
 
                     if (!bStartingAfterPostponed)
-                        nTimer = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].durationSeconds;
+                        nTimer = Focus_Bear.Habits.DayPlan.DayPlanHabitTrims.TimerSecondsToday(appSettings.arrAllMorningHabits[appSettings.nHabitIndex]);   // honours a Day Plan "Shorten"
 
                     if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].useTimer)
                     {
@@ -188,7 +201,7 @@ namespace Focus_Bear.Habits
                     appSettings.sHabitTypeForUseFocusModeIDInActivity = "evening-habit";//evening-habit, morning-habit, break-activity
 
                     if (!bStartingAfterPostponed)
-                        nTimer = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].durationSeconds;
+                        nTimer = Focus_Bear.Habits.DayPlan.DayPlanHabitTrims.TimerSecondsToday(appSettings.arrAllEveningHabits[appSettings.nHabitIndex]);   // honours a Day Plan "Shorten"
 
                     if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].useTimer)
                     {

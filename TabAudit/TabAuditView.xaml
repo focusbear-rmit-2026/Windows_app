@@ -53,16 +53,27 @@
                             <Path.RenderTransform>
                                 <RotateTransform x:Name="SpinRotate" CenterX="8" CenterY="8"/>
                             </Path.RenderTransform>
-                            <Path.Triggers>
-                                <EventTrigger RoutedEvent="Loaded">
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="SpinRotate" Storyboard.TargetProperty="Angle"
-                                                             From="0" To="360" Duration="0:0:0.9" RepeatBehavior="Forever"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                            </Path.Triggers>
+                            <Path.Style>
+                                <!-- Spins only while shown: begun on Loaded it ran for as long as the page existed, collapsed or not,
+                                     and a forever animation keeps WPF rendering at 60 fps. -->
+                                <Style TargetType="Path">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsVisible" Value="True">
+                                            <Trigger.EnterActions>
+                                                <BeginStoryboard x:Name="TabCountSpin">
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                                         From="0" To="360" Duration="0:0:0.9" RepeatBehavior="Forever"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </Trigger.EnterActions>
+                                            <Trigger.ExitActions>
+                                                <StopStoryboard BeginStoryboardName="TabCountSpin"/>
+                                            </Trigger.ExitActions>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
                         </Path>
                     </Canvas>
                     <TextBlock x:Name="CountLoadingText" Margin="8,0,0,0" VerticalAlignment="Center" FontSize="14"

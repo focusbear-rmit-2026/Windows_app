@@ -42,7 +42,7 @@
                     <TextBlock x:Name="EnableMeetingDetection" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEnable meeting detection</TextBlock>
                     <TextBlock x:Name="EnableMeetingDetectionDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEnable meeting detection to automatically suggest starting \"Meetings\" focus mode when Focus Bear detects you are in a call.</TextBlock>
                 </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="btnEnableMeetingDetection" AutomationProperties.AutomationId="tglEnableMeetingDetection"  Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableMeetingDetection_Checked" Unchecked="btnEnableMeetingDetection_Unchecked" />
+                    <ToggleButton Grid.Column="1" x:Name="btnEnableMeetingDetection" AutomationProperties.AutomationId="tglEnableMeetingDetection" AutomationProperties.LabeledBy="{Binding ElementName=EnableMeetingDetection}"  Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableMeetingDetection_Checked" Unchecked="btnEnableMeetingDetection_Unchecked" />
 
             </Grid>
 
@@ -57,7 +57,7 @@
                     <TextBlock x:Name="SuggestStartMeetings" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xAutomatically suggest starting \"Meetings\" focus mode</TextBlock>
                     <TextBlock x:Name="SuggestStartMeetingsDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xWhen you start a video call, Focus Bear can prompt you to start the Meeting focus mode to help you stay focused during the meeting.</TextBlock>
                 </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="btnSuggestStartMeetingsFocus" AutomationProperties.AutomationId="tglSuggestStartMeetingsFocus" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnSuggestStartMeetingsFocus_Checked" Unchecked="btnSuggestStartMeetingsFocus_Unchecked" />
+                    <ToggleButton Grid.Column="1" x:Name="btnSuggestStartMeetingsFocus" AutomationProperties.AutomationId="tglSuggestStartMeetingsFocus" AutomationProperties.LabeledBy="{Binding ElementName=SuggestStartMeetings}" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnSuggestStartMeetingsFocus_Checked" Unchecked="btnSuggestStartMeetingsFocus_Unchecked" />
             </Grid>
 
             <Grid Grid.Row="3"  Margin="15,0,15,0" Background="LightGray" ></Grid>
@@ -71,7 +71,7 @@
                     <TextBlock x:Name="BlockSuperDistracting" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xBlock \"Super Distracting Sites\" during Meetings</TextBlock>
                     <TextBlock x:Name="BlockSuperDistractingDesc" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xAvoid awkward screensharing moments. Turn this setting off if you don’t want blocking to happen while you’re in meetings.</TextBlock>
                 </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="btnBlockSuperDistracting" AutomationProperties.AutomationId="tglBlockSuperDistracting" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnBlockSuperDistracting_Checked" Unchecked="btnBlockSuperDistracting_Unchecked"/>
+                    <ToggleButton Grid.Column="1" x:Name="btnBlockSuperDistracting" AutomationProperties.AutomationId="tglBlockSuperDistracting" AutomationProperties.LabeledBy="{Binding ElementName=BlockSuperDistracting}" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnBlockSuperDistracting_Checked" Unchecked="btnBlockSuperDistracting_Unchecked"/>
             </Grid>
 
                 <Grid Grid.Row="5"  Margin="15,0,15,0" Background="LightGray" ></Grid>
@@ -85,7 +85,7 @@
                         <TextBlock x:Name="EnableFBTT" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEnable Focus Bear Time Tracker</TextBlock>
                         <TextBlock x:Name="EnableFBTTDesc" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xAnalyse your productivity by tracking how much time you spend on different websites and apps. You can automatically categorise time logs into different projects (helpful for timesheets). Data is stored locally for privacy reasons.</TextBlock>
                     </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="btnEnableFBTT" AutomationProperties.AutomationId="tglEnableFBTT" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableFBTT_Checked" Unchecked="btnEnableFBTT_Unchecked"/>
+                    <ToggleButton Grid.Column="1" x:Name="btnEnableFBTT" AutomationProperties.AutomationId="tglEnableFBTT" AutomationProperties.LabeledBy="{Binding ElementName=EnableFBTT}" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableFBTT_Checked" Unchecked="btnEnableFBTT_Unchecked"/>
                 </Grid>
 
                 <!-- Browser tab limiter moved to Strictness > Browser tab limiter (matches macOS) -->
@@ -102,7 +102,7 @@
                             <TextBlock x:Name="EnableAdvancedAnalyticsDesc" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xTrack the exact time you spend on each app and browser tab during focus mode. Gain deeper insights into your productivity by understanding how your attention is distributed.</TextBlock>
                             <TextBlock x:Name="EnableAdvancedAnalyticsDesc2" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Left" TextAlignment="Left">xData is only stored on your computer and not sent to our servers.</TextBlock>
                         </StackPanel>
-                        <ToggleButton Grid.Column="1" x:Name="btnEnableAdvancedAnalytics" AutomationProperties.AutomationId="tglbtnEnableAdvancedAnalytics" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableAdvancedAnalytics_Checked" Unchecked="btnEnableAdvancedAnalytics_Unchecked"/>
+                        <ToggleButton Grid.Column="1" x:Name="btnEnableAdvancedAnalytics" AutomationProperties.AutomationId="tglbtnEnableAdvancedAnalytics" AutomationProperties.LabeledBy="{Binding ElementName=EnableAdvancedAnalytics}" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnEnableAdvancedAnalytics_Checked" Unchecked="btnEnableAdvancedAnalytics_Unchecked"/>
                     </Grid>
                 
                 </Grid>

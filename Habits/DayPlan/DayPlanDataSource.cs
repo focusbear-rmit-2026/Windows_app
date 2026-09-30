@@ -44,7 +44,7 @@ namespace Focus_Bear.Habits.DayPlan
             if (s.dayPlanCompletedHabitIdsByDay.TryGetValue(dayKey, out HashSet<string> daySet) && daySet.Contains(id)) return true;
             if (s.dayPlanSkippedHabitIdsByDay.TryGetValue(dayKey, out HashSet<string> skipSet) && skipSet.Contains(id)) return true;
             // Today also has the in-session set + the live activity-props.
-            if (dayKey == DateTime.Now.ToString("yyyy-MM-dd"))
+            if (dayKey == FocusBear.Core.Schedule.DayPlanDayKey.For(DateTime.Now))
             {
                 if (s.dayPlanDoneOrSkippedHabitIds.Contains(id)) return true;
                 if (JArrayContainsId(s.arrayCompletedActivities, id)) return true;
@@ -64,7 +64,7 @@ namespace Focus_Bear.Habits.DayPlan
             if (string.IsNullOrEmpty(id)) return false;
             var s = AppSettings;
             if (s.dayPlanSkippedHabitIdsByDay.TryGetValue(dayKey, out HashSet<string> skipSet) && skipSet.Contains(id)) return true;
-            if (dayKey == DateTime.Now.ToString("yyyy-MM-dd") && JArrayContainsId(s.arraySkipped, id)) return true;
+            if (dayKey == FocusBear.Core.Schedule.DayPlanDayKey.For(DateTime.Now) && JArrayContainsId(s.arraySkipped, id)) return true;
             return false;
         }
 
@@ -80,7 +80,8 @@ namespace Focus_Bear.Habits.DayPlan
         /// routine state (active routine + evening preview); for any other day it's a read-only preview
         /// of that day's scheduled habits (with done-state from the backend routine-progress cache).
         /// </summary>
-        public static List<ScheduleBlock> BuildBlocks(DateTime selectedDate, ScheduleLabels labels = null, bool includeDismissedMeetings = false)
+        public static List<ScheduleBlock> BuildBlocks(DateTime selectedDate, ScheduleLabels labels = null, bool includeDismissedMeetings = false,
+                                                      bool showEarlierMeetings = false)
         {
             labels = labels ?? DayPlanText.EngineLabels();
             var settings = AppSettings;
@@ -122,8 +123,9 @@ namespace Focus_Bear.Habits.DayPlan
                 sprintBreakSeconds: 0,
                 // Meetings floor: for today, start from `now` so already-finished meetings drop off the
                 // agenda (matching how habits pack from `now`); an in-progress meeting (End > now) still
-                // shows. For other days, surface the whole day.
-                meetingsFrom: isToday ? DateTime.Now : selectedDate.Date,
+                // shows. For other days, surface the whole day. The schedule cog's "Show events from earlier
+                // today" (showEarlierMeetings) brings today's finished meetings back.
+                meetingsFrom: isToday && !showEarlierMeetings ? DateTime.Now : selectedDate.Date,
                 labels: labels);
         }
 
@@ -136,14 +138,13 @@ namespace Focus_Bear.Habits.DayPlan
         {
             var settings = AppSettings;
             var segs = new List<ScheduleRoutineSegment>();
-            string dayKey = date.ToString("yyyy-MM-dd");
-            string weekday = date.DayOfWeek.ToString();
+            string dayKey = FocusBear.Core.Schedule.DayPlanDayKey.For(date);
             DateTime dayStart = date.Date;
             DateTime endOfDay = EndOfDay(date);
             DateTime morningStart = TimeToday(settings.sDayStartTime, date) ?? dayStart;
             DateTime? eveningStart = TimeToday(settings.sDayShutOffTime, date);
 
-            var morning = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllMorningHabits, weekday), isEvening: false), morningStart, dayKey, asEarlier: true);
+            var morning = HabitInputs(settings.ApplyExpiredHabitLimit(RoutineHabitDays.ScheduledOn(settings.arrGLOBALAllMorningHabits, date), isEvening: false), morningStart, dayKey, asEarlier: true);
             if (morning.Count > 0)
             {
                 segs.Add(new ScheduleRoutineSegment(MorningRoutineHabits, morning,
@@ -152,7 +153,7 @@ namespace Focus_Bear.Habits.DayPlan
 
             if (eveningStart.HasValue)
             {
-                var evening = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), isEvening: true), eveningStart.Value, dayKey, asEarlier: true);
+                var evening = HabitInputs(settings.ApplyExpiredHabitLimit(RoutineHabitDays.ScheduledOn(settings.arrGLOBALAllEveningHabits, date), isEvening: true), eveningStart.Value, dayKey, asEarlier: true);
                 if (evening.Count > 0)
                 {
                     segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, evening,
@@ -170,8 +171,7 @@ namespace Focus_Bear.Habits.DayPlan
         public static List<ScheduleRoutineSegment> StandardSegments(DateTime now)
         {
             var settings = AppSettings;
-            string dayKey = now.ToString("yyyy-MM-dd");
-            string weekday = now.DayOfWeek.ToString();   // only show habits scheduled for today's weekday
+            string dayKey = FocusBear.Core.Schedule.DayPlanDayKey.For(now);
             var segs = new List<ScheduleRoutineSegment>();
             DateTime endOfDay = EndOfDay(now);
             DateTime? eveningStart = TimeToday(settings.sDayShutOffTime, now);
@@ -188,7 +188,7 @@ namespace Focus_Bear.Habits.DayPlan
                 DateTime? morningStart = TimeToday(settings.sDayStartTime, now);
                 if (morningStart.HasValue)
                 {
-                    var pastMorning = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllMorningHabits, weekday), isEvening: false), morningStart.Value, dayKey, asEarlier: true);
+                    var pastMorning = HabitInputs(settings.ApplyExpiredHabitLimit(RoutineHabitDays.ScheduledOn(settings.arrGLOBALAllMorningHabits, now), isEvening: false), morningStart.Value, dayKey, asEarlier: true);
                     if (pastMorning.Count > 0)
                     {
                         segs.Add(new ScheduleRoutineSegment(MorningRoutineHabits, pastMorning,
@@ -202,7 +202,7 @@ namespace Focus_Bear.Habits.DayPlan
                     if (eveningStart.Value > now)
                     {
                         // Evening routine still ahead → read-only preview.
-                        var eveningPreview = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), isEvening: true), now, dayKey, dropNonHighPriorityPastCutoff: true);
+                        var eveningPreview = HabitInputs(settings.ApplyExpiredHabitLimit(RoutineHabitDays.ScheduledOn(settings.arrGLOBALAllEveningHabits, now), isEvening: true), now, dayKey, dropNonHighPriorityPastCutoff: true);
                         if (eveningPreview.Count > 0)
                             segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, eveningPreview,
                                                                 eveningStart.Value, endOfDay, actionable: false));
@@ -212,7 +212,7 @@ namespace Focus_Bear.Habits.DayPlan
                         // Evening window has started but the routine isn't active (finished/skipped — including
                         // on another device) → show it as a read-only, struck-through "earlier" section, like
                         // the morning one, instead of dropping it entirely.
-                        var pastEvening = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), isEvening: true), eveningStart.Value, dayKey, asEarlier: true);
+                        var pastEvening = HabitInputs(settings.ApplyExpiredHabitLimit(RoutineHabitDays.ScheduledOn(settings.arrGLOBALAllEveningHabits, now), isEvening: true), eveningStart.Value, dayKey, asEarlier: true);
                         if (pastEvening.Count > 0)
                             segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, pastEvening,
                                                                 eveningStart.Value, endOfDay, actionable: false, isEarlier: true));
@@ -255,7 +255,7 @@ namespace Focus_Bear.Habits.DayPlan
             // Evening routine preview, once the morning/day routine hands off at the shutdown time.
             if (isMorningActive && eveningStart.HasValue && eveningStart.Value > now)
             {
-                var eveningHabits = HabitInputs(settings.ApplyExpiredHabitLimit(FilterByWeekday(settings.arrGLOBALAllEveningHabits, weekday), isEvening: true), now, dayKey, dropNonHighPriorityPastCutoff: true);
+                var eveningHabits = HabitInputs(settings.ApplyExpiredHabitLimit(RoutineHabitDays.ScheduledOn(settings.arrGLOBALAllEveningHabits, now), isEvening: true), now, dayKey, dropNonHighPriorityPastCutoff: true);
                 if (eveningHabits.Count > 0)
                 {
                     segs.Add(new ScheduleRoutineSegment(EveningRoutineHabits, eveningHabits,
@@ -295,7 +295,8 @@ namespace Focus_Bear.Habits.DayPlan
                 result.Add(new ScheduleHabitInput(
                     index: idx,
                     title: string.IsNullOrEmpty(h.name) ? "Habit" : h.name,
-                    durationSeconds: EstimatedDuration(h),
+                    // A habit shortened for this day (Day Plan "Shorten", local only) plans at its trimmed length.
+                    durationSeconds: DayPlanHabitTrims.EffectiveSeconds(h.id, now.Date, EstimatedDuration(h)),
                     isPlaying: playing,
                     elapsedSeconds: 0,
                     cutoff: TimeToday(h.sCutOffTime, now),
@@ -336,37 +337,6 @@ namespace Focus_Bear.Habits.DayPlan
         private static DateTime EndOfDay(DateTime now)
         {
             return new DateTime(now.Year, now.Month, now.Day, 23, 59, 0);
-        }
-
-        /// <summary>
-        /// Whether a days-of-week list ("all"/"weekdays"/"weekend"/named days) includes the weekday.
-        /// Mirrors macOS isScheduledOn (empty list = every day).
-        /// </summary>
-        public static bool IsScheduledOn(List<string> days, string weekday)
-        {
-            if (days == null || days.Count == 0) return true;
-            string wd = weekday.ToLowerInvariant();
-            bool isWeekend = wd.StartsWith("sat") || wd.StartsWith("sun");
-            foreach (var d in days)
-            {
-                string dl = (d ?? "").ToLowerInvariant();
-                if (dl == "all") return true;
-                if (dl == "weekdays" && !isWeekend) return true;
-                if (dl == "weekend" && isWeekend) return true;
-                if (dl.Length >= 3 && wd.StartsWith(dl.Substring(0, 3))) return true;
-            }
-            return false;
-        }
-
-        public static List<habit> FilterByWeekday(List<habit> habits, string weekday)
-        {
-            var result = new List<habit>();
-            if (habits == null) return result;
-            foreach (var h in habits)
-            {
-                if (IsScheduledOn(h.DaysOfWeek, weekday)) result.Add(h);
-            }
-            return result;
         }
     }
 }

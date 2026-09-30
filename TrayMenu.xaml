@@ -210,6 +210,9 @@
             <DropShadowEffect BlurRadius="22" ShadowDepth="0" Opacity="0.28" Color="Black"/>
         </Border.Effect>
 
+        <!-- Scrolls when the open accordions make the menu taller than the screen (SetTrayMenuPosition caps
+             the window to the work area); it used to run off the top, taking Preferences and Quit with it. -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
         <StackPanel Orientation="Vertical">
 
             <!-- ── Header: title + circular mic / settings / quit ───────────────── -->
@@ -323,9 +326,10 @@
             <Button x:Name="btnStartPomodoroMode" AutomationProperties.AutomationId="btnStartPomodoroMode"
                     Style="{StaticResource MacCtaButton}" Click="btnStartPomodoroMode_Click">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="&#x25B6;" FontSize="13" Foreground="White" VerticalAlignment="Center" Margin="0,0,9,0"/>
+                    <!-- Near-black on the orange (7:1); white on #F0932A was 2.4:1. -->
+                    <TextBlock Text="&#x25B6;" FontSize="13" Foreground="#1C1C1E" VerticalAlignment="Center" Margin="0,0,9,0"/>
                     <TextBlock Name="PomodoroMode" Text="Start Focus Session" VerticalAlignment="Center"
-                               FontSize="15" FontWeight="SemiBold" Foreground="White"/>
+                               FontSize="15" FontWeight="SemiBold" Foreground="#1C1C1E"/>
                 </StackPanel>
             </Button>
 
@@ -698,7 +702,7 @@
                                 Style="{StaticResource ToolRowButton}" Click="btnBrainDump_Click">
                             <StackPanel Orientation="Horizontal">
                                 <Image Width="20" Height="20" Source="images/brainDump.png"/>
-                                <TextBlock x:Name="BrainDumpLabel" Text="Brain Dump" Margin="12,0,0,0" VerticalAlignment="Center"
+                                <TextBlock x:Name="BrainDumpLabel" Text="Notes" Margin="12,0,0,0" VerticalAlignment="Center"
                                            FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TrayToolRowText}"/>
                             </StackPanel>
                         </Button>
@@ -758,8 +762,8 @@
             <StackPanel Orientation="Horizontal" Name="LimitedBlockingSection" Visibility="Collapsed" Margin="18,0,0,10">
                 <TextBlock Name="LimitedBlocking" Margin="0,0,0,0" FontSize="14" Cursor="Hand"
                            Foreground="{DynamicResource ForegroundColor}" FontWeight="SemiBold" VerticalAlignment="Center">xLimited Blocking</TextBlock>
-                <Image Name="LimitedBlockingInfo" Source="{DynamicResource InfoImage}" Width="18" Margin="8,0,0,0" VerticalAlignment="Center" Cursor="Hand"/>
-                <Button x:Name="btnLimitedBlockingEdit" AutomationProperties.AutomationId="btnLimitedBlockingEdit" Margin="8,0,0,0" Style="{StaticResource BtnStyleInfo}" Click="btnLimitedBlockingEdit_Click" MinWidth="18" Height="18" Cursor="Hand">
+                <Image Name="LimitedBlockingInfo" AutomationProperties.Name="{Binding ToolTip, RelativeSource={RelativeSource Self}}" Source="{DynamicResource InfoImage}" Width="18" Margin="8,0,0,0" VerticalAlignment="Center" Cursor="Hand"/>
+                <Button x:Name="btnLimitedBlockingEdit" AutomationProperties.Name="{Binding ToolTip, ElementName=LimitedBlockingEdit}" AutomationProperties.AutomationId="btnLimitedBlockingEdit" Margin="8,0,0,0" Style="{StaticResource BtnStyleInfo}" Click="btnLimitedBlockingEdit_Click" MinWidth="18" Height="18" Cursor="Hand">
                     <Image Name="LimitedBlockingEdit" Source="images/edit.png" Height="18" Width="18"/>
                 </Button>
             </StackPanel>
@@ -768,6 +772,7 @@
             <Border Height="8"/>
 
         </StackPanel>
+        </ScrollViewer>
     </Border>
 
 </Window>

@@ -43,6 +43,8 @@ namespace Focus_Bear.Utils
             }
 
             this.btnClicked = btnClicked;
+            _buttons = btn;
+            PreviewKeyDown += OnPreviewKeyDown;
 
             string sGeekMode = appSettings.ConfigFileStrings["geekModeInfo"]["alertGeekModeEnabled"].ToString();
             string sSimpleMode = appSettings.ConfigFileStrings["geekModeInfo"]["alertSimpleModeEnabled"].ToString();
@@ -159,6 +161,7 @@ namespace Focus_Bear.Utils
             {
                 dispatcherTimerAutoClose.Stop();
                 CommandManager.InvalidateRequerySuggested();
+                _answered = true;
                 Close();
             }
             catch (Exception ex)
@@ -166,32 +169,97 @@ namespace Focus_Bear.Utils
                 LogWriter.LogWrite("FBMessage box dispatcherTimer_Tick ex" + ex.Message);
             }
         }
+        private MessageBoxButton _buttons = MessageBoxButton.OK;
+
+        // True once a button, Esc or the auto-close timer gave the answer.
+        private bool _answered;
+
+        /// <summary>
+        /// Closed any other way (the title bar's X, Alt+F4, the window being closed from outside): answer the safe
+        /// result, not the Yes default. A Yes/No box answers No and a Yes/No/Cancel box Cancel, which every caller
+        /// treats as "don't". It was Yes, so closing Edit Habits' "unsaved changes? Review and save / Cancel" with
+        /// the X went back to Edit Habits. The auto-close timer keeps the caller's chosen default.
+        /// </summary>
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            if (!_answered && !e.Cancel)
+            {
+                if (_buttons == MessageBoxButton.YesNo) btnClicked = MessageBoxResult.No;
+                else if (_buttons == MessageBoxButton.YesNoCancel) btnClicked = MessageBoxResult.Cancel;
+            }
+            base.OnClosing(e);
+        }
+
+        /// <summary>
+        /// Esc dismisses the box the way Windows' own message box does: an OK-only box closes, a box with Cancel
+        /// answers Cancel (including a Yes/No box whose No is labelled Cancel). Any other Yes/No box has no
+        /// neutral answer, so Esc leaves it open.
+        /// </summary>
+        private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Escape) return;
+            if (_buttons == MessageBoxButton.OK)
+            {
+                e.Handled = true;
+                _answered = true;
+                Close();
+            }
+            else if (_buttons == MessageBoxButton.YesNoCancel)
+            {
+                e.Handled = true;
+                btnClicked = MessageBoxResult.Cancel;
+                _answered = true;
+                Close();
+            }
+            else if (_buttons == MessageBoxButton.YesNo && IsCancelLabel(btnNoTxt.Text))
+            {
+                // A Yes/No box whose No says "Cancel" (e.g. "Unsaved changes: Discard / Cancel"): Esc is that Cancel.
+                e.Handled = true;
+                btnClicked = MessageBoxResult.No;
+                _answered = true;
+                Close();
+            }
+        }
+
+        private bool IsCancelLabel(string text)
+        {
+            string cancel = "Cancel";
+            try { cancel = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString(); } catch { }
+            return string.Equals((text ?? "").Trim(), cancel.Trim(), StringComparison.OrdinalIgnoreCase)
+                   || string.Equals((text ?? "").Trim(), "Cancel", StringComparison.OrdinalIgnoreCase);
+        }
+
         public void btnOK_Click(object sender, RoutedEventArgs e)
         {
+            _answered = true;
             Close();
         }
 
         private void btnYes_Click(object sender, RoutedEventArgs e)
         {
             btnClicked = MessageBoxResult.Yes;
+            _answered = true;
             Close();
         }
 
         private void btnNo_Click(object sender, RoutedEventArgs e)
         {
             btnClicked = MessageBoxResult.No;
+            _answered = true;
             Close();
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             btnClicked = MessageBoxResult.Cancel;
+            _answered = true;
             Close();
         }
 
         private void HyperlinkCancel_Click(object sender, RoutedEventArgs e)
         {
             btnClicked = MessageBoxResult.Cancel;
+            _answered = true;
             Close();
         }
 

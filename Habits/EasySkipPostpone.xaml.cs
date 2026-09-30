@@ -141,9 +141,21 @@ namespace Focus_Bear.Habits
                 //whatever the user typed, so it's the one source of truth to parse either way. Also
                 //belt-and-suspenders clamp here in case LostFocus didn't fire before this click.
                 ClampMinutesToMinimum();
-                if (!int.TryParse(ComboBoxMinutes.Text, out int nMinutesToPostpone))
+                var input = FocusBear.Core.Postpone.PostponeMinutes.Parse(ComboBoxMinutes.Text, out int nMinutesToPostpone);
+                if (input == FocusBear.Core.Postpone.PostponeMinutesInput.Invalid)
                 {
                     string sMessage = appSettings.GetConfigStringSafe("Enter a valid positive number for minutes", "easyPostponeVcInfo", "customTimeError");
+                    FBMessageBox ff = new FBMessageBox(sMessage);
+                    ff.Owner = this;
+                    ff.ShowDialog();
+                    return;
+                }
+                if (input == FocusBear.Core.Postpone.PostponeMinutesInput.Capped)
+                {
+                    //Past about 35,791 minutes the timer refused the interval and the postpone silently did
+                    //nothing. Show the cap in the box and say so; the user confirms with a second click.
+                    ComboBoxMinutes.Text = nMinutesToPostpone.ToString();
+                    string sMessage = appSettings.GetConfigStringSafe("You can postpone for up to 24 hours (1440 minutes).", "easyPostponeVcInfo", "customTimeMaxInfo");
                     FBMessageBox ff = new FBMessageBox(sMessage);
                     ff.Owner = this;
                     ff.ShowDialog();

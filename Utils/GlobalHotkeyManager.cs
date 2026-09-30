@@ -43,13 +43,22 @@ namespace Focus_Bear.Utils
         public void RegisterAll()
         {
             if (_hwnd == IntPtr.Zero) return;
+            // The E2E test build takes no system-wide shortcuts: they belong to the real app.
+            if (!E2EBuild.MachineIntegrationAllowed) return;
             UnregisterAll();
             if (appSettings.KeyboardShortcuts == null) return;
             foreach (var kv in appSettings.KeyboardShortcuts)
             {
                 if (kv.Value == null || !kv.Value.IsSet) continue;
                 if (!_hotkeyIds.TryGetValue(kv.Key, out int id)) continue;
-                if (RegisterHotKey(_hwnd, id, kv.Value.Modifiers, kv.Value.VirtualKey))
+                if (!FocusBear.Core.Ui.GlobalShortcutRule.IsAcceptable(kv.Value.Modifiers, kv.Value.VirtualKey))
+                {
+                    //e.g. a Shift + letter saved before the recorder refused it: registering it would eat that
+                    //capital letter in every app.
+                    LogWriter.LogWrite("GlobalHotkeyManager: not registering " + kv.Key + " (" + kv.Value.Display + ") - needs Ctrl, Alt or Win");
+                    continue;
+                }
+                if (RegisterHotKey(_hwnd, id, FocusBear.Core.Ui.GlobalShortcutRule.RegisterModifiers(kv.Value.Modifiers), kv.Value.VirtualKey))
                     _registered.Add(id);
                 else
                     LogWriter.LogWrite("GlobalHotkeyManager: RegisterHotKey failed for " + kv.Key + " (" + kv.Value.Display + ") - likely already in use by another app");

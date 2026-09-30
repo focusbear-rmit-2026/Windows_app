@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Focus Bear"
-#define MyAppVersion "3.0.221"
+#define MyAppVersion "3.0.250"
 #define MyAppPublisher "Focus Bear Pty Ltd"
 #define MyAppURL "https://www.focusbear.io"
 #define MyAppExeName "Focus Bear.exe"
@@ -163,11 +163,15 @@ Source: "Files\Typography.OpenFont.dll"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "Files\System.Security.Principal.Windows.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\System.Security.AccessControl.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 Source: "Files\Microsoft.Win32.Registry.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+; The WPF-free logic library (Core\FocusBear.Core.csproj): the app does not start without it.
+Source: "Files\FocusBear.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
 
 Source: "Files\ESPnet472\*"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
 
 Source: "Files\Graph\*"; DestDir: "{app}\graph"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
 Source: "Files\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
+; The shared (project) note editor page the Notes screen loads in a WebView2 (BrainDump\ProjectNoteEditor.cs looks under Notes\ProjectNoteEditorWeb).
+Source: "Files\Notes\*"; DestDir: "{app}\Notes"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
 
 Source: "FocusBearTimeTracker\*"; DestDir: "{app}\FocusBearTimeTracker"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
 
@@ -185,9 +189,19 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: {uninstallexe};
 ;Filename: "{app}\{#MyAppName}"; Flags: Nowait
 
 [code]
+// The app's watchdog task restarts Focus Bear when it is killed. Setup kills it on purpose, so the task goes
+// first - otherwise it could start the old exe again mid-install. The app registers it again when it starts.
+procedure RemoveWatchdogTask();
+var ErrorCode: Integer;
+begin
+    Exec(ExpandConstant('{sys}\schtasks.exe'), '/Delete /TN "Focus Bear Watchdog" /F', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
+end;
+
 function InitializeSetup(): Boolean;
 var ErrorCode: Integer;
 begin
+
+    RemoveWatchdogTask();
 
     if not ShellExec('open','taskkill.exe','/f /im "focus bear.exe"','',SW_HIDE,ewNoWait,ErrorCode)then
     begin
@@ -234,6 +248,9 @@ end;
 function InitializeUninstall(): Boolean;
   var ErrorCode: Integer;
 begin
+    RemoveWatchdogTask();
+    // The startup task would otherwise try to launch a program that is no longer there at every sign-in.
+    Exec(ExpandConstant('{sys}\schtasks.exe'), '/Delete /TN "Focus Bear" /F', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
     ShellExec('open','taskkill.exe','/f /im "focus bear.exe"','',SW_HIDE,ewNoWait,ErrorCode)
     
     Result := true;

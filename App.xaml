@@ -5,6 +5,19 @@
              Startup="Application_Startup" Exit="Application_Exit">
     <Application.Resources>
 
+        <!-- A keyboard focus ring that reads on both themes: a 2px accent outline just outside the control, shown
+             only for keyboard focus (WPF draws a FocusVisualStyle only then). The stock dotted rectangle was
+             invisible against the orange-bordered buttons and on a borderless read-only text box. -->
+        <Style x:Key="AccentFocusRing">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="-3" RadiusX="8" RadiusY="8" StrokeThickness="2" Stroke="#1A73E8" SnapsToDevicePixels="True"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Tab Audit main-tab icon (orange, theme-independent): a browser window with two tabs. -->
         <DrawingImage x:Key="TabAuditIcon">
             <DrawingImage.Drawing>
@@ -20,6 +33,53 @@
                                 <RectangleGeometry Rect="11,3.5,6.5,5.5" RadiusX="1.5" RadiusY="1.5"/>
                             </GeometryGroup>
                         </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+
+        <!-- Stats main-tab icon (orange, theme-independent): a small bar chart on its axis (Mac chart.bar.xaxis). -->
+        <DrawingImage x:Key="StatsIcon">
+            <DrawingImage.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="#E88800">
+                        <GeometryDrawing.Geometry>
+                            <GeometryGroup>
+                                <RectangleGeometry Rect="4.5,11.5,3.6,6.5" RadiusX="1" RadiusY="1"/>
+                                <RectangleGeometry Rect="10.2,4.5,3.6,13.5" RadiusX="1" RadiusY="1"/>
+                                <RectangleGeometry Rect="15.9,8.5,3.6,9.5" RadiusX="1" RadiusY="1"/>
+                            </GeometryGroup>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing>
+                        <GeometryDrawing.Pen><Pen Brush="#E88800" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                        <GeometryDrawing.Geometry><LineGeometry StartPoint="2.5,20.8" EndPoint="21.5,20.8"/></GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+
+        <!-- Late No More main-tab icon (orange, theme-independent): a calendar with a clock badge (Mac calendar.badge.clock). -->
+        <DrawingImage x:Key="LateNoMoreIcon">
+            <DrawingImage.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing>
+                        <GeometryDrawing.Pen><Pen Brush="#E88800" Thickness="1.8"/></GeometryDrawing.Pen>
+                        <GeometryDrawing.Geometry><RectangleGeometry Rect="2.5,4.5,14,14" RadiusX="2" RadiusY="2"/></GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#E88800">
+                        <GeometryDrawing.Geometry><RectangleGeometry Rect="2.5,4.5,14,4" RadiusX="1.5" RadiusY="1.5"/></GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing>
+                        <GeometryDrawing.Pen><Pen Brush="#E88800" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                        <GeometryDrawing.Geometry><GeometryGroup><LineGeometry StartPoint="6.5,2.5" EndPoint="6.5,6"/><LineGeometry StartPoint="12.5,2.5" EndPoint="12.5,6"/></GeometryGroup></GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#E88800">
+                        <GeometryDrawing.Geometry><EllipseGeometry Center="17.5,17.5" RadiusX="5.5" RadiusY="5.5"/></GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing>
+                        <GeometryDrawing.Pen><Pen Brush="White" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                        <GeometryDrawing.Geometry><PathGeometry Figures="M 17.5,14.6 L 17.5,17.8 L 19.8,17.8"/></GeometryDrawing.Geometry>
                     </GeometryDrawing>
                 </DrawingGroup>
             </DrawingImage.Drawing>
@@ -785,7 +845,7 @@
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter Property="Background" Value="#e88800" />
                                 <Setter Property="BorderBrush" Value="#e88800" />
-                                <Setter Property="Foreground" Value="#fff" />
+                                <Setter Property="Foreground" Value="#1C1C1E" /> <!-- near-black on the orange (7.9:1); white was 2.6:1 -->
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#ffe4c6" />
@@ -1530,7 +1590,8 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="4"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Focusable" Value="False"/>
+            <!-- Keyboard users must reach icon buttons too (Tab, then Enter/Space). -->
+            <Setter Property="Focusable" Value="True"/>
 
             <!-- Custom Template -->
             <Setter Property="Template">

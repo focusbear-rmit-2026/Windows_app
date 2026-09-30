@@ -21,7 +21,7 @@
             <StackPanel Orientation="Vertical" Margin="28,20,28,20">
 
                 <!-- ===== Your Account Information ===== -->
-                <TextBlock Name="Heading" Text="xYour Account Information" Foreground="#e88800"
+                <TextBlock Name="Heading" Text="xYour Account Information" Foreground="{DynamicResource OrangeTextColor}"
                            FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,0,0,4"/>
                 <Grid Height="1" Background="{DynamicResource TrayCardBorder}" Margin="0,0,0,14"/>
 
@@ -58,7 +58,7 @@
                                    Foreground="{DynamicResource ForegroundColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                         <TextBlock VerticalAlignment="Center" Cursor="Hand">
                             <Hyperlink x:Name="btnResendConfirm" AutomationProperties.AutomationId="btnResendConfirm"
-                                       Click="btnResendConfirm_Click" Foreground="#e88800" TextDecorations="Underline">
+                                       Click="btnResendConfirm_Click" Foreground="{DynamicResource OrangeTextColor}" TextDecorations="Underline">
                                 <Run x:Name="btnResendConfirmTXT" Text="xResend Confirmation Email"/>
                             </Hyperlink>
                         </TextBlock>
@@ -99,10 +99,10 @@
                     <TextBlock Grid.Column="0" Name="LblUserId" Text="xUser Id" FontSize="14"
                                Foreground="{DynamicResource ForegroundColor}" VerticalAlignment="Center"/>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <TextBox Name="LblUserIdValue" IsReadOnly="True" Text="xuser id" FontSize="14" BorderThickness="0"
+                        <TextBox Name="LblUserIdValue" FocusVisualStyle="{StaticResource AccentFocusRing}" AutomationProperties.LabeledBy="{Binding ElementName=LblUserId}" IsReadOnly="True" Text="xuser id" FontSize="14" BorderThickness="0"
                                  Background="Transparent" Foreground="{DynamicResource ForegroundColor}"
                                  VerticalAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
-                        <Button x:Name="btnCopyUserId" AutomationProperties.AutomationId="btnCopyUserId" Margin="8,0,0,0"
+                        <Button x:Name="btnCopyUserId" AutomationProperties.AutomationId="btnCopyUserId" Margin="8,0,0,0" FocusVisualStyle="{StaticResource AccentFocusRing}"
                                 Width="22" Height="22" Padding="0" Cursor="Hand" VerticalAlignment="Center"
                                 BorderBrush="#eee" Background="#eee" Click="btnCopyUserId_Click" ToolTip="xCopy">
                             <Image Height="20" Width="20" Source="../../Images/copy.png" Stretch="Fill"
@@ -125,7 +125,7 @@
                             FontWeight="Semibold" Click="btnLogout_Click">
                         <TextBlock x:Name="btnLogoutTXT" Text="xLogout" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </Button>
-                    <Button x:Name="btnDeleteAccount" AutomationProperties.AutomationId="btnDeleteAccount"
+                    <Button x:Name="btnDeleteAccount" AutomationProperties.AutomationId="btnDeleteAccount" FocusVisualStyle="{StaticResource AccentFocusRing}"
                             Style="{StaticResource BtnStyleClearOrangeBordered}" Height="30" Width="200"
                             HorizontalContentAlignment="Center" Padding="0" Margin="0,0,0,0" FontSize="13" Cursor="Hand"
                             FontWeight="Semibold" Click="btnDeleteAccount_Click">
@@ -134,7 +134,7 @@
                 </StackPanel>
 
                 <!-- ===== Subscription Details ===== -->
-                <TextBlock Name="SubscriptionHeading" Text="xSubscription Details" Foreground="#e88800"
+                <TextBlock Name="SubscriptionHeading" Text="xSubscription Details" Foreground="{DynamicResource OrangeTextColor}"
                            FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,18,0,4"/>
                 <Grid Height="1" Background="{DynamicResource TrayCardBorder}" Margin="0,0,0,14"/>
 

@@ -28,7 +28,6 @@ namespace Focus_Bear.Habits
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
-        bool bSecondTime15SecTimerRunning;
         int nTimer = 30;
         DispatcherTimer dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
 
@@ -104,8 +103,6 @@ namespace Focus_Bear.Habits
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
-            bSecondTime15SecTimerRunning = false;
-
             nTimer = 30;
            
             ShowInTaskbar = false;
@@ -160,24 +157,14 @@ namespace Focus_Bear.Habits
 
                 if (nTimer < 0)
                 {
-                    if (bSecondTime15SecTimerRunning)
-                    {
-                        dispatcherTimer.Stop();
-                        ((App)(Application.Current)).StartBreakActivityTimer(true, 5);
-                        
-                        wndFadeInBreakWindow.Close();
-                        Close();
-                    }
-                    else
-                    {
-                        TxtTimer.Text = "00:00";
-                        dispatcherTimer.Stop();
-                        ((App)(Application.Current)).ShowBreakActivities();
+                    TxtTimer.Text = "00:00";
+                    dispatcherTimer.Stop();
+                    //Things can change in 30 seconds (a focus session that skips breaks, a call, shut-off...),
+                    //so the app asks again before starting the break - as the Mac does.
+                    ((App)(Application.Current)).StartBreakAfterWarning();
 
-                        wndFadeInBreakWindow.Close();
-                        Close();
-                    }
-                  
+                    wndFadeInBreakWindow?.Close();
+                    Close();
                 }
             }
             catch (Exception ex)
@@ -206,82 +193,106 @@ namespace Focus_Bear.Habits
             }
         }
 
+        // Press-and-hold to postpone (Mac #1590). The mouse must hold the button for BreakPostponeFriction's
+        // time (5 s, then 10 s, then 15 s for each consecutive postpone; taking a break resets it). The countdown
+        // pauses while holding. Keyboard and UI Automation still postpone with a plain Click, so the button stays
+        // usable without a mouse.
+        private readonly DispatcherTimer holdTimer = new DispatcherTimer(DispatcherPriority.Normal) { Interval = TimeSpan.FromMilliseconds(50) };
+        private DateTime holdStartedAt;
+        private bool holding;
+        private string postponeButtonText;
+
+        private int HoldSeconds => FocusBear.Core.Breaks.BreakPostponeFriction.Shared.HoldSeconds;
+
+        private void btnAction_HoldStart(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true; //the hold, not the mouse click, postpones
+            if (holding)
+                return;
+            holding = true;
+            holdStartedAt = DateTime.Now;
+            postponeButtonText = btnActionTXT.Text;
+            dispatcherTimer.Stop();
+            HoldProgress.Value = 0;
+            HoldProgress.Visibility = Visibility.Visible;
+            btnAction.CaptureMouse();
+            holdTimer.Tick -= HoldTimer_Tick;
+            holdTimer.Tick += HoldTimer_Tick;
+            holdTimer.Start();
+            HoldTimer_Tick(null, EventArgs.Empty);
+        }
+
+        private void HoldTimer_Tick(object sender, EventArgs e)
+        {
+            if (!holding)
+                return;
+            double held = (DateTime.Now - holdStartedAt).TotalSeconds;
+            HoldProgress.Value = Math.Min(1, held / HoldSeconds);
+            int left = Math.Max(1, (int)Math.Ceiling(HoldSeconds - held));
+            btnActionTXT.Text = appSettings.GetConfigStringSafe("Keep holding... {seconds}s", "breakWarningVcInfo", "holdToPostponeProgress")
+                .Replace("{seconds}", left.ToString());
+            if (held >= HoldSeconds)
+            {
+                EndHold(true);
+                Postpone();
+            }
+        }
+
+        private void btnAction_HoldEnd(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+            if (holding)
+                EndHold(false);
+        }
+
+        private void btnAction_LostMouseCapture(object sender, MouseEventArgs e)
+        {
+            if (holding)
+                EndHold(false);
+        }
+
+        private void EndHold(bool completed)
+        {
+            holding = false;
+            holdTimer.Stop();
+            if (btnAction.IsMouseCaptured)
+                btnAction.ReleaseMouseCapture();
+            if (completed)
+                return;
+            //Released too early: back to the countdown.
+            HoldProgress.Visibility = Visibility.Collapsed;
+            btnActionTXT.Text = postponeButtonText;
+            dispatcherTimer.Start();
+        }
+
         private void btnAction_Click(object sender, RoutedEventArgs e)
+        {
+            //Keyboard or UI Automation - a mouse press is handled by the hold above and never clicks.
+            Postpone();
+        }
+
+        //Postpone for the chosen minutes. There used to be a "second time, 15 seconds to confirm" branch keyed on
+        //nCountBreaksPostponedTimes, which nothing ever increased, and it postponed a fixed 5 minutes whatever was
+        //picked; the Mac has no such step, so it is gone. Every second postpone asks about turning breaks off.
+        private void Postpone()
         {
             try
             {
-                if (appSettings.nCountBreaksPostponedTimes > 0)
-                {
-                    if (bSecondTime15SecTimerRunning)
-                    {
-                        dispatcherTimer.Stop();
-                        //User clicked means he wants to do the habits
-                        ((App)(Application.Current)).ShowBreakActivities();
+                dispatcherTimer.Stop();
+                bool askAboutBreaks = FocusBear.Core.Breaks.BreakPostponeFriction.Shared.PostponedFromWarning();
+                LogWriter.LogWrite("[user-action] BreakWarning - postponed " + nMinutesToPostpone + " min");
+                ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);
 
-                        wndFadeInBreakWindow.Close();
-                        Close();
-                        return;
-                    }
+                wndFadeInBreakWindow?.Close();
+                Close();
 
-                    //Set the break timer fro five minutes from now
-                    dispatcherTimer.Stop(); //Stop old timer
-                    TxtTimer.Text = "00:15";
-
-                    //Remove the previous event handler so that new can be set
-                    try
-                    {
-                        var eventField = dispatcherTimer.GetType().GetField("Tick", BindingFlags.NonPublic | BindingFlags.Instance);
-                        var eventDelegate = (Delegate)eventField.GetValue(dispatcherTimer);
-                        if (eventDelegate != null)
-                        {
-                            var invocatationList = eventDelegate.GetInvocationList();
-
-                            foreach (var handler in invocatationList)
-                                dispatcherTimer.Tick -= ((EventHandler)handler);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogWriter.LogWrite("BreakWarning = " + ex.Message);
-                    }
-
-
-                    Description.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["postponeConfirmText"].ToString();
-                    btnActionTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonTakeBreakText"].ToString();
-                    //hide progress
-                    Progress.Visibility = Visibility.Collapsed;
-
-                    Grid1.RowDefinitions[0].Height = new GridLength(50);
-
-                    nTimer = 15;
-
-                    bSecondTime15SecTimerRunning = true;
-
-                    dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-                    dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-                    dispatcherTimer.Start();
-                    CommandManager.InvalidateRequerySuggested();
-
-                    return;
-                }
-                else
-                {
-                    //Set the break timer fro five minutes from now
-                    dispatcherTimer.Stop();
-
-                    //Now we do not need to show 15 second timer...so easy fix is do not incrase this count
-                    
-                    ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);
-
-                    wndFadeInBreakWindow.Close();
-                    Close();
-                }
+                if (askAboutBreaks)
+                    new DeactivateBreaksWindow().Show();
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("BreakWarning = " + ex.Message);
             }
-
         }
 
         private void ComboBoxMinutes_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -303,6 +314,7 @@ namespace Focus_Bear.Habits
             LogWriter.LogWrite("btnStartBreakNow_Click");
 
             dispatcherTimer.Stop();
+            FocusBear.Core.Breaks.BreakPostponeFriction.Shared.BreakTaken(); //the next postpone is back to the shortest hold
             ((App)(Application.Current)).ShowBreakActivities();
 
             wndFadeInBreakWindow.Close();

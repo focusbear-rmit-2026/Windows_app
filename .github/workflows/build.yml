@@ -23,6 +23,14 @@ jobs:
       - name: Setup NuGet
         uses: nuget/setup-nuget@v2
 
+      # Name the SDK the test step runs on instead of inheriting whatever the image ships.
+      # The language version is pinned in the csproj, which is what actually keeps CI and a
+      # dev box compiling the same source the same way; this just keeps the runtime explicit.
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x' 
+
       - name: Restore NuGet packages
         run: nuget restore "Focus Bear.sln"
 
@@ -30,3 +38,42 @@ jobs:
         env:
           FOCUSBEAR_OPENAI_API_KEY: ${{ secrets.FOCUSBEAR_OPENAI_API_KEY }}
         run: msbuild "Focus Bear.sln" /p:Configuration=Release /p:Platform="Any CPU" /m /v:minimal
+
+      # FocusBear.Core is deliberately WPF-free and multi-targeted, so these also run with
+      # `dotnet test Core.Tests` on any developer machine, Windows or not. Here they run twice:
+      # on net8.0, and on net472 against Core's net472 build — the binary the app ships.
+      - name: Run Core tests
+        run: dotnet test Core.Tests/FocusBear.Core.Tests.csproj --configuration Release --verbosity minimal
+
+      # The seam between the app and Core: the adapters that read WPF state and hand it to a Core
+      # rule. It references the WPF app, which only the MSBuild step above can build, hence
+      # --no-build. It also loads the app assembly and Core together on .NET Framework.
+      - name: Run app seam tests
+        run: dotnet test App.Tests/FocusBear.App.Tests.csproj --no-build --configuration Release --verbosity minimal
+
+      # The only place the built app is ever actually started before a human installs it. Logged out
+      # on a clean image it should reach the login screen and stay up; it must not exit, and it must
+      # not hit an unhandled dispatcher exception (the app swallows those after logging them, so an
+      # "is it running?" check alone would pass a broken start). GITHUB_ACTIONS is inherited, so the
+      # app sends no PostHog events and reports to Sentry under the `ci` environment.
+      - name: Launch smoke test
+        shell: pwsh
+        run: |
+          $exe = Join-Path $PWD 'bin\Release\Focus Bear.exe'
+          $log = Join-Path $env:LOCALAPPDATA 'Focus Bear\Logs\Debug_Logs.txt'
+          $app = Start-Process -FilePath $exe -PassThru
+          Start-Sleep -Seconds 45
+
+          if (Test-Path $log) { Get-Content $log -Tail 80 } else { Write-Host "no log at $log" }
+          $failures = @()
+          if ($app.HasExited) { $failures += "the app exited during startup (code $($app.ExitCode))" }
+          if (-not (Test-Path $log) -or -not (Select-String -Path $log -SimpleMatch 'App Started' -Quiet)) {
+            $failures += "the log never recorded 'App Started'"
+          }
+          if ((Test-Path $log) -and (Select-String -Path $log -SimpleMatch 'Unhandled dispatcher exception' -Quiet)) {
+            $failures += "an unhandled dispatcher exception was logged (see above)"
+          }
+          if (-not $app.HasExited) { Stop-Process -Id $app.Id -Force }
+
+          if ($failures.Count -gt 0) { $failures | ForEach-Object { Write-Error $_ }; exit 1 }
+          Write-Host "Focus Bear started and stayed up for 45s with no unhandled exception."

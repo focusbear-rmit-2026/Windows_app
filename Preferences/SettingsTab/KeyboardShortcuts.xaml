@@ -16,7 +16,7 @@
 
                 <!-- A blue-bordered click-to-record box (mirrors the macOS recorder). Theme-aware background so
                      the value text stays readable in both light and dark mode. -->
-                <Style x:Key="RecorderBox" TargetType="Border">
+                <Style x:Key="RecorderBox" TargetType="local:ShortcutRecorderBox">
                     <Setter Property="Background" Value="{DynamicResource BackgroundColor}"/>
                     <Setter Property="BorderBrush" Value="#3B82F6"/>
                     <Setter Property="BorderThickness" Value="1"/>
@@ -66,14 +66,14 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="LblBrainDump" Grid.Column="0" Text="Open Brain Dump:" VerticalAlignment="Center" FontSize="14" Foreground="{DynamicResource ForegroundColor}"/>
-                    <Border x:Name="BoxBrainDump" Grid.Column="1" Tag="brainDump" Style="{StaticResource RecorderBox}"
+                    <local:ShortcutRecorderBox x:Name="BoxBrainDump" AutomationProperties.AutomationId="BoxBrainDump" RecordRequested="Recorder_RecordRequested" Grid.Column="1" Tag="brainDump" Style="{StaticResource RecorderBox}"
                             MouseLeftButtonDown="Recorder_Click" PreviewKeyDown="Recorder_KeyDown" LostFocus="Recorder_LostFocus">
                         <Grid Background="Transparent">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBlock x:Name="ValBrainDump" AutomationProperties.AutomationId="BoxBrainDump" Grid.Column="0" VerticalAlignment="Center" FontSize="14"/>
+                            <TextBlock x:Name="ValBrainDump" AutomationProperties.AutomationId="ValBrainDump" Grid.Column="0" VerticalAlignment="Center" FontSize="14"/>
                             <Button x:Name="ClearBrainDump" AutomationProperties.AutomationId="ClearBrainDump" Grid.Column="1" Tag="brainDump" Content="✕" FontSize="12" Foreground="{DynamicResource ForegroundGrey}" Style="{StaticResource IconHoverButton}" Click="Clear_Click" ToolTip="Clear shortcut" Visibility="Collapsed"/>
                         </Grid>
-                    </Border>
+                    </local:ShortcutRecorderBox>
                 </Grid>
 
                 <!-- Focus Music -->
@@ -83,14 +83,14 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="LblFocusMusic" Grid.Column="0" Text="Open Focus Music:" VerticalAlignment="Center" FontSize="14" Foreground="{DynamicResource ForegroundColor}"/>
-                    <Border x:Name="BoxFocusMusic" Grid.Column="1" Tag="focusMusic" Style="{StaticResource RecorderBox}"
+                    <local:ShortcutRecorderBox x:Name="BoxFocusMusic" AutomationProperties.AutomationId="BoxFocusMusic" RecordRequested="Recorder_RecordRequested" Grid.Column="1" Tag="focusMusic" Style="{StaticResource RecorderBox}"
                             MouseLeftButtonDown="Recorder_Click" PreviewKeyDown="Recorder_KeyDown" LostFocus="Recorder_LostFocus">
                         <Grid Background="Transparent">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBlock x:Name="ValFocusMusic" AutomationProperties.AutomationId="BoxFocusMusic" Grid.Column="0" VerticalAlignment="Center" FontSize="14"/>
+                            <TextBlock x:Name="ValFocusMusic" AutomationProperties.AutomationId="ValFocusMusic" Grid.Column="0" VerticalAlignment="Center" FontSize="14"/>
                             <Button x:Name="ClearFocusMusic" AutomationProperties.AutomationId="ClearFocusMusic" Grid.Column="1" Tag="focusMusic" Content="✕" FontSize="12" Foreground="{DynamicResource ForegroundGrey}" Style="{StaticResource IconHoverButton}" Click="Clear_Click" ToolTip="Clear shortcut" Visibility="Collapsed"/>
                         </Grid>
-                    </Border>
+                    </local:ShortcutRecorderBox>
                 </Grid>
 
                 <!-- Task List -->
@@ -100,14 +100,14 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="LblTaskList" Grid.Column="0" Text="Open Task List:" VerticalAlignment="Center" FontSize="14" Foreground="{DynamicResource ForegroundColor}"/>
-                    <Border x:Name="BoxTaskList" Grid.Column="1" Tag="taskList" Style="{StaticResource RecorderBox}"
+                    <local:ShortcutRecorderBox x:Name="BoxTaskList" AutomationProperties.AutomationId="BoxTaskList" RecordRequested="Recorder_RecordRequested" Grid.Column="1" Tag="taskList" Style="{StaticResource RecorderBox}"
                             MouseLeftButtonDown="Recorder_Click" PreviewKeyDown="Recorder_KeyDown" LostFocus="Recorder_LostFocus">
                         <Grid Background="Transparent">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBlock x:Name="ValTaskList" AutomationProperties.AutomationId="BoxTaskList" Grid.Column="0" VerticalAlignment="Center" FontSize="14"/>
+                            <TextBlock x:Name="ValTaskList" AutomationProperties.AutomationId="ValTaskList" Grid.Column="0" VerticalAlignment="Center" FontSize="14"/>
                             <Button x:Name="ClearTaskList" AutomationProperties.AutomationId="ClearTaskList" Grid.Column="1" Tag="taskList" Content="✕" FontSize="12" Foreground="{DynamicResource ForegroundGrey}" Style="{StaticResource IconHoverButton}" Click="Clear_Click" ToolTip="Clear shortcut" Visibility="Collapsed"/>
                         </Grid>
-                    </Border>
+                    </local:ShortcutRecorderBox>
                 </Grid>
 
                 <!-- Start Focus Session -->
@@ -117,14 +117,14 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="LblFocusSession" Grid.Column="0" Text="Start focus session:" VerticalAlignment="Center" FontSize="14" Foreground="{DynamicResource ForegroundColor}"/>
-                    <Border x:Name="BoxFocusSession" Grid.Column="1" Tag="focusSession" Style="{StaticResource RecorderBox}"
+                    <local:ShortcutRecorderBox x:Name="BoxFocusSession" AutomationProperties.AutomationId="BoxFocusSession" RecordRequested="Recorder_RecordRequested" Grid.Column="1" Tag="focusSession" Style="{StaticResource RecorderBox}"
                             MouseLeftButtonDown="Recorder_Click" PreviewKeyDown="Recorder_KeyDown" LostFocus="Recorder_LostFocus">
                         <Grid Background="Transparent">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBlock x:Name="ValFocusSession" AutomationProperties.AutomationId="BoxFocusSession" Grid.Column="0" VerticalAlignment="Center" FontSize="14"/>
+                            <TextBlock x:Name="ValFocusSession" AutomationProperties.AutomationId="ValFocusSession" Grid.Column="0" VerticalAlignment="Center" FontSize="14"/>
                             <Button x:Name="ClearFocusSession" AutomationProperties.AutomationId="ClearFocusSession" Grid.Column="1" Tag="focusSession" Content="✕" FontSize="12" Foreground="{DynamicResource ForegroundGrey}" Style="{StaticResource IconHoverButton}" Click="Clear_Click" ToolTip="Clear shortcut" Visibility="Collapsed"/>
                         </Grid>
-                    </Border>
+                    </local:ShortcutRecorderBox>
                 </Grid>
 
                 <TextBlock x:Name="HintText" Margin="0,14,0,0" TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource ForegroundGrey}"

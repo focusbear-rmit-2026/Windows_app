@@ -1,4 +1,4 @@
-﻿using EspDotNet.Tools;
+using EspDotNet.Tools;
 using Focus_Bear.API;
 using Focus_Bear.Focus;
 using Focus_Bear.Models;
@@ -30,45 +30,44 @@ namespace Focus_Bear.Services
         // The open schedule editor listens so its block-list combo reflects modes added elsewhere. #1114
         public static event Action FocusModesRefreshed;
         /// <summary>
-        /// Adds a new blocking schedule from the provided Instance
+        /// The <c>POST/PUT /blocking-schedule</c> body, built as JSON. The name, times and ids used to be pasted
+        /// between quotes as typed, so a schedule called <c>Kids' "homework"</c> produced a body the server could
+        /// not read and the schedule was silently never saved.
         /// </summary>
-        public static void AddBlockingSchedule(CustomBlockingSchedule Instance, bool bUpdating = false)
+        internal static JObject RequestBody(CustomBlockingSchedule Instance)
         {
-            //Convert to data and then call the API
-            int[] activeDays = Instance.DaysOfWeek.Select((isActive, index) => new { isActive, index })
+            int[] activeDays = (Instance.DaysOfWeek ?? new bool[0]).Select((isActive, index) => new { isActive, index })
                                                             .Where(x => x.isActive)
                                                             .Select(x => x.index)
                                                             .ToArray();
             string blockLevel = "gentle";
+            if (Instance.BlockLevel == FOCUSMODESTRICTNESS.STRICT) blockLevel = "strict";
+            else if (Instance.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS) blockLevel = "super-strict";
 
-            if (Instance.BlockLevel == FOCUSMODESTRICTNESS.CHILL_MODE )
+            return new JObject
             {
-                blockLevel = "gentle";
-            }
-            else if (Instance.BlockLevel ==  FOCUSMODESTRICTNESS.STRICT)
-            {
-                blockLevel = "strict" ;
-            }
-            else if (Instance.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
-            {
-                blockLevel = "super-strict";
-            }
+                ["id"] = Instance.id ?? "",
+                ["name"] = Instance.name ?? "",
+                ["start_time"] = Instance.StartTimeValue ?? "",
+                ["end_time"] = Instance.EndTimeValue ?? "",
+                ["days_of_week"] = new JArray(activeDays.Cast<object>().ToArray()),
+                ["focus_mode_id"] = Instance.SelectedFocusModeId ?? "",
+                ["pause_friction"] = "none",
+                ["block_level"] = blockLevel,
+                ["is_ai_blocking_enabled"] = Instance.bAIBlockingEnabled,
+                // Top-level "emoji" (nullable, <=32 chars) - matches the mac app's
+                // customBlockingSchedule.emoji field (backend#2094), not nested in metadata.
+                ["emoji"] = Instance.Emoji == null ? JValue.CreateNull() : new JValue(Instance.Emoji),
+                ["metadata"] = new JObject { ["is_micro_breaks_enabled"] = Instance.bMicroBreaksEnabled },
+            };
+        }
 
-            string metadata = $"{{\"is_micro_breaks_enabled\":{JsonConvert.SerializeObject(Instance.bMicroBreaksEnabled)}}}";
-
-            string addJsonString = $"{{\"id\":\"{Instance.id}\"," +
-                                    $"\"name\":\"{Instance.name}\"," +
-                                    $"\"start_time\":\"{Instance.StartTimeValue}\"," +
-                                    $"\"end_time\":\"{Instance.EndTimeValue}\"," +
-                                    $"\"days_of_week\":{JsonConvert.SerializeObject(activeDays)}," +
-                                    $"\"focus_mode_id\":\"{Instance.SelectedFocusModeId}\"," +
-                                    $"\"pause_friction\":\"none\"," +
-                                    $"\"block_level\":\"{blockLevel}\"," +
-                                    $"\"is_ai_blocking_enabled\":{JsonConvert.SerializeObject(Instance.bAIBlockingEnabled)}," +
-                                    // Top-level "emoji" (nullable, <=32 chars) - matches the mac app's
-                                    // customBlockingSchedule.emoji field (backend#2094), not nested in metadata.
-                                    $"\"emoji\":{JsonConvert.SerializeObject(Instance.Emoji)}," +
-                                    $"\"metadata\":{metadata}}}";
+        /// <summary>
+        /// Adds a new blocking schedule from the provided Instance
+        /// </summary>
+        public static void AddBlockingSchedule(CustomBlockingSchedule Instance, bool bUpdating = false)
+        {
+            string addJsonString = RequestBody(Instance).ToString(Formatting.None);
 
             if(bUpdating)
             {

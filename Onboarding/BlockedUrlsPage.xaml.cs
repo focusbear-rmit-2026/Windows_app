@@ -84,14 +84,11 @@ namespace Focus_Bear.Onboarding
 
         private void btnProceed_Click(object sender, RoutedEventArgs e)
         {
-            //we need to add the URLS to always blocked urls
-            for (int i = 0; i < appSettings.arrDistractingURLs.Count(); i++)
-            {
-                if (appSettings.arrDistractingURLs[i].IsItemChecked)
-                    appSettings.arrAlwaysBlockedURLs.Add(appSettings.arrDistractingURLs[i].sURL);
-                else
-                    appSettings.bHasEditedBlockedURLs = true;
-            }
+            //we need to add the URLS to always blocked urls - once each, and an unticked one out again: the user
+            //can come Back here and Proceed a second time.
+            FocusBear.Core.Onboarding.OnboardingChoices.ApplyTicks(appSettings.arrAlwaysBlockedURLs,
+                appSettings.arrDistractingURLs.Select(u => new KeyValuePair<string, bool>(u.sURL, u.IsItemChecked)).ToList());
+            if (appSettings.arrDistractingURLs.Any(u => !u.IsItemChecked)) appSettings.bHasEditedBlockedURLs = true;
 
             _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._BLOCKED_APPS_);
         }

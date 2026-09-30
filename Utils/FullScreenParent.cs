@@ -78,6 +78,8 @@ namespace Focus_Bear.Habits
 
             public static IntPtr SetHook(LowLevelKeyboardProc proc)
             {
+                // The E2E test build installs no system-wide keyboard hook unless the runner opted in to blocking.
+                if (!Focus_Bear.Utils.E2EBuild.BlockingEnforcementAllowed) return IntPtr.Zero;
                 using (Process curProcess = Process.GetCurrentProcess())
                 using (ProcessModule curModule = curProcess.MainModule)
                 {
@@ -404,7 +406,7 @@ namespace Focus_Bear.Habits
 
             // Refresh frame AND reposition to center // This forces the window frame to update
             SetWindowPos(hwnd, IntPtr.Zero, rect.Left, rect.Top, windowWidth, windowHeight,
-                SWP_FRAMECHANGED);
+                (uint)(SWP_FRAMECHANGED | (Focus_Bear.Utils.E2EBackground.IsActive ? 0x0010 : 0)));  // SWP_NOACTIVATE in a background E2E instance
 
         }
 

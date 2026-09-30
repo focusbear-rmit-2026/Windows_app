@@ -221,9 +221,16 @@ namespace Focus_Bear.Focus
             FocusBearAPIClient client = new FocusBearAPIClient();
             try
             {
-                LogWriter.LogWrite($"Take5MinsBreak() - calling FinishFocusMode with id: {appSettings.sRunningFocusModeID}");
-                var xResponse = await client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
-                LogWriter.LogWrite($"Take5MinsBreak() - FinishFocusMode returned: {xResponse}");
+                // Only a personal session the server knows about is finished: a class session ends through
+                // class-management, and one finished from another device (or already finished here) is gone.
+                if (appSettings.ServerFocusSession.HasSessionToFinish)
+                {
+                    LogWriter.LogWrite($"Take5MinsBreak() - calling FinishFocusMode with id: {appSettings.sRunningFocusModeID}");
+                    appSettings.ServerFocusSession.Finished();
+                    var xResponse = await client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
+                    LogWriter.LogWrite($"Take5MinsBreak() - FinishFocusMode returned: {xResponse}");
+                }
+                else LogWriter.LogWrite("Take5MinsBreak() - no personal session on the server to finish (class session, or finished already)");
 
                 var response = await client.UpdateAllFocusModes();
                 LogWriter.LogWrite($"Take5MinsBreak() - UpdateAllFocusModes returned: {response}");
@@ -619,17 +626,38 @@ namespace Focus_Bear.Focus
                     int.TryParse(selectedItem.Content.ToString(), out nMinutesToExtend);
                 }
 
+                // A session that covered a postponed routine can't be restarted past the cutoff (Mac cutoffLimitedMinutes,
+                // from now: the finished session has no end to add to).
+                DateTime now = DateTime.Now;
+                int granted = FocusBear.Core.Stats.FocusExtensionCutoffLimit.GrantedMinutes(nMinutesToExtend, now, null,
+                    Focus_Bear.Habits.DayPlan.DayPlanDataSource.TimeToday(appSettings.sDayCutOffTime, now), appSettings.DidCutOffTimePassed(),
+                    appSettings.bPasswordRequireInPostponeEveningAfterCutOff, ((App)Application.Current).SessionProtectsRoutine);
+                if (granted <= 0)
+                {
+                    LogWriter.LogWrite("btnExtendSession_Click - refused: the cutoff leaves no room for " + nMinutesToExtend + " minutes");
+                    SetActionButtonsEnabled(true);
+                    ((App)Application.Current).ShowCutoffExtensionRefused();
+                    return;
+                }
+                if (granted < nMinutesToExtend) LogWriter.LogWrite("btnExtendSession_Click - the cutoff limits " + nMinutesToExtend + " minutes to " + granted);
+                nMinutesToExtend = granted;
+
                 LogWriter.LogWrite("Extending focus session by " + nMinutesToExtend + " minutes");
 
                 appSettings.CapturePostHog("extend-focus-session-from-complete-screen", string.Format("\"extendMinutes\":{0}", nMinutesToExtend));
 
-                DateTime newEndTime = DateTime.Now.AddMinutes(nMinutesToExtend);
+                DateTime newEndTime = now.AddMinutes(nMinutesToExtend);
                 appSettings.sRunningFocusModeMinutes = nMinutesToExtend.ToString();
                 appSettings.sRunningFocusModeEndTime = newEndTime.ToString();
                 appSettings.focusSessionStartTime = DateTime.Now;
 
-                FocusBearAPIClient client = new FocusBearAPIClient();
-                var response = await client.ExtendFocusMode(appSettings.sRunningFocusModeID, nMinutesToExtend);
+                // A session finished from another device is gone on the server: extending it there only earns a
+                // "not current" 400 (26 Sep 13:44:15), so the extension is local.
+                int response = 0;
+                if (appSettings.ServerFocusSession.HasSessionToFinish)
+                    response = await new FocusBearAPIClient().ExtendFocusMode(appSettings.sRunningFocusModeID, nMinutesToExtend);
+                else
+                    LogWriter.LogWrite("ExtendFocusMode skipped - no personal session on the server (finished elsewhere, or a class session)");
 
                 if (response == 1)
                 {

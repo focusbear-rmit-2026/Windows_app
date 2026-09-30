@@ -155,7 +155,7 @@ namespace Focus_Bear.Preferences.SettingsTab
             LocalSettingsManager.PutLocalSettings();
         }
 
-        private void OfficeMode_Checked(object sender, RoutedEventArgs e)
+        private async void OfficeMode_Checked(object sender, RoutedEventArgs e)
         {
             if (OfficeMode.IsChecked.Value) //means officemode enabled
             {
@@ -180,12 +180,11 @@ namespace Focus_Bear.Preferences.SettingsTab
                         //add to our array
                         appSettings.arrAllbreakActivities.Add(new breakActivity(ActivityID, "Stand up and stretch", 20, new List<string>(), false, "", false, new List<string>(), new List<string>(), "", SequenceID, false, false, new List<activityChoice>(), true, "", new List<QuantityQuestion>(), "", true));
 
-                        //add to the json
-                        String jsonString = appSettings.sRawUserSettings;
+                        //add to the json - the server's latest, since the whole document is PUT back (from the launch
+                        //copy it undid every change made since on another device)
+                        JObject UserSettings = await Focus_Bear.Habits.DayPlan.DayPlanSettingsEdits.LatestSettingsAsync();
 
-                        JObject UserSettings = JObject.Parse(appSettings.sRawUserSettings);
-
-                        if (UserSettings.ContainsKey("break_activities"))
+                        if (UserSettings != null && UserSettings.ContainsKey("break_activities"))
                         {
                             JArray break_activities_Array = (JArray)UserSettings.GetValue("break_activities");
                             JObject newActivity = new JObject(
@@ -203,9 +202,15 @@ namespace Focus_Bear.Preferences.SettingsTab
                             appSettings.sRawUserSettings = UserSettings.ToString();
                             RegistryManager.SaveUserSettings();
 
-                            //We will need to put the settings.
-                            FocusBearAPIClient client = new FocusBearAPIClient();
-                            var xResponse = client.PutUserSettings();
+                            //We will need to put the settings. If it doesn't go (offline), the new activity is carried by
+                            //the next settings edit instead of being dropped by it.
+                            JObject activityToKeep = (JObject)newActivity.DeepClone();
+                            if (!await Focus_Bear.Habits.DayPlan.DayPlanSettingsEdits.PutAndSettle())
+                                Focus_Bear.Habits.DayPlan.DayPlanSettingsEdits.KeepUnsynced("office-activity-" + ActivityID, root =>
+                                {
+                                    if (!(root["break_activities"] is JArray list)) root["break_activities"] = list = new JArray();
+                                    if (!list.OfType<JObject>().Any(a => (string)a["id"] == ActivityID)) list.Add(activityToKeep.DeepClone());
+                                });
 
                             FBMessageBox ff1 = new FBMessageBox(appSettings.ConfigFileStrings["menuInfo"]["officeModeEnabledSuccessfullyText"].ToString());
                             ff1.ShowDialog();

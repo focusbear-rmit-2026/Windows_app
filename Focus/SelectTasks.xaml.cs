@@ -101,11 +101,14 @@ namespace Focus_Bear.Focus
         // focus-end variant replies through loadTasks, matching its own initial load.
         public void LoadAccessToken(string requestId = null)
         {
-            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
-
-            string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-            string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"theme\":{1}{2}}}", appSettings.userAccount.accessToken, sTheme, sRequestId);
-            string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForToDo) {{ loadAccessTokenForToDo({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
+            //Built as JSON (WebviewPayload): these were spliced, including the requestId the page echoes back.
+            string sTheme = appSettings.sTheme == "Light" ? "LIGHT" : "DARK";
+            string LoadTokenFunc = new FocusBear.Core.Ui.WebviewPayload()
+                .Add("access_token", appSettings.userAccount.accessToken)
+                .Add("platform", "win")
+                .Add("theme", sTheme)
+                .WithRequestId(requestId)
+                .WaitAndCall("loadAccessTokenForToDo");
 
             if (bFocusModeEndWindow)
             {
@@ -113,8 +116,15 @@ namespace Focus_Bear.Focus
                 DateTime end = DateTime.UtcNow;
                 TimeSpan difference = end.Subtract(start); // could also write `now - otherTime`
                 double durationMinutes = difference.TotalMinutes;
-                LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"tasks\":{1},\"total_duration\":{2},lang:\"{3}\",\"theme\":{4}{5}}}", appSettings.userAccount.accessToken, appSettings.sRawTasks, durationMinutes.ToString(), appSettings.sLangCode, sTheme, sRequestId);
-                LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadTasks) {{ loadTasks({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
+                LoadTokenFunc = new FocusBear.Core.Ui.WebviewPayload()
+                    .Add("access_token", appSettings.userAccount.accessToken)
+                    .Add("platform", "win")
+                    .AddJson("tasks", appSettings.sRawTasks)
+                    .Add("total_duration", durationMinutes)
+                    .Add("lang", appSettings.sLangCode)
+                    .Add("theme", sTheme)
+                    .WithRequestId(requestId)
+                    .WaitAndCall("loadTasks");
             }
 
             var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);

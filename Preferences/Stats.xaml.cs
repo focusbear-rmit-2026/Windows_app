@@ -1,142 +1,30 @@
-﻿using Focus_Bear.Services;
-using Focus_Bear.Utils;
-using Microsoft.Web.WebView2.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using Focus_Bear.StatsScreens;
+using FocusBear.Core.Stats;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Focus_Bear.Preferences
 {
     /// <summary>
-    /// Interaction logic for Stats.xaml
+    /// The Stats page, as the main window's left nav and the Preferences window host it. It used to be a
+    /// WebView2 over dashboard.focusbear.io/webview/stats; it now hosts the native <see cref="StatsScreen"/>,
+    /// whose numbers come from the same endpoints the web, the Mac and mobile use.
     /// </summary>
     public partial class Stats : UserControl
     {
-        AppSettings appSettings = AppSettings.GetInstance;
-        public Stats()
+        private readonly StatsScreen _screen;
+
+        public Stats() : this(null) { }
+
+        /// <summary><paramref name="initialTab"/> opens on a fixed tab without remembering it (the routine's Pep Talk).</summary>
+        public Stats(StatsTab? initialTab)
         {
             InitializeComponent();
-
-            SetWebView();
-
-            webView.CoreWebView2InitializationCompleted += CoreWebView2InitializationCompleted;
-            webView.NavigationCompleted += CoreWebView2NavigationCompleted;
-            App.ThemeChanged += ReloadWebView;
-
-        }        
-        private void ReloadWebView()
-        {
-            if (webView != null && webView.CoreWebView2 != null)
-            {
-                webView.Reload();
-            }
+            _screen = new StatsScreen(initialTab);
+            Host.Content = _screen;
+            // Theme-bound resources follow the switch on their own; the few computed colours need a redraw.
+            App.ThemeChanged += () => { if (IsVisible) _screen.ScreenAppeared(); };
         }
 
-        private async Task SetWebView()
-        {
-            try
-            {
-                var userDataFolder = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FBCustomWebView2");
-
-                var task = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
-
-                if (webView != null)
-                {
-                    await webView.EnsureCoreWebView2Async(task);
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("EDIT habits SetWebView() Ex - " + ex.Message);
-            }
-        }
-        private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
-        {
-            if (e.IsSuccess)
-            {
-                LogWriter.LogWrite("stats CoreWebView2NavigationCompleted() Success, Load Access token");
-
-                LoadAccessToken();
-             }
-        }
-
-        // Path A initial load + Path B reactive reply. Pass the echoed requestId on a reply
-        // (omit on initial load); it rides along with the other flags in the same payload.
-        public void LoadAccessToken(string requestId = null)
-        {
-            string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-
-            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
-
-            string Settings = string.Format("{{\"access_token\":\"{0}\",\"type\":\"win\",\"lang\":\"{1}\",\"font\":\"{2}\",\"theme\":{3}{4}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), sTheme, sRequestId);
-            string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForStats) {{ loadAccessTokenForStats({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
-
-            var ss = webView.ExecuteScriptAsync(settingsFunc);
-            LogWriter.LogWrite(ss.ToString());
-        }
-        private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
-        {
-            if (e.IsSuccess)
-            {
-                try
-                {
-
-                    LogWriter.LogWrite("stats CoreWebView2InitializationCompleted() Success");
-                   
-                    webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
-                    webView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
-                    webView.CoreWebView2.Settings.IsScriptEnabled = true;
-                    webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
-
-                    webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
-                    webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
-
-                    webView.WebMessageReceived += webView_WebMessageReceived;
-
-                    webView.Source = new System.Uri("https://dashboard.focusbear.io/webview/stats");
-
-                }
-                catch (Exception ex)
-                {
-                    LogWriter.LogWrite("stats CoreWebView2InitializationCompleted() ex - " + ex.Message);
-                }
-            }
-        }
-        private async void webView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
-        {
-            // Path B - reactive token refresh. This screen has no other native messages.
-            try
-            {
-                var req = await WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
-                if (req.IsTokenRequest)
-                {
-                    if (req.RefreshSucceeded)
-                        LoadAccessToken(req.RequestId);
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("stats webView_WebMessageReceived() ex - " + ex.Message);
-            }
-        }
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
+        public StatsScreen Screen => _screen;
     }
 }

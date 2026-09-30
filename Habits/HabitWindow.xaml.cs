@@ -66,6 +66,8 @@ namespace Focus_Bear.Habits
         public HabitWindow(FocusBearMainWindow _ParentWindow)
         {
             InitializeComponent();
+            // A pasted answer follows the same rules as a typed one (a comma is the decimal point).
+            DataObject.AddPastingHandler(GridLogQuantityNag, QuantityPasting);
 
             ParentWindow = _ParentWindow;
 
@@ -95,6 +97,9 @@ namespace Focus_Bear.Habits
 
             TodaysTime.Text = DateTime.Now.ToString(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
 
+            // Called for every routine start: without the -= each call added another handler (the 1 s timers ran
+            // one per routine started this session, and the "skipping in" countdown sped up with each).
+            dispatcherTimerShowDateTime.Tick -= dispatcherTimerShowDateTime_Tick;
             dispatcherTimerShowDateTime.Tick += new EventHandler(dispatcherTimerShowDateTime_Tick);
             dispatcherTimerShowDateTime.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimerShowDateTime.Start();
@@ -107,6 +112,7 @@ namespace Focus_Bear.Habits
 
             AppFrameHabitScreens.Visibility = Visibility.Visible;
 
+            dispatcherTimerSkippingIn.Tick -= dispatcherTimerSkippingIn_Tick;
             dispatcherTimerSkippingIn.Tick += new EventHandler(dispatcherTimerSkippingIn_Tick);
             dispatcherTimerSkippingIn.Interval = new TimeSpan(0, 0, 1);
 
@@ -874,6 +880,11 @@ namespace Focus_Bear.Habits
 
             GridShade.Visibility = Visibility.Visible;
             GridLogQuantityNag.Visibility = Visibility.Visible;
+            // Keyboard first: land in the first answer (text box, or the slider's number box) with its value
+            // selected, so typing replaces it; Enter presses OK (IsDefault).
+            _logFocusAttempts = 0;
+            Dispatcher.BeginInvoke(new Action(FocusFirstLogAnswer), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            HookLogWindowEnter(true);
 
             string sLogQuantityQuestion = "";
             if (bLogQuantity)
@@ -968,9 +979,83 @@ namespace Focus_Bear.Habits
             nScreenHabitActivityFinished.BreakGraph2.Visibility = Visibility.Collapsed;
 
         }
+        private int _logFocusAttempts;
+        private System.Windows.Window _logEnterWindow;
+
+        private void FocusFirstLogAnswer()
+        {
+            try
+            {
+                if (GridLogQuantityNag.Visibility != Visibility.Visible) return;
+                ListLogQuestions.UpdateLayout();
+                TextBox first = FindDescendants<TextBox>(ListLogQuestions).FirstOrDefault(t => t.IsVisible && t.IsEnabled);
+                if (first != null)
+                {
+                    first.GotKeyboardFocus -= SelectAllOnFocus;
+                    first.GotKeyboardFocus += SelectAllOnFocus;
+                    System.Windows.Window.GetWindow(this)?.Activate();
+                    first.Focus();
+                    Keyboard.Focus(first);
+                    first.SelectAll();
+                    if (first.IsKeyboardFocused) return;
+                }
+                // The routine window may not be active yet, or the answer rows not generated: try again shortly.
+                if (++_logFocusAttempts < 8)
+                {
+                    var retry = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
+                    retry.Tick += (s, e) => { retry.Stop(); FocusFirstLogAnswer(); };
+                    retry.Start();
+                }
+                else LogWriter.LogWrite("FocusFirstLogAnswer - could not focus an answer box");
+            }
+            catch (Exception ex) { LogWriter.LogWrite("FocusFirstLogAnswer ex - " + ex.Message); }
+        }
+
+        /// <summary>
+        /// While the Log Quantity dialog is up, Enter anywhere in the window presses OK — it must not depend on the
+        /// OK button's IsDefault reaching this page, or on focus having landed in an answer box (report 14-30-46).
+        /// </summary>
+        private void HookLogWindowEnter(bool on)
+        {
+            try
+            {
+                if (_logEnterWindow != null) { _logEnterWindow.PreviewKeyDown -= LogWindow_PreviewKeyDown; _logEnterWindow = null; }
+                if (!on) return;
+                _logEnterWindow = System.Windows.Window.GetWindow(this);
+                if (_logEnterWindow != null) _logEnterWindow.PreviewKeyDown += LogWindow_PreviewKeyDown;
+            }
+            catch (Exception ex) { LogWriter.LogWrite("HookLogWindowEnter ex - " + ex.Message); }
+        }
+
+        private void LogWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter && e.Key != Key.Return) return;
+            if (GridLogQuantityNag.Visibility != Visibility.Visible || !btnOK.IsEnabled) return;
+            if (Keyboard.FocusedElement is System.Windows.Controls.Button focusedButton && focusedButton != btnOK) return;   // Enter on Cancel cancels
+            e.Handled = true;
+            // Push a half-typed value into the answer before OK reads it.
+            (Keyboard.FocusedElement as TextBox)?.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
+            LogWriter.LogWrite("Log quantity - Enter pressed OK");
+            btnOK_Click(btnOK, new RoutedEventArgs());
+        }
+
+        private static void SelectAllOnFocus(object sender, KeyboardFocusChangedEventArgs e) => (sender as TextBox)?.SelectAll();
+
+        private static IEnumerable<T> FindDescendants<T>(DependencyObject root) where T : DependencyObject
+        {
+            int count = VisualTreeHelper.GetChildrenCount(root);
+            for (int i = 0; i < count; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(root, i);
+                if (child is T match) yield return match;
+                foreach (T d in FindDescendants<T>(child)) yield return d;
+            }
+        }
+
         public void HideLogWindow()
         {
             LogWriter.LogWrite("HideLogWindow()");
+            HookLogWindowEnter(false);
 
             GridShade.Visibility = Visibility.Collapsed;
             GridLogQuantityNag.Visibility = Visibility.Collapsed;
@@ -1088,9 +1173,24 @@ namespace Focus_Bear.Habits
             }
         }
 
+        private static System.Collections.Generic.IEnumerable<T> FindVisualChildren<T>(System.Windows.DependencyObject root) where T : System.Windows.DependencyObject
+        {
+            if (root == null) yield break;
+            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(root); i++)
+            {
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(root, i);
+                if (child is T match) yield return match;
+                foreach (T d in FindVisualChildren<T>(child)) yield return d;
+            }
+        }
+
         private void btnOK_Click(object sender, RoutedEventArgs e)
         {
             LogWriter.LogWrite("btnOK_Click() on log quantity window");
+            // The answer boxes commit on LostFocus (typing "6.85" must not be re-formatted mid-way); Enter calls this
+            // without moving focus, so push every typed answer first.
+            foreach (var box in FindVisualChildren<System.Windows.Controls.TextBox>(GridLogQuantityNag).Where(b => b.IsVisible))   // not the hidden twin bound to the same answer
+                box.GetBindingExpression(System.Windows.Controls.TextBox.TextProperty)?.UpdateSource();
             try
             {
                 string sLogType = "";
@@ -1192,14 +1292,29 @@ namespace Focus_Bear.Habits
 
         private void Quantity_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            Regex regex = new Regex("^[.][0-9]+$|^[0-9]*[.]{0,1}[0-9]*$");
-            e.Handled = !regex.IsMatch((sender as TextBox).Text.Insert((sender as TextBox).SelectionStart, e.Text));
-            if (e.Handled)
-            {
-            }
-            else
-            {
-            }
+            // Applied here rather than left to the box: a comma is the decimal point (it used to be swallowed, so
+            // "6,85" logged 685), and typing over a selection replaces it.
+            var box = sender as TextBox;
+            if (box == null) return;
+            e.Handled = true;
+            string next = FocusBear.Core.Schedule.QuantityTyping.Apply(box.Text, box.SelectionStart, box.SelectionLength, e.Text);
+            if (next == null) return;
+            int caret = box.SelectionStart + e.Text.Length;
+            box.Text = next;
+            box.SelectionStart = System.Math.Min(caret, next.Length);
+            box.SelectionLength = 0;
+        }
+
+        private void QuantityPasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (!(e.OriginalSource is TextBox box) || !e.SourceDataObject.GetDataPresent(DataFormats.UnicodeText)) return;
+            e.CancelCommand();
+            string pasted = (e.SourceDataObject.GetData(DataFormats.UnicodeText) as string ?? "").Trim();
+            string next = FocusBear.Core.Schedule.QuantityTyping.Apply(box.Text, box.SelectionStart, box.SelectionLength, pasted);
+            if (next == null) return;
+            int caret = box.SelectionStart + pasted.Length;
+            box.Text = next;
+            box.SelectionStart = System.Math.Min(caret, next.Length);
         }
 
         private void Quantity_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -1285,7 +1400,7 @@ namespace Focus_Bear.Habits
             {
                 if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                 {
-                    if (appSettings.bPasswordRequireInPostponeMorning)
+                    if (appSettings.PostponeRequiresPassword(CurrentActivityType.MORNING_HABITS))
                     {
                         //It might be possible that a webview is visible, we will need to hide that
                         if (nScreenHabitActivityFinished != null)
@@ -1310,7 +1425,7 @@ namespace Focus_Bear.Habits
                         if (PageHabitExtraPersonal != null)
                         {
                             if (appSettings.bMotivationalMessageEnabled)
-                                PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
+                                PageHabitExtraPersonal.pepTalkHost.Visibility = Visibility.Collapsed;
                         }
 
                         if (PageHabitActivityOnGoing != null)
@@ -1345,7 +1460,7 @@ namespace Focus_Bear.Habits
                         if (PageHabitExtraPersonal != null)
                         {
                             if (appSettings.bMotivationalMessageEnabled)
-                                PageHabitExtraPersonal.webView.Visibility = Visibility.Visible;
+                                PageHabitExtraPersonal.pepTalkHost.Visibility = Visibility.Visible;
                         }
                         if (PageHabitActivityOnGoing != null)
                         {
@@ -1367,7 +1482,7 @@ namespace Focus_Bear.Habits
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                 {
-                    if (appSettings.DidCutOffTimePassed() ? appSettings.bPasswordRequireInPostponeEveningAfterCutOff : appSettings.bPasswordRequireInPostponeEvening)
+                    if (appSettings.PostponeRequiresPassword(CurrentActivityType.EVENING_HABITS))
                     {
                         //It might be possible that a webview is visible, we will need to hide that
                         if (nScreenHabitActivityFinished != null)
@@ -1392,7 +1507,7 @@ namespace Focus_Bear.Habits
                         if (PageHabitExtraPersonal != null)
                         {
                             if (appSettings.bMotivationalMessageEnabled)
-                                PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
+                                PageHabitExtraPersonal.pepTalkHost.Visibility = Visibility.Collapsed;
                         }
 
                         if (PageHabitActivityOnGoing != null)
@@ -1434,7 +1549,7 @@ namespace Focus_Bear.Habits
                         if (PageHabitExtraPersonal != null)
                         {
                             if (appSettings.bMotivationalMessageEnabled)
-                                PageHabitExtraPersonal.webView.Visibility = Visibility.Visible;
+                                PageHabitExtraPersonal.pepTalkHost.Visibility = Visibility.Visible;
                         }
 
                         if (bResult.Value)
@@ -1475,7 +1590,7 @@ namespace Focus_Bear.Habits
             if (PageHabitExtraPersonal != null)
             {
                 if (appSettings.bMotivationalMessageEnabled)
-                    PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
+                    PageHabitExtraPersonal.pepTalkHost.Visibility = Visibility.Collapsed;
             }
             if (nScreenHabitActivityFinished != null)
             {
@@ -1519,7 +1634,7 @@ namespace Focus_Bear.Habits
             if (PageHabitExtraPersonal != null)
             {
                 if (appSettings.bMotivationalMessageEnabled)
-                    PageHabitExtraPersonal.webView.Visibility = Visibility.Visible;
+                    PageHabitExtraPersonal.pepTalkHost.Visibility = Visibility.Visible;
             }
             if (nScreenHabitActivityFinished != null)
             {
@@ -1541,7 +1656,7 @@ namespace Focus_Bear.Habits
             if (PageHabitExtraPersonal != null)
             {
                 if (appSettings.bMotivationalMessageEnabled)
-                    PageHabitExtraPersonal.webView.Visibility = Visibility.Collapsed;
+                    PageHabitExtraPersonal.pepTalkHost.Visibility = Visibility.Collapsed;
             }
 
             if (nScreenHabitActivityFinished != null)
@@ -1571,7 +1686,7 @@ namespace Focus_Bear.Habits
                 if (PageHabitExtraPersonal != null)
                 {
                     if (appSettings.bMotivationalMessageEnabled)
-                        PageHabitExtraPersonal.webView.Visibility = Visibility.Visible;
+                        PageHabitExtraPersonal.pepTalkHost.Visibility = Visibility.Visible;
                 }
             }
             catch (Exception ex)
@@ -1739,6 +1854,7 @@ namespace Focus_Bear.Habits
 
                 if (nDays >= 2)
                 {
+                    dispatcherTimerAskSleepAndMood.Tick -= dispatcherTimerAskSleepAndMood_Tick;
                     dispatcherTimerAskSleepAndMood.Tick += new EventHandler(dispatcherTimerAskSleepAndMood_Tick);
                     dispatcherTimerAskSleepAndMood.Interval = new TimeSpan(0, 0, 1);
                     dispatcherTimerAskSleepAndMood.Start();
@@ -1757,7 +1873,9 @@ namespace Focus_Bear.Habits
                 DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
                 Console.WriteLine("{0}", myStartTime.ToString());
 
-                if (now > myStartTime.AddHours(4)) //if more then 4 hours have elapsed then startup time
+                // E2E seam (E2EBuild.StartRoutineVariable): the runner started the morning routine "as if its time had come",
+                // so it isn't late.
+                if (now > myStartTime.AddHours(4) && Focus_Bear.Utils.E2EBuild.StartRoutine != "morning") //if more then 4 hours have elapsed then startup time
                 {
                     /* "lateMorningHabitPopupVcInfo": {
                         "title": "Hiya, do you still want to do your morning routine today or skip it?",

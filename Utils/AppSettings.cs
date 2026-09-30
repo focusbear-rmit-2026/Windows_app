@@ -138,7 +138,8 @@ namespace Focus_Bear.Utils
         {
             get
             {
-                var path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\" + "Focus Bear";
+                // "Focus Bear", or "Focus Bear E2E" in the isolated E2E test build (FocusBear.Core.AppInstance).
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), FocusBear.Core.AppInstance.DataFolderName);
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
@@ -152,7 +153,7 @@ namespace Focus_Bear.Utils
         {
             get
             {
-                var path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\" + "Focus Bear\\Logs";
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), FocusBear.Core.AppInstance.DataFolderName, "Logs");
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
@@ -179,7 +180,25 @@ namespace Focus_Bear.Utils
         public string sGlobalUUID { get; set; }//Used initially for new users specifically to link later with distinct user ID
         public string sOSVersion { get; set; }
         public Version AppVersion { get; set; }
-        public CurrentActivityType nCurrentActivityType { get; set; }
+        /// <summary>
+        /// Raised when a flag that decides whether anything can be blocked changes (focus session running or paused,
+        /// a habit with allowed apps or a focus mode, the activity type). The blocking focus handler is registered
+        /// only while it is needed; this updates it at once instead of on the next 5 s tick. Any thread.
+        /// </summary>
+        public static event Action BlockingStateChanged;
+
+        private static void RaiseBlockingStateChanged()
+        {
+            try { BlockingStateChanged?.Invoke(); }
+            catch (Exception ex) { LogWriter.LogWrite("BlockingStateChanged - " + ex.Message); }
+        }
+
+        private CurrentActivityType _nCurrentActivityType;
+        public CurrentActivityType nCurrentActivityType
+        {
+            get { return _nCurrentActivityType; }
+            set { if (_nCurrentActivityType == value) return; _nCurrentActivityType = value; RaiseBlockingStateChanged(); }
+        }
         public int nHabitIndex; //This is used to track the activity number from the activities array
         public DateTime dLastActivityPerformedStartTime; //This is the start time of the Last activity recently started.
 
@@ -403,8 +422,17 @@ namespace Focus_Bear.Utils
 
         public bool bShowReducedHabitsOnExpired = false;
 
-        public bool bHabitwithAllowedAppsRunning = false;
-        public bool bHabitwithUseFocusModeRunning = false;
+        private bool _bHabitwithAllowedAppsRunning, _bHabitwithUseFocusModeRunning;
+        public bool bHabitwithAllowedAppsRunning
+        {
+            get { return _bHabitwithAllowedAppsRunning; }
+            set { if (_bHabitwithAllowedAppsRunning == value) return; _bHabitwithAllowedAppsRunning = value; RaiseBlockingStateChanged(); }
+        }
+        public bool bHabitwithUseFocusModeRunning
+        {
+            get { return _bHabitwithUseFocusModeRunning; }
+            set { if (_bHabitwithUseFocusModeRunning == value) return; _bHabitwithUseFocusModeRunning = value; RaiseBlockingStateChanged(); }
+        }
         public bool bHabitwithUserActionNonTimerRunning = false;
         public string sUseFocusModeIDInActivity = "";
         public string sCurrentRunningActivity = "";
@@ -523,9 +551,18 @@ namespace Focus_Bear.Utils
             }
         }
 
-        public bool isFocusModeRunning = false;
+        private bool _isFocusModeRunning, _isFocusModePaused;
+        public bool isFocusModeRunning
+        {
+            get { return _isFocusModeRunning; }
+            set { if (_isFocusModeRunning == value) return; _isFocusModeRunning = value; RaiseBlockingStateChanged(); }
+        }
 
-        public bool isFocusModePaused = false;
+        public bool isFocusModePaused
+        {
+            get { return _isFocusModePaused; }
+            set { if (_isFocusModePaused == value) return; _isFocusModePaused = value; RaiseBlockingStateChanged(); }
+        }
 
         public int nPausedFocusRemainingSeconds = 0;
 
@@ -681,11 +718,33 @@ namespace Focus_Bear.Utils
         public string sUserPassword { get; set; }
         public bool isPasswordSet { get; set; }
         public bool bPasswordRequireInChangeSettings { get; set; }
+        /// <summary>MacOS.kIsPasswordRequireInPreferencesAfterCutoff (Mac default: on) — the password guards preferences once the cutoff has passed.</summary>
+        public bool bPasswordRequireInPreferencesAfterCutoff { get; set; } = true;
+
+        /// <summary>
+        /// Whether changing settings (Settings, Blocking, Edit Habits, the Day Plan's habit / routine edits) needs
+        /// the password right now — the Mac's isPasswordRequireInOpenSettingsEnabled: a super-strict session is
+        /// running, or it is past the cutoff and the after-cutoff rule is on, or the change-settings rule is on.
+        /// </summary>
+        /// <summary>When the password last unlocked settings; the Mac asks again only after 2 minutes.</summary>
+        public DateTime SettingsUnlockedAt { get; set; } = DateTime.MinValue;
+
+        public bool PasswordRequiredToChangeSettings()
+        {
+            if (!isPasswordSet) return false;
+            if ((DateTime.Now - SettingsUnlockedAt).TotalSeconds < 120) return false;
+            try { if (Focus_Bear.Services.BlockingScheduleManager.IsIronFocusScheduleActive()) return true; }
+            catch (Exception ex) { LogWriter.LogWrite("PasswordRequiredToChangeSettings iron focus ex - " + ex.Message); }
+            if (bPasswordRequireInPreferencesAfterCutoff && DidCutOffTimePassed()) return true;
+            return bPasswordRequireInChangeSettings;
+        }
         public bool bPasswordRequireInSkipMorning { get; set; }
         public bool bPasswordRequireInSkipEvening { get; set; }
         public bool bPasswordRequireInAbortShutoff { get; set; }
         public bool bPasswordRequireInStopPomodoro { get; set; }
         public bool bPasswordRequireInQuitApp { get; set; }
+        /// <summary>MacOS.kIsPasswordRequireInShortenHabits — a new rule (the Mac has none yet): shortening a habit on the Day Plan asks for the password.</summary>
+        public bool bPasswordRequireToShortenHabits { get; set; }
         public bool bPasswordRequireToUseRelaxFocusMode { get; set; }
         public bool bPasswordRequireToSkipEveningAfterCutOff { get; set; }
         // Separate password rules for POSTPONE (vs Skip). Local device settings; default OFF (set per
@@ -776,6 +835,8 @@ namespace Focus_Bear.Utils
         public bool bAdvancedAnalyticsInFocusModeEnabled = false;
 
         public bool bIsGeekModeEnabled = false;
+        /// <summary>AI accountability buddy when postponing habits — MacOS.kAccountabilityBuddyEnabled, shared with the Mac.</summary>
+        public bool bAccountabilityBuddyEnabled = false;
 
 
         public bool AutoCloseAfterRoutineSkipPostpone { get; set; } = false;
@@ -819,6 +880,8 @@ namespace Focus_Bear.Utils
         public string RecordingPath { get; set; }
         public bool bActivityStartedFromDevice = false;
         public string sFirmwareVersion = "";
+        /// <summary>The connected Focus Button's board, from FIRMWAREVER (M50, C30); "" when it hasn't said.</summary>
+        public string sFirmwareHardwareCode = "";
         public Version FirmwareVersion { get; set; }
 
         public JObject ConfigFileStrings;
@@ -867,6 +930,8 @@ namespace Focus_Bear.Utils
         public bool bTeacherStartPersonalSession = false;
         // Id of the class focus session currently started from this device, so it can be ended early.
         public string sRunningClassSessionId = "";
+        /// <summary>Whether a personal focus session is live on the server, so the end screen knows to finish it.</summary>
+        public readonly FocusBear.Core.Postpone.ServerFocusSession ServerFocusSession = new FocusBear.Core.Postpone.ServerFocusSession();
         // Reason the last class-session start failed (shown to the teacher instead of starting focus).
         public string sLastClassSessionError = "";
 
@@ -1013,7 +1078,7 @@ namespace Focus_Bear.Utils
                         LogWriter.LogWrite("Token valid, Get all trial Info");
 
                         //Token valid, GEt all trial Info
-                        int nLogged = await GetAllTrialInfo();
+                        int nLogged = await GetAllTrialInfo(usePrefetch: true);
                         if (nLogged == 404)
                         {
                             //Server no longer recognises this account (involuntary session loss)
@@ -1053,13 +1118,50 @@ namespace Focus_Bear.Utils
 
         }
 
-        public async Task<int> GetAllTrialInfo()
+        /// <summary>
+        /// The sign-in chain's first two requests, started before the main window is built (<see cref="StartSignInPrefetch"/>)
+        /// and taken once by the chain. Building the window takes 2-10 s on the UI thread (44 s on a busy machine) before
+        /// the chain's first call; these used to wait for it (report 2026-09-28_21-45-38).
+        /// </summary>
+        internal static readonly FocusBear.Core.Startup.OneShotPrefetch<int> SubscriptionPrefetch =
+            new FocusBear.Core.Startup.OneShotPrefetch<int>(TimeSpan.FromMinutes(2));
+        internal static readonly FocusBear.Core.Startup.OneShotPrefetch<int> LocalDeviceSettingsPrefetch =
+            new FocusBear.Core.Startup.OneShotPrefetch<int>(TimeSpan.FromMinutes(2));
+
+        /// <summary>
+        /// For a signed-in user with a valid token, start the subscription and device-settings requests now, on the
+        /// thread pool, so they run while the UI thread builds the main window. Anyone else (signed out, onboarding,
+        /// a token that needs renewing first) goes through the chain exactly as before.
+        /// </summary>
+        internal void StartSignInPrefetch()
+        {
+            try
+            {
+                if (!RegistryManager.GetWelcomeAboardingDoneStatus() || !RegistryManager.GetLoggedInStatus()) return;
+                RegistryManager.GetLoggedInUserInfo();
+                GetTokens();
+                if (new Authentication()._isEmptyOrInvalid(userAccount.accessToken)) return;
+                DateTime now = DateTime.UtcNow;
+                SubscriptionPrefetch.Start(() => Task.Run(() => new FocusBearAPIClient().GetSubscriptionInfo()), now);
+                LocalDeviceSettingsPrefetch.Start(() => Task.Run(() => new FocusBearAPIClient().GetUserLocalDeviceSettingsInfo()), now);
+                LogWriter.LogWrite("StartSignInPrefetch - subscription and device settings requested while the main window is built");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StartSignInPrefetch ex - " + ex.Message);
+            }
+        }
+
+        /// <param name="usePrefetch">Only the start-up sign-in check: take the request <see cref="StartSignInPrefetch"/> started.</param>
+        public async Task<int> GetAllTrialInfo(bool usePrefetch = false)
         {
             LogWriter.LogWrite("GetAllTrialInfo()");
             try
             {
                 FocusBearAPIClient client = new FocusBearAPIClient();
-                var xResponse = await client.GetSubscriptionInfo();
+                var xResponse = usePrefetch
+                    ? await SubscriptionPrefetch.Take(() => client.GetSubscriptionInfo(), DateTime.UtcNow)
+                    : await client.GetSubscriptionInfo();
 
                 if (xResponse == 404)
                 {
@@ -1068,39 +1170,26 @@ namespace Focus_Bear.Utils
 
                 if (sSubscriptionInfo?.Length > 0)
                 {
-                    LogWriter.LogWrite("subscriptionStatus - " + sSubscriptionInfo);
+                    LogWriter.LogWrite("subscriptionStatus - " + FocusBear.Core.Reports.LogSafe.Describe(sSubscriptionInfo)); //the body carries the RevenueCat customer record
 
-                    JObject subscriptionStatusParsed = JObject.Parse(sSubscriptionInfo);
-                    bool hasActiveSubscription = (bool)subscriptionStatusParsed["hasActiveSubscription"];
-                    if (hasActiveSubscription)
+                    //Any paying entitlement counts, wherever it is in the list (the Mac's rule); [0] alone treated a
+                    //paying user listed as ["trial","personal"] or ["team_admin",...] as on trial. Unreadable keeps
+                    //what we knew instead of stopping half-way.
+                    var status = FocusBear.Core.Subscription.SubscriptionStatus.Parse(sSubscriptionInfo);
+                    if (status == null)
                     {
-
+                        LogWriter.LogWrite("GetAllTrialInfo() - unreadable subscription status, keeping the last one");
+                        return 0;
+                    }
+                    if (status.HasActiveSubscription)
+                    {
                         LogWriter.LogWrite("hasActiveSubscription");
                         isExpired = false;
-
-                        string activeEntitlement = subscriptionStatusParsed["activeEntitlements"][0].ToString();
-                        if (activeEntitlement == "personal" || activeEntitlement == "team_member" || activeEntitlement == "team_owner" || activeEntitlement == "team_size_5")
-                        {
-                            isPurchased = true;
-                        }
-                        else if (activeEntitlement == "trial")
-                        {
-                            isPurchased = false;
-                        }
-                        else
-                        {
-                            isPurchased = false;
-                        }
-
-                        var expirations = subscriptionStatusParsed["expirations"].ToString();
-                        JObject expirationsParsed = JObject.Parse(expirations);
-                        var expireInfo = expirationsParsed[activeEntitlement];
-                        int vDaysLeft = (int)expireInfo["days_left"];
-
-                        if (isPurchased == false && vDaysLeft > 0)
+                        isPurchased = status.IsPurchased;
+                        if (!isPurchased && status.TrialDaysLeft > 0)
                         {
                             //Valid Trial
-                            nTrialDays = vDaysLeft;
+                            nTrialDays = status.TrialDaysLeft.Value;
                         }
                     }
                     else
@@ -1108,6 +1197,7 @@ namespace Focus_Bear.Utils
                         LogWriter.LogWrite("isExpired true");
                         //Download Config File and Show Subscription Expired Nag
                         isExpired = true;
+                        isPurchased = false;
                     }
                     return 1;
                 }
@@ -1123,6 +1213,17 @@ namespace Focus_Bear.Utils
             LogWriter.LogWrite("RenewToken()");
             var authenticator = new Authentication();
             var x = await authenticator.RefreshToken(userAccount.refreshToken);
+            // Straight after sign-in to Windows the network often isn't up yet. A renew that failed because the
+            // machine is offline is not a rejected session: wait for the network and try again rather than signing
+            // the user out (the logon task now starts the app at once, not four minutes in - report 2026-09-28_21-45-38).
+            var waited = Stopwatch.StartNew();
+            while (!x && FocusBear.Core.Startup.TokenRenewRetry.ShouldRetry(await new FocusBearAPIClient().IsInternetOn(), waited.Elapsed))
+            {
+                LogWriter.LogWrite("RenewToken() - offline, waiting for the network before trying again");
+                await Task.Delay(FocusBear.Core.Startup.TokenRenewRetry.PollInterval);
+                if (await new FocusBearAPIClient().IsInternetOn())
+                    x = await authenticator.RefreshToken(userAccount.refreshToken);
+            }
             if (x)
             {
                 //token renewed
@@ -1976,10 +2077,15 @@ namespace Focus_Bear.Utils
                                         JArray arrayurlsArray = (JArray)item.GetValue("allowed_urls");
                                         allowedUrls = arrayurlsArray.ToObject<ObservableCollection<string>>();
                                     }
+                                    JObject serverMetadata = null;
                                     if (item.ContainsKey("metadata"))
                                     {
                                         string sMetadata = item.GetValue("metadata").ToString();
                                         JObject metadata = JObject.Parse(sMetadata);
+                                        // Kept so a save writes back the keys this client does not
+                                        // understand rather than dropping them; the column is
+                                        // replaced wholesale. See FocusModeMetadata.
+                                        serverMetadata = metadata;
 
                                         if (metadata.ContainsKey("allowed_apps_win"))
                                         {
@@ -2019,7 +2125,9 @@ namespace Focus_Bear.Utils
                                         isAutoSuggestFocusModeOnAllowedURL = metadata.ContainsKey("autoSuggestFocusModeOnAllowedURL") ? Convert.ToBoolean(metadata.GetValue("autoSuggestFocusModeOnAllowedURL")) : (isWorkFocus ? true : false);
                                     }
 
-                                    arrFocusModes.Add(new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, isWorkFocus, isAutoSuggestFocusModeOnAllowedURL, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : sTooltip), lastTaskUsed, focusAlignmentScoreThreshold));
+                                    FocusMode parsedFocusMode = new FocusMode(id, name, allowedUrls, blcokedURLs, allowedAppsWin, color, isOn, isAllowedAllApps, isAllowedListApproach, isDefault, isMeetings, isLockedFocus, isRelaxFocus, isDeepWorkFocus, isWorkFocus, isAutoSuggestFocusModeOnAllowedURL, (isMeetings ? ConfigFileStrings["focusPreferencesInfo"]["meetingsFocusInfoText"].ToString() : sTooltip), lastTaskUsed, focusAlignmentScoreThreshold);
+                                    parsedFocusMode.serverMetadata = serverMetadata;
+                                    arrFocusModes.Add(parsedFocusMode);
                                 }
 
                                 catch (Exception ex)
@@ -2191,11 +2299,13 @@ namespace Focus_Bear.Utils
                                 nFocusBearMode = 2; //whatever
 
                             bPasswordRequireInChangeSettings = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInChangeSettings") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInChangeSettings") : false;
+                            bPasswordRequireInPreferencesAfterCutoff = !(sMacOSSettingsOBJ["kIsPasswordRequireInPreferencesAfterCutoff"] is JValue afterCutoff) || afterCutoff.Type != JTokenType.Boolean || (bool)afterCutoff;
                             bPasswordRequireInSkipMorning = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipMorning") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipMorning") : false;
                             bPasswordRequireInSkipEvening = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipEvening") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipEvening") : false;
                             bPasswordRequireInAbortShutoff = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInAbortShutoff") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInAbortShutoff") : false;
                             bPasswordRequireInStopPomodoro = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInStopPomodoro") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInStopPomodoro") : false;
                             bPasswordRequireInQuitApp = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInQuitApp") : false;
+                            bPasswordRequireToShortenHabits = sMacOSSettingsOBJ["kIsPasswordRequireInShortenHabits"] is JValue shortenRule && shortenRule.Type == JTokenType.Boolean && (bool)shortenRule;
                             bPasswordRequireToUseRelaxFocusMode = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireToUseRelaxFocusMode") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireToUseRelaxFocusMode") : false;
                             bPasswordRequireToSkipEveningAfterCutOff = sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInSkipEveningAfterCutOff") ? (bool)sMacOSSettingsOBJ.GetValue("kIsPasswordRequireInSkipEveningAfterCutOff") : false;
                             // Postpone password rules (separate from Skip) - synced as local device settings.
@@ -2238,6 +2348,7 @@ namespace Focus_Bear.Utils
 
 
                             bIsGeekModeEnabled = sMacOSSettingsOBJ.ContainsKey("kIsGeekModeEnabled") ? (bool)sMacOSSettingsOBJ.GetValue("kIsGeekModeEnabled") : false;
+                            bAccountabilityBuddyEnabled = sMacOSSettingsOBJ.ContainsKey("kAccountabilityBuddyEnabled") && sMacOSSettingsOBJ["kAccountabilityBuddyEnabled"].Type == JTokenType.Boolean && (bool)sMacOSSettingsOBJ["kAccountabilityBuddyEnabled"];
 
 
                             AutoCloseAfterRoutineSkipPostpone = sMacOSSettingsOBJ.ContainsKey("kAutoCloseAfterRoutineSkipPostpone") ? (bool)sMacOSSettingsOBJ.GetValue("kAutoCloseAfterRoutineSkipPostpone") : false;
@@ -2764,15 +2875,13 @@ namespace Focus_Bear.Utils
 
             try
             {
-                if (File.Exists(sOfflineDataCSVPath))
+                lock (OfflineActivities.FileLock)
                 {
-                    return;
-                }
-                using (var w = new StreamWriter(sOfflineDataCSVPath))
-                {
-                    var sHeaders = "activity_id,duration_logged,activity_sequence_id,start_time,finish_time,skipped_did_complete,choice_id,quantity_logged,skipped_did_not_complete,note_logged";
-                    w.WriteLine(sHeaders);
-                    w.Flush();
+                    if (File.Exists(sOfflineDataCSVPath))
+                    {
+                        return;
+                    }
+                    File.WriteAllLines(sOfflineDataCSVPath, new[] { OfflineActivities.Header });
                 }
             }
             catch (Exception ex)
@@ -2789,12 +2898,9 @@ namespace Focus_Bear.Utils
 
             try
             {
-                using (System.IO.StreamWriter csvWriter = System.IO.File.AppendText(sOfflineDataCSVPath))
-                {
-                    string csv = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", activity_id, duration_logged, activity_sequence_id, start_time, finish_time, skipped_did_complete, choice_id, quantity_logged, skipped_did_not_complete, note_logged);
-                    csvWriter.WriteLine(csv);
-                    csvWriter.Flush();
-                }
+                string csv = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", activity_id, duration_logged, activity_sequence_id, start_time, finish_time, skipped_did_complete, choice_id, quantity_logged, skipped_did_not_complete, note_logged);
+                //Under the queue's lock (the sync rewrites the file off the UI thread), and capped.
+                OfflineActivities.Append(sOfflineDataCSVPath, csv);
             }
             catch (Exception ex)
             {
@@ -2805,30 +2911,13 @@ namespace Focus_Bear.Utils
 
         public bool IsShutOffTime()
         {
-            TimeSpan tsStartTime = TimeSpan.Parse(sDayStartTime);
-            TimeSpan tsShutOffTime = TimeSpan.Parse(sDayShutOffTime);
-
-            DateTime now = DateTime.Now;
-
-            DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
-            Console.WriteLine("{0}", myStartTime.ToString());
-
-            DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
-            Console.WriteLine("{0}", myShutOffTime.ToString());
-
-            bool isShutOffTime = false;
-            if (myStartTime > myShutOffTime)
-            {
-                if (now < myStartTime && now > myShutOffTime)
-                {
-                    isShutOffTime = true;
-                }
-            }
-            else if (now < myStartTime || now > myShutOffTime)
-            {
-                isShutOffTime = true;
-            }
-            return isShutOffTime;
+            // The E2E suite's break tests run at any hour: its runner can ask the test build to ignore shut-off.
+            if (Focus_Bear.Utils.E2EBuild.IgnoreShutOffTime) return false;
+            // A routine the E2E runner started (E2EBuild.StartRoutine) keeps its time of day for the whole run.
+            if (Focus_Bear.Utils.E2EBuild.StartRoutine == "morning") return false;
+            if (Focus_Bear.Utils.E2EBuild.StartRoutine == "evening") return true;
+            // Null-safe (FocusBear.Core.Schedule.ShutOffClock): with no settings yet the old parse threw out of StartWorkFlow.
+            return FocusBear.Core.Schedule.ShutOffClock.IsShutOffTime(sDayStartTime, sDayShutOffTime, DateTime.Now);
         }
 
         public bool IsAppDeactivated()
@@ -3057,30 +3146,12 @@ namespace Focus_Bear.Utils
             }
         }
 
-        // CI / automated-test / E2E builds must never emit telemetry: they boot to the welcome
-        // screen and would fire onboarding-funnel events (welcome-screen-shown, …) as fake users,
-        // polluting PostHog (analytics#33, mirror of Mac-App#2257). Detected via env vars set by the
-        // CI runner; CI can also set FOCUSBEAR_DISABLE_TELEMETRY=1 when the others don't reach the
-        // launched app. Cached because the environment cannot change during a run.
-        private const string EnvDisableTelemetry = "FOCUSBEAR_DISABLE_TELEMETRY";
-        private const string EnvContinuousIntegration = "CI";
-        private const string EnvGithubActions = "GITHUB_ACTIONS";
-
+        // CI / automated-test / E2E builds must never emit telemetry; see FocusBear.Core.AutomatedRun.
+        // Cached because the environment cannot change during a run.
         private static readonly bool _isRunningInCIOrAutomatedTest =
-            HasTruthyEnvVar(EnvDisableTelemetry) || HasTruthyEnvVar(EnvContinuousIntegration) || HasTruthyEnvVar(EnvGithubActions);
+            FocusBear.Core.AutomatedRun.IsDetected(Environment.GetEnvironmentVariable);
 
         public static bool IsRunningInCIOrAutomatedTest => _isRunningInCIOrAutomatedTest;
-
-        private static bool HasTruthyEnvVar(string sName)
-        {
-            string sValue = Environment.GetEnvironmentVariable(sName);
-            if (string.IsNullOrWhiteSpace(sValue))
-            {
-                return false;
-            }
-            sValue = sValue.Trim().ToLowerInvariant();
-            return sValue != "0" && sValue != "false" && sValue != "no";
-        }
 
         public void CapturePostHog(string sEvent, string sMetadataJSON = "")
         {
@@ -3225,6 +3296,8 @@ namespace Focus_Bear.Utils
                 if (wndGentleBlock == null)
                 {
                     wndGentleBlock = new GentleBlock();
+                    var created = wndGentleBlock; // closed windows can't be shown again (see ShowSetIntentionWindow)
+                    created.Closed += (s, e) => { if (ReferenceEquals(wndGentleBlock, created)) wndGentleBlock = null; };
                 }
 
                 if (bHabitwithUseFocusModeRunning)//if an activity with use focus mode is running, we need to show the activity name
@@ -3276,6 +3349,59 @@ namespace Focus_Bear.Utils
             {
                 LogWriter.LogWrite("GetActiveBlockingFocusMode ex - " + ex.Message);
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Whether postponing <paramref name="routine"/> right now must ask for the password. The one rule
+        /// every postpone entry point uses, matching the Mac (habitsVc): the morning routine obeys "postpone
+        /// morning"; the evening routine obeys "postpone evening after cutoff" once the cutoff has passed and
+        /// "postpone evening" before it. The skip settings govern a different action and must never gate a
+        /// postpone - the Focus Summary checked the skip-after-cutoff setting, so a user who had only asked
+        /// for a password to postpone after the cutoff was let through without one.
+        /// </summary>
+        public bool PostponeRequiresPassword(CurrentActivityType routine)
+        {
+            return PostponeRequiresPassword(routine, isPasswordSet, bPasswordRequireInPostponeMorning,
+                                            bPasswordRequireInPostponeEvening, bPasswordRequireInPostponeEveningAfterCutOff,
+                                            routine == CurrentActivityType.EVENING_HABITS && DidCutOffTimePassed());
+        }
+
+        /// <summary>
+        /// The routine a postpone belongs to. Postponing during a focus session sets the activity type to NONE,
+        /// so a later "postpone again" (the resume popup) must ask about the routine that was persisted.
+        /// </summary>
+        public static CurrentActivityType PostponedRoutine(CurrentActivityType current, bool postponed, CurrentActivityType persisted)
+        {
+            if (current == CurrentActivityType.MORNING_HABITS || current == CurrentActivityType.EVENING_HABITS)
+                return current;
+            return postponed ? persisted : current;
+        }
+
+        /// <summary>
+        /// Whether a routine postpone (first made or extended now) counts as made after the evening cutoff - such a
+        /// postpone is not cut short at the cutoff. Once after, it stays after.
+        /// </summary>
+        public static bool PostponedAfterCutoff(bool alreadyAfter, CurrentActivityType routine, bool cutOffPassed)
+        {
+            return alreadyAfter || (routine == CurrentActivityType.EVENING_HABITS && cutOffPassed);
+        }
+
+        /// <summary>The rule itself, from the settings it reads — no skip setting among them, by construction.</summary>
+        public static bool PostponeRequiresPassword(CurrentActivityType routine, bool isPasswordSet, bool requirePostponeMorning,
+                                                    bool requirePostponeEvening, bool requirePostponeEveningAfterCutOff, bool cutOffPassed)
+        {
+            if (!isPasswordSet)
+                return false;
+
+            switch (routine)
+            {
+                case CurrentActivityType.MORNING_HABITS:
+                    return requirePostponeMorning;
+                case CurrentActivityType.EVENING_HABITS:
+                    return cutOffPassed ? requirePostponeEveningAfterCutOff : requirePostponeEvening;
+                default:
+                    return false;
             }
         }
 
@@ -3346,6 +3472,11 @@ namespace Focus_Bear.Utils
                 if (wndSetIntention == null)
                 {
                     wndSetIntention = new SetIntention.SetIntention();
+                    // Closed from its title bar (or by anything else), the window can't be shown again: every later
+                    // block popup threw "Cannot set Visibility ... after a Window has closed" and no site could be
+                    // asked about until a restart (found by the E2E blocking tests). Make a new one next time.
+                    var created = wndSetIntention;
+                    created.Closed += (s, e) => { if (ReferenceEquals(wndSetIntention, created)) wndSetIntention = null; };
                 }
                 wndSetIntention.ShowSetIntentionWindow(hWnd, sEXE, sURL, sTabTitle, bShowTimerAndWarning);
             }));
@@ -3357,6 +3488,8 @@ namespace Focus_Bear.Utils
                 if (wndShowIntention == null)
                 {
                     wndShowIntention = new ShowIntention();
+                    var created = wndShowIntention; // closed windows can't be shown again (see ShowSetIntentionWindow)
+                    created.Closed += (s, e) => { if (ReferenceEquals(wndShowIntention, created)) wndShowIntention = null; };
                 }
                
                 if (bHabitwithUseFocusModeRunning)//if an activity with use focus mode is running, we need to show the activity name
@@ -3374,11 +3507,14 @@ namespace Focus_Bear.Utils
         {
             ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
             {
-                if (wndSetIntention != null)
+                // Only the set-intention popup's own backdrop goes with it. This runs on every URL the browser
+                // reports, so hiding the backdrop unconditionally here took the AI check-in's backdrop down
+                // within a second of it appearing.
+                if (wndSetIntention != null && wndSetIntention.IsVisible)
                 {
                     wndSetIntention.Hide();
+                    HideBlurWindow();
                 }
-                HideBlurWindow();
             }));
         }
         public void Hide_ShowIntentionWindow()
@@ -3427,10 +3563,24 @@ namespace Focus_Bear.Utils
 
         public async void ChangeStartupTimeToCurrentTimeAndSaveSettings()
         {
+            try { await ChangeStartupTimeToCurrentTimeAndSaveSettingsAsync(DateTime.Now); }
+            catch (Exception ex) { LogWriter.LogWrite("ChangeStartupTimeToCurrentTimeAndSaveSettings ex - " + ex.Message); }
+        }
+
+        /// <summary>
+        /// "Start the morning routine now" from the shut-off screen. The whole settings document is PUT, so the edit
+        /// starts from the server's latest copy (as the Day Plan's edits do) - from the launch copy it undid every
+        /// change made since on another device.
+        /// </summary>
+        internal async Task ChangeStartupTimeToCurrentTimeAndSaveSettingsAsync(DateTime now)
+        {
             LogWriter.LogWrite("ChangeStartupTimeToCurrentTimeAndSaveSettings()");
 
-            JObject UserSettings = JObject.Parse(sRawUserSettings);
-            DateTime now = DateTime.Now;
+            // Set before the fetch: the caller goes straight on to start the routine, which reads it.
+            sDayStartTime = now.ToString("HH:mm");
+
+            JObject UserSettings = await Focus_Bear.Habits.DayPlan.DayPlanSettingsEdits.LatestSettingsAsync();
+            if (UserSettings == null) return;
            
             Console.WriteLine(now.ToString("HH:mm"));
 
@@ -3440,18 +3590,15 @@ namespace Focus_Bear.Utils
                 UserSettings.Add("startup_time", now.ToString("HH:mm"));
             }
            
-            sDayStartTime = now.ToString("HH:mm");
-           
             //Also save the udpated settings to Registry
             sRawUserSettings = UserSettings.ToString();
-            RegistryManager.SaveUserSettings();
+            Focus_Bear.Habits.DayPlan.DayPlanSettingsEdits.SaveLocalCopy();
 
-            await Task.Run(async () =>
-            {
-                FocusBearAPIClient client = new FocusBearAPIClient();
-                //We will need to put the settings.
-                var y = client.PutUserSettings();
-            });
+            //We will need to put the settings. Offline it stays local, so the next edit (which starts from the
+            //server's copy) carries it instead of undoing it.
+            string startup = now.ToString("HH:mm");
+            if (!await Focus_Bear.Habits.DayPlan.DayPlanSettingsEdits.PutAndSettle())
+                Focus_Bear.Habits.DayPlan.DayPlanSettingsEdits.KeepUnsynced("startup_time", root => root["startup_time"] = startup);
         }
 
         public async void CheckLogFileRotation()
@@ -3476,12 +3623,13 @@ namespace Focus_Bear.Utils
                     LogWriter.LogWrite("CheckLogFileRotation:- move log files");
                     try
                     {
+                        LogWriter.Flush();   // the old file takes its own lines with it
                         File.Move(DebugLogsFilePath, oldLogPath);
 
-                        //Need to create teh debug file and wait a while
+                        //The new Debug_Logs.txt is created by the log writer's next flush, which stamps it with the
+                        //current creation time (NTFS tunnelling would otherwise hand it the moved file's).
                         LogWriter.LogWrite("CheckLogFileRotation :- create / write to Debug_Logs.txt");
-                        await Task.Delay(2);
-                        File.SetCreationTime(DebugLogsFilePath, DateTime.Now); //we will need to set the CreationDate as File.Move() preserves the original CreationTime Only the path changes
+                        LogWriter.Flush();
                     }
                     catch (Exception ex)
                     {
@@ -3492,7 +3640,9 @@ namespace Focus_Bear.Utils
 
             try
             {
+                //Never the live file: its creation time can look old (tunnelling), and deleting it loses today's lines.
                 var logFiles = Directory.GetFiles(AppSettings.AppDataDirLogsPath, "*.txt")
+                    .Where(f => !string.Equals(Path.GetFileName(f), "Debug_Logs.txt", StringComparison.OrdinalIgnoreCase))
                     .Select(f => new FileInfo(f))
                     .ToList();
 
@@ -3560,51 +3710,53 @@ namespace Focus_Bear.Utils
             }));
         }
         
-        public async void ShowBlurWindow(IntPtr hwndTarget)
+        /// <summary>
+        /// Raise the frosted backdrop behind a block popup, over the monitor of the blocked window
+        /// <paramref name="hwndTarget"/> (Mac blur window). It takes itself down once no block popup is on
+        /// screen, so a popup that goes away without calling <see cref="HideBlurWindow"/> can't leave it stuck.
+        /// </summary>
+        public void ShowBlurWindow(IntPtr hwndTarget)
         {
-#if DEBUG
-         return;
-#endif
-
-            if (wndBlurWindow == null)
+            try
             {
-                wndBlurWindow = new BlurWindow();
+                if (wndBlurWindow == null)
+                {
+                    wndBlurWindow = new BlurWindow();
+                    wndBlurWindow.Closed += (s, e) => wndBlurWindow = null;
+                }
+                wndBlurWindow.ShowOver(hwndTarget);
             }
-
-            PositionBlurWindowOn(hwndTarget, wndBlurWindow);
-            wndBlurWindow.Show();
-            await Task.Delay(1000); // 1000 milliseconds = 1 seconds
-        }
-        public void HideBlurWindow()
-        {
-            if(wndBlurWindow != null)
+            catch (Exception ex)
             {
-                wndBlurWindow.Hide();
-            }
-        }
-
-        public void PositionBlurWindowOn(IntPtr hwndTarget, Window blurWindow)
-        {
-            if (GetWindowRect(hwndTarget, out RECT rect))
-            {
-                // Convert size and position
-                int width = rect.Right - rect.Left;
-                int height = rect.Bottom - rect.Top;
-
-                // Browsers: leave ~90px at the top so the address bar stays visible (the user needs it to
-                // navigate away from the blocked site). Apps have no address bar, so cover the whole window.
-                int topOffset = IsBrowserWindow(hwndTarget) ? 90 : 0;
-
-                blurWindow.Left = rect.Left;
-                blurWindow.Top = rect.Top + topOffset;
-                blurWindow.Width = width;
-                blurWindow.Height = height;
+                LogWriter.LogWrite("ShowBlurWindow ex - " + ex.Message);
+                HideBlurWindow();
             }
         }
+        /// <summary>
+        /// A block popup (AI check-in, gentle block, set intention) became visible: make sure it is on the backdrop
+        /// straight away, not a watchdog tick later ("AI blocking popups should appear on top of the blur").
+        /// </summary>
+        public void NotifyBlockPopupShown()
+        {
+            try { wndBlurWindow?.PopupShown(); }
+            catch (Exception ex) { LogWriter.LogWrite("NotifyBlockPopupShown ex - " + ex.Message); }
+        }
 
-        // True when the target window belongs to a supported browser process; used to decide whether the
-        // blur leaves the address bar visible (browser) or covers the whole window (app).
-        private bool IsBrowserWindow(IntPtr hwnd)
+        public void HideBlurWindow([System.Runtime.CompilerServices.CallerMemberName] string caller = "")
+        {
+            try
+            {
+                wndBlurWindow?.RequestHide(caller);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("HideBlurWindow ex - " + ex.Message);
+            }
+        }
+
+        // True when the target window belongs to a supported browser process; the block backdrop leaves such a
+        // window's address bar uncovered so the user can still navigate away from the blocked site.
+        internal bool IsBrowserWindow(IntPtr hwnd)
         {
             try
             {

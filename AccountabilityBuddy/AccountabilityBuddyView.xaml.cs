@@ -211,9 +211,8 @@ namespace Focus_Bear.AccountabilityBuddy
             }
             string sBuddyName = ComboBoxBuddies.DisplayMemberPath.ToString() ;
 
-            string addJsonString = $"{{\"accountability_buddy_user_id\":\"{sBuddyID}\"," +
-                                   $"\"reason\":\"{sReason}\"," +
-                                   $"\"unlock_duration_minutes\":{nMinutes}}}";
+            // Built as JSON: a reason with a quote or a new line used to make the request unreadable.
+            string addJsonString = FocusBearAPIClient.UnlockRequestBody(sBuddyID, sReason, nMinutes).ToString(Newtonsoft.Json.Formatting.None);
 
             //Call API to request unlock
             FocusBearAPIClient client = new FocusBearAPIClient();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Core = FocusBear.Core.Schedule;
 
 namespace Focus_Bear.Habits.DayPlan
 {
@@ -75,56 +76,71 @@ namespace Focus_Bear.Habits.DayPlan
                 DateTime segStart = seg.IsEarlier ? seg.WindowStart : Max(seg.WindowStart, now);
                 if (!(seg.WindowEnd > segStart) || seg.Habits.Count == 0) continue;
 
-                // Place habits strictly in list order (no reordering). Each starts at the running
-                // cursor, pushed past any meeting it would overlap, and everything after it follows —
-                // so a long first habit stays first instead of being leap-frogged.
-                DateTime cursor = segStart;
+                // An "earlier today" section is read-only history: place EVERY habit, never truncated to
+                // what fits in its window (the normal overflow path would hide the still-undone ones).
+                bool uncapped = seg.IsEarlier;
+
+                // A habit with a cutoff stays visible until that cutoff time has actually passed — not
+                // merely because its projected slot would land after it. (An "earlier today" section is
+                // past history: show every habit regardless of cutoff.) (Mac-App #2010)
+                var dueHabits = seg.Habits
+                    .Where(h => seg.IsEarlier || !h.Cutoff.HasValue || now <= h.Cutoff.Value)
+                    .ToList();
+
+                // Same placement as the Mac (ScheduleKit.placeHabitsInGaps, ported to FocusBear.Core):
+                // the habits fill the free gaps between meetings, gap by gap. Within a gap the earliest
+                // habit in routine order that still fits goes next, so a short later habit is pulled into
+                // a gap the next one is too long for, and the long one takes the first later gap that
+                // holds it. The morning routine is therefore spread through the day's gaps instead of
+                // being declared "not enough free time" (report 2026-09-25_09-01-38).
+                var placement = PlaceHabitsInGaps(dueHabits, segStart, uncapped ? (DateTime?)null : seg.WindowEnd, habitBusy);
+
                 var placed = new List<int>();
-                foreach (var h in seg.Habits)
+                foreach (var p in placement.Placed)
                 {
-                    // A habit with a cutoff stays visible until that cutoff time has actually passed —
-                    // not merely because its projected slot would land after it. (An "earlier today"
-                    // section is past history: show every habit regardless of cutoff.) (Mac-App #2010)
-                    if (!seg.IsEarlier && h.Cutoff.HasValue && now > h.Cutoff.Value) continue;
-                    int remaining = Math.Max(0, h.DurationSeconds - (h.IsPlaying ? h.ElapsedSeconds : 0));
-                    double dur = remaining;
-                    DateTime? start = NextFreeStart(cursor, dur, habitBusy, seg.WindowEnd);
-                    bool overflow = false;
-                    if (start == null)
-                    {
-                        // Can't fit before the window ends — the meetings leave no room. For a preview /
-                        // "earlier today" section it's fine to omit it (habits run in sequence, so nothing
-                        // after it fits either — stop rather than leap-frogging to a shorter later habit).
-                        if (!seg.Actionable) break;
-                        // But the ACTIVE routine must always stay startable: a locked routine the user
-                        // can't begin because their calendar is fully booked traps them with no way out
-                        // but to skip (#1371). Keep the habit in the plan — flagged as not-enough-time
-                        // (rendered red + a card note), stacked after the cursor in list order. Meetings
-                        // keep their slots; we don't reclaim their time, we just still list the habit.
-                        start = cursor;
-                        overflow = true;
-                    }
-                    DateTime end = start.Value.AddSeconds(dur);
-                    cursor = end;
-                    var b = new ScheduleBlock(ScheduleBlockKind.Habit, h.Title, start.Value, end,
+                    var h = p.Item1;
+                    var b = new ScheduleBlock(ScheduleBlockKind.Habit, h.Title, p.Item2, p.Item3,
                                               habitIndex: h.Index, routineName: seg.Name)
                     {
                         IsActionable = seg.Actionable,
                         IsDone = h.IsDone,       // (Mac-App #2012)
                         HabitId = h.Id,
-                        IsEarlier = seg.IsEarlier,
-                        DidOverflow = overflow   // "no free time for this one" — red, with a card note (#1371)
+                        IsEarlier = seg.IsEarlier
                     };
                     blocks.Add(b);
                     placed.Add(blocks.Count - 1);
-                    occupied.Add((start.Value, end));
+                    occupied.Add((p.Item2, p.Item3));
                 }
 
-                // The whole active routine is tappable (tap a habit to move the action bar to it);
-                // its next-up habit is the default selection. Preview routines aren't actionable.
+                // What no gap in the whole window can hold is still listed — never dropped — as its own
+                // "not enough time today" group, anchored at the end of the last habit that fit (segStart
+                // when nothing fit) so it sorts below the habits that did get a slot. Zero-length (it
+                // isn't busy time); the habit's own length is kept for display. For the ACTIVE routine
+                // this also keeps it startable on a fully-booked day (#1371).
+                DateTime overflowAnchor = placement.Placed.Count > 0 ? placement.Placed.Max(p => p.Item3) : segStart;
+                foreach (var h in placement.Unplaced)
+                {
+                    var b = new ScheduleBlock(ScheduleBlockKind.Habit, h.Title, overflowAnchor, overflowAnchor,
+                                              habitIndex: h.Index, routineName: seg.Name)
+                    {
+                        IsActionable = seg.Actionable,
+                        IsDone = h.IsDone,
+                        HabitId = h.Id,
+                        IsEarlier = seg.IsEarlier,
+                        DidOverflow = true,
+                        OverflowDurationSeconds = RemainingSeconds(h)
+                    };
+                    blocks.Add(b);
+                    placed.Add(blocks.Count - 1);
+                }
+
+                // The whole active routine is tappable (tap a habit to move the action bar to it); its
+                // next-up habit is the default selection — the earliest TIMED habit, or (if the whole
+                // routine overflowed) the first overflow habit. Preview routines aren't actionable.
                 if (seg.Actionable && placed.Count > 0)
                 {
-                    int nextIdx = placed.OrderBy(i => blocks[i].Start).First();
+                    var timed = placed.Where(i => !blocks[i].DidOverflow).ToList();
+                    int nextIdx = (timed.Count > 0 ? timed : placed).OrderBy(i => blocks[i].Start).First();
                     foreach (int i in placed) blocks[i].IsActionable = true;
                     blocks[nextIdx].IsCurrent = true;
                 }
@@ -181,40 +197,64 @@ namespace Focus_Bear.Habits.DayPlan
             // The day ends at dayEnd. No overnight "Sleep" block or next-day "Morning routine" marker —
             // the "View tomorrow's schedule" button (UI) handles the next day instead.
 
+            // Same start & kind: order habits by routine index so the overflow group (all anchored at one
+            // time) stays contiguous and in routine order.
             return blocks
                 .OrderBy(b => b.Start)
                 .ThenBy(b => KindOrder(b.Kind))
+                .ThenBy(b => b.HabitIndex ?? int.MaxValue)
                 .ToList();
         }
 
         // MARK: - Helpers
 
-        /// <summary>
-        /// Earliest start >= `from` where [start, start+duration] fits before `windowEnd` without
-        /// overlapping any busy interval — it pushes past a conflicting meeting rather than
-        /// reordering habits around it. Returns null if it can't fit before the window ends.
-        /// </summary>
-        public static DateTime? NextFreeStart(DateTime from, double duration,
-                                              List<(DateTime, DateTime)> busy, DateTime windowEnd)
+        /// <summary>Seconds a habit still needs: its full length, less what has elapsed if it's playing.</summary>
+        public static int RemainingSeconds(ScheduleHabitInput h)
         {
-            var sorted = busy.OrderBy(b => b.Item1).ToList();
-            DateTime start = from;
-            bool advanced = true;
-            while (advanced)
+            return Math.Max(0, h.DurationSeconds - (h.IsPlaying ? h.ElapsedSeconds : 0));
+        }
+
+        /// <summary>The outcome of packing habits into the gaps: (habit, start, end) per placed habit, plus
+        /// the habits no gap was long enough for.</summary>
+        public class HabitPlacement
+        {
+            public List<Tuple<ScheduleHabitInput, DateTime, DateTime>> Placed = new List<Tuple<ScheduleHabitInput, DateTime, DateTime>>();
+            public List<ScheduleHabitInput> Unplaced = new List<ScheduleHabitInput>();
+        }
+
+        /// <summary>
+        /// Packs <paramref name="habits"/> into the free gaps of [from, to] around <paramref name="busy"/>.
+        /// Delegates to <see cref="FocusBear.Core.Schedule.ScheduleBuilder.PlaceHabitsInGaps"/> — the
+        /// unit-tested port of the Mac's placeHabitsInGaps — so the two platforms place habits by one rule.
+        /// A null <paramref name="to"/> means "no window cap" (an earlier-today history section).
+        /// </summary>
+        public static HabitPlacement PlaceHabitsInGaps(List<ScheduleHabitInput> habits, DateTime from, DateTime? to,
+                                                       List<(DateTime, DateTime)> busy)
+        {
+            var byCore = new Dictionary<Core.ScheduleHabitInput, ScheduleHabitInput>();
+            var coreHabits = new List<Core.ScheduleHabitInput>();
+            foreach (var h in habits)
             {
-                advanced = false;
-                if (start.AddSeconds(duration) > windowEnd.AddSeconds(0.5)) return null;
-                foreach (var b in sorted)
-                {
-                    if (start < b.Item2 && start.AddSeconds(duration) > b.Item1)
-                    {
-                        start = b.Item2;   // push to the end of the conflicting meeting
-                        advanced = true;
-                        break;
-                    }
-                }
+                // Remaining time is folded into the duration so Core doesn't need the playing state.
+                var c = new Core.ScheduleHabitInput(h.Index, h.Title, RemainingSeconds(h), id: h.Id);
+                byCore[c] = h;
+                coreHabits.Add(c);
             }
-            return start;
+            var coreBusy = busy.Select(b => new Core.TimeRange(Offset(b.Item1), Offset(b.Item2))).ToList();
+            DateTimeOffset end = to.HasValue ? Offset(to.Value) : Core.ScheduleBuilder.DistantFuture;
+            var result = Core.ScheduleBuilder.PlaceHabitsInGaps(coreHabits, Offset(from), end, coreBusy);
+
+            var outcome = new HabitPlacement();
+            foreach (var p in result.Placed)
+                outcome.Placed.Add(Tuple.Create(byCore[p.Habit], p.Start.LocalDateTime, p.End.LocalDateTime));
+            foreach (var u in result.Unplaced)
+                outcome.Unplaced.Add(byCore[u]);
+            return outcome;
+        }
+
+        private static DateTimeOffset Offset(DateTime local)
+        {
+            return new DateTimeOffset(DateTime.SpecifyKind(local, DateTimeKind.Local));
         }
 
         /// <summary>

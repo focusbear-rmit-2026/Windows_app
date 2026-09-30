@@ -45,6 +45,7 @@ namespace Focus_Bear.Login
         {
        
             InitializeComponent();
+            Utils.IdleProgressBars.Watch(ProgressLogin);   // no 60 fps storyboard while hidden
             ParentWindow = _parentWindow;
           
             try
@@ -368,7 +369,12 @@ namespace Focus_Bear.Login
         }
 
 
-        private void EyePassword_MouseUp(object sender, MouseButtonEventArgs e)
+        private void EyePassword_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleShowPassword();
+        }
+
+        private void ToggleShowPassword()
         {
             bEyeOnPasswordBox = !bEyeOnPasswordBox;
             if (bEyeOnPasswordBox)

@@ -28,19 +28,16 @@
         <Border Grid.Column="0" >
             <DockPanel LastChildFill="True" >
 
-                <StackPanel  DockPanel.Dock="Top" Orientation="Vertical" >
-                    <Image x:Name="FocusBearLogo" HorizontalAlignment="Left" Height="40"  Width="150" Margin="15,0,0,0" Source="{DynamicResource FocusBearLogoMain}"  RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Uniform" VerticalAlignment="Center"   />
+                <!-- Logo and the sidebar toggle share one row (the toggle used to sit on its own row below the logo).
+                     Expanded: logo left, « right. Collapsed: the logo is hidden and » sits centred. -->
+                <Grid DockPanel.Dock="Top" Height="56">
+                    <Image x:Name="FocusBearLogo" AutomationProperties.Name="Focus Bear" HorizontalAlignment="Left" Height="40"  Width="150" Margin="15,0,0,0" Source="{DynamicResource FocusBearLogoMain}"  RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Uniform" VerticalAlignment="Center"   />
                     <!-- Sidebar TOGGLE BUTTON -->
-                    <Button   x:Name="btnSideBar" HorizontalAlignment="Right" AutomationProperties.AutomationId="btnSideBar" Margin="0,0,4,3"  Style="{StaticResource ImageButtonStyle}" IsEnabled="True" Width="25"  Height="25" HorizontalContentAlignment="Left" Padding="0"   Cursor="Hand"   Click="btnSideBar_Click">
-                        <Button.Content>
-                            <StackPanel  Orientation="Horizontal">
-                                <Image Width="23"  Height="23" Source="{DynamicResource SidebarButton}" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased" Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-
+                    <Button   x:Name="btnSideBar" HorizontalAlignment="Right" VerticalAlignment="Center" AutomationProperties.AutomationId="btnSideBar" AutomationProperties.Name="Collapse sidebar" ToolTip="Collapse sidebar" Margin="0,0,8,0"  Style="{StaticResource ImageButtonStyle}" IsEnabled="True" Width="28"  Height="28" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"   Cursor="Hand"   Click="btnSideBar_Click">
+                        <TextBlock x:Name="SidebarChevron" Text="&#xE76B;&#xE76B;" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,1,0,0"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TraySubtitleColor}"/>
                     </Button>
-
-                </StackPanel>
+                </Grid>
 
                 <!-- Horizontal border between them -->
                 <Separator DockPanel.Dock="Top" 
@@ -57,13 +54,15 @@
                     </Grid.RowDefinitions>
 
                     <!-- TreeView with Categories and Values -->
-                    <TreeView x:Name="LeftTree" Grid.Row="0" Margin="7,0,1,0" SelectedItemChanged="LeftTree_SelectedItemChanged_1" BorderThickness="0" BorderBrush="#CCCCCC" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.PanningMode="VerticalOnly">
+                    <TreeView x:Name="LeftTree" Grid.Row="0" Margin="7,0,1,0" SelectedItemChanged="LeftTree_SelectedItemChanged_1" PreviewKeyDown="LeftTree_PreviewKeyDown" BorderThickness="0" BorderBrush="#CCCCCC" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.PanningMode="VerticalOnly">
 
                         <!-- Custom TreeViewItem style with working expander -->
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="{x:Type TreeViewItem}">
                                 <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
                                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                <!-- Screen readers read the row's title, not the item's type name ("Focus_Bear.NavLeaf"). -->
+                                <Setter Property="AutomationProperties.Name" Value="{Binding Title}"/>
                                 <Setter Property="Background" Value="Transparent"/>
                                 <Setter Property="BorderThickness" Value="1"/>
                                 <Setter Property="Margin" Value="0,0,0,0"/>
@@ -83,6 +82,11 @@
                                                     <RowDefinition Height="*"/>
                                                 </Grid.RowDefinitions>
 
+                                                <!-- Keyboard focus ring (AccessibilityDefaults shows it when focus came from the keyboard;
+                                                     the selected row's own orange border looked the same focused or not). -->
+                                                <Border x:Name="PART_KeyboardFocusRing" Grid.Row="0" Panel.ZIndex="1" IsHitTestVisible="False"
+                                                        BorderBrush="{DynamicResource ForegroundColor}" BorderThickness="2" CornerRadius="5"
+                                                        Margin="-1" Visibility="Collapsed"/>
                                                 <!-- Main content area (left side) -->
                                                 <Border x:Name="Bd"
                                                         Grid.Row="0"
@@ -106,6 +110,7 @@
                                                                           HorizontalAlignment="Stretch"/>
                                                         <!-- Custom expander button on the right -->
                                                         <ToggleButton x:Name="RightExpander"
+                                                                      AutomationProperties.Name="{Binding Title, StringFormat=Show or hide {0}}"
                                                                       Grid.Column="1" 
                                                                       Grid.Row="0"
                                                                       Width="24"
@@ -237,6 +242,12 @@
                                         </ControlTemplate>
                                     </Setter.Value>
                                 </Setter>
+                                <Style.Triggers>
+                                    <!-- A TOOLS row the user hid with its X (restored from the TOOLS cog). -->
+                                    <DataTrigger Binding="{Binding IsHiddenByUser}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
                             </Style>
                         </TreeView.ItemContainerStyle>
 
@@ -245,13 +256,51 @@
 
                                 
                                 <!-- Category Header -->
-                                <StackPanel Orientation="Horizontal" Margin="15,0,0,0" Height="40">
+                                <Grid Margin="15,0,0,0" Height="40">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
                                         <!-- Category Name -->
                                     <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ForegroundColor}"   VerticalAlignment="Center" Visibility="{Binding ActualWidth, 
                                                                                                                RelativeSource={RelativeSource AncestorType={x:Type TreeView}},
                                                                                                                Converter={StaticResource WidthToVisibilityConverter},
                                                                                                                ConverterParameter=50}"/>
-                                </StackPanel>
+                                    <!-- TOOLS cog: lists the rows the user hid, with Restore (Mac RestoreHiddenToolsView). -->
+                                    <Button Grid.Column="1" x:Name="btnHiddenToolsCog" AutomationProperties.AutomationId="btnHiddenToolsCog"
+                                            Click="HiddenToolsCog_Click" Width="24" Height="24" Margin="0,0,2,0" Padding="0" Cursor="Hand"
+                                            VerticalAlignment="Center" Background="Transparent" BorderThickness="0"
+                                            ToolTip="{x:Static local:FocusBearMainWindow.HiddenToolsCogTooltip}">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="cogBd" Background="Transparent" CornerRadius="4">
+                                                    <TextBlock x:Name="cogGlyph" Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="{DynamicResource TraySubtitleColor}"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="cogBd" Property="Background" Value="#FFF3E0"/>
+                                                        <Setter TargetName="cogGlyph" Property="Foreground" Value="#DE7400"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding ShowsHiddenToolsCog}" Value="True"/>
+                                                            <Condition Binding="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Converter={StaticResource WidthToVisibilityConverter}}" Value="Visible"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </MultiDataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
 
                                 <!-- Template for child items (Values) -->
                                 <HierarchicalDataTemplate.ItemTemplate>
@@ -278,6 +327,7 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
+                                                <Grid VerticalAlignment="Center">
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                     <!-- Icon from Images folder -->
                                                     <Image Width="18" Height="18" Source="{Binding IconSource}" Margin="0,0,8,0" VerticalAlignment="Center">
@@ -322,6 +372,43 @@
 
 
                                                 </StackPanel>
+                                                <!-- Hover X on a TOOLS row hides it (Mac mainWindowListBox.showsHideButton). -->
+                                                <Button x:Name="btnHideTool" AutomationProperties.AutomationId="{Binding ButtonType, StringFormat=btnHideTool_{0}}"
+                                                        Click="HideTool_Click" Width="20" Height="20" Padding="0" Cursor="Hand" Focusable="False"
+                                                        HorizontalAlignment="Right" VerticalAlignment="Center" Background="Transparent" BorderThickness="0"
+                                                        ToolTip="{x:Static local:FocusBearMainWindow.HideToolTooltip}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border x:Name="xBd" Background="{DynamicResource TrayCardBg}" BorderBrush="{DynamicResource TrayCardBorder}" BorderThickness="1" CornerRadius="10">
+                                                                <TextBlock x:Name="xGlyph" Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="8" Foreground="{DynamicResource TraySubtitleColor}"
+                                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="xBd" Property="BorderBrush" Value="#DE7400"/>
+                                                                    <Setter TargetName="xGlyph" Property="Foreground" Value="#DE7400"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <MultiDataTrigger>
+                                                                    <MultiDataTrigger.Conditions>
+                                                                        <Condition Binding="{Binding IsHideable}" Value="True"/>
+                                                                        <Condition Binding="{Binding IsEnabled}" Value="True"/>
+                                                                        <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}}}" Value="True"/>
+                                                                        <Condition Binding="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Converter={StaticResource WidthToVisibilityConverter}}" Value="Visible"/>
+                                                                    </MultiDataTrigger.Conditions>
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </MultiDataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                                </Grid>
                                             </Border>
                                         </StackPanel>
 
@@ -336,8 +423,55 @@
         </Border>
         <!-- Vertical line (static divider — the left menu is a fixed width, not user-resizable) -->
         <Border Grid.Column="1" Width="1" Background="Gray" HorizontalAlignment="Stretch" />
-        <!-- RIGHT CONTENT -->
-        <ContentControl Grid.Column="2" x:Name="RightContent"/>
+        <!-- RIGHT CONTENT, under a slim top bar whose minimise is on every screen (Mac boxMinimize):
+             while a routine owns the window it is the routine's Exit Fullscreen, otherwise it minimises. -->
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border x:Name="TopBar" Grid.Row="0" Height="30" Background="Transparent">
+                <Button x:Name="btnTopMinimise" AutomationProperties.AutomationId="btnTopMinimise" Click="btnTopMinimise_Click"
+                        HorizontalAlignment="Right" VerticalAlignment="Center" Width="34" Height="26" Margin="0,2,8,0" Padding="0"
+                        Cursor="Hand" ToolTip="Minimise" AutomationProperties.Name="Minimise">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="minBd" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="4">
+                                <TextBlock x:Name="minGlyph" Text="&#xE921;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource ForegroundColor}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="minBd" Property="Background" Value="#FFF3E0"/>
+                                    <Setter TargetName="minBd" Property="BorderBrush" Value="#DE7400"/>
+                                    <Setter TargetName="minGlyph" Property="Foreground" Value="#DE7400"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="minGlyph" Property="Opacity" Value="0.35"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Border>
+            <!-- Hosts the current screen; not a Tab stop itself (a ContentControl is one by default, and with no
+                 automation peer a screen reader announced it as the whole window). -->
+            <ContentControl Grid.Row="1" x:Name="RightContent" IsTabStop="False"/>
+        </Grid>
+
+        <!-- TOOLS cog popover: the rows the user hid, each with Restore. -->
+        <Popup x:Name="HiddenToolsPopup" Placement="Right" StaysOpen="False" AllowsTransparency="True" HorizontalOffset="6" PopupAnimation="Fade">
+            <Border Background="{DynamicResource TrayCardBg}" BorderBrush="{DynamicResource TrayCardBorder}" BorderThickness="1" CornerRadius="8" Padding="14" MinWidth="220" MaxWidth="300" Margin="0,0,8,8">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.2"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock x:Name="HiddenToolsTitle" Text="Hidden tools" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource ForegroundColor}"/>
+                    <TextBlock x:Name="HiddenToolsEmpty" Margin="0,6,0,0" TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TraySubtitleColor}"/>
+                    <StackPanel x:Name="HiddenToolsRows"/>
+                </StackPanel>
+            </Border>
+        </Popup>
 
         <Border x:Name="GridShade" CornerRadius="0" Grid.ColumnSpan="3" Margin="0,0,0,0" Background="#FF060606" Opacity="0.65"   Visibility="Collapsed" >
             <Grid>
@@ -367,7 +501,7 @@
                                 <!-- This triggers IMMEDIATELY when control is in visual tree -->
                                 <Trigger Property="IsVisible" Value="True">
                                     <Trigger.EnterActions>
-                                        <BeginStoryboard>
+                                        <BeginStoryboard x:Name="GridShadeSpin">
                                             <Storyboard RepeatBehavior="Forever">
                                                 <DoubleAnimation
                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
@@ -375,6 +509,10 @@
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <!-- Stop when hidden: a forever spin left running kept WPF rendering at 60 fps for the rest of the session. -->
+                                        <StopStoryboard BeginStoryboardName="GridShadeSpin"/>
+                                    </Trigger.ExitActions>
                                 </Trigger>
                             </Style.Triggers>
                         </Style>

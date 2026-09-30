@@ -83,6 +83,45 @@ namespace Focus_Bear.Services.FocusButton
         }
 
         /// <summary>
+        /// EVENT|STARTHB|&lt;total_s&gt;|&lt;habit_id&gt;|&lt;HabitName&gt; (protocol.md). The name is everything after the id, so
+        /// one containing '|' stays whole; an older 4-field line carries a name and no id. The caller used to read
+        /// the name from parts[4] after checking only for 4 parts, which threw on a 4-field line.
+        /// </summary>
+        public static bool TryParseStartHabit(string[] parts, out string habitId, out string habitName)
+        {
+            habitId = "";
+            habitName = "";
+            if (parts == null || parts.Length < 4)
+                return false;
+            if (parts.Length == 4)
+            {
+                habitName = parts[3].Trim();
+                return true;
+            }
+            habitId = parts[3].Trim();
+            habitName = string.Join("|", parts, 4, parts.Length - 4).Trim();
+            return true;
+        }
+
+        /// <summary>
+        /// FIRMWAREVER|&lt;hw&gt;-&lt;version&gt;[-suffix], e.g. M50-1.4.2 or C30-1.7.0-rc2. False (version null) when there is no
+        /// readable version; the hardware code is still returned when present.
+        /// </summary>
+        public static bool TryParseFirmwareVersion(string field, out string hardwareCode, out Version version)
+        {
+            hardwareCode = "";
+            version = null;
+            if (string.IsNullOrWhiteSpace(field))
+                return false;
+            string[] pieces = field.Trim().Split('-');
+            hardwareCode = pieces[0];
+            if (pieces.Length < 2)
+                return false;
+            version = FocusBear.Core.Updates.VersionCompare.Parse(pieces[1]);
+            return version != null;
+        }
+
+        /// <summary>
         /// Makes text safe for a pipe-delimited device line: strips pipes, newlines,
         /// control chars and emoji (the device font has no glyphs for them), and clamps
         /// to <see cref="MAX_DEVICE_TEXT_LENGTH"/>.

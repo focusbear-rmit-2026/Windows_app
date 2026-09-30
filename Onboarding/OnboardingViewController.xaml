@@ -7,18 +7,23 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" AutomationProperties.AutomationId="OnboardingViewController">
     <Grid>
-        <!-- Main content -->
-        <Frame x:Name="OnboardingFrame"
-           NavigationUIVisibility="Hidden"
-           JournalOwnership="OwnsJournal"/>
-
-        <!-- Floating Back Button -->
-        <Button x:Name="BtnBack" AutomationProperties.AutomationId="btnBack"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="40" Height="40" HorizontalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Margin="17,17" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="BtnBack_Click">
+        <!-- Floating Back Button, drawn over the page (Panel.ZIndex). It sits top-left, so Tab reaches it before
+             the page: TabIndex 0 here and 1 on the Frame (ZIndex alone would put it last, as Panel orders its
+             visual children by ZIndex). -->
+        <Button x:Name="BtnBack" Panel.ZIndex="1" KeyboardNavigation.TabIndex="0" AutomationProperties.AutomationId="btnBack" AutomationProperties.Name="Back" ToolTip="Back"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="40" Height="40" HorizontalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Margin="17,17" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="BtnBack_Click">
             <Button.Content>
                 <StackPanel  Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock  Text="‹" VerticalAlignment="Center" Margin="0,0,0,7" FontSize="35" Foreground="#EB912E"/>
                 </StackPanel>
             </Button.Content>
         </Button>
+
+        <!-- Main content -->
+        <!-- Not a Tab stop itself (Tab still moves into the page it shows). -->
+        <Frame x:Name="OnboardingFrame"
+           KeyboardNavigation.IsTabStop="False"
+           KeyboardNavigation.TabIndex="1"
+           NavigationUIVisibility="Hidden"
+           JournalOwnership="OwnsJournal"/>
     </Grid>
 </UserControl>

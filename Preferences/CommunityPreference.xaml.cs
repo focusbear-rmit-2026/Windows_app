@@ -53,11 +53,8 @@ namespace Focus_Bear.Preferences
 
         private void btnOK_Click(object sender, RoutedEventArgs e)
         {
-            string sCom = string.Format("\"community\":\"{0}\"", sCommunity);
-            if (sCommunity == "Other")
-            {
-                sCom = string.Format("\"community\":\"{0}\"", OtherText.Text);
-            }
+            // Escaped: "Other" is typed text.
+            string sCom = FocusBear.Core.Analytics.EventPayload.Member("community", sCommunity == "Other" ? OtherText.Text : sCommunity);
             appSettings.CapturePostHog("choose-community-system", sCom);
 
             Close();

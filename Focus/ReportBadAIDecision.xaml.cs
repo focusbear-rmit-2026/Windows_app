@@ -52,7 +52,14 @@ namespace Focus_Bear.Focus
         }
         private void btnReportIssue_Click(object sender, RoutedEventArgs e)
         {
-            appSettings.CapturePostHog("bad-ai-blocking-decision", string.Format("\"userFeedbackOnDecision\":\"{0}\",\"payloadSentToAIEndpoint\":{1}", TxtWhatWasWrong.Text, sCurrentPayload));
+            // The typed feedback escaped, and the payload as JSON (text if it is not): spliced in raw, a quote in
+            // either made the report unreadable and it was dropped.
+            Newtonsoft.Json.Linq.JToken payload;
+            try { payload = string.IsNullOrWhiteSpace(sCurrentPayload) ? (Newtonsoft.Json.Linq.JToken)"" : Newtonsoft.Json.Linq.JToken.Parse(sCurrentPayload); }
+            catch (Newtonsoft.Json.JsonException) { payload = sCurrentPayload; }
+            appSettings.CapturePostHog("bad-ai-blocking-decision",
+                FocusBear.Core.Analytics.EventPayload.Member("userFeedbackOnDecision", TxtWhatWasWrong.Text) + ","
+                + FocusBear.Core.Analytics.EventPayload.Member("payloadSentToAIEndpoint", payload));
             Hide();
         }
         private void btnCancel_Click(object sender, RoutedEventArgs e)

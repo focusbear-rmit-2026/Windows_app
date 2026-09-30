@@ -52,6 +52,7 @@ namespace Focus_Bear.Preferences.SettingsTab
                 CheckSkipingEveningRoutine.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]?["buttonSkipEveningHabitText"]?.ToString() ?? "Skipping evening routine";
                 CheckUsingComputerLateNight.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonAbortingShutoffText"].ToString();
                 CheckQuittingApp.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonQuitAppText"].ToString();
+                CheckShortenHabits.Content = appSettings.GetConfigStringSafe("Shortening habits on the Day Plan", "passwordPreferencesInfo", "buttonShortenHabitsText");
                 CheckUseRelaxMode.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]["buttonUseRelaxFocusModeText"].ToString();
                 CheckSkipingEveningAfterCutOff.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]?["buttonSkipEveningHabitAfterCutOffText"]?.ToString() ?? "Skipping evening routine after cutoff time";
                 CheckPostponeMorningRoutine.Content = appSettings.ConfigFileStrings["passwordPreferencesInfo"]?["buttonPostponeMorningHabitText"]?.ToString() ?? "Postponing morning routine";
@@ -98,6 +99,7 @@ namespace Focus_Bear.Preferences.SettingsTab
                 CheckSkipingEveningRoutine.IsEnabled = true;
                 CheckUsingComputerLateNight.IsEnabled = true;
                 CheckQuittingApp.IsEnabled = true;
+                CheckShortenHabits.IsEnabled = true;
                 CheckUseRelaxMode.IsEnabled = true;
                 CheckSkipingEveningAfterCutOff.IsEnabled = true;
                 CheckStopSuperPomodoro.IsEnabled = true;
@@ -110,6 +112,7 @@ namespace Focus_Bear.Preferences.SettingsTab
                 CheckSkipingEveningRoutine.IsChecked = appSettings.bPasswordRequireInSkipEvening;
                 CheckUsingComputerLateNight.IsChecked = appSettings.bPasswordRequireInAbortShutoff;
                 CheckQuittingApp.IsChecked = appSettings.bPasswordRequireInQuitApp;
+                CheckShortenHabits.IsChecked = appSettings.bPasswordRequireToShortenHabits;
                 CheckUseRelaxMode.IsChecked = appSettings.bPasswordRequireToUseRelaxFocusMode;
                 CheckSkipingEveningAfterCutOff.IsChecked = appSettings.bPasswordRequireToSkipEveningAfterCutOff;
                 CheckStopSuperPomodoro.IsChecked = appSettings.bPasswordRequireInStopPomodoro;
@@ -133,6 +136,7 @@ namespace Focus_Bear.Preferences.SettingsTab
                 CheckSkipingEveningRoutine.IsEnabled = false;
                 CheckUsingComputerLateNight.IsEnabled = false;
                 CheckQuittingApp.IsEnabled = false;
+                CheckShortenHabits.IsEnabled = false;
                 CheckUseRelaxMode.IsEnabled = false;
                 CheckSkipingEveningAfterCutOff.IsEnabled = false;
                 CheckStopSuperPomodoro.IsEnabled = false;
@@ -321,6 +325,16 @@ namespace Focus_Bear.Preferences.SettingsTab
         private void CheckUsingComputerLateNight_Checked(object sender, RoutedEventArgs e)
         {
             appSettings.bPasswordRequireInAbortShutoff = true;
+        }
+
+        private void CheckShortenHabits_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireToShortenHabits = true;
+        }
+
+        private void CheckShortenHabits_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bPasswordRequireToShortenHabits = false;
         }
 
         private void CheckQuittingApp_Checked(object sender, RoutedEventArgs e)

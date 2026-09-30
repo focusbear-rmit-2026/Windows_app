@@ -168,6 +168,7 @@
         "buttonUninstallText": "Desinstalar Focus Bear",
         "shutdownNotificationTitle": "Es hora de terminar por hoy. Tu tiempo de apagado es en 5 minutos.",
         "appBlockNotificationTitle": "<APP_NAME> no está permitido en el <FOCUS_NAME> modo de enfoque.",
+        "appBlockNotificationAllowButton": "Ups, sí que lo necesito",
         "superDistractingAppBlockedText": "<APP_NAME> es una aplicación muy distractora.",
         "focusBreakNotificationTitle": "Tu descanso termina en",
         "tabGeneralText": "General",
@@ -3195,7 +3196,9 @@
         "breakBlockedTitle": "Sesión de enfoque de clase en curso",
         "breakBlockedBody": "No puedes iniciar un descanso durante una sesión de enfoque de clase. Se reanudará automáticamente cuando tu profesor finalice la sesión.",
         "resumeHabitsBlockedTitle": "Sesión de enfoque de clase en curso",
-        "resumeHabitsBlockedBody": "No puedes reanudar tus hábitos durante una sesión de enfoque de clase. Se reanudarán automáticamente cuando tu profesor finalice la sesión."
+        "resumeHabitsBlockedBody": "No puedes reanudar tus hábitos durante una sesión de enfoque de clase. Se reanudarán automáticamente cuando tu profesor finalice la sesión.",
+        "personalSessionOnlyTitle": "Esto inicia una sesión de enfoque personal",
+        "classSessionFromDashboardText": "Para iniciar una sesión de clase para tus estudiantes, usa el panel de Focus Bear en tu navegador."
     },
     "focusStateVcInfo":{
         "titleIntention": "Objetivo de enfoque:",

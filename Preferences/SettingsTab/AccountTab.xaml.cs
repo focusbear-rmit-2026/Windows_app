@@ -34,6 +34,7 @@ namespace Focus_Bear.Preferences
         {
       
             InitializeComponent();
+            Utils.IdleProgressBars.Watch(ProgressSync);   // no 60 fps storyboard while hidden
             
             LoadTexts();
         }
@@ -130,7 +131,7 @@ namespace Focus_Bear.Preferences
                 //Renew the token and check again
                 LogWriter.LogWrite("Attempting RenewToken to sync payment details");
                 var authenticator = new Authentication();
-                var x = await authenticator.RefreshToken(appSettings.userAccount.refreshToken);
+                var x = await authenticator.RefreshTokenForced(); //a new refresh, for the claims the purchase changed
                 if (x)
                 {
                     //token renewed

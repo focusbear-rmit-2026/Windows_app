@@ -31,7 +31,7 @@
         <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" MaxWidth="220" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <ComboBox Name="ComboBoxMinutes" AutomationProperties.AutomationId="cmbMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" SelectionChanged="ComboBoxMinutes_SelectionChanged" Loaded="ComboBoxMinutes_Loaded">
+            <ComboBox Name="ComboBoxMinutes" AutomationProperties.AutomationId="cmbMinutes" AutomationProperties.LabeledBy="{Binding ElementName=PostponeMinsText}" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" SelectionChanged="ComboBoxMinutes_SelectionChanged" Loaded="ComboBoxMinutes_Loaded">
                 <ComboBoxItem Content="5"></ComboBoxItem>
                 <ComboBoxItem Content="10"></ComboBoxItem>
                 <ComboBoxItem Content="15"></ComboBoxItem>
@@ -45,11 +45,17 @@
 
 
         </StackPanel>
-        <Button Grid.Row="4"  x:Name="btnAction" AutomationProperties.AutomationId="btnAction"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="20,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnAction_Click" >
+        <Button Grid.Row="4"  x:Name="btnAction" AutomationProperties.AutomationId="btnAction"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"    MinHeight="30" MinWidth="250" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" Padding="0" Margin="20,0,20,0" FontSize="13" Cursor="Hand" FontWeight="Semibold"
+                Click="btnAction_Click" PreviewMouseLeftButtonDown="btnAction_HoldStart" PreviewMouseLeftButtonUp="btnAction_HoldEnd" LostMouseCapture="btnAction_LostMouseCapture">
             <Button.Content>
-                <StackPanel  Orientation="Horizontal">
-                    <TextBlock x:Name="btnActionTXT" Text="xPostpone for 5 Minutes" Style="{DynamicResource ButtonTextBlockStyle}"/>
-                </StackPanel>
+                <!-- Transparent: the implicit Grid style (Theme/PreferencesStyle.xaml) paints BackgroundColor, which hid
+                     the orange face behind a white (light) or near-black (dark, black text on it) panel. -->
+                <Grid MinHeight="26" Background="Transparent">
+                    <ProgressBar x:Name="HoldProgress" Minimum="0" Maximum="1" Value="0" Visibility="Collapsed" Background="Transparent" BorderThickness="0" Foreground="#33FF8C00" IsHitTestVisible="False"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock x:Name="btnActionTXT" Text="xPostpone for 5 Minutes" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                    </StackPanel>
+                </Grid>
             </Button.Content>
         </Button>
         <TextBlock Grid.Row="5" Margin="0,0,0,0" Name="BreakDescText" TextWrapping="Wrap" Text="xMicro breaks help keep your energy + alertness levels consistent throughout the day and have positive impacts on your posture (no more screen headaches)." MaxWidth="320" FontSize="13" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      net8.0 so `dotnet test` runs on any machine; it consumes Core's netstandard2.0 build.
+      On Windows it ALSO runs on net472, which consumes Core's net472 build — the one the app
+      actually ships. Without it, CI proved the netstandard2.0 build right and shipped a different
+      binary. Only Windows can run .NET Framework tests, hence the condition.
+    -->
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">net8.0;net472</TargetFrameworks>
+    <RootNamespace>FocusBear.Core.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <!-- Pinned, never `latest`: `latest` floats with whatever Roslyn is installed, so the
+         same source compiles differently on a dev box and on the CI runner. C# 13's
+         first-class span conversions silently rebind some array extension calls. -->
+    <LangVersion>12.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.6.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\FocusBear.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+
+</Project>

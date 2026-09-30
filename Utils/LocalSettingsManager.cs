@@ -32,6 +32,12 @@ namespace Focus_Bear.Utils
                 {
                     JObject LocalSettings = JObject.Parse(appSettings.sUserLocalDeviceSettings);
 
+                    // An account that has only used the web app has local settings with no "MacOS" (desktop) part yet.
+                    // Nothing was saved for it: Geek Mode, the super-distracting sites, the AI toggle and every other
+                    // desktop setting were lost at the next start. Start the desktop part empty instead.
+                    if (!LocalSettings.ContainsKey("MacOS") || LocalSettings["MacOS"].Type == JTokenType.Null)
+                        LocalSettings["MacOS"] = new JObject();
+
                     if (LocalSettings.ContainsKey("MacOS"))
                     {
                         string sMacOSSettings = LocalSettings.ContainsKey("MacOS") ? LocalSettings["MacOS"].ToString() : "";
@@ -187,6 +193,7 @@ namespace Focus_Bear.Utils
                             {
                                 sMacOSSettingsOBJ.Add("kIsPasswordRequireInStopPomodoro", appSettings.bPasswordRequireInStopPomodoro);
                             }
+                            sMacOSSettingsOBJ["kIsPasswordRequireInShortenHabits"] = appSettings.bPasswordRequireToShortenHabits;
                             if (sMacOSSettingsOBJ.ContainsKey("kIsPasswordRequireInQuitApp"))
                             {
                                 sMacOSSettingsOBJ.Remove("kIsPasswordRequireInQuitApp"); //Remove  
@@ -443,6 +450,9 @@ namespace Focus_Bear.Utils
                             {
                                 sMacOSSettingsOBJ.Add("kIsAdvancedAnalyticsInFocusModeEnabled", appSettings.bAdvancedAnalyticsInFocusModeEnabled);
                             }
+
+                            // AI accountability buddy when postponing habits (shared key with the Mac)
+                            sMacOSSettingsOBJ["kAccountabilityBuddyEnabled"] = appSettings.bAccountabilityBuddyEnabled;
 
                             //Simple / geek mode setting
                             if (sMacOSSettingsOBJ.ContainsKey("kIsGeekModeEnabled"))

@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      Tests for the SEAM between the WPF app and FocusBear.Core: the adapters that read WPF state
+      and hand it to a Core rule. Core's own suite proves each rule; it cannot prove the app passes
+      the right inputs, which is where a cutover regresses. This is not a UI test project — keep it
+      headless, and keep the adapters it tests free of the AppSettings singleton.
+
+      net472 only, because it references the WPF app itself, which only MSBuild on Windows builds.
+      So unlike Core.Tests this does not run on a Mac or Linux box: CI runs it after the solution
+      build, with dotnet test in no-build mode.
+    -->
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>FocusBear.App.Tests</RootNamespace>
+    <AssemblyName>FocusBear.App.Tests</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <!-- Pinned, never `latest`; see Core.Tests. -->
+    <LangVersion>12.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.6.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.6.1" />
+    <!-- Pinned to the version the app already carries in packages.config. -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Focus Bear.csproj" />
+    <ProjectReference Include="..\Core\FocusBear.Core.csproj" />
+  </ItemGroup>
+
+</Project>

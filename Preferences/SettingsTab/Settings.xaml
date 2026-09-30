@@ -68,9 +68,10 @@
                 <ColumnDefinition Width="2" />
                 <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
-            <DockPanel Grid.Column="0" >
+            <DockPanel Grid.Column="0" KeyboardNavigation.TabNavigation="Local">
 
-                <StackPanel DockPanel.Dock="Bottom" >
+                <!-- Docked first to sit at the bottom; TabIndex keeps it after the list in the Tab order. -->
+                <StackPanel DockPanel.Dock="Bottom" KeyboardNavigation.TabIndex="1">
                     <Button  x:Name="btnExportStatistics" AutomationProperties.AutomationId="btnExportStatistics"  Margin="0,0,0,0" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  Height="27" Width="180" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Padding="0"   FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnExportStatistics_Click" >
                         <Button.Content>
                             <StackPanel  Orientation="Horizontal">
@@ -85,9 +86,9 @@
                             </StackPanel>
                         </Button.Content>
                     </Button>
-                    <TextBlock  Name="Version" Margin="0,10,0,10"   Text="xVersion:xx"  Foreground="Gray" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"  />
+                    <TextBlock  Name="Version" Margin="0,10,0,10"   Text="xVersion:xx"  Foreground="{DynamicResource TraySubtitleColor}" FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Center" HorizontalAlignment="Center"  />
                 </StackPanel>
-                <ListView  x:Name="ListLeftButtons"  AutomationProperties.AutomationId="lvLeftButtons" SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0"  Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" SelectionChanged="ListLeftButtons_SelectionChanged">
+                <ListView  x:Name="ListLeftButtons"  KeyboardNavigation.TabIndex="0" AutomationProperties.AutomationId="lvLeftButtons" SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0"  Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" SelectionChanged="ListLeftButtons_SelectionChanged">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid x:Name="ItemHeader" HorizontalAlignment="Left" Height="40" Width="200" Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >
@@ -98,7 +99,22 @@
                                 </Grid.ColumnDefinitions>
                                 <!--<Rectangle Fill="{Binding color, StringFormat=\{0\}}" Width="25" Height="25"  RadiusX="4" RadiusY="4"></Rectangle>-->
                                 <Image local:ImageResourceKeyBehavior.ResourceKey="{Binding IconPath}"  Margin="0,4,0,0" Height="24" Width="24" Grid.Column="0"/>
-                                <TextBlock Grid.Column="1" x:Name="ListViewTextBlock" Text="{Binding Name, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource PreferenceFocusListItemForegroundColor}"/>
+                                <TextBlock Grid.Column="1" x:Name="ListViewTextBlock" Text="{Binding Name, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left">
+                                    <TextBlock.Style>
+                                        <!-- On the orange selection / hover fill the label is near-black in both themes. -->
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource PreferenceFocusListItemForegroundColor}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnOrangeText}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnOrangeText}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -106,7 +122,7 @@
                 
             </DockPanel>
             <!-- Vertical line -->
-            <GridSplitter Grid.Column="1" Width="1" Background="Gray" HorizontalAlignment="Stretch" ShowsPreview="False" />
+            <GridSplitter Grid.Column="1" Width="1" Background="Gray" HorizontalAlignment="Stretch" ShowsPreview="False" Focusable="False" IsTabStop="False" /> <!-- a 1px divider, not something to Tab to -->
             
             <Grid Grid.Column="2"   HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" Background="{DynamicResource BackgroundColor}" >
                 <!-- Right side dynamic content -->

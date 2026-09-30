@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      Deliberately WPF-free, and multi-targeted for one reason: the app half of this repo is an
+      old-style net472 WPF project that only MSBuild on Windows can build, so any logic living
+      inside it can only be checked by pushing to CI. Logic that lives here builds and tests on a
+      developer's machine in seconds, whatever that machine is. `net472` is what the app consumes;
+      `netstandard2.0` is what the test project consumes from .NET 8.
+      Nothing in this project may reference WPF, COM interop or the Windows registry — that is the
+      whole point of it, and `FocusBear.Core.Tests` stops building the moment something does.
+    -->
+    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
+    <RootNamespace>FocusBear.Core</RootNamespace>
+    <AssemblyName>FocusBear.Core</AssemblyName>
+    <!-- Pinned, never `latest`: `latest` floats with whatever Roslyn is installed, so the
+         same source compiles differently on a dev box and on the CI runner. C# 13's
+         first-class span conversions silently rebind some array extension calls. -->
+    <LangVersion>12.0</LangVersion>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Pinned to the version the app already carries in packages.config. -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <!-- LogBundle builds the problem-report zip; netstandard2.0 has ZipArchive built in. -->
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
+
+</Project>

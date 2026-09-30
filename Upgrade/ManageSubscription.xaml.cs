@@ -54,14 +54,23 @@ namespace Focus_Bear.Upgrade
         private void CoreWebView2NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
             if (e.IsSuccess)
-            {
-                string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-                string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"type\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":{3}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont,sTheme);
+                LoadAccessToken();
+        }
 
-                string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForSubscription) {{ loadMetaDataForSubscription({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
+        // Path A initial load + Path B reactive reply (the page's REQUEST_ACCESS_TOKEN, echoed requestId).
+        private void LoadAccessToken(string requestId = null)
+        {
+            //Built as JSON (WebviewPayload).
+            string LoadTokenFunc = new FocusBear.Core.Ui.WebviewPayload()
+                .Add("access_token", appSettings.userAccount.accessToken)
+                .Add("type", "win")
+                .Add("lang", appSettings.sLangCode)
+                .Add("font", appSettings.sSelectedAppFont)
+                .Add("theme", appSettings.sTheme == "Light" ? "LIGHT" : "DARK")
+                .WithRequestId(requestId)
+                .WaitAndCall("loadMetaDataForSubscription");
 
-                var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
-            }
+            var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
         }
         private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
@@ -101,8 +110,12 @@ namespace Focus_Bear.Upgrade
         {
             try
             {
-                LogWriter.LogWrite("todo player - webView_WebMessageReceived() - tasks got from webview");
- 
+                LogWriter.LogWrite("ManageSubscription webView_WebMessageReceived()");
+                //The page asks for a fresh token when its own expires (Path B); every other webview answered, this
+                //one ignored it, so the subscription page stopped working once the token it was loaded with expired.
+                var req = await Focus_Bear.Services.WebViewTokenSyncService.Instance.HandleTokenRequestAsync(e.WebMessageAsJson);
+                if (req.IsTokenRequest && req.RefreshSucceeded)
+                    LoadAccessToken(req.RequestId);
             }
             catch (Exception ex)
             {

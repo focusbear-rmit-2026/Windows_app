@@ -39,7 +39,7 @@
                         <TextBlock x:Name="FullScreen" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xxPlay habits in full screen mode</TextBlock>
                         <TextBlock x:Name="FullScreenDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xMinimize distractions by doing your habits in full screen mode...</TextBlock>
                     </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="FullScreenCheckbox" AutomationProperties.AutomationId="tglFullScreenCheckbox"  Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="FullScreenCheckbox_Checked" Unchecked="FullScreenCheckbox_Unchecked" />
+                    <ToggleButton Grid.Column="1" x:Name="FullScreenCheckbox" AutomationProperties.AutomationId="tglFullScreenCheckbox" AutomationProperties.LabeledBy="{Binding ElementName=FullScreen}"  Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="FullScreenCheckbox_Checked" Unchecked="FullScreenCheckbox_Unchecked" />
                 </Grid>
 
                 <Grid Grid.Row="1"  Margin="15,0,15,0" Background="LightGray" ></Grid>
@@ -53,7 +53,7 @@
                         <TextBlock x:Name="AutoCloseAfterSkipPostpone" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xxAutomatically close window after completing, skipping or postponing a routine</TextBlock>
                         <TextBlock x:Name="AutoCloseAfterSkipPostponeDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xWhen enabled, the app window will automatically close after you complete, skip or postpone a routine.</TextBlock>
                     </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="AutoCloseAfterSkipPostponeCheckbox" AutomationProperties.AutomationId="tglAutoCloseAfterSkipPostpone" Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="AutoCloseAfterSkipPostponeCheckbox_Checked" Unchecked="AutoCloseAfterSkipPostponeCheckbox_Unchecked" />
+                    <ToggleButton Grid.Column="1" x:Name="AutoCloseAfterSkipPostponeCheckbox" AutomationProperties.AutomationId="tglAutoCloseAfterSkipPostpone" AutomationProperties.LabeledBy="{Binding ElementName=AutoCloseAfterSkipPostpone}" Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="AutoCloseAfterSkipPostponeCheckbox_Checked" Unchecked="AutoCloseAfterSkipPostponeCheckbox_Unchecked" />
                 </Grid>
 
                 <Grid Grid.Row="3"  Margin="15,0,15,0" Background="LightGray" ></Grid>
@@ -67,7 +67,7 @@
                         <TextBlock x:Name="SelectFont" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xApplication Font:</TextBlock>
                         <TextBlock x:Name="SelectFontDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEye-friendly option!....</TextBlock>
                     </StackPanel>
-                    <ComboBox Grid.Column="1" Name="Fonts" AutomationProperties.AutomationId="cmbFonts"  Width="200" Height="27" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,0,0"  SelectionChanged="Fonts_SelectionChanged"></ComboBox>
+                    <ComboBox Grid.Column="1" Name="Fonts" AutomationProperties.AutomationId="cmbFonts" AutomationProperties.LabeledBy="{Binding ElementName=SelectFont}"  Width="200" Height="27" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,0,0"  SelectionChanged="Fonts_SelectionChanged"></ComboBox>
                 </Grid>
 
                 <Grid Grid.Row="5" Margin="15,0,15,0" Background="LightGray"></Grid>
@@ -81,7 +81,7 @@
                         <TextBlock x:Name="SelectLanguage" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xxSelect Language:</TextBlock>
                         <TextBlock x:Name="SelectLanguageDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xWe've translated the app into a few languages....</TextBlock>
                     </StackPanel>
-                    <ComboBox  Grid.Column="1" Name="Language" AutomationProperties.AutomationId="cmbLanguage" Width="200" Height="27" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,0,0" SelectionChanged="Language_SelectionChanged"></ComboBox>
+                    <ComboBox  Grid.Column="1" Name="Language" AutomationProperties.AutomationId="cmbLanguage" AutomationProperties.LabeledBy="{Binding ElementName=SelectLanguage}" Width="200" Height="27" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,0,0" SelectionChanged="Language_SelectionChanged"></ComboBox>
                 </Grid>
 
                 <Grid Grid.Row="7"  Margin="15,0,15,0" Background="LightGray" ></Grid>
@@ -95,7 +95,7 @@
                         <TextBlock x:Name="SelectDarkMode" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xxDark Mode:</TextBlock>
                         <TextBlock x:Name="SelectDarkModeDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEye-friendly option!...</TextBlock>
                     </StackPanel>
-                    <ComboBox  Grid.Column="1" Name="DarkMode" AutomationProperties.AutomationId="cmbDarkMode" Width="200" Height="27" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,0,0" SelectionChanged="DarkMode_SelectionChanged"></ComboBox>
+                    <ComboBox  Grid.Column="1" Name="DarkMode" AutomationProperties.AutomationId="cmbDarkMode" AutomationProperties.LabeledBy="{Binding ElementName=SelectDarkMode}" Width="200" Height="27" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,0,0" SelectionChanged="DarkMode_SelectionChanged"></ComboBox>
                 </Grid>
             </Grid>
         </Border>

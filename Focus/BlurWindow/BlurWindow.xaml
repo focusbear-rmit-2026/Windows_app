@@ -6,9 +6,10 @@
         xmlns:local="clr-namespace:Focus_Bear.Focus.BlurWindow"
         mc:Ignorable="d"
         Title="Focus Bear" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize"
-        AllowsTransparency="True" Background="Transparent" >
+        AllowsTransparency="False" Background="Transparent" ShowInTaskbar="False" ShowActivated="False"
+        Topmost="True" AutomationProperties.AutomationId="wndBlockBackdrop">
 
-    <Grid Background="Transparent" >
-     
-    </Grid>
+    <!-- The wash over the blurred app (Mac blockBlurVc). Not a layered window: DWM composites it (the frame is
+         extended into the client area), so it is cheap to draw and every pixel of it takes the clicks. -->
+    <Grid x:Name="Scrim" Background="#D1FFFFFF" />
 </Window>

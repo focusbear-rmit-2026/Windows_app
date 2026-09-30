@@ -2,6 +2,7 @@ using Focus_Bear.API;
 using Focus_Bear.Habits.DayPlan;
 using Focus_Bear.Models;
 using Focus_Bear.Utils;
+using FocusBear.Core.Layout;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -35,6 +36,30 @@ namespace Focus_Bear.Habits
         private readonly AppSettings appSettings = AppSettings.GetInstance;
         private FocusBearMainWindow _parentWindow;
 
+        private bool _spareMeHooked;
+
+        /// <summary>
+        /// Room for the routine's floating "Please spare me" / Exit Fullscreen button only while it is visible, and the
+        /// agenda moved up into the main window's top bar, which is empty on the left (FocusBear.Core.Layout.DayPlanTopSpacing).
+        /// </summary>
+        private void UpdateTasksPanelTopMargin()
+        {
+            try
+            {
+                bool spareMeShown = _parentWindow?.PageHabits?.btnPleaseSpareMe?.IsVisible == true;
+                TasksPanelGrid.Margin = new Thickness(14, DayPlanTopSpacing.TasksPanelTop(spareMeShown), 14, 14);
+
+                // "There's still a bit of space above": the page starts under the main window's 30 px bar (its minimise
+                // button, top right), so the date bar sat 30 + 8 px down. Only while the Day Plan is in that window.
+                var mainWindow = _parentWindow;
+                bool underTopBar = mainWindow != null && mainWindow.TopBar != null && mainWindow.TopBar.IsVisible
+                                   && mainWindow.RightContent != null && mainWindow.RightContent.IsAncestorOf(this);
+                double offset = DayPlanTopSpacing.AgendaTopOffset(underTopBar ? mainWindow.TopBar.ActualHeight : 0);
+                DayPlanScroll.Margin = new Thickness(0, offset, 0, 0);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("UpdateTasksPanelTopMargin - " + ex.Message); }
+        }
+
         // macOS system colours (light-mode canonical values), used with alpha for card fills/borders.
         private static readonly Color COrange = Color.FromRgb(0xFF, 0x95, 0x00);
         private static readonly Color CGreen = Color.FromRgb(0x34, 0xC7, 0x59);
@@ -52,6 +77,10 @@ namespace Focus_Bear.Habits
         // The habit the user tapped to reveal its Play/Done/Skip bar. Null = default to the current
         // (next-up) habit. Index is a position in the live active-routine array (arrAll*Habits).
         private int? _selectedHabitIndex;
+
+        // The active routine's selectable habit indices and its next-up habit, across every card of the plan.
+        private HashSet<int> _planActionableIdxs = new HashSet<int>();
+        private int? _planCurrentIdx;
 
         // The currently-rendered selected-habit card, so Done can flash it green before removing it.
         private Border _selectedUnitBorder;
@@ -98,6 +127,15 @@ namespace Focus_Bear.Habits
             }
 
             _parentWindow = parentWindow;
+            // "Wasted blank space at top of day plan" (report 2026-09-26_11-54-27): the tasks panel always reserved
+            // room for the routine's "Please spare me" button, even when it isn't shown.
+            Loaded += (s, e) =>
+            {
+                UpdateTasksPanelTopMargin();
+                var spareMe = _parentWindow?.PageHabits?.btnPleaseSpareMe;
+                if (spareMe != null && !_spareMeHooked) { _spareMeHooked = true; spareMe.IsVisibleChanged += (o, a) => UpdateTasksPanelTopMargin(); }
+            };
+            IsVisibleChanged += (s, e) => UpdateTasksPanelTopMargin();
 
             try
             {
@@ -121,6 +159,7 @@ namespace Focus_Bear.Habits
             _selectedDate = DateTime.Today;   // a re-show always lands on today, not a stale past day
             _selectedHabitIndex = null;
             _selectedPastHabitId = null;
+            _selectedEditableHabitId = null;
             _routineCollapsed.Clear();   // back to defaults (active expanded, earlier collapsed) per view
             try
             {
@@ -165,7 +204,7 @@ namespace Focus_Bear.Habits
         {
             try
             {
-                string dayKey = _selectedDate.ToString("yyyy-MM-dd");
+                string dayKey = FocusBear.Core.Schedule.DayPlanDayKey.For(_selectedDate);
                 if (IsViewingToday)
                 {
                     bool routineActive = appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS
@@ -283,7 +322,7 @@ namespace Focus_Bear.Habits
         private void RenderDayPlan()
         {
             DayPlanStack.Children.Clear();
-            DayPlanStack.Children.Add(BuildDateBar());
+            DayPlanStack.Children.Add(WithScheduleCog(BuildDateBar()));   // top-left schedule settings cog
 
             // Trial-expired accounts only get the top 3 habits of each routine (ApplyExpiredHabitLimit) -
             // shown once, above the morning routine, so the cap isn't silent. Today only (IsViewingToday):
@@ -291,8 +330,14 @@ namespace Focus_Bear.Habits
             if (IsViewingToday && appSettings.isExpired)
                 DayPlanStack.Children.Add(BuildTrialExpiredCard());
 
-            List<ScheduleBlock> blocks = DayPlanDataSource.BuildBlocks(_selectedDate, includeDismissedMeetings: _showDismissedMeetings);
+            List<ScheduleBlock> blocks = DayPlanDataSource.BuildBlocks(_selectedDate, includeDismissedMeetings: _showDismissedMeetings,
+                                                                       showEarlierMeetings: ShowEarlierMeetingsForRender());
             _dayHasMeetings = blocks.Exists(b => b.Kind == ScheduleBlockKind.Meeting);
+            // One selection across the whole plan: the active routine can now span several cards (a run of
+            // habits in each gap between meetings), and only one of them may show the action bar.
+            _planActionableIdxs = new HashSet<int>(blocks.Where(b => b.Kind == ScheduleBlockKind.Habit && b.IsActionable && b.HabitIndex.HasValue)
+                                                         .Select(b => b.HabitIndex.Value));
+            _planCurrentIdx = blocks.FirstOrDefault(b => b.Kind == ScheduleBlockKind.Habit && b.IsCurrent)?.HabitIndex;
 
             // Deep-work sprints are task drop targets (like habit rows). Pre-compute which deep-work
             // task belongs to which sprint once, using nearest-anchor matching (M7 — deep-work targets).
@@ -302,51 +347,33 @@ namespace Focus_Bear.Habits
             var renderedRoutines = new HashSet<string>();
             bool eveningDoneToday = false;   // the evening routine rendered as a done/"earlier" section today
 
-            // An overflowed active routine is stacked at fictional back-to-back times (it doesn't actually
-            // fit around the meetings), so a meeting can sort between two of its habits and split the card
-            // (#1371 follow-up). Keep that routine whole: gather ALL its habit blocks into one card and skip
-            // them where they'd otherwise re-render. Interleaved meetings still show in their own place.
-            string overflowRoutine = null;
-            foreach (var b in blocks)
-                if (b.Kind == ScheduleBlockKind.Habit && b.DidOverflow) { overflowRoutine = b.RoutineName; break; }
-            var consumed = new HashSet<int>();
+            // Habits are interleaved with the day's meetings (the Mac's gap-filling placement), so one
+            // routine can show as several cards — a run of habits in each free gap — plus one "not enough
+            // time today" card for whatever fits nowhere. The routine-level controls (✕ cancel, the "…"
+            // options menu) sit on the routine's first card only; a cancelled routine shows one card.
+            var routineCardCount = new Dictionary<string, int>();
 
             int i = 0;
             while (i < blocks.Count)
             {
-                if (consumed.Contains(i)) { i++; continue; }
                 if (blocks[i].Kind == ScheduleBlockKind.Habit)
                 {
                     string name = blocks[i].RoutineName;
+                    // Split on DidOverflow too (Mac): the "not enough time today" habits form their OWN
+                    // card, so they never sit at the top of a group that did have time for its habits.
+                    bool overflowFlag = blocks[i].DidOverflow;
                     var group = new List<ScheduleBlock>();
-                    if (overflowRoutine != null && name == overflowRoutine)
+                    while (i < blocks.Count && blocks[i].Kind == ScheduleBlockKind.Habit
+                           && blocks[i].RoutineName == name && blocks[i].DidOverflow == overflowFlag)
                     {
-                        // Pull every habit of the overflowed routine into this one card, wherever it sorted.
-                        for (int j = i; j < blocks.Count; j++)
-                            if (blocks[j].Kind == ScheduleBlockKind.Habit && blocks[j].RoutineName == name)
-                            {
-                                group.Add(blocks[j]);
-                                consumed.Add(j);
-                            }
+                        group.Add(blocks[i]);
                         i++;
                     }
-                    else
-                    {
-                        // Collect this routine's consecutive habits, but step over any blocks already
-                        // consumed by an overflowed routine's card. Without this, an overflowed routine's
-                        // habit (stacked at a fictional time) sorted between two of THIS routine's habits
-                        // would break the run and split this routine across several cards (#1371 follow-up).
-                        while (i < blocks.Count)
-                        {
-                            if (consumed.Contains(i)) { i++; continue; }
-                            if (blocks[i].Kind == ScheduleBlockKind.Habit && blocks[i].RoutineName == name)
-                            {
-                                group.Add(blocks[i]);
-                                i++;
-                            }
-                            else break;
-                        }
-                    }
+                    if (_hideHabitBlocks) continue;   // schedule cog "Hide habits": just the calendar (group consumed)
+                    routineCardCount.TryGetValue(name ?? "", out int cardsSoFar);
+                    routineCardCount[name ?? ""] = cardsSoFar + 1;
+                    bool firstCard = cardsSoFar == 0;
+                    if (!firstCard && IsRoutineCancelledToday(name)) continue;   // one "you cancelled…" card is enough
                     renderedRoutines.Add(name);
                     // The "well done finishing your evening routine" shutdown card should only appear when the
                     // routine was actually done - i.e. the evening rendered as an "earlier" section AND at
@@ -355,7 +382,11 @@ namespace Focus_Bear.Habits
                     // (Not cancelled either — that shows the Uncancel card, which would contradict it.)
                     if (name == DayPlanText.EveningRoutineHabits && group.Exists(b => b.IsEarlier && b.IsDone) && !_eveningRoutineCancelled)
                         eveningDoneToday = true;
-                    DayPlanStack.Children.Add(BuildGroupCard(group));
+                    DayPlanStack.Children.Add(BuildGroupCard(group, firstCard));
+                }
+                else if (IsHiddenByScheduleSettings(blocks[i]))
+                {
+                    i++;   // schedule cog "Hide deep work blocks": the sprint (and its break) isn't drawn
                 }
                 else if (blocks[i].Kind == ScheduleBlockKind.DeepWork)
                 {
@@ -377,7 +408,7 @@ namespace Focus_Bear.Habits
             // Safety net: a force-cancelled routine must show its Uncancel card even when BuildBlocks didn't
             // emit its group (e.g. right after cancelling, before the day's progress is re-fetched). Add a
             // standalone cancelled card for any cancelled routine not already rendered above.
-            if (IsViewingToday)
+            if (IsViewingToday && !_hideHabitBlocks)
             {
                 if (_morningRoutineCancelled && !renderedRoutines.Contains(DayPlanText.MorningRoutineHabits))
                     DayPlanStack.Children.Add(BuildStandaloneCancelledCard(isEvening: false));
@@ -588,19 +619,9 @@ namespace Focus_Bear.Habits
             var bar = new StackPanel { Orientation = Orientation.Vertical, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 12) };
 
             var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
-            row.Children.Add(MakeDateArrow("‹", () => ChangeDay(-1)));
-            row.Children.Add(new TextBlock
-            {
-                Text = _selectedDate.ToString(_selectedDate.Year == DateTime.Today.Year ? "ddd d MMM" : "ddd d MMM yyyy", CultureInfo.CurrentCulture),
-                FontSize = 15,
-                FontWeight = FontWeights.Bold,
-                Foreground = FgBrush(),
-                MinWidth = 150,
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(6, 0, 6, 0)
-            });
-            row.Children.Add(MakeDateArrow("›", () => ChangeDay(1)));
+            row.Children.Add(MakeDateArrow("‹", () => ChangeDay(-1), "Previous day"));
+            row.Children.Add(MakeDateLabel());
+            row.Children.Add(MakeDateArrow("›", () => ChangeDay(1), "Next day"));
             bar.Children.Add(row);
 
             if (IsViewingToday)
@@ -632,7 +653,97 @@ namespace Focus_Bear.Habits
             return bar;
         }
 
-        private FrameworkElement MakeDateArrow(string glyph, Action onClick)
+        // The month calendar opened from the date label (null while closed).
+        private DayPlanDatePicker _datePicker;
+
+        /// <summary>
+        /// The date itself, as a button that opens the month calendar (the Mac's <c>dateLabelButton</c> ->
+        /// <c>pickDateClicked</c>): a hand cursor and a soft hover background, and it takes keyboard focus
+        /// (Enter / Space opens the calendar).
+        /// </summary>
+        private FrameworkElement MakeDateLabel()
+        {
+            var text = new TextBlock
+            {
+                Text = _selectedDate.ToString(_selectedDate.Year == DateTime.Today.Year ? "ddd d MMM" : "ddd d MMM yyyy", CultureInfo.CurrentCulture),
+                FontSize = 15,
+                FontWeight = FontWeights.Bold,
+                Foreground = FgBrush(),
+                MinWidth = 150,
+                TextAlignment = TextAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            var chrome = new Border { Child = text, CornerRadius = new CornerRadius(6), Padding = new Thickness(6, 3, 6, 3), Background = Brushes.Transparent };
+            var btn = new Button
+            {
+                Content = chrome,
+                Background = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
+                Padding = new Thickness(0),
+                Margin = new Thickness(0),
+                Cursor = Cursors.Hand,
+                Template = BorderlessButtonTemplate(),
+                ToolTip = DayPlanText.DatePickerOpen,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Brush hover = new SolidColorBrush(Color.FromArgb(0x33, 0x80, 0x80, 0x80));
+            Action sync = () => chrome.Background = btn.IsMouseOver || btn.IsKeyboardFocused ? hover : Brushes.Transparent;
+            btn.MouseEnter += (s, e) => sync();
+            btn.MouseLeave += (s, e) => sync();
+            btn.GotKeyboardFocus += (s, e) => sync();
+            btn.LostKeyboardFocus += (s, e) => sync();
+            System.Windows.Automation.AutomationProperties.SetAutomationId(btn, "DayPlanDateButton");
+            System.Windows.Automation.AutomationProperties.SetName(btn, DayPlanText.DatePickerOpen);
+            btn.Click += (s, e) => OpenDatePicker(btn);
+            _datePicker?.Retarget(btn);
+            return btn;
+        }
+
+        /// <summary>Open the month calendar under the date label (a second click on the label closes it).</summary>
+        private void OpenDatePicker(UIElement anchor)
+        {
+            try
+            {
+                if (_datePicker != null && (_datePicker.IsOpen || _datePicker.JustClosed))
+                {
+                    _datePicker.Close();
+                    _datePicker = null;
+                    return;
+                }
+                if (anchor == null)
+                    anchor = FindDescendant<Button>(DayPlanStack, b => System.Windows.Automation.AutomationProperties.GetAutomationId(b) == "DayPlanDateButton");
+                if (anchor == null) return;
+                // Picking the day already shown just closes the calendar (the Mac's chooseDate guard).
+                _datePicker = new DayPlanDatePicker(_selectedDate, DatePickerNetFreeMinutes,
+                                                    d => { if (d.Date != _selectedDate.Date) NavigateTo(d); });
+                _datePicker.Open(anchor);
+                appSettings.CapturePostHog("day-plan-date-picker-opened");
+            }
+            catch (Exception ex) { LogWriter.LogWrite("HabitsDayPlan OpenDatePicker - " + ex.Message); }
+        }
+
+        /// <summary>The picker's per-day figure: the tasks panel's buffer for that day (null for a past day).</summary>
+        private static int? DatePickerNetFreeMinutes(DateTime date)
+        {
+            List<ScheduleBlock> blocks;
+            FocusBear.Core.Forecast.LocalTimeForecast.DayLoad? load = DayLoadOn(date, out blocks);
+            return load.HasValue ? FocusBear.Core.Schedule.DayPlanFreeLevel.NetFreeMinutes(load.Value) : (int?)null;
+        }
+
+        private static T FindDescendant<T>(DependencyObject root, Func<T, bool> match) where T : DependencyObject
+        {
+            if (root == null) return null;
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(root, i);
+                if (child is T t && match(t)) return t;
+                T found = FindDescendant(child, match);
+                if (found != null) return found;
+            }
+            return null;
+        }
+
+        private FrameworkElement MakeDateArrow(string glyph, Action onClick, string name)
         {
             var t = new TextBlock
             {
@@ -649,17 +760,26 @@ namespace Focus_Bear.Habits
                 BorderThickness = new Thickness(0),
                 Padding = new Thickness(0),
                 Cursor = Cursors.Hand,
-                Template = BorderlessButtonTemplate()
+                Template = BorderlessButtonTemplate(),
+                ToolTip = name
             };
+            // Read as "Previous day" / "Next day", not "‹" / "›".
+            System.Windows.Automation.AutomationProperties.SetName(btn, name);
             btn.Click += (s, e) => onClick();
             return btn;
         }
 
-        private void ChangeDay(int days)
+        private void ChangeDay(int days) => NavigateTo(_selectedDate.AddDays(days));
+
+        private void GoToday() => NavigateTo(DateTime.Today);
+
+        /// <summary>Show another day: the ‹ › arrows, "Back to today" and a day picked from the month calendar.</summary>
+        private void NavigateTo(DateTime date)
         {
-            _selectedDate = _selectedDate.AddDays(days);
+            _selectedDate = date.Date;
             _selectedHabitIndex = null;
             _selectedPastHabitId = null;
+            _selectedEditableHabitId = null;
             RenderDayPlan();
             RenderTasksPanel();   // tasks are per-day (M7)
             HydrateTasksFromBackend();   // pull that day's planned tasks (Phase 4 read)
@@ -668,23 +788,10 @@ namespace Focus_Bear.Habits
             FetchCalendar(force: true);   // pull fresh meetings for the day just navigated to
         }
 
-        private void GoToday()
-        {
-            _selectedDate = DateTime.Today;
-            _selectedHabitIndex = null;
-            _selectedPastHabitId = null;
-            RenderDayPlan();
-            RenderTasksPanel();   // tasks are per-day (M7)
-            HydrateTasksFromBackend();   // pull that day's planned tasks (Phase 4 read)
-            FetchDayProgress();
-            FetchRoutineCancelledState();
-            FetchCalendar(force: true);   // pull fresh meetings for today
-        }
-
         // MARK: - Habit group card
 
         /// <summary>One bordered block holding all consecutive habits of a routine.</summary>
-        private Border BuildGroupCard(List<ScheduleBlock> habits)
+        private Border BuildGroupCard(List<ScheduleBlock> habits, bool firstCard = true)
         {
             bool isActive = habits.Exists(b => b.IsActionable);
             bool isEarlier = habits.Exists(b => b.IsEarlier);
@@ -694,7 +801,11 @@ namespace Focus_Bear.Habits
             // Gate on the day actually having meetings: an active routine can also "overflow" simply because
             // its window is nearly closed at the morning→evening handoff (no meetings) — that must render as
             // a normal card, not the misleading "your meetings fill the day" message.
-            bool hasOverflow = isActive && _dayHasMeetings && habits.Exists(b => b.DidOverflow);
+            // Every habit in an overflow group fits nowhere in the routine's window (the builder splits them
+            // into their own group). The long "your meetings fill the rest of today" note only shows when
+            // that is actually why — the active routine, today, with meetings.
+            bool hasOverflow = habits.Exists(b => b.DidOverflow);
+            bool meetingsFillDay = hasOverflow && isActive && _dayHasMeetings && IsViewingToday;
             ScheduleBlock first = habits[0];
             ScheduleBlock last = habits[habits.Count - 1];
             string name = string.IsNullOrEmpty(first.RoutineName) ? "Habits" : first.RoutineName;
@@ -707,7 +818,11 @@ namespace Focus_Bear.Habits
             bool routineCancelled = IsViewingToday &&
                 (((name == DayPlanText.MorningRoutineHabits) && _morningRoutineCancelled)
                  || (isEveningGroup && _eveningRoutineCancelled && !appSettings.DidCutOffTimePassed()));
-            bool collapsed = IsRoutineCollapsed(name, routineCancelled ? false : (isEarlier || hasOverflow));
+            // Keyed per section, not per routine: a routine split across several gaps expands/collapses
+            // each run independently (Mac: sectionId = the section's first habit id).
+            string sectionKey = name + "|" + (first.HabitId ?? (first.HabitIndex.HasValue ? "idx" + first.HabitIndex.Value : "start" + first.Start.Ticks))
+                                + (hasOverflow ? "|overflow" : "");
+            bool collapsed = IsRoutineCollapsed(sectionKey, routineCancelled ? false : (isEarlier || hasOverflow));
 
             var inner = new StackPanel { Orientation = Orientation.Vertical };
 
@@ -716,13 +831,16 @@ namespace Focus_Bear.Habits
             // tucked away but one tap away.
             // An active routine can be cancelled from a red ✕ at the top-left of its card (matches macOS):
             // clicking it confirms, then force-cancels the routine so the card flips to the Uncancel state.
-            bool showCancelX = isActive && IsViewingToday && !routineCancelled
+            bool showCancelX = firstCard && isActive && IsViewingToday && !routineCancelled
                                && (name == DayPlanText.MorningRoutineHabits || isEveningGroup);
 
             var headerGrid = new Grid { Background = Brushes.Transparent, Cursor = Cursors.Hand, Margin = new Thickness(2, 0, 0, 4) };
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });                    // chevron
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // title
-            if (showCancelX) headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // ✕ (top-right)
+            // Routine options ("…" → Edit routine timing) on the routine's first card, like the Mac header menu.
+            FocusBear.Core.Schedule.RoutineSettingsSection? menuSection = firstCard && !routineCancelled ? SectionForRoutine(name) : null;
+            bool hasTrailing = showCancelX || menuSection.HasValue;
+            if (hasTrailing) headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // … + ✕ (top-right)
 
             // Same chevron the left menu uses for its collapsible headers: a thin grey Path that swaps
             // between a right chevron (collapsed) and a down chevron (expanded).
@@ -743,7 +861,7 @@ namespace Focus_Bear.Habits
                 // Overflow: show the short "not enough time" heading in place of the (misleading) packed
                 // time range, tinted orange so the card reads as needing attention (#1371).
                 Text = hasOverflow
-                    ? string.Format("🧩 {0}  ·  {1}", name, DayPlanText.NotEnoughTimeHeading)
+                    ? string.Format("🧩 {0}  ·  {1}", name, IsViewingToday ? DayPlanText.NotEnoughTimeHeading : DayPlanText.NotEnoughTimeThisDayHeading)
                     : string.Format("🧩 {0}  ·  {1}–{2}", name, TimeString(first.Start), TimeString(last.End)),
                 FontSize = 15,
                 Foreground = hasOverflow ? new SolidColorBrush(COrange) : FgBrush(),
@@ -753,13 +871,15 @@ namespace Focus_Bear.Habits
             Grid.SetColumn(header, 1);
             headerGrid.Children.Add(chevron);
             headerGrid.Children.Add(header);
-            if (showCancelX)
+            if (hasTrailing)
             {
-                var cancelX = BuildCancelRoutineX(isEveningGroup);
-                Grid.SetColumn(cancelX, 2);
-                headerGrid.Children.Add(cancelX);
+                var trailingControls = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+                if (menuSection.HasValue) trailingControls.Children.Add(BuildRoutineMenuButton(menuSection.Value));
+                if (showCancelX) trailingControls.Children.Add(BuildCancelRoutineX(isEveningGroup));
+                Grid.SetColumn(trailingControls, 2);
+                headerGrid.Children.Add(trailingControls);
             }
-            headerGrid.MouseLeftButtonUp += (s, e) => ToggleRoutineCollapsed(name, routineCancelled ? false : (isEarlier || hasOverflow));
+            headerGrid.MouseLeftButtonUp += (s, e) => ToggleRoutineCollapsed(sectionKey, routineCancelled ? false : (isEarlier || hasOverflow));
             inner.Children.Add(headerGrid);
 
             // Cancelled routine → show the Uncancel body instead of the habit rows (card stays collapsible).
@@ -777,7 +897,7 @@ namespace Focus_Bear.Habits
             {
                 // The active routine's habits don't fit around today's meetings, but it stays startable —
                 // the full explanation shows here once the (collapsed-by-default) card is expanded (#1371).
-                if (hasOverflow)
+                if (meetingsFillDay)
                 {
                     inner.Children.Add(new Emoji.Wpf.TextBlock
                     {
@@ -790,11 +910,9 @@ namespace Focus_Bear.Habits
                 }
 
                 // Default selection = the next-up (current) habit; keep the user's pick if it's still valid.
-                var actionableIdxs = new HashSet<int>();
-                foreach (var b in habits) if (b.IsActionable && b.HabitIndex.HasValue) actionableIdxs.Add(b.HabitIndex.Value);
-                int? currentIdx = habits.FirstOrDefault(b => b.IsCurrent)?.HabitIndex;
-                int? selected = (_selectedHabitIndex.HasValue && actionableIdxs.Contains(_selectedHabitIndex.Value))
-                    ? _selectedHabitIndex : currentIdx;
+                // Judged across the whole plan (not this card), so only one card shows the action bar.
+                int? selected = (_selectedHabitIndex.HasValue && _planActionableIdxs.Contains(_selectedHabitIndex.Value))
+                    ? _selectedHabitIndex : _planCurrentIdx;
 
                 // Past habits (today's "earlier" accordion, or any previous calendar day) can be logged
                 // retroactively; a future day is a read-only preview only.
@@ -831,6 +949,21 @@ namespace Focus_Bear.Habits
                     bool isSel = h.IsActionable && h.HabitIndex.HasValue && h.HabitIndex == selected;
                     if (isSel)
                         AddHabitRowWithTasks(inner, BuildSelectedHabitUnit(h, h.HabitIndex.Value), h);
+                    else if (!h.IsActionable && !string.IsNullOrEmpty(h.HabitId) && h.HabitId == _selectedEditableHabitId)
+                        AddHabitRowWithTasks(inner, BuildSelectedEditableUnit(h), h);
+                    else if (!h.IsActionable && !string.IsNullOrEmpty(h.HabitId))
+                    {
+                        // Not startable here (a preview / future-day routine) but editable: selecting it
+                        // reveals a Shorten + Edit bar (Mac selectedEditableHabitId).
+                        string editableId = h.HabitId;
+                        AddHabitRowWithTasks(inner, BuildHabitRow(h, onSelect: () =>
+                        {
+                            _selectedEditableHabitId = editableId;
+                            _selectedHabitIndex = null;
+                            _selectedPastHabitId = null;
+                            RenderDayPlan();
+                        }), h);
+                    }
                     else
                         AddHabitRowWithTasks(inner, BuildHabitRow(h), h);
                 }
@@ -905,7 +1038,7 @@ namespace Focus_Bear.Habits
                 // right after the write.
                 if (isEvening) _eveningRoutineCancelled = false; else _morningRoutineCancelled = false;
                 _cancelStateStickyUntil = DateTime.Now.AddSeconds(20);   // hold this state over a lagging backend read
-                string dayKey = DateTime.Today.ToString("yyyy-MM-dd");
+                string dayKey = FocusBear.Core.Schedule.DayPlanDayKey.For(DateTime.Today);
                 appSettings.dayPlanCompletedHabitIdsByDay.Remove(dayKey);
                 appSettings.dayPlanSkippedHabitIdsByDay.Remove(dayKey);
                 _lastProgressFetchDay = "";
@@ -1003,7 +1136,7 @@ namespace Focus_Bear.Habits
                 // keep the local flag rather than re-reading was_force_completed (which can lag after the write).
                 if (isEvening) _eveningRoutineCancelled = true; else _morningRoutineCancelled = true;
                 _cancelStateStickyUntil = DateTime.Now.AddSeconds(20);
-                string dayKey = DateTime.Today.ToString("yyyy-MM-dd");
+                string dayKey = FocusBear.Core.Schedule.DayPlanDayKey.For(DateTime.Today);
                 appSettings.dayPlanCompletedHabitIdsByDay.Remove(dayKey);
                 appSettings.dayPlanSkippedHabitIdsByDay.Remove(dayKey);
                 _lastProgressFetchDay = "";
@@ -1055,14 +1188,16 @@ namespace Focus_Bear.Habits
         /// </summary>
         private Grid BuildHabitRow(ScheduleBlock block, Action onSelect = null)
         {
-            string timeText = string.Format("{0}–{1}", TimeString(block.Start), TimeString(block.End));
+            string timeText = HabitTimeText(block);
             // Completed "earlier today" habits render struck-through in the secondary colour. A SKIPPED
             // habit is also struck-through (so it doesn't read as still-doable) but tagged "· skipped" to
             // tell it apart from a done one.
             bool skipped = block.IsDone && !string.IsNullOrEmpty(block.HabitId)
-                           && DayPlanDataSource.IsHabitSkipped(block.HabitId, _selectedDate.ToString("yyyy-MM-dd"));
+                           && DayPlanDataSource.IsHabitSkipped(block.HabitId, FocusBear.Core.Schedule.DayPlanDayKey.For(_selectedDate));
             string title = skipped ? block.Title + "   ·  " + DayPlanText.SkippedTag : block.Title;
-            Brush titleColor = block.IsDone ? SecBrush() : FgBrush();
+            title = TitleWithShortenedTag(block, title);
+            // A habit that fits nowhere today reads red, like the Mac.
+            Brush titleColor = block.IsDone ? SecBrush() : (block.DidOverflow ? new SolidColorBrush(CRed) : FgBrush());
             Grid row = LayoutColumns(timeText, title, SecBrush(), titleColor, vPad: 4, strikeThrough: block.IsDone);
 
             // A caller-supplied select handler (past-habit rows) wins; otherwise a live actionable row
@@ -1081,6 +1216,7 @@ namespace Focus_Bear.Habits
                 row.MouseLeftButtonUp += (s, e) =>
                 {
                     _selectedHabitIndex = idx;
+                    _selectedEditableHabitId = null;
                     RenderDayPlan();
                 };
             }
@@ -1098,14 +1234,13 @@ namespace Focus_Bear.Habits
             var header = new Border
             {
                 Background = new SolidColorBrush(COrange),
-                Child = LayoutColumns(
-                    string.Format("{0}–{1}", TimeString(block.Start), TimeString(block.End)),
-                    block.Title, Brushes.White, Brushes.White, vPad: 8)
+                Child = LayoutColumns(HabitTimeText(block), TitleWithShortenedTag(block, block.Title),
+                                      Brushes.White, Brushes.White, vPad: 8)
             };
 
             var unit = new StackPanel { Orientation = Orientation.Vertical };
             unit.Children.Add(header);
-            unit.Children.Add(BuildActionBar(idx));
+            unit.Children.Add(BuildActionBar(idx, block.HabitId));
 
             // One orange rounded border around the whole unit; clip so the header fills the top.
             var card = new Border
@@ -1203,8 +1338,8 @@ namespace Focus_Bear.Habits
             };
         }
 
-        /// <summary>The Play / Done / Skip bar shown beneath the selected habit.</summary>
-        private UIElement BuildActionBar(int idx)
+        /// <summary>The Play / Done / Skip | Shorten / Edit bar shown beneath the selected habit (Mac makeActionBar).</summary>
+        private UIElement BuildActionBar(int idx, string habitId = null)
         {
             var bar = new StackPanel
             {
@@ -1212,12 +1347,17 @@ namespace Focus_Bear.Habits
                 Margin = new Thickness(14, 14, 0, 10)
             };
             Brush idle = new SolidColorBrush(WithAlpha(CGray, 0.3));
-            bar.Children.Add(ActionColumn(MakeActionIcon("play", Brushes.White), DayPlanText.Play,
-                                          new SolidColorBrush(COrange), () => OnPlay(idx)));
-            bar.Children.Add(ActionColumn(MakeActionIcon("done", FgBrush()), DayPlanText.Done,
-                                          idle, () => OnDone(idx)));
-            bar.Children.Add(ActionColumn(MakeActionIcon("skip", FgBrush()), DayPlanText.Skip,
-                                          idle, () => OnSkip(idx)));
+            var play = ActionColumn(MakeActionIcon("play", Brushes.White), DayPlanText.Play,
+                                    new SolidColorBrush(COrange), () => OnPlay(idx));
+            System.Windows.Automation.AutomationProperties.SetAutomationId(play.Children[0], "DayPlanPlay");
+            bar.Children.Add(play);
+            var done = ActionColumn(MakeActionIcon("done", FgBrush()), DayPlanText.Done, idle, () => OnDone(idx));
+            System.Windows.Automation.AutomationProperties.SetAutomationId(done.Children[0], "DayPlanDone");
+            bar.Children.Add(done);
+            var skip = ActionColumn(MakeActionIcon("skip", FgBrush()), DayPlanText.Skip, idle, () => OnSkip(idx));
+            System.Windows.Automation.AutomationProperties.SetAutomationId(skip.Children[0], "DayPlanSkip");
+            bar.Children.Add(skip);
+            AddHabitSettingsColumns(bar, habitId, afterLiveActions: true);
             return bar;
         }
 
@@ -1250,6 +1390,26 @@ namespace Focus_Bear.Habits
                     path.Fill = Brushes.Transparent;
                     path.Width = 19; path.Height = 19;
                     break;
+                case "timer":  // stopwatch (Shorten)
+                    path.Data = Geometry.Parse("M 12,21 A 7.5,7.5 0 1 1 12.01,21 Z M 12,9 L 12,13.5 L 15,15.5 M 9.5,3 L 14.5,3 M 12,3 L 12,6");
+                    path.Stroke = color;
+                    path.StrokeThickness = 1.9;
+                    path.StrokeStartLineCap = PenLineCap.Round;
+                    path.StrokeEndLineCap = PenLineCap.Round;
+                    path.StrokeLineJoin = PenLineJoin.Round;
+                    path.Fill = Brushes.Transparent;
+                    path.Width = 19; path.Height = 19;
+                    break;
+                case "edit":   // pencil (Edit)
+                    path.Data = Geometry.Parse("M 4,20 L 4.8,16.2 L 15.8,5.2 A 2,2 0 0 1 18.8,8.2 L 7.8,19.2 Z M 14,7 L 17,10");
+                    path.Stroke = color;
+                    path.StrokeThickness = 1.8;
+                    path.StrokeStartLineCap = PenLineCap.Round;
+                    path.StrokeEndLineCap = PenLineCap.Round;
+                    path.StrokeLineJoin = PenLineJoin.Round;
+                    path.Fill = Brushes.Transparent;
+                    path.Width = 17; path.Height = 17;
+                    break;
                 default:       // "skip" — filled triangle + bar (skip-to-next)
                     path.Data = Geometry.Parse("M 6,6 L 6,18 L 15,12 Z M 16,6 L 18.5,6 L 18.5,18 L 16,18 Z");
                     path.Fill = color;
@@ -1281,6 +1441,8 @@ namespace Focus_Bear.Habits
                 Template = BorderlessButtonTemplate()
             };
             btn.Click += (s, e) => onClick();
+            // The label is a sibling TextBlock, so the button itself needs the name (screen readers read "button" otherwise).
+            System.Windows.Automation.AutomationProperties.SetName(btn, label);
 
             var col = new StackPanel { Orientation = Orientation.Vertical, Margin = new Thickness(0, 0, 28, 0) };
             col.Children.Add(btn);
@@ -1329,7 +1491,7 @@ namespace Focus_Bear.Habits
         {
             List<habit> arr = ActiveArray();
             if (arr == null) return false;
-            string todayKey = DateTime.Now.ToString("yyyy-MM-dd");
+            string todayKey = FocusBear.Core.Schedule.DayPlanDayKey.For(DateTime.Now);
             int remaining = 0;
             var dbg = new StringBuilder();
             for (int i = 0; i < arr.Count; i++)
@@ -1523,7 +1685,12 @@ namespace Focus_Bear.Habits
                     if (result != true) return;   // cancelled — don't complete
                 }
 
-                FlashGreenThen(() => CompleteHabit(idx, h));
+                var doneClock = System.Diagnostics.Stopwatch.StartNew();
+                FlashGreenThen(() =>
+                {
+                    CompleteHabit(idx, h);
+                    LogWriter.LogWrite("DayPlan Done timing: flash+complete+render " + doneClock.ElapsedMilliseconds + " ms");
+                });
             }
             catch (Exception ex) { LogWriter.LogWrite("DayPlan OnDone ex - " + ex.Message); }
         }
@@ -1533,6 +1700,9 @@ namespace Focus_Bear.Habits
         {
             try
             {
+                // Done runs after a 150 ms green flash, so a second click on Done in that time queued a second
+                // completion: the habit was posted twice and the second RemoveAt(idx) took the NEXT habit off the plan.
+                if (!string.IsNullOrEmpty(h.id) && appSettings.dayPlanDoneOrSkippedHabitIds.Contains(h.id)) return;
                 int dur = DayPlanDataSource.EstimatedDuration(h);
                 string startStr = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 appSettings.AddEntryInCSV(ActiveLogType(), h.name ?? "", dur.ToString(), h.logQuantityQuestion ?? "", "", startStr);
@@ -1543,7 +1713,9 @@ namespace Focus_Bear.Habits
 
                 if (!string.IsNullOrEmpty(h.id)) appSettings.dayPlanDoneOrSkippedHabitIds.Add(h.id);
                 List<habit> arr = ActiveArray();
-                if (arr != null && idx >= 0 && idx < arr.Count) arr.RemoveAt(idx);
+                // By id: the routine array can have changed during the flash.
+                int at = arr == null ? -1 : string.IsNullOrEmpty(h.id) ? idx : arr.FindIndex(x => x.id == h.id);
+                if (arr != null && at >= 0 && at < arr.Count) arr.RemoveAt(at);
                 _selectedHabitIndex = null;
                 RenderDayPlan();
             }
@@ -1555,7 +1727,7 @@ namespace Focus_Bear.Habits
         {
             if (_selectedUnitBorder == null) { then(); return; }
             _selectedUnitBorder.Background = new SolidColorBrush(WithAlpha(CGreen, 0.55));
-            var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(380) };
+            var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };   // was 380 ms, then 220: "still too long" (report 2026-09-25_21-47-43)
             timer.Tick += (s, e) => { timer.Stop(); then(); };
             timer.Start();
         }
@@ -1587,7 +1759,7 @@ namespace Focus_Bear.Habits
                 List<QuantityQuestion> quantities = h.logQuantity ? h.logQuantityQuestions : null;
                 // Backdate the completion to the habit's slot on the viewed day.
                 _ = client.PostActivityCompleted(h.id, h.activity_sequence_id, block.Start, dur, "", quantities, false);
-                string dayKey = _selectedDate.ToString("yyyy-MM-dd");
+                string dayKey = FocusBear.Core.Schedule.DayPlanDayKey.For(_selectedDate);
                 if (!appSettings.dayPlanCompletedHabitIdsByDay.TryGetValue(dayKey, out HashSet<string> daySet))
                 {
                     daySet = new HashSet<string>();
@@ -1652,7 +1824,7 @@ namespace Focus_Bear.Habits
 
         // MARK: - Non-habit cards (deep work / break / evening transition / all-done / meeting)
 
-        private Border BuildNonHabitCard(ScheduleBlock block)
+        private Border BuildNonHabitCard(ScheduleBlock block, UIElement trailingControl = null)
         {
             Color fill, border;
             bool hasBorder = true;
@@ -1685,7 +1857,8 @@ namespace Focus_Bear.Habits
             else if (!string.IsNullOrEmpty(block.Subtitle))
                 trailing = block.Subtitle;
 
-            Grid content = LayoutColumns(timeText, title, SecBrush(), FgBrush(), vPad: 4, trailing: trailing);
+            Grid content = LayoutColumns(timeText, title, SecBrush(), FgBrush(), vPad: 4, trailing: trailing,
+                                         trailingControl: trailingControl);
 
             return StyledCard(new SolidColorBrush(fill), new SolidColorBrush(border), hasBorder, content);
         }
@@ -1715,7 +1888,8 @@ namespace Focus_Bear.Habits
         /// so the title column starts at the same x on every row (mirrors macOS layoutColumns).
         /// </summary>
         private Grid LayoutColumns(string time, string title, Brush timeColor, Brush titleColor,
-                                   double vPad, string trailing = null, bool strikeThrough = false)
+                                   double vPad, string trailing = null, bool strikeThrough = false,
+                                   UIElement trailingControl = null)
         {
             var grid = new Grid { Margin = new Thickness(6, vPad, 0, vPad) };
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(TimeColWidth) });
@@ -1763,21 +1937,35 @@ namespace Focus_Bear.Habits
             }
             else
             {
-                // title + a secondary trailing label (duration / "meeting") on the same line.
-                var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+                // title + a secondary trailing label (duration / "meeting") on the same line. The panel gives
+                // the label its room first, so a long title trims with an ellipsis and the label stays
+                // right beside it instead of being pushed off (or under the Hide button).
+                var row = new DayPlan.TitleWithSuffixPanel { VerticalAlignment = VerticalAlignment.Center };
+                titleLabel.TextWrapping = TextWrapping.NoWrap;
+                titleLabel.TextTrimming = TextTrimming.CharacterEllipsis;
                 row.Children.Add(titleLabel);
-                row.Children.Add(new TextBlock
+                var trailingLabel = new TextBlock
                 {
                     Text = trailing,
                     FontSize = 13,
                     Foreground = SecBrush(),
                     Margin = new Thickness(8, 0, 0, 0),
                     VerticalAlignment = VerticalAlignment.Center
-                });
+                };
+                row.Children.Add(trailingLabel);
                 Grid.SetColumn(row, 2);
                 grid.Children.Add(row);
             }
 
+            // A control at the row's end (the meeting's "🙈 Hide"), in its own column so the title trims
+            // before it rather than running underneath it (report 2026-09-25_14-31-18).
+            if (trailingControl != null)
+            {
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                Grid.SetColumn(trailingControl, 3);
+                if (trailingControl is FrameworkElement fe) fe.VerticalAlignment = VerticalAlignment.Center;
+                grid.Children.Add(trailingControl);
+            }
             return grid;
         }
 
@@ -1854,10 +2042,13 @@ namespace Focus_Bear.Habits
             return (Application.Current.TryFindResource("ForegroundColor") as Brush) ?? Brushes.Black;
         }
 
-        /// <summary>Secondary text colour (systemGray — reads well in both light and dark).</summary>
+        /// <summary>
+        /// Secondary text colour. systemGray (8E8E93) is only 3.3:1 on white and under 3:1 on the tinted cards, so
+        /// light mode uses a darker grey (636366, 5.9:1 on white, 5.3:1 on the purple card) and dark mode a lighter one.
+        /// </summary>
         private static Brush SecBrush()
         {
-            return new SolidColorBrush(CGray);
+            return new SolidColorBrush(IsDarkTheme() ? Color.FromRgb(0xAE, 0xAE, 0xB2) : Color.FromRgb(0x63, 0x63, 0x66));
         }
 
         /// <summary>True when the dark theme is active (its foreground brush is light).</summary>

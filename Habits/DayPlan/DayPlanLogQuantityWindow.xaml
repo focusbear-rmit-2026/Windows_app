@@ -51,10 +51,10 @@
                           Background="{x:Null}" BorderThickness="0" Foreground="{x:Null}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Grid Height="72" Background="Transparent" Margin="10,0,10,0">
+                            <Grid Height="84" Background="Transparent" Margin="10,0,10,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="25"/>
-                                    <RowDefinition Height="45"/>
+                                    <RowDefinition Height="57"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0" Text="{Binding question, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" FontWeight="Semibold" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
                                 <Grid Grid.Row="1">
@@ -66,7 +66,7 @@
                                         <ColumnDefinition Width="150"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{Binding minValueDescription, StringFormat=\{0\}}" FontSize="12" Foreground="{DynamicResource ForegroundColor}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                                    <TextBox Grid.Column="0" Text="{Binding quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinHeight="25" Height="30" Margin="5,0,0,0" Background="#FFF" Foreground="#000" BorderBrush="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Visibility="{Binding Path=bShowTextBox, Converter={StaticResource BoolToVis}}">
+                                    <TextBox Grid.Column="0" Text="{Binding quantity, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" MinHeight="25" Height="30" Margin="5,0,0,0" Background="#FFF" Foreground="#000" BorderBrush="#000" Padding="5,2,5,5" BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" AutomationProperties.AutomationId="txtBoxQuantity" AutomationProperties.Name="{Binding question}" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown" Visibility="{Binding Path=bShowTextBox, Converter={StaticResource BoolToVis}}">
                                         <TextBox.Effect>
                                             <DropShadowEffect ShadowDepth="3" Direction="330" Color="Gray" Opacity="0.5" BlurRadius="6" />
                                         </TextBox.Effect>
@@ -74,11 +74,12 @@
                                     <TextBlock Grid.Column="1" Text="{Binding minValue, StringFormat=(\{0\})}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
                                     <Grid Grid.Column="2">
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="15"/>
+                                            <RowDefinition Height="27"/>
                                             <RowDefinition Height="30"/>
                                         </Grid.RowDefinitions>
-                                        <TextBlock Grid.Row="0" Text="{Binding Value, ElementName=qSlider, StringFormat={}{0:0.#}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
-                                        <Slider Grid.Row="1" x:Name="qSlider" Margin="0,0,0,10" VerticalAlignment="Bottom" LargeChange="0.5" TickFrequency="0.1" Minimum="{Binding minValue}" Maximum="{Binding maxValue}" Value="{Binding quantity, Mode=TwoWay}" Cursor="Hand" IsSnapToTickEnabled="True" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                        <!-- The slider's value is typeable too (report 14-30-46): the box and the slider share the answer. -->
+                                        <TextBox Grid.Row="0" AutomationProperties.AutomationId="txtBoxSliderQuantity" AutomationProperties.Name="{Binding question}" Text="{Binding quantity, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="70" Height="25" HorizontalAlignment="Center" TextAlignment="Center" VerticalContentAlignment="Center" FontSize="13" Padding="2,0" Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" CaretBrush="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource TrayCardBorder}" MaxLines="1" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown"/>
+                                        <Slider Grid.Row="1" x:Name="qSlider" AutomationProperties.Name="{Binding question}" Margin="0,0,0,10" VerticalAlignment="Bottom" LargeChange="0.5" TickFrequency="0.1" Minimum="{Binding minValue}" Maximum="{Binding maxValue}" Value="{Binding quantity, Mode=TwoWay}" Cursor="Hand" IsSnapToTickEnabled="True" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
                                     </Grid>
                                     <TextBlock Grid.Column="3" Text="{Binding maxValue, StringFormat=(\{0\})}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
                                     <TextBlock Grid.Column="4" Text="{Binding maxValueDescription, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>

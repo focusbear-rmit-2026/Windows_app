@@ -297,35 +297,33 @@ namespace Focus_Bear.Focus
         }
         private void btnNeedOneMinute_Click(object sender, RoutedEventArgs e)
         {
-            if (appSettings.DidCutOffTimePassed())
+            //Both branches below postpone the evening routine (a one-minute hide, or the postpone dialog), so
+            //this is the postpone rule, not the skip one.
+            if (appSettings.PostponeRequiresPassword(CurrentActivityType.EVENING_HABITS))
             {
-                if (appSettings.isPasswordSet)
+                LogWriter.LogWrite("Focus summary postpone - password required");
+                AskPassword pwdWnd = new AskPassword();
+                pwdWnd.Owner = ParentWindow;
+                ParentWindow.GridShade.Visibility = Visibility.Visible;
+
+                bool? bResult = pwdWnd.ShowDialog();
+
+                ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                if (bResult != true)
                 {
-                    if (appSettings.bPasswordRequireToSkipEveningAfterCutOff)
-                    {
-                        AskPassword pwdWnd = new AskPassword();
-                        pwdWnd.Owner = ParentWindow;
-                        ParentWindow.GridShade.Visibility = Visibility.Visible;
-
-                        bool? bResult = pwdWnd.ShowDialog();
-
-                        ParentWindow.GridShade.Visibility = Visibility.Collapsed;
-
-                        if (bResult.Value)
-                        {
-                            //Password is correct
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
+                    return;
                 }
             }
 
             bNeed1MinuteClicked = true;
 
-            if (bNeedMoreTime)
+            if (bNeedMoreTime && ((App)Application.Current).ShouldUseAccountabilityBuddyForFocusSummary())
+            {
+                LogWriter.LogWrite("bNeedMoreTime - accountability buddy");
+                ((App)Application.Current).ShowAccountabilityBuddy(PostponeFocusSummary, null, ParentWindow);
+            }
+            else if (bNeedMoreTime)
             {
                 LogWriter.LogWrite("bNeedMoreTime - show postpone dialog");
 

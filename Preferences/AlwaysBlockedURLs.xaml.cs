@@ -1,4 +1,5 @@
 ﻿using Focus_Bear.Utils;
+using Focus_Bear.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -72,6 +73,16 @@ namespace Focus_Bear.Preferences
             
         }
 
+        /// <summary>
+        /// Save the list at once. It was saved only when the main window was hidden, so an edit was lost if the app
+        /// was quit from the tray, killed or crashed first (found by the E2E blocking tests).
+        /// </summary>
+        private static void SaveNow()
+        {
+            try { LocalSettingsManager.PutLocalSettings(); }
+            catch (Exception ex) { LogWriter.LogWrite("AlwaysBlockedURLs save ex - " + ex.Message); }
+        }
+
         private void btnAddURL_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -117,6 +128,7 @@ namespace Focus_Bear.Preferences
                         appSettings.arrAlwaysBlockedURLs.Add(url);
                         appSettings.CapturePostHog("add-always-blocked-url");
                         appSettings.bHasEditedBlockedURLs = true;
+                        SaveNow();
                     }
                     else
                     {
@@ -146,6 +158,7 @@ namespace Focus_Bear.Preferences
                     appSettings.arrAlwaysBlockedURLs.Remove(selectedItem);
                     appSettings.CapturePostHog("remove-always-blocked-url");
                     appSettings.bHasEditedBlockedURLs = true;
+                    SaveNow();
                 }
             }
             catch (Exception ex)
@@ -202,6 +215,7 @@ namespace Focus_Bear.Preferences
                                 {
                                     appSettings.arrAlwaysBlockedURLs[m] = url;
                                     appSettings.bHasEditedBlockedURLs = true;
+                                    SaveNow();
                                     break;
                                 }
                             }

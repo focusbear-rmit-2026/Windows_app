@@ -15,15 +15,10 @@ namespace Focus_Bear.CallDetection
     {
         public static bool IsUserOnaAudioCall()
         {
-            //dump all audio devices
-            foreach (AudioDevice device in GetAllDevices())
-            {
-            }
-
-            IList<AudioDevice> list = new List<AudioDevice>();
-            list = GetAllDevices();
-
-            if(list.Count > 0)
+            // Runs every 5 s on the UI thread for everyone (meetings detection is on by default). It used to read the
+            // device list twice per call (once into an empty "dump" loop), each read opening every microphone's property
+            // store: ~55 ms of CPU per call, 1% of a core at idle. Only whether there is a microphone matters here.
+            if (ActiveMicrophoneCount() > 0)
             {
                 IList<AudioSession> listSessions = new List<AudioSession>();
                 listSessions = GetAllSessions();
@@ -143,6 +138,27 @@ namespace Focus_Bear.CallDetection
                 }
             }
             return new AudioDevice(id, (AudioDeviceState)state, properties);
+        }
+
+        /// <summary>How many capture endpoints are active, without reading their properties.</summary>
+        private static int ActiveMicrophoneCount()
+        {
+            IMMDeviceEnumerator deviceEnumerator = null;
+            IMMDeviceCollection collection = null;
+            try
+            {
+                deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                deviceEnumerator.EnumAudioEndpoints(EDataFlow.eCapture, DEVICE_STATE.ACTIVE, out collection);
+                if (collection == null) return 0;
+                collection.GetCount(out int count);
+                return count;
+            }
+            catch { return 0; }
+            finally
+            {
+                if (collection != null) Marshal.ReleaseComObject(collection);
+                if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+            }
         }
 
         public static IList<AudioDevice> GetAllDevices()

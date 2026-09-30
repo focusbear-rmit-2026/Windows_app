@@ -3,6 +3,7 @@ using Focus_Bear.Onboarding;
 using Focus_Bear.Preferences;
 using Focus_Bear.Services.FocusButton;
 using Focus_Bear.Utils;
+using FocusBear.Core.Stats;
 using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -1495,58 +1496,29 @@ namespace Focus_Bear.Habits
 
 
 
-                string json = "";
-                string jsonTime = "";
-                //Lets see if we need to show the Duration Data or the Log Quantity data
+                //Built as JSON (HabitGraphScript): a habit or question name with a quote or backslash used to
+                //break the spliced script, leaving the graph blank.
+                string label;
+                string labelY;
                 if (bLogQuantity)
                 {
-                    //formulate the data
-                    if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-                    {
-                        //Prepare Log Quantity data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sQuestionLabelToDisplayOnGraph, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
-
-                    }
-                    else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                    {
-                        //Prepare Log Quantity data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sQuestionLabelToDisplayOnGraph, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
-
-                    }
-                    else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
-                    {
-                        //Prepare Log Quantity data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sQuestionLabelToDisplayOnGraph, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
-                        jsonTime = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4}, \"TimeValues\": {5} }}", sQuestionLabelToDisplayOnGraph, sLabelTime, sLabelQuantity, dataarrayTimeGraph, nMaxTimeGraph.ToString(), TimeValues);
-                    }
-
+                    label = sQuestionLabelToDisplayOnGraph;
+                    labelY = sLabelQuantity;
                 }
                 else
                 {
-                   
+                    labelY = sLabelMinutes;
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-                    {
-                        //Prepare Duration data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name, sLabelDate, sLabelMinutes, dataarrayDaysGraph, nMax.ToString());
-
-                    }
+                        label = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name;
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                    {
-                        //Prepare Duration data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name, sLabelDate, sLabelMinutes, dataarrayDaysGraph, nMax.ToString());
-
-                    }
-                    else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
-                    {
-                        //Prepare Duration data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sCurrentActivityName, sLabelDate, sLabelMinutes, dataarrayDaysGraph, nMax.ToString());
-                        jsonTime = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4}, \"TimeValues\": {5} }}", sCurrentActivityName, sLabelTime, sLabelMinutes, dataarrayTimeGraph, nMaxTimeGraph.ToString(), TimeValues);
-                    }
+                        label = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name;
+                    else
+                        label = sCurrentActivityName;
                 }
 
-                string functiontocall = string.Format("getData({0});", json);
+                string functiontocall = HabitGraphScript.Days(label, sLabelDate, labelY, dataarrayDaysGraph, nMax);
 
-                string functiontocallTime = string.Format("getData({0});", jsonTime);
+                string functiontocallTime = HabitGraphScript.Time(label, sLabelTime, labelY, dataarrayTimeGraph, nMaxTimeGraph, TimeValues);
 
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {

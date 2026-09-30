@@ -83,30 +83,10 @@ namespace Focus_Bear.Onboarding
             RadioButton5.IsEnabled = false;
 
             FocusBearAPIClient client = new FocusBearAPIClient();
-            string sParam = TxtDetails.Text;
-            if(sParam.Trim().Length < 1)
-            {
-                if(RadioButton1.IsChecked.Value)
-                {
-                    sParam = "student";
-                }
-                else if (RadioButton1.IsChecked.Value)
-                {
-                    sParam = "business owner";
-                }
-                else if (RadioButton1.IsChecked.Value)
-                {
-                    sParam = "employee";
-                }
-                else if (RadioButton1.IsChecked.Value)
-                {
-                    sParam = "freelancer";
-                }
-                else
-                {
-                    sParam = "other";
-                }
-            }
+            // Each radio stands for its own occupation (every branch used to test the first radio).
+            int selected = RadioButton1.IsChecked == true ? 1 : RadioButton2.IsChecked == true ? 2 : RadioButton3.IsChecked == true ? 3
+                         : RadioButton4.IsChecked == true ? 4 : 5;
+            string sParam = FocusBear.Core.Onboarding.OnboardingChoices.OccupationQuery(TxtDetails.Text, selected);
             var Response = await client.GenerateOccupationRelevantSites(sParam);
             int mRes = int.Parse(Response.ToString());
             if (mRes == 1)
@@ -151,7 +131,8 @@ namespace Focus_Bear.Onboarding
                 foreach (var token in array)
                 {
                     var url = token?.ToString();
-                    if (!string.IsNullOrWhiteSpace(url))
+                    // Going Back and answering again must not list the same suggestion twice.
+                    if (!string.IsNullOrWhiteSpace(url) && !FocusBear.Core.Onboarding.OnboardingChoices.Offers(targetList.Select(u => u.sURL), url))
                     {
                         targetList.Add(new DistractingURL(url, isAllowed));
                     }
