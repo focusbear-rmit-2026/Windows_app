@@ -257,3 +257,74 @@
 - Fixed the tray menu tour: the first popup image is now in Spanish when the app language is Spanish, and the full 4-step tour (menu overview, Settings gear, Start Focus Session) is restored with screenshots and text updated for the current menu design #489.
 - The default "Meetings" focus mode's Zoho entry now matches meeting.zoho.* so Zoho Meeting rooms on any regional domain (.com, .in, .eu, ...) are allowed, instead of only meet.zoho.com which never matched a live call #1511.
 - Internal: AutomationIds are now unique per row in checklist/task/checkbox lists and moved off Border/Grid elements so they're reachable by UI Automation for automated testing #1452 #1488.
+
+#v3.1.251
+This release brings the Windows app in line with the Mac app. Most screens that used to be web pages inside the app are now built natively, so they load instantly, work offline where they can, and follow your light/dark theme #1588.
+
+**Focus sessions**
+- New Start Focus Session screen. Simple mode is a single duration dial with the bear; Advanced mode has collapsible sections for duration, block list, break settings and more. All sections can be collapsed, and the Start button is larger and easier to hit.
+- New in-session screen replaces the web To-Do Player: your timer, task list and a Notes panel side by side. Notes typed here stay in step with the Notes screen, and -5 minutes never adds time back when under a minute is left.
+- Teacher accounts: the "personal session" checkbox and class picker are gone. A session started from the app is always a personal one; class sessions are started from the dashboard in the browser. A short note on the screen explains this.
+- Meetings focus mode: the Zoho entry now matches every regional Zoho Meeting domain.
+
+**Block lists (Blocking)**
+- Redesigned to match the Mac: a rail of your lists on the left, a table of entries with suggestions and colours on the right. Saving works exactly as before.
+- AI block check-in: when a site is blocked during an AI session, a small check-in replaces the old gentle-block decision popup, with a frosted backdrop and an "Oops, I actually need it" option on app blocks.
+
+**Day Plan**
+- Morning-routine habits are slotted into the gaps between your meetings, as on the Mac.
+- Shorten or edit a habit from the plan, edit routine timing, hide a meeting, and edit a task's duration inline (typing "1h30" gives 90 minutes).
+- Click the date to open a month picker that shows how busy each coming day is.
+- Meetings now load for the next 45 days, not just today, and cross-midnight meetings display correctly.
+- Re-prioritise ("Reschedule plan") applies every row instead of stopping at the first; each row has an outcome slider and editable duration; tasks assigned to others are left out.
+
+**To-Do and Projects**
+- The To-Do list, projects, "What matters", project boards, the Eisenhower matrix, comments, reactions and attachments are all native screens now. Tasks assigned to someone else are hidden.
+- Reactions no longer report "Could not add reaction" when the reaction was already there.
+- Projects: due-date chip with a calendar picker, and an owner-editable outcome (1–5).
+
+**Notes**
+- Personal notes, shared project notes and the archive are native. Shared notes are edited live with your team: several people can type at once and nothing is overwritten.
+- Shared-note editor: the scrollbar starts below the formatting toolbar and the stray blue outline is gone; shared notes in the list have a clearer arrow.
+- Notes typed on the in-session screen and on the Notes screen stay in sync both ways.
+
+**Stats (formerly Motivation)**
+- All tabs are native: Streak, Progress, Goals, Pep Talk, Leaderboard, Habit Stats, Productivity and Focus Log, with charts and a heat map.
+- Selected tabs and badges now use white text on orange. Pep Talk no longer loads forever if you switch tabs while it is generating, and the Focus Log's Refresh shows progress and reports a failure.
+
+**Focus Music**
+- New layout matching the Mac. YouTube Music plays in an embedded player; Spotify links open the Spotify app.
+- Row hover and the "now playing" highlight fill the whole row.
+
+**Late No More (new)**
+- Meeting alerts and heads-up timing, calendar selection, working hours, keywords, join-link-only mode and spoken alerts, under TOOLS. Joining a meeting is detected automatically.
+
+**Routines and postponing**
+- AI accountability buddy for postponing a routine (off by default, turn it on under Settings → AI). Instead of a minutes picker, a short chat asks what you need the time for; an approved postpone starts a focus session scoped to that goal.
+- Settings, Blocking, Edit Habits, Focus Music and Stats stay reachable during a routine. They ask for your password under the same "require password to change settings" rule, so strictness is unchanged.
+- The break warning is press-and-hold, with a separate "turn breaks off" window.
+- Fixed the Focus Summary's postpone using the skip password rule instead of the postpone one.
+- Log Quantity dialogs are keyboard-first: Enter saves, and the slider value can be typed.
+
+**Main window, tray and settings**
+- TOOLS rows can be hidden with the hover ✕ and restored from the cog. Stats has a bar-chart icon.
+- The top-bar minimise button now appears only in full-screen routines, where the window has no title bar.
+- The sign-in and sign-up show-password eye is a keyboard-reachable button and sits beside the box again.
+- Report a problem: one form with a note and screenshots.
+- Dark theme text contrast improved throughout.
+
+**Voice commands**
+- Voice commands (tray microphone and the Focus Button) now go through the Focus Bear backend instead of calling OpenAI directly, and the app no longer contains an API key. Failures show a clear message: not signed in, offline, too long, rate limited, or "didn't catch that" #1600.
+- The listening/thinking popup's buttons match the app's orange buttons.
+
+**Reliability and performance**
+- Idle CPU is much lower: a hidden splash animation kept the app rendering at 57 fps all session, and several leaked animations, duplicated timers and a too-broad window-event hook were fixed.
+- Settings saved on one device no longer undo edits made on another; the app fetches the latest before uploading.
+- The offline activity queue no longer discards everything after one failure or doubles durations.
+- Brain-dump text is no longer lost when leaving the screen, and notes no longer gain a blank line on every save.
+- Logs no longer contain your access token, email or settings; log files roll at 10 MB.
+- A crash watchdog relaunches the app if it crashes or is killed; a normal quit is respected.
+- Fixed several crashes: the simple-mode duration slider, and a null "metadata" field in synced data.
+
+**Installer**
+- The installer now ships FocusBear.Core.dll and the shared-note editor, which the new screens need #1609.
