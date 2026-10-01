@@ -71,6 +71,7 @@ namespace Focus_Bear.Habits.DayPlan
             // of a short screen started it above the screen, cutting off the title and Close.
             WindowStartupLocation = WindowStartupLocation.Manual;
             SourceInitialized += (s, e) => FitToWorkArea();
+            Focus_Bear.Utils.WindowTheme.FollowTheme(this);
             SetResourceReference(BackgroundProperty, "BackgroundColor");
             SetResourceReference(ForegroundProperty, "ForegroundColor");
             AutomationProperties.SetAutomationId(this, "ReprioritiseWindow");
@@ -79,10 +80,6 @@ namespace Focus_Bear.Habits.DayPlan
 
             var top = new StackPanel();
             var titleRow = new DockPanel();
-            var close = DayPlanDialogUi.Secondary(ForecastText.Get("close"), "ReprioritiseClose", Close);
-            close.Margin = new Thickness(0);
-            DockPanel.SetDock(close, Dock.Right);
-            titleRow.Children.Add(close);
             var title = DayPlanDialogUi.Heading(ForecastText.Get("reviewPlan"));
             title.FontSize = 20;
             title.Margin = new Thickness(0);
@@ -234,8 +231,9 @@ namespace Focus_Bear.Habits.DayPlan
             var focusedIds = new HashSet<string>(focused.Select(c => c.Id));
             List<F.DueDateChange> tasks, projectDeadlines;
             ForecastGrouping.Split(plan.Changes.Where(c => !focusedIds.Contains(c.Id)), out tasks, out projectDeadlines);
-            Accordion("major", ForecastText.Get("majorChanges"), tasks.Where(ForecastGrouping.IsMajor).ToList());
-            Accordion("minor", ForecastText.Get("minorChanges"), tasks.Where(c => !ForecastGrouping.IsMajor(c)).ToList());
+            Func<F.DueDateChange, bool> isMajor = c => ForecastGrouping.IsMajor(_store.ProposedChange(c.Id) ?? c);
+            Accordion("major", ForecastText.Get("majorChanges"), tasks.Where(isMajor).ToList());
+            Accordion("minor", ForecastText.Get("minorChanges"), tasks.Where(c => !isMajor(c)).ToList());
             ProjectDeadlines(projectDeadlines);
             Conflicts(plan.ReviewableConflicts);
         }

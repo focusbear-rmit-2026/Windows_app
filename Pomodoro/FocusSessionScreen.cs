@@ -71,6 +71,9 @@ namespace Focus_Bear.Pomodoro
             _parent = parent;
             SetResourceReference(BackgroundProperty, "BackgroundColor");
             AutomationProperties.SetAutomationId(this, "FocusSessionScreen");
+            // The Preferences host paints every Grid with the page background, which showed through inside the
+            // cards (a lighter patch in dark mode); this screen draws its own surfaces.
+            Resources[typeof(Grid)] = new Style(typeof(Grid));
             _tick.Tick += (s, e) => Tick();
             _goalSave.Tick += (s, e) => { _goalSave.Stop(); CommitGoal(); };
             _brainDumpSave.Tick += async (s, e) => { _brainDumpSave.Stop(); await SaveBrainDump(); };

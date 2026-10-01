@@ -54,6 +54,9 @@ namespace Focus_Bear.ToDoScreens
             _store = store ?? new ToDoStore(_strings);
             _projects = projects ?? new ProjectsStore(_strings, () => Utils.AppSettings.GetInstance.userAccount?.userID);
             SetResourceReference(BackgroundProperty, "BackgroundColor");
+            // The Preferences host paints every Grid with the page background, which showed through inside the
+            // cards (half card colour, half page colour in dark mode); this screen draws its own surfaces.
+            Resources[typeof(Grid)] = new Style(typeof(Grid));
 
             var title = StatsUi.Text(_strings.Title, 20, FontWeights.SemiBold, wrap: false);
             title.VerticalAlignment = VerticalAlignment.Center;

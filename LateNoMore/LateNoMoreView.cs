@@ -45,6 +45,7 @@ namespace Focus_Bear.LateNoMore
         internal LateNoMoreView(LateNoMoreService service)
         {
             _service = service;
+            Resources[typeof(Grid)] = new Style(typeof(Grid));   // the app's page-background Grid style would show inside the cards
             LogWriter.LogWrite("LateNoMoreView() Initialized");
             AutomationProperties.SetAutomationId(this, "LateNoMoreView");
             SetResourceReference(BackgroundProperty, "BackgroundColor");

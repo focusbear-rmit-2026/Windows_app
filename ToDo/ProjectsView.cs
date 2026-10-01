@@ -43,6 +43,7 @@ namespace Focus_Bear.ToDoScreens
             _showInTaskList = showInTaskList;
             _openEditor = openEditor;
             AutomationProperties.SetAutomationId(_search, "txtProjectsSearch");
+            Resources[typeof(Grid)] = new Style(typeof(Grid));   // the app's page-background Grid style would show inside the cards
             _search.TextChanged += (s, e) => _store.SetSearchQuery(_search.Text);
             _searchField = Field(_search, store.Strings.ProjectSearchPlaceholder);
             _searchField.Width = 260;

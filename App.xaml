@@ -1357,6 +1357,13 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBoxItem">
                         <Border x:Name="border" Background="Transparent" CornerRadius="6" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <Border.Resources>
+                                <!-- The label a plain item generates is a TextBlock, which the app's implicit TextBlock style paints in
+                                     the theme's text colour; here it must follow the item's own (black on hover, white when selected). -->
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ComboBoxItem}}"/>
+                                </Style>
+                            </Border.Resources>
                             <ContentPresenter/>
                         </Border>
                         <ControlTemplate.Triggers>

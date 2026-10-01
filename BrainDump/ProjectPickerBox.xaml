@@ -30,7 +30,8 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-    <Grid>
+    <!-- Transparent Grids: the app's implicit Grid style paints the page colour, a square patch inside the rounded frame. -->
+    <Grid Background="Transparent">
         <Border x:Name="Frame" Background="{DynamicResource TextBoxBackgroundColor}" BorderBrush="LightGray" BorderThickness="1" CornerRadius="8">
             <DockPanel>
                 <TextBlock DockPanel.Dock="Left" Text="👥" FontSize="11" VerticalAlignment="Center" Margin="10,0,4,0"/>
@@ -48,7 +49,7 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
-                <Grid>
+                <Grid Background="Transparent">
                     <TextBox x:Name="txtQuery" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource ForegroundColor}" CaretBrush="{DynamicResource ForegroundColor}"
                              VerticalContentAlignment="Center" FontSize="13" TextChanged="txtQuery_TextChanged" GotKeyboardFocus="txtQuery_GotKeyboardFocus"
                              LostKeyboardFocus="txtQuery_LostKeyboardFocus" PreviewKeyDown="txtQuery_PreviewKeyDown"/>

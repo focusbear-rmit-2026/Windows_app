@@ -81,6 +81,7 @@ namespace Focus_Bear.ToDoScreens
             // Header (Save/Cancel) docked on top, body in a ScrollViewer: capped to the screen, the body scrolls.
             DialogFit.Apply(this);
             SetResourceReference(BackgroundProperty, "BackgroundColor");
+            Resources[typeof(Grid)] = new Style(typeof(Grid));   // the app's page-background Grid style would show inside the cards
             AutomationProperties.SetAutomationId(this, "ToDoEditor");
 
             _duePreview = StatsUi.Text("", 11, secondary: true);

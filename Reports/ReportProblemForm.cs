@@ -48,6 +48,7 @@ namespace Focus_Bear.Reports
         internal ReportProblemForm(Func<string, Task<bool>> upload)
         {
             _upload = () => upload(_feedback.Text);
+            Resources[typeof(Grid)] = new Style(typeof(Grid));   // the app's page-background Grid style would show inside the cards
             var root = new StackPanel { Margin = new Thickness(24, 20, 24, 24) };
             root.Children.Add(Text(S("titleReportForm", "Report a problem or share an idea"), 18, FontWeights.SemiBold));
             var subtitle = Text(S("subtitleReportForm", "Screenshots and your logs help us understand what happened."), 13, FontWeights.Normal, secondary: true);

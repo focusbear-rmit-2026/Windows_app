@@ -132,6 +132,7 @@ namespace Focus_Bear.Reports
         internal LocalReportsView(Func<string> account, string root = null)
         {
             _account = account;
+            Resources[typeof(Grid)] = new Style(typeof(Grid));   // the app's page-background Grid style would show inside the cards
             _root = root ?? LocalReportFolders.DefaultRoot;
             var stack = new StackPanel { Margin = new Thickness(20, 0, 20, 20) };
             var header = new DockPanel { LastChildFill = false, Margin = new Thickness(0, 12, 0, 0) };
@@ -384,6 +385,7 @@ namespace Focus_Bear.Reports
                 WindowStartupLocation = WindowStartupLocation.CenterOwner, Owner = Window.GetWindow(this), ShowInTaskbar = false, ResizeMode = ResizeMode.CanResize,
             };
             window.SetResourceReference(Control.BackgroundProperty, "BackgroundColor");
+            Focus_Bear.Utils.WindowTheme.FollowTheme(window);
             return window;
         }
 

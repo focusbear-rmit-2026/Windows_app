@@ -874,6 +874,7 @@
     </Compile>
     <Compile Include="Utils\AppSettings.cs" />
     <Compile Include="Utils\WebViewTabOut.cs" />
+    <Compile Include="Utils\WindowTheme.cs" />
     <Compile Include="Utils\CallDetection.cs" />
     <Compile Include="Utils\RunningActivityRules.cs" />
     <Compile Include="Utils\DevFlags.cs" />

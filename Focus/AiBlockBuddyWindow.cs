@@ -67,6 +67,8 @@ namespace Focus_Bear.Focus
         {
             _r = request;
             Title = "Focus Bear";
+            Focus_Bear.Utils.WindowTheme.FollowTheme(this);
+            Resources[typeof(Grid)] = new Style(typeof(Grid));   // the app's page-background Grid style would show inside the cards
             Width = 640;
             Height = Math.Max(480, Math.Min(760, SystemParameters.WorkArea.Height * 0.8));
             WindowStartupLocation = WindowStartupLocation.CenterScreen;

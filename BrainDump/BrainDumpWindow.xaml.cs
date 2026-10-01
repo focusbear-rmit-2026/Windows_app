@@ -363,6 +363,10 @@ namespace Focus_Bear.BrainDump
 
             _rows.Clear();
             foreach (var item in items) _rows.Add(NoteRow.For(item, _sLinkedToHabit, _sUntitledNote));
+            // Which notes the list holds and why, for a report of "I see nothing" (which the API log alone cannot explain).
+            LogWriter.LogWrite("Notes list: scope=" + _scope + " personal=" + personal.Count + " shared=" + shared.Count + " rows=" + _rows.Count
+                + (projectFilter != null ? " projectFilter=" + projectFilter : "") + (IsSearchActive ? " search" : "") + (_selectedTagId != null ? " tag" : "")
+                + " loadingShared=" + _isLoadingProjectNotes + " hasLoadedShared=" + _hasLoadedProjectNotes);
 
             RebuildProjectFilter(shared);
 
@@ -795,7 +799,7 @@ namespace Focus_Bear.BrainDump
         private void txtProjectNoteTitle_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             _isRenamingProjectNote = true;
-            txtProjectNoteTitle.BorderBrush = (Brush)FindResource("TrayCardHoverBorder");
+            txtProjectNoteTitle.BorderBrush = (Brush)FindResource("OrangeTextColor");   // renaming: the accent border, like a focused field
         }
 
         /// <summary>
@@ -844,7 +848,7 @@ namespace Focus_Bear.BrainDump
         /// </summary>
         private async void txtProjectNoteTitle_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            txtProjectNoteTitle.BorderBrush = Brushes.Transparent;
+            txtProjectNoteTitle.SetResourceReference(Control.BorderBrushProperty, "TrayCardBorder");
             var entry = _openProjectNote;
             string title = InlineRenameDismissal.OnDismiss(txtProjectNoteTitle.Text, entry != null ? entry.Title : null, _isRenamingProjectNote);
             _isRenamingProjectNote = false;

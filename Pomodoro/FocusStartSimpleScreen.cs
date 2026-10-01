@@ -30,6 +30,9 @@ namespace Focus_Bear.Pomodoro
         {
             _parent = parent;
             SetResourceReference(BackgroundProperty, "BackgroundColor");
+            // The Preferences host paints every Grid with the page background, which showed through inside this
+            // screen's surfaces (a lighter patch in dark mode); the screen draws its own.
+            Resources[typeof(Grid)] = new Style(typeof(Grid));
             SizeChanged += (s, e) =>
             {
                 double factor = new FocusStartScale(ActualWidth).Factor;

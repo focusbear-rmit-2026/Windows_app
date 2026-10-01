@@ -60,6 +60,7 @@ namespace Focus_Bear.Habits.DayPlan
         {
             Owner = owner;
             _dayLabel = dayLabel;
+            Focus_Bear.Utils.WindowTheme.FollowTheme(this);
             _isToday = isToday;
             _overMinutes = overMinutes;
             _options = options;

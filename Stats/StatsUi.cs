@@ -268,9 +268,15 @@ namespace Focus_Bear.StatsScreens
                 var captured = option;
                 bool isSelected = Equals(option, selected);
                 var label = new TextBlock { Text = title(option), FontSize = 13, FontWeight = isSelected ? FontWeights.SemiBold : FontWeights.Normal, VerticalAlignment = VerticalAlignment.Center };
-                label.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundColor");
-                var segment = new Border { CornerRadius = new CornerRadius(7), Padding = new Thickness(14, 5, 14, 5), Margin = new Thickness(2), Child = label };
-                if (isSelected) segment.SetResourceReference(Border.BackgroundProperty, "TrayIconSquareBg");
+                // The selected segment reads by its orange text and outline, not only by the tinted fill: in dark mode
+                // that fill (#4A3B28) on the control's #3A3A3C barely showed which one was chosen.
+                label.SetResourceReference(TextBlock.ForegroundProperty, isSelected ? "OrangeTextColor" : "ForegroundColor");
+                var segment = new Border { CornerRadius = new CornerRadius(7), Padding = new Thickness(13, 4, 13, 4), Margin = new Thickness(2), Child = label, BorderThickness = new Thickness(1), BorderBrush = Brushes.Transparent };
+                if (isSelected)
+                {
+                    segment.SetResourceReference(Border.BackgroundProperty, "TrayIconSquareBg");
+                    segment.BorderBrush = Orange;
+                }
                 var button = new Button { Content = segment, Template = PlainTemplate(), Cursor = System.Windows.Input.Cursors.Hand };
                 button.Click += (s, e) => onSelect(captured);
                 row.Children.Add(button);

@@ -33,6 +33,7 @@ namespace Focus_Bear.StatsScreens
             _remembersTab = initialTab == null;
             _selected = initialTab ?? StatsTabs.Parse(RegistryManager.GetStatsSelectedTab());
             SetResourceReference(BackgroundProperty, "BackgroundColor");
+            Resources[typeof(Grid)] = new Style(typeof(Grid));   // the app's page-background Grid style would show inside the cards
 
             var title = StatsUi.Text(_strings.Title, 20, FontWeights.SemiBold, wrap: false);
             title.VerticalAlignment = VerticalAlignment.Center;

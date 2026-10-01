@@ -68,6 +68,9 @@ namespace Focus_Bear.Pomodoro
                 if (Math.Abs(factor - _factor) > 0.03) Render();
             };
             _taskSearch.Tick += async (s, e) => { _taskSearch.Stop(); await LoadTasks(more: false); };
+            // The Preferences host paints every Grid with the page background, which showed through inside the
+            // search fields and cards (a lighter patch in dark mode); this screen draws its own surfaces.
+            Resources[typeof(Grid)] = new Style(typeof(Grid));
             _goalBox.TextChanged += (s, e) => RenderProjectsOnly();
             _goalBox.KeyDown += (s, e) => { if (e.Key == Key.Enter) { e.Handled = true; UseCustomGoal(); } };
             _taskBox.TextChanged += (s, e) => { _addTaskFailed = null; _taskSearch.Stop(); _taskSearch.Start(); };
@@ -452,11 +455,10 @@ namespace Focus_Bear.Pomodoro
             superRow.Children.Add(superToggle);
             if (_superFocus)
             {
-                var count = new ComboBox { Width = Math.Max(56, s.Pt(150)), Margin = new Thickness(s.Pt(24), 0, s.Pt(16), 0), IsEnabled = !_settings.bUseSuperPomodoroMode, VerticalAlignment = VerticalAlignment.Center };
-                for (int i = 2; i <= 20; i++) count.Items.Add(i);
-                count.SelectedItem = Math.Max(2, Math.Min(20, _superFocusCount));
-                count.SelectionChanged += (o, e) => { if (count.SelectedItem is int n) _superFocusCount = n; };
-                AutomationProperties.SetAutomationId(count, "cmbFocusStartSuperFocusCount");
+                var count = FocusStartUi.NumberPicker(Enumerable.Range(2, 19), Math.Max(2, Math.Min(20, _superFocusCount)), n => _superFocusCount = n,
+                    Math.Max(56, s.Pt(150)), "cmbFocusStartSuperFocusCount");
+                count.Margin = new Thickness(s.Pt(24), 0, s.Pt(16), 0);
+                count.IsEnabled = !_settings.bUseSuperPomodoroMode;
                 superRow.Children.Add(count);
                 var unit = FocusStartUi.Text(strings["unitSuperFocusSessions"], s.Pt(44), p.Primary, wrap: false);
                 unit.VerticalAlignment = VerticalAlignment.Center;
@@ -816,13 +818,10 @@ namespace Focus_Bear.Pomodoro
                 var label = FocusStartUi.Text(strings["labelFocusAlignmentScore"] + " ", s.Pt(36), p.Primary);
                 label.VerticalAlignment = VerticalAlignment.Center;
                 row.Children.Add(label);
-                var threshold = new ComboBox { Width = Math.Max(60, s.Pt(170)), VerticalAlignment = VerticalAlignment.Center };
-                for (int v = 50; v <= 100; v += 5) threshold.Items.Add(v);
                 int current = _mode.AlignmentScoreThreshold >= 50 && _mode.AlignmentScoreThreshold <= 100 ? _mode.AlignmentScoreThreshold / 5 * 5 : 80;
-                threshold.SelectedItem = current;
                 var mode = _mode;
-                threshold.SelectionChanged += (o, e) => { if (threshold.SelectedItem is int v) mode.AlignmentScoreThreshold = v; };
-                AutomationProperties.SetAutomationId(threshold, "cmbFocusStartThreshold");
+                var threshold = FocusStartUi.NumberPicker(Enumerable.Range(0, 11).Select(i => 50 + i * 5), current, v => mode.AlignmentScoreThreshold = v,
+                    Math.Max(60, s.Pt(170)), "cmbFocusStartThreshold", v => v + "%");
                 row.Children.Add(threshold);
                 body.Children.Add(row);
             }

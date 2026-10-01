@@ -299,6 +299,7 @@ namespace Focus_Bear.StatsScreens
             };
             window.SetResourceReference(Control.BackgroundProperty, "BackgroundColor");
             window.FontFamily = FontFamily;
+            Focus_Bear.Utils.WindowTheme.FollowTheme(window);
             return window;
         }
 

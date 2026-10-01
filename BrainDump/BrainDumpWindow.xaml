@@ -47,7 +47,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type RadioButton}">
-                        <Border x:Name="Segment" Background="Transparent" CornerRadius="7" Padding="12,5" Margin="2">
+                        <!-- Same selected look as StatsUi.Segmented (To-Do, Stats): tinted fill, orange outline, orange text. -->
+                        <Border x:Name="Segment" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="7" Padding="11,4" Margin="2">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -56,6 +57,8 @@
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Segment" Property="Background" Value="{DynamicResource TrayIconSquareBg}"/>
+                                <Setter TargetName="Segment" Property="BorderBrush" Value="#E88800"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OrangeTextColor}"/>
                                 <Setter Property="FontWeight" Value="SemiBold"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -128,7 +131,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
-                        <Grid>
+                        <!-- Transparent: the app's implicit Grid style paints the page colour, a square patch behind the rounded box. -->
+                        <Grid Background="Transparent">
                             <ToggleButton Style="{StaticResource RoundedComboBoxToggleButtonStyle}"
                                           IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
                             <TextBlock IsHitTestVisible="False" Text="{Binding SelectedItem.Text, RelativeSource={RelativeSource TemplatedParent}}"
@@ -181,7 +185,7 @@
                         <Button x:Name="btnBrainDumpBullets" AutomationProperties.Name="Bulleted list" Style="{StaticResource FormatButtonStyle}" Content="•≡" Command="EditingCommands.ToggleBullets" CommandTarget="{Binding ElementName=rtbBrainDump}"/>
                         <Button x:Name="btnBrainDumpNumbering" AutomationProperties.Name="Numbered list" Style="{StaticResource FormatButtonStyle}" Content="1≡" Command="EditingCommands.ToggleNumbering" CommandTarget="{Binding ElementName=rtbBrainDump}"/>
                     </StackPanel>
-                    <Grid>
+                    <Grid Background="Transparent">
                         <RichTextBox x:Name="rtbBrainDump" AutomationProperties.LabeledBy="{Binding ElementName=lblBrainDumpTitle}" AutomationProperties.AutomationId="rtbBrainDump" Style="{StaticResource NoteEditorStyle}" Height="150" TextChanged="rtbBrainDump_TextChanged" LostKeyboardFocus="rtbBrainDump_LostKeyboardFocus">
                             <RichTextBox.Resources>
                                 <Style TargetType="{x:Type Paragraph}"><Setter Property="Margin" Value="0"/></Style>
@@ -198,7 +202,7 @@
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Left" Text="🔍" FontSize="12" VerticalAlignment="Center" Margin="10,0,4,0" Foreground="{DynamicResource TraySubtitleColor}"/>
                         <TextBlock x:Name="lblSearching" DockPanel.Dock="Right" Text="…" Style="{StaticResource SecondaryText}" VerticalAlignment="Center" Margin="0,0,10,0" Visibility="Collapsed"/>
-                        <Grid>
+                        <Grid Background="Transparent">
                             <TextBox x:Name="txtSearch" AutomationProperties.LabeledBy="{Binding ElementName=lblSearchPlaceholder}" AutomationProperties.AutomationId="txtNotesSearch" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource ForegroundColor}" CaretBrush="{DynamicResource ForegroundColor}" VerticalContentAlignment="Center" FontSize="13" TextChanged="txtSearch_TextChanged"/>
                             <TextBlock x:Name="lblSearchPlaceholder" Text="xSearch notes..." Foreground="{DynamicResource TraySubtitleColor}" FontSize="13" VerticalAlignment="Center" Margin="3,0,0,0" IsHitTestVisible="False"/>
                         </Grid>
@@ -227,7 +231,7 @@
                 <local:ProjectPickerBox x:Name="ProjectFilterPanel" AutomationProperties.AutomationId="pickNotesProjectFilter" DockPanel.Dock="Left" Width="230" Margin="10,0,0,0" Visibility="Collapsed"/>
                 <TextBlock x:Name="lblProjectNotesLoading" DockPanel.Dock="Left" Style="{StaticResource SecondaryText}" VerticalAlignment="Center" Margin="12,0,0,0" Visibility="Collapsed" Text="…"/>
                 <Button x:Name="btnShowBrainDump" AutomationProperties.AutomationId="btnShowBrainDump" DockPanel.Dock="Right" Height="32" Padding="12,0" Cursor="Hand" Style="{StaticResource BtnStyleClearOrangeBordered}" Click="btnShowBrainDump_Click" Visibility="Collapsed">
-                    <TextBlock x:Name="lblShowBrainDump" Text="🧠 xShow brain dump" Margin="16,0"/>
+                    <TextBlock x:Name="lblShowBrainDump" Text="🧠 xShow brain dump" Margin="16,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
                 </Button>
             </DockPanel>
 
@@ -245,10 +249,10 @@
                     </DockPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
                         <Button x:Name="btnCancelNewProjectNote" AutomationProperties.AutomationId="btnCancelNewProjectNote" Height="30" Margin="0,0,8,0" Cursor="Hand" Style="{StaticResource BtnStyleClearGrayBordered}" Click="btnCancelNewProjectNote_Click">
-                            <TextBlock x:Name="lblCancelNewProjectNote" Text="xCancel" Margin="16,0"/>
+                            <TextBlock x:Name="lblCancelNewProjectNote" Text="xCancel" Margin="16,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
                         </Button>
                         <Button x:Name="btnCreateProjectNote" AutomationProperties.AutomationId="btnCreateProjectNote" Height="30" Cursor="Hand" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="False" Click="btnCreateProjectNote_Click">
-                            <TextBlock x:Name="lblCreateProjectNote" Text="xCreate note" FontWeight="SemiBold" Margin="16,0"/>
+                            <TextBlock x:Name="lblCreateProjectNote" Text="xCreate note" FontWeight="SemiBold" Margin="16,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
                         </Button>
                     </StackPanel>
                 </StackPanel>
@@ -322,10 +326,10 @@
                 </Grid.RowDefinitions>
                 <DockPanel Grid.Row="0" LastChildFill="True" Margin="0,0,0,14">
                     <Button x:Name="btnSaveNote" AutomationProperties.AutomationId="btnSaveNote" DockPanel.Dock="Right" Height="34" Padding="18,0" Cursor="Hand" Style="{StaticResource BtnStyleLightOrangeBordered}" Click="btnSaveNote_Click">
-                        <TextBlock x:Name="lblSaveNote" Text="xSave" FontWeight="SemiBold" Margin="16,0"/>
+                        <TextBlock x:Name="lblSaveNote" Text="xSave" FontWeight="SemiBold" Margin="16,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </Button>
                     <Button x:Name="btnCancelNote" AutomationProperties.AutomationId="btnCancelNote" DockPanel.Dock="Right" Height="34" Padding="18,0" Margin="0,0,10,0" Cursor="Hand" Style="{StaticResource BtnStyleClearGrayBordered}" Click="btnCancelNote_Click">
-                        <TextBlock x:Name="lblCancelNote" Text="xCancel" Margin="16,0"/>
+                        <TextBlock x:Name="lblCancelNote" Text="xCancel" Margin="16,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </Button>
                     <TextBlock x:Name="lblEditorTitle" Text="xEdit Note" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
                 </DockPanel>
@@ -369,9 +373,9 @@
                     </ItemsControl>
                     <DockPanel LastChildFill="True" Margin="0,0,0,8" Width="460" HorizontalAlignment="Left">
                         <Button x:Name="btnAddTag" AutomationProperties.AutomationId="btnAddTag" DockPanel.Dock="Right" Height="30" Padding="14,0" Margin="8,0,0,0" Cursor="Hand" Style="{StaticResource BtnStyleClearGrayBordered}" Click="btnAddTag_Click">
-                            <TextBlock x:Name="lblAddTag" Text="xAdd" Margin="16,0"/>
+                            <TextBlock x:Name="lblAddTag" Text="xAdd" Margin="16,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
                         </Button>
-                        <Grid>
+                        <Grid Background="Transparent">
                             <TextBox x:Name="txtNewTag" AutomationProperties.LabeledBy="{Binding ElementName=lblNewTagPlaceholder}" AutomationProperties.AutomationId="txtNewTag" Height="30" Padding="4,0" VerticalContentAlignment="Center" Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" CaretBrush="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource TrayCardBorder}" KeyDown="txtNewTag_KeyDown" TextChanged="txtNewTag_TextChanged"/>
                             <TextBlock x:Name="lblNewTagPlaceholder" Text="xAdd a tag..." Foreground="{DynamicResource TraySubtitleColor}" FontSize="12" VerticalAlignment="Center" Margin="8,0,0,0" IsHitTestVisible="False"/>
                         </Grid>
@@ -414,15 +418,17 @@
                 </Grid.RowDefinitions>
                 <DockPanel Grid.Row="0" LastChildFill="False" Margin="0,0,0,12">
                     <Button x:Name="btnBackToNotes" AutomationProperties.AutomationId="btnBackToNotes" DockPanel.Dock="Left" Height="32" Padding="12,0" Cursor="Hand" Style="{StaticResource BtnStyleClearGrayBordered}" Click="btnBackToNotes_Click">
-                        <TextBlock x:Name="lblBackToNotes" Text="← xBack to notes" Margin="16,0"/>
+                        <TextBlock x:Name="lblBackToNotes" Text="← xBack to notes" Margin="16,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </Button>
                     <Button x:Name="btnEditOnWeb" AutomationProperties.AutomationId="btnEditOnWeb" DockPanel.Dock="Right" Height="32" Padding="14,0" Cursor="Hand" Style="{StaticResource BtnStyleLightOrangeBordered}" Click="btnEditOnWeb_Click">
-                        <TextBlock x:Name="lblEditOnWeb" Text="xEdit on the web ↗" FontWeight="SemiBold" Margin="16,0"/>
+                        <TextBlock x:Name="lblEditOnWeb" Text="xEdit on the web ↗" FontWeight="SemiBold" Margin="16,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </Button>
                 </DockPanel>
                 <StackPanel Grid.Row="1" Margin="0,0,0,4">
                     <!-- Looks like a heading; is a text box. Click to rename; Enter or leaving saves, Escape discards. -->
-                    <TextBox x:Name="txtProjectNoteTitle" AutomationProperties.AutomationId="txtProjectNoteTitle" FontSize="22" FontWeight="Bold" TextWrapping="Wrap" BorderThickness="0,0,0,1" BorderBrush="Transparent" Background="Transparent" Padding="0,0,0,2"
+                    <!-- The same bordered field as a personal note's title (txtNoteTitle), at heading size. -->
+                    <TextBox x:Name="txtProjectNoteTitle" AutomationProperties.AutomationId="txtProjectNoteTitle" FontSize="20" FontWeight="Bold" TextWrapping="Wrap" Padding="6,4" VerticalContentAlignment="Center"
+                             Background="{DynamicResource TextBoxBackgroundColor}" BorderBrush="{DynamicResource TrayCardBorder}" BorderThickness="1"
                              Foreground="{DynamicResource ForegroundColor}" CaretBrush="{DynamicResource ForegroundColor}" Cursor="IBeam"
                              GotKeyboardFocus="txtProjectNoteTitle_GotKeyboardFocus" LostKeyboardFocus="txtProjectNoteTitle_LostKeyboardFocus" PreviewKeyDown="txtProjectNoteTitle_PreviewKeyDown"/>
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
@@ -434,7 +440,8 @@
                 </StackPanel>
                 <TextBlock x:Name="lblProjectNoteWebOnly" Grid.Row="2" Style="{StaticResource SecondaryText}" TextWrapping="Wrap" Margin="0,8,0,10"/>
                 <Border Grid.Row="3" Background="{DynamicResource TrayCardBg}" BorderBrush="{DynamicResource TrayCardBorder}" BorderThickness="1" CornerRadius="10" Padding="16,12">
-                    <Grid>
+                    <!-- Transparent: the app's implicit Grid style paints the page colour, a patch on the card behind the editor's status line. -->
+                    <Grid Background="Transparent">
                         <FlowDocumentScrollViewer x:Name="fdProjectNote" AutomationProperties.AutomationId="fdProjectNote" VerticalScrollBarVisibility="Auto" IsToolBarVisible="False" Foreground="{DynamicResource ForegroundColor}"/>
                         <!-- The live editor (ProjectNoteEditor) replaces the read-only copy once it holds the note. -->
                         <ContentControl x:Name="ProjectNoteEditorHost" Visibility="Collapsed"/>
@@ -444,10 +451,10 @@
                 <DockPanel Grid.Row="4" LastChildFill="False" Margin="0,12,0,0">
                     <TextBlock x:Name="lblProjectNoteStatus" DockPanel.Dock="Left" Style="{StaticResource SecondaryText}" VerticalAlignment="Center" Visibility="Collapsed"/>
                     <Button x:Name="btnArchiveNote" AutomationProperties.AutomationId="btnArchiveNote" DockPanel.Dock="Right" Height="32" Padding="14,0" Cursor="Hand" Style="{StaticResource BtnStyleClearOrangeBordered}" Click="btnArchiveNote_Click">
-                        <TextBlock x:Name="lblArchiveNote" Text="xArchive" Margin="16,0"/>
+                        <TextBlock x:Name="lblArchiveNote" Text="xArchive" Margin="16,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </Button>
                     <Button x:Name="btnDeleteProjectNote" AutomationProperties.AutomationId="btnDeleteProjectNote" DockPanel.Dock="Right" Height="32" Margin="0,0,10,0" Cursor="Hand" Style="{StaticResource BtnStyleClearGrayBordered}" Click="btnDeleteProjectNote_Click">
-                        <TextBlock x:Name="lblDeleteProjectNote" Text="🗑  xDelete" Margin="16,0"/>
+                        <TextBlock x:Name="lblDeleteProjectNote" Text="🗑  xDelete" Margin="16,0" Style="{DynamicResource ButtonTextBlockStyle}"/>
                     </Button>
                 </DockPanel>
             </Grid>

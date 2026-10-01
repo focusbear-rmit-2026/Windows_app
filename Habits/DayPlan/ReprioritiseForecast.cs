@@ -185,6 +185,13 @@ namespace Focus_Bear.Habits.DayPlan
             }
         }
 
+        /// <summary>The plan's own proposal for a change, before any date the user typed over it.</summary>
+        public F.DueDateChange ProposedChange(string changeId)
+        {
+            if (Result == null) return null;
+            return F.ProposeWorkPlan(Result).Changes.FirstOrDefault(c => c.Id == changeId);
+        }
+
         public DateTime? ManualDate(string changeId)
         {
             DateTime d;
@@ -311,17 +318,21 @@ namespace Focus_Bear.Habits.DayPlan
             if (DurationMinutes(taskId) == minutes && task.Duration == minutes * 60) return true;
             string account = Account;
             EditMessage = null;
-            IsApplying = true;
-            Changed?.Invoke();
+            int? previousSeconds = task.Duration;
+            double? previousEstimate = TaskInputs.FirstOrDefault(t => t.Id == taskId)?.EstimatedMinutes;
+            // Show the new estimate at once (and re-flow around it), then write it, as the outcome edit does.
+            await PatchAndReplanAsync(taskId, t => t.Duration = minutes * 60, i => i.With(estimatedMinutes: minutes));
             bool saved;
             try { saved = await ReprioritiseWrites.WriteDurationAsync(ApiFactory(), taskId, minutes); }
             catch (Exception ex) { LogWriter.LogWrite("ReprioritiseForecast.SetDurationAsync - " + ex.Message); saved = false; }
-            finally { IsApplying = false; }
-            if (Account != account) { Changed?.Invoke(); return false; }
+            if (Account != account) return false;
             if (!saved)
             {
+                LogWriter.LogWrite("ReprioritiseForecast: duration write did not stick");
                 EditMessage = ForecastText.Get("durationNotSaved");
-                Changed?.Invoke();
+                await PatchAndReplanAsync(taskId, t => t.Duration = previousSeconds, i => previousEstimate.HasValue
+                    ? i.With(estimatedMinutes: previousEstimate)
+                    : new F.TaskInput(i.Id, i.ProjectId, null, i.Outcome, i.Perspiration, i.DueDate, i.NotBefore, i.BlockAssignment, i.Completed));
                 return false;
             }
             LogWriter.LogWrite("[user-action] reprioritise: task duration set to " + minutes.ToString(CultureInfo.InvariantCulture) + "m");
@@ -331,7 +342,6 @@ namespace Focus_Bear.Habits.DayPlan
                 DayPlanTaskStore.Shared.Update(placement.Value, placement.Key, alreadyOnServer: true);
             }
             ToDoCatalogue.Invalidate();
-            await PatchAndReplanAsync(taskId, t => t.Duration = minutes * 60, i => i.With(estimatedMinutes: minutes));
             return true;
         }
 

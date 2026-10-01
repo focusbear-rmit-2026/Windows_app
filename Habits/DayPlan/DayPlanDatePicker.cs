@@ -107,6 +107,7 @@ namespace Focus_Bear.Habits.DayPlan
             _card.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, "ForegroundColor");
             AutomationProperties.SetAutomationId(_card, "DayPlanDatePicker");
             _card.PreviewKeyDown += OnKeyDown;
+            _card.Resources[typeof(Grid)] = new Style(typeof(Grid));   // the app's page-background Grid style would show inside the card
 
             // Transient, like the Mac's NSPopover: a click anywhere else closes it. Centred under the date.
             _popup = new Popup

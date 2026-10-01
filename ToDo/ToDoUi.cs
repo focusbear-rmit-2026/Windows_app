@@ -114,6 +114,12 @@ namespace Focus_Bear.ToDoScreens
                 border.SetResourceReference(Border.BorderBrushProperty, "TrayCardBorder");
             }
             var button = new Button { Content = border, Template = StatsUi.PlainTemplate(), Cursor = Cursors.Hand, ToolTip = tooltip, Margin = new Thickness(6, 0, 0, 0) };
+            if (!active)
+            {
+                // The same soft highlight the Focus Music rows use; these had no hover at all.
+                button.MouseEnter += (s, e) => { border.SetResourceReference(Border.BackgroundProperty, "TrayIconSquareBg"); border.BorderBrush = Accent; };
+                button.MouseLeave += (s, e) => { border.SetResourceReference(Border.BackgroundProperty, "TrayCardBg"); border.SetResourceReference(Border.BorderBrushProperty, "TrayCardBorder"); };
+            }
             if (onClick != null) button.Click += onClick;
             if (automationId != null) System.Windows.Automation.AutomationProperties.SetAutomationId(button, automationId);
             return button;
@@ -233,6 +239,7 @@ namespace Focus_Bear.ToDoScreens
 
         internal static void Apply(Window window)
         {
+            Focus_Bear.Utils.WindowTheme.FollowTheme(window);   // a dark window had a white title bar
             window.WindowStartupLocation = WindowStartupLocation.Manual;
             window.SourceInitialized += (s, e) => Place(window, afterLayout: false);
             window.Loaded += (s, e) => Place(window, afterLayout: true);

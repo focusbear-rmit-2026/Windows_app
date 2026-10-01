@@ -1,6 +1,7 @@
 using Focus_Bear.Utils;
 using FocusBear.Core.Focus;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Automation;
@@ -281,6 +282,37 @@ namespace Focus_Bear.Pomodoro
         }
 
         /// <summary>A rounded field well with a magnifier and a placeholder.</summary>
+        /// <summary>A number in <see cref="NumberPicker"/>; the app's RoundedComboBoxStyle shows <c>name</c>.</summary>
+        public sealed class NumberChoice
+        {
+            public NumberChoice(int value, string name) { Value = value; this.name = name; }
+            public int Value { get; }
+            // Lower-case: RoundedComboBoxStyle binds SelectedItem.name (its first user shows focus modes).
+            public string name { get; }
+            public override string ToString() => name;
+        }
+
+        /// <summary>
+        /// A dropdown of whole numbers in the app's rounded, theme-aware picker (RoundedComboBoxStyle). WPF's default
+        /// ComboBox kept its white chrome under the theme's white text, so the value could not be read in dark mode.
+        /// </summary>
+        internal static ComboBox NumberPicker(IEnumerable<int> values, int selected, Action<int> onSelected, double width, string automationId, Func<int, string> label = null)
+        {
+            var picker = new ComboBox { Width = width, Height = 32, FontSize = 13, VerticalAlignment = VerticalAlignment.Center };
+            if (Application.Current?.TryFindResource("RoundedComboBoxStyle") is Style rounded) picker.Style = rounded;
+            NumberChoice current = null;
+            foreach (int value in values)
+            {
+                var choice = new NumberChoice(value, label != null ? label(value) : value.ToString());
+                picker.Items.Add(choice);
+                if (value == selected) current = choice;
+            }
+            picker.SelectedItem = current ?? (picker.Items.Count > 0 ? picker.Items[0] : null);
+            picker.SelectionChanged += (o, e) => { if (picker.SelectedItem is NumberChoice c) onSelected(c.Value); };
+            AutomationProperties.SetAutomationId(picker, automationId);
+            return picker;
+        }
+
         internal static Border SearchField(TextBox box, string placeholder, FocusStartPalette p, FocusStartScale s, string automationId)
         {
             box.BorderThickness = new Thickness(0);

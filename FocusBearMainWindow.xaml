@@ -379,14 +379,16 @@
                                                         ToolTip="{x:Static local:FocusBearMainWindow.HideToolTooltip}">
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
-                                                            <Border x:Name="xBd" Background="{DynamicResource TrayCardBg}" BorderBrush="{DynamicResource TrayCardBorder}" BorderThickness="1" CornerRadius="10">
-                                                                <TextBlock x:Name="xGlyph" Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="8" Foreground="{DynamicResource TraySubtitleColor}"
+                                                            <!-- Fixed colours: the row it sits on is the same cream in both themes (its text is #222222), so the
+                                                                 theme's dark card brushes made this a dark disc on a light row in dark mode. -->
+                                                            <Border x:Name="xBd" Background="#E88800" BorderBrush="#E88800" BorderThickness="1" CornerRadius="10">
+                                                                <TextBlock x:Name="xGlyph" Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="8" Foreground="White" FontWeight="Bold"
                                                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                             </Border>
                                                             <ControlTemplate.Triggers>
                                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter TargetName="xBd" Property="BorderBrush" Value="#DE7400"/>
-                                                                    <Setter TargetName="xGlyph" Property="Foreground" Value="#DE7400"/>
+                                                                    <Setter TargetName="xBd" Property="Background" Value="#DE7400"/>
+                                                                    <Setter TargetName="xBd" Property="BorderBrush" Value="#C46400"/>
                                                                 </Trigger>
                                                             </ControlTemplate.Triggers>
                                                         </ControlTemplate>
