@@ -702,15 +702,24 @@ namespace Focus_Bear
                         // session so it can't be replayed on the next bring-to-front signal.
                         ClearPendingDeepLink();
 
+                        // Captured here, on the UI thread. Read from this background thread, Application.Current
+                        // can already be null while the app shuts down, so a 2nd instance launched as this one
+                        // quit crashed it with an unhandled NullReferenceException (Sentry FOCUS-BEAR-WINDOWS-6C).
+                        var uiDispatcher = Dispatcher;
+                        var bringToFrontSignal = appWaitHandle;
                         var thread = new Thread(() =>
                         {
-                            while (this.appWaitHandle.WaitOne())
+                            while (bringToFrontSignal.WaitOne())
                             {
-                                Current.Dispatcher.BeginInvoke((Action)(() =>
+                                if (uiDispatcher.HasShutdownStarted)
                                 {
-                                    if (Current.MainWindow is TrayMenu)
+                                    return;
+                                }
+                                uiDispatcher.BeginInvoke((Action)(() =>
+                                {
+                                    if (this.MainWindow is TrayMenu)
                                     {
-                                        var alreadyRunningMainWin = (TrayMenu)Current.MainWindow;
+                                        var alreadyRunningMainWin = (TrayMenu)this.MainWindow;
                                         alreadyRunningMainWin.Topmost = true;
                                         alreadyRunningMainWin.UpdateTrayMenu();
                                         alreadyRunningMainWin.Show();
