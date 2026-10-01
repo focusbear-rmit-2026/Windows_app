@@ -328,3 +328,29 @@ This release brings the Windows app in line with the Mac app. Most screens that 
 
 **Installer**
 - The installer now ships FocusBear.Core.dll and the shared-note editor, which the new screens need #1609.
+
+#v4.1.252
+The version jumps to 4.1 to mark the new native screens introduced in 3.1.251. This build carries fixes from testing them.
+
+**Class sessions (students)**
+- Joining a teacher's class session now shows the new focus session screen, the same one a personal session uses, with the teacher's checklist in its task panel. The old web To-Do Player is gone. Tasks are ticked in the teacher's order with "Mark as complete"; the latest tick can be undone; the list refreshes when the teacher changes it mid-session #1611.
+
+**Breaks and routines**
+- Taking a break while your routine is postponed no longer cancels the postpone: the routine stays postponed after the break ends or is postponed itself, instead of starting straight away. The break is no longer recorded as a parked habit on the Day Plan, and "Start break" no longer leaves a loader on screen when a break can't start #1612.
+
+**Dark mode**
+- Fixed lighter patches inside cards and fields across the new screens: To-Do rows, Projects, the task editor, Stats, the focus start and session screens, Late No More, Reports, the AI check-in, the Day Plan date picker, and the Notes search box, project picker, shared note card and brain dump card #1613.
+- Selected segments (Tasks/Projects, sort, Stats periods, Notes scopes) have an orange outline and orange text so the choice is clear in both themes. The To-Do Refresh, Filter and More buttons highlight on hover. The hide-✕ on tool rows is an orange disc with a white cross.
+- Dialog title bars follow the theme: Edit task, Reschedule plan, project dialogs, Focus Log, Day Plan Fix, the AI check-in and more.
+- Dropdowns: hovered rows are readable, and the focus start screen's AI threshold and Super Focus pickers use the app's rounded picker instead of a white box with invisible text.
+- Notes: button labels (Create, Save, Cancel, Add tag, Back, Edit on the web, Archive, Delete) are readable on their light buttons; the shared note's title is a bordered field like a personal note's.
+
+**Reschedule plan**
+- The window has a theme title bar and one Close (in the title bar). A typed estimate shows immediately. Typing a date no longer makes the row vanish into a collapsed section.
+
+**Stability**
+- Fixed the Focus Summary crash "An ItemsControl is inconsistent with its items source", which fired repeatedly whenever the summary was opened again with a different number of focus blocks #1607.
+- Fixed a crash when a second copy of Focus Bear was launched while the first was quitting (restart, update) #1596.
+
+**Voice commands**
+- The listening/thinking popup's buttons match the app's orange buttons.

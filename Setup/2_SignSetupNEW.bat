@@ -2,5 +2,5 @@ signtool.exe sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /a "Out
 
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "FocusBearSetup.iss"   
 
-signtool.exe sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /a "output/FocusBearSetup3.1.251.exe"
+signtool.exe sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /a "output/FocusBearSetup4.1.252.exe"
 
