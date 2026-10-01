@@ -166,9 +166,10 @@ namespace Focus_Bear.Habits
 
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) // FOr Breaks we will simply cancel the current routine.
                 {
-                    appSettings.nCurrentActivityType = CurrentActivityType.NONE;
-                    LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
-                    
+                    // A break taken during a postponed routine hands the state back to that routine, as finishing
+                    // the break does; NONE here let the background tick start the postponed routine at once.
+                    ((App)(Application.Current)).RestoreActivityTypeAfterBreak();
+
                     //simply set the timer for thenext break activity.
                     ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);
 

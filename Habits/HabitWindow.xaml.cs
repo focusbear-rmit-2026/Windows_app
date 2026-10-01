@@ -684,26 +684,9 @@ namespace Focus_Bear.Habits
             if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
             {
                 LogWriter.LogWrite("LAST BREAK_ACTIVITY Finished");
-                if (appSettings.bHabitsPostponedState)
+                ((App)(Application.Current)).RestoreActivityTypeAfterBreak();
+                if (!appSettings.bHabitsPostponedState)
                 {
-                    //possibly user postponed habits and started breaks, so we need to set the state back
-                    if (appSettings.IsShutOffTime())
-                    {
-                        //evening routine time
-                        appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;
-                    }
-                    else
-                    {
-                        //morning routine time
-                        appSettings.nCurrentActivityType = CurrentActivityType.MORNING_HABITS;
-                    }
-
-                }
-                else
-                {
-                    //Set the current activity type to NONE
-                    appSettings.nCurrentActivityType = CurrentActivityType.NONE;
-
                     //Routine over - resume focus music if we auto-paused it
                     ((App)(Application.Current)).ResumeFocusMusicAfterRoutine();
                 }

@@ -1006,9 +1006,18 @@ namespace Focus_Bear.Habits
                 //It might be an allowed app habit, so need to remove the break window too
                  ((App)(Application.Current)).RemoveAllowedAppHabitTimerPopup();
 
-                LogWriter.LogWrite("HandleTimerForPostpone () SetPostponedHabitData for activity - " + sActivityIdToGetDataFromAPI);
-                //Here we need to set the timer and the activity id as CurrentActivityPostponedID, CurrentActivityPostponedTimerVal, CurrentActivityPostponedDT
-                RegistryManager.SetPostponedHabitData(sActivityIdToGetDataFromAPI, nTimer.ToString());
+                // The parked-habit slot is the routine's: a break activity written there was read back by the Day
+                // Plan as a parked habit, and could overwrite the routine's own parked habit.
+                if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
+                {
+                    LogWriter.LogWrite("HandleTimerForPostpone () break activity, not parked - " + sActivityIdToGetDataFromAPI);
+                }
+                else
+                {
+                    LogWriter.LogWrite("HandleTimerForPostpone () SetPostponedHabitData for activity - " + sActivityIdToGetDataFromAPI);
+                    //Here we need to set the timer and the activity id as CurrentActivityPostponedID, CurrentActivityPostponedTimerVal, CurrentActivityPostponedDT
+                    RegistryManager.SetPostponedHabitData(sActivityIdToGetDataFromAPI, nTimer.ToString());
+                }
             }
             else
             {

@@ -1657,6 +1657,27 @@ namespace Focus_Bear
                 StartBreakActivityTimer();
         }
 
+        /// <summary>
+        /// What a finished or postponed break hands the state back to. A break taken while a routine is postponed
+        /// (ShowBreakActivities allows that) must leave the routine postponed: the background tick reads a
+        /// postponed routine from <c>nCurrentActivityType</c>, and NONE made it start the routine straight away.
+        /// The routine is the persisted one; if the app knows none, the clock decides.
+        /// </summary>
+        internal void RestoreActivityTypeAfterBreak()
+        {
+            if (appSettings.bHabitsPostponedState)
+            {
+                var type = appSettings.HabitsPostponeActivityType;
+                if (type != CurrentActivityType.MORNING_HABITS && type != CurrentActivityType.EVENING_HABITS)
+                    type = appSettings.IsShutOffTime() ? CurrentActivityType.EVENING_HABITS : CurrentActivityType.MORNING_HABITS;
+                appSettings.nCurrentActivityType = type;
+                LogWriter.LogWrite("Break over - routine still postponed, nCurrentActivityType = " + type);
+                return;
+            }
+            appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+            LogWriter.LogWrite("Break over - nCurrentActivityType = NONE");
+        }
+
         public async void ShowBreakActivities()
         {
             LogWriter.LogWrite("ShowBreakActivities()");
@@ -1669,6 +1690,7 @@ namespace Focus_Bear
             if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF  )
             {
                 LogWriter.LogWrite("SHUT_OFF or EVENING_HABITS - Return from ShowBreakActivities()");
+                HideBreakStartLoader();
                 return;
             }
 
@@ -1676,6 +1698,7 @@ namespace Focus_Bear
                 (!appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState ))
             {
                 LogWriter.LogWrite("SHUT_OFF or EVENING_HABITS - Return from ShowBreakActivities()");
+                HideBreakStartLoader();
                 return;
             }
 
@@ -1683,6 +1706,7 @@ namespace Focus_Bear
                 !appSettings.bHabitsPostponedState)
             {
                 LogWriter.LogWrite("MORNING_HABITS - Return from ShowBreakActivities()");
+                HideBreakStartLoader();
                 return;
             }
 
@@ -1801,10 +1825,16 @@ namespace Focus_Bear
             }
             else
             {
-                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
-
+                RestoreActivityTypeAfterBreak();
+                HideBreakStartLoader();
                 RestoreFocusUIAfterRoutine();
             }
+        }
+
+        /// <summary>The Start Break button's loader (the grid shade), which a break that never starts must take down.</summary>
+        private void HideBreakStartLoader()
+        {
+            if (wndFocusBearMainWindow != null) wndFocusBearMainWindow.GridShade.Visibility = Visibility.Collapsed;
         }
         public void ShowWelcomeAbordOnBoradingFlow()
         {
