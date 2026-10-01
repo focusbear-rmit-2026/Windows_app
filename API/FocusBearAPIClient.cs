@@ -5564,6 +5564,18 @@ namespace Focus_Bear.API
             return null;
         }
 
+        /// <summary>
+        /// Ticks (<c>POST</c>) or unticks (<c>DELETE</c>) a teacher-assigned task:
+        /// <c>/class-session/{id}/tasks/{taskId}/complete</c>. Both are idempotent on the server, so a repeat
+        /// counts as success.
+        /// </summary>
+        internal async Task<bool> SetClassSessionTaskCompleted(string sSessionId, string sTaskId, bool completed)
+        {
+            string url = ClassSession + "/" + Uri.EscapeDataString(sSessionId) + "/tasks/" + Uri.EscapeDataString(sTaskId) + "/complete";
+            var response = await SendJsonRequest(completed ? "POST" : "DELETE", url, completed ? new JObject() : null, "SetClassSessionTaskCompleted");
+            return response.IsSuccess;
+        }
+
         //POST /class-session/{id}/heartbeat with the canonical body {in_focus, device_id, idle_seconds,
         //alignment_score?}. idle_seconds (seconds since last user input) lets the teacher report derive
         //Engagement server-side; alignment_score (0-100 site-relevance) is sent only when AI URL checking

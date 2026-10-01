@@ -413,6 +413,14 @@ namespace FocusBear.Core.Focus
             { "titleEndSessionConfirm", "End session early?" },
             { "bodyEndSessionConfirm", "A few more minutes could be the difference. Stick with it?" },
             { "labelFocusAlignmentScore", "Focus alignment score: <SCORE>%" },
+            // A student's class session: the teacher's checklist stands in for the task queue.
+            { "labelClassChecklist", "Teacher's checklist (<DONE>/<TOTAL> done)" },
+            { "titleClassNoTasks", "No tasks from your teacher yet" },
+            { "bodyClassNoTasks", "When your teacher adds tasks to this session, they will appear here." },
+            { "titleClassAllDone", "All tasks done!" },
+            { "bodyClassAllDone", "Nice work. Stay focused until the session ends." },
+            { "menuMarkNotDone", "Mark as not done" },
+            { "errorClassTaskSync", "Could not update the task. Check your connection and try again." },
         };
 
         private readonly Dictionary<string, string> _values;

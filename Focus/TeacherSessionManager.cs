@@ -747,6 +747,10 @@ namespace Focus_Bear.Focus
 
                 // TodoPlayer: FE owns class checklist — pass empty tasks + class_session_id in metadata.
                 PrepareClassSessionTodoPlayer(sSessionId);
+                // The teacher's checklist for the native session screen. A join / current payload carries the
+                // tasks and this student's ticks; a Pusher invite payload has no tasks, so fetch them.
+                if (ObjData["tasks"] is JArray) ClassSessionChecklistStore.Shared.Apply(ObjData);
+                else { ClassSessionChecklistStore.Shared.Apply(new JObject { ["id"] = sSessionId }); _ = ClassSessionChecklistStore.Shared.ReloadAsync(); }
 
                 try
                 {
@@ -854,6 +858,7 @@ namespace Focus_Bear.Focus
                 }
                 appSettings.sClassSessionTodoSessionId = "";
                 appSettings.sPersonalRawTasksBackup = "";
+                ClassSessionChecklistStore.Shared.Clear();
                 if (wasActive)
                 {
                     LogWriter.LogWrite("TeacherSessionManager - cleared class session TodoPlayer state" +

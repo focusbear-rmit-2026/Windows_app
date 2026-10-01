@@ -6394,17 +6394,12 @@ namespace Focus_Bear
         public void ShowToDoPlayer()
         {
             // The web To Do Player is replaced by the native session screen on the Focus Session row (Mac parity).
-            // It stays only for a class session's teacher checklist, which only the web player can show.
-            if (appSettings.isFocusModeRunning && Pomodoro.FocusSessionQueueWriter.NativeOwnsQueue)
+            // A class session shows there too: its teacher checklist is the screen's task list (ClassSessionChecklistStore).
+            if (appSettings.isFocusModeRunning)
             {
                 BringMainWindowToFront();
                 wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.StartFocusSession);
                 return;
-            }
-            if(appSettings.isFocusModeRunning)
-            {
-                //change the title of the todo player button
-                wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.ToDoList, appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString());
             }
             BringMainWindowToFront();
 
@@ -6438,9 +6433,6 @@ namespace Focus_Bear
             string toDoTitle = isPaused
                 ? appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString()
                 : appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
-
-            if (!Pomodoro.FocusSessionQueueWriter.NativeOwnsQueue)
-                wndFocusBearMainWindow?.UpdateLeafTitle(LeftButtonType.ToDoList, toDoTitle);
 
             if (wndFocusBearMainWindow?.IsLeafSelected(LeftButtonType.ToDoList) == true)
             {

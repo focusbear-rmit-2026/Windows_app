@@ -452,6 +452,7 @@
       <DependentUpon>FocusProgress.xaml</DependentUpon>
     </Compile>
     <Compile Include="Focus\AiBlockBuddyWindow.cs" />
+    <Compile Include="Focus\ClassSessionChecklistStore.cs" />
     <Compile Include="Focus\GentleBlock.xaml.cs">
       <DependentUpon>GentleBlock.xaml</DependentUpon>
     </Compile>

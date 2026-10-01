@@ -138,6 +138,7 @@ namespace Focus_Bear.Utils
             else if (eventName == "class-session-invite" ||
                      eventName == "class-allowlist-changed" ||
                      eventName == "class-session-ended" ||
+                     eventName == "class-session-tasks-updated" ||
                      eventName == "class-unlock-resolved")
             {
                 HandleClassSessionEvent(eventName, sData);
@@ -169,6 +170,11 @@ namespace Focus_Bear.Utils
                         else if (eventName == "class-unlock-resolved")
                         {
                             TeacherSessionManager.Instance.HandleUnlockResolved(ObjData);
+                        }
+                        else if (eventName == "class-session-tasks-updated")
+                        {
+                            // The teacher amended the checklist mid-session (the web player refetched on this too).
+                            Focus_Bear.Focus.ClassSessionChecklistStore.Shared.HandleTasksUpdated(ObjData);
                         }
                     }
                     catch (Exception ex)

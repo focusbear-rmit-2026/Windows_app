@@ -92,6 +92,8 @@ namespace Focus_Bear.Pomodoro
                 FlushPendingSaves();
             };
             FocusSessionQueueWriter.Changed += () => { if (IsVisible) Dispatcher.BeginInvoke(new Action(() => Refresh())); };
+            // A class session's checklist lives in its own store (the teacher amends it, ticks come back from the server).
+            Focus_Bear.Focus.ClassSessionChecklistStore.Shared.Changed += () => { if (IsVisible) Refresh(force: true); };
             // A brain dump saved on the Notes screen as it was left reaches the server after this screen is
             // already up: read it again then.
             Focus_Bear.BrainDump.BrainDumpWindow.BrainDumpSaved += () => Dispatcher.BeginInvoke(new Action(() => { if (IsVisible) _ = LoadBrainDump(); }));
@@ -191,7 +193,7 @@ namespace Focus_Bear.Pomodoro
             if (_lastRawTasks != _settings.sRawTasks || force)
             {
                 _lastRawTasks = _settings.sRawTasks;
-                _tasks = FocusSessionQueueWriter.NativeOwnsQueue ? FocusSessionQueueWriter.Tasks : new List<FocusSessionTask>();
+                _tasks = FocusSessionQueueWriter.NativeOwnsQueue ? FocusSessionQueueWriter.Tasks : Focus_Bear.Focus.ClassSessionChecklistStore.Shared.Tasks;
             }
             var active = FocusSessionQueue.Active(_tasks);
             _taskTimer.Activate(active?.Id, DateTime.Now);
@@ -657,11 +659,6 @@ namespace Focus_Bear.Pomodoro
                 AutomationProperties.SetAutomationId(error, "txtFocusSessionTaskError");
                 stack.Children.Add(error);
             }
-            if (!FocusSessionQueueWriter.NativeOwnsQueue)
-            {
-                stack.Children.Add(FocusStartUi.Text(strings["labelActiveTask"], Font(s, 48), p.Primary, FontWeights.SemiBold));
-                return Panel(stack, p, s);
-            }
             if (showActive) stack.Children.Add(ActiveSection(rules, strings, p, s));
             if (showQueue)
             {
@@ -690,6 +687,18 @@ namespace Focus_Bear.Pomodoro
         private FrameworkElement EmptyActive(FocusSessionRules rules, FocusSessionStrings strings, FocusStartPalette p, FocusStartScale s)
         {
             var stack = new StackPanel();
+            if (IsClassChecklist)
+            {
+                // The teacher owns the list: either they added none, or the student has ticked them all.
+                bool allDone = _tasks.Count > 0;
+                stack.Children.Add(FocusStartUi.Text(strings[allDone ? "titleClassAllDone" : "titleClassNoTasks"], Font(s, 50), p.Primary, FontWeights.SemiBold));
+                var note = FocusStartUi.Text(strings[allDone ? "bodyClassAllDone" : "bodyClassNoTasks"], Font(s, 36), p.Secondary);
+                note.Margin = new Thickness(0, s.Pt(8), 0, 0);
+                stack.Children.Add(note);
+                var card = Card(stack, p, s, 38);
+                AutomationProperties.SetAutomationId(card, allDone ? "cardFocusSessionClassAllDone" : "cardFocusSessionClassNoTasks");
+                return card;
+            }
             stack.Children.Add(FocusStartUi.Text(strings["titleNoActiveTask"], Font(s, 50), p.Primary, FontWeights.SemiBold));
             var body = FocusStartUi.Text(strings["bodyNoActiveTask"], Font(s, 36), p.Secondary);
             body.Margin = new Thickness(0, s.Pt(8), 0, s.Pt(8));
@@ -710,15 +719,20 @@ namespace Focus_Bear.Pomodoro
         private FrameworkElement ActiveCard(FocusSessionTask active, FocusSessionRules rules, FocusSessionStrings strings, FocusStartPalette p, FocusStartScale s)
         {
             bool locked = rules.IsTaskEditingLocked || _busy;
+            // A class task cannot be edited, but it can be ticked: that is the student's one job on the list.
+            bool canComplete = IsClassChecklist ? !_busy && !Focus_Bear.Focus.ClassSessionChecklistStore.Shared.IsBusy : !locked;
             var stack = new StackPanel();
             var titleRow = new DockPanel();
-            var edit = FocusStartUi.Clickable(FocusStartUi.Glyph(0xE70F, Font(s, 32), p.Secondary), () => _ = EditTask(active.Id), "btnFocusSessionEditActive", strings["menuEditTask"]);
-            edit.IsEnabled = !locked;
-            edit.Opacity = locked ? 0.4 : 1;
-            edit.VerticalAlignment = VerticalAlignment.Top;
-            edit.Margin = new Thickness(s.Pt(16), s.Pt(6), 0, 0);
-            DockPanel.SetDock(edit, Dock.Right);
-            titleRow.Children.Add(edit);
+            if (!IsClassChecklist)
+            {
+                var edit = FocusStartUi.Clickable(FocusStartUi.Glyph(0xE70F, Font(s, 32), p.Secondary), () => _ = EditTask(active.Id), "btnFocusSessionEditActive", strings["menuEditTask"]);
+                edit.IsEnabled = !locked;
+                edit.Opacity = locked ? 0.4 : 1;
+                edit.VerticalAlignment = VerticalAlignment.Top;
+                edit.Margin = new Thickness(s.Pt(16), s.Pt(6), 0, 0);
+                DockPanel.SetDock(edit, Dock.Right);
+                titleRow.Children.Add(edit);
+            }
             if (!string.IsNullOrEmpty(active.Icon))
             {
                 var emoji = FocusStartUi.Text(active.Icon, Font(s, 64), p.Primary, wrap: false);
@@ -772,8 +786,8 @@ namespace Focus_Bear.Pomodoro
             var complete = FocusStartUi.Clickable(face, () => Complete(active.Id), "btnFocusSessionMarkComplete", strings["buttonMarkComplete"]);
             complete.HorizontalAlignment = HorizontalAlignment.Left;
             complete.Margin = new Thickness(0, s.Pt(28), 0, 0);
-            complete.IsEnabled = !locked;
-            complete.Opacity = locked ? 0.5 : 1;
+            complete.IsEnabled = canComplete;
+            complete.Opacity = canComplete ? 1 : 0.5;
             stack.Children.Add(complete);
 
             var card = new Border
@@ -824,18 +838,24 @@ namespace Focus_Bear.Pomodoro
             var plusGlyph = FocusStartUi.Glyph(0xE710, Font(s, 28), p.Surface);
             plusGlyph.HorizontalAlignment = HorizontalAlignment.Center;
             plusFace.Child = plusGlyph;
-            var add = FocusStartUi.Clickable(plusFace, OpenPicker, "btnFocusSessionAddTasks", strings["toolTipAddTasks"]);
-            add.IsEnabled = !locked;
-            add.Opacity = locked ? 0.5 : 1;
-            DockPanel.SetDock(add, Dock.Right);
-            header.Children.Add(add);
+            if (!IsClassChecklist)
+            {
+                var add = FocusStartUi.Clickable(plusFace, OpenPicker, "btnFocusSessionAddTasks", strings["toolTipAddTasks"]);
+                add.IsEnabled = !locked;
+                add.Opacity = locked ? 0.5 : 1;
+                DockPanel.SetDock(add, Dock.Right);
+                header.Children.Add(add);
+            }
             var queued = FocusSessionQueue.Queued(_tasks);
-            var heading = FocusStartUi.Text(strings.QueueHeading(FocusSessionQueue.Outstanding(queued).Count), Font(s, 48), p.Primary);
+            string headingText = IsClassChecklist
+                ? strings["labelClassChecklist"].Replace("<DONE>", ClassSessionChecklist.CompletedCount(_tasks).ToString()).Replace("<TOTAL>", _tasks.Count.ToString())
+                : strings.QueueHeading(FocusSessionQueue.Outstanding(queued).Count);
+            var heading = FocusStartUi.Text(headingText, Font(s, 48), p.Primary);
             heading.VerticalAlignment = VerticalAlignment.Center;
             AutomationProperties.SetAutomationId(heading, "txtFocusSessionQueueHeading");
             header.Children.Add(heading);
             section.Children.Add(header);
-            if (queued.Count == 0)
+            if (queued.Count == 0 && !IsClassChecklist)
                 section.Children.Add(FocusStartUi.Text(strings["labelEmptyQueue"], Font(s, 36), p.Secondary));
             foreach (var task in queued)
                 section.Children.Add(QueueRow(task, locked, strings, p, s));
@@ -845,14 +865,19 @@ namespace Focus_Bear.Pomodoro
         private FrameworkElement QueueRow(FocusSessionTask task, bool locked, FocusSessionStrings strings, FocusStartPalette p, FocusStartScale s)
         {
             var row = new DockPanel();
-            var more = FocusStartUi.Clickable(FocusStartUi.Glyph(0xE712, Font(s, 32), p.Secondary), () => { }, "btnFocusSessionRowMenu", strings["menuEditTask"] + ": " + task.Title);
-            more.Width = Math.Max(24, s.Pt(96));
-            more.IsEnabled = !locked;
-            more.Opacity = locked ? 0.4 : 1;
-            more.ContextMenu = RowMenu(task, strings);
-            more.Click += (o, e) => { more.ContextMenu.PlacementTarget = more; more.ContextMenu.IsOpen = true; };
-            DockPanel.SetDock(more, Dock.Right);
-            row.Children.Add(more);
+            var menu = RowMenu(task, strings);
+            if (menu.Items.Count > 0)
+            {
+                var more = FocusStartUi.Clickable(FocusStartUi.Glyph(0xE712, Font(s, 32), p.Secondary), () => { }, "btnFocusSessionRowMenu", strings["menuEditTask"] + ": " + task.Title);
+                more.Width = Math.Max(24, s.Pt(96));
+                bool menuLocked = IsClassChecklist ? Focus_Bear.Focus.ClassSessionChecklistStore.Shared.IsBusy : locked;
+                more.IsEnabled = !menuLocked;
+                more.Opacity = menuLocked ? 0.4 : 1;
+                more.ContextMenu = menu;
+                more.Click += (o, e) => { more.ContextMenu.PlacementTarget = more; more.ContextMenu.IsOpen = true; };
+                DockPanel.SetDock(more, Dock.Right);
+                row.Children.Add(more);
+            }
             if (!string.IsNullOrEmpty(task.Icon))
             {
                 var emoji = FocusStartUi.Text(task.Icon, Font(s, 50), p.Primary, wrap: false);
@@ -891,6 +916,13 @@ namespace Focus_Bear.Pomodoro
                 AutomationProperties.SetAutomationId(mi, id);
                 menu.Items.Add(mi);
             };
+            if (IsClassChecklist)
+            {
+                // Tasks are done in the teacher's order: the latest tick can be undone, nothing else moves.
+                if (ClassSessionChecklist.CanUncomplete(_tasks, task.Id))
+                    item(strings["menuMarkNotDone"], 0xE7A7, () => _ = TickClassTask(task.Id, false), "mnuFocusSessionMarkNotDone");
+                return menu;
+            }
             if (!task.IsCompleted)
             {
                 item(strings["menuMarkComplete"], 0xE73E, () => Complete(task.Id), "mnuFocusSessionComplete");
@@ -1074,10 +1106,26 @@ namespace Focus_Bear.Pomodoro
 
         private void Complete(string id)
         {
+            if (IsClassChecklist) { _ = TickClassTask(id, true); return; }
             if (ReadRules().IsTaskEditingLocked) return;
             _tasks = FocusSessionQueueWriter.Complete(_tasks, id);
             _lastRawTasks = _settings.sRawTasks;
             Render();
+        }
+
+        /// <summary>The student's side of a class session: only the queue's source differs from a personal session.</summary>
+        private bool IsClassChecklist => !FocusSessionQueueWriter.NativeOwnsQueue;
+
+        /// <summary>Ticks or unticks a teacher's task; the store redraws the list at once and again after the server answers.</summary>
+        private async Task TickClassTask(string id, bool completed)
+        {
+            _error = null;
+            bool ok = await Focus_Bear.Focus.ClassSessionChecklistStore.Shared.SetCompletedAsync(id, completed);
+            if (!ok && !Focus_Bear.Focus.ClassSessionChecklistStore.Shared.IsBusy)
+            {
+                _error = Strings["errorClassTaskSync"];
+                Refresh(force: true);
+            }
         }
 
         private void FocusOn(string id) => Apply(FocusSessionQueue.Focusing(_tasks, id));

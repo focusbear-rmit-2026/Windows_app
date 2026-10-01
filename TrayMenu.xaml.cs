@@ -1492,22 +1492,8 @@ namespace Focus_Bear
                 ((App)Application.Current).UpdateFocusEventsSubscription();   // blocking starts now, not on the next tick
 
                 //Show the running session. The native session screen needs nothing loaded first, so it goes up
-                //straight away; the one-second wait is kept only for the web To Do Player a class checklist uses.
-                if (FocusSessionQueueWriter.NativeOwnsQueue)
-                {
-                    ((App)(Application.Current)).ShowToDoPlayer();
-                }
-                else
-                {
-                    Task.Run(async () =>
-                    {
-                        await Task.Delay(1000);
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            ((App)(Application.Current)).ShowToDoPlayer();
-                        });
-                    });
-                }
+                //straight away (a class session's checklist is loaded by ClassSessionChecklistStore).
+                ((App)(Application.Current)).ShowToDoPlayer();
 
                 if (appSettings.isFocusModeRunning)
                 {

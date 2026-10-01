@@ -810,10 +810,8 @@ namespace Focus_Bear
 
             if (appSettings.isFocusModeRunning)
             {
-                // The native in-session screen, except for a class session's teacher checklist, which only the
-                // web To Do Player (on the To-Do row) can show — that keeps the old "focus ends in" view here.
-                if (FocusSessionQueueWriter.NativeOwnsQueue) ShowRunningFocusSessionView();
-                else ShowStopFocusModeView();
+                // The native in-session screen; a class session's teacher checklist is its task list.
+                ShowRunningFocusSessionView();
             }
             else
             {
@@ -832,9 +830,7 @@ namespace Focus_Bear
         private void ShowToDoListView()
         {
             LogWriter.LogWrite("Showing ToDo List View");
-            RightContent.Content = (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused && !FocusSessionQueueWriter.NativeOwnsQueue)
-                ? _views[LeftButtonType.ToDoPlayer]
-                : _views[LeftButtonType.ToDoList];
+            RightContent.Content = _views[LeftButtonType.ToDoList];
         }
 
         private void ShowToDoPlayerView()
