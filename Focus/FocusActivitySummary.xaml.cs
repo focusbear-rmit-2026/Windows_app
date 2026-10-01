@@ -104,11 +104,15 @@ namespace Focus_Bear.Focus
                 int nCountFocusBlocks = 0;
                 int nTotalFocusTime = 0;
 
-                //Reinitialize
-                FocusSummaryItems.Clear();
-                ActivityQuantityItems.Clear();
-                ActivityAverageItems.Clear();
-                ActivityDurationItems.Clear();
+                // Fresh lists, never Clear(): these are plain List<T>s already bound as the ListViews'
+                // ItemsSource. Mutating a bound list sends WPF no change notification, and re-assigning
+                // the same instance is a no-op, so the ListView's generator kept the old item count and
+                // threw "An ItemsControl is inconsistent with its items source" on its next layout
+                // pass (Sentry FOCUS-BEAR-WINDOWS-57/58, #1051). A new instance makes ItemsSource reset.
+                FocusSummaryItems = new List<FocusSummary>();
+                ActivityQuantityItems = new List<ActivitySummary>();
+                ActivityAverageItems = new List<ActivitySummary>();
+                ActivityDurationItems = new List<ActivitySummary>();
 
                 //Parse the Activity data got from API
                 if (appSettings.sActivityAllDaySummaryData.Length > 0)
