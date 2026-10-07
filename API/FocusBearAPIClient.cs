@@ -164,103 +164,103 @@ namespace Focus_Bear.API
             return ok;
         }
 
+        /// <summary>
+        /// A request that never got an answer: no connection, the connection dropped, or the request timed out. The
+        /// cached "reachable" (<see cref="IsInternetOn"/> reuses a good probe for 30 s) is then known to be wrong.
+        /// </summary>
+        private static bool IsNetworkFailure(Exception ex) =>
+            ex is HttpRequestException || ex is WebException || ex is TaskCanceledException || ex is IOException;
+
+        /// <summary>
+        /// Whether a habit completion or skip the server did not store should go to the offline queue: the same
+        /// "try again later" answers the queue's own sync retries (5xx, 408, 401/403, 429). Any other 4xx is the
+        /// server refusing the entry, which a retry would not change.
+        /// </summary>
+        private static bool ShouldQueueForLater(HttpStatusCode status) =>
+            FocusBear.Core.Sync.OfflineQueueSync.Classify((int)status) == FocusBear.Core.Sync.OfflineBatchResult.Unavailable;
+
+        /// <summary>
+        /// The completion is queued whenever it was not stored and a retry could store it. Only the "no internet"
+        /// branch and HTTP 500 used to queue it: a request that failed on the network (Wi-Fi dropped within the 30 s
+        /// the last good probe is trusted), a failed token renewal or a 502/503 was logged and lost.
+        /// </summary>
         internal async Task<int> PostActivityCompleted(string activity_id, string activity_sequence_id, DateTime start_time, int duration_logged, string choice_id, /*Double quantity_logged = -1*/ List<QuantityQuestion> logQuantityQuestions = null, bool is_skipped = false)
         {
             LogWriter.LogWrite("PostActivityCompleted() = " + activity_id);
+            bool answered = false;
             try
             {
-                bool nInternetOn = await IsInternetOn();
-
-                if (nInternetOn)
+                if (!await IsInternetOn())
                 {
-                    if (!appSettings.ValidateTokenValidBeforeAPICall())
-                    {
-                        var xRenwTokenStatus = await RenewToken();
-                        if (xRenwTokenStatus == 0)
-                        {
-                            return 0;
-                        }
-                    }
-
-                    HttpClient client = GetClientWithHeaders();
-
-                    DateTime finish_time = start_time;
-
-                    if (is_skipped) //if activity is skipped just add one second to finish time
-                    {
-                        finish_time = finish_time.AddSeconds(1);
-                    }
-                    else
-                    {
-                        finish_time = finish_time.AddSeconds(duration_logged);
-                    }
-
-                    //Built as JSON: an empty question list (every break activity without questions) used to
-                    //come out as "log_quantity_answers":] and the server refused the completion.
-                    string addItemJsonString = ActivityCompletedBody.Build(activity_id, duration_logged, appSettings.sDeviceID,
-                        activity_sequence_id, start_time, finish_time, is_skipped, choice_id, logQuantityQuestions);
-                    // E2E build only: the tests read the logged answers (log quantity) from here.
-                    if (Focus_Bear.Utils.E2EBuild.IsActive) LogWriter.LogWrite("E2E activity completed body: " + addItemJsonString);
-
-                    
-
-                    if (!string.IsNullOrEmpty(addItemJsonString))
-                    {
-                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        var response = await client.PostAsync(CompletedActivity, content);
-                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
-                        {
-                            LogWriter.LogWrite("PostActivityCompleted() SUCCESS");
-
-                            if (response.Content != null)
-                            {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-
-                                return 1;
-                            }
-                        }
-                        else
-                        {
-                            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError) //500
-                            {
-                                SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
-                            }
-                            
-                            if (response.Content != null)
-                            {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-                                string sErrorMessage = resJson["message"].ToString();
-                                LogWriter.LogWrite("PostActivityCompleted() FAILED - " + sErrorMessage);
-                                return 0;
-                            }
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        return 0;
-                    }
+                    SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
+                    return 0;
                 }
-                else
+
+                if (!appSettings.ValidateTokenValidBeforeAPICall() && await RenewToken() == 0)
+                {
+                    LogWriter.LogWrite("PostActivityCompleted() token renewal failed - queued offline");
+                    SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
+                    return 0;
+                }
+
+                HttpClient client = GetClientWithHeaders();
+
+                // A skipped activity is logged as one second long.
+                DateTime finish_time = start_time.AddSeconds(is_skipped ? 1 : duration_logged);
+
+                //Built as JSON: an empty question list (every break activity without questions) used to
+                //come out as "log_quantity_answers":] and the server refused the completion.
+                string addItemJsonString = ActivityCompletedBody.Build(activity_id, duration_logged, appSettings.sDeviceID,
+                    activity_sequence_id, start_time, finish_time, is_skipped, choice_id, logQuantityQuestions);
+                // E2E build only: the tests read the logged answers (log quantity) from here.
+                if (Focus_Bear.Utils.E2EBuild.IsActive) LogWriter.LogWrite("E2E activity completed body: " + addItemJsonString);
+
+                if (string.IsNullOrEmpty(addItemJsonString))
+                {
+                    return 0;
+                }
+
+                StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(CompletedActivity, content);
+                answered = true;
+                if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                {
+                    LogWriter.LogWrite("PostActivityCompleted() SUCCESS");
+                    return 1;
+                }
+
+                if (ShouldQueueForLater(response.StatusCode))
                 {
                     SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
                 }
+                LogWriter.LogWrite("PostActivityCompleted() FAILED - " + (int)response.StatusCode + " " + await ErrorMessageOf(response));
             }
-            catch (WebException ex)
+            catch (Exception ex) when (!answered && IsNetworkFailure(ex))
             {
-                LogWriter.LogWrite("PostActivityCompleted WebException" + ex.Message);
-
-                Debug.WriteLine(ex.Message);
+                LogWriter.LogWrite("PostActivityCompleted network failure - queued offline: " + ex.Message);
+                _reachability.Forget();
+                SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("PostActivityCompleted Exception" + ex.Message);
- 
             }
             return 0;
+        }
+
+        /// <summary>The server's "message" from an error answer, or "" when the body has none (an HTML 502 page, say).</summary>
+        private static async Task<string> ErrorMessageOf(HttpResponseMessage response)
+        {
+            try
+            {
+                if (response.Content == null) return "";
+                string body = await response.Content.ReadAsStringAsync();
+                return JObject.Parse(body)["message"]?.ToString() ?? "";
+            }
+            catch (Exception)
+            {
+                return "";
+            }
         }
 
         internal void SaveEntryInOfflineActivitiesCSV(string activity_id, string activity_sequence_id, string choice_id, DateTime start_time, int duration_logged, List<QuantityQuestion> logQuantityQuestions, bool is_skipped)
@@ -281,84 +281,61 @@ namespace Focus_Bear.API
             appSettings.AddEntryInOfflineActivitiesCSV(activity_id, duration_logged.ToString(), activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), (is_skipped ? "true" : ""), choice_id, LogQuantityAnswers, "", "");
 
         }
+
+        /// <summary>A skip goes to the offline queue as a one-second activity marked skipped, starting now.</summary>
+        private void SaveSkipInOfflineActivitiesCSV(string activity_id, string activity_sequence_id)
+        {
+            DateTime start_time = DateTime.UtcNow;
+            DateTime finish_time = start_time.AddSeconds(1);
+            appSettings.AddEntryInOfflineActivitiesCSV(activity_id, "", activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), "true", "", "", "", "");
+        }
+
+        /// <summary>Queued under the same rules as <see cref="PostActivityCompleted"/>.</summary>
         internal async Task<int> PostActivitySkipped(string activity_id, string activity_sequence_id)
         {
             LogWriter.LogWrite("PostActivitySkipped() = " + activity_id);
+            bool answered = false;
             try
             {
-                bool nInternetOn = await IsInternetOn();
-
-                if (nInternetOn)
+                if (!await IsInternetOn())
                 {
-                    if (!appSettings.ValidateTokenValidBeforeAPICall())
-                    {
-                        var xRenwTokenStatus = await RenewToken();
-                        if (xRenwTokenStatus == 0)
-                        {
-                            return 0;
-                        }
-                    }
-
-                    HttpClient client = GetClientWithHeaders();
-
-                    string addItemJsonString = $"{{\"activity_id\":\"{activity_id}\"," +
-                        $"\"device_id\":\"{appSettings.sDeviceID}\"," +
-                        $"\"activity_sequence_id\":\"{activity_sequence_id}\"}}";
-
-                    if (!string.IsNullOrEmpty(addItemJsonString))
-                    {
-                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        var response = await client.PostAsync(SkipActivity, content);
-                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
-                        {
-                            LogWriter.LogWrite("PostActivitySkipped() SUCCESS");
-
-                            if (response.Content != null)
-                            {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-
-                                return 1;
-                            }
-                        }
-                        else
-                        {
-                            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError) //500
-                            {
-                                DateTime start_time = DateTime.UtcNow;
-                                DateTime finish_time = start_time.AddSeconds(1);
-
-                                appSettings.AddEntryInOfflineActivitiesCSV(activity_id, "", activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), "true", "", "", "", "");
-                            }
-                            //Get Device ID Failed
-                            if (response.Content != null)
-                            {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-                                string sErrorMessage = resJson["message"].ToString();
-                                LogWriter.LogWrite("PostActivitySkipped() FAILED - " + sErrorMessage);
-                                return 0;
-                            }
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        return 0;
-                    }
+                    SaveSkipInOfflineActivitiesCSV(activity_id, activity_sequence_id);
+                    return 0;
                 }
-                else
+
+                if (!appSettings.ValidateTokenValidBeforeAPICall() && await RenewToken() == 0)
                 {
-                    DateTime start_time = DateTime.UtcNow;
-                    DateTime finish_time = start_time.AddSeconds(1);
-
-                    appSettings.AddEntryInOfflineActivitiesCSV(activity_id, "", activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), "true", "", "", "", "");
+                    LogWriter.LogWrite("PostActivitySkipped() token renewal failed - queued offline");
+                    SaveSkipInOfflineActivitiesCSV(activity_id, activity_sequence_id);
+                    return 0;
                 }
+
+                HttpClient client = GetClientWithHeaders();
+
+                string addItemJsonString = $"{{\"activity_id\":\"{activity_id}\"," +
+                    $"\"device_id\":\"{appSettings.sDeviceID}\"," +
+                    $"\"activity_sequence_id\":\"{activity_sequence_id}\"}}";
+
+                StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(SkipActivity, content);
+                answered = true;
+                if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                {
+                    LogWriter.LogWrite("PostActivitySkipped() SUCCESS");
+                    return 1;
+                }
+
+                if (ShouldQueueForLater(response.StatusCode))
+                {
+                    SaveSkipInOfflineActivitiesCSV(activity_id, activity_sequence_id);
+                }
+                LogWriter.LogWrite("PostActivitySkipped() FAILED - " + (int)response.StatusCode + " " + await ErrorMessageOf(response));
             }
-            catch (WebException ex)
+            catch (Exception ex) when (!answered && IsNetworkFailure(ex))
             {
-                LogWriter.LogWrite("PostActivitySkipped WebException" + ex.Message);
+                LogWriter.LogWrite("PostActivitySkipped network failure - queued offline: " + ex.Message);
+                _reachability.Forget();
+                SaveSkipInOfflineActivitiesCSV(activity_id, activity_sequence_id);
             }
             catch (Exception ex)
             {
@@ -4182,6 +4159,7 @@ namespace Focus_Bear.API
             catch (Exception ex)
             {
                 LogWriter.LogWrite("PostOfflineBatch Exception " + ex.Message);
+                if (IsNetworkFailure(ex)) _reachability.Forget();
                 return null;
             }
         }
