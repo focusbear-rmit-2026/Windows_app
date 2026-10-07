@@ -485,6 +485,11 @@ namespace Focus_Bear
 
         public bool isMorningHabitsAlreadyShown = false;
 
+        //#1517: set when the user has just finished onboarding, so StartWorkFlow puts the Focus screen
+        //in front of them. Onboarding ends by hiding the main window and suppresses both routines for
+        //the first day, so without this hand-off a brand-new user is left with nothing to start.
+        private bool bShowFirstFocusPromptAfterOnboarding = false;
+
         ShutOffWindow wndShutOff = null;
         SplashWindow wndSplash = null;
 
@@ -2074,6 +2079,9 @@ namespace Focus_Bear
                 if (appSettings.bShowOnBoardingVideo) //If user had agreed to see the video
                     ShowOnBoradingVideo();//Show Onboarding Video
 
+                //Onboarding just finished - hand the user over to the Focus screen in StartWorkFlow (#1517).
+                bShowFirstFocusPromptAfterOnboarding = true;
+
                 appSettings.CapturePostHog("menu_tour_setup_complete");
             }
 
@@ -2498,10 +2506,12 @@ namespace Focus_Bear
                 RegistryManager.SetMorningHabitsShownTillDate();
             }
 
-            //Right after the procastinating screen have been shown and the tray menu window have been created, we will show the start simple pomodoro window
-            if (!RegistryManager.GetSimplePomodoroTourShownStatus()) //can use this to detect the first pomodoro session
+            //Right after the procastinating screen have been shown and the tray menu window have been created,
+            //we will show the start simple pomodoro window. Also shown straight after onboarding (#1517), which
+            //otherwise leaves the user with a hidden window and both routines suppressed for the rest of the day.
+            if (bShowFirstFocusPromptAfterOnboarding || !RegistryManager.GetSimplePomodoroTourShownStatus()) //can use this to detect the first pomodoro session
             {
-                ((App)(Application.Current)).ShowSimplePomodoroWindow();
+                ShowFirstFocusSessionPrompt();
             }
 
             //Do clear the Postponed variables
@@ -5797,6 +5807,22 @@ namespace Focus_Bear
             BringMainWindowToFront();
 
             wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.StartFocusSession);
+        }
+
+        // Bring the Focus screen up as the first thing a new user sees (after onboarding, or on the first
+        // launch that hasn't seen the pomodoro tour yet) and record that we asked. Until now nothing marked
+        // this moment: start-focus-session-manually says who pressed Start, never who was ever prompted, so
+        // the onboarding funnel could not tell "prompt never appeared" apart from "prompt ignored" (#1517).
+        private void ShowFirstFocusSessionPrompt()
+        {
+            string sSource = bShowFirstFocusPromptAfterOnboarding ? "onboarding" : "first-launch";
+            bShowFirstFocusPromptAfterOnboarding = false;
+
+            LogWriter.LogWrite("ShowFirstFocusSessionPrompt() - source " + sSource);
+
+            ShowSimplePomodoroWindow();
+
+            appSettings.CapturePostHog("first-focus-prompt-shown", string.Format("\"source\":\"{0}\"", sSource));
         }
 
         public void ShowSimplePomodoroWindow()
