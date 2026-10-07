@@ -33,9 +33,12 @@ namespace FocusBear.App.Tests
 
             public Task<string> GetToDosByIds(IEnumerable<string> ids) => Task.FromResult<string>(null);
 
+            public TaskCompletionSource<bool> PendingStatus;   // set to hold the status write open
+
             public Task<bool> SetTodoStatus(string todoId, string title, int quadrant, bool completed)
             {
                 Writes.Add("status " + todoId + " " + completed);
+                if (PendingStatus != null) return PendingStatus.Task;
                 return Task.FromResult(true);
             }
 
@@ -120,7 +123,7 @@ namespace FocusBear.App.Tests
 
             Assert.AreEqual(1, _api.Creates.Count, "one to-do created");
             JObject body = _api.Creates[0];
-            Assert.IsNull(body["id"], "a create, not an update");
+            Assert.IsNotNull(body["id"], "the client chooses the to-do's id, so a retry after a lost reply updates the same row (#1646)");
             Assert.AreEqual("Review Vidal work", (string)body["title"]);
             Assert.AreEqual(1, (int)body["eisenhower_quadrant"], "the neutral quadrant, as the Mac mints");
             Assert.AreEqual(Today.ToString("yyyy-MM-dd"), (string)body["due_date"], "due on the day it was planned, so other devices file it there");
@@ -187,6 +190,7 @@ namespace FocusBear.App.Tests
             store.Add(new DayPlanTask("Task name"), Today);
             _api.Creates.Clear();
             _api.CreateFails = false;
+            store.UtcNow = () => DateTime.UtcNow.AddMinutes(1);   // past the first backoff the failed creates set
 
             int started = store.SyncLocalOnlyTasks(Today);
 
@@ -289,6 +293,114 @@ namespace FocusBear.App.Tests
             t.Done = true;
             store.Update(t, Today);
             CollectionAssert.Contains(_api.Writes, "status t1 True");
+        }
+
+        // ---- #1646: idempotent create, offline retry, one write at a time ---------------------------------------------
+
+        [TestMethod]
+        public void ARetryAfterAFailedCreateReusesTheSameId()
+        {
+            var store = Store();
+            _api.CreateFails = true;
+            DayPlanTask t = TypeNewTask(store, "Review Vidal work");
+            string chosen = (string)_api.Creates[0]["id"];
+            Assert.IsFalse(string.IsNullOrEmpty(chosen));
+            Assert.AreEqual(chosen, t.PendingTodoId, "the id is kept on the task before the request goes out");
+
+            _api.CreateFails = false;
+            t.DurationMinutes = 30;
+            store.Update(t, Today);
+
+            Assert.AreEqual(2, _api.Creates.Count);
+            Assert.AreEqual(chosen, (string)_api.Creates[1]["id"], "the retry updates the same row rather than adding a second to-do");
+            Assert.IsNull(t.PendingTodoId, "retired once the task is backed");
+        }
+
+        [TestMethod]
+        public void ALostCreateReplyIsAdoptedByTheDaysPayloadNotDuplicated()
+        {
+            var store = Store();
+            _api.PendingCreate = new TaskCompletionSource<string>();   // the request went out; the reply never comes
+            DayPlanTask t = TypeNewTask(store, "Review Vidal work");
+            string chosen = t.PendingTodoId;
+
+            bool changed = store.HydrateFromDay("[{\"id\":\"" + chosen + "\",\"title\":\"Review Vidal work\",\"status\":\"NOT_STARTED\"}]", Today);
+
+            Assert.IsTrue(changed);
+            Assert.AreEqual(1, store.Tasks(Today).Count, "the row that came back is this task, not a second one");
+            Assert.AreEqual(chosen, t.SourceTaskId);
+            Assert.IsNull(t.PendingTodoId);
+        }
+
+        [TestMethod]
+        public void ALostCreateReplyIsAdoptedByTheCatalogueNotDuplicated()
+        {
+            var store = Store();
+            _api.PendingCreate = new TaskCompletionSource<string>();
+            DayPlanTask t = TypeNewTask(store, "Review Vidal work");
+            string chosen = t.PendingTodoId;
+
+            store.MergeDueTodos(new List<ToDoTask> { new ToDoTask { Id = chosen, Title = "Review Vidal work", DueDate = Today.ToString("yyyy-MM-dd") } },
+                                DateTime.Now, "me", persist: false);
+
+            Assert.AreEqual(1, store.Tasks(Today).Count(x => x.Title == "Review Vidal work"), "one task, now backed by the to-do");
+            Assert.AreEqual(chosen, store.Tasks(Today).Single(x => x.Title == "Review Vidal work").SourceTaskId);
+        }
+
+        [TestMethod]
+        public void TheSweepBacksOffAfterAFailureButAnEditAndTheNetworkDoNot()
+        {
+            var store = Store();
+            _api.CreateFails = true;
+            DayPlanTask t = TypeNewTask(store, "Review Vidal work");
+            Assert.AreEqual(1, _api.Creates.Count);
+            DateTime now = DateTime.UtcNow;
+            store.UtcNow = () => now;
+
+            Assert.AreEqual(0, store.SyncLocalOnlyTasks(Today), "30 s backoff after the first failure");
+            now = now.AddSeconds(31);
+            Assert.AreEqual(1, store.SyncLocalOnlyTasks(Today), "due again");
+            now = now.AddSeconds(31);
+            Assert.AreEqual(0, store.SyncLocalOnlyTasks(Today), "2 min backoff after the second failure");
+
+            store.ClearCreateBackoff();   // the network came back
+            Assert.AreEqual(1, store.SyncLocalOnlyTasks(Today), "retried at once");
+
+            t.DurationMinutes = 20;
+            store.Update(t, Today);
+            Assert.AreEqual(4, _api.Creates.Count, "an edit never waits for the backoff");
+            Assert.AreEqual(1, _api.Creates.Select(c => (string)c["id"]).Distinct().Count(), "every attempt uses the one chosen id");
+        }
+
+        [TestMethod]
+        public void ATaskInAProjectTheAppCannotNameYetWaitsForTheProjectList()
+        {
+            var store = Store();   // SetRemoteProjects never called: the project list has not loaded
+            DayPlanTask t = TypeNewTask(store, "Draft the brief", project: "Marketing");
+            Assert.AreEqual(0, _api.Creates.Count, "creating now would make a to-do with no project");
+
+            store.SetRemoteProjects(new Dictionary<string, string> { { "p1", "Marketing" } });
+            Assert.AreEqual(1, store.SyncLocalOnlyTasks(Today));
+            Assert.AreEqual("p1", (string)_api.Creates.Single()["project_id"]);
+        }
+
+        [TestMethod]
+        public void WritesToOneToDoAreSentOneAfterAnother()
+        {
+            var store = Store();
+            _api.NextId = "t1";
+            DayPlanTask t = TypeNewTask(store, "Review Vidal work");
+            Assert.AreEqual("t1", t.SourceTaskId);
+            _api.Writes.Clear();
+            _api.PendingStatus = new TaskCompletionSource<bool>();
+
+            store.SetDone(t.Id, true, Today);               // held open by the fake
+            store.SetBlockKey("habit:Read", t.Id, Today);   // must wait for it
+
+            CollectionAssert.AreEqual(new[] { "status t1 True" }, _api.Writes, "the second write has not started");
+            _api.PendingStatus.SetResult(true);
+            CollectionAssert.AreEqual(new[] { "status t1 True", "planned t1 " + Today.ToString("yyyy-MM-dd") }, _api.Writes);
+            Assert.IsFalse(DayPlanSync.HasWriteInFlight("t1"));
         }
 
         [TestMethod]

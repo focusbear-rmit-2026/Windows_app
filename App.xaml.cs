@@ -2489,6 +2489,7 @@ namespace Focus_Bear
             //Late No More: meeting alerts from the calendars the backend syncs (its own light schedule; the Day Plan's
             //calendar cache is shared, so no second poller).
             LateNoMore.LateNoMoreService.Shared.Start();
+            Habits.DayPlan.DayPlanCreateRetry.Start();   // local-only Day Plan tasks keep trying to get their to-do (#1646)
 
 
 #if DEBUG

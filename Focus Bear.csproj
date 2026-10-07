@@ -554,6 +554,7 @@
     <Compile Include="Habits\DayPlan\DayPlanSync.cs" />
     <Compile Include="Habits\DayPlan\DayPlanCalendar.cs" />
     <Compile Include="Habits\DayPlan\DayPlanCalendarFixture.cs" />
+    <Compile Include="Habits\DayPlan\DayPlanCreateRetry.cs" />
     <Compile Include="Habits\DayPlan\DayPlanDatePicker.cs" />
     <Compile Include="Habits\DayPlan\DayPlanScheduleBuilder.cs" />
     <Compile Include="Habits\DayPlan\DayPlanScheduleBuilderSelfTest.cs" />

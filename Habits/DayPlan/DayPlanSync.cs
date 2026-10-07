@@ -149,15 +149,15 @@ namespace Focus_Bear.Habits.DayPlan
 
         /// <summary>Reflect a completion flip onto the backend to-do.</summary>
         public static void SetTodoStatus(DayPlanTask t, bool completed) =>
-            FireAndForget(() => SendStatusAsync(t, completed), "setTodoStatus");
+            FireAndForget(t?.SourceTaskId, () => SendStatusAsync(t, completed), "setTodoStatus");
 
         /// <summary>Plan (or, with <paramref name="plannedDate"/> null, unplan) a to-do onto a day/block.</summary>
         public static void SetTodoPlanned(DayPlanTask t, DateTime? plannedDate, string blockKey, int? order = null) =>
-            FireAndForget(() => SendPlannedAsync(t, plannedDate, blockKey, order), "setTodoPlanned");
+            FireAndForget(t?.SourceTaskId, () => SendPlannedAsync(t, plannedDate, blockKey, order), "setTodoPlanned");
 
         /// <summary>Push what changed on a to-do-backed task since <paramref name="before"/> (title, project, importance, length, checklist).</summary>
         internal static void SendEdits(DayPlanTask t, DayPlanTaskFields before, Func<string, Task<string>> projectIdFor) =>
-            FireAndForget(() => SendEditsAsync(t, before, projectIdFor), "updateTodo");
+            FireAndForget(t?.SourceTaskId, () => SendEditsAsync(t, before, projectIdFor), "updateTodo");
 
         /// <summary>Run a store-side sync job in the background, logging a failure rather than throwing.</summary>
         internal static void Run(Func<Task<bool>> call, string label) => FireAndForget(call, label);
@@ -203,11 +203,17 @@ namespace Focus_Bear.Habits.DayPlan
             return await api.UpsertTodo(EditBody(t, quadrant.Value, before, linkProject, projectId));
         }
 
-        /// <summary>The create for a local task (Mac mintTodoIfNeeded, in one request): planned and due on its day.</summary>
-        internal static JObject CreateBody(DayPlanTask t, DateTime date, int quadrant, string projectId)
+        /// <summary>
+        /// The create for a local task (Mac mintTodoIfNeeded, in one request): planned and due on its day. With
+        /// <paramref name="todoId"/> the row is created under that id (the backend treats an unknown id as a create),
+        /// so a retry after a lost reply updates it rather than adding another (#1646).
+        /// </summary>
+        internal static JObject CreateBody(DayPlanTask t, DateTime date, int quadrant, string projectId, string todoId = null)
         {
             string day = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var body = new JObject
+            var body = new JObject();
+            if (!string.IsNullOrEmpty(todoId)) body["id"] = todoId;
+            body.Merge(new JObject
             {
                 ["title"] = (t.Title ?? "").Trim(),
                 ["eisenhower_quadrant"] = quadrant,
@@ -215,7 +221,7 @@ namespace Focus_Bear.Habits.DayPlan
                 ["due_date"] = day,
                 ["planned_date"] = day,
                 ["duration"] = t.DurationMinutes * 60,
-            };
+            });
             if (!string.IsNullOrEmpty(t.BlockKey)) body["planned_block_key"] = t.BlockKey;
             if (t.Outcome.HasValue) body["outcome"] = t.Outcome.Value;
             if (projectId != null) body["project_id"] = projectId;
@@ -265,6 +271,49 @@ namespace Focus_Bear.Habits.DayPlan
         {
             try { await call(); }
             catch (Exception ex) { LogWriter.LogWrite("DayPlanSync " + label + " - " + ex.Message); }
+        }
+
+        // The writes in flight per to-do, so each one starts after the previous one has finished (#1646): the backend
+        // saves a PUT as the stored row with the body laid over it, and two concurrent writes to one to-do (the details
+        // window's Save plus a Move, say) could each save the other's stale fields.
+        private static readonly Dictionary<string, Task> _chains = new Dictionary<string, Task>();
+        private static readonly object _chainLock = new object();
+
+        private static void FireAndForget(string todoId, Func<Task<bool>> call, string label)
+        {
+            if (string.IsNullOrEmpty(todoId)) { FireAndForget(call, label); return; }
+            var done = new TaskCompletionSource<bool>();
+            Task previous;
+            lock (_chainLock)
+            {
+                _chains.TryGetValue(todoId, out previous);
+                _chains[todoId] = done.Task;
+            }
+            RunAfter(previous, call, label, done, todoId);
+        }
+
+        private static async void RunAfter(Task previous, Func<Task<bool>> call, string label, TaskCompletionSource<bool> done, string todoId)
+        {
+            try
+            {
+                if (previous != null) await previous;
+                await call();
+            }
+            catch (Exception ex) { LogWriter.LogWrite("DayPlanSync " + label + " - " + ex.Message); }
+            finally
+            {
+                done.TrySetResult(true);
+                lock (_chainLock)
+                {
+                    if (_chains.TryGetValue(todoId, out Task current) && current == done.Task) _chains.Remove(todoId);
+                }
+            }
+        }
+
+        /// <summary>Tests: whether a write to this to-do is still in flight.</summary>
+        internal static bool HasWriteInFlight(string todoId)
+        {
+            lock (_chainLock) return todoId != null && _chains.ContainsKey(todoId);
         }
     }
 }
