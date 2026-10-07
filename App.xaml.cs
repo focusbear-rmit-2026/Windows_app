@@ -6752,6 +6752,32 @@ namespace Focus_Bear
         // The theme dictionary currently merged into Application.Resources ("Dark"/"Light"), or null.
         private string _appliedTheme;
 
+        /// <summary>
+        /// Runs every <see cref="ThemeChanged"/> subscriber on its own. Invoked as one multicast delegate, the first
+        /// window whose brush threw (Sentry FOCUS-BEAR-WINDOWS-A7 / -91) skipped every later subscriber, and the
+        /// exception escaped into the WM_SETTINGCHANGE hook. The failure is still logged and reported.
+        /// </summary>
+        private static void NotifyThemeSubscribers()
+        {
+            var subscribers = ThemeChanged;
+            if (subscribers == null)
+            {
+                return;
+            }
+            foreach (Action subscriber in subscribers.GetInvocationList())
+            {
+                try
+                {
+                    subscriber();
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("ChangeTheme() subscriber " + subscriber.Method.DeclaringType?.Name + "." + subscriber.Method.Name + " ex - " + ex.Message);
+                    SentrySdk.CaptureException(ex);
+                }
+            }
+        }
+
         public void ChangeTheme(string theme)
         {
             // WM_SETTINGCHANGE arrives for many unrelated reasons (and three windows forward it), and swapping the
@@ -6784,7 +6810,7 @@ namespace Focus_Bear
             appSettings.sTheme = theme;
             // Last, so listeners see the new theme: they read appSettings.sTheme, and this used to fire before it was
             // set, so e.g. the light theme kept the dark theme's white-text logo (report 2026-09-26_09-02-53).
-            ThemeChanged?.Invoke();
+            NotifyThemeSubscribers();
 
         }
         public bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
