@@ -354,3 +354,25 @@ The version jumps to 4.1 to mark the new native screens introduced in 3.1.251. T
 
 **Voice commands**
 - The listening/thinking popup's buttons match the app's orange buttons.
+
+#v4.1.253
+Fixes from testing 4.1.252, and the follow-ups from the Mac parity review.
+
+**To-Do**
+- Files can be attached while creating a task, not only after it is saved. Choose files or paste an image or file with Ctrl+V into the new task; they upload when the task is saved, and Cancel discards them. Pasting text from Excel or Word no longer turns into a screenshot attachment #1615.
+
+**Day Plan**
+- A task typed into the Day Plan while offline now gets its to-do when the connection returns, with a retry every minute in the background. A create whose reply was lost no longer produces a duplicate to-do: the app chooses the to-do's id up front and every retry updates that same row. Edits to one task are sent one after another, so a Save and a Move at the same moment can no longer overwrite each other #1647.
+- A task in a project the app has not loaded yet waits for the project list instead of being created without its project.
+
+**Habits**
+- A habit completion or skip is no longer lost when the network drops at the wrong moment. If the request fails on the way out, the token cannot be renewed, or the server answers with a temporary error (502, 503, 504, 408, 429, 401, 403), the entry goes to the offline queue and is sent when the connection is back #1623.
+
+**Blocking**
+- The AI check-in card and its frosted backdrop now close when the focus session ends. Closing a check-in after blocking has ended no longer blocks the page or closes the browser tab #1624.
+
+**Onboarding**
+- The Focus screen is shown right after onboarding completes, and that step is now measured so the first-session funnel can be followed #1518.
+
+**Stability**
+- A theme error in one window (for example the login title bar) no longer aborts the whole light/dark switch, which left the rest of the app in the old theme (Sentry A7/91) #1597.
