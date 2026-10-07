@@ -6617,8 +6617,8 @@ namespace Focus_Bear
                 // The focus session is ending - tear down any block popup (and its open goal/task modal)
                 // now, before the focus-end screen appears. Otherwise a goal/task modal that was up when the
                 // session expired lingered over the end screen (the block popup re-shows via async AI
-                // callbacks that outlive the session).
-                appSettings.HideGentleBlockWindow();
+                // callbacks that outlive the session). The AI check-in and its backdrop go with it.
+                appSettings.HideGentleBlockWindow(blockingEnded: true);
 
                 // Sync the todo tasks first
                 try

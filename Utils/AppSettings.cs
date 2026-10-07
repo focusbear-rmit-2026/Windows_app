@@ -3311,17 +3311,25 @@ namespace Focus_Bear.Utils
             }));
         }
 
-        public void HideGentleBlockWindow()
+        /// <param name="blockingEnded">
+        /// The focus session is over: the AI check-in goes too, without blocking. It sits outside the block popup,
+        /// and the backdrop refuses to hide while it is up, so both used to outlive the session. Every other caller
+        /// (a new page or app came to the front) leaves the check-in to judge for itself whether its item was left.
+        /// </param>
+        public void HideGentleBlockWindow(bool blockingEnded = false)
         {
             ((App)(Application.Current)).Dispatcher.BeginInvoke((Action)(() =>
             {
                 if (wndGentleBlock != null)
                 {
-                    if (wndGentleBlock.IsVisible)
-                        HideBlurWindow();
+                    bool backdropRaised = wndGentleBlock.IsVisible || (blockingEnded && wndGentleBlock.IsAiBlockBuddyOpen);
                     wndGentleBlock.StopTimer(); //also take care of closing modal popups over it
+                    if (blockingEnded)
+                        wndGentleBlock.DismissAiBlockBuddy();
                     wndGentleBlock.Hide();
-
+                    // After the popups are gone: the backdrop stays while a check-in is on screen.
+                    if (backdropRaised)
+                        HideBlurWindow();
                 }
             }));
         }

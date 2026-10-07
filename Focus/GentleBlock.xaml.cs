@@ -1061,8 +1061,9 @@ namespace Focus_Bear.Focus
             try
             {
                 StopTimer();                    //also closes any modal sub-popups over it
-                appSettings.HideBlurWindow();
+                DismissAiBlockBuddy();
                 Hide();
+                appSettings.HideBlurWindow();
             }
             catch (Exception ex)
             {
@@ -1657,6 +1658,23 @@ namespace Focus_Bear.Focus
         private AiBlockBuddyWindow _aiBlockBuddy;
         private string _aiBlockBuddyKey = "";
 
+        /// <summary>Whether the AI check-in (and so its backdrop) is on screen.</summary>
+        internal bool IsAiBlockBuddyOpen => _aiBlockBuddy != null && _aiBlockBuddy.IsVisible;
+
+        /// <summary>
+        /// Takes the AI check-in down without blocking or allowing, for when blocking has ended. Closing it the
+        /// ordinary way counts as "Block". Not part of <see cref="StopTimer"/>: that also runs each time this window
+        /// takes up the next app or page, and the check-in decides for itself when the user has left its item.
+        /// </summary>
+        internal void DismissAiBlockBuddy()
+        {
+            if (_aiBlockBuddy == null) return;
+            LogWriter.LogWrite("AiBlockBuddy - dismissed for " + _aiBlockBuddyKey + " (blocking ended)");
+            var buddy = _aiBlockBuddy;
+            _aiBlockBuddy = null;
+            buddy.DismissStale();
+        }
+
         private string CurrentItemKey() => FocusBear.Core.Blocking.AiBlockBuddy.ItemKey(IsAppBlocking(), sActiveAppName, sActiveURL);
 
         /// <summary>
@@ -1665,6 +1683,14 @@ namespace Focus_Bear.Focus
         /// </summary>
         private void BlockBuddyItem(bool isApp, string app, string url, string fullUrl, IntPtr hwnd)
         {
+            if (!IsBlockingStillActive())
+            {
+                // The session or schedule ended while the check-in was up: there is nothing left to block, and
+                // suppressing the page now would close a tab the user is free to use.
+                LogWriter.LogWrite("AiBlockBuddy - closed after blocking ended, not blocking " + FocusBear.Core.Blocking.AiBlockBuddy.ItemKey(isApp, app, url));
+                appSettings.HideBlurWindow();
+                return;
+            }
             if (CurrentItemKey() == FocusBear.Core.Blocking.AiBlockBuddy.ItemKey(isApp, app, url)) { BlockSiteWork(); return; }
             if (isApp) appSettings.TemporarryBlockedAppsGentleBlock.Add(app.ToLower());
             else
