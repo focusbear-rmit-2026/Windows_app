@@ -286,46 +286,67 @@ namespace Focus_Bear.API
             return response.IsSuccess ? ToDoAttachments.ReadAttachments(response.Body) : null;
         }
 
+        private const int AttachmentUploadTimeoutMinutes = 5;
+        private const int ClientErrorStatusStart = 400;
+        private const int ServerErrorStatusStart = 500;
+        private const int RequestTimeoutStatus = 408;
+        private const string AttachmentPath = "/attachments";
+        private const string AttachmentUploadUrlPath = "/attachments/generate-upload-url";
+
+        private const string AttachmentFileNameKey = "file_name";
+        private const string AttachmentFileKey = "file_key";
+        private const string AttachmentContentTypeKey = "content_type";
+        private const string AttachmentFileSizeKey = "file_size";
+
         /// <summary>
         /// The three-step upload: a presigned URL, a PUT of the bytes to R2 (no Authorization header — the
         /// signature is the auth, and R2 rejects a second one), then the record. Returns the new attachment,
         /// or null when any step fails.
         /// </summary>
-        internal async Task<ToDoAttachment> UploadToDoAttachment(string taskId, string fileName, string contentType, byte[] bytes)
+        internal Task<ToDoAttachment> UploadToDoAttachment(string taskId, string fileName, string contentType, byte[] bytes) =>
+            UploadToDoAttachment(taskId, new ToDoDraftAttachment(fileName, contentType, bytes));
+
+        internal Task<ToDoAttachment> UploadToDoAttachment(string taskId, ToDoDraftAttachment file) =>
+            ToDoDraftAttachmentUpload.UploadAsync(file,
+                async () =>
+                {
+                    var response = await SendJsonRequest("POST", TaskUrl(taskId) + AttachmentUploadUrlPath,
+                        new JObject { [AttachmentFileNameKey] = file.FileName, [AttachmentContentTypeKey] = file.ContentType }, "GenerateAttachmentUploadUrl");
+                    return response.IsSuccess ? ToDoAttachments.ReadTicket(response.Body) : null;
+                },
+                ticket => UploadAttachmentBytes(ticket, file),
+                async () =>
+                {
+                    var response = await SendJsonRequest("POST", TaskUrl(taskId) + AttachmentPath, new JObject
+                    {
+                        [AttachmentFileNameKey] = file.FileName,
+                        [AttachmentFileKey] = file.FileKey,
+                        [AttachmentContentTypeKey] = file.ContentType,
+                        [AttachmentFileSizeKey] = file.Bytes.LongLength,
+                    }, "CreateToDoAttachment");
+                    var created = response.IsSuccess ? ToDoAttachments.ReadAttachment(response.Body) : null;
+                    bool rejected = response.Status >= ClientErrorStatusStart && response.Status < ServerErrorStatusStart
+                                    && response.Status != RequestTimeoutStatus;
+                    return new ToDoAttachmentRegistrationResult(created, rejected);
+                },
+                () => GetToDoAttachments(taskId));
+
+        private static async Task<bool> UploadAttachmentBytes(ToDoAttachmentUploadTicket ticket, ToDoDraftAttachment file)
         {
-            var ticketResponse = await SendJsonRequest("POST", TaskUrl(taskId) + "/attachments/generate-upload-url",
-                new JObject { ["file_name"] = fileName, ["content_type"] = contentType }, "GenerateAttachmentUploadUrl");
-            var ticket = ticketResponse.IsSuccess ? ToDoAttachments.ReadTicket(ticketResponse.Body) : null;
-            if (ticket == null) return null;
             try
             {
-                using (var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromMinutes(5) })
-                using (var content = new System.Net.Http.ByteArrayContent(bytes))
+                using (var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromMinutes(AttachmentUploadTimeoutMinutes) })
+                using (var content = new System.Net.Http.ByteArrayContent(file.Bytes))
                 {
-                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
-                    using (var put = await client.PutAsync(ticket.UploadUrl, content))
-                    {
-                        if (!put.IsSuccessStatusCode)
-                        {
-                            Focus_Bear.Utils.LogWriter.LogWrite("UploadToDoAttachment PUT FAILED - status " + (int)put.StatusCode);
-                            return null;
-                        }
-                    }
+                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+                    using (var put = await client.PutAsync(ticket.UploadUrl, content)) return put.IsSuccessStatusCode;
                 }
             }
             catch (Exception ex)
             {
                 Focus_Bear.Utils.LogWriter.LogWrite("UploadToDoAttachment PUT Exception - " + ex.Message);
-                return null;
+                return false;
             }
-            var record = await SendJsonRequest("POST", TaskUrl(taskId) + "/attachments", new JObject
-            {
-                ["file_name"] = fileName,
-                ["file_key"] = ticket.FileKey,
-                ["content_type"] = contentType,
-                ["file_size"] = bytes.LongLength,
-            }, "CreateToDoAttachment");
-            return record.IsSuccess ? ToDoAttachments.ReadAttachment(record.Body) : null;
         }
 
         internal async Task<bool> DeleteToDoAttachment(string taskId, string attachmentId)

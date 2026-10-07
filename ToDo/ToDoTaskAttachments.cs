@@ -13,6 +13,7 @@ using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using static Focus_Bear.ToDoScreens.ToDoUi;
 
 namespace Focus_Bear.ToDoScreens
@@ -30,12 +31,18 @@ namespace Focus_Bear.ToDoScreens
         private readonly Button _add;
         private IList<ToDoAttachment> _attachments = new List<ToDoAttachment>();
         private bool _uploading;
+        private readonly bool _isDraft;
+        internal ToDoDraftAttachments Draft { get; } = new ToDoDraftAttachments();
+        internal bool HasPendingFiles => Draft.Files.Count > 0;
+        private const string ClipboardImageName = "Screenshot.png";
+        private const string ClipboardImageType = "image/png";
 
         private static API.FocusBearAPIClient Api() => new API.FocusBearAPIClient();
 
-        internal ToDoTaskAttachments(string taskId, ToDoStrings strings)
+        internal ToDoTaskAttachments(string taskId, ToDoStrings strings, bool isDraft = false)
         {
             _taskId = taskId;
+            _isDraft = isDraft;
             _s = strings;
             var stack = new StackPanel();
             var header = new DockPanel { Margin = new Thickness(0, 16, 0, 6) };
@@ -52,7 +59,7 @@ namespace Focus_Bear.ToDoScreens
             stack.Children.Add(_status);
             Content = stack;
             Draw();
-            Loaded += async (o, e) => await LoadAsync();
+            Loaded += async (o, e) => { if (!_isDraft) await LoadAsync(); };
         }
 
         private async Task LoadAsync()
@@ -68,7 +75,17 @@ namespace Focus_Bear.ToDoScreens
         {
             _list.Children.Clear();
             _add.IsEnabled = !_uploading;
-            if (_attachments.Count == 0)
+            foreach (var file in Draft.Files)
+            {
+                var pending = new DockPanel();
+                var remove = SmallButton(_s.DeleteAttachment, (o, e) => { Draft.Remove(file); Draw(); });
+                remove.IsEnabled = !_uploading;
+                DockPanel.SetDock(remove, Dock.Right);
+                pending.Children.Add(remove);
+                pending.Children.Add(StatsUi.Text(file.FileName, 12));
+                _list.Children.Add(pending);
+            }
+            if (_attachments.Count == 0 && !HasPendingFiles)
             {
                 _list.Children.Add(StatsUi.Text(_s.NoAttachmentsYet, 12, secondary: true));
                 return;
@@ -122,9 +139,9 @@ namespace Focus_Bear.ToDoScreens
         {
             if (_uploading) return;
             var patterns = string.Join(";", ToDoAttachments.PickableExtensions.Select(x => "*." + x));
-            var dialog = new OpenFileDialog { Filter = _s.Attachments + " (" + patterns + ")|" + patterns + "|*.*|*.*", Multiselect = false };
+            var dialog = new OpenFileDialog { Filter = _s.Attachments + " (" + patterns + ")|" + patterns + "|*.*|*.*", Multiselect = true };
             if (dialog.ShowDialog(Window.GetWindow(this)) != true) return;
-            await UploadAsync(dialog.FileName);
+            foreach (var path in dialog.FileNames) await UploadAsync(path);
         }
 
         /// <summary>Also the harness's entry point, so a test upload needs no file dialog.</summary>
@@ -132,7 +149,7 @@ namespace Focus_Bear.ToDoScreens
         {
             long? length = null;
             try { length = new FileInfo(path).Length; } catch (Exception ex) { LogWriter.LogWrite("Attachment size - " + ex.Message); }
-            switch (ToDoAttachments.Evaluate(!string.IsNullOrEmpty(_taskId), _uploading, _attachments.Count, length))
+            switch (ToDoAttachments.Evaluate(!string.IsNullOrEmpty(_taskId), _uploading, _attachments.Count + Draft.ConfirmedUploadCount + Draft.Files.Count, length))
             {
                 case ToDoAttachmentUploadCheck.Unavailable: return;
                 case ToDoAttachmentUploadCheck.LimitReached: _status.Text = _s.AttachmentLimitReached; return;
@@ -144,14 +161,99 @@ namespace Focus_Bear.ToDoScreens
             try { bytes = File.ReadAllBytes(path); }
             catch (Exception ex) { LogWriter.LogWrite("Attachment read - " + ex.Message); _status.Text = _s.AttachmentUnreadable; return; }
 
+            await AddOrUploadAsync(new ToDoDraftAttachment(Path.GetFileName(path),
+                ToDoAttachments.ContentType(Path.GetExtension(path)), bytes));
+        }
+
+        private async Task AddOrUploadAsync(ToDoDraftAttachment file)
+        {
+            if (_isDraft)
+            {
+                var check = Draft.Add(file, _attachments.Count);
+                _status.Text = check == ToDoAttachmentUploadCheck.Ready ? _s.AttachmentPending : _s.AttachmentLimitReached;
+                Draw();
+                return;
+            }
             _uploading = true;
             _status.Text = _s.AttachmentUploading;
             Draw();
-            string fileName = Path.GetFileName(path);
-            var created = await Api().UploadToDoAttachment(_taskId, fileName, ToDoAttachments.ContentType(Path.GetExtension(path)), bytes);
-            _uploading = false;
-            _status.Text = created == null ? _s.AttachmentFailed : "";
-            await LoadAsync();
+            try
+            {
+                var created = await Api().UploadToDoAttachment(_taskId, file);
+                _status.Text = created == null ? _s.AttachmentFailed : "";
+                await LoadAsync();
+            }
+            finally { _uploading = false; Draw(); }
+        }
+
+        /// <summary>
+        /// Whether Ctrl+V should become an attachment. Excel and Word put a bitmap on the clipboard beside the
+        /// text they copy, so a focused text box keeps any paste that carries text; files copied in Explorer
+        /// carry no text and still attach. Another process can hold the clipboard open, so a failed read
+        /// leaves the paste to the control.
+        /// </summary>
+        internal static bool ClaimsPaste(IInputElement focused)
+        {
+            try
+            {
+                if (!Clipboard.ContainsImage() && !Clipboard.ContainsFileDropList()) return false;
+                return !(focused is System.Windows.Controls.Primitives.TextBoxBase && Clipboard.ContainsText());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("Attachment paste check - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal async Task<bool> PasteAsync()
+        {
+            if (_uploading || Draft.IsSaving) return false;
+            try
+            {
+                if (Clipboard.ContainsFileDropList())
+                {
+                    foreach (string path in Clipboard.GetFileDropList()) await UploadAsync(path);
+                    return true;
+                }
+                if (!Clipboard.ContainsImage()) return false;
+                var image = Clipboard.GetImage();
+                if (image == null) return false;
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(image));
+                using (var stream = new MemoryStream())
+                {
+                    encoder.Save(stream);
+                    var check = ToDoAttachments.Evaluate(true, false, _attachments.Count + Draft.ConfirmedUploadCount + Draft.Files.Count, stream.Length);
+                    if (check != ToDoAttachmentUploadCheck.Ready)
+                    {
+                        _status.Text = check == ToDoAttachmentUploadCheck.TooLarge ? _s.AttachmentTooLarge : _s.AttachmentLimitReached;
+                        return true;
+                    }
+                    await AddOrUploadAsync(new ToDoDraftAttachment(ClipboardImageName, ClipboardImageType, stream.ToArray()));
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("Attachment paste - " + ex.Message);
+                _status.Text = _s.AttachmentUnreadable;
+                return true;
+            }
+        }
+
+        internal async Task<bool> SaveDraftAsync(Func<Task<bool>> saveTask)
+        {
+            _uploading = true;
+            Draw();
+            try
+            {
+                var saved = await Draft.SaveAsync(saveTask, async file => await Api().UploadToDoAttachment(_taskId, file) != null);
+                if (!saved && Draft.HasSavedTask)
+                    _status.Text = Draft.Files.Any(file => file.RegistrationUnconfirmed) ? _s.AttachmentUnconfirmed : _s.AttachmentRetry;
+                return saved;
+            }
+            finally { _uploading = false; Draw(); }
         }
 
         private async Task DeleteAsync(ToDoAttachment attachment)

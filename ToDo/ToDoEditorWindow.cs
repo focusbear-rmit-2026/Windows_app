@@ -35,6 +35,7 @@ namespace Focus_Bear.ToDoScreens
         private readonly List<string> _selectedProjectIds;
         private string _statusOwnerProjectId;
         private bool _saving;
+        private ToDoTaskAttachments _attachments;
         private bool _closeConfirmed;
 
         private readonly TextBox _title = new TextBox();
@@ -109,14 +110,21 @@ namespace Focus_Bear.ToDoScreens
             _projectSearch.TextChanged += (s, e) => RefreshProjects();
             _projectSearch.KeyDown += (s, e) => { if (e.Key == Key.Enter) { e.Handled = true; _ = CreateProjectFromSearchAsync(); } };
             _pendingSubtask.KeyDown += (s, e) => { if (e.Key == Key.Enter) { e.Handled = true; AddSubtask(); } };
-            PreviewKeyDown += (s, e) =>
+            PreviewKeyDown += async (s, e) =>
             {
-                if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control) { e.Handled = true; _ = SaveAsync(); }
+                if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control
+                    && ToDoTaskAttachments.ClaimsPaste(Keyboard.FocusedElement))
+                {
+                    e.Handled = true;
+                    await _attachments.PasteAsync();
+                }
+                else if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control) { e.Handled = true; _ = SaveAsync(); }
                 else if (e.Key == Key.Escape) { e.Handled = true; Close(); }
             };
             Closing += (s, e) =>
             {
-                if (_closeConfirmed || _saving || !HasChanges) return;
+                if (_saving) { e.Cancel = true; return; }
+                if (_closeConfirmed || !HasChanges) return;
                 var confirm = new FBMessageBox(_strings.UnsavedChanges, Title, MessageBoxButton.YesNo, _strings.Discard, _strings.Cancel) { Owner = this };
                 confirm.ShowDialog();
                 if (confirm.btnClicked != MessageBoxResult.Yes) e.Cancel = true;
@@ -130,7 +138,7 @@ namespace Focus_Bear.ToDoScreens
         private static string DurationText(ToDoTask task) =>
             (ToDoScoring.DurationSeconds(task.DurationSeconds, task.EffectivePerspiration) / 60).ToString(CultureInfo.InvariantCulture);
 
-        internal bool HasChanges => Snapshot() != _openingSnapshot;
+        internal bool HasChanges => Snapshot() != _openingSnapshot || (_attachments?.HasPendingFiles ?? false);
 
         private string Snapshot()
         {
@@ -257,13 +265,14 @@ namespace Focus_Bear.ToDoScreens
             addRow.Children.Add(Field(_pendingSubtask, _strings.AddASubtask));
             body.Children.Add(addRow);
 
+            _attachments = new ToDoTaskAttachments(_original.Id, _strings, _isNew);
+            body.Children.Add(_attachments);
             if (!_isNew)
             {
                 var discussionStatus = StatsUi.Text("", 11, secondary: true);
                 AutomationProperties.SetAutomationId(discussionStatus, "txtToDoDiscussionStatus");
                 body.Children.Add(new ToDoTaskDiscussion(_original.Id, _strings, AppSettings.GetInstance.userAccount?.userID, message => discussionStatus.Text = message));
                 body.Children.Add(discussionStatus);
-                body.Children.Add(new ToDoTaskAttachments(_original.Id, _strings));
                 var delete = StatsUi.Button(_strings.DeleteTask, async (s, e) => await DeleteAsync());
                 delete.HorizontalAlignment = HorizontalAlignment.Left;
                 delete.Margin = new Thickness(0, 22, 0, 0);
@@ -766,17 +775,29 @@ namespace Focus_Bear.ToDoScreens
             if (_saving || string.IsNullOrWhiteSpace(_title.Text) || DueIsInvalid) return;
             var toSave = BuildTaskToSave();
             _saving = true;
+            ((UIElement)Content).IsEnabled = false;
             _error.Text = "";
             RefreshHeader();
-            bool saved = await _store.SaveTaskAsync(toSave, _isNew, clearOutcome: _draft.Outcome == null && _original.Outcome != null);
-            _saving = false;
+            bool saved;
+            try
+            {
+                saved = await _attachments.SaveDraftAsync(() => _store.SaveTaskAsync(toSave,
+                    _isNew && !_attachments.Draft.HasSavedTask,
+                    clearOutcome: _draft.Outcome == null && _original.Outcome != null));
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("Save task attachments - " + ex.Message);
+                saved = false;
+            }
+            finally { _saving = false; ((UIElement)Content).IsEnabled = true; }
             if (saved)
             {
                 _closeConfirmed = true;
                 Close();
                 return;
             }
-            _error.Text = _store.StatusMessage ?? _strings.RequestFailed;
+            _error.Text = _attachments.Draft.HasSavedTask ? _strings.AttachmentRetry : (_store.StatusMessage ?? _strings.RequestFailed);
             RefreshHeader();
         }
 

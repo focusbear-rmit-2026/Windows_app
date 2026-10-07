@@ -112,7 +112,16 @@ jobs:
       # rule. It references the WPF app, which only the MSBuild step above can build, hence
       # --no-build. It also loads the app assembly and Core together on .NET Framework.
       - name: Run app seam tests
+        env:
+          FOCUSBEAR_ATTACHMENT_CAPTURE_DIRECTORY: ${{ runner.temp }}/attachment-captures
         run: dotnet test App.Tests/FocusBear.App.Tests.csproj --no-build --configuration Release --verbosity minimal
+
+      - name: Upload native attachment capture
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-draft-attachment-capture
+          path: ${{ runner.temp }}/attachment-captures/*.png
+          if-no-files-found: error
 
       # The only place the built app is ever actually started before a human installs it. Logged out
       # on a clean image it should reach the login screen and stay up; it must not exit, and it must

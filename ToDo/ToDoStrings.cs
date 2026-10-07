@@ -244,6 +244,9 @@ namespace Focus_Bear.ToDoScreens
         public string CouldNotDeleteWebsites => S("couldNotDeleteWebsitesText", "Couldn't delete saved websites");
 
         // Attachments
+        public string AttachmentPending => S("attachmentPendingText", "Ready to upload when you save the task.");
+        public string AttachmentRetry => S("attachmentRetryText", "The task was saved. Save again to retry the remaining files.");
+        public string AttachmentUnconfirmed => S("attachmentUnconfirmedText", "The upload result is not confirmed. Save again to check its status.");
         public string Attachments => S("attachmentsText", "Attachments");
         public string AddAttachment => S("addAttachmentText", "Add file…");
         public string NoAttachmentsYet => S("noAttachmentsYetText", "No attachments yet");

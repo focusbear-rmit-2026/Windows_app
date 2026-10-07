@@ -3394,5 +3394,11 @@
         "iconsUpToDate": "actualizados",
         "checkingHabitIcons": "Comprobando iconos de hábitos…",
         "checkingFocusIcons": "Comprobando iconos de concentración…"
+    },
+    "toDoListViewInfo": {
+        "attachmentPendingText": "Listo para subir cuando guardes la tarea.",
+        "attachmentRetryText": "La tarea se ha guardado. Guarda de nuevo para reintentar los archivos pendientes.",
+        "attachmentUnconfirmedText": "El resultado de la subida no está confirmado. Guarda de nuevo para comprobar su estado."
     }
+
 }
