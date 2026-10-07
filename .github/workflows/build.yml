@@ -11,8 +11,60 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Chooses between the self-hosted runner and GitHub's cloud runners.
+  # The self-hosted machine publishes the SELF_HOSTED_HEARTBEAT repo variable every
+  # 2 minutes while its runner is up. If that timestamp is missing or older than
+  # 5 minutes (machine off, asleep, or crashed) we fall back to windows-latest so
+  # nobody's PR sits in the queue waiting for hardware that isn't there.
+  pick-runner:
+    runs-on: ubuntu-latest
+    outputs:
+      runs_on: ${{ steps.pick.outputs.runs_on }}
+    steps:
+      - name: Select runner
+        id: pick
+        env:
+          HEARTBEAT: ${{ vars.SELF_HOSTED_HEARTBEAT }}
+          MAX_AGE_SECONDS: "300"
+          # Empty on push / workflow_dispatch. A fork's PR never runs on the desktop: the self-hosted
+          # runner executes whatever workflow the PR carries.
+          PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          SELF='["self-hosted","windows","x64","fb-windows-app"]'
+          CLOUD='"windows-latest"'
+
+          if [ -n "$PR_HEAD_REPO" ] && [ "$PR_HEAD_REPO" != "$THIS_REPO" ]; then
+            echo "Pull request from a fork ($PR_HEAD_REPO) -> windows-latest"
+            echo "runs_on=$CLOUD" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -z "$HEARTBEAT" ]; then
+            echo "No SELF_HOSTED_HEARTBEAT set -> windows-latest"
+            echo "runs_on=$CLOUD" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          hb=$(date -u -d "$HEARTBEAT" +%s 2>/dev/null || echo 0)
+          if [ "$hb" -eq 0 ]; then
+            echo "Unparseable heartbeat '$HEARTBEAT' -> windows-latest"
+            echo "runs_on=$CLOUD" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          age=$(( $(date -u +%s) - hb ))
+          if [ "$age" -le "$MAX_AGE_SECONDS" ] && [ "$age" -ge -60 ]; then
+            echo "Heartbeat is ${age}s old -> self-hosted"
+            echo "runs_on=$SELF" >> "$GITHUB_OUTPUT"
+          else
+            echo "Heartbeat is ${age}s old (stale) -> windows-latest"
+            echo "runs_on=$CLOUD" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
-    runs-on: windows-latest
+    needs: pick-runner
+    runs-on: ${{ fromJSON(needs.pick-runner.outputs.runs_on) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,8 +78,12 @@ jobs:
       # Name the SDK the test step runs on instead of inheriting whatever the image ships.
       # The language version is pinned in the csproj, which is what actually keeps CI and a
       # dev box compiling the same source the same way; this just keeps the runtime explicit.
+      # On the self-hosted desktop the runner's account can't write to C:\Program Files\dotnet, so the SDK
+      # goes to the runner's tool cache there (kept between runs). Empty on the cloud image: its default.
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
+        env:
+          DOTNET_INSTALL_DIR: ${{ needs.pick-runner.outputs.runs_on != '"windows-latest"' && format('{0}\dotnet', runner.tool_cache) || '' }}
         with:
           dotnet-version: '8.0.x' 
 
@@ -39,9 +95,11 @@ jobs:
 
       # Runs even when the build fails so a committed key is still reported; the build output is
       # scanned too, because a key baked in by MSBuild never appears in the source.
+      # Windows PowerShell, not pwsh: PowerShell 7 is on the cloud image but not on the self-hosted desktop,
+      # and the script needs nothing newer than 5.1.
       - name: Scan source and build output for OpenAI API keys
         if: ${{ !cancelled() }}
-        shell: pwsh
+        shell: powershell
         run: ./.github/scripts/scan-for-openai-keys.ps1 -ExtraDirectories bin/Release
 
       # FocusBear.Core is deliberately WPF-free and multi-targeted, so these also run with
@@ -61,11 +119,31 @@ jobs:
       # not hit an unhandled dispatcher exception (the app swallows those after logging them, so an
       # "is it running?" check alone would pass a broken start). GITHUB_ACTIONS is inherited, so the
       # app sends no PostHog events and reports to Sentry under the `ci` environment.
+      # On the self-hosted desktop the Release exe would start against the real profile (log, data folder,
+      # signed-in account), collide with the Focus Bear already running there (single instance), and register
+      # the crash watchdog task. So there the step starts the isolated E2E build instead, as a named instance
+      # ("Focus Bear E2E ci-smoke": its own data folder, registry root and mutex, no watchdog or startup tasks),
+      # wiped before and after so it always starts logged out. The cloud runner still smoke-tests the Release exe.
+      - name: Build the isolated E2E app (self-hosted only)
+        if: needs.pick-runner.outputs.runs_on != '"windows-latest"'
+        run: msbuild "Focus Bear.csproj" /p:Configuration=Debug /p:FocusBearE2E=true /p:Platform=AnyCPU /m /v:minimal
+
       - name: Launch smoke test
-        shell: pwsh
+        shell: powershell
+        env:
+          SELF_HOSTED: ${{ needs.pick-runner.outputs.runs_on != '"windows-latest"' }}
         run: |
-          $exe = Join-Path $PWD 'bin\Release\Focus Bear.exe'
-          $log = Join-Path $env:LOCALAPPDATA 'Focus Bear\Logs\Debug_Logs.txt'
+          if ($env:SELF_HOSTED -eq 'true') {
+            $env:FOCUSBEAR_E2E_INSTANCE = 'ci-smoke'
+            $exe     = Join-Path $PWD 'bin\E2E\Focus Bear.exe'
+            $dataDir = Join-Path $env:LOCALAPPDATA 'Focus Bear E2E ci-smoke'
+            $regKey  = 'HKCU:\Software\Focus Bear E2E ci-smoke'
+            foreach ($p in $dataDir, $regKey) { if (Test-Path $p) { Remove-Item $p -Recurse -Force } }
+          } else {
+            $exe     = Join-Path $PWD 'bin\Release\Focus Bear.exe'
+            $dataDir = Join-Path $env:LOCALAPPDATA 'Focus Bear'
+          }
+          $log = Join-Path $dataDir 'Logs\Debug_Logs.txt'
           $app = Start-Process -FilePath $exe -PassThru
           Start-Sleep -Seconds 45
 
@@ -78,7 +156,11 @@ jobs:
           if ((Test-Path $log) -and (Select-String -Path $log -SimpleMatch 'Unhandled dispatcher exception' -Quiet)) {
             $failures += "an unhandled dispatcher exception was logged (see above)"
           }
-          if (-not $app.HasExited) { Stop-Process -Id $app.Id -Force }
+          # By process id only: a name-based kill would take the desktop's own Focus Bear with it.
+          if (-not $app.HasExited) { Stop-Process -Id $app.Id -Force; $app.WaitForExit(10000) | Out-Null }
+          if ($env:SELF_HOSTED -eq 'true') {
+            foreach ($p in $dataDir, $regKey) { if (Test-Path $p) { Remove-Item $p -Recurse -Force -ErrorAction SilentlyContinue } }
+          }
 
           if ($failures.Count -gt 0) { $failures | ForEach-Object { Write-Error $_ }; exit 1 }
           Write-Host "Focus Bear started and stayed up for 45s with no unhandled exception."
