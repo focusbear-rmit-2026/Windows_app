@@ -96,6 +96,16 @@ namespace FocusBear.Core.Tests.Blocking
         }
 
         [TestMethod]
+        public void ASchemelessUrlWithAUrlInItsQueryKeepsItsHost()
+        {
+            // The Set Intention allowance was stored under the host and looked up under "" (#1588 review).
+            Assert.AreEqual("google.com", BlockPageUnblock.HostOf("google.com/url?q=https://youtube.com/watch"));
+            Assert.AreEqual("accounts.google.com", BlockPageUnblock.HostOf("accounts.google.com/signin?continue=https://www.youtube.com/"));
+            Assert.AreEqual("localhost", BlockPageUnblock.HostOf("localhost:50501/x?next=http://a"));
+            Assert.IsNull(BlockPageUnblock.HostOf("https://"), "a scheme with no host still has no host");
+        }
+
+        [TestMethod]
         public void TheStoreStaysBounded()
         {
             int n = 0;

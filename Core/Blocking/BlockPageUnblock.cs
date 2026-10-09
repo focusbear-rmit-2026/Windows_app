@@ -116,14 +116,18 @@ namespace FocusBear.Core.Blocking
         /// The host of a URL the user was on, with or without a scheme ("reddit.com/r/x" reads as reddit.com); null
         /// when there is none. Never throws, unlike the <c>new Uri</c> / <c>new UriBuilder</c> pair it replaces.
         /// </summary>
+        private static readonly System.Text.RegularExpressions.Regex LeadingScheme =
+            new System.Text.RegularExpressions.Regex(@"^[A-Za-z][A-Za-z0-9+.-]*://");
+
         public static string HostOf(string url)
         {
             if (string.IsNullOrWhiteSpace(url)) return null;
             string text = url.Trim();
             if (!FocusBear.Core.SafeUri.TryCreate(text, UriKind.Absolute, out Uri uri) || string.IsNullOrEmpty(uri.Host))
             {
-                // No scheme ("reddit.com/r/x"): read it as http. One that has a scheme but no host has no host.
-                if (text.Contains("://") || !FocusBear.Core.SafeUri.TryCreate("http://" + text, UriKind.Absolute, out uri)) return null;
+                // No scheme ("reddit.com/r/x"): read it as http. One that has a scheme but no host has no host. Only a
+                // leading "scheme://" is a scheme: "google.com/url?q=https://…" has a URL in its query, not a scheme.
+                if (LeadingScheme.IsMatch(text) || !FocusBear.Core.SafeUri.TryCreate("http://" + text, UriKind.Absolute, out uri)) return null;
             }
             string host = uri.Host;
             return string.IsNullOrEmpty(host) ? null : host.ToLowerInvariant();

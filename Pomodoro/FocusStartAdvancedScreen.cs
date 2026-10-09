@@ -805,7 +805,7 @@ namespace Focus_Bear.Pomodoro
                 AutomationProperties.SetAutomationId(notice, "txtFocusStartScheduleNotice");
                 body.Children.Add(Margin(notice, 0, s.Pt(24), 0, 0));
             }
-            var editText = FocusStartUi.Text(_settings.ConfigFileStrings?["pomodoroInfo"]?["buttonEditFocusModesText"]?.ToString() ?? strings["editBlockLists"], s.Pt(36), p.Accent, FontWeights.Medium, wrap: false);
+            var editText = FocusStartUi.Text(_settings.ConfigFileStrings?["pomodoroInfo"]?["buttonEditBlockListsText"]?.ToString() ?? strings["editBlockLists"], s.Pt(36), p.Accent, FontWeights.Medium, wrap: false);
             editText.TextDecorations = TextDecorations.Underline;
             var edit = FocusStartUi.Clickable(editText, FocusSessionStarter.OpenBlockLists, "btnFocusStartEditBlockLists");
             edit.HorizontalAlignment = HorizontalAlignment.Center;

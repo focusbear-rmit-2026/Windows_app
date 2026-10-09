@@ -115,6 +115,22 @@ namespace FocusBear.App.Tests
         }
 
         [TestMethod]
+        public void AnEdit_LeavesTheDocumentsDateStringsAsTheServerSentThem()
+        {
+            const string sentAt = "2026-09-27T05:42:00.000Z";
+            var server = JObject.Parse(Settings("Yoga", "07:00"));
+            server["subscription_expires_at"] = sentAt;   // a JValue string here: built, not parsed
+            AppSettings.GetInstance.sRawUserSettings = Settings("Stretch", "07:00");
+            DayPlanSettingsEdits.FetchLatestSettings = () => Task.FromResult(server.ToString());
+            string put = null;
+            DayPlanSettingsEdits.PutSettings = () => { put = AppSettings.GetInstance.sRawUserSettings; return Task.FromResult(true); };
+
+            Assert.IsTrue(DayPlanSettingsEdits.SaveRoutineTimingAsync(RoutineSettingsSection.Morning, 8 * 60, null).GetAwaiter().GetResult());
+
+            StringAssert.Contains(put, "\"" + sentAt + "\"", "plain JObject.Parse rewrote it as a DateTime in another format");
+        }
+
+        [TestMethod]
         public void Offline_TheEditStartsFromTheLocalCopy()
         {
             AppSettings.GetInstance.sRawUserSettings = Settings("Stretch", "07:00");

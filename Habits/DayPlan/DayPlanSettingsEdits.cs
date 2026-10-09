@@ -3,6 +3,7 @@ using Focus_Bear.Models;
 using Focus_Bear.Preferences;
 using Focus_Bear.Utils;
 using FocusBear.Core.Schedule;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -57,7 +58,7 @@ namespace Focus_Bear.Habits.DayPlan
                 string latest = await fetch;
                 if (!string.IsNullOrWhiteSpace(latest))
                 {
-                    JObject root = JObject.Parse(latest);
+                    JObject root = ParseSettings(latest);
                     ApplyUnsynced(root);
                     return root;
                 }
@@ -131,12 +132,20 @@ namespace Focus_Bear.Habits.DayPlan
             }
         }
 
+        private static readonly JsonSerializerSettings KeepDateStrings = new JsonSerializerSettings { DateParseHandling = DateParseHandling.None };
+
+        /// <summary>
+        /// The settings document with every string left as sent. Plain <c>JObject.Parse</c> turns ISO date strings into
+        /// DateTime values, and the whole document is PUT back, so each edit rewrote every date in it in another format.
+        /// </summary>
+        private static JObject ParseSettings(string json) => JsonConvert.DeserializeObject<JObject>(json, KeepDateStrings);
+
         /// <summary>A copy of the current settings JSON, or null when there isn't one to edit.</summary>
         public static JObject CurrentSettings()
         {
             try
             {
-                return string.IsNullOrEmpty(Settings.sRawUserSettings) ? null : JObject.Parse(Settings.sRawUserSettings);
+                return string.IsNullOrEmpty(Settings.sRawUserSettings) ? null : ParseSettings(Settings.sRawUserSettings);
             }
             catch (Exception ex)
             {
