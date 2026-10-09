@@ -376,3 +376,24 @@ Fixes from testing 4.1.252, and the follow-ups from the Mac parity review.
 
 **Stability**
 - A theme error in one window (for example the login title bar) no longer aborts the whole light/dark switch, which left the rest of the app in the old theme (Sentry A7/91) #1597.
+
+#v4.1.254
+Mac parity for the Projects tab, and hardening of the crash watchdog.
+
+**Projects**
+- "What matters" is now built from the same local forecast as the Reschedule plan, so the two screens always agree. Each project sits in exactly one lane: Ask for an extension, Still achievable - start now, the new On track - steady progress, or Backburner. Finished, undated and empty projects go to Backburner, finished ones last. Within a lane, cards are ordered by the NEXT task's TOP score, which never decides the lane itself #1628.
+- The "This plan is overloaded" banner now ends with a link, "Click here to re-prioritise your projects and tasks", that opens the Reschedule plan. A card whose work has no estimate shows no bucket badge instead of an unsupported verdict.
+
+**Crash watchdog**
+- A build that keeps dying before its tray icon appears is relaunched three times and then only every 15 minutes, so a broken build is no longer restarted every minute with no way to quit it. An app killed after the tray icon appeared is still brought back within a minute #1626.
+- Support can switch the watchdog off for one Windows account with the registry value `WATCHDOG_DISABLED = 1` under `HKCU\Software\Focus Bear`. The next start removes the scheduled task.
+- The one-minute watchdog probe no longer loads the app's settings before deciding to exit.
+- New `docs/crash-watchdog.md` explains who gets the watchdog (admin, standard user, blocked policy, shared PC), the back-off, the off switch and how to roll back.
+
+**Fixes**
+- A URL with another URL in its query, such as a Google redirect to a blocked site, is now recognised by its own host, so the Set Intention and "allow this domain" allowances apply to it #1627.
+- Editing a routine time or habit from the Day Plan no longer rewrites every date in your settings document in a different format.
+- The focus start screen's "Edit block lists" link is translated again; it read an unused config key.
+
+**Setup**
+- The installer's signing scripts also sign `FocusBear.Core.dll` and the current uninstaller stub.
