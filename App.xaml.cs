@@ -138,7 +138,8 @@ namespace Focus_Bear
 
         public TabMetrics TebMetricsObject = new TabMetrics();
 
-        public static FocusButtonService FocusButton = new FocusButtonService();
+        /// <summary>Created in the static constructor, after a watchdog probe that isn't needed has left.</summary>
+        public static FocusButtonService FocusButton;
         public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             if (!FocusBear.Core.Blocking.ForegroundHookEvents.IsHooked(eventType)) return;
@@ -554,6 +555,9 @@ namespace Focus_Bear
             E2EBuild.EnsureConsistent();
             E2EBackground.Apply();   // E2E build + FOCUSBEAR_E2E_NO_ACTIVATE only
             AppWatchdog.ExitEarlyIfProbeNotNeeded(MutexGUID);
+            // Not a field initializer: those run before this constructor, and FocusButtonService builds AppSettings
+            // (registry reads, timers) - which every one-minute probe did before deciding to leave.
+            FocusButton = new FocusButtonService();
         }
 
         /// <summary>
@@ -1343,6 +1347,8 @@ namespace Focus_Bear
                     }
 
                     trayIcon.MouseClick += TrayIcon_MouseClick;
+                    // From here the app can be quit from its tray icon: this start counts as a success.
+                    AppWatchdog.MarkStartedUp();
                 }
 
                 if (wndTrayMenu == null)

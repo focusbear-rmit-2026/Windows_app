@@ -15,6 +15,10 @@ namespace Focus_Bear.Models
     /// unless the app is not running AND its last exit was not a clean one. Every graceful exit (quit, restart,
     /// update, sign-out, Windows shutting down) goes through Application_Exit, which marks the exit clean; a kill
     /// never reaches it, so the marker still says "running" and the probe starts the app for real.
+    ///
+    /// A build that keeps dying before its tray icon appears is retried less often (Core <c>WatchdogBackoff</c>), and
+    /// support can switch the watchdog off for one Windows account with the <see cref="DisabledValue"/> registry value.
+    /// Who gets it and how to remove it: docs/crash-watchdog.md.
     /// </summary>
     internal static class AppWatchdog
     {
@@ -36,6 +40,15 @@ namespace Focus_Bear.Models
         private const string CleanExitValue = "WATCHDOG_CLEAN_EXIT";
         private const string Clean = "1";
         private const string Running = "0";
+
+        /// <summary>The hidden off switch: "1" under the app's registry key stops the watchdog for this Windows account.</summary>
+        internal const string DisabledValue = "WATCHDOG_DISABLED";
+        private const string Disabled = "1";
+
+        /// <summary>Watchdog relaunches in a row that have not reached the tray icon yet.</summary>
+        private const string FailedStartsValue = "WATCHDOG_FAILED_STARTS";
+        /// <summary>When the watchdog last relaunched the app, UTC ticks.</summary>
+        private const string LastRelaunchValue = "WATCHDOG_LAST_RELAUNCH";
 
         internal enum LaunchDecision
         {
@@ -71,10 +84,12 @@ namespace Focus_Bear.Models
                 // This also quietens a task an earlier Debug run registered (see EnsureWatchdogTask).
                 Environment.Exit(0);
 #endif
+                if (IsDisabled()) Environment.Exit(0);
                 if (Decide(true, IsInstanceRunning(instanceMutexName), LastExitWasClean()) == LaunchDecision.ExitSilently)
                 {
                     Environment.Exit(0);
                 }
+                if (!TryRecordRelaunch()) Environment.Exit(0);
             }
             catch (Exception)
             {
@@ -101,11 +116,36 @@ namespace Focus_Bear.Models
             }
         }
 
-        internal static bool LastExitWasClean()
+        internal static bool LastExitWasClean() => Clean.Equals(ReadValue(CleanExitValue));
+
+        /// <summary>Support's off switch for this Windows account (docs/crash-watchdog.md).</summary>
+        internal static bool IsDisabled() => Disabled.Equals(ReadValue(DisabledValue));
+
+        /// <summary>
+        /// Counts this relaunch as a failed start until the app reaches its tray icon (<see cref="MarkStartedUp"/>).
+        /// False when the back-off says to leave the app down for now.
+        /// </summary>
+        private static bool TryRecordRelaunch()
+        {
+            int.TryParse(ReadValue(FailedStartsValue), out int failedStarts);
+            DateTime? lastRelaunch = long.TryParse(ReadValue(LastRelaunchValue), out long ticks) && ticks > 0
+                ? new DateTime(ticks, DateTimeKind.Utc)
+                : (DateTime?)null;
+            DateTime now = DateTime.UtcNow;
+            if (!FocusBear.Core.Startup.WatchdogBackoff.ShouldRelaunch(failedStarts, lastRelaunch, now)) return false;
+            WriteValue(FailedStartsValue, (failedStarts + 1).ToString(System.Globalization.CultureInfo.InvariantCulture));
+            WriteValue(LastRelaunchValue, now.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            return true;
+        }
+
+        /// <summary>The app reached its tray icon: whatever happens next, this start did not fail.</summary>
+        internal static void MarkStartedUp() => WriteValue(FailedStartsValue, "0");
+
+        private static string ReadValue(string name)
         {
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryPath))
             {
-                return key != null && Clean.Equals(key.GetValue(CleanExitValue) as string);
+                return key?.GetValue(name) as string;
             }
         }
 
@@ -115,13 +155,15 @@ namespace Focus_Bear.Models
         /// <summary>A graceful exit: the next probe leaves the app closed.</summary>
         internal static void MarkCleanExit() => WriteMarker(Clean);
 
-        private static void WriteMarker(string value)
+        private static void WriteMarker(string value) => WriteValue(CleanExitValue, value);
+
+        private static void WriteValue(string name, string value)
         {
             try
             {
                 using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegistryPath))
                 {
-                    key.SetValue(CleanExitValue, value, RegistryValueKind.String);
+                    key.SetValue(name, value, RegistryValueKind.String);
                 }
             }
             catch (Exception ex)

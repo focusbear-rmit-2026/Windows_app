@@ -275,6 +275,10 @@ namespace Focus_Bear.Models
         /// startup task is; otherwise the task runs as the user, which needs no rights — and a non-elevated run
         /// never replaces an elevated watchdog that is already there, which would downgrade it.
         /// </param>
+        /// <remarks>
+        /// Who ends up with a watchdog, and the known gaps (standard users under a policy that blocks task creation,
+        /// one task per machine on a shared PC, rolling back to a build without it): docs/crash-watchdog.md.
+        /// </remarks>
         internal bool EnsureWatchdogTask(string exePath, bool elevated)
         {
             if (!E2EBuild.MachineIntegrationAllowed) return false; // the E2E test build never touches Task Scheduler
@@ -283,6 +287,13 @@ namespace Focus_Bear.Models
             // installed Focus Bear) at bin\Debug, and relaunch the app each time the debugger is stopped.
             return false;
 #else
+            if (AppWatchdog.IsDisabled())
+            {
+                // Support's off switch. A probe exits at once anyway; removing the task stops the launches too.
+                if (CheckTaskExists(AppWatchdog.TaskName) && DeleteTask(AppWatchdog.TaskName))
+                    LogWriter.LogWrite("EnsureWatchdogTask - switched off (" + AppWatchdog.DisabledValue + "), task removed");
+                return false;
+            }
             try
             {
                 if (!elevated && IsElevatedTask(AppWatchdog.TaskName)) return true;
