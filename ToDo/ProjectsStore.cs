@@ -1,5 +1,6 @@
 using Focus_Bear.API;
 using Focus_Bear.Utils;
+using FocusBear.Core.Forecast;
 using FocusBear.Core.ToDo;
 using Newtonsoft.Json.Linq;
 using System;
@@ -39,15 +40,67 @@ namespace Focus_Bear.ToDoScreens
         public Task<ApiResponse> UpsertToDo(IDictionary<string, object> body) => Client().UpsertToDo(body);
     }
 
+    /// <summary>
+    /// The local forecast "What matters" is built from — the reprioritise forecast (the Mac's
+    /// <c>LocalForecastStore</c>, which its Projects tab reads the same way). A fake in tests.
+    /// </summary>
+    internal interface IPortfolioForecast
+    {
+        event Action Changed;
+
+        /// <summary>The latest calculation, or null before the first one (or when it could not be made).</summary>
+        LocalTimeForecast.Result Result { get; }
+
+        /// <summary>The catalogue the result was calculated from.</summary>
+        IList<Project> Projects { get; }
+        IList<ToDoTask> Tasks { get; }
+        IList<LocalTimeForecast.TaskInput> TaskInputs { get; }
+
+        /// <summary>Recalculate in the background when the last calculation is old; a fresh one is reused.</summary>
+        void RefreshIfStale();
+
+        /// <summary>Recalculate from a fresh catalogue, after a write changed what it was built from.</summary>
+        void Refresh();
+    }
+
+    internal sealed class ReprioritisePortfolioForecast : IPortfolioForecast
+    {
+        private static Focus_Bear.Habits.DayPlan.ReprioritiseForecast Shared => Focus_Bear.Habits.DayPlan.ReprioritiseForecast.Shared;
+
+        public event Action Changed
+        {
+            add { Shared.Changed += value; }
+            remove { Shared.Changed -= value; }
+        }
+
+        public LocalTimeForecast.Result Result => Shared.Result;
+        public IList<Project> Projects => Shared.Catalogue?.Projects ?? new List<Project>();
+        public IList<ToDoTask> Tasks => Shared.Catalogue?.Tasks ?? new List<ToDoTask>();
+        public IList<LocalTimeForecast.TaskInput> TaskInputs => Shared.TaskInputs;
+
+        public void RefreshIfStale()
+        {
+            if (Shared.IsStale) _ = Shared.RefreshAsync(false);
+        }
+
+        public void Refresh()
+        {
+            Focus_Bear.Habits.DayPlan.ToDoCatalogue.Invalidate();
+            _ = Shared.RefreshAsync(true);
+        }
+    }
+
     internal enum ProjectsViewMode { Focus, All }
 
     internal enum ProjectsEmptyVariant { None, ActiveZero, Search, Completed, Archived, Failed }
 
     /// <summary>
-    /// State for the Projects tab — the Mac's <c>ProjectsStore</c> without its local forecast: "What matters"
-    /// regroups the server's <c>GET /portfolio</c> rows (Ask for an extension / Start now / Backburner), and
-    /// "All projects" pages <c>GET /projects</c>, searched on the server and filtered by lifecycle status.
-    /// Each card's NEXT task is fetched per project, a few at a time, as the web does.
+    /// State for the Projects tab — the Mac's <c>ProjectsStore</c>. "What matters" files the projects into
+    /// lanes from the local reprioritise forecast (<see cref="LocalForecastPortfolio"/>: Ask for an extension /
+    /// Start now / On track / Backburner), falling back to regrouping the server's <c>GET /portfolio</c> rows
+    /// while no forecast has been calculated. "All projects" pages <c>GET /projects</c>, searched on the server
+    /// and filtered by lifecycle status. Each card's NEXT task comes from the forecast's own tasks when it has
+    /// them, else is fetched per project, a few at a time, as the web does.
     /// </summary>
     internal sealed class ProjectsStore
     {
@@ -70,20 +123,24 @@ namespace Focus_Bear.ToDoScreens
         private ProjectsViewMode _viewMode = ProjectsViewMode.Focus;
         private ProjectLifecycleStatus _statusFilter = ProjectLifecycleStatus.Active;
 
-        public ProjectsStore(ToDoStrings strings, string currentUserId, IProjectsApi api = null, Func<DateTime> now = null)
-            : this(strings, () => currentUserId, api, now) { }
+        public ProjectsStore(ToDoStrings strings, string currentUserId, IProjectsApi api = null, Func<DateTime> now = null,
+                             IPortfolioForecast forecast = null)
+            : this(strings, () => currentUserId, api, now, forecast) { }
 
         /// <summary>
         /// The signed-in user is read when needed, not when the store is made: the To-do screen (and this store) is
         /// built with the main window, before a first sign-in, so a fixed id stayed empty and a new user could not
         /// edit, rate, date or delete their own projects until the app restarted. It also follows a change of user.
         /// </summary>
-        public ProjectsStore(ToDoStrings strings, Func<string> currentUserId, IProjectsApi api = null, Func<DateTime> now = null)
+        public ProjectsStore(ToDoStrings strings, Func<string> currentUserId, IProjectsApi api = null, Func<DateTime> now = null,
+                             IPortfolioForecast forecast = null)
         {
             Strings = strings;
             _currentUserId = currentUserId ?? (() => "");
             _api = api ?? new ProjectsApi();
             _now = now ?? (() => DateTime.Now);
+            _forecast = forecast;
+            if (_forecast != null) _forecast.Changed += Notify;
             _searchTimer = new DispatcherTimer { Interval = ToDoStore.SearchDebounce };
             _searchTimer.Tick += async (s, e) => { _searchTimer.Stop(); if (_viewMode == ProjectsViewMode.All) await LoadProjectsAsync(); };
             _statusTimer = new DispatcherTimer { Interval = ToDoStore.StatusMessageLifetime };
@@ -118,12 +175,72 @@ namespace Focus_Bear.ToDoScreens
 
         private void Notify() => Changed?.Invoke();
 
-        /// <summary>The portfolio rows matching the search, in the web's three groups.</summary>
-        public PortfolioActionGroups ActionGroups =>
-            PortfolioGrouping.Group(PortfolioGrouping.Matching(Portfolio?.Projects ?? new List<PortfolioProject>(), SearchQuery));
+        // MARK: Local forecast
 
-        public IList<PortfolioProject> OvercommittedProjects =>
-            (Portfolio?.Projects ?? new List<PortfolioProject>()).Where(project => project.BadgeList.Contains(PortfolioBadge.Overcommitted)).ToList();
+        private readonly IPortfolioForecast _forecast;
+        private LocalForecastPortfolio _localPortfolio;
+        private IDictionary<string, ProjectTopPriorityTask> _localNextTasks = new Dictionary<string, ProjectTopPriorityTask>();
+        private LocalTimeForecast.Result _localPortfolioSource;
+
+        /// <summary>
+        /// "What matters" from the local forecast, or null while there is none — then the server's own portfolio
+        /// rows are grouped instead, so the view never waits on a calculation to show anything at all.
+        /// </summary>
+        public LocalForecastPortfolio LocalPortfolio
+        {
+            get
+            {
+                var result = _forecast?.Result;
+                if (result == null) return null;
+                if (!ReferenceEquals(result, _localPortfolioSource))
+                {
+                    _localPortfolioSource = result;
+                    _localNextTasks = LocalForecastPortfolio.NextTasks(_forecast.TaskInputs, _forecast.Tasks, _now());
+                    var topScores = _localNextTasks.ToDictionary(entry => entry.Key, entry => entry.Value.TopScore);
+                    _localPortfolio = LocalForecastPortfolio.Make(_forecast.Projects, result, topScores);
+                }
+                return _localPortfolio;
+            }
+        }
+
+        /// <summary>The cards matching the search, in their lanes.</summary>
+        public PortfolioActionGroups ActionGroups
+        {
+            get
+            {
+                var local = LocalPortfolio;
+                if (local == null)
+                    return PortfolioGrouping.Group(PortfolioGrouping.Matching(Portfolio?.Projects ?? new List<PortfolioProject>(), SearchQuery));
+                return new PortfolioActionGroups
+                {
+                    AskForExtension = PortfolioGrouping.Matching(local.Groups.AskForExtension, SearchQuery),
+                    StartNow = PortfolioGrouping.Matching(local.Groups.StartNow, SearchQuery),
+                    SteadyProgress = PortfolioGrouping.Matching(local.Groups.SteadyProgress, SearchQuery),
+                    BackBurner = PortfolioGrouping.Matching(local.Groups.BackBurner, SearchQuery),
+                };
+            }
+        }
+
+        /// <summary>Whether "What matters" has anything to show yet: the local forecast, or the server's rows.</summary>
+        public bool HasPortfolio => LocalPortfolio != null || Portfolio != null;
+
+        /// <summary>The overloaded warning: the forecast's own verdict when it has one, else the server's.</summary>
+        public bool IsOvercommitted => LocalPortfolio?.IsOvercommitted ?? Portfolio?.IsOvercommitted ?? false;
+
+        /// <summary>
+        /// Whether a card's bucket is a real assessment worth a badge. A locally "at risk" project whose work has
+        /// no estimate is only the forecast saying it can't tell; the server's rows are always shown as sent.
+        /// </summary>
+        public bool IsAssessed(string projectId)
+        {
+            var local = LocalPortfolio;
+            return local == null || local.AssessedProjectIds.Contains(projectId);
+        }
+
+        /// <summary>The overloaded banner's link: the host opens the reschedule plan.</summary>
+        public event Action ReprioritiseRequested;
+
+        public void OpenReprioritisePlan() => ReprioritiseRequested?.Invoke();
 
         public IDictionary<string, PortfolioProject> RisksById =>
             (Portfolio?.Projects ?? new List<PortfolioProject>()).GroupBy(project => project.Id).ToDictionary(group => group.Key, group => group.First());
@@ -151,10 +268,17 @@ namespace Focus_Bear.ToDoScreens
 
         public Project Project(string id) => Projects.FirstOrDefault(project => project.Id == id);
 
-        public ProjectTopPriorityTask NextTask(string projectId) =>
-            _nextTasks.TryGetValue(projectId, out var task) ? task : null;
+        /// <summary>
+        /// The card's NEXT task. With a local forecast it is picked from the forecast's own tasks, as the lane
+        /// order is, so the TOP chip and the card's place in its lane can never disagree.
+        /// </summary>
+        public ProjectTopPriorityTask NextTask(string projectId)
+        {
+            if (LocalPortfolio != null) return _localNextTasks.TryGetValue(projectId, out var local) ? local : null;
+            return _nextTasks.TryGetValue(projectId, out var task) ? task : null;
+        }
 
-        public bool IsNextTaskPending(string projectId) => !_resolvedNext.Contains(projectId);
+        public bool IsNextTaskPending(string projectId) => LocalPortfolio == null && !_resolvedNext.Contains(projectId);
 
         /// <summary>A project whose owner is somebody else: the card says "Member".</summary>
         public bool IsMemberOnly(Project project) =>
@@ -167,6 +291,7 @@ namespace Focus_Bear.ToDoScreens
 
         public async Task ScreenAppearedAsync()
         {
+            _forecast?.RefreshIfStale();
             await Task.WhenAll(LoadPortfolioAsync(), LoadProjectsAsync());
         }
 
@@ -237,11 +362,13 @@ namespace Focus_Bear.ToDoScreens
             _ = LoadNextTasksAsync();
         }
 
+        /// <summary>Everything again, the local forecast included: a write changed what it was calculated from.</summary>
         public Task RefreshAsync()
         {
             _resolvedNext.Clear();
             _requestedNext.Clear();
-            return ScreenAppearedAsync();
+            _forecast?.Refresh();
+            return Task.WhenAll(LoadPortfolioAsync(), LoadProjectsAsync());
         }
 
         private void Invalidate(IEnumerable<string> projectIds)
@@ -379,7 +506,9 @@ namespace Focus_Bear.ToDoScreens
             if (Detail != null && Detail.Project.Id == projectId) return Detail.Project.DueDate;
             var project = Project(projectId);
             if (project != null) return project.DueDate;
-            return Portfolio?.Projects.FirstOrDefault(row => row.Id == projectId)?.DueDate;
+            var row = (Portfolio?.Projects ?? new List<PortfolioProject>()).Concat(LocalPortfolio?.Rows ?? new List<PortfolioProject>())
+                .FirstOrDefault(candidate => candidate.Id == projectId);
+            return row?.DueDate;
         }
 
         /// <summary>
@@ -394,7 +523,8 @@ namespace Focus_Bear.ToDoScreens
             string ymd = ProjectDueDateEdit.WireValue(day);
 
             var projects = CopiesOf(projectId);
-            var rows = (Portfolio?.Projects ?? new List<PortfolioProject>()).Where(row => row.Id == projectId).ToList();
+            var rows = (Portfolio?.Projects ?? new List<PortfolioProject>()).Concat(LocalPortfolio?.Rows ?? new List<PortfolioProject>())
+                .Where(row => row.Id == projectId).ToList();
             var previousProjects = projects.Select(p => p.DueDate).ToList();
             var previousRows = rows.Select(row => new { row.DueDate, row.DaysUntilDue }).ToList();
 

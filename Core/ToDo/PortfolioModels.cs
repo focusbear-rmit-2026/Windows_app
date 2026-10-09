@@ -110,11 +110,15 @@ namespace FocusBear.Core.ToDo
         Critical = 4,
     }
 
-    /// <summary>The three "This week" groups of the web's "What matters" view.</summary>
+    /// <summary>
+    /// The web's three "This week" groups of the "What matters" view, plus the Mac's "steady progress"
+    /// lane between Start now and Backburner (<see cref="PortfolioLanes"/>).
+    /// </summary>
     public enum PortfolioActionSection
     {
         AskForExtension,
         StartNow,
+        SteadyProgress,
         BackBurner,
     }
 

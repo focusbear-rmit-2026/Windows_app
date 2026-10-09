@@ -6,14 +6,18 @@ using FocusBear.Core.Stats;
 
 namespace FocusBear.Core.ToDo
 {
-    /// <summary>The "This week" view's three groups.</summary>
+    /// <summary>The "This week" view's groups.</summary>
     public sealed class PortfolioActionGroups
     {
         public IList<PortfolioProject> AskForExtension { get; set; } = new List<PortfolioProject>();
         public IList<PortfolioProject> StartNow { get; set; } = new List<PortfolioProject>();
+
+        /// <summary>Only the local forecast fills this (<see cref="PortfolioLanes"/>); the server rows have no horizon to judge it by.</summary>
+        public IList<PortfolioProject> SteadyProgress { get; set; } = new List<PortfolioProject>();
+
         public IList<PortfolioProject> BackBurner { get; set; } = new List<PortfolioProject>();
 
-        public bool IsEmpty => AskForExtension.Count == 0 && StartNow.Count == 0 && BackBurner.Count == 0;
+        public bool IsEmpty => AskForExtension.Count == 0 && StartNow.Count == 0 && SteadyProgress.Count == 0 && BackBurner.Count == 0;
     }
 
     /// <summary>A recommended daily pace, split into whole hours and minutes.</summary>
@@ -47,15 +51,10 @@ namespace FocusBear.Core.ToDo
         /// <summary>How many back-burner projects are promoted when there is nothing else to start.</summary>
         public const int EncouragedStartNowLimit = 3;
 
-        /// <summary>How many project names the overcommitted warning spells out before "and N more".</summary>
-        public const int OvercommittedNameLimit = 3;
-
         /// <summary>A recommended pace is rounded to this, and never falls below it.</summary>
         private const int PaceRoundMinutes = 5;
 
         private const int MinutesPerHour = 60;
-
-        private const string NameSeparator = ", ";
 
         /// <summary>
         /// Badges worth showing on a card that already sits under a section heading.
@@ -203,20 +202,6 @@ namespace FocusBear.Core.ToDo
             int steps = SwiftRounding.RoundedToInt(hours * MinutesPerHour / PaceRoundMinutes);
             int minutes = Math.Max(PaceRoundMinutes, steps * PaceRoundMinutes);
             return new PortfolioDurationParts(minutes / MinutesPerHour, minutes % MinutesPerHour);
-        }
-
-        /// <summary>Web `formatOverCommittedProjectNames`: "A, B, C, and 2 more".</summary>
-        /// <param name="andMore">Renders the tail count; this project carries no translations.</param>
-        public static string OvercommittedNames(IEnumerable<PortfolioProject> projects, Func<int, string> andMore)
-        {
-            IList<string> names = (projects ?? Enumerable.Empty<PortfolioProject>())
-                .Select(project => project.Name)
-                .ToList();
-            if (names.Count == 0) return string.Empty;
-            if (names.Count <= OvercommittedNameLimit) return string.Join(NameSeparator, names);
-
-            string listed = string.Join(NameSeparator, names.Take(OvercommittedNameLimit));
-            return listed + NameSeparator + andMore(names.Count - OvercommittedNameLimit);
         }
 
         /// <summary>

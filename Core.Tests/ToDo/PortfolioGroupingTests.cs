@@ -204,24 +204,6 @@ namespace FocusBear.Core.Tests.ToDo
         }
 
         [TestMethod]
-        public void OvercommittedNamesTruncate()
-        {
-            var projects = new List<PortfolioProject>();
-            foreach (string name in new[] { "A", "B", "C", "D", "E" })
-            {
-                projects.Add(Risk(name, PortfolioBucket.Critical));
-            }
-
-            Assert.AreEqual("A, B, C, and 2 more",
-                            PortfolioGrouping.OvercommittedNames(projects, count => "and " + count + " more"));
-            Assert.AreEqual("A, B",
-                            PortfolioGrouping.OvercommittedNames(projects.GetRange(0, 2),
-                                                                 count => "and " + count + " more"));
-            Assert.AreEqual(string.Empty,
-                            PortfolioGrouping.OvercommittedNames(new PortfolioProject[0], count => "never"));
-        }
-
-        [TestMethod]
         public void SortByRiskPutsUnscoredAndDeadlineFreeProjectsLast()
         {
             var risks = new Dictionary<string, PortfolioProject>

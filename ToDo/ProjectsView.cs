@@ -17,7 +17,7 @@ namespace Focus_Bear.ToDoScreens
 {
     /// <summary>
     /// The Projects tab — the Mac's <c>ProjectsTabView</c> / <c>ProjectDetailView</c>: "What matters" (the
-    /// portfolio's three groups with the overloaded warning), "All projects" (paged, searched, by status), and
+    /// portfolio's lanes with the overloaded warning), "All projects" (paged, searched, by status), and
     /// a project's page with its tasks as a list or a board whose cards drag between columns.
     /// </summary>
     internal sealed class ProjectsView : UserControl
@@ -169,13 +169,12 @@ namespace Focus_Bear.ToDoScreens
 
         private void FillFocus(StackPanel content)
         {
-            if (_store.Portfolio == null)
+            if (!_store.HasPortfolio)
             {
                 content.Children.Add(_store.IsPortfolioLoading ? StatsUi.Loading() : StatsUi.Empty("⚠", S.CouldNotLoadProjects));
                 return;
             }
-            var overloaded = _store.OvercommittedProjects;
-            if (_store.Portfolio.IsOvercommitted) content.Children.Add(OvercommittedBanner(overloaded));
+            if (_store.IsOvercommitted) content.Children.Add(OvercommittedBanner());
             var groups = _store.ActionGroups;
             if (groups.IsEmpty)
             {
@@ -184,18 +183,30 @@ namespace Focus_Bear.ToDoScreens
             }
             AddSection(content, PortfolioActionSection.AskForExtension, groups.AskForExtension, Overdue);
             AddSection(content, PortfolioActionSection.StartNow, groups.StartNow, TodayTint);
+            AddSection(content, PortfolioActionSection.SteadyProgress, groups.SteadyProgress, Good);
             AddSection(content, PortfolioActionSection.BackBurner, groups.BackBurner, Neutral);
         }
 
-        private FrameworkElement OvercommittedBanner(IList<PortfolioProject> projects)
+        /// <summary>
+        /// The banner used to end "An extension on these would ease the squeeze: &lt;projects&gt;", which named a
+        /// problem without a way to act on it. Like the Mac's (report 2026-10-04_21-08-21), it now ends with a
+        /// link to the reschedule plan — a real button, so it takes keyboard focus and reads as one.
+        /// </summary>
+        private FrameworkElement OvercommittedBanner()
         {
-            string names = PortfolioGrouping.OvercommittedNames(projects.Select(p => new PortfolioProject { Id = p.Id, Name = S.ProjectName(p.Name) }),
-                                                               count => ToDoStrings.Format(S.OvercommittedAndMore, ToDoStrings.CountToken, count.ToString(CultureInfo.InvariantCulture)));
             var stack = new StackPanel();
             stack.Children.Add(StatsUi.Text("⚠  " + S.OvercommittedTitle, 13, FontWeights.SemiBold));
-            var body = StatsUi.Text(names.Length == 0 ? S.OvercommittedDescriptionFallback : S.OvercommittedDescription.Replace("<PROJECTS>", names), 12, secondary: true);
+            var body = StatsUi.Text(S.OvercommittedSummary, 12, secondary: true);
             body.Margin = new Thickness(0, 4, 0, 0);
             stack.Children.Add(body);
+            var label = new TextBlock { Text = S.OvercommittedReprioritiseLink, FontSize = 12, FontWeight = FontWeights.SemiBold, Foreground = Accent,
+                                        TextDecorations = TextDecorations.Underline, TextWrapping = TextWrapping.Wrap };
+            var link = new Button { Content = label, Template = StatsUi.PlainTemplate(), Cursor = Cursors.Hand, HorizontalAlignment = HorizontalAlignment.Left,
+                                    Margin = new Thickness(0, 6, 0, 0) };
+            AutomationProperties.SetAutomationId(link, "lnkProjectsReprioritise");
+            AutomationProperties.SetName(link, S.OvercommittedReprioritiseLink);
+            link.Click += (s, e) => _store.OpenReprioritisePlan();
+            stack.Children.Add(link);
             var banner = new Border { Child = stack, Background = StatsUi.Tint(Overdue, 0.1), CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 10, 12, 10), Margin = new Thickness(0, 0, 0, 14) };
             AutomationProperties.SetAutomationId(banner, "bannerProjectsOvercommitted");
             return banner;
@@ -223,10 +234,15 @@ namespace Focus_Bear.ToDoScreens
         {
             var stack = new StackPanel();
             var head = new DockPanel { LastChildFill = true };
-            var bucket = Chip(S.BucketLabel(risk.Bucket), BucketTint(risk.Bucket));
-            bucket.Margin = new Thickness(6, 0, 0, 0);
-            DockPanel.SetDock(bucket, Dock.Right);
-            head.Children.Add(bucket);
+            // A forecast that can't tell (unestimated work, nothing placed yet) claims no bucket at all.
+            bool isAssessed = _store.IsAssessed(risk.Id);
+            if (isAssessed)
+            {
+                var bucket = Chip(S.BucketLabel(risk.Bucket), BucketTint(risk.Bucket));
+                bucket.Margin = new Thickness(6, 0, 0, 0);
+                DockPanel.SetDock(bucket, Dock.Right);
+                head.Children.Add(bucket);
+            }
             head.Children.Add(CardTitle(_store.Project(risk.Id)?.Icon, risk.Name));
             stack.Children.Add(head);
             stack.Children.Add(NextTaskLine(risk.Id));
@@ -244,7 +260,7 @@ namespace Focus_Bear.ToDoScreens
                 if (label != null) footer.Children.Add(Chip(label, badge == PortfolioBadge.Sacrifice ? Neutral : Overdue));
             }
             stack.Children.Add(footer);
-            var card = Card(stack, BucketTint(risk.Bucket));
+            var card = Card(stack, isAssessed ? BucketTint(risk.Bucket) : Neutral);
             AutomationProperties.SetAutomationId(card, "cardRisk_" + risk.Id);
             AutomationProperties.SetName(card, risk.Name);
             card.MouseLeftButtonUp += (s, e) => { if (!e.Handled) _store.Open(risk); };

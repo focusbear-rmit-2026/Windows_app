@@ -297,11 +297,11 @@ namespace Focus_Bear.ToDoScreens
         public string FocusEmptyDescription => S("focusEmptyDescription", "You're clear for now. Browse all projects to plan ahead or create something new.");
         public string AskForExtensionSection => S("askForExtensionSectionText", "Ask for an extension");
         public string StartNowSection => S("startNowSectionText", "Still achievable - start now");
+        public string SteadyProgressSection => S("steadyProgressSectionText", "On track - steady progress");
         public string BackBurnerSection => S("backBurnerSectionText", "Backburner - plenty of time");
         public string OvercommittedTitle => S("overcommittedTitle", "This plan is overloaded");
-        public string OvercommittedDescription => S("overcommittedDescription", "There's more work here than the time available. An extension on these would ease the squeeze: <PROJECTS>.");
-        public string OvercommittedDescriptionFallback => S("overcommittedDescriptionFallback", "There's more work here than the time available. An extension on your highest-priority projects would ease the squeeze.");
-        public string OvercommittedAndMore => S("overcommittedAndMoreText", "and <COUNT> more");
+        public string OvercommittedSummary => S("overcommittedSummaryText", "There's more work here than the time available.");
+        public string OvercommittedReprioritiseLink => S("overcommittedReprioritiseLinkText", "Click here to re-prioritise your projects and tasks");
         public string NextTask => S("nextTaskText", "Next");
         public string NextTaskEmpty => S("nextTaskEmptyText", "No effort estimate — add tasks to plan next steps");
         public string DueWithDate => S("dueWithDateText", "Due: <DATE>");
@@ -392,6 +392,7 @@ namespace Focus_Bear.ToDoScreens
             {
                 case PortfolioActionSection.AskForExtension: return AskForExtensionSection;
                 case PortfolioActionSection.StartNow: return StartNowSection;
+                case PortfolioActionSection.SteadyProgress: return SteadyProgressSection;
                 default: return BackBurnerSection;
             }
         }

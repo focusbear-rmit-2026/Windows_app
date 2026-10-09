@@ -52,7 +52,10 @@ namespace Focus_Bear.ToDoScreens
         internal ToDoScreen(ToDoStore store, ProjectsStore projects = null)
         {
             _store = store ?? new ToDoStore(_strings);
-            _projects = projects ?? new ProjectsStore(_strings, () => Utils.AppSettings.GetInstance.userAccount?.userID);
+            _projects = projects ?? new ProjectsStore(_strings, () => Utils.AppSettings.GetInstance.userAccount?.userID,
+                                                      forecast: new ReprioritisePortfolioForecast());
+            // The overloaded banner on "What matters" opens the same reschedule plan as this list's menu.
+            _projects.ReprioritiseRequested += () => Focus_Bear.Habits.DayPlan.ReprioritiseWindow.Open(Window.GetWindow(this));
             SetResourceReference(BackgroundProperty, "BackgroundColor");
             // The Preferences host paints every Grid with the page background, which showed through inside the
             // cards (half card colour, half page colour in dark mode); this screen draws its own surfaces.
