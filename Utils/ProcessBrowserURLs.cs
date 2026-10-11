@@ -55,6 +55,8 @@ namespace Focus_Bear.Utils
         public static void ProcessCurrentURL(IntPtr hwnd)
         {
             AppSettings appSettings = AppSettings.GetInstance;
+            Debug.WriteLine("[NativeRelevanceModel] URL EVENT | URL=" +
+                (appSettings.sLastActiveURLInFirefox ?? "<missing>"));
 
             //In case the set intention window is open, we should hide it
             appSettings.Hide_SetIntentionWindow();
@@ -123,6 +125,196 @@ namespace Focus_Bear.Utils
                 CheckAndSuggestWorkFocusMode(hwnd);
             }
             
+        }
+
+        private static readonly object NativeShadowLock = new object();
+        private static long NativeShadowGeneration;
+        private static string NativeShadowPendingKey;
+        private static string LastNativeShadowKey;
+        private static DateTime LastNativeShadowTimeUtc;
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetAncestor(IntPtr hWnd, uint flags);
+
+        // Input repair for the native SHADOW check only. Keep the actual URL
+        // for URL features and keep the original window title for deduplication.
+        private static string CleanYouTubeWatchShadowTitle(Uri url, string windowTitle)
+        {
+            string host = url.Host;
+            bool youtube = string.Equals(host, "youtube.com", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(host, "www.youtube.com", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(host, "m.youtube.com", StringComparison.OrdinalIgnoreCase);
+            if (!youtube || !string.Equals(url.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            string clean = windowTitle ?? string.Empty;
+            clean = Regex.Replace(clean,
+                @"\s+[-–—]\s+(Google Chrome|Microsoft Edge|Mozilla Firefox)\s*$",
+                string.Empty, RegexOptions.IgnoreCase);
+            clean = Regex.Replace(clean, @"\s+[-–—]\s+YouTube\s*$",
+                string.Empty, RegexOptions.IgnoreCase);
+            clean = Regex.Replace(clean, @"^\s*\(\d+\)\s*", string.Empty);
+            clean = Regex.Replace(clean, @"\s+", " ").Trim();
+            // Do not turn an unready or generic page title into a blank input.
+            if (clean.Length == 0 || string.Equals(clean, "YouTube", StringComparison.OrdinalIgnoreCase))
+                return null;
+            return clean;
+        }
+
+        private static void QueueNativeWebsiteShadowCheck(IntPtr hWnd, string url)
+        {
+            try
+            {
+                AppSettings settings = AppSettings.GetInstance;
+                var app = System.Windows.Application.Current as App;
+                var classifier = app == null ? null : app.NativeRelevanceClassifier;
+                if (classifier == null)
+                    return;
+
+                Uri parsedUrl;
+                string rawUrl = (url ?? string.Empty).Trim();
+                if (rawUrl.Length == 0 ||
+                    !Uri.TryCreate(rawUrl.Contains("://") ? rawUrl : "https://" + rawUrl,
+                        UriKind.Absolute, out parsedUrl) ||
+                    (parsedUrl.Scheme != Uri.UriSchemeHttp && parsedUrl.Scheme != Uri.UriSchemeHttps))
+                    return;
+
+                string goal = ((settings.sRunningFocusModeIntention ?? string.Empty) + " " +
+                    (settings.sCurrentTaskPlayingInToDoPlayer ?? string.Empty)).Trim();
+                if (goal.Length == 0 || string.Equals(goal,
+                    "What do you want to achieve in this focus session?", StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                string pendingKey = goal + "\n" + parsedUrl.AbsoluteUri;
+                long generation;
+                lock (NativeShadowLock)
+                {
+                    if (NativeShadowPendingKey == pendingKey)
+                        return;
+                    generation = ++NativeShadowGeneration;
+                    NativeShadowPendingKey = pendingKey;
+                }
+
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        // Navigation and title updates arrive separately. This asynchronous
+                        // settling delay is excluded from classifier prediction latency.
+                        await Task.Delay(1500).ConfigureAwait(false);
+                        string previousTitle = null;
+                        string title = null;
+                        bool stable = false;
+                        for (int attempt = 0; attempt < 7; attempt++)
+                        {
+                            lock (NativeShadowLock)
+                            {
+                                if (generation != NativeShadowGeneration)
+                                    return;
+                            }
+                            if (app.Dispatcher.HasShutdownStarted || app.Dispatcher.HasShutdownFinished)
+                                return;
+
+                            bool validSnapshot = false;
+                            app.Dispatcher.Invoke((Action)(() =>
+                            {
+                                IntPtr root = GetAncestor(hWnd, 2); // GA_ROOT
+                                if (root == IntPtr.Zero) root = hWnd;
+                                if (GetForegroundWindow() != root)
+                                    return;
+                                string currentGoal = ((settings.sRunningFocusModeIntention ?? string.Empty) + " " +
+                                    (settings.sCurrentTaskPlayingInToDoPlayer ?? string.Empty)).Trim();
+                                bool active = (settings.isFocusModeRunning && !settings.isFocusModePaused) ||
+                                    settings.bHabitwithUseFocusModeRunning ||
+                                    (settings.isBlockingScheduleRunning && settings.ActiveSchedule != null &&
+                                     !settings.ActiveSchedule.isPaused);
+                                string currentRawUrl = (settings.sLastActiveURLInFirefox ?? string.Empty).Trim();
+                                Uri currentUrl;
+                                if (!active || currentGoal != goal ||
+                                    !Uri.TryCreate(currentRawUrl.Contains("://") ? currentRawUrl : "https://" + currentRawUrl,
+                                        UriKind.Absolute, out currentUrl) ||
+                                    currentUrl.AbsoluteUri != parsedUrl.AbsoluteUri)
+                                    return;
+                                var buffer = new StringBuilder(1024);
+                                title = GetWindowText(root, buffer, buffer.Capacity) > 0
+                                    ? buffer.ToString() : string.Empty;
+                                validSnapshot = true;
+                            }));
+                            if (!validSnapshot)
+                                return;
+                            bool placeholder = string.IsNullOrWhiteSpace(title) ||
+                                title.StartsWith("Untitled", StringComparison.OrdinalIgnoreCase) ||
+                                title.StartsWith("New Tab", StringComparison.OrdinalIgnoreCase);
+                            if (!placeholder && title == previousTitle)
+                            {
+                                stable = true;
+                                break;
+                            }
+                            previousTitle = title;
+                            if (attempt < 6)
+                                await Task.Delay(500).ConfigureAwait(false);
+                        }
+                        if (!stable)
+                        {
+                            Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW skipped: title not ready | URL=" + rawUrl);
+                            return;
+                        }
+                        string key = goal + "\n" + rawUrl + "\n" + title;
+                        lock (NativeShadowLock)
+                        {
+                            if (generation != NativeShadowGeneration ||
+                                (key == LastNativeShadowKey &&
+                                 DateTime.UtcNow - LastNativeShadowTimeUtc < TimeSpan.FromSeconds(30)))
+                                return;
+                        }
+                        string keywords = string.Join(" ", parsedUrl.AbsolutePath
+                            .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Where(part => part.Length > 2 && !part.All(char.IsDigit)));
+                        string cleanVideoTitle = CleanYouTubeWatchShadowTitle(parsedUrl, title);
+                        string modelTitle = cleanVideoTitle ?? title;
+                        string context = cleanVideoTitle ?? (title + " " + keywords).Trim();
+                        if (cleanVideoTitle != null)
+                            Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW CONTEXT POLICY=YouTubeWatchCleanTitle | " +
+                                "RawTitle=" + title + " | ModelTitle=" + modelTitle);
+                        Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW INPUT | UserGoal=" +
+                            goal + " | URL=" + rawUrl + " | Title=" + title);
+                        var stopwatch = Stopwatch.StartNew();
+                        var result = classifier.Predict(goal, context, rawUrl, modelTitle);
+                        stopwatch.Stop();
+                        Debug.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                            "[NativeRelevanceModel] WEBSITE SHADOW RESULT | Action={0} | Tier={1} | " +
+                            "Confidence={2:F4} | Cosine={3:F4} | LLMFallback={4} | " +
+                            "WebsiteLatencyMs={5:F2} | URL={6}",
+                            result.Action, result.Tier, result.Confidence, result.CosineSimilarity,
+                            result.LlmFallbackRequired, stopwatch.Elapsed.TotalMilliseconds, rawUrl));
+                        lock (NativeShadowLock)
+                        {
+                            LastNativeShadowKey = key;
+                            LastNativeShadowTimeUtc = DateTime.UtcNow;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW failed: " + ex);
+                    }
+                    finally
+                    {
+                        lock (NativeShadowLock)
+                        {
+                            if (generation == NativeShadowGeneration)
+                                NativeShadowPendingKey = null;
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                // Shadow diagnostics must not change existing blocking behaviour.
+                Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW setup failed: " + ex);
+            }
         }
 
         public static string ExtractOldUrl(string input)
@@ -497,6 +689,10 @@ namespace Focus_Bear.Utils
             }
 
             TabMetrics.Instance.FrontDomainChanged(sURL);
+
+            // Observe ordinary websites before allow-list/cached decisions return.
+            // Queue a settled URL/title snapshot, then run native inference in the background.
+            QueueNativeWebsiteShadowCheck(hWnd, sURL);
 
             FocusAlignmentScoreManager.FocusModeOpenCurrentUrlForAlignmentScore(sURL);
 

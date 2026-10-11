@@ -1,20 +1,35 @@
-﻿using Focus_Bear.API;
+﻿using Focus_Bear.AccountabilityBuddy;
+using Focus_Bear.API;
 using Focus_Bear.BrainDump;
+using Focus_Bear.CallDetection;
 using Focus_Bear.Focus;
+using Focus_Bear.FocusMusic;
 using Focus_Bear.Habits;
+using Focus_Bear.Habits.NaturalBreaks;
 using Focus_Bear.Login;
 using Focus_Bear.Models;
 using Focus_Bear.Onboarding;
+using Focus_Bear.Pomodoro;
 using Focus_Bear.Preferences;
 using Focus_Bear.Quit;
+using Focus_Bear.Relax;
+using Focus_Bear.RelevanceClassifier;
+using Focus_Bear.Services;
+using Focus_Bear.Services.FocusButton;
 using Focus_Bear.ShutOff;
+using Focus_Bear.Survey;
+using Focus_Bear.Tour;
 using Focus_Bear.Upgrade;
 using Focus_Bear.Utils;
 using FocusBear.Utils;
 using Interop.UIAutomationClient;
+using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
+using Sentry;
+using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
@@ -23,40 +38,26 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.UI;
 using System.Windows;
 using System.Windows.Automation;
-using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Threading;
-using WinForms = System.Windows.Forms;
-using Sentry;
-using Microsoft.Win32;
-using Focus_Bear.Relax;
-using Focus_Bear.Tour;
-using Focus_Bear.Survey;
-using Focus_Bear.Pomodoro;
-using Focus_Bear.CallDetection;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
-using System.Web.UI;
-using System.Windows.Controls;
-using Focus_Bear.Habits.NaturalBreaks;
-using Focus_Bear.Services;
-using Focus_Bear.FocusMusic;
-using Focus_Bear.AccountabilityBuddy;
-
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
-using System.Collections.ObjectModel;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using static Focus_Bear.Focus.TabMetrics;
-using Focus_Bear.Services.FocusButton;
-using Sentry.Protocol;
-using System.Security.Policy;
+using static Focus_Bear.RelevanceClassifier.NativeRelevanceClassifier;
+using WinForms = System.Windows.Forms;
 
 namespace Focus_Bear
 {
@@ -66,7 +67,11 @@ namespace Focus_Bear
     public partial class App : Application
     {
         AppSettings appSettings = AppSettings.GetInstance;
-        
+
+        // Long-lived native ONNX relevance classifier.
+        // Models are loaded once and reused during the application lifetime.
+        internal NativeRelevanceClassifier NativeRelevanceClassifier { get; private set; }
+        private readonly object _nativeRelevanceInitializationLock = new object();
         private const string MutexGUID = "369F3719-1C05-41A1-B9E1-FC0CF0FCE3AE";
 
         private const string EventMutex = "9E2C7FEB-476B-41D3-9F7F-D02C512595C0";
@@ -310,7 +315,21 @@ namespace Focus_Bear
                             {
                                 if (eventType == 0x800E)
                                 {
-                                    string sName = accWindow.accName[objChild];
+                                    // The name is diagnostic only. A transient accessibility
+                                    // error here must not prevent reading a valid URL.
+                                    string sName = "<unavailable>";
+                                    try
+                                    {
+                                        sName = accWindow.accName[objChild] ?? "<unnamed>";
+                                    }
+                                    catch (ArgumentException)
+                                    {
+                                        // Continue to the URL read below.
+                                    }
+                                    catch (COMException)
+                                    {
+                                        // Continue to the URL read below.
+                                    }
 
                                     string sURL = accWindow.accValue[objChild];
                                     if (sURL != null && sURL.Length > 0) //It's our chrome address bar value
@@ -322,7 +341,7 @@ namespace Focus_Bear
                                         {
                                             Debug.WriteLine("accName = " + sName);
                                             Debug.WriteLine("accValue = " + sURL);
-                                            Debug.WriteLine("accChild = " + accWindow.accChild[objChild].ToString());
+                                            Debug.WriteLine("accChildId = " + Convert.ToString(objChild, CultureInfo.InvariantCulture));
                                             Debug.WriteLine("accState = " + accWindow.accState[objChild].ToString());
 
                                             appSettings.FirefoxLastAccWindow = accWindow;
@@ -917,7 +936,44 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("ProceedAfterDownloadingConfigFile()");
 
-            ///
+            // Publish the classifier only after loading succeeds. Serialize repeated
+            // configuration callbacks so they cannot initialize multiple instances.
+            lock (_nativeRelevanceInitializationLock)
+            {
+                if (NativeRelevanceClassifier == null)
+                {
+                    var initializationStopwatch = Stopwatch.StartNew();
+                    try
+                    {
+                        var classifier = new NativeRelevanceClassifier();
+                        if (!classifier.LoadModels())
+                        {
+                            throw new InvalidOperationException(
+                                "One or more native ONNX relevance models failed to load. " +
+                                "Check the MODEL LOAD FAILED debug output and RelevanceClassifier assets."
+                            );
+                        }
+
+                        NativeRelevanceClassifier = classifier;
+                        initializationStopwatch.Stop();
+                        LogWriter.LogWrite(
+                            "NativeRelevanceModel initialized successfully." +
+                            " | Mode=SHADOW" +
+                            " | ModelLoadMs=" + initializationStopwatch.Elapsed.TotalMilliseconds.ToString(
+                                "0.00", CultureInfo.InvariantCulture)
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        initializationStopwatch.Stop();
+                        LogWriter.LogWrite(
+                            "NativeRelevanceModel initialization failed - " + ex.Message +
+                            " | ModelLoadMs=" + initializationStopwatch.Elapsed.TotalMilliseconds.ToString(
+                                "0.00", CultureInfo.InvariantCulture)
+                        );
+                    }
+                }
+            }
             //Show the splash window here
             if (!appSettings.bStartingAfterDeactivated)
             {

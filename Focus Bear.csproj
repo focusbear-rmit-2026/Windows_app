@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props" Condition="Exists('packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -71,6 +72,27 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>portable</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Auth0.AuthenticationApi, Version=7.17.3.0, Culture=neutral, PublicKeyToken=afe355c419914736, processorArchitecture=MSIL">
       <HintPath>packages\Auth0.AuthenticationApi.7.17.3\lib\net452\Auth0.AuthenticationApi.dll</HintPath>
@@ -92,6 +114,9 @@
     </Reference>
     <Reference Include="Emoji.Wpf">
       <HintPath>packages\Emoji.Wpf.0.3.4\lib\net40\Emoji.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ML.OnnxRuntime, Version=1.30.0.0, Culture=neutral, PublicKeyToken=f27f157f0a5b7bb6, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.ML.OnnxRuntime.Managed.1.30.0\lib\netstandard2.0\Microsoft.ML.OnnxRuntime.dll</HintPath>
     </Reference>
     <Reference Include="Typography.GlyphLayout">
       <HintPath>packages\Emoji.Wpf.0.3.4\lib\net40\Typography.GlyphLayout.dll</HintPath>
@@ -365,7 +390,6 @@
     <Compile Include="AccountabilityBuddy\BuddyDetails.cs" />
     <Compile Include="API\Authentication.cs" />
     <Compile Include="API\FocusBearAPIClient.cs" />
-    <Compile Include="API\RelevanceModelClient.cs" />
     <Compile Include="DistractionClassifierEvaluation\DisagreementEvaluator.cs" />
     <Compile Include="AudhdResults\AudhdResultsWindow.xaml.cs">
       <DependentUpon>AudhdResultsWindow.xaml</DependentUpon>
@@ -450,6 +474,9 @@
     <Compile Include="Focus\TemporaryAccess.xaml.cs">
       <DependentUpon>TemporaryAccess.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RelevanceClassifier\NativeMiniLmTokenizer.cs" />
+    <Compile Include="RelevanceClassifier\NativeRelevanceClassifier.cs" />
+    <Compile Include="RelevanceClassifier\NativeTfidfVectorizer.cs" />
     <Compile Include="TabAudit\TabAuditView.xaml.cs">
       <DependentUpon>TabAuditView.xaml</DependentUpon>
     </Compile>
@@ -1446,6 +1473,9 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="RelevanceClassifier\vocab.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Resource Include="Images\Settings\button_black.png" />
     <Resource Include="Images\Settings\button_white.png" />
     <Resource Include="Images\always_blocked_apps.png" />
@@ -1556,6 +1586,24 @@
     <Resource Include="Images\validIcon.png" />
     <Resource Include="Images\eye-gray.png" />
     <Resource Include="Images\eye-orange.png" />
+    <None Include="RelevanceClassifier\logistic_regression.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="RelevanceClassifier\minilm_l6_v2.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="RelevanceClassifier\tfidf_context.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="RelevanceClassifier\tfidf_goal.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="RelevanceClassifier\xgboost_1.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="RelevanceClassifier\xgboost_2.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Sound\StartingMorningEveningRoutine\StartingMorningEveningRoutine_5.wav" />
     <None Include="Sound\StartingMorningEveningRoutine\StartingMorningEveningRoutine_4.wav" />
     <None Include="Sound\StartingMorningEveningRoutine\StartingMorningEveningRoutine_2.wav" />
@@ -1633,6 +1681,7 @@
       <Name>EspDotNet</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -1641,6 +1690,9 @@
     <Error Condition="!Exists('packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets'))" />
     <Error Condition="!Exists('packages\Sentry.3.29.1\build\Sentry.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Sentry.3.29.1\build\Sentry.targets'))" />
     <Error Condition="!Exists('packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets'))" />
+    <Error Condition="!Exists('packages\Microsoft.ML.OnnxRuntime.Managed.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.ML.OnnxRuntime.Managed.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets'))" />
+    <Error Condition="!Exists('packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props'))" />
+    <Error Condition="!Exists('packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets'))" />
   </Target>
   <Import Project="packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets" Condition="Exists('packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets')" />
   <Import Project="packages\Sentry.3.29.1\build\Sentry.targets" Condition="Exists('packages\Sentry.3.29.1\build\Sentry.targets')" />
@@ -1665,10 +1717,8 @@
       <FocusBearOpenAIApiKey Condition="'$(FocusBearOpenAIApiKey)' == ''">$(Registry:HKEY_CURRENT_USER\Environment@FOCUSBEAR_OPENAI_API_KEY)</FocusBearOpenAIApiKey>
       <GeneratedSecretsPath>$(MSBuildProjectDirectory)\Services\GeneratedSecrets.cs</GeneratedSecretsPath>
     </PropertyGroup>
-    <Error Condition="'$(Configuration)' == 'Release' And '$(FocusBearOpenAIApiKey)' == '' And !Exists('$(GeneratedSecretsPath)')"
-           Text="FOCUSBEAR_OPENAI_API_KEY is not set and no Services\GeneratedSecrets.cs exists. A Release build needs the key baked in for the voice command. Set the environment variable (User scope), or in CI provide the FOCUSBEAR_OPENAI_API_KEY secret, and build again." />
-    <Warning Condition="'$(Configuration)' != 'Release' And '$(FocusBearOpenAIApiKey)' == '' And !Exists('$(GeneratedSecretsPath)')"
-             Text="FOCUSBEAR_OPENAI_API_KEY is not set; the voice command will not work in this build." />
+    <Error Condition="'$(Configuration)' == 'Release' And '$(FocusBearOpenAIApiKey)' == '' And !Exists('$(GeneratedSecretsPath)')" Text="FOCUSBEAR_OPENAI_API_KEY is not set and no Services\GeneratedSecrets.cs exists. A Release build needs the key baked in for the voice command. Set the environment variable (User scope), or in CI provide the FOCUSBEAR_OPENAI_API_KEY secret, and build again." />
+    <Warning Condition="'$(Configuration)' != 'Release' And '$(FocusBearOpenAIApiKey)' == '' And !Exists('$(GeneratedSecretsPath)')" Text="FOCUSBEAR_OPENAI_API_KEY is not set; the voice command will not work in this build." />
     <ItemGroup>
       <GeneratedSecretLines Include="// &lt;auto-generated&gt; Injected at build time from FOCUSBEAR_OPENAI_API_KEY. DO NOT COMMIT (gitignored)." />
       <GeneratedSecretLines Include="namespace Focus_Bear.Services" />
@@ -1682,4 +1732,6 @@
     <!-- Only (re)write when we actually have a key; otherwise leave any existing generated file untouched. -->
     <WriteLinesToFile Condition="'$(FocusBearOpenAIApiKey)' != ''" File="$(GeneratedSecretsPath)" Lines="@(GeneratedSecretLines)" Overwrite="true" Encoding="UTF-8" />
   </Target>
+  <Import Project="packages\Microsoft.ML.OnnxRuntime.Managed.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets" Condition="Exists('packages\Microsoft.ML.OnnxRuntime.Managed.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets')" />
+  <Import Project="packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets" Condition="Exists('packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets')" />
 </Project>
